@@ -2,8 +2,9 @@ Presentation generator
 
 #How to install
 
-pip3 install python-pptx
+pip install python-pptx
+pip install gradio
 
 #How to use
 
-python3 .\test_genslides.py
+python -m genslides
