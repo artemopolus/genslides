@@ -12,7 +12,7 @@ def main() -> None:
 
        for task in task_list:
               print("Ping")
-              cmd = task.createSubTask()
+              cmd = task.getCmd()
               if(cmd != None):
                      cmd_list.append(SimpleCommand(cmd))
 

@@ -15,7 +15,7 @@ class BaseTask():
         else:
             return False
         return True
-    def createSubTask(self):
+    def getCmd(self):
         return None
     def completeTask(self):
         return False 

@@ -20,7 +20,7 @@ class PresentationTask(BaseTask):
         title.text = text
         subtitle.text = subtext
 
-    def createSubTask(self):
+    def getCmd(self):
         return None
 
 
