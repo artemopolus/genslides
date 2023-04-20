@@ -15,6 +15,8 @@ class PresentationTask(BaseTask):
     def __init__(self,  parent, reqhelper : ReqHelper ,description="python-pptx was here!"):
         super().__init__(reqhelper)
         self.prs = Presentation()
+        self.description = description
+        self.parent = parent
         title_slide_layout = self.prs.slide_layouts[0]
         slide = self.prs.slides.add_slide(title_slide_layout)
         title = slide.shapes.title
@@ -32,4 +34,5 @@ class SlideTask(BaseTask):
     def __init__(self, parent, reqhelper : ReqHelper, description) -> None:
         super().__init__(reqhelper)
         self.parent = parent
+        self.description = description
         print("Init slide")
