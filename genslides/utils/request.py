@@ -8,6 +8,6 @@ class Response:
 class Requester:
     def __init__(self) -> None:
         pass
-    def getResponse(self, prompt):
-        return ""
+    def getResponse(self, prompt)-> Response:
+        return None
 

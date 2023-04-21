@@ -2,16 +2,18 @@ from genslides.task.presentation import PresentationTask
 from genslides.task.presentation import SlideTask 
 from genslides.commands.simple import SimpleCommand
 from genslides.utils.reqhelper import RequestHelper
+from genslides.utils.testrequest import TestRequester
 
 def main() -> None:
        print("Start console application")
 
        helper = RequestHelper()
+       requester = TestRequester()
        print(helper.getPrompt('Table', 'blahblabhlah.'))
        task_list = []
        cmd_list = []
        # task_list.append(SlideTask(None))
-       start_task = PresentationTask( None, helper, "Create some useful information")
+       start_task = PresentationTask( None, helper, requester, "Create some useful information")
        task_list.append(start_task)
 
        print(task_list)
