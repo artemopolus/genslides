@@ -16,7 +16,7 @@ from pptx.util import Inches
 
 class PresentationTask(BaseTask):
     def __init__(self,  parent, reqhelper : ReqHelper, requester :Requester, description) -> None:
-        super().__init__(reqhelper, requester)
+        super().__init__(reqhelper, requester, type='Presentation', prompt=description)
         self.prs = Presentation()
         self.description = description
         self.parent = parent

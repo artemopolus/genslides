@@ -2,13 +2,17 @@ import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 
 class BaseTask():
-    def __init__(self, reqhelper: ReqHelper, requester : Requester) -> None:
+    def __init__(self, reqhelper: ReqHelper, requester : Requester, type = 'None', prompt = '') -> None:
         self.left = None
         self.right = None
         self.is_solved = False
         self.reqhelper = reqhelper
         self.requester = requester
         self.responselist = []
+        self.type = type
+        self.init = self.reqhelper.getInit(type)
+        self.endi = self.reqhelper.getEndi(type)
+        self.prompt = prompt
 
     def isSolved(self):
         return self.is_solved

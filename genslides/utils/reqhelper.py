@@ -15,3 +15,12 @@ class RequestHelper:
         if type in self.dict:
             return self.dict[type]['Init'] + info + self.dict[type]['Endi']
         return None
+    def getInit(self, type):
+        if type in self.dict:
+            return self.dict[type]['Init']
+        return None
+    def getEndi(self, type):
+        if type in self.dict:
+            return self.dict[type]['Endi']
+        return None
+

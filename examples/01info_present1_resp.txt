@@ -1,0 +1,47 @@
+Here's a JSON list of search actions to improve your request, formatted according to your specifications:
+`[
+  {
+    "name": "Clarify idea",
+    "ratings": 8,
+    "search": "How to clarify business idea for investors",
+    "web": false
+  },
+  {
+    "name": "Research target audience",
+    "ratings": 9,
+    "search": "How to research target audience for a business presentation",
+    "web": true
+  },
+  {
+    "name": "Develop key messages",
+    "ratings": 7,
+    "search": "How to develop key messages for a business presentation",
+    "web": false
+  },
+  {
+    "name": "Design slides",
+    "ratings": 10,
+    "search": "Best practices for designing effective presentation slides",
+    "web": true
+  },
+  {
+    "name": "Choose visuals",
+    "ratings": 9,
+    "search": "How to choose the right visuals for a business presentation",
+    "web": true
+  },
+  {
+    "name": "Practice delivery",
+    "ratings": 8,
+    "search": "Tips for practicing the delivery of a business presentation",
+    "web": false
+  },
+  {
+    "name": "Automate presentation creation",
+    "ratings": 10,
+    "search": "Tools and technologies for automating business presentation creation",
+    "web": true
+  }
+]
+`
+Note that the ratings are subjective and based on my interpretation of your request. You may want to adjust them based on your own priorities. Additionally, some of the search prompts may need to be modified based on your specific requirements and context.
