@@ -1,0 +1,8 @@
+[
+  {"name": "Google Search", "short_name": "google", "ratings": 10, "search": "Search for market research and relevant data for the business presentation", "web": true},
+  {"name": "YouTube Search", "short_name": "youtube", "ratings": 8, "search": "Search for video tutorials on presentation creation and design", "web": true},
+  {"name": "Stock Image Search", "short_name": "stock_image", "ratings": 9, "search": "Search for high quality images to use in the presentation", "web": true},
+  {"name": "Storytelling Framework Search", "short_name": "storytelling", "ratings": 7, "search": "Search for effective storytelling frameworks for business presentations", "web": true},
+  {"name": "Template Search", "short_name": "template", "ratings": 8, "search": "Search for presentation templates that match the business purpose", "web": true},
+  {"name": "Font and Color Scheme Search", "short_name": "font_color", "ratings": 6, "search": "Search for font and color schemes that match the business brand and purpose", "web": true}
+]

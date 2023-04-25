@@ -12,6 +12,8 @@ pip install webdriver-manager
 pip install nltk
 python -m nltk.downloader popular
 
+pip install --upgrade openai
+
 #How to use
 
 python -m genslides
