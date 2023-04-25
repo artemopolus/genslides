@@ -8,13 +8,13 @@ class TestRequester(Requester):
         super().__init__()
         self.tokenizer = nltk.data.load('nltk:tokenizers/punkt/english.pickle')
 
-    def getResponse(self, prompt):
+    def getResponse(self, prompt : str):
         output = []
         text = self.tokenizer.tokenize(prompt)
         if "Give me presentation." in text:
             output.append(Response("Slide", "Slide with text",[0]))
             return output
-        if "Give me title." in text:
+        if prompt.startswith( "Give me json list of search actions" ) in text:
             return output
         if "Give me table." in text:
             output.append(Response("Cell", "Some info", [0,0]))

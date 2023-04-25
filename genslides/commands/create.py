@@ -3,7 +3,7 @@ import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 
 class CreateCommand(SimpleCommand):
-   def __init__(self, parent, reqhelper : ReqHelper, requester : Requester, description, method) -> None:
+   def __init__(self, parent, reqhelper : ReqHelper, requester : Requester, description: str , method) -> None:
       super().__init__(method)
       self.parent = parent
       self.reqhelper = reqhelper

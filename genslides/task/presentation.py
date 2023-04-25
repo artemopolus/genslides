@@ -16,10 +16,9 @@ from pptx.util import Inches
 
 class PresentationTask(BaseTask):
     def __init__(self,  parent, reqhelper : ReqHelper, requester :Requester, description) -> None:
-        super().__init__(reqhelper, requester, type='Presentation', prompt=description)
+        super().__init__(reqhelper, requester, type='Presentation', prompt=description, parent=parent)
         self.prs = Presentation()
         self.description = description
-        self.parent = parent
         title_slide_layout = self.prs.slide_layouts[0]
         slide = self.prs.slides.add_slide(title_slide_layout)
         title = slide.shapes.title
@@ -49,12 +48,6 @@ class PresentationTask(BaseTask):
             for pack in response:
                 if pack.type == 'Slide':
                     self.responselist.append(pack)
-
-    def getCmd(self):
-        print("create slide")
-        print(len(self.responselist))
-        prompt = 'create slide'
-        return CreateCommand( self.prs, self.reqhelper, self.requester, prompt , SlideTask)
 
 
 class SlideTask(BaseTask):
