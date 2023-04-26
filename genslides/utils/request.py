@@ -1,4 +1,9 @@
-class Response:
+from json import JSONEncoder
+
+class Response(JSONEncoder):
+    def default(self, o):
+            return o.__dict__  
+    
     def __init__(self, type, info, nums) -> None:
         self.type = type
         self.info = info

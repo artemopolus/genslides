@@ -8,6 +8,9 @@ from genslides.utils.request import Requester
 from genslides.utils.searcher import WebSearcher
 from genslides.utils.searcher import GoogleApiSearcher
 
+import os
+import json
+
 import gradio as gr
 class Manager:
        def __init__(self, helper : RequestHelper, requester : Requester, searcher : WebSearcher) -> None:
@@ -20,6 +23,40 @@ class Manager:
               self.requester = requester
               self.searcher = searcher
               self.index = 0
+              if not os.path.exists("saved"):
+                     os.makedirs("saved")
+              self.path_searches = "saved/searches.json"
+              self.path_links = "saved/links.json"
+              self.path_pagecontent = "saved/page_content.json"
+              path = self.path_searches
+              if not os.path.exists(path):
+                     with open(path, 'w') as f:
+                            print('Create file: ', path)
+              path = self.path_links
+              if not os.path.exists(path):
+                     with open(path, 'w') as f:
+                            print('Create file: ', path)
+              path = self.path_pagecontent
+              if not os.path.exists(path):
+                     with open(path, 'w') as f:
+                            print('Create file: ', path)
+       def saveRespJson(self,path, request, response):
+              resp_json_out = {}
+              resp_json_out['request'] = request
+              resp_json_out['responses'] = response
+              with open(path, 'w') as f:
+                     json.dump(resp_json_out,f,indent=1)
+       def getResponse(self, path, request):
+              if os.stat(path).st_size != 0:
+                     try:
+                            with open(path, 'r') as f:
+                                   rq = json.load(f)
+                            if 'request' in rq and rq['request'] == request:
+                                   return rq['responses']
+                     except json.JSONDecodeError:
+                            pass
+              return []
+
        def add_new_task( self, prompt):
               self.index += 1
               if self.curr_task != None:
@@ -37,15 +74,29 @@ class Manager:
               elif len(self.cmd_list) == 0:
                      start_task = InformationTask( None, self.helper, self.requester, prompt)
                      request = start_task.init + start_task.prompt + start_task.endi
-                     responses = self.requester.getResponse(request)
+                     responses = self.getResponse(self.path_searches, request)
+                     if len(responses) == 0:
+                            class_responses = self.requester.getResponse(request)
+                            for elem in class_responses:
+                                   responses.append(elem.info)
+                            self.saveRespJson(self.path_searches, request,responses)
                      # here search
                      log = 'id[' + str(self.index) + '] Evaluation of prompt\n'
-                     links = []
+                     log += "Search list:\n"
                      for resp in responses:
-                            search_list = self.searcher.getSearchs(resp.info)
-                            for sr in search_list:
-                                   links.append(sr)
-                                   log += sr + '\n'
+                            log += resp + '\n'
+                     log += "Getted links:\n"
+                     links = self.getResponse(self.path_links, responses)
+                     if len(links) == 0:
+                            for resp in responses:
+                                   search_list = self.searcher.getSearchs(resp)
+                                   for sr in search_list:
+                                          links.append(sr)
+                                          # log += sr + '\n'
+                            self.saveRespJson(self.path_links, responses, links)
+                     for link in links:
+                            log += link + '\n'
+
                      #evaluate search results => links
                      self.curr_task = start_task
                      return start_task.init + start_task.prompt + start_task.endi, log
