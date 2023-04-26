@@ -14,6 +14,8 @@ python -m nltk.downloader popular
 
 pip install --upgrade openai
 
+pip install tiktoken
+
 #How to use
 
 python -m genslides

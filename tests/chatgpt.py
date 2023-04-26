@@ -1,22 +1,89 @@
-import os
 import openai
 from openai.error import APIError, RateLimitError, APIConnectionError
 import json
+import tiktoken
+
+
+
+
+
+
+
+def add_counter_to_prompts(path, token_num = 1, price = 0.002):
+    with open(path,'r') as f:
+        val = json.load(f)
+        iter = float(val['counter'])
+        val['counter'] = iter + token_num*price/1000
+    with open(path,'w') as f:
+        json.dump(val,f,indent=1)
+
+
+def num_tokens_from_messages(messages : list, model : str="gpt-3.5-turbo-0301"):
+    """Returns the number of tokens used by a list of messages."""
+    try:
+        encoding = tiktoken.encoding_for_model(model)
+    except KeyError:
+        print("Warning: model not found. Using cl100k_base encoding.")
+        encoding = tiktoken.get_encoding("cl100k_base")
+    if model == "gpt-3.5-turbo":
+        print("Warning: gpt-3.5-turbo may change over time. Returning num tokens assuming gpt-3.5-turbo-0301.")
+        return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301")
+    elif model == "gpt-4":
+        print("Warning: gpt-4 may change over time. Returning num tokens assuming gpt-4-0314.")
+        return num_tokens_from_messages(messages, model="gpt-4-0314")
+    elif model == "gpt-3.5-turbo-0301":
+        tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
+        tokens_per_name = -1  # if there's a name, the role is omitted
+    elif model == "gpt-4-0314":
+        tokens_per_message = 3
+        tokens_per_name = 1
+    else:
+        raise NotImplementedError(f"""num_tokens_from_messages() is not implemented for model {model}. See https://github.com/openai/openai-python/blob/main/chatml.md for information on how messages are converted to tokens.""")
+    num_tokens = 0
+    for message in messages:
+        num_tokens += tokens_per_message
+        for key, value in message.items():
+            num_tokens += len(encoding.encode(value))
+            if key == "name":
+                num_tokens += tokens_per_name
+    num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
+    return num_tokens
+
+def createChatCompletion(messages, model="gpt-3.5-turbo", path = "chatgpt_out.txt", config_path = "../config/openai.json"):
+    try:
+        completion = openai.ChatCompletion.create(
+        model=model,
+        messages=messages        
+        )
+        add_counter_to_prompts(path=config_path, token_num=num_tokens_from_messages(messages=messages, model=model))
+        msg = completion.choices[0].message
+        text = msg["content"]
+        with open(path, 'w') as out:
+          out.write(text)
+        return True
+    except RateLimitError as e:
+        print('fuck rate')
+        print(e)
+        print('status==>', e.http_status)
+        return False
+    except APIError as e:
+        print('fuck api')
+        print(e)
+        print('status==>', e.http_status)
+        return False
+    except APIConnectionError as e:
+        print('fuck api')
+        print(e)
+        print('status==>', e.http_status)
+        return False
+
+
 
 path_to_config = '../config/openai.json'
-
-
-def add_counter_to_prompts():
-    with open(path_to_config,'r') as f:
-        val = json.load(f)
-        iter = val['counter']
-        val['counter'] = iter + 1
-    with open(path_to_config,'w') as f:
-        json.dump(val,f)
-
 with open(path_to_config, 'r') as config:
     values = json.load(config)
     key = values['api_key']
+
 
 openai.api_key = key
 print(key)
@@ -37,56 +104,16 @@ trg_req_name = '01info_present1'
 with open('../examples/' + trg_req_name + '_req.txt','r') as f:
     prompt = f.read()
 path_resp = '../examples/' + trg_req_name + '_chat.txt'
+
 print(prompt)
 
-response = False
+messages=[
+            {"role": "user", "content": prompt}
+]
+chatgpt_model="gpt-3.5-turbo"
 
-# try:
-#     completion = openai.ChatCompletion.create(
-#         model="gpt-3.5-turbo",
-#         messages=[
-#             {"role": "user", "content": prompt}
-#         ]
-#     )
-#     print(completion.choices[0])
-#     msg = (completion.choices[0].message)
-#     print(msg)
-#     text = msg["content"]
-#     print(text)
-#     with open('chatgpt_out.txt', 'w') as out:
-#         out.write(text)
-#     response = True
-add_counter_to_prompts()
-# except RateLimitError as e:
-#     print('fuck rate')
-#     print(e)
-#     print('status==>', e.http_status)
-# except APIError as e:
-#     print('fuck api')
-#     print(e)
-#     print('status==>', e.http_status)
-# except APIConnectionError as e:
-#     print('fuck api')
-#     print(e)
-#     print('status==>', e.http_status)
+# add_counter_to_prompts(path=path_to_config, token_num=num_tokens_from_messages(messages=messages, model=chatgpt_model))
 
-print('Done=', response)
 
-# print the first model's id
-# print(models.data[0].id)
+print('Done=', createChatCompletion(messages, chatgpt_model, path_resp, path_to_config))
 
-# # create a completion
-# completion = openai.Completion.create(model="ada", prompt="Hello world")
-
-# # print the completion
-# print(completion.choices[0].text)
-# response = openai.Completion.create(
-#   model="text-davinci-003",
-#   prompt="Convert this text to a programmatic command:\n\nExample: Ask Constance if we need some bread\nOutput: send-msg `find constance` Do we need some bread?\n\nReach out to the ski store and figure out if I can get my skis fixed before I leave on Thursday",
-#   temperature=0,
-#   max_tokens=100,
-#   top_p=1.0,
-#   frequency_penalty=0.2,
-#   presence_penalty=0.0,
-#   stop=["\n"]
-# )
