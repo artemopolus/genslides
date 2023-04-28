@@ -99,7 +99,14 @@ for model in models.data:
 
 # prompt = "I understand only clear and strict instructions. Give me json list of search actions to improve my request and formatted as: name is short name, ratings is  necessity of action for improving from 1 to 10, search is prompt for searching and browsing action for improving creation, web is true if you can use search result directly in creation. I want to create: Bisness presentation for investors. My idea is presentation creation automatization. You just type your idea then y software propose your steps to create presentation and try to automatize it."
 prompt = ''
-trg_req_name = '01info_present1'
+# trg_req_name = '01info_present2'
+# trg_req_name = '01info_present1'
+# trg_req_name = '02slides_present1'
+# trg_req_name = '02slides_present2'
+# trg_req_name = '03parts_slide1'
+# trg_req_name = '04text_parts_slides1'
+# trg_req_name = '05table_parts_slides1'
+trg_req_name = '06plot_parts_slides1'
 
 with open('../examples/' + trg_req_name + '_req.txt','r') as f:
     prompt = f.read()

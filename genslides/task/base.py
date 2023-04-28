@@ -2,6 +2,19 @@ import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 
 from genslides.commands.create import CreateCommand
+from genslides.helpers.singleton import Singleton
+
+class TaskManager(metaclass=Singleton):
+    def __init__(self) -> None:
+        self.task_id = 0
+        self.task_list = []
+
+    def getId(self, task) -> int:
+        id = self.task_id
+        self.task_id += 1
+        self.task_list.append(task)
+        return id
+
 
 class TaskDescription():
     def __init__(self, prompt, method, parent) -> None:
@@ -10,7 +23,7 @@ class TaskDescription():
         self.parent = parent
 
 class BaseTask():
-    def __init__(self, reqhelper: ReqHelper, requester : Requester, type = 'None', prompt = '', parent = None, method = None) -> None:
+    def __init__(self, reqhelper: ReqHelper, requester : Requester, type = 'None', prompt = None, parent = None, method = None) -> None:
         self.left = None
         self.right = None
         self.is_solved = False
@@ -23,6 +36,8 @@ class BaseTask():
         self.prompt = prompt
         self.parent = parent
         self.method = method
+        task_manager = TaskManager()
+        self.id = task_manager.getId(self)
 
     def addChildTask(self, task : TaskDescription):
         self.crtasklist.append(task)

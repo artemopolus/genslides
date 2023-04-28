@@ -1,0 +1,39 @@
+{
+    "Components": [
+        {
+            "Type": "text",
+            "Description": "The Solution",
+            "Position": {
+                "X": 50,
+                "Y": 50
+            }
+        },
+        {
+            "Type": "text",
+            "Description": "Outline the key features and benefits of your automation software. Explain how it works and how it can help users create presentations more efficiently.",
+            "Position": {
+                "X": 50,
+                "Y": 150
+            }
+        },
+        {
+            "Type": "plot",
+            "Description": "Flowchart showing how the software proposes steps to the user for creating a presentation.",
+            "Position": {
+                "X": 50,
+                "Y": 400
+            }
+        },
+        {
+            "Type": "table",
+            "Description": "Table showing time saved and increased productivity using the automation software.",
+            "Position": {
+                "X": 300,
+                "Y": 600
+            }
+        }
+    ],
+    "Slide_name": "The Solution",
+    "Slide_description": "Outline the key features and benefits of your automation software. Explain how it works and how it can help users create presentations more efficiently.",
+    "Theme": "Business presentation for investors"
+}

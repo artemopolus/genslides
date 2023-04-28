@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Google Search",
+    "search": "traditional presentations vs automation software",
+    "rating": 8,
+    "reason": "This search will provide a good overview of the differences between traditional presentations and automation software, helping to highlight the benefits of the latter."
+  },
+  {
+    "name": "Product Feature List",
+    "search": "key features of automation presentation software",
+    "rating": 9,
+    "reason": "This search will provide a list of key features for automation presentation software, which will be useful in outlining the benefits of the software in the text."
+  },
+  {
+    "name": "Testimonials Search",
+    "search": "testimonials for presentation automation software",
+    "rating": 7,
+    "reason": "This search will provide quotes and feedback from other users of automation presentation software, highlighting real life benefits and use cases."
+  },
+  {
+    "name": "Presentation Theme Search",
+    "search": "best presentation themes for business investors",
+    "rating": 6,
+    "reason": "This search will provide inspiration for the design and layout of the automation presentation, ensuring it looks professional, modern and appropriate for the target audience."
+  },
+  {
+    "name": "Keyword Research",
+    "search": "keywords for automation presentation software",
+    "rating": 10,
+    "reason": "This search will help to identify popular and relevant keywords that can be used throughout the text and on any digital assets created for the project."
+  }
+]
