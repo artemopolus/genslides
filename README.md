@@ -16,6 +16,8 @@ pip install --upgrade openai
 
 pip install tiktoken
 
+pip install transformers
+
 #How to use
 
 python -m genslides

@@ -1,0 +1,6 @@
+{
+ "request": "Give me list of data charts for slide part\"Market demand chart\" formatted in json as: data name, data value. Title of slide is Product/Service Description. Slide description is:Describe your product or service in detail, including its benefits, features and potential demand.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  "[\n  {\n    \"dataName\": \"Market Size\",\n    \"dataValue\": \"100 million\"\n  },\n  {\n    \"dataName\": \"Current Demand\",\n    \"dataValue\": \"50 million\"\n  },\n  {\n    \"dataName\": \"Projected Demand\",\n    \"dataValue\": \"80 million\"\n  },\n  {\n    \"dataName\": \"Market Share\",\n    \"dataValue\": \"20%\"\n  },\n  {\n    \"dataName\": \"Target Market\",\n    \"dataValue\": \"Small and Medium Enterprises (SMEs)\"\n  },\n  {\n    \"dataName\": \"Competitors\",\n    \"dataValue\": \"5 major players\"\n  }\n]"
+ ]
+}

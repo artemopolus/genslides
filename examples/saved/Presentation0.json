@@ -1,0 +1,14 @@
+{
+ "request": "Give me json list of slides formatted as: title, description. I want to create: Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  "Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.",
+  "Title of slide is Market Analysis. Slide description is:Provide a detailed analysis of the market and your target audience.",
+  "Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.",
+  "Title of slide is Product/Service Description. Slide description is:Describe your product or service in detail, including its benefits, features and potential demand.",
+  "Title of slide is Marketing and Sales Strategies. Slide description is:Outline your marketing and sales strategies, including advertising, promotions and pricing strategies.",
+  "Title of slide is Management and Key Personnel. Slide description is:Introduce your management team and key personnel, highlighting their experience, skills and qualifications.",
+  "Title of slide is Financial Projections. Slide description is:Provide detailed financial projections, including revenue, expenses, profits and cash flow projections for the next 3-5 years.",
+  "Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.",
+  "Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved."
+ ]
+}

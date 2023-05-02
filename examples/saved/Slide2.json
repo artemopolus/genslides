@@ -1,0 +1,71 @@
+{
+ "request": "I understand only clear and strict instructions. Give me list of components for inserting in presentation slide formatted in JSON as: type is text or table or chart or plot or image; detailed description; position is array of X and Y from top left corner for prevent overlay(max X = 500, max Y = 1000).Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  {
+   "id": 0,
+   "solved": false,
+   "type": "text",
+   "description": "Title of the slide",
+   "position": [
+    50,
+    50
+   ],
+   "prompt": "detailed and enriched text for slide part\"Title of the slide\". Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 1,
+   "solved": false,
+   "type": "text",
+   "description": "Subtitle of the slide",
+   "position": [
+    50,
+    100
+   ],
+   "prompt": "detailed and enriched text for slide part\"Subtitle of the slide\". Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 2,
+   "solved": false,
+   "type": "table",
+   "description": "Table showing the amount of investment and its use",
+   "position": [
+    50,
+    200
+   ],
+   "prompt": "list of table cells for slide part\"Table showing the amount of investment and its use\" formatted in json as: cell row, cell coll, cell text. Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 3,
+   "solved": false,
+   "type": "chart",
+   "description": "Pie chart showing the distribution of funds",
+   "position": [
+    250,
+    200
+   ],
+   "prompt": "list of data charts for slide part\"Pie chart showing the distribution of funds\" formatted in json as: data name, data value. Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 4,
+   "solved": false,
+   "type": "text",
+   "description": "Text box explaining the potential return on investment",
+   "position": [
+    50,
+    500
+   ],
+   "prompt": "detailed and enriched text for slide part\"Text box explaining the potential return on investment\". Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 5,
+   "solved": false,
+   "type": "image",
+   "description": "Image of potential future growth",
+   "position": [
+    250,
+    600
+   ],
+   "prompt": "image description for slide part\"Image of potential future growth\". Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  }
+ ]
+}

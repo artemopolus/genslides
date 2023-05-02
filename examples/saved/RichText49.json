@@ -1,0 +1,6 @@
+{
+ "request": "Give me list of data charts for slide part\"Growth potential of smart home automation market\" formatted in json as: data name, data value. Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  "{\n \"data1\": \"Smart Home Automation Market Size (US$ Mn), 2018-2026\",\n \"data2\": \"CAGR of Smart Home Automation Market (%), 2018-2026\",\n \"data3\": \"Smart Home Automation Market Value Chain Analysis\",\n \"data4\": \"Smart Home Automation Market Volume Forecast, 2018-2026\",\n \"data5\": \"Smart Home Automation Market Share and Forecast, by Product Type, 2018-2026\",\n \"data6\": \"Smart Home Automation Market, by Region ($ Mn), 2018-2026\",\n \"data7\": \"Smart Home Automation Market Potential for Key Countries\"\n}"
+ ]
+}

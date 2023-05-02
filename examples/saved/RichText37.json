@@ -1,0 +1,6 @@
+{
+ "request": "Give me image description for slide part\"Target Audience\". Title of slide is Market Analysis. Slide description is:Provide a detailed analysis of the market and your target audience.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  "The slide titled \"Market Analysis\" features a bar graph depicting the size of the market, alongside the various segments that constitute the target audience. The graph showcases the potential for growth within each segment, allowing investors to gauge the overall market potential for the proposed idea. In addition to the graph, key demographic information is highlighted, including age, gender, and income bracket. The slide aims to provide a clear understanding of the target audience to investors, allowing them to see the potential for a profitable return on investment."
+ ]
+}

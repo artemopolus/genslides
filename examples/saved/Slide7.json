@@ -1,0 +1,4 @@
+{
+ "request": "I understand only clear and strict instructions. Give me list of components for inserting in presentation slide formatted in JSON as: type is text or table or chart or plot or image; detailed description; position is array of X and Y from top left corner for prevent overlay(max X = 500, max Y = 1000).Title of slide is Management and Key Personnel. Slide description is:Introduce your management team and key personnel, highlighting their experience, skills and qualifications.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": []
+}

@@ -1,0 +1,6 @@
+{
+ "request": "Give me list of data charts for slide part\"Pie chart showing the distribution of funds\" formatted in json as: data name, data value. Title of slide is Investment Required. Slide description is:Detail the amount of investment required, the use of funds and potential return on investment.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  "[\n  {\n    \"data name\": \"Marketing\",\n    \"data value\": 30\n  },\n  {\n    \"data name\": \"Product Development\",\n    \"data value\": 45\n  },\n  {\n    \"data name\": \"Operations\",\n    \"data value\": 20\n  },\n  {\n    \"data name\": \"Miscellaneous\",\n    \"data value\": 5\n  }\n]"
+ ]
+}

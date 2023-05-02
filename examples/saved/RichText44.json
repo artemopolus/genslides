@@ -1,0 +1,6 @@
+{
+ "request": "Give me list of data charts for slide part\"Market Share\" formatted in json as: data name, data value. Title of slide is Market Analysis. Slide description is:Provide a detailed analysis of the market and your target audience.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  "{\n  \"title\": \"Market Analysis\",\n  \"slideDescription\": \"Provide a detailed analysis of the market and your target audience.\",\n  \"presentationDescription\": \"Business presentation for investors. Idea is automation of presentations.\",\n  \"dataCharts\": [\n    {\n      \"dataName\": \"Market Share of Top Competitors\",\n      \"dataValue\": \"35%\"\n    },\n    {\n      \"dataName\": \"Market Share of Our Company\",\n      \"dataValue\": \"20%\"\n    },\n    {\n      \"dataName\": \"Market Growth Rate\",\n      \"dataValue\": \"10%\"\n    },\n    {\n      \"dataName\": \"Target Audience Age Range\",\n      \"dataValue\": \"18-35\"\n    },\n    {\n      \"dataName\": \"Target Audience Income Range\",\n      \"dataValue\": \"$30,000-$60,000\"\n    }\n  ]\n}"
+ ]
+}

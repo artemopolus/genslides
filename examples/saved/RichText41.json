@@ -1,0 +1,6 @@
+{
+ "request": "Give me list of data plots for slide part\"Revenue projection for next five years\" formatted in json as: data name, array of data series. Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  "{\n  \"Introduction\": {\n    \"data plots\": [\n      {\n        \"data name\": \"Year\",\n        \"data series\": [\"2022\", \"2023\", \"2024\", \"2025\", \"2026\"]\n      },\n      {\n        \"data name\": \"Projected Revenue\",\n        \"data series\": [50000, 75000, 100000, 125000, 150000]\n      }\n    ],\n    \"slide description\": \"Introduce your business idea and its potential investment opportunities.\"\n  },\n  \"Presentation Description\": \"Business presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.\"\n}"
+ ]
+}

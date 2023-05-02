@@ -1,0 +1,93 @@
+{
+ "request": "I understand only clear and strict instructions. Give me list of components for inserting in presentation slide formatted in JSON as: type is text or table or chart or plot or image; detailed description; position is array of X and Y from top left corner for prevent overlay(max X = 500, max Y = 1000).Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  {
+   "id": 0,
+   "solved": false,
+   "type": "text",
+   "description": "Company logo",
+   "position": [
+    20,
+    20
+   ],
+   "prompt": "detailed and enriched text for slide part\"Company logo\". Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 1,
+   "solved": false,
+   "type": "text",
+   "description": "Welcome to our business pitch",
+   "position": [
+    100,
+    100
+   ],
+   "prompt": "detailed and enriched text for slide part\"Welcome to our business pitch\". Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 2,
+   "solved": false,
+   "type": "text",
+   "description": "Our business idea is to create a smart home automation device",
+   "position": [
+    50,
+    200
+   ],
+   "prompt": "detailed and enriched text for slide part\"Our business idea is to create a smart home automation device\". Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 3,
+   "solved": false,
+   "type": "image",
+   "description": "Image of smart home device",
+   "position": [
+    200,
+    250
+   ],
+   "prompt": "image description for slide part\"Image of smart home device\". Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 4,
+   "solved": false,
+   "type": "table",
+   "description": "Market analysis of smart home automation devices",
+   "position": [
+    50,
+    500
+   ],
+   "prompt": "list of table cells for slide part\"Market analysis of smart home automation devices\" formatted in json as: cell row, cell coll, cell text. Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 5,
+   "solved": false,
+   "type": "chart",
+   "description": "Growth potential of smart home automation market",
+   "position": [
+    250,
+    550
+   ],
+   "prompt": "list of data charts for slide part\"Growth potential of smart home automation market\" formatted in json as: data name, data value. Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 6,
+   "solved": false,
+   "type": "text",
+   "description": "Potential investment opportunities",
+   "position": [
+    100,
+    800
+   ],
+   "prompt": "detailed and enriched text for slide part\"Potential investment opportunities\". Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 7,
+   "solved": false,
+   "type": "plot",
+   "description": "Revenue projection for next five years",
+   "position": [
+    250,
+    850
+   ],
+   "prompt": "list of data plots for slide part\"Revenue projection for next five years\" formatted in json as: data name, array of data series. Title of slide is Introduction. Slide description is:Introduce your business idea and its potential investment opportunities.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+{
+ "request": "I understand only clear and strict instructions. Give me list of components for inserting in presentation slide formatted in JSON as: type is text or table or chart or plot or image; detailed description; position is array of X and Y from top left corner for prevent overlay(max X = 500, max Y = 1000).Title of slide is Marketing and Sales Strategies. Slide description is:Outline your marketing and sales strategies, including advertising, promotions and pricing strategies.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  {
+   "id": 0,
+   "solved": false,
+   "type": "text",
+   "description": "Introduction to Marketing and Sales Strategies",
+   "position": [
+    50,
+    50
+   ],
+   "prompt": "detailed and enriched text for slide part\"Introduction to Marketing and Sales Strategies\". Title of slide is Marketing and Sales Strategies. Slide description is:Outline your marketing and sales strategies, including advertising, promotions and pricing strategies.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 1,
+   "solved": false,
+   "type": "table",
+   "description": "List of Targeted Customer Segments",
+   "position": [
+    50,
+    200
+   ],
+   "prompt": "list of table cells for slide part\"List of Targeted Customer Segments\" formatted in json as: cell row, cell coll, cell text. Title of slide is Marketing and Sales Strategies. Slide description is:Outline your marketing and sales strategies, including advertising, promotions and pricing strategies.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 2,
+   "solved": false,
+   "type": "chart",
+   "description": "Marketing and Sales Projection for 5 Years",
+   "position": [
+    50,
+    450
+   ],
+   "prompt": "list of data charts for slide part\"Marketing and Sales Projection for 5 Years\" formatted in json as: data name, data value. Title of slide is Marketing and Sales Strategies. Slide description is:Outline your marketing and sales strategies, including advertising, promotions and pricing strategies.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 3,
+   "solved": false,
+   "type": "image",
+   "description": "Advertisement Design for Product Launch",
+   "position": [
+    250,
+    700
+   ],
+   "prompt": "image description for slide part\"Advertisement Design for Product Launch\". Title of slide is Marketing and Sales Strategies. Slide description is:Outline your marketing and sales strategies, including advertising, promotions and pricing strategies.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  }
+ ]
+}

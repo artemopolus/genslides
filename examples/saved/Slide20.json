@@ -1,0 +1,71 @@
+{
+ "request": "I understand only clear and strict instructions. Give me list of components for inserting in presentation slide formatted in JSON as: type is text or table or chart or plot or image; detailed description; position is array of X and Y from top left corner for prevent overlay(max X = 500, max Y = 1000).Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  {
+   "id": 0,
+   "solved": false,
+   "type": "text",
+   "description": "Introduction to competitor analysis",
+   "position": [
+    10,
+    10
+   ],
+   "prompt": "detailed and enriched text for slide part\"Introduction to competitor analysis\". Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 1,
+   "solved": false,
+   "type": "table",
+   "description": "Table comparing product features",
+   "position": [
+    10,
+    50
+   ],
+   "prompt": "list of table cells for slide part\"Table comparing product features\" formatted in json as: cell row, cell coll, cell text. Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 2,
+   "solved": false,
+   "type": "chart",
+   "description": "Bar chart comparing market share",
+   "position": [
+    270,
+    50
+   ],
+   "prompt": "list of data charts for slide part\"Bar chart comparing market share\" formatted in json as: data name, data value. Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 3,
+   "solved": false,
+   "type": "plot",
+   "description": "Line plot comparing revenue growth",
+   "position": [
+    10,
+    350
+   ],
+   "prompt": "list of data plots for slide part\"Line plot comparing revenue growth\" formatted in json as: data name, array of data series. Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 4,
+   "solved": false,
+   "type": "image",
+   "description": "Competitor logos",
+   "position": [
+    270,
+    350
+   ],
+   "prompt": "image description for slide part\"Competitor logos\". Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 5,
+   "solved": false,
+   "type": "text",
+   "description": "Conclusion and summary of unique advantages",
+   "position": [
+    10,
+    700
+   ],
+   "prompt": "detailed and enriched text for slide part\"Conclusion and summary of unique advantages\". Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  }
+ ]
+}

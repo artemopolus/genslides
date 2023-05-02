@@ -1,0 +1,6 @@
+{
+ "request": "Give me list of data charts for slide part\"Bar chart comparing market share\" formatted in json as: data name, data value. Title of slide is Competitor Analysis. Slide description is:Explain how your business idea is unique and why it will stand out among competitors.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  "[\n  {\n    \"data name\": \"Competitor 1\",\n    \"data value\": 25\n  },\n  {\n    \"data name\": \"Competitor 2\",\n    \"data value\": 20\n  },\n  {\n    \"data name\": \"Competitor 3\",\n    \"data value\": 15\n  },\n  {\n    \"data name\": \"Our Business Idea\",\n    \"data value\": 40\n  }\n]"
+ ]
+}

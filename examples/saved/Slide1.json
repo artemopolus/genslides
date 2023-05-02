@@ -1,0 +1,82 @@
+{
+ "request": "I understand only clear and strict instructions. Give me list of components for inserting in presentation slide formatted in JSON as: type is text or table or chart or plot or image; detailed description; position is array of X and Y from top left corner for prevent overlay(max X = 500, max Y = 1000).Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it.",
+ "responses": [
+  {
+   "id": 0,
+   "solved": false,
+   "type": "text",
+   "description": "Business Idea: The development of a mobile app that offers personalized meal plans and exercise routines based on a user's health goals and preferences.",
+   "position": [
+    50,
+    50
+   ],
+   "prompt": "detailed and enriched text for slide part\"Business Idea: The development of a mobile app that offers personalized meal plans and exercise routines based on a user's health goals and preferences.\". Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 1,
+   "solved": false,
+   "type": "text",
+   "description": "Investment Opportunities: We are seeking $500,000 in funding to expand our team, scale our technology, and launch a targeted marketing campaign.",
+   "position": [
+    50,
+    250
+   ],
+   "prompt": "detailed and enriched text for slide part\"Investment Opportunities: We are seeking $500,000 in funding to expand our team, scale our technology, and launch a targeted marketing campaign.\". Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 2,
+   "solved": false,
+   "type": "text",
+   "description": "How Investors Can Get Involved: In addition to financial investment, we are also seeking strategic partnerships with health and wellness companies.",
+   "position": [
+    50,
+    450
+   ],
+   "prompt": "detailed and enriched text for slide part\"How Investors Can Get Involved: In addition to financial investment, we are also seeking strategic partnerships with health and wellness companies.\". Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 3,
+   "solved": false,
+   "type": "chart",
+   "description": "Projected Revenue",
+   "position": [
+    300,
+    50
+   ],
+   "prompt": "list of data charts for slide part\"Projected Revenue\" formatted in json as: data name, data value. Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 4,
+   "solved": false,
+   "type": "plot",
+   "description": "User Growth",
+   "position": [
+    300,
+    400
+   ],
+   "prompt": "list of data plots for slide part\"User Growth\" formatted in json as: data name, array of data series. Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 5,
+   "solved": false,
+   "type": "image",
+   "description": "Product Mockup",
+   "position": [
+    550,
+    50
+   ],
+   "prompt": "image description for slide part\"Product Mockup\". Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "id": 6,
+   "solved": false,
+   "type": "table",
+   "description": "Competitor Analysis",
+   "position": [
+    550,
+    400
+   ],
+   "prompt": "list of table cells for slide part\"Competitor Analysis\" formatted in json as: cell row, cell coll, cell text. Title of slide is Conclusion. Slide description is:Summarize your business idea, investment opportunities, and how investors can get involved.Presentation description is :Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  }
+ ]
+}
