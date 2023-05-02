@@ -143,6 +143,5 @@ class RichTextTask(TextTask):
             responses.append(response)
             self.saveRespJson(request, responses)
         print("response=",responses)
-        self.task_description = request
 
         

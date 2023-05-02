@@ -24,8 +24,7 @@ class TaskDescription():
 
 class BaseTask():
     def __init__(self, reqhelper: ReqHelper, requester : Requester, type = 'None', prompt = None, parent = None, method = None) -> None:
-        self.left = None
-        self.right = None
+        self.childs = []
         self.is_solved = False
         self.reqhelper = reqhelper
         self.requester = requester
@@ -34,11 +33,14 @@ class BaseTask():
         self.init = self.reqhelper.getInit(type)
         self.endi = self.reqhelper.getEndi(type)
         self.prompt = prompt
-        self.parent = parent
         self.method = method
         task_manager = TaskManager()
         self.id = task_manager.getId(self)
-        self.task_description = ""
+        request = self.init + self.prompt + self.endi
+        self.task_description = "Task type = " + self.type + "\nRequest:\n" + request
+        self.task_creation_result = "Results of task creation:\n"
+
+        self.parent = parent
 
     def addChildTask(self, task : TaskDescription):
         self.crtasklist.append(task)
@@ -46,13 +48,8 @@ class BaseTask():
         return self.is_solved
 
     def addChild(self, child):
-        if (self.left != None):
-            self.left = child
-        elif (self.right == None):
-            self.right = child
-        else:
-            return False
-        return True
+        self.childs.append(child)
+
     def getCmd(self):
         if len(self.crtasklist) > 0:
             task = self.crtasklist.pop()

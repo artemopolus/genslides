@@ -73,33 +73,49 @@ class Manager:
         log = 'id[' + str(self.index) + '] '
         out = "Report:\n"
         if len(self.cmd_list) > 0:
-            log += 'Command executed\n'
             cmd = self.cmd_list.pop(0)
+            log += 'Command executed: '
+            log += str(cmd) + '\n'
+            log += "Command to execute: " + str(len(self.cmd_list)) +"\n"
             task = cmd.execute()
             if (task != None):
                 self.task_list.append(task)
+            log += task.task_creation_result
             out += str(task) + '\n'
             out += "Task description:\n"
             out += task.task_description
             return out, log
+        index = 0
 
+        all_task_expanded = True
         for task in self.task_list:
-            out += "From task " + str(task) + "\n"
+            log += "["+ str(index) + "] "
+            index += 1
+            log += "From task:" + str(task) + "\n"
             cmd = task.getCmd()
             log += "Add command:" + str(cmd)
             if (cmd != None):
                 self.cmd_list.append(cmd)
             else:
-                task.completeTask()
+                # task.completeTask()
+                all_task_expanded = False
+
+        if all_task_expanded:
+            log += "All task expanded"
+            
         for task in self.task_list[:]:
             if task.isSolved():
                 self.task_list.remove(task)
 
         if len(self.task_list) == 0:
-            out += "Start command\n"
+            log += "Start command\n"
             # start_task = ChatGPTTask(reqhelper=self.helper, requester=self.requester, prompt=prompt)
             start_task = PresentationTask(reqhelper=self.helper, requester=self.requester, prompt=prompt)
             self.task_list.append(start_task)
+            out += "Task description:\n"
+            log += start_task.task_creation_result
+            out += start_task.task_description
+            return out, log
 
            # start_task = InformationTask( None, self.helper, self.requester, prompt)
             # responses = []
@@ -127,16 +143,16 @@ class Manager:
 def gr_body(request) -> None:
     manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
     with gr.Blocks() as demo:
-        input = gr.Textbox(label="Input", lines=1, value=request)
+        input = gr.Textbox(label="Input", lines=4, value=request)
         add_new_btn = gr.Button(value="I don't care, Let's do this")
 
-        output = gr.Textbox(label="Output Box")
         # init = gr.Textbox(label="Init", lines=4)
         prompt = gr.Textbox(label="Prompt", lines=4)
+        output = gr.Textbox(label="Output Box")
         # endi = gr.Textbox(label="Endi", lines=4)
-        question = gr.Textbox(label="Question", lines=4)
-        search = gr.Textbox(label="Search", lines=4)
-        userinput = gr.Textbox(label="User Input", lines=4)
+        # question = gr.Textbox(label="Question", lines=4)
+        # search = gr.Textbox(label="Search", lines=4)
+        # userinput = gr.Textbox(label="User Input", lines=4)
 
         add_new_btn.click(fn=manager.add_new_task, inputs=[input], outputs=[
                           prompt, output], api_name='add_new_task')

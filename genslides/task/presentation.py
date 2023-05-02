@@ -38,12 +38,15 @@ class PresentationTask(TextTask):
             del chat
         else:
             print("Data from saved file")
-        print(descriptions)
+
+        for t in descriptions:
+            self.task_creation_result += t + '\n'
+
         self.prs = Presentation()
 
         for description in descriptions:
             ch_prompt = description + "Presentation description is :" + self.prompt
-            self.addChildTask(TaskDescription( prompt= ch_prompt, method= SlideTask, parent= self.prs))
+            self.addChildTask(TaskDescription( prompt= ch_prompt, method= SlideTask, parent= self))
 
     # def __init__(self,  parent, reqhelper : ReqHelper, requester :Requester, description) -> None:
     #     super().__init__(reqhelper, requester, type='Presentation', prompt=description, parent=parent)
@@ -88,7 +91,7 @@ class SlideTask(TextTask):
         descriptions = self.getResponse(request)
         slide_part_prompts =[]
         if len(descriptions) == 0:
-            print("Request to ChatGPT:\n")
+            self.task_creation_result += "Request to ChatGPT:\n"
             # print(request)
             chat  = ChatGPTrequester()
             responses = chat.getResponse(request, ['type','description','position'])
@@ -120,13 +123,15 @@ class SlideTask(TextTask):
             self.saveRespJson(request, descriptions)
             del chat
         else:
-            print("Data from saved file")
-        print(descriptions)
-        self.parts = descriptions
+            self.task_creation_result += "Data from saved file:\n"
+        
+        for t in descriptions:
+            self.task_creation_result += str(t) + '\n'
+
 
         for description in descriptions:
         #     ch_prompt = description + self.prompt
-                self.addChildTask(TaskDescription( prompt= description['prompt'], method= RichTextTask, parent= self.parts))
+                self.addChildTask(TaskDescription( prompt= description['prompt'], method= RichTextTask, parent= self))
 
 
         # self.parent = parent
