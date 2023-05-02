@@ -31,8 +31,10 @@ def find_keys(trg_keys, text, out ):
     if isinstance(text, dict):
         found = True
         for key in trg_keys:
-            if key not in text:
+            theset = set(k.lower() for k in text)
+            if key not in theset:
                 found = False
+                break
         if found:
             return out, True
         else:
@@ -52,3 +54,4 @@ def find_keys(trg_keys, text, out ):
         if found:
             out = text
         return out, found
+    return out, False

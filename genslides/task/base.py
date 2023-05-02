@@ -38,6 +38,7 @@ class BaseTask():
         self.method = method
         task_manager = TaskManager()
         self.id = task_manager.getId(self)
+        self.task_description = ""
 
     def addChildTask(self, task : TaskDescription):
         self.crtasklist.append(task)

@@ -1,5 +1,7 @@
 import nltk.data
 import re
+from os import listdir
+from os.path import isfile, join
 
 tokenizer = nltk.data.load('nltk:tokenizers/punkt/english.pickle')
 
@@ -17,4 +19,8 @@ if "This is a test." in result:
 if "This is a not test." in result:
     print('Yes2')
 
+mypath = "../saved/"
 
+onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+print(onlyfiles)

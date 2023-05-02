@@ -11,7 +11,7 @@ class CreateCommand(SimpleCommand):
       self.description = description
    def execute(self):
       print("execute: Create " + str(self.method))
-      return self.method( self.parent, self.reqhelper, self.requester, self.description)
+      return self.method( self.reqhelper, self.requester, self.description,self.parent )
       # self.list.append(slide)
    def unexecute(self):
       pass

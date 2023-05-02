@@ -26,7 +26,9 @@ class ChatGPT():
         with open(self.path,'r') as f:
             val = json.load(f)
             iter = float(val['counter'])
-            val['counter'] = iter + token_num*price/1000
+            sum_price = token_num*price/1000
+            print('price= ',sum_price)
+            val['counter'] = iter + sum_price
         with open(self.path,'w') as f:
             json.dump(val,f,indent=1)
 
@@ -55,6 +57,17 @@ class ChatGPT():
             print('status==>', e.http_status)
             return False, ""
 
+class SimpleChatGPT(ChatGPT):
+    def __init__(self, model_name="gpt-3.5-turbo") -> None:
+        super().__init__(model_name)
+    def recvResponse(self, request : str):
+        messages=[
+            {"role": "user", "content": request}
+        ]
+        tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+        token_cnt = len(tokenizer.encode(request))
+        self.add_counter_to_prompts(token_cnt)
+        return self.createChatCompletion(messages=messages)
 
 
 
