@@ -17,12 +17,17 @@ import collections.abc
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE
-from pptx.util import Inches
+from pptx.util import Inches, Pt, Cm
+
+import os
+from os import listdir
+from os.path import isfile, join
+
 
 
 class PresentationTask(TextTask):
-    def __init__(self, reqhelper: ReqHelper, requester: Requester, prompt=None, parent=None, method=None) -> None:
-        super().__init__(reqhelper, requester, "Presentation", prompt, parent, method)
+    def __init__(self, task_info : TaskDescription ) -> None:
+        super().__init__(task_info, "Presentation")
         print("Start presentation Task")
         request = self.init + self.prompt + self.endi
         descriptions = self.getResponse(request)
@@ -32,7 +37,9 @@ class PresentationTask(TextTask):
             responses = chat.getResponse(request, ['title','description'])
             for response in responses:
                 print(response)
-                description = "Title of slide is " + response.trgs['title'] +". Slide description is:"+  response.trgs['description']
+                description = {}
+                description['prompt'] = "Title of slide is " + response.trgs['title'] +". Slide description is:"+  response.trgs['description'] + "Presentation description is :" + self.prompt
+                description['title'] = response.trgs['title']
                 descriptions.append(description)
             self.saveRespJson(request, descriptions)
             del chat
@@ -45,8 +52,33 @@ class PresentationTask(TextTask):
         self.prs = Presentation()
 
         for description in descriptions:
-            ch_prompt = description + "Presentation description is :" + self.prompt
-            self.addChildTask(TaskDescription( prompt= ch_prompt, method= SlideTask, parent= self))
+            slide = self.prs.slides.add_slide(self.prs.slide_layouts[5])
+            
+            
+            ch_prompt = description
+            sents = description.split(".")
+            title = sents[0][len("Title of slide is "):]
+            print("title=",title)
+            # ch_prompt = description['prompt']
+            # slide.shapes.title.text = description['title']
+            slide.shapes.title.text =title 
+            
+            self.addChildTask(TaskDescription( prompt= ch_prompt, method= SlideTask, parent= self, helper=self.reqhelper, requester=self.requester, target=slide))
+            break
+
+    def completeTask(self):
+        if not self.checkChilds():
+            return False
+        mypath = "output/"
+        if not os.path.exists(mypath):
+            os.makedirs(mypath)
+
+        name = mypath + "text.pptx"
+        print("Save prsenetation=",name)
+        self.prs.save(name)
+        self.is_solved = True
+
+        return True     
 
     # def __init__(self,  parent, reqhelper : ReqHelper, requester :Requester, description) -> None:
     #     super().__init__(reqhelper, requester, type='Presentation', prompt=description, parent=parent)
@@ -84,9 +116,11 @@ class PresentationTask(TextTask):
 
 
 class SlideTask(TextTask):
-    def __init__(self, reqhelper: ReqHelper, requester: Requester, prompt=None, parent=None, method=None) -> None:
-        super().__init__(reqhelper, requester, "Slide", prompt, parent, method)
-        print("Create slide with prompt:\n" + prompt)
+    def __init__(self, task_info : TaskDescription) -> None:
+        super().__init__(task_info, "Slide")
+    # def __init__(self, reqhelper: ReqHelper, requester: Requester, prompt=None, parent=None, method=None) -> None:
+        # super().__init__(reqhelper, requester, "Slide", prompt, parent, method)
+        print("Create slide with prompt:\n" + self.prompt)
         request = self.init + self.prompt + self.endi
         descriptions = self.getResponse(request)
         slide_part_prompts =[]
@@ -128,12 +162,37 @@ class SlideTask(TextTask):
         for t in descriptions:
             self.task_creation_result += str(t) + '\n'
 
+        left = Inches(1) 
+        top = Inches(1.5)
+
+        width = Cm(10)
+        height = Cm(18)
+
+        print("target=",self.target)
+        txBox = self.target.shapes.add_textbox(left, top, width, height)
+        tf = txBox.text_frame
+        tf.word_wrap = True
+
+        self.paragraph = tf.paragraphs[0]
+        self.paragraph.font.size = Pt(8)
+        # self.paragraph.text = "test"
+        # self.text_paragraph = self.paragraph.text
+        # print("text_paragraph=",self.text_paragraph)
 
         for description in descriptions:
-        #     ch_prompt = description + self.prompt
-                self.addChildTask(TaskDescription( prompt= description['prompt'], method= RichTextTask, parent= self))
+            self.addChildTask(TaskDescription(
+                prompt=description['prompt'], method=RichTextTask, parent=self, helper=self.reqhelper, requester=self.requester, target=self.insertText))
+            break
 
-
-        # self.parent = parent
+    def insertText(self, text: str):
+        self.paragraph.text = text
+        # self.parent = parentext_paragrapht
         # self.description = description
         # print("Init slide")
+    def completeTask(self):
+        if not self.checkChilds():
+            return False
+        self.is_solved = True       
+
+        return True     
+

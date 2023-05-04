@@ -10,16 +10,20 @@ class ChatGPT():
     def __init__(self, model_name = "gpt-3.5-turbo") -> None:
         path_to_config = 'config/openai.json'
         self.model = model_name
+        self.active = False 
         with open(path_to_config, 'r') as config:
             values = json.load(config)
             key = values['api_key']
             openai.api_key = key
             print('key=',key)
+            self.active = values['active']
+            print('active=', self.active)
+            if key:
 
-            models = openai.Model.list()
-            for model in models.data:
-                if model.id == self.model:
-                    print('model=',model)
+                models = openai.Model.list()
+                for model in models.data:
+                    if model.id == self.model:
+                        print('model=',model)
         self.path = path_to_config
 
     def add_counter_to_prompts(self, token_num = 1, price = 0.002):
@@ -33,6 +37,9 @@ class ChatGPT():
             json.dump(val,f,indent=1)
 
     def createChatCompletion(self, messages, model="gpt-3.5-turbo"):
+        if not self.active:
+            raise ValueError("ChatGPT is not active!")
+            # return False, ""
         try:
             completion = openai.ChatCompletion.create(
             model=model,
@@ -40,7 +47,7 @@ class ChatGPT():
             )
             msg = completion.choices[0].message
             text = msg["content"]
-            return True, text
+            return True, msg
         except RateLimitError as e:
             print('fuck rate')
             print(e)
@@ -60,14 +67,20 @@ class ChatGPT():
 class SimpleChatGPT(ChatGPT):
     def __init__(self, model_name="gpt-3.5-turbo") -> None:
         super().__init__(model_name)
-    def recvResponse(self, request : str):
+    def recvResponse(self, request : str) -> str:
         messages=[
             {"role": "user", "content": request}
         ]
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         token_cnt = len(tokenizer.encode(request))
         self.add_counter_to_prompts(token_cnt)
-        return self.createChatCompletion(messages=messages)
+        res, out = self.createChatCompletion(messages=messages)
+        if res:
+            token_cnt = len(tokenizer.encode(out["content"]))
+            self.add_counter_to_prompts(token_cnt)
+            return True, out["content"]
+        else:
+            return False, ""
 
 
 

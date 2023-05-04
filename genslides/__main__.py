@@ -1,10 +1,5 @@
 from genslides.task.presentation import PresentationTask
-from genslides.task.presentation import SlideTask
-from genslides.task.information import InformationTask
-from genslides.task.text import ChatGPTTask
-from genslides.task.text import GoogleTask
-from genslides.task.text import BrowserTask
-from genslides.task.text import SummaryTask
+from genslides.task.base import TaskDescription
 
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
@@ -24,7 +19,7 @@ class Manager:
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher) -> None:
         self.task_list = []
         self.task_index = 0
-        self.curr_task = None
+        self.start_task = None
         self.cmd_list = []
         self.cmd_index = 0
         self.helper = helper
@@ -34,6 +29,8 @@ class Manager:
 
         self.browser = WebBrowser()
         self.summator = Summator()
+
+        self.need_human_response = False
     #        if not os.path.exists("saved"):
     #               os.makedirs("saved")
     #        self.path_searches = "saved/searches.json"
@@ -69,6 +66,9 @@ class Manager:
     #        return []
 
     def add_new_task(self, prompt):
+        if self.need_human_response:
+            self.need_human_response = False
+            return "", ""
         self.index += 1
         log = 'id[' + str(self.index) + '] '
         out = "Report:\n"
@@ -91,18 +91,30 @@ class Manager:
         for task in self.task_list:
             log += "["+ str(index) + "] "
             index += 1
-            log += "From task:" + str(task) + "\n"
             cmd = task.getCmd()
-            log += "Add command:" + str(cmd)
             if (cmd != None):
+                log += "From task:" + str(task) + " "
+                log += "add command:" + str(cmd)
                 self.cmd_list.append(cmd)
-            else:
+            # else:
                 # task.completeTask()
                 all_task_expanded = False
-
+        all_task_completed = False
         if all_task_expanded:
-            log += "All task expanded"
-            
+            all_task_completed = True
+            log += "All task expanded\n"
+            for task in self.task_list:
+                if not task.completeTask():
+                    all_task_completed = False
+                else:
+                    print("task complete=",str(task))
+
+        if all_task_completed:
+            log += "All task complete\n"
+            return out, log
+            # if self.start_task:
+            #     self.start_task.completeTask()
+
         for task in self.task_list[:]:
             if task.isSolved():
                 self.task_list.remove(task)
@@ -110,11 +122,13 @@ class Manager:
         if len(self.task_list) == 0:
             log += "Start command\n"
             # start_task = ChatGPTTask(reqhelper=self.helper, requester=self.requester, prompt=prompt)
-            start_task = PresentationTask(reqhelper=self.helper, requester=self.requester, prompt=prompt)
+            # start_task = PresentationTask(reqhelper=self.helper, requester=self.requester, prompt=prompt)
+            start_task = PresentationTask(TaskDescription(prompt=prompt, helper=self.helper, requester=self.requester))
             self.task_list.append(start_task)
             out += "Task description:\n"
             log += start_task.task_creation_result
             out += start_task.task_description
+            self.start_task = start_task
             return out, log
 
            # start_task = InformationTask( None, self.helper, self.requester, prompt)

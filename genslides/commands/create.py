@@ -1,17 +1,16 @@
 from genslides.commands.simple import SimpleCommand
+
 import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 
 class CreateCommand(SimpleCommand):
-   def __init__(self, parent, reqhelper : ReqHelper, requester : Requester, description: str , method) -> None:
-      super().__init__(method)
-      self.parent = parent
-      self.reqhelper = reqhelper
-      self.requester = requester
+   def __init__(self, description ) -> None:
+      super().__init__(description.method)
       self.description = description
    def execute(self):
       print("execute: Create " + str(self.method))
-      return self.method( self.reqhelper, self.requester, self.description,self.parent )
+      print("prompt=",self.description.prompt)
+      return self.method( self.description )
       # self.list.append(slide)
    def unexecute(self):
       pass
