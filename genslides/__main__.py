@@ -13,6 +13,7 @@ import os
 import json
 
 import gradio as gr
+import graphviz
 
 
 class Manager:
@@ -66,9 +67,29 @@ class Manager:
     #        return []
 
     def add_new_task(self, prompt):
+        img_path = "output/img.png"
+
+        if not os.path.exists(img_path):
+            img_path = "examples/test.png"
+
+
         if self.need_human_response:
             self.need_human_response = False
-            return "", ""
+            return "", "", img_path
+        if len(self.task_list) > 0:
+            f = graphviz.Digraph(comment='The Test Table')
+            
+            for task in self.task_list:
+                f.node( task.getName(), task.getLabel())
+            
+            for task in self.task_list:
+                for child in task.childs:
+                    f.edge(task.getName(), child.getName())
+            img_path = "output/img"
+            f.render(filename=img_path,view=False,format='png')
+            img_path += ".png"
+            del f
+
         self.index += 1
         log = 'id[' + str(self.index) + '] '
         out = "Report:\n"
@@ -84,10 +105,12 @@ class Manager:
             out += str(task) + '\n'
             out += "Task description:\n"
             out += task.task_description
-            return out, log
+            return out, log, img_path
         index = 0
 
-        all_task_expanded = True
+        all_task_expanded = False 
+        if len(self.task_list) > 0:
+            all_task_expanded = True
         for task in self.task_list:
             log += "["+ str(index) + "] "
             index += 1
@@ -111,13 +134,13 @@ class Manager:
 
         if all_task_completed:
             log += "All task complete\n"
-            return out, log
+            return out, log, img_path
             # if self.start_task:
             #     self.start_task.completeTask()
 
-        for task in self.task_list[:]:
-            if task.isSolved():
-                self.task_list.remove(task)
+        # for task in self.task_list[:]:
+        #     if task.isSolved():
+        #         self.task_list.remove(task)
 
         if len(self.task_list) == 0:
             log += "Start command\n"
@@ -129,7 +152,7 @@ class Manager:
             log += start_task.task_creation_result
             out += start_task.task_description
             self.start_task = start_task
-            return out, log
+            return out, log, img_path
 
            # start_task = InformationTask( None, self.helper, self.requester, prompt)
             # responses = []
@@ -151,7 +174,7 @@ class Manager:
             # summtask.completeTask()
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
-        return out, log
+        return out, log, img_path
 
 
 def gr_body(request) -> None:
@@ -167,9 +190,10 @@ def gr_body(request) -> None:
         # question = gr.Textbox(label="Question", lines=4)
         # search = gr.Textbox(label="Search", lines=4)
         # userinput = gr.Textbox(label="User Input", lines=4)
+        graph_img = gr.Image()
 
         add_new_btn.click(fn=manager.add_new_task, inputs=[input], outputs=[
-                          prompt, output], api_name='add_new_task')
+                          prompt, output, graph_img], api_name='add_new_task')
     demo.launch()
 
 
@@ -182,32 +206,6 @@ def main() -> None:
         return
 
     print("Start console application")
-
-    helper = RequestHelper()
-    requester = TestRequester()
-    print(helper.getPrompt('Table', 'blahblabhlah.'))
-    task_list = []
-    cmd_list = []
-    # task_list.append(SlideTask(None))
-    start_task = PresentationTask(None, helper, requester, prompt)
-    task_list.append(start_task)
-
-    print(task_list)
-
-    for task in task_list:
-        cmd = task.getCmd()
-        if (cmd != None):
-            cmd_list.append(cmd)
-
-    for cmd in cmd_list:
-        task = cmd.execute()
-        if (task != None):
-            task_list.append(task)
-
-    print("Task list: " + str(len(task_list)))
-    for task in task_list:
-        print(task)
-    print("Cmd list:" + str(len(cmd_list)))
 
 
 if __name__ == "__main__":

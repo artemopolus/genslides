@@ -49,6 +49,12 @@ class BaseTask():
             self.parent.addChild(self)
         self.target = task_info.target
 
+    def getName(self) -> str:
+        return str(self.id)
+    def getLabel(self) -> str:
+        return self.type + ' ' + str(self.id)
+
+
     def getNewID(self) -> int:
         task_manager = TaskManager()
         self.id = task_manager.getId(self)

@@ -22,6 +22,15 @@ python -m venv .env
 python -m pip install -r requirements.txt
 python -m nltk.downloader popular
 
+#graphviz win
+download and install from here: https://www.graphviz.org/download/
+
+
 #How to use
 
 python -m genslides
+
+
+#update
+python -m pip freeze > requirements.txt
+python -m  pip install target_lib
