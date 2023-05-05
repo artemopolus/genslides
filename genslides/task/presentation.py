@@ -162,30 +162,43 @@ class SlideTask(TextTask):
         for t in descriptions:
             self.task_creation_result += str(t) + '\n'
 
-        left = Inches(1) 
-        top = Inches(1.5)
-
+        left = Cm(2) 
+        top = Cm(3)
         width = Cm(10)
         height = Cm(18)
 
-        print("target=",self.target)
-        txBox = self.target.shapes.add_textbox(left, top, width, height)
-        tf = txBox.text_frame
-        tf.word_wrap = True
-
-        self.paragraph = tf.paragraphs[0]
-        self.paragraph.font.size = Pt(8)
         # self.paragraph.text = "test"
         # self.text_paragraph = self.paragraph.text
         # print("text_paragraph=",self.text_paragraph)
 
+        index = 0
+        # self.paragraph_list = []
         for description in descriptions:
-            self.addChildTask(TaskDescription(
-                prompt=description['prompt'], method=RichTextTask, parent=self, helper=self.reqhelper, requester=self.requester, target=self.insertText))
-            break
 
-    def insertText(self, text: str):
-        self.paragraph.text = text
+
+            if index % 2 == 1:
+                left = Cm(14)
+            else:
+                left = Cm(2)
+                top = Cm(3) + index * Cm(5)
+
+            txBox = self.target.shapes.add_textbox(left, top, width, height)
+            pointer = self.target.shapes.index(txBox)
+            tf = txBox.text_frame
+            tf.word_wrap = True
+            self.paragraph = tf.paragraphs[0]
+            self.paragraph.font.size = Pt(8)
+            print("target shapes=", self.target.shapes[index])
+
+            self.addChildTask(TaskDescription(
+                prompt=description['prompt'], method=RichTextTask, parent=self, helper=self.reqhelper, requester=self.requester, target=self.insertText, id=pointer))
+            index += 1
+            # if index > 2:
+            #     break
+
+    def insertText(self, text: str, id):
+        # self.paragraph.text = text
+        self.target.shapes[id].text_frame.paragraphs[0].text = text
         # self.parent = parentext_paragrapht
         # self.description = description
         # print("Init slide")

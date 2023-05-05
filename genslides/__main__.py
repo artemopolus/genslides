@@ -65,6 +65,35 @@ class Manager:
     #               except json.JSONDecodeError:
     #                      pass
     #        return []
+    def setNextTask(self):
+        if len(self.task_list) > self.task_index:
+            self.start_task = self.task_list[self.task_index]
+            self.task_index +=1
+        else:
+            self.task_index = 0
+            self.start_task = self.task_list[self.task_index]
+
+        return self.draw_graph()
+
+    def draw_graph(self):
+        if len(self.task_list) > 0:
+            f = graphviz.Digraph(comment='The Test Table')
+            
+            for task in self.task_list:
+                if task == self.start_task:
+                    f.node( task.getName(), task.getLabel(),style="filled",color="skyblue")
+                else:
+                    f.node( task.getName(), task.getLabel())
+            
+            for task in self.task_list:
+                for child in task.childs:
+                    f.edge(task.getName(), child.getName())
+            img_path = "output/img"
+            f.render(filename=img_path,view=False,format='png')
+            img_path += ".png"
+            return img_path
+        return "output/img.png"
+         
 
     def add_new_task(self, prompt):
         img_path = "output/img.png"
@@ -76,19 +105,23 @@ class Manager:
         if self.need_human_response:
             self.need_human_response = False
             return "", "", img_path
-        if len(self.task_list) > 0:
-            f = graphviz.Digraph(comment='The Test Table')
+        img_path = self.draw_graph()
+        # if len(self.task_list) > 0:
+        #     f = graphviz.Digraph(comment='The Test Table')
             
-            for task in self.task_list:
-                f.node( task.getName(), task.getLabel())
+        #     for task in self.task_list:
+        #         if task == self.start_task:
+        #             f.node( task.getName(), task.getLabel(),style="filled",color="skyblue")
+        #         else:
+        #             f.node( task.getName(), task.getLabel())
             
-            for task in self.task_list:
-                for child in task.childs:
-                    f.edge(task.getName(), child.getName())
-            img_path = "output/img"
-            f.render(filename=img_path,view=False,format='png')
-            img_path += ".png"
-            del f
+        #     for task in self.task_list:
+        #         for child in task.childs:
+        #             f.edge(task.getName(), child.getName())
+        #     img_path = "output/img"
+        #     f.render(filename=img_path,view=False,format='png')
+        #     img_path += ".png"
+        #     del f
 
         self.index += 1
         log = 'id[' + str(self.index) + '] '
@@ -182,6 +215,7 @@ def gr_body(request) -> None:
     with gr.Blocks() as demo:
         input = gr.Textbox(label="Input", lines=4, value=request)
         add_new_btn = gr.Button(value="I don't care, Let's do this")
+        next_task_btn = gr.Button(value="Next task, plz")
 
         # init = gr.Textbox(label="Init", lines=4)
         prompt = gr.Textbox(label="Prompt", lines=4)
@@ -194,6 +228,8 @@ def gr_body(request) -> None:
 
         add_new_btn.click(fn=manager.add_new_task, inputs=[input], outputs=[
                           prompt, output, graph_img], api_name='add_new_task')
+        next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img], api_name='next_task')
+
     demo.launch()
 
 

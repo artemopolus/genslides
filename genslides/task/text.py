@@ -163,6 +163,7 @@ class RichTextTask(TextTask):
         print("response=",responses)
         self.richtext = responses
         print("task=",task_info.target)
+        self.task_id = task_info.id
 
 
     def completeTask(self):
@@ -170,7 +171,7 @@ class RichTextTask(TextTask):
         self.is_solved = True
         if self.target:
             print("Add text:", self.richtext)
-            self.target(self.richtext[0])
+            self.target(self.richtext[0], self.task_id)
         return True
 
         

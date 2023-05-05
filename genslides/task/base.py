@@ -18,13 +18,14 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt, method = None, parent=None, helper=None, requester=None, target=None) -> None:
+    def __init__(self, prompt, method = None, parent=None, helper=None, requester=None, target=None, id = 0) -> None:
         self.prompt = prompt
         self.method = method
         self.parent = parent
         self.helper = helper
         self.requester = requester
         self.target = target
+        self.id = id
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
