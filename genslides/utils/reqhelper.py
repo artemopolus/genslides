@@ -24,3 +24,5 @@ class RequestHelper:
             return self.dict[type]['Endi']
         return None
 
+    def getNames(self) -> str:
+        return self.dict

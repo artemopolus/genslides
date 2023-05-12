@@ -4,6 +4,12 @@ import genslides.utils.request as Requester
 from genslides.commands.create import CreateCommand
 from genslides.helpers.singleton import Singleton
 
+import os
+from os import listdir
+from os.path import isfile, join
+
+import json
+
 class TaskManager(metaclass=Singleton):
     def __init__(self) -> None:
         self.task_id = 0
@@ -15,10 +21,42 @@ class TaskManager(metaclass=Singleton):
         if task not in self.task_list:
             self.task_list.append(task)
         return id
+    
+    def getPath(self) -> str:
+        if not os.path.exists("saved"):
+            os.makedirs("saved")
+        return "saved/"
+    
+    def getParentTaskPrompts(self):
+        mypath = self.getPath()
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        out = []
+        for filename in onlyfiles:
+            path = join(mypath,filename)
+            try:
+                with open(path, 'r') as f:
+                    rq = json.load(f)
+                if 'parent' in rq:
+                    print(path)
+                    parent_path = rq['parent']
+                    if parent_path == "" and 'chat' in rq and 'type' in rq:
+                        print(path)
+                        
+                        for elem in rq['chat']:
+                            if elem['role'] == 'user':
+                                pair = {}
+                                pair['type'] = rq['type']
+                                pair['content'] = elem['content']
+                                out.append(pair)
+            except Exception as e:
+                pass
+        return out
+
+
 
 
 class TaskDescription():
-    def __init__(self, prompt, method = None, parent=None, helper=None, requester=None, target=None, id = 0) -> None:
+    def __init__(self, prompt, method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "") -> None:
         self.prompt = prompt
         self.method = method
         self.parent = parent
@@ -26,6 +64,7 @@ class TaskDescription():
         self.requester = requester
         self.target = target
         self.id = id
+        self.type = type
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
@@ -34,9 +73,12 @@ class BaseTask():
         self.reqhelper = task_info.helper
         self.requester = task_info.requester
         self.crtasklist = []
+
+        type = task_info.type
         self.type = type
         self.init = self.reqhelper.getInit(type)
         self.endi = self.reqhelper.getEndi(type)
+
         self.prompt = task_info.prompt
         self.method = task_info.method
         task_manager = TaskManager()

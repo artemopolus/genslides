@@ -10,6 +10,7 @@ import genslides.utils.largetext as Summator
 from genslides.utils.searcher import GoogleApiSearcher
 from genslides.utils.chatgptrequester import ChatGPTrequester
 from genslides.utils.chatgptrequester import ChatGPTsimple
+from genslides.utils.largetext import SimpleChatGPT
 
 import json
 import os
@@ -32,6 +33,57 @@ class TextTask(BaseTask):
                 found = True
 
         self.path = mypath + name 
+
+
+        self.gen_req = self.init + self.prompt + self.endi
+
+        if self.parent is None:
+            self.msg_list = []
+        else:
+            self.msg_list = self.parent.msg_list
+
+        chat = SimpleChatGPT()
+        pair = {}
+        pair["role"] = chat.getUserTag()
+        pair["content"] = self.prompt
+
+        tmp_msg_list = self.msg_list
+        tmp_msg_list.append(pair)
+        msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+        del tmp_msg_list
+        
+        if len(msg_list_from_file) == 0:
+            pair = {}
+            pair["role"] = chat.getUserTag()
+            pair["content"] = self.gen_req
+            self.msg_list.append(pair)
+            res, out = chat.recvRespFromMsgList(self.msg_list)
+            if res:
+                print("out=", out)
+                pair = {}
+                pair["role"] = chat.getAssistTag()
+                pair["content"] = out
+                self.msg_list.append(pair)
+
+            self.saveJsonToFile(self.msg_list)
+        else:
+            self.msg_list = msg_list_from_file
+            print("Get list from file=", self.path)
+
+    def saveJsonToFile(self, msg_list):
+        resp_json_out = {}
+        resp_json_out['chat'] = msg_list 
+        resp_json_out['type'] = self.type
+        path = ""
+        if self.parent:
+            path = self.parent.path
+        resp_json_out['parent'] = path
+        with open(self.path, 'w') as f:
+            print("save to file=", self.path)
+            json.dump(resp_json_out, f, indent=1)
+
+        
+        
         # path = self.path
         # if not os.path.exists(path):
         #     with open(path, 'w') as f:
@@ -50,14 +102,52 @@ class TextTask(BaseTask):
         resp_json_out['responses'] = response
         with open(self.path, 'w') as f:
             json.dump(resp_json_out, f, indent=1)
+
+
+
     def checkFile(self):
         if not os.path.exists(self.path):
             return False
         if os.stat(self.path).st_size == 0:
             return False
         return True
+    
+    def processResponse(self):
+        request = self.init + self.prompt + self.endi
+        responses = self.getResponse(request)
+        if len(responses) == 0:
+            chat = SimpleChatGPT()
+            self.user = chat.getUserTag()
+            self.chat = chat.getAssistTag()
+            res, text = chat.recvResponse(request)
+            if res:
+                self.saveRespJson(request, responses)
 
-
+    def getResponseFromFile(self, msg_list):
+        mypath = "saved/"
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        for file in onlyfiles:
+            if file.startswith(self.type):
+                path = mypath + file
+        # if os.stat(self.path).st_size != 0:
+                try:
+                    with open(path, 'r') as f:
+                        rq = json.load(f)
+                    if 'chat' in rq:
+                        msg_trgs = rq['chat']
+                        res = False
+                        for msg in msg_list:
+                            res = False
+                            for trg in msg_trgs:
+                                if trg["content"] == msg["content"]:
+                                    res = True
+                                    break
+                        if res:
+                            self.path = path
+                            return msg_trgs
+                except json.JSONDecodeError:
+                    pass
+        return []
     def getResponse(self, request):
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
@@ -153,17 +243,18 @@ class RichTextTask(TextTask):
         super().__init__(task_info, "RichText")
     # def __init__(self, reqhelper: ReqHelper, requester: Requester, prompt=None, parent=None, method=None) -> None:
         # super().__init__(reqhelper, requester, "RichText", prompt, parent, method)
-        request = self.init + self.prompt + self.endi
-        responses = self.getResponse(request)
-        if len(responses) == 0:
-            chat = ChatGPTsimple()
-            response =  chat.getResponse(request)
-            responses.append(response)
-            self.saveRespJson(request, responses)
-        print("response=",responses)
-        self.richtext = responses
-        print("task=",task_info.target)
-        self.task_id = task_info.id
+
+        # request = self.init + self.prompt + self.endi
+        # responses = self.getResponse(request)
+        # if len(responses) == 0:
+        #     chat = ChatGPTsimple()
+        #     response =  chat.getResponse(request)
+        #     responses.append(response)
+        #     self.saveRespJson(request, responses)
+        # print("response=",responses)
+        # self.richtext = responses
+        # print("task=",task_info.target)
+        # self.task_id = task_info.id
 
 
     def completeTask(self):

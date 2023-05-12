@@ -81,6 +81,26 @@ class SimpleChatGPT(ChatGPT):
             return True, out["content"]
         else:
             return False, ""
+    def recvRespFromMsgList(self, msgs):
+        text = ""
+        for msg in msgs:
+            text += msg["content"]
+        tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+        token_cnt = len(tokenizer.encode(text))
+        self.add_counter_to_prompts(token_cnt)
+        res, out = self.createChatCompletion(messages=msgs)
+
+        if res:
+            token_cnt = len(tokenizer.encode(out["content"]))
+            self.add_counter_to_prompts(token_cnt)
+            return True, out["content"]
+        else:
+            return False, ""
+
+    def getUserTag(self):
+        return "user"
+    def getAssistTag(self):
+        return "assistant"
 
 
 

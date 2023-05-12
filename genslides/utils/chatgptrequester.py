@@ -11,10 +11,13 @@ class ChatGPTsimple(Requester):
         super().__init__()
     def getResponse(self, prompt)->str:
         chat = SimpleChatGPT()
+        self.user = chat.getUserTag()
+        self.chat = chat.getAssistTag()
         res, text = chat.recvResponse(prompt)
         if res:
             return text
         return ""
+
        
 
 
