@@ -18,12 +18,12 @@ class ChatGPT():
             print('key=',key)
             self.active = values['active']
             print('active=', self.active)
-            if key:
+            # if key:
 
-                models = openai.Model.list()
-                for model in models.data:
-                    if model.id == self.model:
-                        print('model=',model)
+            #     models = openai.Model.list()
+            #     for model in models.data:
+            #         if model.id == self.model:
+            #             print('model=',model)
         self.path = path_to_config
 
     def add_counter_to_prompts(self, token_num = 1, price = 0.002):

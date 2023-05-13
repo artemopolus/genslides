@@ -52,6 +52,40 @@ class TaskManager(metaclass=Singleton):
                 pass
         return out
 
+    def getTaskPrompts(self, trg_path = ""):
+        mypath = self.getPath()
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        out = []
+        for filename in onlyfiles:
+            path = join(mypath,filename)
+            try:
+                with open(path, 'r') as f:
+                    rq = json.load(f)
+                if 'parent' in rq:
+                    # print(path):w
+
+                    parent_path = rq['parent']
+                    if parent_path == trg_path and 'chat' in rq and 'type' in rq:
+                        print("Get propmt from=",path)
+
+                        elem = rq['chat'].pop()
+                        elem = rq['chat'].pop()
+                        pair = {}
+                        pair['type'] = rq['type']
+                        pair['content'] = elem['content']
+
+                        out.append(pair)
+                        
+                        # for elem in rq['chat']:
+                        #     if elem['role'] == 'user':
+                        #         pair = {}
+                        #         pair['type'] = rq['type']
+                        #         pair['content'] = elem['content']
+                        #         out.append(pair)
+            except Exception as e:
+                pass
+        return out
+
 
 
 
@@ -91,6 +125,14 @@ class BaseTask():
         if  self.parent:
             self.parent.addChild(self)
         self.target = task_info.target
+
+    def getRichPrompt(self) -> str:
+        out = self.prompt
+        if not out.startswith(self.init):
+            out = self.init + out
+        if not out.endswith(self.endi):
+            out += self.endi
+        return out
 
     def getName(self) -> str:
         return str(self.id)

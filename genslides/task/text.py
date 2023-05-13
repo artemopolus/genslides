@@ -16,6 +16,7 @@ import json
 import os
 from os import listdir
 from os.path import isfile, join
+import pprint
 
 class TextTask(BaseTask):
     def __init__(self, task_info : TaskDescription, type='None') -> None:
@@ -40,26 +41,31 @@ class TextTask(BaseTask):
         if self.parent is None:
             self.msg_list = []
         else:
-            self.msg_list = self.parent.msg_list
+            self.msg_list = self.parent.msg_list.copy()
+            print("parent path=", self.parent.path)
+            print("Message list from parent=", pprint.pformat( self.parent.msg_list))
+        
+        print("content=", task_info.prompt)
 
         chat = SimpleChatGPT()
         pair = {}
         pair["role"] = chat.getUserTag()
-        pair["content"] = self.prompt
+        pair["content"] = self.getRichPrompt()
 
-        tmp_msg_list = self.msg_list
+        tmp_msg_list = self.msg_list.copy()
         tmp_msg_list.append(pair)
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
         del tmp_msg_list
+        print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
         
         if len(msg_list_from_file) == 0:
             pair = {}
             pair["role"] = chat.getUserTag()
-            pair["content"] = self.gen_req
+            pair["content"] = self.getRichPrompt()
             self.msg_list.append(pair)
             res, out = chat.recvRespFromMsgList(self.msg_list)
             if res:
-                print("out=", out)
+                # print("out=", out)
                 pair = {}
                 pair["role"] = chat.getAssistTag()
                 pair["content"] = out
@@ -69,6 +75,8 @@ class TextTask(BaseTask):
         else:
             self.msg_list = msg_list_from_file
             print("Get list from file=", self.path)
+        # print(10*"=")
+        # print("Messgae list=",self.msg_list)
 
     def saveJsonToFile(self, msg_list):
         resp_json_out = {}
@@ -124,6 +132,9 @@ class TextTask(BaseTask):
                 self.saveRespJson(request, responses)
 
     def getResponseFromFile(self, msg_list):
+        print("Get response from file:")
+
+        # print("trg msg=",pprint.pformat(msg_list))
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for file in onlyfiles:
@@ -134,17 +145,24 @@ class TextTask(BaseTask):
                     with open(path, 'r') as f:
                         rq = json.load(f)
                     if 'chat' in rq:
-                        msg_trgs = rq['chat']
-                        res = False
-                        for msg in msg_list:
-                            res = False
-                            for trg in msg_trgs:
-                                if trg["content"] == msg["content"]:
-                                    res = True
-                                    break
-                        if res:
+                        msg_trgs = rq['chat'].copy()
+                        # res = False
+                        # print("chat:", rq['chat'])
+                        msg_trgs.pop()
+                        # print(msg_trgs)
+
+                        # for msg in msg_list:
+                        #     res = False
+                        #     for trg in msg_trgs:
+                        #         if trg["content"] == msg["content"]:
+                        #             res = True
+                        #             break
+                        # if res:
+                        if msg_trgs == msg_list:
+                            print(10*"====", "YEEEES")
                             self.path = path
-                            return msg_trgs
+                            # print("chat:", rq['chat'])
+                            return rq['chat']
                 except json.JSONDecodeError:
                     pass
         return []

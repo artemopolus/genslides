@@ -38,14 +38,42 @@ class Manager:
         self.need_human_response = False
 
 
-        task_manager = TaskManager()
-        parent_task_list = task_manager.getParentTaskPrompts()
-        print("parent tasks=", parent_task_list)
+        # task_manager = TaskManager()
+        # parent_task_list = task_manager.getParentTaskPrompts()
+        # print("parent tasks=", parent_task_list)
+        # for task in parent_task_list:
+        #     print(10*"==","=>type=", task['type'])
+        #     self.createNewTask(task['content'], task['type'], "New")
+        self.createTask()
 
-        for task in parent_task_list:
-            print(10*"==","=>type=", task['type'])
-            # print("prompt=", parent_task_list[task])
-            self.createNewTask(task['content'], task['type'], "New")
+    def createTask(self, prnt_task = None):
+        print(10*"=======")
+        if prnt_task == None:
+            parent_path = ""
+        else:
+            parent_path = prnt_task.path
+            self.curr_task = prnt_task
+            print("task=", self.curr_task.path)
+            print("path=", parent_path)
+        init_task_list = self.task_list.copy()
+        task_manager = TaskManager()
+        parent_prompt_list = task_manager.getTaskPrompts(parent_path)
+
+        print("task count=",len(self.task_list))
+        print("prompt=",parent_prompt_list)
+
+        for prompt in parent_prompt_list:
+            self.curr_task = prnt_task
+            print("content=",prompt['content'])
+            if parent_path == "":
+                self.createNewTask(prompt['content'], prompt['type'], "New")
+            else:
+                self.createNewTask(prompt['content'], prompt['type'], "SubTask")
+        for task in self.task_list:
+            if task not in init_task_list:
+                self.createTask(task)
+        
+
 
 
 
@@ -265,7 +293,7 @@ def gr_body(request) -> None:
 
     with gr.Blocks() as demo:
         input = gr.Textbox(label="Input", lines=4, value=request)
-        add_new_btn = gr.Button(value="I don't care, Let's do this")
+        add_new_btn = gr.Button(value="Update")
 
         types = [t for t in manager.helper.getNames()]
         creation_var_list = gr.Dropdown(types,label="Task to create")
