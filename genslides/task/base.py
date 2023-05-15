@@ -67,12 +67,13 @@ class TaskManager(metaclass=Singleton):
                     parent_path = rq['parent']
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
                         print("Get propmt from=",path)
-
-                        elem = rq['chat'].pop()
+                        if rq['type'] == "RichText":
+                            elem = rq['chat'].pop()
                         elem = rq['chat'].pop()
                         pair = {}
                         pair['type'] = rq['type']
                         pair['content'] = elem['content']
+                        pair['role'] = elem['role']
 
                         out.append(pair)
                         
@@ -90,8 +91,9 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt, method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "") -> None:
+    def __init__(self, prompt, method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user") -> None:
         self.prompt = prompt
+        self.prompt_tag = prompt_tag
         self.method = method
         self.parent = parent
         self.helper = helper

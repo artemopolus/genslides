@@ -21,6 +21,20 @@ import pprint
 class TextTask(BaseTask):
     def __init__(self, task_info : TaskDescription, type='None') -> None:
         super().__init__(task_info, type)
+
+
+        self.path = self.getPath() 
+
+        if self.parent is None:
+            self.msg_list = []
+        else:
+            self.msg_list = self.parent.msg_list.copy()
+            print("parent path=", self.parent.path)
+            print("Message list from parent=", pprint.pformat( self.parent.msg_list))
+        
+        print("content=", task_info.prompt)
+
+    def getPath(self) -> str:
         if not os.path.exists("saved"):
             os.makedirs("saved")
         mypath = "saved/"
@@ -32,51 +46,8 @@ class TextTask(BaseTask):
                 name = self.type + str(self.getNewID()) + ".json"
             else:
                 found = True
+        return mypath + name
 
-        self.path = mypath + name 
-
-
-        self.gen_req = self.init + self.prompt + self.endi
-
-        if self.parent is None:
-            self.msg_list = []
-        else:
-            self.msg_list = self.parent.msg_list.copy()
-            print("parent path=", self.parent.path)
-            print("Message list from parent=", pprint.pformat( self.parent.msg_list))
-        
-        print("content=", task_info.prompt)
-
-        chat = SimpleChatGPT()
-        pair = {}
-        pair["role"] = chat.getUserTag()
-        pair["content"] = self.getRichPrompt()
-
-        tmp_msg_list = self.msg_list.copy()
-        tmp_msg_list.append(pair)
-        msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
-        del tmp_msg_list
-        print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
-        
-        if len(msg_list_from_file) == 0:
-            pair = {}
-            pair["role"] = chat.getUserTag()
-            pair["content"] = self.getRichPrompt()
-            self.msg_list.append(pair)
-            res, out = chat.recvRespFromMsgList(self.msg_list)
-            if res:
-                # print("out=", out)
-                pair = {}
-                pair["role"] = chat.getAssistTag()
-                pair["content"] = out
-                self.msg_list.append(pair)
-
-            self.saveJsonToFile(self.msg_list)
-        else:
-            self.msg_list = msg_list_from_file
-            print("Get list from file=", self.path)
-        # print(10*"=")
-        # print("Messgae list=",self.msg_list)
 
     def saveJsonToFile(self, msg_list):
         resp_json_out = {}
@@ -131,41 +102,31 @@ class TextTask(BaseTask):
             if res:
                 self.saveRespJson(request, responses)
 
-    def getResponseFromFile(self, msg_list):
+    def getResponseFromFile(self, msg_list, remove_last = True):
         print("Get response from file:")
 
-        # print("trg msg=",pprint.pformat(msg_list))
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for file in onlyfiles:
             if file.startswith(self.type):
                 path = mypath + file
-        # if os.stat(self.path).st_size != 0:
                 try:
+                    print(path)
                     with open(path, 'r') as f:
                         rq = json.load(f)
                     if 'chat' in rq:
                         msg_trgs = rq['chat'].copy()
-                        # res = False
-                        # print("chat:", rq['chat'])
-                        msg_trgs.pop()
-                        # print(msg_trgs)
-
-                        # for msg in msg_list:
-                        #     res = False
-                        #     for trg in msg_trgs:
-                        #         if trg["content"] == msg["content"]:
-                        #             res = True
-                        #             break
-                        # if res:
+                        if remove_last:
+                            msg_trgs.pop()
                         if msg_trgs == msg_list:
                             print(10*"====", "YEEEES")
                             self.path = path
-                            # print("chat:", rq['chat'])
                             return rq['chat']
                 except json.JSONDecodeError:
                     pass
         return []
+    
+
     def getResponse(self, request):
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
@@ -259,20 +220,34 @@ class SummaryTask(TextTask):
 class RichTextTask(TextTask):
     def __init__(self, task_info : TaskDescription) -> None:
         super().__init__(task_info, "RichText")
-    # def __init__(self, reqhelper: ReqHelper, requester: Requester, prompt=None, parent=None, method=None) -> None:
-        # super().__init__(reqhelper, requester, "RichText", prompt, parent, method)
+        chat = SimpleChatGPT()
+        pair = {}
+        pair["role"] = chat.getUserTag()
+        pair["content"] = self.getRichPrompt()
 
-        # request = self.init + self.prompt + self.endi
-        # responses = self.getResponse(request)
-        # if len(responses) == 0:
-        #     chat = ChatGPTsimple()
-        #     response =  chat.getResponse(request)
-        #     responses.append(response)
-        #     self.saveRespJson(request, responses)
-        # print("response=",responses)
-        # self.richtext = responses
-        # print("task=",task_info.target)
-        # self.task_id = task_info.id
+        tmp_msg_list = self.msg_list.copy()
+        tmp_msg_list.append(pair)
+        msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+        del tmp_msg_list
+        print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
+        
+        if len(msg_list_from_file) == 0:
+            pair = {}
+            pair["role"] = chat.getUserTag()
+            pair["content"] = self.getRichPrompt()
+            self.msg_list.append(pair)
+            res, out = chat.recvRespFromMsgList(self.msg_list)
+            if res:
+                # print("out=", out)
+                pair = {}
+                pair["role"] = chat.getAssistTag()
+                pair["content"] = out
+                self.msg_list.append(pair)
+
+            self.saveJsonToFile(self.msg_list)
+        else:
+            self.msg_list = msg_list_from_file
+            print("Get list from file=", self.path)
 
 
     def completeTask(self):
@@ -283,4 +258,23 @@ class RichTextTask(TextTask):
             self.target(self.richtext[0], self.task_id)
         return True
 
+class RequestTask(TextTask):
+    def __init__(self, task_info: TaskDescription, ) -> None:
+        super().__init__(task_info, "Request")
+        pair = {}
+        pair["role"] = task_info.prompt_tag
+        pair["content"] = self.getRichPrompt()
+
+        tmp_msg_list = self.msg_list.copy()
+        tmp_msg_list.append(pair)
+        msg_list_from_file = self.getResponseFromFile(tmp_msg_list, remove_last=False)
+        del tmp_msg_list
+        print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
         
+        if len(msg_list_from_file) == 0:
+            self.msg_list.append(pair)
+            self.saveJsonToFile(self.msg_list)
+        else:
+            self.msg_list = msg_list_from_file
+            print("Get list from file=", self.path)
+
