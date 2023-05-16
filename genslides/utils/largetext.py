@@ -33,10 +33,21 @@ class ChatGPT():
             model_names.append(model.id)
         return model_names
     
+    def getTokensCount(self, text) -> int:
+        tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+        token_cnt = len(tokenizer.encode(text))
+        return token_cnt
+    
+    def getPrice(self, text)-> float:
+        tokens = self.getTokensCount(text)
+        price = 0.002
+        return tokens, tokens * price/1000
+ 
+    
     def getDefaultName(self):
         return "gpt-3.5-turbo"
 
-    def add_counter_to_prompts(self, token_num = 1, price = 0.002):
+    def addCounterToPromts(self, token_num = 1, price = 0.002):
         with open(self.path,'r') as f:
             val = json.load(f)
             iter = float(val['counter'])
@@ -83,11 +94,11 @@ class SimpleChatGPT(ChatGPT):
         ]
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         token_cnt = len(tokenizer.encode(request))
-        self.add_counter_to_prompts(token_cnt)
+        self.addCounterToPromts(token_cnt)
         res, out = self.createChatCompletion(messages=messages)
         if res:
             token_cnt = len(tokenizer.encode(out["content"]))
-            self.add_counter_to_prompts(token_cnt)
+            self.addCounterToPromts(token_cnt)
             return True, out["content"]
         else:
             return False, ""
@@ -97,12 +108,12 @@ class SimpleChatGPT(ChatGPT):
             text += msg["content"]
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         token_cnt = len(tokenizer.encode(text))
-        self.add_counter_to_prompts(token_cnt)
+        self.addCounterToPromts(token_cnt)
         res, out = self.createChatCompletion(messages=msgs)
 
         if res:
             token_cnt = len(tokenizer.encode(out["content"]))
-            self.add_counter_to_prompts(token_cnt)
+            self.addCounterToPromts(token_cnt)
             return True, out["content"]
         else:
             return False, ""

@@ -129,7 +129,11 @@ class Manager:
 
         # return self.draw_graph(), pprint.pformat((self.curr_task.msg_list))
         value = self.curr_task.msg_list[len(self.curr_task.msg_list) - 1]
-        return self.draw_graph(), value["content"], value["role"], pprint.pformat(self.curr_task.msg_list)
+        tokens, price = self.curr_task.getCountPrice()
+        output = "Tokens=" + str(tokens) +"\n"
+        output += "Price=" + str(price) + "\n"
+        output += pprint.pformat(self.curr_task.msg_list)
+        return self.draw_graph(), value["content"], value["role"], output
 
 
     def draw_graph(self):

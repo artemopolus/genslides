@@ -190,3 +190,6 @@ class BaseTask():
 
     def whenParentRemoved(self):
         self.parent = None
+
+    def getCountPrice(self):
+        return 0,0

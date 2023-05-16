@@ -37,6 +37,14 @@ class TextTask(BaseTask):
     def beforeRemove(self):
         super().beforeRemove()
 
+    def getCountPrice(self):
+        text = ""
+        for msg in self.msg_list:
+            text += msg["content"]
+
+        chat = SimpleChatGPT()
+        return chat.getPrice(text)
+
     def getPath(self) -> str:
         if not os.path.exists("saved"):
             os.makedirs("saved")

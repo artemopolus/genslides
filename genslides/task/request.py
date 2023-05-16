@@ -53,3 +53,5 @@ class RequestTask(TextTask):
         self.msg_list = []
         self.msg_list.append(last)
         self.saveJsonToFile(self.msg_list)
+
+        

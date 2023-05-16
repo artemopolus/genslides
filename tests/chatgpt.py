@@ -9,7 +9,7 @@ import tiktoken
 
 
 
-def add_counter_to_prompts(path, token_num = 1, price = 0.002):
+def addCounterToPromts(path, token_num = 1, price = 0.002):
     with open(path,'r') as f:
         val = json.load(f)
         iter = float(val['counter'])
@@ -55,7 +55,7 @@ def createChatCompletion(messages, model="gpt-3.5-turbo", path = "chatgpt_out.tx
         model=model,
         messages=messages        
         )
-        add_counter_to_prompts(path=config_path, token_num=num_tokens_from_messages(messages=messages, model=model))
+        addCounterToPromts(path=config_path, token_num=num_tokens_from_messages(messages=messages, model=model))
         msg = completion.choices[0].message
         text = msg["content"]
         with open(path, 'w') as out:
@@ -119,7 +119,7 @@ messages=[
 ]
 chatgpt_model="gpt-3.5-turbo"
 
-# add_counter_to_prompts(path=path_to_config, token_num=num_tokens_from_messages(messages=messages, model=chatgpt_model))
+# addCounterToPromts(path=path_to_config, token_num=num_tokens_from_messages(messages=messages, model=chatgpt_model))
 
 
 print('Done=', createChatCompletion(messages, chatgpt_model, path_resp, path_to_config))
