@@ -2,7 +2,7 @@ from genslides.task.base import BaseTask
 from genslides.task.base import TaskDescription
 
 from genslides.task.text import TextTask
-from genslides.task.text import RichTextTask
+from genslides.task.richtext import RichTextTask
 from genslides.commands.create import CreateCommand
 
 
@@ -63,7 +63,7 @@ class PresentationTask(TextTask):
             # slide.shapes.title.text = description['title']
             slide.shapes.title.text =title 
             
-            self.addChildTask(TaskDescription( prompt= ch_prompt, method= SlideTask, parent= self, helper=self.reqhelper, requester=self.requester, target=slide))
+            self.addChildToCrList(TaskDescription( prompt= ch_prompt, method= SlideTask, parent= self, helper=self.reqhelper, requester=self.requester, target=slide))
             break
 
     def completeTask(self):
@@ -190,7 +190,7 @@ class SlideTask(TextTask):
             self.paragraph.font.size = Pt(8)
             print("target shapes=", self.target.shapes[index])
 
-            self.addChildTask(TaskDescription(
+            self.addChildToCrList(TaskDescription(
                 prompt=description['prompt'], method=RichTextTask, parent=self, helper=self.reqhelper, requester=self.requester, target=self.insertText, id=pointer))
             index += 1
             # if index > 2:

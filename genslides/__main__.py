@@ -46,6 +46,14 @@ class Manager:
         #     self.createNewTask(task['content'], task['type'], "New")
         self.createTask()
 
+    def getTextFromFile(self, text, filenames):
+        if filenames is None:
+            return text
+        print("files=",filenames.name)
+        with open(filenames.name) as f:
+            text += f.read()
+        return text
+
     def createTask(self, prnt_task = None):
         print(10*"=======")
         if prnt_task == None:
@@ -119,7 +127,9 @@ class Manager:
             self.task_index = 0
             self.curr_task = self.task_list[self.task_index]
 
-        return self.draw_graph(), pprint.pformat((self.curr_task.msg_list))
+        # return self.draw_graph(), pprint.pformat((self.curr_task.msg_list))
+        value = self.curr_task.msg_list[len(self.curr_task.msg_list) - 1]
+        return self.draw_graph(), value["content"], value["role"]
 
     def draw_graph(self):
         if len(self.task_list) > 0:
@@ -152,7 +162,11 @@ class Manager:
 
         if type is None or creation_type is None:
             return out, log, img_path
-        if creation_type == "New":
+        if creation_type == "Edit":
+            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
+            self.curr_task.update(info)
+            return self.runIteration(prompt)
+        elif creation_type == "New":
             parent = None
         elif creation_type == "SubTask":
             parent = self.curr_task
@@ -302,9 +316,10 @@ def gr_body(request) -> None:
         next_task_btn = gr.Button(value="Next task, plz")
 
         creation_var_list = gr.Radio(choices = types,label="Task to create", value=types[0])
-        input = gr.Textbox(label="Input", lines=4, value=request)
-        creation_types_radio = gr.Radio(choices=["New", "SubTask"], label="Type of task creation",value="New")
         creation_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
+        input = gr.Textbox(label="Input", lines=4, value=request)
+        file_input = gr.File()
+        creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete"], label="Type of task creation",value="New")
         cr_new_task_btn = gr.Button(value="Create task by type")
 
         # init = gr.Textbox(label="Init", lines=4)
@@ -315,9 +330,11 @@ def gr_body(request) -> None:
         # search = gr.Textbox(label="Search", lines=4)
         # userinput = gr.Textbox(label="User Input", lines=4)
 
+        file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
+
         add_new_btn.click(fn=manager.runIteration, inputs=[input], outputs=[
                           prompt, output, graph_img], api_name='runIteration')
-        next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, prompt], api_name='next_task')
+        next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list], api_name='next_task')
         cr_new_task_btn.click(fn=manager.createNewTask, inputs=[input, creation_var_list, creation_types_radio, creation_tag_list], outputs=[prompt, output, graph_img], api_name="createNewTask")
 
     demo.launch()

@@ -148,7 +148,7 @@ class BaseTask():
         return self.id
 
 
-    def addChildTask(self, task : TaskDescription):
+    def addChildToCrList(self, task : TaskDescription):
         self.crtasklist.append(task)
 
     def isSolved(self):
@@ -172,3 +172,7 @@ class BaseTask():
         return None
     def completeTask(self):
         return False 
+    
+    def update(self, input : TaskDescription = None):
+        for child in self.childs:
+            child.update()

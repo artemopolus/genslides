@@ -18,5 +18,5 @@ class InformationTask(BaseTask):
             words = word_tokenize(sents[1])
             if 'presentation' in words or 'Presentation' in words:
                 print('Need to create presentation')
-                super().addChildTask(TaskDescription(description, PresentationTask, None))
+                super().addChildToCrList(TaskDescription(description, PresentationTask, None))
 

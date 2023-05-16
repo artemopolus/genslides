@@ -1,8 +1,8 @@
 from genslides.task.presentation import PresentationTask
 from genslides.task.base import BaseTask
 from genslides.task.base import TaskDescription
-from genslides.task.text import RichTextTask
-from genslides.task.text import RequestTask
+from genslides.task.richtext import RichTextTask
+from genslides.task.request import RequestTask
 
 import genslides.commands.create as cr
 
