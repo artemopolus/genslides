@@ -10,10 +10,15 @@ from os.path import isfile, join
 
 import json
 
+from genslides.utils.largetext import SimpleChatGPT
+
 class TaskManager(metaclass=Singleton):
     def __init__(self) -> None:
         self.task_id = 0
         self.task_list = []
+        self.model_list = []
+        chat = SimpleChatGPT()
+        self.model_list = chat.getModelNames()
 
     def getId(self, task) -> int:
         id = self.task_id
@@ -176,3 +181,12 @@ class BaseTask():
     def update(self, input : TaskDescription = None):
         for child in self.childs:
             child.update()
+
+    def beforeRemove(self):
+        if self.parent:
+            self.parent.childs.remove(self)
+        for child in self.childs:
+            child.whenParentRemoved()
+
+    def whenParentRemoved(self):
+        self.parent = None

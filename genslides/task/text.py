@@ -34,6 +34,9 @@ class TextTask(BaseTask):
         
         print("content=", task_info.prompt)
 
+    def beforeRemove(self):
+        super().beforeRemove()
+
     def getPath(self) -> str:
         if not os.path.exists("saved"):
             os.makedirs("saved")
@@ -60,6 +63,9 @@ class TextTask(BaseTask):
         with open(self.path, 'w') as f:
             print("save to file=", self.path)
             json.dump(resp_json_out, f, indent=1)
+
+    def deleteJsonFile(self):
+        os.remove(self.path)
 
         
         

@@ -26,6 +26,16 @@ class ChatGPT():
             #             print('model=',model)
         self.path = path_to_config
 
+    def getModelNames(self):
+        models = openai.Model.list()
+        model_names = []
+        for model in models.data:
+            model_names.append(model.id)
+        return model_names
+    
+    def getDefaultName(self):
+        return "gpt-3.5-turbo"
+
     def add_counter_to_prompts(self, token_num = 1, price = 0.002):
         with open(self.path,'r') as f:
             val = json.load(f)

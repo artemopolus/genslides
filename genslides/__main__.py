@@ -43,7 +43,7 @@ class Manager:
         # print("parent tasks=", parent_task_list)
         # for task in parent_task_list:
         #     print(10*"==","=>type=", task['type'])
-        #     self.createNewTask(task['content'], task['type'], "New")
+        #     self.makeTaskAction(task['content'], task['type'], "New")
         self.createTask()
 
     def getTextFromFile(self, text, filenames):
@@ -74,9 +74,9 @@ class Manager:
             self.curr_task = prnt_task
             print("content=",prompt['content'])
             if parent_path == "":
-                self.createNewTask(prompt['content'], prompt['type'], "New", prompt['role'])
+                self.makeTaskAction(prompt['content'], prompt['type'], "New", prompt['role'])
             else:
-                self.createNewTask(prompt['content'], prompt['type'], "SubTask",prompt['role'])
+                self.makeTaskAction(prompt['content'], prompt['type'], "SubTask",prompt['role'])
         for task in self.task_list:
             if task not in init_task_list:
                 self.createTask(task)
@@ -129,7 +129,8 @@ class Manager:
 
         # return self.draw_graph(), pprint.pformat((self.curr_task.msg_list))
         value = self.curr_task.msg_list[len(self.curr_task.msg_list) - 1]
-        return self.draw_graph(), value["content"], value["role"]
+        return self.draw_graph(), value["content"], value["role"], pprint.pformat(self.curr_task.msg_list)
+
 
     def draw_graph(self):
         if len(self.task_list) > 0:
@@ -140,17 +141,20 @@ class Manager:
                     f.node( task.getName(), task.getLabel(),style="filled",color="skyblue")
                 else:
                     f.node( task.getName(), task.getLabel())
+                print("info=",task.getName(),"   ", task.getLabel())
             
             for task in self.task_list:
                 for child in task.childs:
                     f.edge(task.getName(), child.getName())
+                    print("edge=", task.getName(), "====>",child.getName())
+
             img_path = "output/img"
             f.render(filename=img_path,view=False,format='png')
             img_path += ".png"
             return img_path
         return "output/img.png"
          
-    def createNewTask(self, prompt, type, creation_type, creation_tag):
+    def makeTaskAction(self, prompt, type, creation_type, creation_tag):
         print(10*"==")
         print("Create new task")
         print("type=",type)
@@ -165,6 +169,13 @@ class Manager:
         if creation_type == "Edit":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
             self.curr_task.update(info)
+            return self.runIteration(prompt)
+        elif creation_type == "Delete":
+            task = self.curr_task
+            task.beforeRemove()
+            self.task_list.remove(task)
+            self.setNextTask()
+            del task
             return self.runIteration(prompt)
         elif creation_type == "New":
             parent = None
@@ -311,6 +322,10 @@ def gr_body(request) -> None:
 
         types = [t for t in manager.helper.getNames()]
 
+        task_man = TaskManager()
+
+        dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
+
         graph_img = gr.Image()
         add_new_btn = gr.Button(value="Update")
         next_task_btn = gr.Button(value="Next task, plz")
@@ -320,10 +335,10 @@ def gr_body(request) -> None:
         input = gr.Textbox(label="Input", lines=4, value=request)
         file_input = gr.File()
         creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete"], label="Type of task creation",value="New")
-        cr_new_task_btn = gr.Button(value="Create task by type")
+        cr_new_task_btn = gr.Button(value="Make action!")
 
         # init = gr.Textbox(label="Init", lines=4)
-        prompt = gr.Textbox(label="Prompt", lines=4)
+        info = gr.Textbox(label="Info", lines=4)
         output = gr.Textbox(label="Output Box")
         # endi = gr.Textbox(label="Endi", lines=4)
         # question = gr.Textbox(label="Question", lines=4)
@@ -333,9 +348,9 @@ def gr_body(request) -> None:
         file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
 
         add_new_btn.click(fn=manager.runIteration, inputs=[input], outputs=[
-                          prompt, output, graph_img], api_name='runIteration')
-        next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list], api_name='next_task')
-        cr_new_task_btn.click(fn=manager.createNewTask, inputs=[input, creation_var_list, creation_types_radio, creation_tag_list], outputs=[prompt, output, graph_img], api_name="createNewTask")
+                          info, output, graph_img], api_name='runIteration')
+        next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
+        cr_new_task_btn.click(fn=manager.makeTaskAction, inputs=[input, creation_var_list, creation_types_radio, creation_tag_list], outputs=[info, output, graph_img], api_name="makeTaskAction")
 
     demo.launch()
 

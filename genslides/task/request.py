@@ -12,6 +12,7 @@ class RequestTask(TextTask):
         tmp_msg_list = self.msg_list.copy()
         tmp_msg_list.append(pair)
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list, remove_last=False)
+        print("list from file=",msg_list_from_file)
         del tmp_msg_list
         print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
         
@@ -42,3 +43,13 @@ class RequestTask(TextTask):
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"]
 
+    def beforeRemove(self):
+        self.deleteJsonFile()
+        super().beforeRemove()
+    
+    def whenParentRemoved(self):
+        super().whenParentRemoved()
+        last = self.msg_list.pop()
+        self.msg_list = []
+        self.msg_list.append(last)
+        self.saveJsonToFile(self.msg_list)
