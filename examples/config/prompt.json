@@ -1,4 +1,16 @@
 {
+	"RichText":{
+		"Init":"Give me ",
+		"Endi":""
+	},
+	"Request":{
+		"Init":"",
+		"Endi":""
+	},	
+	"Response":{
+		"Init":"",
+		"Endi":""
+	},
 	"Presentation":{
 		"Init":"Give me json list of slides formatted as: title, description. I want to create: ",
 		"Endi":""
@@ -9,10 +21,6 @@
 	},
 	"Slide":{
 		"Init":"I understand only clear and strict instructions. Give me list of components for inserting in presentation slide formatted in JSON as: type is text or table or chart or plot or image; detailed description; position is array of X and Y from top left corner for prevent overlay(max X = 500, max Y = 1000).",
-		"Endi":""
-	},
-	"RichText":{
-		"Init":"Give me ",
 		"Endi":""
 	},
 	"Text":{

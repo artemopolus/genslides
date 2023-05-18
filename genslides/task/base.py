@@ -72,6 +72,7 @@ class TaskManager(metaclass=Singleton):
                     parent_path = rq['parent']
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
                         print("Get propmt from=",path)
+                        # if rq['type'].endswith("RichText") or rq['type'].endswith("Response"):
                         if rq['type'] == "RichText":
                             elem = rq['chat'].pop()
                         elem = rq['chat'].pop()

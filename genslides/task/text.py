@@ -30,9 +30,9 @@ class TextTask(BaseTask):
         else:
             self.msg_list = self.parent.msg_list.copy()
             print("parent path=", self.parent.path)
-            print("Message list from parent=", pprint.pformat( self.parent.msg_list))
+            # print("Message list from parent=", pprint.pformat( self.parent.msg_list))
         
-        print("content=", task_info.prompt)
+        # print("content=", task_info.prompt)
 
     def beforeRemove(self):
         super().beforeRemove()

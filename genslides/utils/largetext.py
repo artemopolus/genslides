@@ -15,9 +15,9 @@ class ChatGPT():
             values = json.load(config)
             key = values['api_key']
             openai.api_key = key
-            print('key=',key)
+            # print('key=',key)
             self.active = values['active']
-            print('active=', self.active)
+            # print('active=', self.active)
             # if key:
 
             #     models = openai.Model.list()

@@ -1,4 +1,5 @@
 {
  "api_key": "",
- "counter": 0.0
+ "counter": 0.0,
+ "active": false
 }

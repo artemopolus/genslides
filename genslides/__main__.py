@@ -61,25 +61,30 @@ class Manager:
         else:
             parent_path = prnt_task.path
             self.curr_task = prnt_task
-            print("task=", self.curr_task.path)
-            print("path=", parent_path)
+            # print("task=", self.curr_task.path)
+            print("Parent task path=", parent_path)
         init_task_list = self.task_list.copy()
         task_manager = TaskManager()
         parent_prompt_list = task_manager.getTaskPrompts(parent_path)
 
-        print("task count=",len(self.task_list))
-        print("prompt=",parent_prompt_list)
+        print("prompt count=",len(parent_prompt_list))
 
         for prompt in parent_prompt_list:
             self.curr_task = prnt_task
-            print("content=",prompt['content'])
+            # print("content=",prompt['content'])
             if parent_path == "":
                 self.makeTaskAction(prompt['content'], prompt['type'], "New", prompt['role'])
             else:
                 self.makeTaskAction(prompt['content'], prompt['type'], "SubTask",prompt['role'])
-        for task in self.task_list:
-            if task not in init_task_list:
-                self.createTask(task)
+
+        trg_task_list = self.task_list.copy()
+
+        print("task count=",len(self.task_list),",exclude=",len(init_task_list))
+        if len(parent_prompt_list):
+            for task in trg_task_list:
+                if task not in init_task_list:
+                    print("+++",parent_path)
+                    self.createTask(task)
         
 
 
@@ -145,12 +150,12 @@ class Manager:
                     f.node( task.getName(), task.getLabel(),style="filled",color="skyblue")
                 else:
                     f.node( task.getName(), task.getLabel())
-                print("info=",task.getName(),"   ", task.getLabel())
+                # print("info=",task.getName(),"   ", task.getLabel())
             
             for task in self.task_list:
                 for child in task.childs:
                     f.edge(task.getName(), child.getName())
-                    print("edge=", task.getName(), "====>",child.getName())
+                    # print("edge=", task.getName(), "====>",child.getName())
 
             img_path = "output/img"
             f.render(filename=img_path,view=False,format='png')
@@ -159,14 +164,15 @@ class Manager:
         return "output/img.png"
          
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
-        print(10*"==")
-        print("Create new task")
-        print("type=",type)
-        print("prompt=", prompt)
-        print("creation type=", creation_type)
+        # print(10*"==")
+        # print("Create new task")
+        # print("type=",type)
+        # print("prompt=", prompt)
+        # print("creation type=", creation_type)
         out = ""
         log = "Nothing"
         img_path = "output/img.png"
+
 
         if type is None or creation_type is None:
             return out, log, img_path
@@ -183,6 +189,8 @@ class Manager:
             return self.runIteration(prompt)
         elif creation_type == "New":
             parent = None
+            if type.startswith("Response"):
+                return out, log, img_path
         elif creation_type == "SubTask":
             parent = self.curr_task
         else:
@@ -190,7 +198,7 @@ class Manager:
         
         curr_cmd = cr.createTaskByType(type, TaskDescription(prompt=prompt, helper=self.helper, requester=self.requester, parent=parent,prompt_tag=creation_tag))
 
-        print("Current cmd=", curr_cmd)
+        # print("Current cmd=", curr_cmd)
 
         if not curr_cmd:
             return out, log, img_path

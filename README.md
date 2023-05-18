@@ -14,7 +14,7 @@ pip install --upgrade openai
 pip install tiktoken
 pip install transformers
 
-#another way -- envoronments:
+#another way -- environments:
 
 python -m venv .env
 #for win:
@@ -27,6 +27,8 @@ download and install from here: https://www.graphviz.org/download/
 
 
 #How to use
+
+copy config folder from examples to root and input your api
 
 python -m genslides
 
