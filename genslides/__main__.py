@@ -317,11 +317,18 @@ class Manager:
         if all_task_expanded:
             all_task_completed = True
             log += "All task expanded\n"
+            print("Complete task list")
             for task in self.task_list:
                 if not task.completeTask():
                     all_task_completed = False
                 else:
                     print("task complete=",str(task))
+
+        tokens, price = self.curr_task.getCountPrice()
+        out += "Tokens=" + str(tokens) +"\n"
+        out += "Price=" + str(price) + "\n"
+        out += pprint.pformat(self.curr_task.msg_list)
+
 
         if all_task_completed:
             log += "All task complete\n"

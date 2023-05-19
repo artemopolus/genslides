@@ -117,7 +117,7 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt = None, method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user") -> None:
+    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user") -> None:
         self.prompt = prompt
         self.prompt_tag = prompt_tag
         self.method = method
@@ -247,6 +247,7 @@ class BaseTask():
             task.method(input)
 
     def completeTask(self) -> bool:
+        print("Complete Task")
         self.useLinksToTask()
         return False 
  

@@ -172,7 +172,10 @@ class TextTask(BaseTask):
         return out
     
     def completeTask(self) -> bool:
-        return False 
+        res = super().completeTask()
+        info = TaskDescription(prompt=self.getRichPrompt(),prompt_tag=self.msg_list[len(self.msg_list) - 1]["role"])
+        self.update(info)
+        return res
 
     def useLinksToTask(self):
         text = self.msg_list[len(self.msg_list) - 1]["content"]
