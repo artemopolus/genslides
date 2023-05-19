@@ -1,6 +1,7 @@
 from genslides.task.presentation import PresentationTask
 from genslides.task.base import TaskDescription
 from genslides.task.base import TaskManager
+from genslides.task.base import BaseTask
 
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
@@ -25,6 +26,7 @@ class Manager:
         self.task_list = []
         self.task_index = 0
         self.curr_task = None
+        self.slct_task = None
         self.cmd_list = []
         self.cmd_index = 0
         self.helper = helper
@@ -38,13 +40,30 @@ class Manager:
         self.need_human_response = False
 
 
-        # task_manager = TaskManager()
+        task_manager = TaskManager()
+
+        links = task_manager.getLinks()
         # parent_task_list = task_manager.getParentTaskPrompts()
         # print("parent tasks=", parent_task_list)
         # for task in parent_task_list:
         #     print(10*"==","=>type=", task['type'])
         #     self.makeTaskAction(task['content'], task['type'], "New")
         self.createTask()
+
+        for link in links:
+            trgs = link['linked']
+            affect_task = self.getTaskByName(link['name'])
+            for trg in trgs:
+                influense_task = self.getTaskByName(trg)
+                self.makeLink(affect_task, influense_task)
+
+        for task in self.task_list:
+            print("Task name=", task.getName(), " affected")
+            for info in task.by_ext_affected_list:
+                print("by ",info.parent.getName())
+            print("influence")
+            for info in task.affect_to_ext_list:
+                print("to ",info.parent.getName())
 
     def getTextFromFile(self, text, filenames):
         if filenames is None:
@@ -132,30 +151,36 @@ class Manager:
             self.task_index = 0
             self.curr_task = self.task_list[self.task_index]
 
-        # return self.draw_graph(), pprint.pformat((self.curr_task.msg_list))
+        # return self.drawGraph(), pprint.pformat((self.curr_task.msg_list))
         value = self.curr_task.msg_list[len(self.curr_task.msg_list) - 1]
         tokens, price = self.curr_task.getCountPrice()
         output = "Tokens=" + str(tokens) +"\n"
         output += "Price=" + str(price) + "\n"
         output += pprint.pformat(self.curr_task.msg_list)
-        return self.draw_graph(), value["content"], value["role"], output
+        return self.drawGraph(), value["content"], value["role"], output
 
 
-    def draw_graph(self):
+    def drawGraph(self):
         if len(self.task_list) > 0:
             f = graphviz.Digraph(comment='The Test Table')
             
             for task in self.task_list:
                 if task == self.curr_task:
-                    f.node( task.getName(), task.getLabel(),style="filled",color="skyblue")
+                    f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
+                elif task ==self.slct_task:
+                    f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
                 else:
-                    f.node( task.getName(), task.getLabel())
-                # print("info=",task.getName(),"   ", task.getLabel())
+                    f.node( task.getIdStr(), task.getName())
+                # print("info=",task.getIdStr(),"   ", task.getName())
             
             for task in self.task_list:
                 for child in task.childs:
-                    f.edge(task.getName(), child.getName())
-                    # print("edge=", task.getName(), "====>",child.getName())
+                    f.edge(task.getIdStr(), child.getIdStr())
+                    # print("edge=", task.getIdStr(), "====>",child.getIdStr())
+
+                for info in task.by_ext_affected_list:
+                    # print("by ",info.parent.getName())
+                    f.edge(info.parent.getIdStr(), task.getIdStr(), color = "darkorchid3", style="dashed")
 
             img_path = "output/img"
             f.render(filename=img_path,view=False,format='png')
@@ -179,6 +204,13 @@ class Manager:
         if creation_type == "Edit":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
             self.curr_task.update(info)
+            return self.runIteration(prompt)
+        elif creation_type == "Select":
+            self.slct_task = self.curr_task
+            return self.runIteration(prompt)
+        elif creation_type == "Link":
+            if self.curr_task != self.slct_task:
+                self.makeLink(self.curr_task, self.slct_task)
             return self.runIteration(prompt)
         elif creation_type == "Delete":
             task = self.curr_task
@@ -206,6 +238,18 @@ class Manager:
         
 
         return self.runIteration(prompt)
+    
+    def makeLink(self, task_in : BaseTask, task_out :BaseTask):
+        if task_in != None and task_out != None:
+            print("Make link")
+            task_in.createLinkToTask(task_out)
+
+    def getTaskByName(self, name : str) -> BaseTask:
+        for task in self.task_list:
+            if task.getName() == name:
+                return task
+        return None
+
 
     def runIteration(self, prompt):
         img_path = "output/img.png"
@@ -222,13 +266,13 @@ class Manager:
             
         #     for task in self.task_list:
         #         if task == self.curr_task:
-        #             f.node( task.getName(), task.getLabel(),style="filled",color="skyblue")
+        #             f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
         #         else:
-        #             f.node( task.getName(), task.getLabel())
+        #             f.node( task.getIdStr(), task.getName())
             
         #     for task in self.task_list:
         #         for child in task.childs:
-        #             f.edge(task.getName(), child.getName())
+        #             f.edge(task.getIdStr(), child.getIdStr())
         #     img_path = "output/img"
         #     f.render(filename=img_path,view=False,format='png')
         #     img_path += ".png"
@@ -250,9 +294,9 @@ class Manager:
             out += str(task) + '\n'
             out += "Task description:\n"
             out += task.task_description
-            img_path = self.draw_graph()
+            img_path = self.drawGraph()
             return out, log, img_path
-        img_path = self.draw_graph()
+        img_path = self.drawGraph()
         index = 0
 
         all_task_expanded = False 
@@ -341,13 +385,13 @@ def gr_body(request) -> None:
         graph_img = gr.Image()
         add_new_btn = gr.Button(value="Update")
         next_task_btn = gr.Button(value="Next task, plz")
+        creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete", "Select", "Link"], label="Type of task creation",value="New")
+        cr_new_task_btn = gr.Button(value="Make action!")
 
         creation_var_list = gr.Radio(choices = types,label="Task to create", value=types[0])
         creation_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
         input = gr.Textbox(label="Input", lines=4, value=request)
         file_input = gr.File()
-        creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete"], label="Type of task creation",value="New")
-        cr_new_task_btn = gr.Button(value="Make action!")
 
         # init = gr.Textbox(label="Init", lines=4)
         info = gr.Textbox(label="Info", lines=4)

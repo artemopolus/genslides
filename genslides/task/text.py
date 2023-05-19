@@ -50,11 +50,13 @@ class TextTask(BaseTask):
             os.makedirs("saved")
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        name = self.type + str(self.id) + ".json"
+        self.name = self.type + str(self.id)
+        name = self.name + ".json"
         found = False
         while not found:
             if name in onlyfiles:
-                name = self.type + str(self.getNewID()) + ".json"
+                self.name = self.type + str(self.getNewID())
+                name = self.name + ".json"
             else:
                 found = True
         return mypath + name
@@ -64,6 +66,10 @@ class TextTask(BaseTask):
         resp_json_out = {}
         resp_json_out['chat'] = msg_list 
         resp_json_out['type'] = self.type
+        linked = []
+        for info in self.by_ext_affected_list:
+            linked.append(info.parent.getName())
+        resp_json_out['linked'] = linked
         path = ""
         if self.parent:
             path = self.parent.path
@@ -106,7 +112,7 @@ class TextTask(BaseTask):
         return True
     
     def processResponse(self):
-        request = self.init + self.prompt + self.endi
+        request = self.getRichPrompt()
         responses = self.getResponse(request)
         if len(responses) == 0:
             chat = SimpleChatGPT()
@@ -135,6 +141,8 @@ class TextTask(BaseTask):
                         if msg_trgs == msg_list:
                             print(10*"====", "YEEEES")
                             self.path = path
+                            self.name = file.split('.')[0]
+                            print("My new name is ", self.name)
                             return rq['chat']
                 except json.JSONDecodeError:
                     pass
@@ -158,11 +166,31 @@ class TextTask(BaseTask):
                     pass
         return []
 
+    def createLinkToTask(self, task) -> TaskDescription:
+        out =  super().createLinkToTask(task)
+        self.saveJsonToFile(self.msg_list)
+        return out
+    
+    def completeTask(self) -> bool:
+        return False 
+
+    def useLinksToTask(self):
+        text = self.msg_list[len(self.msg_list) - 1]["content"]
+        input = TaskDescription(prompt=text)
+        for task in self.affect_to_ext_list:
+            task.prompt = text
+            task.method(input)
+
+    def affectedTaskCallback(self, input : TaskDescription):
+        print("My name is ", self.getName())
+        print("My prompt now is ", self.getRichPrompt())
+
+ 
 
 class ChatGPTTask(TextTask):
     def __init__(self, task_info : TaskDescription) -> None:
         super().__init__(task_info, "Information")
-        self.request_to = self.init + self.prompt + self.endi
+        self.request_to = self.getRichPrompt()
         print("Start ChatGPT")
         responses = self.getResponse(self.request_to)
         if len(responses) == 0:

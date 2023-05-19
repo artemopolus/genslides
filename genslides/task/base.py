@@ -32,6 +32,26 @@ class TaskManager(metaclass=Singleton):
             os.makedirs("saved")
         return "saved/"
     
+    def getLinks(self):
+        mypath = self.getPath()
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        out = []
+        for filename in onlyfiles:
+            path = join(mypath,filename)
+            try:
+                with open(path, 'r') as f:
+                    rq = json.load(f)
+                if 'linked' in rq:
+
+                    pair = {}
+                    pair['name'] = filename.split('.')[0]
+                    pair['linked'] = rq['linked']
+                    out.append(pair)
+            except Exception as e:
+                pass
+        return out
+
+    
     def getParentTaskPrompts(self):
         mypath = self.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
@@ -97,7 +117,7 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt, method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user") -> None:
+    def __init__(self, prompt = None, method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user") -> None:
         self.prompt = prompt
         self.prompt_tag = prompt_tag
         self.method = method
@@ -134,18 +154,24 @@ class BaseTask():
             self.parent.addChild(self)
         self.target = task_info.target
 
+        self.affect_to_ext_list = []
+        self.by_ext_affected_list = []
+        self.name = self.type + str(self.id)
+
     def getRichPrompt(self) -> str:
         out = self.prompt
         if not out.startswith(self.init):
             out = self.init + out
         if not out.endswith(self.endi):
             out += self.endi
+        for task in self.by_ext_affected_list:
+            out += " " + task.prompt
         return out
 
-    def getName(self) -> str:
+    def getIdStr(self) -> str:
         return str(self.id)
-    def getLabel(self) -> str:
-        return self.type + ' ' + str(self.id)
+    def getName(self) -> str:
+        return self.name
 
 
     def getNewID(self) -> int:
@@ -176,9 +202,7 @@ class BaseTask():
             print('Register command:' + str(task.method))
             return CreateCommand( task)
         return None
-    def completeTask(self):
-        return False 
-    
+   
     def update(self, input : TaskDescription = None):
         for child in self.childs:
             child.update()
@@ -194,3 +218,35 @@ class BaseTask():
 
     def getCountPrice(self):
         return 0,0
+    
+    def affectedTaskCallback(self, input : TaskDescription):
+        pass
+
+    def createLinkToTask(self, task) -> TaskDescription:
+        id = len(self.by_ext_affected_list)
+        out = TaskDescription(method=self.affectedTaskCallback, id=id, parent=task )
+        self.by_ext_affected_list.append(out)
+        task.setLinkToTask(out)
+        return out
+    
+    def removeLinkToTask(self):
+        while len(self.by_ext_affected_list) > 0:
+            input = self.by_ext_affected_list.pop()
+            input.parent.resetLinkToTask(input)
+        
+    
+    def setLinkToTask(self, info : TaskDescription) -> None:
+        self.affect_to_ext_list.append(info)
+
+    def resetLinkToTask(self, info : TaskDescription) -> None:
+        self.affect_to_ext_list.remove(info)
+
+    def useLinksToTask(self):
+        input = TaskDescription(prompt=self.prompt)
+        for task in self.affect_to_ext_list:
+            task.method(input)
+
+    def completeTask(self) -> bool:
+        self.useLinksToTask()
+        return False 
+ 

@@ -38,11 +38,11 @@ class RichTextTask(TextTask):
             print("Get list from file=", self.path)
 
 
-    def completeTask(self):
-        print("target=",self.target)
-        self.is_solved = True
-        if self.target:
-            print("Add text:", self.richtext)
-            self.target(self.richtext[0], self.task_id)
-        return True
+    # def completeTask(self):
+    #     print("target=",self.target)
+    #     self.is_solved = True
+    #     if self.target:
+    #         print("Add text:", self.richtext)
+    #         self.target(self.richtext[0], self.task_id)
+    #     return True
 

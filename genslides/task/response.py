@@ -29,9 +29,9 @@ class ResponseTask(TextTask):
             print("Get list from file=", self.path)
 
 
-    def completeTask(self):
-        self.is_solved = True
-        return True
+    # def completeTask(self):
+    #     self.is_solved = True
+    #     return True
 
     def update(self, input : TaskDescription = None):
         if self.parent:

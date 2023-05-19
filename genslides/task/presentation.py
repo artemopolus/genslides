@@ -29,7 +29,7 @@ class PresentationTask(TextTask):
     def __init__(self, task_info : TaskDescription ) -> None:
         super().__init__(task_info, "Presentation")
         print("Start presentation Task")
-        request = self.init + self.prompt + self.endi
+        request = self.getRichPrompt()
         descriptions = self.getResponse(request)
         if len(descriptions) == 0:
             print("Request to ChatGPT")
@@ -121,7 +121,7 @@ class SlideTask(TextTask):
     # def __init__(self, reqhelper: ReqHelper, requester: Requester, prompt=None, parent=None, method=None) -> None:
         # super().__init__(reqhelper, requester, "Slide", prompt, parent, method)
         print("Create slide with prompt:\n" + self.prompt)
-        request = self.init + self.prompt + self.endi
+        request = self.getRichPrompt()
         descriptions = self.getResponse(request)
         slide_part_prompts =[]
         if len(descriptions) == 0:
