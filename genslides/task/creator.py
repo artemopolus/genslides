@@ -4,23 +4,35 @@ from genslides.task.base import TaskDescription
 from genslides.task.richtext import RichTextTask
 from genslides.task.request import RequestTask
 from genslides.task.response import ResponseTask
+from genslides.task.collect import CollectTask
+from genslides.task.readfile import ReadFileTask
 
 import genslides.commands.create as cr
+
+def checkTypeFromName(name : str, type :str) -> bool:
+    stype = ''.join([i for i in name if not i.isdigit()])
+    return stype.endswith(type)
 
 def createTaskByType(type : str,info : TaskDescription):
     # if type == "Presentation":
         # return PresentationTask(info)
-    if type.endswith("Text"):
+    stype = ''.join([i for i in type if not i.isdigit()])
+    info.type = stype
+    info.filename = type
+    if stype.endswith("Text"):
         info.method = RichTextTask
-        info.type = type
         return cr.CreateCommand(info)
-    if type.endswith("Request"):
+    if stype.endswith("Request"):
         info.method = RequestTask
-        info.type = type
         return cr.CreateCommand(info)
-    if type.endswith("Response"):
+    if stype.endswith("Response"):
         info.method = ResponseTask
-        info.type = type
+        return cr.CreateCommand(info)
+    if stype.endswith("Collect"):
+        info.method = CollectTask
+        return cr.CreateCommand(info)
+    if stype.endswith("ReadFile"):
+        info.method = ReadFileTask
         return cr.CreateCommand(info)
     else:
     	return None

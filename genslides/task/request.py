@@ -43,15 +43,3 @@ class RequestTask(TextTask):
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"]
 
-    def beforeRemove(self):
-        self.deleteJsonFile()
-        super().beforeRemove()
-    
-    def whenParentRemoved(self):
-        super().whenParentRemoved()
-        last = self.msg_list.pop()
-        self.msg_list = []
-        self.msg_list.append(last)
-        self.saveJsonToFile(self.msg_list)
-
-        

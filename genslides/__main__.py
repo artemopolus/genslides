@@ -221,7 +221,8 @@ class Manager:
             return self.runIteration(prompt)
         elif creation_type == "New":
             parent = None
-            if type.startswith("Response"):
+            if cr.checkTypeFromName(type, "Response"):
+            # if type.startswith("Response"):
                 return out, log, img_path
         elif creation_type == "SubTask":
             parent = self.curr_task

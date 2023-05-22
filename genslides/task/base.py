@@ -69,9 +69,10 @@ class TaskManager(metaclass=Singleton):
                         
                         for elem in rq['chat']:
                             if elem['role'] == 'user':
-                                pair = {}
-                                pair['type'] = rq['type']
-                                pair['content'] = elem['content']
+                                pair = {
+                                'type' : rq['type'],
+                                'content' : elem['content']
+                                }
                                 out.append(pair)
             except Exception as e:
                 pass
@@ -97,7 +98,8 @@ class TaskManager(metaclass=Singleton):
                             elem = rq['chat'].pop()
                         elem = rq['chat'].pop()
                         pair = {}
-                        pair['type'] = rq['type']
+                        # pair['type'] = rq['type']
+                        pair['type'] =filename.split('.')[0] 
                         pair['content'] = elem['content']
                         pair['role'] = elem['role']
 
@@ -117,7 +119,7 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user") -> None:
+    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "") -> None:
         self.prompt = prompt
         self.prompt_tag = prompt_tag
         self.method = method
@@ -127,6 +129,7 @@ class TaskDescription():
         self.target = target
         self.id = id
         self.type = type
+        self.filename = filename
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
@@ -142,6 +145,8 @@ class BaseTask():
         self.endi = self.reqhelper.getEndi(type)
 
         self.prompt = task_info.prompt
+        self.prompt_tag = task_info.prompt_tag
+        
         self.method = task_info.method
         task_manager = TaskManager()
         self.id = task_manager.getId(self)
@@ -153,6 +158,7 @@ class BaseTask():
         if  self.parent:
             self.parent.addChild(self)
         self.target = task_info.target
+        self.filename = task_info.filename
 
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []

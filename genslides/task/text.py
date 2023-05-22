@@ -33,9 +33,7 @@ class TextTask(BaseTask):
             # print("Message list from parent=", pprint.pformat( self.parent.msg_list))
         
         # print("content=", task_info.prompt)
-
-    def beforeRemove(self):
-        super().beforeRemove()
+        self.params = []
 
     def getCountPrice(self):
         text = ""
@@ -63,9 +61,11 @@ class TextTask(BaseTask):
 
 
     def saveJsonToFile(self, msg_list):
-        resp_json_out = {}
-        resp_json_out['chat'] = msg_list 
-        resp_json_out['type'] = self.type
+        resp_json_out = {
+        'chat' : msg_list, 
+        'type' : self.type,
+        'params': self.params
+        }
         linked = []
         for info in self.by_ext_affected_list:
             linked.append(info.parent.getName())
@@ -127,7 +127,10 @@ class TextTask(BaseTask):
 
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        for file in onlyfiles:
+        trg_file = self.filename + ".json"
+        # for file in onlyfiles:
+        if trg_file in onlyfiles:
+            file = trg_file
             if file.startswith(self.type):
                 path = mypath + file
                 try:
@@ -142,6 +145,8 @@ class TextTask(BaseTask):
                             print(10*"====", "YEEEES")
                             self.path = path
                             self.name = file.split('.')[0]
+                            if 'params' in rq:
+                                self.params = rq['params']
                             print("My new name is ", self.name)
                             return rq['chat']
                 except json.JSONDecodeError:
@@ -187,8 +192,20 @@ class TextTask(BaseTask):
     def affectedTaskCallback(self, input : TaskDescription):
         print("My name is ", self.getName())
         print("My prompt now is ", self.getRichPrompt())
+        print("Msgs=",pprint.pformat(self.msg_list))
 
- 
+    def beforeRemove(self):
+        self.deleteJsonFile()
+        super().beforeRemove()
+    
+    def whenParentRemoved(self):
+        super().whenParentRemoved()
+        last = self.msg_list.pop()
+        self.msg_list = []
+        self.msg_list.append(last)
+        self.saveJsonToFile(self.msg_list)
+
+
 
 class ChatGPTTask(TextTask):
     def __init__(self, task_info : TaskDescription) -> None:
