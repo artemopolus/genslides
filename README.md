@@ -25,6 +25,8 @@ python -m nltk.downloader popular
 #graphviz win
 download and install from here: https://www.graphviz.org/download/
 
+sudo apt-get install graphviz
+
 
 #How to use
 
