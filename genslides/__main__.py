@@ -143,21 +143,31 @@ class Manager:
     #               except json.JSONDecodeError:
     #                      pass
     #        return []
-    def setNextTask(self):
-        if len(self.task_list) > self.task_index:
-            self.curr_task = self.task_list[self.task_index]
-            self.task_index +=1
-        else:
+    def setNextTask(self, input):
+        try:
+            inc = int(input)
+        except ValueError:
+            print("Value error")
+        #Try float.
+            # ret = float(s)
+            return "","", self.drawGraph(), "",""
+        print("Increment=",inc)
+        self.task_index += inc
+
+        if len(self.task_list) <= self.task_index:
             self.task_index = 0
-            self.curr_task = self.task_list[self.task_index]
+
+        self.curr_task = self.task_list[self.task_index]
 
         # return self.drawGraph(), pprint.pformat((self.curr_task.msg_list))
-        value = self.curr_task.msg_list[len(self.curr_task.msg_list) - 1]
         tokens, price = self.curr_task.getCountPrice()
         output = "Tokens=" + str(tokens) +"\n"
         output += "Price=" + str(price) + "\n"
         output += pprint.pformat(self.curr_task.msg_list)
-        return self.drawGraph(), value["content"], value["role"], output
+        in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+        return out_prompt, output ,self.drawGraph(), in_prompt, in_role
+        # std_output_list = [info, output, graph_img, input, creation_tag_list]
+        # next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
 
 
     def drawGraph(self):
@@ -208,6 +218,16 @@ class Manager:
         elif creation_type == "Select":
             self.slct_task = self.curr_task
             return self.runIteration(prompt)
+        elif creation_type == "RemoveParent":
+            if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
+                self.curr_task.whenParentRemoved()
+                self.curr_task.update()
+            return self.runIteration(prompt)
+        elif creation_type == "Parent":
+            if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
+                info = TaskDescription(prompt=self.curr_task.getRichPrompt(),prompt_tag=self.curr_task.getTagPrompt(), parent=self.slct_task)
+                self.curr_task.update(info)
+            return self.runIteration(prompt)
         elif creation_type == "Link":
             if self.curr_task != self.slct_task:
                 self.makeLink(self.curr_task, self.slct_task)
@@ -253,6 +273,7 @@ class Manager:
 
 
     def runIteration(self, prompt):
+        print("Run iteration")
         img_path = "output/img.png"
 
         if not os.path.exists(img_path):
@@ -261,7 +282,7 @@ class Manager:
 
         if self.need_human_response:
             self.need_human_response = False
-            return "", "", img_path
+            return "", "", img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
         # if len(self.task_list) > 0:
         #     f = graphviz.Digraph(comment='The Test Table')
             
@@ -296,7 +317,8 @@ class Manager:
             out += "Task description:\n"
             out += task.task_description
             img_path = self.drawGraph()
-            return out, log, img_path
+            return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
+
         img_path = self.drawGraph()
         index = 0
 
@@ -333,7 +355,7 @@ class Manager:
 
         if all_task_completed:
             log += "All task complete\n"
-            return out, log, img_path
+            return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
             # if self.curr_task:
             #     self.curr_task.completeTask()
 
@@ -374,7 +396,13 @@ class Manager:
             # summtask.completeTask()
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
-        return out, log, img_path
+        return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
+    
+    def update(self):
+        for task in self.task_list:
+            if task.parent == None:
+                task.update()
+        return self.runIteration("")
 
 
 def gr_body(request) -> None:
@@ -391,9 +419,15 @@ def gr_body(request) -> None:
         dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
 
         graph_img = gr.Image()
-        add_new_btn = gr.Button(value="Update")
-        next_task_btn = gr.Button(value="Next task, plz")
-        creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete", "Select", "Link"], label="Type of task creation",value="New")
+        with gr.Row() as r:
+            add_new_btn = gr.Button(value="Run")
+            update_task_btn = gr.Button(value="Update")
+        with gr.Row() as r:
+            next_task_val = gr.Textbox(value="1")
+            next_task_btn = gr.Button(value="Next task, plz")
+            prev_task_val = gr.Textbox(value="-1")
+            prev_task_btn = gr.Button(value="Prev task, plz")
+        creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete", "Select", "Link", "Parent", "RemoveParent"], label="Type of task creation",value="New")
         cr_new_task_btn = gr.Button(value="Make action!")
 
         creation_var_list = gr.Radio(choices = types,label="Task to create", value=types[0])
@@ -411,16 +445,19 @@ def gr_body(request) -> None:
 
         file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
 
-        add_new_btn.click(fn=manager.runIteration, inputs=[input], outputs=[
-                          info, output, graph_img], api_name='runIteration')
-        next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
-        cr_new_task_btn.click(fn=manager.makeTaskAction, inputs=[input, creation_var_list, creation_types_radio, creation_tag_list], outputs=[info, output, graph_img], api_name="makeTaskAction")
+        std_output_list = [info, output, graph_img, input, creation_tag_list]
+        add_new_btn.click(fn=manager.runIteration, inputs=[input], outputs=std_output_list, api_name='runIteration')
+        update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
+        next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
+        prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
+        cr_new_task_btn.click(fn=manager.makeTaskAction, inputs=[input, creation_var_list, creation_types_radio, creation_tag_list], outputs=std_output_list, api_name="makeTaskAction")
 
     demo.launch()
 
 
 def main() -> None:
     prompt = "Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+    # prompt = "automation of presentation"
 
     if 1:
         print("Start gradio application")

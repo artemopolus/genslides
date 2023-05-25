@@ -68,8 +68,8 @@ class WebBrowser(Browser):
         try:
             driver = webdriver.Chrome(options=options)
             # print(str(i+1) + " / " + str(len(links)) + '\n' + link)
-            # print(link)
-            driver.command_executor.set_timeout(60)
+            print("load by link=",link)
+            # driver.command_executor.set_timeout(60)
             driver.get(url=link)
             page_source = driver.execute_script(
                 "return document.body.outerHTML;")
@@ -80,7 +80,7 @@ class WebBrowser(Browser):
             print('done=',len(text))
             driver.close()
         except Exception as e:
-            print(e)
-            # driver.close()
+            print("Page opening error=",e)
+            driver.close()
         
         return out_text

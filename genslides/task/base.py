@@ -173,6 +173,7 @@ class BaseTask():
         for task in self.by_ext_affected_list:
             out += " " + task.prompt
         return out
+    
 
     def getIdStr(self) -> str:
         return str(self.id)
@@ -210,8 +211,18 @@ class BaseTask():
         return None
    
     def update(self, input : TaskDescription = None):
+        print("Update=",self.getName())
+        if input:
+            if input.parent:
+                self.parent = input.parent
         for child in self.childs:
             child.update()
+
+        return "","",""
+    
+    def getInfo(self):
+        return "","",""
+
 
     def beforeRemove(self):
         if self.parent:

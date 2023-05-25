@@ -12,9 +12,9 @@ class RequestTask(TextTask):
         tmp_msg_list = self.msg_list.copy()
         tmp_msg_list.append(pair)
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list, remove_last=False)
-        print("list from file=",msg_list_from_file)
+        # print("list from file=",msg_list_from_file)
         del tmp_msg_list
-        print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
+        # print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
         
         if len(msg_list_from_file) == 0:
             self.msg_list.append(pair)
@@ -39,7 +39,10 @@ class RequestTask(TextTask):
         if self.msg_list != trg_list:
             self.msg_list = trg_list
             self.saveJsonToFile(self.msg_list)
-        super().update()
+        super().update(input)
         out = self.msg_list[len(self.msg_list) - 1]
-        return out["content"], out["role"]
+        return out["content"], out["role"], ""
 
+    def getInfo(self):
+        out = self.msg_list[len(self.msg_list) - 1]
+        return out["content"], out["role"], ""

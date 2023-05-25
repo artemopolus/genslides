@@ -8,7 +8,7 @@ class CreateCommand(SimpleCommand):
       super().__init__(description.method)
       self.description = description
    def execute(self):
-      # print("execute: Create " + str(self.method))
+      print("execute: Create " + str(self.method))
       # print("prompt=",self.description.prompt)
       return self.method( self.description )
       # self.list.append(slide)

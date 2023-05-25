@@ -31,9 +31,6 @@ class ResponseTask(TextTask):
             self.msg_list.append(pair)
 
 
-    # def completeTask(self):
-    #     self.is_solved = True
-    #     return True
 
     def update(self, input : TaskDescription = None):
         if self.parent:
@@ -48,8 +45,11 @@ class ResponseTask(TextTask):
             self.msg_list = trg_list.copy()
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
-        super().update()
+        super().update(input)
         out = self.msg_list[len(self.msg_list) - 1]
-        return out["content"], out["role"]
+        return "", out["role"],out["content"]
 
+    def getInfo(self):
+        out = self.msg_list[len(self.msg_list) - 1]
+        return "", out["role"],out["content"]
  

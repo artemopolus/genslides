@@ -22,6 +22,8 @@ class TextTask(BaseTask):
     def __init__(self, task_info : TaskDescription, type='None') -> None:
         super().__init__(task_info, type)
 
+        print("Type=", self.type)
+
 
         self.path = self.getPath() 
 
@@ -49,6 +51,7 @@ class TextTask(BaseTask):
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         self.name = self.type + str(self.id)
+        print("Name =",self.name)
         name = self.name + ".json"
         found = False
         while not found:
@@ -178,9 +181,14 @@ class TextTask(BaseTask):
     
     def completeTask(self) -> bool:
         res = super().completeTask()
-        info = TaskDescription(prompt=self.getRichPrompt(),prompt_tag=self.msg_list[len(self.msg_list) - 1]["role"])
+        print("Prompt=", self.getRichPrompt())
+        print("Prompt=", self.prompt)
+        info = TaskDescription(prompt=self.getRichPrompt(),prompt_tag=self.getTagPrompt())
         self.update(info)
         return res
+    
+    def getTagPrompt(self):
+        return self.msg_list[len(self.msg_list) - 1]["role"]
 
     def useLinksToTask(self):
         text = self.msg_list[len(self.msg_list) - 1]["content"]
@@ -206,76 +214,15 @@ class TextTask(BaseTask):
         self.saveJsonToFile(self.msg_list)
 
 
-
-class ChatGPTTask(TextTask):
-    def __init__(self, task_info : TaskDescription) -> None:
-        super().__init__(task_info, "Information")
-        self.request_to = self.getRichPrompt()
-        print("Start ChatGPT")
-        responses = self.getResponse(self.request_to)
-        if len(responses) == 0:
-            class_responses = self.requester.getResponse(self.request_to)
-            for elem in class_responses:
-                responses.append(elem.info)
-            self.saveRespJson(self.request_to, responses)
-        self.results = []
-        self.marker = len(responses)
-        for response in responses:
-            self.addChildToCrList(TaskDescription( prompt= response, method= GoogleTask,parent= self.results))
+    def getInfo(self):
+        return super().getInfo()
 
 
-    def completeTask(self):
-        if len(self.results) == self.marker:
-            return True
-        return False
-
-
-class GoogleTask(TextTask):
-    def __init__(self, task_info : TaskDescription) -> None:
-        super().__init__(task_info, "Google")
-    # def __init__(self, reqhelper: ReqHelper, requester: Requester, prompt=None, parent=None, method=None) -> None:
-    #     super().__init__(reqhelper, requester, "Google", prompt, parent, method)
-        self.searcher = GoogleApiSearcher()
-        print("Start Google")
-        links = self.getResponse( task_info.prompt)
-        if len(links) == 0:
-            links = self.searcher.getSearchs(task_info.prompt)
-            self.saveRespJson( task_info.prompt, links)
-
-    # def completeTask(self):
-    #     responses = self.request
-    #     links = self.getResponse( responses)
-    #     if len(links) == 0:
-    #         for resp in responses:
-    #             search_list = self.searcher.getSearchs(resp)
-    #             for sr in search_list:
-    #                 links.append(sr)
-    #                 # log += sr + '\n'
-    #         self.saveRespJson( responses, links)
-    #     return links
-    
-class BrowserTask(TextTask):
-    def __init__(self, task_info : TaskDescription) -> None:
-        super().__init__(task_info, "Browser")
-    # def __init__(self, browser : Browser, reqhelper: ReqHelper, requester: Requester, type='Browser', prompt=None, parent=None, method=None) -> None:
-    #     super().__init__(reqhelper, requester, type, prompt, parent, method)
-        self.browser = browser
-    def completeTask(self):
-        if self.checkFile():
-            return self.openTxt()
-        # text = self.browser.getData(self.prompt)
-        # self.saveTxt(text)
-        # return text
-        return ""
-    
-class SummaryTask(TextTask):
-    def __init__(self, task_info : TaskDescription) -> None:
-        super().__init__(task_info, "Summary")
-    # def __init__(self, summator : Summator, reqhelper: ReqHelper, requester: Requester, type='Summary', prompt=None, parent=None, method=None) -> None:
-        # super().__init__(reqhelper, requester, type, prompt, parent, method)
-        self.summator = summator
-        print('Summary task')
-    def completeTask(self):
-        print('Complete task')
-        self.summator.processText(self.prompt)
+    def update(self, input: TaskDescription = None):
+        if input:
+            print("p=",self.prompt)
+            self.prompt = input.prompt
+            self.prompt_tag = input.prompt_tag
+            print("p=",self.prompt)
+        return super().update(input)
 

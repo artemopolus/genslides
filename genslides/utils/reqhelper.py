@@ -14,15 +14,15 @@ class RequestHelper:
     def getPrompt(self, type, info):
         if type in self.dict:
             return self.dict[type]['Init'] + info + self.dict[type]['Endi']
-        return None
+        return ""
     def getInit(self, type):
         if type in self.dict:
             return self.dict[type]['Init']
-        return None
+        return ""
     def getEndi(self, type):
         if type in self.dict:
             return self.dict[type]['Endi']
-        return None
+        return ""
 
     def getNames(self) -> str:
         return self.dict

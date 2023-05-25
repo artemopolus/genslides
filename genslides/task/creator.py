@@ -6,6 +6,8 @@ from genslides.task.request import RequestTask
 from genslides.task.response import ResponseTask
 from genslides.task.collect import CollectTask
 from genslides.task.readfile import ReadFileTask
+from genslides.task.websurf import WebSurfTask
+from genslides.task.readpage import ReadPageTask
 
 import genslides.commands.create as cr
 
@@ -33,6 +35,12 @@ def createTaskByType(type : str,info : TaskDescription):
         return cr.CreateCommand(info)
     if stype.endswith("ReadFile"):
         info.method = ReadFileTask
+        return cr.CreateCommand(info)
+    if stype.endswith("WebSurf"):
+        info.method = WebSurfTask
+        return cr.CreateCommand(info)
+    if stype.endswith("ReadPage"):
+        info.method = ReadPageTask
         return cr.CreateCommand(info)
     else:
     	return None

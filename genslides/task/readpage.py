@@ -16,7 +16,8 @@ class ReadPageTask(ResponseTask):
         else:
             self.params.append({param_name: self.getRichPrompt()})
         browser = WebBrowser()
-        text = browser.get(self.getRichPrompt)
+        text = browser.get(self.getRichPrompt())
+        print ("Text=", text)
         self.msg_list.append({
             "role": self.prompt_tag,
             "content": text

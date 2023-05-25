@@ -84,6 +84,9 @@ class ChatGPT():
             print(e)
             print('status==>', e.http_status)
             return False, ""
+        except TimeoutError as e:
+            print('timeot error')
+            return False, ""
 
 class SimpleChatGPT(ChatGPT):
     def __init__(self, model_name="gpt-3.5-turbo") -> None:
