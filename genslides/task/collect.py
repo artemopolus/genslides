@@ -49,7 +49,7 @@ class CollectTask(TextTask):
         if self.msg_list != trg_list:
             self.msg_list = trg_list.copy()
             self.saveJsonToFile(self.msg_list)
-        super().update()
+        super().update(input)
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"]
 
