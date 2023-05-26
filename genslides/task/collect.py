@@ -35,7 +35,8 @@ class CollectTask(TextTask):
 
     def update(self, input : TaskDescription = None):
         print("Update collect_________________________________________________")
-        print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
+        # print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
+        print("Collect",10*">>>>>>>>>>>")
         # print("Prompt=", self.getRichPrompt())
         if self.parent:
             trg_list = self.parent.msg_list.copy()
@@ -63,8 +64,11 @@ class CollectTask(TextTask):
     
     def getRichPrompt(self) -> str:
         text = ""
+        # print("affect count=",len(self.by_ext_affected_list))
         for task in self.by_ext_affected_list:
             text += task.prompt
+            # print("text=",task.prompt)
+            # print("text=",task.parent.prompt)
         return text
 
     

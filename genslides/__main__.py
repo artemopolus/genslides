@@ -56,6 +56,7 @@ class Manager:
             for trg in trgs:
                 influense_task = self.getTaskByName(trg)
                 self.makeLink(affect_task, influense_task)
+                influense_task.completeTask()
 
         for task in self.task_list:
             print("Task name=", task.getName(), " affected")
@@ -64,6 +65,8 @@ class Manager:
             print("influence")
             for info in task.affect_to_ext_list:
                 print("to ",info.parent.getName())
+
+            # task.completeTask()
 
     def getTextFromFile(self, text, filenames):
         if filenames is None:
