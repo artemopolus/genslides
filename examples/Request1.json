@@ -1,0 +1,16 @@
+{
+ "chat": [
+  {
+   "role": "user",
+   "content": "Brief presentation for customers. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
+  },
+  {
+   "role": "user",
+   "content": "Give me list of slldes for presentation"
+  }
+ ],
+ "type": "Request",
+ "params": [],
+ "linked": [],
+ "parent": "saved/Request0.json"
+}

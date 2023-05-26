@@ -176,13 +176,13 @@ class TextTask(BaseTask):
 
     def createLinkToTask(self, task) -> TaskDescription:
         out =  super().createLinkToTask(task)
-        self.saveJsonToFile(self.msg_list)
+        # self.saveJsonToFile(self.msg_list)
         return out
     
     def completeTask(self) -> bool:
         res = super().completeTask()
-        print("Prompt=", self.getRichPrompt())
-        print("Prompt=", self.prompt)
+        # print("Prompt=", self.getRichPrompt())
+        # print("Prompt=", self.prompt)
         info = TaskDescription(prompt=self.getRichPrompt(),prompt_tag=self.getTagPrompt())
         self.update(info)
         return res
@@ -194,13 +194,14 @@ class TextTask(BaseTask):
         text = self.msg_list[len(self.msg_list) - 1]["content"]
         input = TaskDescription(prompt=text)
         for task in self.affect_to_ext_list:
-            task.prompt = text
+            # task.prompt = text
             task.method(input)
 
     def affectedTaskCallback(self, input : TaskDescription):
-        print("My name is ", self.getName())
-        print("My prompt now is ", self.getRichPrompt())
-        print("Msgs=",pprint.pformat(self.msg_list))
+        pass
+        # print("My name is ", self.getName())
+        # print("My prompt now is ", self.getRichPrompt())
+        # print("Msgs=",pprint.pformat(self.msg_list))
 
     def beforeRemove(self):
         self.deleteJsonFile()
@@ -219,10 +220,11 @@ class TextTask(BaseTask):
 
 
     def update(self, input: TaskDescription = None):
+        print("Update text task")
         if input:
-            print("p=",self.prompt)
+            # print("p=",self.prompt)
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
-            print("p=",self.prompt)
+            # print("p=",self.prompt)
         return super().update(input)
 

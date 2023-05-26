@@ -211,10 +211,12 @@ class BaseTask():
         return None
    
     def update(self, input : TaskDescription = None):
-        print("Update=",self.getName())
+        print("Update=",self.getName(),",in=", input)
         if input:
             if input.parent:
                 self.parent = input.parent
+                self.parent.addChild(self)
+                print("New parent=", self.parent)
         for child in self.childs:
             child.update()
 
@@ -233,6 +235,12 @@ class BaseTask():
     def whenParentRemoved(self):
         self.parent = None
 
+    def removeParent(self):
+         if self.parent:
+            self.parent.childs.remove(self)
+            self.parent = None
+       
+
     def getCountPrice(self):
         return 0,0
     
@@ -240,11 +248,12 @@ class BaseTask():
         pass
 
     def createLinkToTask(self, task) -> TaskDescription:
-        id = len(self.by_ext_affected_list)
-        out = TaskDescription(method=self.affectedTaskCallback, id=id, parent=task )
-        self.by_ext_affected_list.append(out)
-        task.setLinkToTask(out)
-        return out
+        pass
+        # id = len(self.by_ext_affected_list)
+        # out = TaskDescription(method=self.affectedTaskCallback, id=id, parent=task )
+        # self.by_ext_affected_list.append(out)
+        # task.setLinkToTask(out)
+        # return out
     
     def removeLinkToTask(self):
         while len(self.by_ext_affected_list) > 0:
@@ -261,10 +270,11 @@ class BaseTask():
     def useLinksToTask(self):
         input = TaskDescription(prompt=self.prompt)
         for task in self.affect_to_ext_list:
+            input.id = task.id
             task.method(input)
 
     def completeTask(self) -> bool:
-        print("Complete Task")
+        print(self.getName(),"=Complete Task")
         self.useLinksToTask()
         return False 
  

@@ -156,6 +156,9 @@ class Manager:
 
         if len(self.task_list) <= self.task_index:
             self.task_index = 0
+        elif self.task_index < 0:
+            self.task_index = len(self.task_list) - 1
+
 
         self.curr_task = self.task_list[self.task_index]
 
@@ -219,14 +222,20 @@ class Manager:
             self.slct_task = self.curr_task
             return self.runIteration(prompt)
         elif creation_type == "RemoveParent":
+            print("Remove parent")
             if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
-                self.curr_task.whenParentRemoved()
+                self.curr_task.removeParent()
                 self.curr_task.update()
             return self.runIteration(prompt)
         elif creation_type == "Parent":
             if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
+                print("Make ", self.slct_task.getName()," parent of ", self.curr_task.getName())
                 info = TaskDescription(prompt=self.curr_task.getRichPrompt(),prompt_tag=self.curr_task.getTagPrompt(), parent=self.slct_task)
                 self.curr_task.update(info)
+            return self.runIteration(prompt)
+        elif creation_type == "Unlink":
+            if self.curr_task:
+                self.curr_task.removeLinkToTask()
             return self.runIteration(prompt)
         elif creation_type == "Link":
             if self.curr_task != self.slct_task:
@@ -236,7 +245,7 @@ class Manager:
             task = self.curr_task
             task.beforeRemove()
             self.task_list.remove(task)
-            self.setNextTask()
+            self.setNextTask("1")
             del task
             return self.runIteration(prompt)
         elif creation_type == "New":
@@ -282,7 +291,9 @@ class Manager:
 
         if self.need_human_response:
             self.need_human_response = False
-            return "", "", img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
+            # return "", "", img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
+            in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+            return out_prompt, "" ,self.drawGraph(), in_prompt, in_role
         # if len(self.task_list) > 0:
         #     f = graphviz.Digraph(comment='The Test Table')
             
@@ -317,7 +328,9 @@ class Manager:
             out += "Task description:\n"
             out += task.task_description
             img_path = self.drawGraph()
-            return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
+            in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+            return out_prompt, log ,self.drawGraph(), in_prompt, in_role
+            #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
 
         img_path = self.drawGraph()
         index = 0
@@ -355,7 +368,9 @@ class Manager:
 
         if all_task_completed:
             log += "All task complete\n"
-            return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
+            in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+            return out_prompt, log ,self.drawGraph(), in_prompt, in_role
+            #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
             # if self.curr_task:
             #     self.curr_task.completeTask()
 
@@ -396,7 +411,9 @@ class Manager:
             # summtask.completeTask()
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
-        return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
+        in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+        return out_prompt, log ,self.drawGraph(), in_prompt, in_role
+        #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
     
     def update(self):
         for task in self.task_list:
@@ -427,7 +444,7 @@ def gr_body(request) -> None:
             next_task_btn = gr.Button(value="Next task, plz")
             prev_task_val = gr.Textbox(value="-1")
             prev_task_btn = gr.Button(value="Prev task, plz")
-        creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete", "Select", "Link", "Parent", "RemoveParent"], label="Type of task creation",value="New")
+        creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"], label="Type of task creation",value="New")
         cr_new_task_btn = gr.Button(value="Make action!")
 
         creation_var_list = gr.Radio(choices = types,label="Task to create", value=types[0])

@@ -33,19 +33,25 @@ class ResponseTask(TextTask):
 
 
     def update(self, input : TaskDescription = None):
+        print("Update response task")
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
-            return "","user"
-        
-        last = self.msg_list[len(self.msg_list) - 1]
-        trg_list.append(last)
-        if self.msg_list != trg_list:
-            trg_list.pop()
-            self.msg_list = trg_list.copy()
+            trg_list = []
+        if len(self.msg_list) == 0:
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
+        else:
+            last = self.msg_list[- 1]
+            trg_list.append(last)
+            if self.msg_list != trg_list:
+                trg_list.pop()
+                self.msg_list = trg_list.copy()
+                self.executeResponse()
+                self.saveJsonToFile(self.msg_list)
         super().update(input)
+        if len(self.msg_list) == 0:
+            return "","user",""
         out = self.msg_list[len(self.msg_list) - 1]
         return "", out["role"],out["content"]
 

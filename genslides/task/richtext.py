@@ -17,7 +17,7 @@ class RichTextTask(TextTask):
         "role" : self.user_tag,
         "content" : self.getRichPrompt()
         }
-        print("Msg list=", self.msg_list)
+        # print("Msg list=", self.msg_list)
 
         tmp_msg_list = self.msg_list.copy()
         tmp_msg_list.append(pair)
@@ -72,13 +72,13 @@ class RichTextTask(TextTask):
                     last = self.msg_list[- 2]
                     trg_list.append(last)
                 else:
-                    print('I\'m here')
+                    # print('I\'m here')
                     trg_list.append({"role" : input.prompt_tag, "content" : input.prompt})
                 last = self.msg_list[- 1]
                 trg_list.append(last)
-                print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( trg_list))
-                print("Diff\n==================>>>>>>>>>>>\n", pprint.pformat( [i for i in trg_list if i not in self.msg_list]))
-                print("Diff\n==================>>>>>>>>>>>\n", pprint.pformat( [i for i in self.msg_list if i not in trg_list]))
+                # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( trg_list))
+                # print("Diff\n==================>>>>>>>>>>>\n", pprint.pformat( [i for i in trg_list if i not in self.msg_list]))
+                # print("Diff\n==================>>>>>>>>>>>\n", pprint.pformat( [i for i in self.msg_list if i not in trg_list]))
 
                 if self.msg_list == trg_list:
                     super().update()
