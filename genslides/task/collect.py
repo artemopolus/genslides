@@ -93,4 +93,8 @@ class CollectTask(TextTask):
         self.prompt = ""
         self.update()
         super().removeLinkToTask()
+ 
+    def getInfo(self):
+        out = self.msg_list[- 1]
+        return "", out["role"],out["content"]
   

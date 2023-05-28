@@ -438,7 +438,11 @@ def gr_body(request) -> None:
 
         dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
 
-        graph_img = gr.Image()
+        graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="numpy")
+        # graph_img = gr.ImagePaint()
+        graph_img.style(height=600)
+        
+
         with gr.Row() as r:
             add_new_btn = gr.Button(value="Run")
             update_task_btn = gr.Button(value="Update")
