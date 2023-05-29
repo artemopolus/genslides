@@ -14,6 +14,9 @@ from genslides.utils.browser import WebBrowser
 import genslides.task.creator as cr
 
 import os
+from os import listdir
+from os.path import isfile, join
+
 import json
 
 import gradio as gr
@@ -21,17 +24,25 @@ import graphviz
 
 import pprint
 
+import py7zr
+
+
+
 class Manager:
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher) -> None:
+        self.helper = helper
+        self.requester = requester
+        self.searcher = searcher
+        self.onStart()
+ 
+
+    def onStart(self):
         self.task_list = []
         self.task_index = 0
         self.curr_task = None
         self.slct_task = None
         self.cmd_list = []
         self.cmd_index = 0
-        self.helper = helper
-        self.requester = requester
-        self.searcher = searcher
         self.index = 0
 
         self.browser = WebBrowser()
@@ -425,8 +436,67 @@ class Manager:
         return self.runIteration("")
 
 
+
+class Projecter:
+    def __init__(self, manager : Manager = None) -> None:
+        mypath = "projects/"
+        if not os.path.exists(mypath):
+            os.makedirs(mypath)
+        self.mypath = mypath
+        self.savedpath = "saved/"
+        self.manager = manager
+
+        
+
+    def loadList(self):
+        mypath = self.mypath
+        onlyfiles = [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
+        return onlyfiles
+    
+    def clearFiles(self):
+        mypath = self.savedpath
+        for f in listdir(mypath):
+            f_path = join(mypath, f)
+            if isfile(f_path):
+                os.remove(f_path)
+
+
+    def load(self, filename):
+        if filename == "":
+            return ""
+        onlyfiles = [f for f in listdir(self.mypath) if isfile(join(self.mypath, f))]
+        self.clearFiles()
+        if filename + ".7z" not in onlyfiles:
+            return ""
+        with py7zr.SevenZipFile(self.mypath + filename + ".7z", 'r') as archive:
+            archive.extractall(path=self.savedpath)
+
+        self.manager.onStart() 
+
+        return filename
+
+    
+    def save(self, name):
+        mypath = self.savedpath
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        first = True
+        for file in onlyfiles:
+            if first:
+                with py7zr.SevenZipFile( self.mypath + name + ".7z", 'w') as archive:
+                    archive.write(self.savedpath + file, arcname = file)
+                first = False
+            else:
+                with py7zr.SevenZipFile( self.mypath + name + ".7z", 'a') as archive:
+                    archive.write(self.savedpath + file, arcname = file)
+
+        return gr.Dropdown.update( choices= self.loadList(), interactive=True)
+
+
+
 def gr_body(request) -> None:
     manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+
+    projecter = Projecter(manager)
 
 
 
@@ -468,6 +538,18 @@ def gr_body(request) -> None:
         # userinput = gr.Textbox(label="User Input", lines=4)
 
         file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
+
+
+        with gr.Row() as r:
+            project_name = gr.Textbox(value = "Untitled")
+            project_save = gr.Button(value="save")
+            projects_list = gr.Dropdown(choices=projecter.loadList())
+            project_load = gr.Button(value = "load")
+            project_clear = gr.Button(value="clear")
+
+        project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
+        project_clear.click(fn=projecter.clearFiles)
+        project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
 
         std_output_list = [info, output, graph_img, input, creation_tag_list]
         add_new_btn.click(fn=manager.runIteration, inputs=[input], outputs=std_output_list, api_name='runIteration')
