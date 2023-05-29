@@ -44,13 +44,14 @@ class CollectTask(TextTask):
             trg_list = []
         
         # self.msg_list[len(self.msg_list) - 1]["content"] = self.getRichPrompt()
-        last = self.msg_list[- 1].copy()
-        last["content"] = self.getRichPrompt()
+        super().update(input)
+        # last = self.msg_list[- 1].copy()
+        # last["content"] = self.getRichPrompt()
+        last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
         trg_list.append(last)
         if self.msg_list != trg_list:
             self.msg_list = trg_list.copy()
             self.saveJsonToFile(self.msg_list)
-        super().update(input)
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"]
 
