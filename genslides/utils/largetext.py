@@ -57,17 +57,24 @@ class ChatGPT():
         with open(self.path,'w') as f:
             json.dump(val,f,indent=1)
 
-    def createChatCompletion(self, messages, model="gpt-3.5-turbo"):
+    def createChatCompletion(self, messages, model="gpt-3.5-turbo", options = False, temperature = 1):
         if not self.active:
             raise ValueError("ChatGPT is not active!")
             # return False, ""
         try:
-            completion = openai.ChatCompletion.create(
-            model=model,
-            messages=messages        
-            )
+            if options:
+                completion = openai.ChatCompletion.create(
+                model=model,
+                messages=messages,
+                temperature = temperature       
+                )
+            else:
+                completion = openai.ChatCompletion.create(
+                model=model,
+                messages=messages        
+                )
             msg = completion.choices[0].message
-            text = msg["content"]
+            # text = msg["content"]
             return True, msg
         except RateLimitError as e:
             print('fuck rate')
@@ -105,14 +112,14 @@ class SimpleChatGPT(ChatGPT):
             return True, out["content"]
         else:
             return False, ""
-    def recvRespFromMsgList(self, msgs):
+    def recvRespFromMsgList(self, msgs, options = False, temperature = 1):
         text = ""
         for msg in msgs:
             text += msg["content"]
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         token_cnt = len(tokenizer.encode(text))
         self.addCounterToPromts(token_cnt)
-        res, out = self.createChatCompletion(messages=msgs)
+        res, out = self.createChatCompletion(messages=msgs, options=options, temperature=temperature)
 
         if res:
             token_cnt = len(tokenizer.encode(out["content"]))
