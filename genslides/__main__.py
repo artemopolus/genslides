@@ -374,10 +374,11 @@ class Manager:
                 else:
                     print("task complete=",str(task))
 
-        tokens, price = self.curr_task.getCountPrice()
-        out += "Tokens=" + str(tokens) +"\n"
-        out += "Price=" + str(price) + "\n"
-        out += pprint.pformat(self.curr_task.msg_list)
+        if self.curr_task:
+            tokens, price = self.curr_task.getCountPrice()
+            out += "Tokens=" + str(tokens) +"\n"
+            out += "Price=" + str(price) + "\n"
+            out += pprint.pformat(self.curr_task.msg_list)
 
 
         if all_task_completed:
@@ -395,7 +396,7 @@ class Manager:
         if len(self.task_list) == 0:
             if True:
                 log += "No any task"
-                return out, log, img_path
+                return out, log, img_path, "", ""
             log += "Start command\n"
             curr_task = PresentationTask(TaskDescription(prompt=prompt, helper=self.helper, requester=self.requester))
             self.task_list.append(curr_task)
@@ -459,6 +460,10 @@ class Projecter:
             f_path = join(mypath, f)
             if isfile(f_path):
                 os.remove(f_path)
+
+    def clear(self):
+        self.clearFiles()
+        self.manager.onStart() 
 
 
     def load(self, filename):
@@ -548,7 +553,7 @@ def gr_body(request) -> None:
             project_clear = gr.Button(value="clear")
 
         project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
-        project_clear.click(fn=projecter.clearFiles)
+        project_clear.click(fn=projecter.clear)
         project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
 
         std_output_list = [info, output, graph_img, input, creation_tag_list]
