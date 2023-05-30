@@ -13,9 +13,12 @@ class ResponseTask(TextTask):
         del tmp_msg_list
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
         
-        if len(msg_list_from_file) == 0:
+        if len(msg_list_from_file) == 0 and not self.is_freeze:
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
+        elif len(msg_list_from_file) == 0 and self.is_freeze:
+            chat = SimpleChatGPT()
+            self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
         else:
             self.msg_list = msg_list_from_file
             print("Get list from file=", self.path)
@@ -33,7 +36,22 @@ class ResponseTask(TextTask):
 
 
     def update(self, input : TaskDescription = None):
-        print("Update response task")
+        if self.is_freeze and self.parent:
+            print("frozen=",self.getName())
+            if not self.parent.is_freeze:
+                self.is_freeze = False
+                tmp_msg_list = self.parent.msg_list.copy()
+                print(pprint.pformat(tmp_msg_list))
+                msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+                if len(msg_list_from_file):
+                    print("I loaded")
+                    self.msg_list = msg_list_from_file
+
+            else:
+                return "","user",""
+        
+        print("Update response task=", self.getName())
+        # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
@@ -56,6 +74,8 @@ class ResponseTask(TextTask):
         return "", out["role"],out["content"]
 
     def getInfo(self):
-        out = self.msg_list[len(self.msg_list) - 1]
-        return "", out["role"],out["content"]
+        if len(self.msg_list):
+            out = self.msg_list[len(self.msg_list) - 1]
+            return "", out["role"],out["content"]
+        return "","user",""
  

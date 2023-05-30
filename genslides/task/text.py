@@ -191,6 +191,11 @@ class TextTask(BaseTask):
         return self.msg_list[len(self.msg_list) - 1]["role"]
 
     def useLinksToTask(self):
+        # if self.getName() == "Collect8":
+        #     print("==========================================================================")
+        #     print(len(self.affect_to_ext_list))
+        if len(self.msg_list) == 0:
+            return
         text = self.msg_list[len(self.msg_list) - 1]["content"]
         input = TaskDescription(prompt=text)
         for task in self.affect_to_ext_list:
@@ -220,7 +225,7 @@ class TextTask(BaseTask):
 
 
     def update(self, input: TaskDescription = None):
-        print("Update text task")
+        # print("Update text task")
         if input:
             # print("p=",self.prompt)
             self.prompt = input.prompt

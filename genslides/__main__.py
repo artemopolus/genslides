@@ -67,7 +67,9 @@ class Manager:
             for trg in trgs:
                 influense_task = self.getTaskByName(trg)
                 self.makeLink(affect_task, influense_task)
-                influense_task.completeTask()
+
+        for task in self.task_list:
+                task.completeTask()
 
         for task in self.task_list:
             print("Task name=", task.getName(), " affected")
@@ -197,7 +199,10 @@ class Manager:
                 elif task ==self.slct_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
                 else:
-                    f.node( task.getIdStr(), task.getName())
+                    if task.is_freeze:
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
+                    else:
+                        f.node( task.getIdStr(), task.getName())
                 # print("info=",task.getIdStr(),"   ", task.getName())
             
             for task in self.task_list:
@@ -431,6 +436,7 @@ class Manager:
         #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
     
     def update(self):
+        print("New update",10*">>>>>>>>>>>")
         for task in self.task_list:
             if task.parent == None:
                 task.update()

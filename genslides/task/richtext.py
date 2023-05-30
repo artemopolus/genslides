@@ -25,7 +25,7 @@ class RichTextTask(TextTask):
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
         del tmp_msg_list
         
-        if len(msg_list_from_file) == 0:
+        if len(msg_list_from_file) == 0 and not self.is_freeze:
             pair = {}
             pair["role"] = chat.getUserTag()
             pair["content"] = self.getRichPrompt()
@@ -39,6 +39,9 @@ class RichTextTask(TextTask):
                 self.msg_list.append(pair)
 
             self.saveJsonToFile(self.msg_list)
+        elif len(msg_list_from_file) == 0 and self.is_freeze:
+            self.msg_list.append({"role": chat.getUserTag(), "content": self.getRichPrompt()})
+            self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
         else:
             self.msg_list = msg_list_from_file
             print("Get list from file=", self.path)
@@ -59,11 +62,17 @@ class RichTextTask(TextTask):
 
 
     def update(self, input : TaskDescription = None):
+        if not self.is_freeze:
+            print("frozen")
+            if not self.parent.is_freeze:
+                self.is_freeze = False
+        else:
+            return "","user",""
         if self.parent:
             trg_list = self.parent.msg_list.copy()
             # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( trg_list))
         else:
-            return "","user"
+            return "","user",""
         
         if len(self.msg_list) > 1: 
             last = self.msg_list[- 1]

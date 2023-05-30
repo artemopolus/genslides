@@ -155,8 +155,11 @@ class BaseTask():
         self.task_creation_result = "Results of task creation:\n"
 
         self.parent = task_info.parent
+        self.is_freeze = False
         if  self.parent:
             self.parent.addChild(self)
+            if self.parent.is_freeze:
+                self.is_freeze = True
         self.target = task_info.target
         self.filename = task_info.filename
 
@@ -211,7 +214,9 @@ class BaseTask():
         return None
    
     def update(self, input : TaskDescription = None):
-        print("Update=",self.getName(),",in=", input)
+        # print("Update=",self.getName(),",in=", input)
+        if self.parent and self.is_freeze and not self.parent.is_freeze and self.type != "Collect":
+            self.is_freeze = False
         if input:
             if input.parent:
                 self.parent = input.parent
@@ -274,7 +279,7 @@ class BaseTask():
             task.method(input)
 
     def completeTask(self) -> bool:
-        print(self.getName(),"=Complete Task")
+        # print(self.getName(),"=Complete Task")
         self.useLinksToTask()
         return False 
  

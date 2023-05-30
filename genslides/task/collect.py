@@ -28,15 +28,19 @@ class CollectTask(TextTask):
             print("Get list from file=", self.path)
 
 
+        self.is_freeze = True
+
+
 
     # def completeTask(self):
     #     self.is_solved = True
     #     return True
 
     def update(self, input : TaskDescription = None):
-        print("Update collect_________________________________________________")
+        print("Update collect frozen=", self.is_freeze)
+        # print("Update collect_________________________________________________")
         # print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
-        print("Collect",10*">>>>>>>>>>>")
+        # print("Collect",10*">>>>>>>>>>>")
         # print("Prompt=", self.getRichPrompt())
         if self.parent:
             trg_list = self.parent.msg_list.copy()
@@ -44,7 +48,6 @@ class CollectTask(TextTask):
             trg_list = []
         
         # self.msg_list[len(self.msg_list) - 1]["content"] = self.getRichPrompt()
-        super().update(input)
         # last = self.msg_list[- 1].copy()
         # last["content"] = self.getRichPrompt()
         last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
@@ -53,6 +56,7 @@ class CollectTask(TextTask):
             self.msg_list = trg_list.copy()
             self.saveJsonToFile(self.msg_list)
         out = self.msg_list[len(self.msg_list) - 1]
+        super().update(input)
         return out["content"], out["role"]
 
     def createLinkToTask(self, task) -> TaskDescription:
@@ -78,6 +82,9 @@ class CollectTask(TextTask):
             if input.id == task.id:
                 task.prompt = input.prompt
         # self.prompt = input.prompt
+        if not self.parent.is_freeze:
+            print("======================================>>>>>>>>>>> HOOOOOOOOOT = ", self.getName())
+            self.is_freeze = False
         out = super().affectedTaskCallback(input)
         self.update()
     #     trg_list = []
