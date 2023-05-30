@@ -227,8 +227,11 @@ class BaseTask():
 
         return "","",""
     
-    def getInfo(self):
+    def getMsgInfo(self):
         return "","",""
+    
+    def getInfo(self, short = True) -> str:
+        return "Some description"
 
 
     def beforeRemove(self):

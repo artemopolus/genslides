@@ -183,7 +183,7 @@ class Manager:
         output = "Tokens=" + str(tokens) +"\n"
         output += "Price=" + str(price) + "\n"
         output += pprint.pformat(self.curr_task.msg_list)
-        in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
         return out_prompt, output ,self.drawGraph(), in_prompt, in_role
         # std_output_list = [info, output, graph_img, input, creation_tag_list]
         # next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
@@ -192,17 +192,23 @@ class Manager:
     def drawGraph(self):
         if len(self.task_list) > 0:
             f = graphviz.Digraph(comment='The Test Table')
+
+            # if self.curr_task:
+            #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
             
             for task in self.task_list:
                 if task == self.curr_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
+                    # f.node ("Current",task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
+                    # f.edge (task.getIdStr(), "Current", color = "skyblue", arrowhead = "dot")
                 elif task ==self.slct_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
                 else:
                     if task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
                     else:
-                        f.node( task.getIdStr(), task.getName())
+                        info = task.getInfo()
+                        f.node( task.getIdStr(), info)
                 # print("info=",task.getIdStr(),"   ", task.getName())
             
             for task in self.task_list:
@@ -311,7 +317,7 @@ class Manager:
         if self.need_human_response:
             self.need_human_response = False
             # return "", "", img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
-            in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
             return out_prompt, "" ,self.drawGraph(), in_prompt, in_role
         # if len(self.task_list) > 0:
         #     f = graphviz.Digraph(comment='The Test Table')
@@ -347,7 +353,7 @@ class Manager:
             out += "Task description:\n"
             out += task.task_description
             img_path = self.drawGraph()
-            in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
             return out_prompt, log ,self.drawGraph(), in_prompt, in_role
             #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
 
@@ -388,7 +394,7 @@ class Manager:
 
         if all_task_completed:
             log += "All task complete\n"
-            in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
             return out_prompt, log ,self.drawGraph(), in_prompt, in_role
             #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
             # if self.curr_task:
@@ -431,7 +437,7 @@ class Manager:
             # summtask.completeTask()
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
-        in_prompt, in_role, out_prompt = self.curr_task.getInfo()
+        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
         return out_prompt, log ,self.drawGraph(), in_prompt, in_role
         #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
     
@@ -517,11 +523,10 @@ def gr_body(request) -> None:
 
         task_man = TaskManager()
 
-        dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
 
         graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="numpy")
         # graph_img = gr.ImagePaint()
-        graph_img.style(height=600)
+        graph_img.style(height=800)
         
 
         with gr.Row() as r:
@@ -557,6 +562,7 @@ def gr_body(request) -> None:
             projects_list = gr.Dropdown(choices=projecter.loadList())
             project_load = gr.Button(value = "load")
             project_clear = gr.Button(value="clear")
+        dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
 
         project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
         project_clear.click(fn=projecter.clear)

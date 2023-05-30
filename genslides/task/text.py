@@ -220,8 +220,8 @@ class TextTask(BaseTask):
         self.saveJsonToFile(self.msg_list)
 
 
-    def getInfo(self):
-        return super().getInfo()
+    def getMsgInfo(self):
+        return super().getMsgInfo()
 
 
     def update(self, input: TaskDescription = None):
@@ -232,4 +232,11 @@ class TextTask(BaseTask):
             self.prompt_tag = input.prompt_tag
             # print("p=",self.prompt)
         return super().update(input)
+    
+
+    def getInfo(self, short = True) -> str:
+        if  short and len(self.prompt) > 20:
+            return self.prompt[0:20] + "..."
+        else:
+            return self.prompt
 

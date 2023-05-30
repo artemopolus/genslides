@@ -22,5 +22,16 @@ class ReadPageTask(ResponseTask):
             "role": self.prompt_tag,
             "content": text
         })
+
+    def getInfo(self, short = True) -> str:
+        info = ""
+        for param in self.params:
+            if "url" in param:
+                info = param["url"]
+                info = info[8:]
+        if short and len(info) > 20:
+            return info[0:17] + "..."
+        else:
+            return info
  
 

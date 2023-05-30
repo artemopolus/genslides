@@ -102,7 +102,7 @@ class CollectTask(TextTask):
         self.update()
         super().removeLinkToTask()
  
-    def getInfo(self):
+    def getMsgInfo(self):
         out = self.msg_list[- 1]
         return "", out["role"],out["content"]
   

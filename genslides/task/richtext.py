@@ -105,7 +105,7 @@ class RichTextTask(TextTask):
         out = self.msg_list[- 2]
         return out["content"], out["role"], self.msg_list[-1]["content"]
 
-    def getInfo(self):
+    def getMsgInfo(self):
         out = self.msg_list[- 2]
         return out["content"], out["role"], self.msg_list[-1]["content"]
  

@@ -73,7 +73,7 @@ class ResponseTask(TextTask):
         out = self.msg_list[len(self.msg_list) - 1]
         return "", out["role"],out["content"]
 
-    def getInfo(self):
+    def getMsgInfo(self):
         if len(self.msg_list):
             out = self.msg_list[len(self.msg_list) - 1]
             return "", out["role"],out["content"]

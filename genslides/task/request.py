@@ -43,6 +43,6 @@ class RequestTask(TextTask):
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"], ""
 
-    def getInfo(self):
+    def getMsgInfo(self):
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"], ""
