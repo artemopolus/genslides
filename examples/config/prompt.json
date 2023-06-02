@@ -1,8 +1,4 @@
 {
-	"RichText":{
-		"Init":"Give me ",
-		"Endi":""
-	},
 	"Request":{
 		"Init":"",
 		"Endi":""
@@ -11,28 +7,36 @@
 		"Init":"",
 		"Endi":""
 	},
-	"Presentation":{
-		"Init":"Give me json list of slides formatted as: title, description. I want to create: ",
+	"Collect":{
+		"Init":"",
 		"Endi":""
 	},
-	"Information":{
-		"Init":"I understand only clear and strict instructions. Give me json list of search actions to improve my creation process and formatted as: name, search is prompt for searching and browsing action, rating is value of mine provided information as 1  is applicable to every provided type of creation and as 10 is relevent to my purpose, reason is description of rating value motivation. I want to create: ",
+	"ReadFile":{
+		"Init":"",
 		"Endi":""
 	},
-	"Slide":{
-		"Init":"I understand only clear and strict instructions. Give me list of components for inserting in presentation slide formatted in JSON as: type is text or table or chart or plot or image; detailed description; position is array of X and Y from top left corner for prevent overlay(max X = 500, max Y = 1000).",
+	"WebSurf":{
+		"Init":"",
 		"Endi":""
 	},
-	"Text":{
-		"Init":"I understand only clear and strict instructions. Give me json list of search actions to improve my creation process and formatted as: name, search is prompt for searching and browsing action, rating is value of mine provided information as 1  is applicable to every provided type of creation and as 10 is relevent to my purpose, reason is description of rating value motivation. I want to create: Text about following. ",
+	"ReadPage":{
+		"Init":"",
 		"Endi":""
 	},
-	"Table":{
-		"Init":"I understand only clear and strict instructions. Give me json list of search actions to improve my creation process and formatted as: name, search is prompt for searching and browsing action, rating is value of mine provided information as 1  is applicable to every provided type of creation and as 10 is relevent to my purpose, reason is description of rating value motivation. I want to create: Table about following. Table: ",
+	"WriteToFile":{
+		"Init":"",
 		"Endi":""
 	},
-	"Chart":{
-		"Init":"I understand only clear and strict instructions. Give me json list of search actions to improve my creation process and formatted as: name, search is prompt for searching and browsing action, rating is value of mine provided information as 1  is applicable to every provided type of creation and as 10 is relevent to my purpose, reason is description of rating value motivation. I want to create: Plot about following. Graph: ",
+	"RichText":{
+		"Init":"",
+		"Endi":""
+	},
+	"ColdResponse":{
+		"Init":"",
+		"Endi":""
+	},
+	"HotResponse":{
+		"Init":"",
 		"Endi":""
 	}
 }

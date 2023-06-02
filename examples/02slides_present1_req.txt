@@ -1,1 +1,0 @@
-Give me json list of slides formatted as: title, description. I want to create: Bissness presentation for investors. My idea is presentation creation automatization. You just type your idea then y software propose your steps to create presentation and try to automatize it. 

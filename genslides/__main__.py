@@ -557,9 +557,9 @@ def gr_body(request) -> None:
 
 
         with gr.Row() as r:
-            project_name = gr.Textbox(value = "Untitled")
+            project_name = gr.Textbox(value = "Untitled", label="Project name")
             project_save = gr.Button(value="save")
-            projects_list = gr.Dropdown(choices=projecter.loadList())
+            projects_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
             project_load = gr.Button(value = "load")
             project_clear = gr.Button(value="clear")
         dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
@@ -575,7 +575,7 @@ def gr_body(request) -> None:
         prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
         cr_new_task_btn.click(fn=manager.makeTaskAction, inputs=[input, creation_var_list, creation_types_radio, creation_tag_list], outputs=std_output_list, api_name="makeTaskAction")
 
-    demo.launch()
+    demo.launch(share=True)
 
 
 def main() -> None:
