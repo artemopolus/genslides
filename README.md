@@ -2,31 +2,14 @@
 
 Prompt generator for Language model like GPT (like ChatGPT)
 
-# How to install
+# Quick start
 
-⚠️ Old version, please, don't use it. Also you can look in requirements.txt for manual installation.
-
-pip install python-pptx
-pip install gradio
-pip install google-api-python-client
-pip install bs4
-pip install selenium 
-pip install webdriver-manager
-pip install nltk
-python -m nltk.downloader popular
-pip install --upgrade openai
-pip install tiktoken
-pip install transformers
-
-# another way -- environments:
-
-Main version now!
 
 ```shell
 python -m venv .env
 ```
 
-# for win:
+## for win:
 
 ```shell
 .env\Scripts\Activate.ps1
@@ -34,8 +17,10 @@ python -m pip install -r requirements.txt
 python -m nltk.downloader popular
 ```
 
-# graphviz win
+## graphviz win
 download and install from here: https://www.graphviz.org/download/
+
+## graphviz ubuntu
 
 ```shell
 sudo apt-get install graphviz
@@ -51,7 +36,7 @@ python -m genslides
 ```
 
 
-# update
+# Update (notes)
 ```shell
 python -m pip freeze > requirements.txt
 python -m  pip install target_lib
@@ -70,11 +55,28 @@ Use "active" flag in openai.json for disabling debuging. If it is "false", then 
 
 In examples you can find examples of projects for exploring: remember, copy this to root.
 
+Also, you can check this video:
+
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/tOZpFCOcqNA/0.jpg)](http://www.youtube.com/watch?v=tOZpFCOcqNA)
+
 # Contributing 
 
 Contributions are always welcome!
 
-
 # How to support
 
+Give star to project :)
 
+Like this video https://youtu.be/tOZpFCOcqNA :)
+
+# Key targets
+
+- More examples
+- Better user interface
+- Add options for model switching
+- Add finally logging :)
+- Documentation
+
+# Contacts
+
+exactosim@gmail.com
