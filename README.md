@@ -31,7 +31,7 @@ Here https://platform.openai.com/account/api-keys
 
 ## Get Google API
 
-Use this https://developers.google.com/maps/documentation/javascript/get-api-key
+Use this https://developers.google.com/docs/api/quickstart/python 
 
 # How to use
 
