@@ -25,11 +25,21 @@ download and install from here: https://www.graphviz.org/download/
 ```shell
 sudo apt-get install graphviz
 ```
+## Get OpenAI API
 
+Here https://platform.openai.com/account/api-keys 
+
+## Get Google API
+
+Use this https://developers.google.com/maps/documentation/javascript/get-api-key
 
 # How to use
 
-copy config folder from examples to root and input your api
+ - Copy config folder from examples to root and input your api
+
+ - Copy your API in google.json and openai.json
+
+ - Run command below
 
 ```shell
 python -m genslides
