@@ -90,3 +90,7 @@ Like this video https://youtu.be/tOZpFCOcqNA :)
 # Contacts
 
 exactosim@gmail.com
+
+# License
+
+MIT license
