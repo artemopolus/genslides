@@ -176,7 +176,7 @@ class TextTask(BaseTask):
 
     def createLinkToTask(self, task) -> TaskDescription:
         out =  super().createLinkToTask(task)
-        # self.saveJsonToFile(self.msg_list)
+        self.saveJsonToFile(self.msg_list)
         return out
     
     def completeTask(self) -> bool:

@@ -188,6 +188,12 @@ class Manager:
         # std_output_list = [info, output, graph_img, input, creation_tag_list]
         # next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
 
+    def updateGraph(self, image):
+        print("Update graph")
+        img = image['image']
+        # img = {'mask' : None}
+        return img
+    
 
     def drawGraph(self):
         if len(self.task_list) > 0:
@@ -564,6 +570,9 @@ def gr_body(request) -> None:
             project_clear = gr.Button(value="clear")
         dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
 
+        # graph_img.edit(fn=manager.updateGraph, inputs=[graph_img], outputs=[graph_img])
+        gr.Button("Clear mask").click(fn=manager.updateGraph, inputs = [graph_img], outputs = [graph_img])
+
         project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
         project_clear.click(fn=projecter.clear)
         project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
@@ -575,7 +584,7 @@ def gr_body(request) -> None:
         prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
         cr_new_task_btn.click(fn=manager.makeTaskAction, inputs=[input, creation_var_list, creation_types_radio, creation_tag_list], outputs=std_output_list, api_name="makeTaskAction")
 
-    demo.launch(share=True)
+    demo.launch(share=False)
 
 
 def main() -> None:

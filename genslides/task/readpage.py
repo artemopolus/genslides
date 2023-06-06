@@ -7,6 +7,8 @@ class ReadPageTask(ResponseTask):
         super().__init__(task_info, type)
 
     def getRichPrompt(self) -> str:
+        if self.parent:
+            return self.msg_list[-1]["content"]
         return self.prompt
 
     def executeResponse(self):

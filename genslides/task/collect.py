@@ -100,9 +100,20 @@ class CollectTask(TextTask):
     def removeLinkToTask(self):
         self.prompt = ""
         self.update()
+        self.is_freeze = True
         super().removeLinkToTask()
  
     def getMsgInfo(self):
         out = self.msg_list[- 1]
         return "", out["role"],out["content"]
-  
+    def whenParentRemoved(self):
+        super().whenParentRemoved()
+        self.removeLinkToTask()
+
+
+
+    def getInfo(self, short = True) -> str:
+        out = ""
+        for task in self.by_ext_affected_list:
+            out += task.parent.getName()
+        return out

@@ -10,7 +10,8 @@ class WebSurfTask(ResponseTask):
         print("Web Request")
 
     def getRichPrompt(self) -> str:
-        return self.prompt
+        return self.msg_list[-1]["content"]
+        # return self.prompt
 
     def executeResponse(self):
         param_name = "web_request"
@@ -23,9 +24,9 @@ class WebSurfTask(ResponseTask):
         link_list = searcher.getSearchs(self.getRichPrompt())
         text = ""
         for link in link_list:
-            cmd = TaskDescription(prompt=link,parent=self,prompt_tag="user", method=ReadPageTask, type="ReadPage", helper=self.reqhelper)
+        #     cmd = TaskDescription(prompt=link,parent=self,prompt_tag="user", method=ReadPageTask, type="ReadPage", helper=self.reqhelper)
             text += link + '\n'
-            self.addChildToCrList(cmd)
+        #     self.addChildToCrList(cmd)
         self.msg_list.append({
             "role": self.prompt_tag,
             "content": text

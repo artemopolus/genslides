@@ -11,6 +11,7 @@ class ChatGPT():
         path_to_config = 'config/openai.json'
         self.model = model_name
         self.active = False 
+        self.max_tokens = 4000
         with open(path_to_config, 'r') as config:
             values = json.load(config)
             key = values['api_key']
@@ -91,6 +92,8 @@ class ChatGPT():
 class SimpleChatGPT(ChatGPT):
     def __init__(self, model_name="gpt-3.5-turbo") -> None:
         super().__init__(model_name)
+        self.tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+
     def recvResponse(self, request : str) -> str:
         messages=[
             {"role": "user", "content": request}
@@ -105,21 +108,38 @@ class SimpleChatGPT(ChatGPT):
             return True, out["content"]
         else:
             return False, ""
+        
+    def getTokensCount(self, text) -> int:
+        return len(self.tokenizer.encode(text))
+        
+    def chatCompletion(self, msgs):
+            self.addCounterToPromts(token_cnt)
+            res, out = self.createChatCompletion(messages=msgs)
+
+            if res:
+                token_cnt = self.getTokensCount(out["content"])
+                self.addCounterToPromts(token_cnt)
+                return True, out["content"]        
+            return False, ""
+    
     def recvRespFromMsgList(self, msgs):
         text = ""
         for msg in msgs:
             text += msg["content"]
-        tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-        token_cnt = len(tokenizer.encode(text))
-        self.addCounterToPromts(token_cnt)
-        res, out = self.createChatCompletion(messages=msgs)
-
-        if res:
-            token_cnt = len(tokenizer.encode(out["content"]))
-            self.addCounterToPromts(token_cnt)
-            return True, out["content"]
+        token_cnt = self.getTokensCount(text)
+        if token_cnt > self.max_tokens:
+            # try divide last
+            # it's too many of them!
+            pass
         else:
-            return False, ""
+            self.addCounterToPromts(token_cnt)
+            res, out = self.createChatCompletion(messages=msgs)
+
+            if res:
+                token_cnt = self.getTokensCount(out["content"])
+                self.addCounterToPromts(token_cnt)
+                return True, out["content"]        
+        return False, ""
 
     def getUserTag(self):
         return "user"

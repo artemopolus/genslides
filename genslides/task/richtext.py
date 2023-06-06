@@ -62,7 +62,7 @@ class RichTextTask(TextTask):
 
 
     def update(self, input : TaskDescription = None):
-        if not self.is_freeze:
+        if self.is_freeze:
             print("frozen")
             if not self.parent.is_freeze:
                 self.is_freeze = False

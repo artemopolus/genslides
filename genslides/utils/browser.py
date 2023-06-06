@@ -76,7 +76,7 @@ class WebBrowser(Browser):
             print('soup')
             soup = BeautifulSoup(page_source, "html.parser")
             text = soup.get_text()
-            out_text += text + '\n'
+            out_text += text
             print('done=',len(text))
             driver.close()
         except Exception as e:
