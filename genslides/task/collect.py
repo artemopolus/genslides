@@ -82,7 +82,7 @@ class CollectTask(TextTask):
             if input.id == task.id:
                 task.prompt = input.prompt
         # self.prompt = input.prompt
-        if not self.parent.is_freeze:
+        if self.parent and not self.parent.is_freeze:
             print("======================================>>>>>>>>>>> HOOOOOOOOOT = ", self.getName())
             self.is_freeze = False
         out = super().affectedTaskCallback(input)

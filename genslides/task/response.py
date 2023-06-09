@@ -15,13 +15,13 @@ class ResponseTask(TextTask):
         
         if len(msg_list_from_file) == 0 and not self.is_freeze:
             self.executeResponse()
-            self.saveJsonToFile(self.msg_list)
         elif len(msg_list_from_file) == 0 and self.is_freeze:
             chat = SimpleChatGPT()
             self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
         else:
             self.msg_list = msg_list_from_file
             print("Get list from file=", self.path)
+        self.saveJsonToFile(self.msg_list)
 
     def executeResponse(self):
         chat = SimpleChatGPT()

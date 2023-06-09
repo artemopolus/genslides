@@ -73,8 +73,10 @@ class ReadFileTask(ResponseTask):
  
 
     def getRichPrompt(self) -> str:
-      #   return re.escape(self.prompt)
-        return (self.prompt)
+        if self.parent:
+            return self.msg_list[-1]["content"]
+        return self.prompt
+
 
     def executeResponse(self):
       #   str = "J:\WorkspaceFast\genslides\examples\05table_parts_slides1_req.txt"
