@@ -239,8 +239,9 @@ class Manager:
         out = ""
         log = "Nothing"
         img_path = "output/img.png"
-
+        print(10*"====")
         print("Make action ", creation_type)
+        print(10*"====")
 
         if type is None or creation_type is None:
             return out, log, img_path

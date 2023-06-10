@@ -43,7 +43,6 @@ class CollectTask(TextTask):
             tsk_info.enabled = False
 
     def update(self, input : TaskDescription = None):
-        # print("CollectTask=",self.getName()," frozen=", self.is_freeze)
         # print("Update collect_________________________________________________")
         # print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
         # print("Collect",10*">>>>>>>>>>>")
@@ -72,6 +71,7 @@ class CollectTask(TextTask):
                 self.saveJsonToFile(self.msg_list)
         out = self.msg_list[len(self.msg_list) - 1]
         super().update(input)
+        print("CollectTask=",self.getName()," frozen=", self.is_freeze)
         return out["content"], out["role"]
 
     def createLinkToTask(self, task) -> TaskDescription:
@@ -93,27 +93,37 @@ class CollectTask(TextTask):
         return text
 
     def stdProcessUnFreeze(self):
-        to_unfreeze = False
-        if self.parent and not self.parent.is_freeze:
-            to_unfreeze = True
-        elif not self.parent and self.is_freeze:
-            to_unfreeze = True
-        if to_unfreeze:
+        print("1 frozen=", self.is_freeze)
+        if self.is_freeze:
+            to_unfreeze = False
+            if self.parent and not self.parent.is_freeze:
+                to_unfreeze = True
+            elif not self.parent and self.is_freeze:
+                to_unfreeze = True
+            if to_unfreeze:
+                for tsk_info in self.by_ext_affected_list:
+                    # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
+                    if not tsk_info.enabled:
+                        return
+                # print("Unfreeze")
+                self.is_freeze = False
+
+        else:
             for tsk_info in self.by_ext_affected_list:
-                print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
+                # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                 if not tsk_info.enabled:
+                    self.freezeTask()
                     return
-            print("Unfreeze")
-            self.is_freeze = False
- 
+            print("1 frozen=", self.is_freeze)
+  
 
     def affectedTaskCallback(self, input : TaskDescription):
         print("From ", input.parent.getName(), " to ", self.getName())
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
-                print("Enabling=", tsk_info.id)
                 tsk_info.prompt = input.prompt
-                tsk_info.enabled = True
+                tsk_info.enabled = input.enabled
+                print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
 
         out = super().affectedTaskCallback(input)
         self.update()

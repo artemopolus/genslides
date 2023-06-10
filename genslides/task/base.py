@@ -215,16 +215,14 @@ class BaseTask():
         return None
     
     def stdProcessUnFreeze(self):
-            if self.parent and self.is_freeze and not self.parent.is_freeze:
-                self.is_freeze = False
-
-            if self.parent and not self.is_freeze and self.parent.is_freeze:
-                self.is_freeze = True
+            if self.parent:
+                self.is_freeze = self.parent.is_freeze
+            else:
+                pass
 
 
    
     def update(self, input : TaskDescription = None):
-        print("Update=",self.getName())
         self.stdProcessUnFreeze()
 
         if input:
@@ -232,8 +230,13 @@ class BaseTask():
                 self.parent = input.parent
                 self.parent.addChild(self)
                 print("New parent=", self.parent)
+        
+        print("Update=",self.getName(), " frozen=", self.is_freeze)
+        self.useLinksToTask()
+
         for child in self.childs:
             child.update()
+
 
         return "","",""
     
@@ -293,6 +296,5 @@ class BaseTask():
 
     def completeTask(self) -> bool:
         # print(self.getName(),"=Complete Task")
-        self.useLinksToTask()
         return False 
  
