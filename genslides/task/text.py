@@ -197,9 +197,11 @@ class TextTask(BaseTask):
         if len(self.msg_list) == 0:
             return
         text = self.msg_list[len(self.msg_list) - 1]["content"]
-        input = TaskDescription(prompt=text)
+        # input = TaskDescription(prompt=text, parent=self)
         for task in self.affect_to_ext_list:
             # task.prompt = text
+            input = task
+            input.prompt = text
             task.method(input)
 
     def affectedTaskCallback(self, input : TaskDescription):
@@ -240,3 +242,13 @@ class TextTask(BaseTask):
         else:
             return self.prompt
 
+    def updateParam(self, param_name):
+            found = False
+            for param in self.params:
+                if param_name in param:
+                    param[param_name] = self.getRichPrompt()
+                    found = True
+            if not found:
+                self.params.append({param_name: self.getRichPrompt()})
+
+ 

@@ -119,7 +119,7 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "") -> None:
+    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "", enabled = False) -> None:
         self.prompt = prompt
         self.prompt_tag = prompt_tag
         self.method = method
@@ -130,6 +130,7 @@ class TaskDescription():
         self.id = id
         self.type = type
         self.filename = filename
+        self.enabled = enabled
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
@@ -212,11 +213,20 @@ class BaseTask():
             print('Register command:' + str(task.method))
             return CreateCommand( task)
         return None
+    
+    def stdProcessUnFreeze(self):
+            if self.parent and self.is_freeze and not self.parent.is_freeze:
+                self.is_freeze = False
+
+            if self.parent and not self.is_freeze and self.parent.is_freeze:
+                self.is_freeze = True
+
+
    
     def update(self, input : TaskDescription = None):
-        # print("Update=",self.getName(),",in=", input)
-        if self.parent and self.is_freeze and not self.parent.is_freeze and self.type != "Collect":
-            self.is_freeze = False
+        print("Update=",self.getName())
+        self.stdProcessUnFreeze()
+
         if input:
             if input.parent:
                 self.parent = input.parent

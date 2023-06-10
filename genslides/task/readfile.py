@@ -78,19 +78,21 @@ class ReadFileTask(ResponseTask):
         return self.prompt
 
 
+
     def executeResponse(self):
       #   str = "J:\WorkspaceFast\genslides\examples\05table_parts_slides1_req.txt"
         if os.path.isfile(self.getRichPrompt()):
 
 
             param_name = "path_to_read"
-            found = False
-            for param in self.params:
-                if param_name in param:
-                    param[param_name] = self.getRichPrompt()
-                    found = True
-            if not found:
-                self.params.append({param_name: self.getRichPrompt()})
+            self.updateParam(param_name)
+            # found = False
+            # for param in self.params:
+            #     if param_name in param:
+            #         param[param_name] = self.getRichPrompt()
+            #         found = True
+            # if not found:
+            #     self.params.append({param_name: self.getRichPrompt()})
 
 
 

@@ -21,7 +21,7 @@ class RequestTask(TextTask):
             self.saveJsonToFile(self.msg_list)
         else:
             self.msg_list = msg_list_from_file
-            print("Get list from file=", self.path)
+            # print("Get list from file=", self.path)
 
     def update(self, input : TaskDescription = None):
         if self.parent:

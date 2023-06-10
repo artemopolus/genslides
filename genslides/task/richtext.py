@@ -44,7 +44,7 @@ class RichTextTask(TextTask):
             self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
         else:
             self.msg_list = msg_list_from_file
-            print("Get list from file=", self.path)
+            # print("Get list from file=", self.path)
  
     def getTagPrompt(self):
         return self.user_tag

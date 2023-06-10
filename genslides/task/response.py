@@ -21,6 +21,8 @@ class ResponseTask(TextTask):
         else:
             self.msg_list = msg_list_from_file
             print("Get list from file=", self.path)
+        print("name=", self.getName())
+        print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
     def executeResponse(self):
@@ -41,7 +43,7 @@ class ResponseTask(TextTask):
             if not self.parent.is_freeze:
                 self.is_freeze = False
                 tmp_msg_list = self.parent.msg_list.copy()
-                print(pprint.pformat(tmp_msg_list))
+                # print(pprint.pformat(tmp_msg_list))
                 msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
                 if len(msg_list_from_file):
                     print("I loaded")
@@ -78,4 +80,4 @@ class ResponseTask(TextTask):
             out = self.msg_list[len(self.msg_list) - 1]
             return "", out["role"],out["content"]
         return "","user",""
- 
+    

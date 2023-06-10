@@ -240,18 +240,20 @@ class Manager:
         log = "Nothing"
         img_path = "output/img.png"
 
+        print("Make action ", creation_type)
 
         if type is None or creation_type is None:
             return out, log, img_path
         if creation_type == "Edit":
+            
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
             self.curr_task.update(info)
-            return self.runIteration(prompt)
+            return out, log, self.drawGraph() , "",""
+            # return self.runIteration(prompt)
         elif creation_type == "Select":
             self.slct_task = self.curr_task
             return self.runIteration(prompt)
         elif creation_type == "RemoveParent":
-            print("Remove parent")
             if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
                 self.curr_task.removeParent()
                 self.curr_task.update()
@@ -300,7 +302,7 @@ class Manager:
     
     def makeLink(self, task_in : BaseTask, task_out :BaseTask):
         if task_in != None and task_out != None:
-            print("Make link")
+            print("Make link from ", task_out.getName(), " to ", task_in.getName())
             task_in.createLinkToTask(task_out)
 
     def getTaskByName(self, name : str) -> BaseTask:
