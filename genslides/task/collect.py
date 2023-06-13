@@ -6,23 +6,17 @@ from genslides.utils.largetext import SimpleChatGPT
 
 
 class CollectTask(TextTask):
-    def __init__(self, task_info : TaskDescription) -> None:
-        super().__init__(task_info, "Collect")
-        # self.prompt = ""
-        pair = {}
-        pair["role"] = task_info.prompt_tag
-        pair["content"] = self.getRichPrompt()
+    def __init__(self, task_info : TaskDescription, type = "Collect") -> None:
+        super().__init__(task_info, type=type)
 
         tmp_msg_list = self.msg_list.copy()
         # tmp_msg_list.append(pair)
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
         # print("list from file=",msg_list_from_file)
-        del tmp_msg_list
-        # print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
+        # del tmp_msg_list
         
         if len(msg_list_from_file) == 0:
-            self.msg_list.append(pair)
-            self.saveJsonToFile(self.msg_list)
+            self.updateCollectedMsgList(tmp_msg_list)
         else:
             self.msg_list = msg_list_from_file
             print("Get list from file=", self.path)
@@ -42,12 +36,16 @@ class CollectTask(TextTask):
         for tsk_info in self.by_ext_affected_list:
             tsk_info.enabled = False
 
-    def update(self, input : TaskDescription = None):
-        # print("Update collect_________________________________________________")
-        # print("==================>>>>>>>>>>>", pprint.pformat( self.msg_list))
-        # print("Collect",10*">>>>>>>>>>>")
-        # print("Prompt=", self.getRichPrompt())
-        if self.parent:
+    def updateCollectedMsgList(self, trg_list : list):
+            print("update not frozen")
+            last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
+            trg_list.append(last)
+            if self.msg_list != trg_list:
+                self.msg_list = trg_list.copy()
+                self.saveJsonToFile(self.msg_list)
+
+
+    def checkParentsMsg(self):
             trg_list = self.parent.msg_list.copy()
             cur_list = self.msg_list.copy()
             cut = cur_list.pop()
@@ -55,7 +53,19 @@ class CollectTask(TextTask):
                 self.msg_list = trg_list
                 self.msg_list.append(cut)
                 self.saveJsonToFile(self.msg_list)
+                print("Freeze from checking")
                 self.freezeTask()
+            return trg_list
+
+
+    def update(self, input : TaskDescription = None):
+        # print("Update collect_________________________________________________")
+        # print("Collect",10*">>>>>>>>>>>")
+        # print("Prompt=", self.getRichPrompt())
+        trg_list = []
+        if self.parent:
+            # print("==================>>>>>>>>>>>", pprint.pformat( self.parent.msg_list))
+            trg_list = self.checkParentsMsg()
         else:
             trg_list = []
         
@@ -63,16 +73,14 @@ class CollectTask(TextTask):
         # last = self.msg_list[- 1].copy()
         # last["content"] = self.getRichPrompt()
         if not self.is_freeze:
-            print("update not frozen")
-            last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
-            trg_list.append(last)
-            if self.msg_list != trg_list:
-                self.msg_list = trg_list.copy()
-                self.saveJsonToFile(self.msg_list)
-        out = self.msg_list[len(self.msg_list) - 1]
+            self.updateCollectedMsgList(trg_list)
         super().update(input)
         print("CollectTask=",self.getName()," frozen=", self.is_freeze)
-        return out["content"], out["role"]
+        if len(self.msg_list) > 0:
+            out = self.msg_list[len(self.msg_list) - 1]
+            return out["content"], out["role"]
+        else:
+            return "",""
 
     def createLinkToTask(self, task) -> TaskDescription:
         id = len(self.by_ext_affected_list)
@@ -93,7 +101,7 @@ class CollectTask(TextTask):
         return text
 
     def stdProcessUnFreeze(self):
-        print("1 frozen=", self.is_freeze)
+        # print("1 frozen=", self.is_freeze)
         if self.is_freeze:
             to_unfreeze = False
             if self.parent and not self.parent.is_freeze:
@@ -112,9 +120,10 @@ class CollectTask(TextTask):
             for tsk_info in self.by_ext_affected_list:
                 # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                 if not tsk_info.enabled:
+                    print("Freeze from children")
                     self.freezeTask()
                     return
-            print("1 frozen=", self.is_freeze)
+            # print("1 frozen=", self.is_freeze)
   
 
     def affectedTaskCallback(self, input : TaskDescription):
@@ -144,8 +153,12 @@ class CollectTask(TextTask):
         super().removeLinkToTask()
  
     def getMsgInfo(self):
-        out = self.msg_list[- 1]
-        return "", out["role"],out["content"]
+        if len(self.msg_list) > 0:
+            out = self.msg_list[- 1]
+            return "", out["role"],out["content"]
+        else:
+            return "", self.prompt_tag, ""    
+    
     def whenParentRemoved(self):
         super().whenParentRemoved()
         self.removeLinkToTask()

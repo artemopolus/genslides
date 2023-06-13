@@ -188,7 +188,8 @@ class TextTask(BaseTask):
         return res
     
     def getTagPrompt(self):
-        return self.msg_list[len(self.msg_list) - 1]["role"]
+        return self.prompt_tag
+        # return self.msg_list[len(self.msg_list) - 1]["role"]
 
     def useLinksToTask(self):
         # if self.getName() == "Collect8":
