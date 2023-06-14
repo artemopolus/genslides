@@ -44,7 +44,6 @@ class Manager:
         self.index = 0
 
         self.browser = WebBrowser()
-        self.summator = Summator()
 
         self.need_human_response = False
 

@@ -44,7 +44,7 @@ class ChatGPT():
                     self.input_price = price_info["input"]
                     self.output_price = price_info["output"]
                     break
-            if found:
+            if not found:
                 raise ValueError("Specify prices plz")
              
         self.path = path_to_config
@@ -90,10 +90,13 @@ class ChatGPT():
                     if dt["date"] == cur_date:
                         sum = dt["sum"] + sum_price
                         dt["sum"] = sum
+            with open(self.path_to_file, 'w') as f:
+                json.dump(dates,f,indent=1)
         else:
             with open(self.path_to_file, 'w') as f:
                 val = []
                 val.append({ "date" : cur_date, "sum" : sum_price})
+                json.dump(val,f,indent=1)
 
         
 
