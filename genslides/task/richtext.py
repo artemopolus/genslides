@@ -9,7 +9,12 @@ class RichTextTask(TextTask):
     def __init__(self, task_info : TaskDescription) -> None:
         super().__init__(task_info, "RichText")
 
-        chat = SimpleChatGPT()
+        ml_model = self.reqhelper.getValue(self.type, "model")
+        if ml_model == "":
+            ml_model = "gpt-3.5-turbo"
+        self.ml_model = ml_model
+ 
+        chat = SimpleChatGPT(model_name=self.ml_model)
 
         self.user_tag = chat.getUserTag()
         self.asis_tag = chat.getAssistTag()
@@ -50,7 +55,7 @@ class RichTextTask(TextTask):
         return self.user_tag
 
     def executeResponse(self):
-        chat = SimpleChatGPT()
+        chat = SimpleChatGPT(model_name=self.ml_model)
         res, out = chat.recvRespFromMsgList(self.msg_list)
         if res:
             # print("out=", out)

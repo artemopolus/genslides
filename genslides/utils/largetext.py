@@ -3,29 +3,52 @@ import openai
 from openai.error import APIError, RateLimitError, APIConnectionError
 import json
 import tiktoken
-
-
+import os
+import datetime
 
 class ChatGPT():
-    def __init__(self, model_name = "gpt-3.5-turbo") -> None:
+    def __init__(self, model_name="gpt-3.5-turbo") -> None:
         path_to_config = 'config/openai.json'
-        self.model = model_name
+
         self.active = False 
-        self.max_tokens = 4000
         with open(path_to_config, 'r') as config:
             values = json.load(config)
             key = values['api_key']
             openai.api_key = key
-            # print('key=',key)
             self.active = values['active']
-            # print('active=', self.active)
-            # if key:
 
-            #     models = openai.Model.list()
-            #     for model in models.data:
-            #         if model.id == self.model:
-            #             print('model=',model)
+        if not key and not self.active:
+            print("chat gpt model not active")
+            return
+
+        models = openai.Model.list()
+        mdl_found = False
+        for mdl in models.data:
+            if mdl.id == model_name:
+                mdl_found = True
+                print('Use model =',mdl)
+
+        if mdl_found:
+            self.model = model_name
+        else:
+            raise ValueError("Model name not found")
+        
+        with open(path_to_config, 'r') as config:
+            values = json.load(config)
+            key = values['prices']
+            found = False
+            for price_info in key:
+                if price_info["name"] == self.model:
+                    found = True
+                    self.max_tokens = price_info["max_tokens"]
+                    self.input_price = price_info["input"]
+                    self.output_price = price_info["output"]
+                    break
+            if found:
+                raise ValueError("Specify prices plz")
+             
         self.path = path_to_config
+        self.path_to_file = "output/openai.json"
 
     def getModelNames(self):
         models = openai.Model.list()
@@ -49,14 +72,30 @@ class ChatGPT():
         return "gpt-3.5-turbo"
 
     def addCounterToPromts(self, token_num = 1, price = 0.002):
+        sum_price = token_num*price/1000
+        print('price= ',sum_price)
+
         with open(self.path,'r') as f:
             val = json.load(f)
             iter = float(val['counter'])
-            sum_price = token_num*price/1000
-            print('price= ',sum_price)
             val['counter'] = iter + sum_price
         with open(self.path,'w') as f:
             json.dump(val,f,indent=1)
+
+        cur_date = str(datetime.date.today())
+        if os.path.exists(self.path_to_file):
+            with open(self.path_to_file, 'r') as f:
+                dates = json.load(f)
+                for dt in dates:
+                    if dt["date"] == cur_date:
+                        sum = dt["sum"] + sum_price
+                        dt["sum"] = sum
+        else:
+            with open(self.path_to_file, 'w') as f:
+                val = []
+                val.append({ "date" : cur_date, "sum" : sum_price})
+
+        
 
     def createChatCompletion(self, messages, model="gpt-3.5-turbo"):
         if not self.active:
@@ -68,7 +107,8 @@ class ChatGPT():
             messages=messages        
             )
             msg = completion.choices[0].message
-            text = msg["content"]
+            # text = msg["content"]
+            print("resp=",completion.choices[0])
             return True, msg
         except RateLimitError as e:
             print('fuck rate')
@@ -132,12 +172,12 @@ class SimpleChatGPT(ChatGPT):
             # it's too many of them!
             pass
         else:
-            self.addCounterToPromts(token_cnt)
+            self.addCounterToPromts(token_cnt,price=self.input_price)
             res, out = self.createChatCompletion(messages=msgs)
 
             if res:
                 token_cnt = self.getTokensCount(out["content"])
-                self.addCounterToPromts(token_cnt)
+                self.addCounterToPromts(token_cnt, price= self.output_price)
                 return True, out["content"]        
         return False, ""
 

@@ -12,11 +12,16 @@ class ResponseTask(TextTask):
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
         del tmp_msg_list
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
+
+        ml_model = self.reqhelper.getValue(self.type, "model")
+        if ml_model == "":
+            ml_model = "gpt-3.5-turbo"
+        self.ml_model = ml_model
         
         if len(msg_list_from_file) == 0 and not self.is_freeze:
             self.executeResponse()
         elif len(msg_list_from_file) == 0 and self.is_freeze:
-            chat = SimpleChatGPT()
+            chat = SimpleChatGPT(model_name=self.ml_model)
             self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
         else:
             self.msg_list = msg_list_from_file
@@ -26,7 +31,7 @@ class ResponseTask(TextTask):
         self.saveJsonToFile(self.msg_list)
 
     def executeResponse(self):
-        chat = SimpleChatGPT()
+        chat = SimpleChatGPT(model_name=self.ml_model)
         res, out = chat.recvRespFromMsgList(self.msg_list)
         if res:
             # print("out=", out)

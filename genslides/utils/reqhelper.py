@@ -23,6 +23,12 @@ class RequestHelper:
         if type in self.dict:
             return self.dict[type]['Endi']
         return ""
+    
+    def getValue(self, type, flag):
+        if type in self.dict:
+            return self.dict[type][flag]
+        return ""
+
 
     def getNames(self) -> str:
         return self.dict
