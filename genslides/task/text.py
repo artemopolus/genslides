@@ -244,13 +244,20 @@ class TextTask(BaseTask):
         else:
             return self.prompt
 
-    def updateParam(self, param_name):
+    def updateParam(self, param_name, data):
             found = False
             for param in self.params:
                 if param_name in param:
-                    param[param_name] = self.getRichPrompt()
+                    param[param_name] = data
                     found = True
             if not found:
-                self.params.append({param_name: self.getRichPrompt()})
+                self.params.append({param_name: data})
+
+
+    def getParam(self, param_name):
+        for param in self.params:
+            if param_name in param:
+                return param[param_name]
+        return None 
 
  

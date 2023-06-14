@@ -9,9 +9,7 @@ class RichTextTask(TextTask):
     def __init__(self, task_info : TaskDescription) -> None:
         super().__init__(task_info, "RichText")
 
-        ml_model = self.reqhelper.getValue(self.type, "model")
-        if ml_model == "":
-            ml_model = "gpt-3.5-turbo"
+        ml_model = "gpt-3.5-turbo"
         self.ml_model = ml_model
  
         chat = SimpleChatGPT(model_name=self.ml_model)

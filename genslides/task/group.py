@@ -69,18 +69,18 @@ class GroupTask(CollectTask):
     def checkParentsMsg(self):
         trg_list = self.parent.msg_list.copy()
         cur_list = self.msg_list.copy()
-        print(len(self.msg_list))
-        print("summ=",cur_list == trg_list, "[",len(cur_list),"==", len(trg_list),"]")
+        # print(len(self.msg_list))
+        # print("summ=",cur_list == trg_list, "[",len(cur_list),"==", len(trg_list),"]")
         # cut = cur_list.pop()
         for info in self.by_ext_affected_list:
             for msg in info.parent.msg_list:
                 trg_list.append( msg )
         
-        print("Diff\n==================>>>>>>>>>>>\n", pprint.pformat( [i for i in cur_list if i not in trg_list]))
+        # print("Diff\n==================>>>>>>>>>>>\n", pprint.pformat( [i for i in cur_list if i not in trg_list]))
         # print(self.msg_list == trg_list)
-        for i in range(0,min([len(cur_list), len(trg_list)])):
-            print(i,":",cur_list[i] == trg_list[i])
-        print("summ=",cur_list == trg_list, "[",len(cur_list),"==", len(trg_list),"]")
+        # for i in range(0,min([len(cur_list), len(trg_list)])):
+        #     print(i,":",cur_list[i] == trg_list[i])
+        # print("summ=",cur_list == trg_list, "[",len(cur_list),"==", len(trg_list),"]")
 
         # print("==================>>>>>>>>>>>", pprint.pformat( trg_list))
         # print("==================>>>>>>>>>>>", pprint.pformat( cur_list))

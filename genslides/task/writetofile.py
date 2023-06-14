@@ -26,7 +26,7 @@ class WriteToFileTask(TextTask):
 
     def executeResponse(self):
         param_name = "path_to_write"
-        self.updateParam(param_name)
+        self.updateParam(param_name,self.getRichPrompt())
         self.saveJsonToFile(self.msg_list)
        # what to write  0
         # text           1

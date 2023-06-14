@@ -85,7 +85,7 @@ class ReadFileTask(ResponseTask):
 
 
             param_name = "path_to_read"
-            self.updateParam(param_name)
+            self.updateParam(param_name,self.getRichPrompt())
             # found = False
             # for param in self.params:
             #     if param_name in param:

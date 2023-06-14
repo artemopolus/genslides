@@ -10,6 +10,8 @@ class ChatGPT():
     def __init__(self, model_name="gpt-3.5-turbo") -> None:
         path_to_config = 'config/openai.json'
 
+        self.temperature = None
+
         self.active = False 
         with open(path_to_config, 'r') as config:
             values = json.load(config)
@@ -23,6 +25,7 @@ class ChatGPT():
 
         models = openai.Model.list()
         mdl_found = False
+        print("model name=", model_name)
         for mdl in models.data:
             if mdl.id == model_name:
                 mdl_found = True
@@ -49,6 +52,11 @@ class ChatGPT():
              
         self.path = path_to_config
         self.path_to_file = "output/openai.json"
+
+
+    def setTemperature(self, temp : float):
+        if temp >= 0 and temp <= 2:
+            self.temperature = temp
 
     def getModelNames(self):
         models = openai.Model.list()
@@ -105,10 +113,18 @@ class ChatGPT():
             raise ValueError("ChatGPT is not active!")
             # return False, ""
         try:
-            completion = openai.ChatCompletion.create(
-            model=model,
-            messages=messages        
-            )
+            if not self.temperature:
+                completion = openai.ChatCompletion.create(
+                    model=model,
+                    messages=messages     
+                )
+            else:
+                print("Cur temp=", self.temperature)
+                completion = openai.ChatCompletion.create(
+                    model=model,
+                    messages=messages,
+                    temperature=self.temperature     
+                )
             msg = completion.choices[0].message
             # text = msg["content"]
             print("resp=",completion.choices[0])
@@ -134,6 +150,7 @@ class ChatGPT():
 
 class SimpleChatGPT(ChatGPT):
     def __init__(self, model_name="gpt-3.5-turbo") -> None:
+        print("model name=", model_name)
         super().__init__(model_name)
         self.tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 

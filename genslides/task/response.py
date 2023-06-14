@@ -8,30 +8,55 @@ from genslides.utils.largetext import SimpleChatGPT
 class ResponseTask(TextTask):
     def __init__(self, task_info : TaskDescription, type = "Response") -> None:
         super().__init__(task_info, type)
+
+
         tmp_msg_list = self.msg_list.copy()
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
         del tmp_msg_list
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
 
-        ml_model = self.reqhelper.getValue(self.type, "model")
-        if ml_model == "":
-            ml_model = "gpt-3.5-turbo"
-        self.ml_model = ml_model
+
         
-        if len(msg_list_from_file) == 0 and not self.is_freeze:
-            self.executeResponse()
-        elif len(msg_list_from_file) == 0 and self.is_freeze:
-            chat = SimpleChatGPT(model_name=self.ml_model)
-            self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
+
+        if len(msg_list_from_file) == 0:
+            self.setChatPram("temperature")
+            self.setChatPram("model")
+            if self.is_freeze:
+                model_name = self.getParam("model")
+                chat = SimpleChatGPT(model_name=model_name)
+                self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
+            else:
+                self.executeResponse()
         else:
+            # print("t=",temperature)
+            if not self.getParam("model"):
+                model_name =  self.reqhelper.getValue(self.type, "model")
+                if model_name:
+                    self.updateParam("model", model_name)
+                else:
+                    self.updateParam("model", "gpt-3.5-turbo")
+
             self.msg_list = msg_list_from_file
             print("Get list from file=", self.path)
         print("name=", self.getName())
         print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
+    def setChatPram(self, name):
+            temperature =  self.reqhelper.getValue(self.type, name)
+            print("t=",temperature)
+            if temperature:
+                self.updateParam(name, temperature)
+ 
     def executeResponse(self):
-        chat = SimpleChatGPT(model_name=self.ml_model)
+        model_name = self.getParam("model")
+
+        print("Exe resp with model=", model_name)
+        chat = SimpleChatGPT(model_name=model_name)
+        temp = self.getParam("temperature")
+        print("temp=", temp)
+        if temp:
+            chat.setTemperature(temp)
         res, out = chat.recvRespFromMsgList(self.msg_list)
         if res:
             # print("out=", out)
