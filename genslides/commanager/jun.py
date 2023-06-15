@@ -32,8 +32,28 @@ class Manager:
         self.requester = requester
         self.searcher = searcher
         self.vars_param = ["stopped", "input", "output"]
+        self.path_to_file = "config/base.json"
+        if os.path.exists(self.path_to_file):
+            with open(self.path_to_file, 'r') as f:
+                params = json.load(f)
+        else:
+            with open(self.path_to_file, 'w') as f:
+                params = {}
+                params["mode"] = "base"
+                json.dump(params,f,indent=1)
+        self.params = params
         self.onStart()
- 
+
+    def setParam(self, param_name, param_value):
+        if param_name in self.params:
+            self.params[param_name] = param_value
+            with open(self.path_to_file, 'w') as f:
+                json.dump(self.params,f,indent=1)
+
+    def getParam(self, param_name):
+        if param_name in self.params:
+            return self.params[param_name]
+        return None
 
     def onStart(self):
         self.task_list = []
@@ -186,6 +206,7 @@ class Manager:
         # std_output_list = [info, output, graph_img, input, creation_tag_list]
         # next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
 
+
     def updateGraph(self, image):
         print("Update graph")
         img = image['image']
@@ -214,7 +235,7 @@ class Manager:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine")
                     elif task.getParam("output"):
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
-                    if task.is_freeze:
+                    elif task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
                     else:
                         info = task.getInfo()
@@ -237,7 +258,43 @@ class Manager:
             img_path += ".png"
             return img_path
         return "output/img.png"
-         
+    
+    # def updatePromptForTask(self, input):
+        # print("in=",input)
+    def updatePromptForTask(self, task_name, task_prompt):
+        print(20*"====")
+        print("Update prompt")
+        print(20*"====")
+        # task = self.getTaskByName(task_name)
+        # self.curr_task = task
+        # creation_tag = task.prompt_tag
+        # info = TaskDescription(prompt=task_prompt,prompt_tag=creation_tag)
+        # self.curr_task.update(info)
+        return self.getOutputDataSum()
+
+    def getOutputDataSum(self):
+        out = ""
+        for task in self.task_list:
+            if task.getParam("output"):
+                out += "Response from " + task.getName()  + "\n"
+                out += 10*"=====" + "\n"
+                out += task.getInfo(short=False)
+                out += "\n"
+        return out
+
+    def updateAndGetOutputDataSum(self):
+        self.update()
+        return self.getOutputDataSum()
+
+    def getFlagTaskLst(self):
+        out = []
+        for task in self.task_list:
+            if task.getParam("input"):
+                out.append({"name" : task.getName(), "type" : "input"})
+            elif task.getParam("output"):
+                out.append({"name" : task.getName(), "type" : "output"})
+        return out
+  
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
         # print(10*"==")
         # print("Create new task")

@@ -144,7 +144,13 @@ class TextTask(BaseTask):
                         msg_trgs = rq['chat'].copy()
                         if remove_last:
                             msg_trgs.pop()
-                        if msg_trgs == msg_list:
+                        stopped = False
+                        if 'params' in rq:
+                            # print("params=", rq['params'])
+                            for param in rq['params']:
+                                if 'stopped' in param and param['stopped']:
+                                    stopped = True
+                        if msg_trgs == msg_list or stopped:
                             print(10*"====", "YEEEES")
                             self.path = path
                             self.name = file.split('.')[0]
