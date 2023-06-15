@@ -235,6 +235,11 @@ class TextTask(BaseTask):
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
             # print("p=",self.prompt)
+
+            for param in input.params:
+                self.updateParam(param["name"], param["value"])
+
+            self.saveJsonToFile(self.msg_list)
         return super().update(input)
     
 

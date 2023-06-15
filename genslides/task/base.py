@@ -119,7 +119,7 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "", enabled = False) -> None:
+    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "", enabled = False, params = []) -> None:
         self.prompt = prompt
         self.prompt_tag = prompt_tag
         self.method = method
@@ -131,6 +131,7 @@ class TaskDescription():
         self.type = type
         self.filename = filename
         self.enabled = enabled
+        self.params = params
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
@@ -297,4 +298,7 @@ class BaseTask():
     def completeTask(self) -> bool:
         # print(self.getName(),"=Complete Task")
         return False 
+    
+    def getParam(self, param_name):
+        return None
  

@@ -68,6 +68,11 @@ class ResponseTask(TextTask):
 
 
     def update(self, input : TaskDescription = None):
+        stopped = self.getParam("stopped")
+        if stopped:
+            print("Stopped=", self.getName())
+            return "",self.prompt_tag,""
+        
         if self.is_freeze and self.parent:
             print("frozen=",self.getName())
             if not self.parent.is_freeze:
@@ -82,6 +87,8 @@ class ResponseTask(TextTask):
             else:
                 return "","user",""
         
+       
+
         print("Update response task=", self.getName())
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
         if self.parent:

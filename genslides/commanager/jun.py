@@ -31,6 +31,7 @@ class Manager:
         self.helper = helper
         self.requester = requester
         self.searcher = searcher
+        self.vars_param = ["stopped", "input", "output"]
         self.onStart()
  
 
@@ -207,11 +208,19 @@ class Manager:
                 elif task ==self.slct_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
                 else:
+                    if task.getParam("stopped"):
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="crimson")
+                    elif task.getParam("input"):
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine")
+                    elif task.getParam("output"):
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
                     if task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
                     else:
                         info = task.getInfo()
                         f.node( task.getIdStr(), info)
+
+
                 # print("info=",task.getIdStr(),"   ", task.getName())
             
             for task in self.task_list:
@@ -249,8 +258,18 @@ class Manager:
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
             self.curr_task.update(info)
             return out, log, self.drawGraph() , "",""
-            # return self.runIteration(prompt)
-        elif creation_type == "Select":
+        vars_param = self.vars_param
+        for param in vars_param:
+            if creation_type == param:
+                info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[{"name" :param, "value" : True}])
+                self.curr_task.update(info)
+                return out, log, self.drawGraph() , "",""
+            if creation_type == "un" + param:
+                info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[{"name" :param, "value" : False}])
+                self.curr_task.update(info)
+                return out, log, self.drawGraph() , "",""
+             # return self.runIteration(prompt)
+        if creation_type == "Select":
             self.slct_task = self.curr_task
             return self.runIteration(prompt)
         elif creation_type == "RemoveParent":

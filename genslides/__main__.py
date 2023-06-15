@@ -35,7 +35,13 @@ def gr_body(request) -> None:
             next_task_btn = gr.Button(value="Next task, plz")
             prev_task_val = gr.Textbox(value="-1")
             prev_task_btn = gr.Button(value="Prev task, plz")
-        creation_types_radio = gr.Radio(choices=["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"], label="Type of task creation",value="New")
+
+        creation_types_radio_list = ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"]
+        for param in manager.vars_param:
+            creation_types_radio_list.append(param)
+            creation_types_radio_list.append("un" + param)
+        # print("list=", creation_types_radio_list)
+        creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
         action_to_task_btn = gr.Button(value="Make action!")
 
         task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
