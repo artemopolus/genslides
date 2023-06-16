@@ -3,8 +3,8 @@ from genslides.task.base import TaskDescription
 import pprint
 
 class RequestTask(TextTask):
-    def __init__(self, task_info: TaskDescription, ) -> None:
-        super().__init__(task_info, "Request")
+    def __init__(self, task_info: TaskDescription, type = "Request") -> None:
+        super().__init__(task_info, type)
         pair = {}
         pair["role"] = task_info.prompt_tag
         pair["content"] = self.getRichPrompt()

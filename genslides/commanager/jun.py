@@ -263,13 +263,13 @@ class Manager:
         # print("in=",input)
     def updatePromptForTask(self, task_name, task_prompt):
         print(20*"====")
-        print("Update prompt")
+        print("Update prompt for ", task_name)
         print(20*"====")
-        # task = self.getTaskByName(task_name)
-        # self.curr_task = task
-        # creation_tag = task.prompt_tag
-        # info = TaskDescription(prompt=task_prompt,prompt_tag=creation_tag)
-        # self.curr_task.update(info)
+        task = self.getTaskByName(task_name)
+        self.curr_task = task
+        creation_tag = task.prompt_tag
+        info = TaskDescription(prompt=task_prompt,prompt_tag=creation_tag)
+        self.curr_task.update(info)
         return self.getOutputDataSum()
 
     def getOutputDataSum(self):

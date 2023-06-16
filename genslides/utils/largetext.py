@@ -94,10 +94,14 @@ class ChatGPT():
         if os.path.exists(self.path_to_file):
             with open(self.path_to_file, 'r') as f:
                 dates = json.load(f)
+                found = False
                 for dt in dates:
                     if dt["date"] == cur_date:
+                        found = True
                         sum = dt["sum"] + sum_price
                         dt["sum"] = sum
+                if not found:
+                    dates.append({ "date" : cur_date, "sum" : sum_price})
             with open(self.path_to_file, 'w') as f:
                 json.dump(dates,f,indent=1)
         else:

@@ -12,6 +12,8 @@ from genslides.task.websurf import WebSurfTask
 from genslides.task.readpage import ReadPageTask
 from genslides.task.largetextresponse import LargeTextResponseTask
 
+from genslides.task.gettime import GetTimeTask
+
 import genslides.commands.create as cr
 
 def checkTypeFromName(name : str, type :str) -> bool:
@@ -50,6 +52,9 @@ def createTaskByType(type : str,info : TaskDescription):
         return cr.CreateCommand(info)
     if stype.endswith("WebSurf"):
         info.method = WebSurfTask
+        return cr.CreateCommand(info)
+    if stype.endswith("GetTime"):
+        info.method = GetTimeTask
         return cr.CreateCommand(info)
     if stype.endswith("ReadPage"):
         info.method = ReadPageTask

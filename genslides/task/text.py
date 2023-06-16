@@ -151,7 +151,7 @@ class TextTask(BaseTask):
                                 if 'stopped' in param and param['stopped']:
                                     stopped = True
                         if msg_trgs == msg_list or stopped:
-                            print(10*"====", "YEEEES")
+                            print(10*"====", "\nLoaded from file:")
                             self.path = path
                             self.name = file.split('.')[0]
                             if 'params' in rq:
