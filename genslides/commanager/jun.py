@@ -390,6 +390,24 @@ class Manager:
             if task.getName() == name:
                 return task
         return None
+    
+    def getTaskList(self):
+        out = []
+        for task in self.task_list:
+            out.append(task.getName())
+        return out
+    
+    def setCurrentTaskByName(self, name):
+        task = self.getTaskByName(name)
+        if task:
+            self.curr_task = task
+        
+        for i in range(0, len(self.task_list)):
+            if self.task_list[i] == task:
+                self.task_index = i
+
+        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
+        return self.drawGraph(), gr.Dropdown.update(choices= self.getTaskList()), in_prompt, in_role, out_prompt
 
 
     def runIteration(self, prompt):

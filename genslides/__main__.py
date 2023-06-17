@@ -78,7 +78,8 @@ def gr_body(request) -> None:
                 next_task_btn = gr.Button(value="Next task, plz")
                 prev_task_val = gr.Textbox(value="-1")
                 prev_task_btn = gr.Button(value="Prev task, plz")
-
+                task_list = gr.Dropdown(choices=manager.getTaskList())
+                sel_task_btn = gr.Button(value="Select")
             creation_types_radio_list = ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"]
             for param in manager.vars_param:
                 creation_types_radio_list.append(param)
@@ -113,6 +114,9 @@ def gr_body(request) -> None:
             
             # graph_img.edit(fn=manager.updateGraph, inputs=[graph_img], outputs=[graph_img])
             gr.Button("Clear mask").click(fn=manager.updateGraph, inputs = [graph_img], outputs = [graph_img])
+
+            sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs=[graph_img, task_list, input, prompt_tag_list, info])
+
 
             project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
             project_clear.click(fn=projecter.clear)
