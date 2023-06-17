@@ -239,7 +239,10 @@ class Manager:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
                     else:
                         info = task.getInfo()
-                        f.node( task.getIdStr(), info)
+                        if task.prompt_tag == "assistant":
+                            f.node( task.getIdStr(), task.getName(),style="filled",color="azure2")
+                        else:
+                            f.node( task.getIdStr(), info)
 
 
                 # print("info=",task.getIdStr(),"   ", task.getName())
@@ -312,9 +315,10 @@ class Manager:
             return out, log, img_path
         if creation_type == "Edit":
             
-            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
+            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True)
             self.curr_task.update(info)
-            return out, log, self.drawGraph() , "",""
+            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
+            return out_prompt, log, self.drawGraph() , in_prompt, in_role
         vars_param = self.vars_param
         for param in vars_param:
             if creation_type == param:

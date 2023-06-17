@@ -150,7 +150,7 @@ class TextTask(BaseTask):
                             for param in rq['params']:
                                 if 'stopped' in param and param['stopped']:
                                     stopped = True
-                        if msg_trgs == msg_list or stopped:
+                        if msg_trgs == msg_list or stopped or self.is_freeze:
                             print(10*"====", "\nLoaded from file:")
                             self.path = path
                             self.name = file.split('.')[0]
@@ -232,20 +232,42 @@ class TextTask(BaseTask):
 
     def getMsgInfo(self):
         return super().getMsgInfo()
-
-
-    def update(self, input: TaskDescription = None):
-        # print("Update text task")
+    
+    def preUpdate(self, input: TaskDescription = None):
         if input:
-            # print("p=",self.prompt)
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
-            # print("p=",self.prompt)
-
             for param in input.params:
                 self.updateParam(param["name"], param["value"])
 
             self.saveJsonToFile(self.msg_list)
+
+    def stdProcessUnFreeze(self, input=None):
+        if self.parent:
+            self.is_freeze = self.parent.is_freeze
+        
+        is_input = self.getParam("input")
+        if input:
+            print(input.manual)
+        if is_input:
+            if input and input.manual:
+                self.is_freeze = False
+            else:
+                self.is_freeze = True
+        print("freeze=", self.is_freeze)
+
+
+
+    def update(self, input: TaskDescription = None):
+        if input:
+            self.prompt = input.prompt
+            self.prompt_tag = input.prompt_tag
+            for param in input.params:
+                self.updateParam(param["name"], param["value"])
+
+            self.saveJsonToFile(self.msg_list)
+
+        
         return super().update(input)
     
 

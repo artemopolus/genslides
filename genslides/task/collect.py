@@ -100,8 +100,10 @@ class CollectTask(TextTask):
             # print("text=",task.parent.prompt)
         return text
 
-    def stdProcessUnFreeze(self):
-        # print("1 frozen=", self.is_freeze)
+    def stdProcessUnFreeze(self, input=None):
+        print("1 frozen=", self.is_freeze)
+        if self.parent:
+            print("parent frozen=",self.parent.is_freeze)
         if self.is_freeze:
             to_unfreeze = False
             if self.parent and not self.parent.is_freeze:
@@ -110,7 +112,7 @@ class CollectTask(TextTask):
                 to_unfreeze = True
             if to_unfreeze:
                 for tsk_info in self.by_ext_affected_list:
-                    # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
+                    print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                     if not tsk_info.enabled:
                         return
                 # print("Unfreeze")
@@ -132,9 +134,10 @@ class CollectTask(TextTask):
             if input.id == tsk_info.id:
                 tsk_info.prompt = input.prompt
                 tsk_info.enabled = input.enabled
-                print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
+                # print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
 
         out = super().affectedTaskCallback(input)
+        self.stdProcessUnFreeze()
         self.update()
     #     trg_list = []
     #     if self.parent:

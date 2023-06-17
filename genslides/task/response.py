@@ -68,6 +68,7 @@ class ResponseTask(TextTask):
 
 
     def update(self, input : TaskDescription = None):
+        self.preUpdate(input=input)
         stopped = self.getParam("stopped")
         if stopped:
             print("Stopped=", self.getName())

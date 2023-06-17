@@ -1,6 +1,6 @@
 from transformers import GPT2Tokenizer
 import openai
-from openai.error import APIError, RateLimitError, APIConnectionError
+from openai.error import APIError, RateLimitError, APIConnectionError, ServiceUnavailableError
 import json
 import tiktoken
 import os
@@ -25,11 +25,11 @@ class ChatGPT():
 
         models = openai.Model.list()
         mdl_found = False
-        print("model name=", model_name)
+        # print("model name=", model_name)
         for mdl in models.data:
             if mdl.id == model_name:
                 mdl_found = True
-                print('Use model =',mdl)
+                # print('Use model =',mdl)
 
         if mdl_found:
             self.model = model_name
@@ -148,13 +148,15 @@ class ChatGPT():
             print(e)
             print('status==>', e.http_status)
             return False, ""
+        except ServiceUnavailableError as e:
+            return False, ""
         except TimeoutError as e:
             print('timeot error')
             return False, ""
 
 class SimpleChatGPT(ChatGPT):
     def __init__(self, model_name="gpt-3.5-turbo") -> None:
-        print("model name=", model_name)
+        # print("model name=", model_name)
         super().__init__(model_name)
         self.tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 

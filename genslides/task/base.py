@@ -119,7 +119,7 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "", enabled = False, params = []) -> None:
+    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "", enabled = False, params = [], manual = False) -> None:
         self.prompt = prompt
         self.prompt_tag = prompt_tag
         self.method = method
@@ -132,6 +132,7 @@ class TaskDescription():
         self.filename = filename
         self.enabled = enabled
         self.params = params
+        self.manual = manual
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
@@ -215,7 +216,7 @@ class BaseTask():
             return CreateCommand( task)
         return None
     
-    def stdProcessUnFreeze(self):
+    def stdProcessUnFreeze(self, input=None):
             if self.parent:
                 self.is_freeze = self.parent.is_freeze
             else:
@@ -224,7 +225,7 @@ class BaseTask():
 
    
     def update(self, input : TaskDescription = None):
-        self.stdProcessUnFreeze()
+        self.stdProcessUnFreeze(input)
 
         if input:
             if input.parent:
@@ -232,9 +233,10 @@ class BaseTask():
                 self.parent.addChild(self)
                 print("New parent=", self.parent)
         
-        print("Update=",self.getName(), " frozen=", self.is_freeze)
+        print("Update===========================>",self.getName(), " frozen=", self.is_freeze)
         self.useLinksToTask()
 
+        # if not self.is_freeze:
         for child in self.childs:
             child.update()
 
