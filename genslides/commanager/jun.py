@@ -334,7 +334,7 @@ class Manager:
             self.slct_task = self.curr_task
             return self.runIteration(prompt)
         elif creation_type == "RemoveParent":
-            if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
+            if self.curr_task != self.slct_task and self.curr_task:
                 self.curr_task.removeParent()
                 self.curr_task.update()
             return self.runIteration(prompt)
