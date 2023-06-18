@@ -11,7 +11,8 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 
-
+from PIL.Image import Image
+import os
 
 class Seafoam(Base):
     def __init__(
@@ -49,6 +50,18 @@ class Seafoam(Base):
             font_mono=font_mono,
         )
 
+def updateHeight(num, img):
+    print(img['image'])
+    # for key, value in img:
+    #     print(key, ":", value)
+    print("try")
+    out = img['image']
+    print("sz=",out.size[0])
+    (left, upper, right, lower) = (0, num, out.size[0], num + 1000)
+    im_crop = out.crop((left, upper, right, lower))
+    print("sz=",im_crop.size)
+    return im_crop
+    # return "output\\img.png"
 
 def gr_body(request) -> None:
     manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
@@ -65,14 +78,17 @@ def gr_body(request) -> None:
 
         if manager.getParam("mode") == "base":
 
-            graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="numpy")
+            graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
             # graph_img = gr.ImagePaint()
             graph_img.style(height=800)
+            # graph_img.style(width=1600)
             
 
             with gr.Row() as r:
                 run_iter_btn = gr.Button(value="Run")
                 update_task_btn = gr.Button(value="Update")
+                h_value_txt = gr.Number(value=0, precision=0)
+                gr.Button("Set height").click(fn=updateHeight, inputs=[h_value_txt, graph_img], outputs=[graph_img])
             with gr.Row() as r:
                 next_task_val = gr.Textbox(value="1")
                 next_task_btn = gr.Button(value="Next task, plz")

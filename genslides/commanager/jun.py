@@ -271,7 +271,7 @@ class Manager:
         task = self.getTaskByName(task_name)
         self.curr_task = task
         creation_tag = task.prompt_tag
-        info = TaskDescription(prompt=task_prompt,prompt_tag=creation_tag)
+        info = TaskDescription(prompt=task_prompt,prompt_tag=creation_tag, manual=True)
         self.curr_task.update(info)
         return self.getOutputDataSum()
 
@@ -283,6 +283,14 @@ class Manager:
                 out += 10*"=====" + "\n"
                 out += task.getInfo(short=False)
                 out += "\n"
+
+        i = 0
+        sum = len(self.task_list)
+        for task in self.task_list:
+            if not task.is_freeze:
+                i += 1
+
+        out += "\n Done: " + str(i) + " of " + str(sum)
         return out
 
     def updateAndGetOutputDataSum(self):
