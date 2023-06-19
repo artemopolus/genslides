@@ -50,18 +50,43 @@ class Seafoam(Base):
             font_mono=font_mono,
         )
 
-def updateHeight(num, img):
-    print(img['image'])
-    # for key, value in img:
-    #     print(key, ":", value)
-    print("try")
+
+def moveUp( img, H_pos):
     out = img['image']
     print("sz=",out.size[0])
-    (left, upper, right, lower) = (0, num, out.size[0], num + 1000)
+    max_h = out.size[1]
+    step = 500
+    win_h = 1000
+
+    if H_pos + step + win_h > max_h:
+        H_pos = max_h - win_h
+        point_m = max_h
+    else:
+        H_pos = H_pos + step
+        point_m = H_pos + win_h
+    (left, upper, right, lower) = (0, H_pos, out.size[0], point_m)
     im_crop = out.crop((left, upper, right, lower))
-    print("sz=",im_crop.size)
-    return im_crop
-    # return "output\\img.png"
+    return im_crop, H_pos
+
+def moveDown( img, H_pos):
+    out = img['image']
+    print("sz=",out.size[0])
+    max_h = out.size[1]
+    step = -500
+    win_h = 1000
+
+    if H_pos + step < 0:
+        H_pos = 0
+        point_m = win_h
+    else:
+        H_pos = H_pos + step
+        point_m = H_pos + win_h
+    (left, upper, right, lower) = (0, H_pos, out.size[0], point_m)
+    im_crop = out.crop((left, upper, right, lower))
+    return im_crop, H_pos
+
+
+
 
 def gr_body(request) -> None:
     manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
@@ -78,17 +103,17 @@ def gr_body(request) -> None:
 
         if manager.getParam("mode") == "base":
 
-            graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
-            # graph_img = gr.ImagePaint()
-            graph_img.style(height=800)
-            # graph_img.style(width=1600)
-            
+            base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
+            base_img.style(height=800)
+
+           
 
             with gr.Row() as r:
                 run_iter_btn = gr.Button(value="Run")
                 update_task_btn = gr.Button(value="Update")
-                h_value_txt = gr.Number(value=0, precision=0)
-                gr.Button("Set height").click(fn=updateHeight, inputs=[h_value_txt, graph_img], outputs=[graph_img])
+                with gr.Column():
+                    l_set_btn = gr.Button("Up")
+                    h_set_btn = gr.Button("Down")
             with gr.Row() as r:
                 next_task_val = gr.Textbox(value="1")
                 next_task_btn = gr.Button(value="Next task, plz")
@@ -96,16 +121,24 @@ def gr_body(request) -> None:
                 prev_task_btn = gr.Button(value="Prev task, plz")
                 task_list = gr.Dropdown(choices=manager.getTaskList())
                 sel_task_btn = gr.Button(value="Select")
-            creation_types_radio_list = ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"]
-            for param in manager.vars_param:
-                creation_types_radio_list.append(param)
-                creation_types_radio_list.append("un" + param)
-            # print("list=", creation_types_radio_list)
-            creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
-            action_to_task_btn = gr.Button(value="Make action!")
 
-            task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
-            prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
+            with gr.Row():
+                with gr.Column():
+                    creation_types_radio_list = ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"]
+                    for param in manager.vars_param:
+                        creation_types_radio_list.append(param)
+                        creation_types_radio_list.append("un" + param)
+                    # print("list=", creation_types_radio_list)
+                    creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
+                    action_to_task_btn = gr.Button(value="Make action!")
+
+                    task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
+                    prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
+
+                graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
+                graph_img.style(height=500)
+ 
+
             input = gr.Textbox(label="Input", lines=4, value=request)
             file_input = gr.File()
 
@@ -130,6 +163,16 @@ def gr_body(request) -> None:
             
             # graph_img.edit(fn=manager.updateGraph, inputs=[graph_img], outputs=[graph_img])
             gr.Button("Clear mask").click(fn=manager.updateGraph, inputs = [graph_img], outputs = [graph_img])
+
+            with gr.Row():
+                x_value_txt = gr.Number(value=0, precision=0)
+                y_value_txt = gr.Number(value=0, precision=0)
+
+
+            h_set_btn.click(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
+            l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
+
+            # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
 
             sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs=[graph_img, task_list, input, prompt_tag_list, info])
 
