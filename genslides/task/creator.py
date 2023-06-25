@@ -12,6 +12,9 @@ from genslides.task.websurf import WebSurfTask
 from genslides.task.readpage import ReadPageTask
 from genslides.task.largetextresponse import LargeTextResponseTask
 
+from genslides.task.writedialtofile import WriteDialToFileTask
+from genslides.task.readdial import ReadDialTask
+
 from genslides.task.gettime import GetTimeTask
 
 import genslides.commands.create as cr
@@ -59,5 +62,12 @@ def createTaskByType(type : str,info : TaskDescription):
     if stype.endswith("ReadPage"):
         info.method = ReadPageTask
         return cr.CreateCommand(info)
+    if stype.endswith("ReadDial"):
+        info.method = ReadDialTask
+        return cr.CreateCommand(info)
+    if stype.endswith("WriteDialToFile"):
+        info.method = WriteDialToFileTask
+        return cr.CreateCommand(info)
+   
     else:
     	return None

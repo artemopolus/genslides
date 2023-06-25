@@ -26,17 +26,16 @@ class TextTask(BaseTask):
 
 
         self.path = self.getPath() 
+        self.parentAction()
+        self.params = []
 
+    def parentAction(self):
         if self.parent is None:
             self.msg_list = []
         else:
             self.msg_list = self.parent.msg_list.copy()
             print("parent path=", self.parent.path)
-            # print("Message list from parent=", pprint.pformat( self.parent.msg_list))
-        
-        # print("content=", task_info.prompt)
-        self.params = []
-
+ 
     def getCountPrice(self):
         text = ""
         for msg in self.msg_list:
