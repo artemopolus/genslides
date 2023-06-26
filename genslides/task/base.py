@@ -94,9 +94,12 @@ class TaskManager(metaclass=Singleton):
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
                         print("Get propmt from=",path)
                         # if rq['type'].endswith("RichText") or rq['type'].endswith("Response"):
-                        if rq['type'] == "RichText":
+                        if len(rq['chat']) == 0:
+                            elem = {'role': 'user','content': ''}
+                        else:
+                            if rq['type'] == "RichText":
+                                elem = rq['chat'].pop()
                             elem = rq['chat'].pop()
-                        elem = rq['chat'].pop()
                         pair = {}
                         # pair['type'] = rq['type']
                         pair['type'] =filename.split('.')[0] 
@@ -112,7 +115,7 @@ class TaskManager(metaclass=Singleton):
                         #         pair['content'] = elem['content']
                         #         out.append(pair)
             except Exception as e:
-                pass
+                print("error=", type(e))
         return out
 
 
@@ -234,12 +237,14 @@ class BaseTask():
                 print("New parent=", self.parent)
         
         print("Update===========================>",self.getName(), " frozen=", self.is_freeze)
-        self.useLinksToTask()
 
-        # if not self.is_freeze:
         for child in self.childs:
             child.update()
 
+
+        self.useLinksToTask()
+
+        # if not self.is_freeze:
 
         return "","",""
     

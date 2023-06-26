@@ -62,15 +62,20 @@ class ReadFileTask(ResponseTask):
                                 s_path = param[param_name]
                                 self.prompt = s_path
                         if s_path:
-                            if os.path.isfile(s_path):
-                                with open(s_path, 'r') as f:
-                                    text = f.read()
-                                    msg_trgs[-1]["content"] = text
-                                    return msg_trgs
+                            res, msg_trgs = self.loadContent(s_path, msg_trgs)
+                            if res:
+                                return msg_trgs
                 except json.JSONDecodeError:
                     pass
         return []
- 
+    
+    def loadContent(self, s_path, msg_trgs) -> bool:
+        if os.path.isfile(s_path):
+            with open(s_path, 'r') as f:
+                text = f.read()
+                msg_trgs[-1]["content"] = text
+                return True, msg_trgs
+        return False, msg_trgs
 
     def getRichPrompt(self) -> str:
         if self.parent:

@@ -120,6 +120,8 @@ class ResponseTask(TextTask):
         return "","user",""
     
     def getInfo(self, short = True) -> str:
+        if len(self.msg_list) == 0:
+            return "empty"
         if short:
             txt = self.msg_list[-1]["content"]
             if len(txt) > 20:

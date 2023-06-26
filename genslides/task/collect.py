@@ -9,6 +9,7 @@ class CollectTask(TextTask):
     def __init__(self, task_info : TaskDescription, type = "Collect") -> None:
         super().__init__(task_info, type=type)
 
+        self.is_freeze = True
         tmp_msg_list = self.msg_list.copy()
         # tmp_msg_list.append(pair)
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
@@ -22,7 +23,6 @@ class CollectTask(TextTask):
             print("Get list from file=", self.path)
 
 
-        self.is_freeze = True
 
 
 
