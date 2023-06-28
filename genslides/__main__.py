@@ -11,8 +11,11 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 
+from genslides.utils.mliner import Mliner
+
 from PIL.Image import Image
-import os
+import sys
+import time
 
 class Seafoam(Base):
     def __init__(
@@ -88,11 +91,7 @@ def moveDown( img, H_pos):
 
 
 
-def gr_body(request) -> None:
-    manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
-
-    projecter = Projecter(manager)
-
+def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
     seafoam = Seafoam()
     with gr.Blocks(theme=seafoam) as demo:
@@ -210,24 +209,53 @@ def gr_body(request) -> None:
             gr.Button("update").click(fn=manager.updateAndGetOutputDataSum, outputs=out, api_name="update_task_btn")
             
         with gr.Row() as r:
-            config_name = gr.Dropdown(choices=["mode"])
-            config_values = gr.Dropdown(choices=["base", "user"])
+            config_name = gr.Dropdown(choices=manager.getParamsLst())
+            config_values = gr.Dropdown(choices=manager.getParam("mode lst"))
             config_btn = gr.Button(value="update mode config").click(fn=manager.setParam, inputs=[config_name, config_values])
+            config_name.change(fn=manager.getParamGradioInput, inputs=[config_name], outputs=[config_values])
 
     demo.launch(share=False)
+
+def mliner_body(manager : Manager, projecter : Projecter):
+    mliner = Mliner()
+
+    index = 0
+
+    while index < 1:
+        mliner.update()
+        index += 1
+        print("index=", index)
+        time.sleep(1)
+
+    mliner.close()
+
 
 
 def main() -> None:
     prompt = "Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
     # prompt = "automation of presentation"
+    manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
 
-    if 1:
+    projecter = Projecter(manager)
+
+    mode = manager.getParam("app type")
+
+    if mode == "gradio":
         print("Start gradio application")
-        gr_body(prompt)
-        return
+        gr_body(prompt, manager, projecter)
+    elif mode == "mliner":
+        print("Start console application")
+        mliner_body(manager, projecter)
+    else:
+        print("Unknown app type = ", mode)
 
-    print("Start console application")
+    print("End of main")
+
+
+    del manager, projecter
 
 
 if __name__ == "__main__":
     main()
+    print("Done")
+    sys.exc_info()

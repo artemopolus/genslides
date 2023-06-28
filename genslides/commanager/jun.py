@@ -46,14 +46,31 @@ class Manager:
 
     def setParam(self, param_name, param_value):
         if param_name in self.params:
+            print("Set ",param_name," to ",param_value)
             self.params[param_name] = param_value
             with open(self.path_to_file, 'w') as f:
                 json.dump(self.params,f,indent=1)
+        else:
+            print("Can\'t set param")
 
     def getParam(self, param_name):
         if param_name in self.params:
             return self.params[param_name]
         return None
+    
+    def getParamGradioInput(self, param_name):
+        out = self.getParam(param_name + " lst")
+        if not out:
+            out = []
+        return gr.Dropdown.update( choices= out, interactive=True)
+
+    
+    def getParamsLst(self):
+        out = []
+        for param in self.params:
+            if not param.endswith(" lst"):
+                out.append(param)
+        return out
 
     def onStart(self):
         self.task_list = []
