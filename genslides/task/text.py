@@ -61,6 +61,21 @@ class TextTask(BaseTask):
                 found = True
         return mypath + name
 
+    def getJson(self):
+        resp_json_out = {
+        'chat' : self.msg_list, 
+        'type' : self.type,
+        'params': self.params
+        }
+        linked = []
+        for info in self.by_ext_affected_list:
+            linked.append(info.parent.getName())
+        resp_json_out['linked'] = linked
+        path = ""
+        if self.parent:
+            path = self.parent.path
+        resp_json_out['parent'] = path
+        return resp_json_out
 
     def saveJsonToFile(self, msg_list):
         resp_json_out = {

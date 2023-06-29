@@ -1,41 +1,66 @@
-import ExactolinkPy
 import sys
-
-sys.path.append(
-    "J:\\WorkspaceFast\\ThirdParty\\exmathlib\\python\\exactolink\\build\\Debug")
+sys.path.append("J:\\WorkspaceFast\\ThirdParty\\exmathlib\\python\\exactolink\\build\\Debug")
+import ExactolinkPy
 
 
 class Mliner():
     def __init__(self) -> None:
         self.man = ExactolinkPy.ZmqDevSec(7)
+        self.sending_process = False
+        self.max_len = 900
+
+
+    def isDataGetted(self) -> bool:
+        return self.man.get_request
+
+    def isDataSended(self) -> bool:
+        return self.man.is_sended
 
     def update(self):
-        if self.man.get_request:
-            print("Get request")
-            # break
-
-        if self.man.is_sended:
-            print("Send success")
-            # break
-
         self.man.update()
         print("cnt=", self.man.getCounter())
         print("sndcnt=", self.man.getSendCounter())
+        if self.sending_process and self.man.is_sended:
+            i = self.index
+            print("Send process=",i)
+            if self.last > 0:
+                part_trg = self.parts - i
+                if self.index == self.parts:
+                    short_msg = self.msg[-self.last]
+                    print("Send last=", len(short_msg))
+                    self.man.sending(self.id, self.reg, 0, short_msg)
+                    self.sending_process = False
+                    return
+
+            else:
+                part_trg = self.parts - i - 1
+                if self.index == self.parts:
+                    print("Send last")
+                    self.sending_process = False
+                    return
+            
+                    
+            short_msg = self.msg[i*self.max_len: ((i+1) * self.max_len)]
+            print("Send [", i*self.max_len,":", ((i+1) * self.max_len), "]=", len(short_msg))
+            self.man.sending(self.id, self.reg, part_trg, short_msg)
+
+
+
+            self.index += 1
+
+
 
     def upload(self, msg: str, id: int, reg=0):
-        max_len = 900
-        if len(msg) < max_len:
+        if len(msg) < self.max_len:
             self.man.sending(id, reg, 0, msg)
         else:
-            last = len(msg) % max_len
-            parts = int((len(msg) - last) / max_len)
-            add = 0
-            if parts > 0:
-                add = 1
-            for i in range(0, parts):
+            self.last = len(msg) % self.max_len
+            self.parts = int((len(msg) - self.last) / self.max_len)
+            self.id = id
+            self.reg = reg
+            self.msg = msg
+            self.index = 0
+            self.sending_process = True
 
-                self.man.sending(id, reg, parts - i + add,
-                                 msg[i*max_len: ((i+1) * max_len)])
-
-            if parts > 0:
-                self.man.sending(id, reg, 0, msg[(max_len - last):])
+    def close(self):
+        pass

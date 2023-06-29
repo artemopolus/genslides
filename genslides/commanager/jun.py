@@ -230,6 +230,11 @@ class Manager:
         # img = {'mask' : None}
         return img
     
+    def getTaskJsonStr(self):
+        out = []
+        for task in self.task_list:
+            out.append(task.getJson())
+        return str(out)
 
     def drawGraph(self):
         if len(self.task_list) > 0:

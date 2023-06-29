@@ -183,6 +183,9 @@ class BaseTask():
             out += " " + task.prompt
         return out
     
+    def getJson(self):
+        return None
+    
 
     def getIdStr(self) -> str:
         return str(self.id)

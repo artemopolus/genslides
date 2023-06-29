@@ -217,15 +217,28 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
     demo.launch(share=False)
 
 def mliner_body(manager : Manager, projecter : Projecter):
+
+    tasks = manager.getTaskJsonStr()
+    print("Tasks=",len(tasks))
+    print("String:\n", tasks)
+
+    short_msg = tasks[:900]
+
     mliner = Mliner()
 
     index = 0
 
-    while index < 1:
+    mliner.upload(tasks, 7)
+    # mliner.upload(short_msg, 7)
+
+    while index < 1000:
+        if mliner.isDataSended():
+            print(10*"===","\nData is sended\n", 10*"===")
+            # break
         mliner.update()
         index += 1
         print("index=", index)
-        time.sleep(1)
+        time.sleep(0.5)
 
     mliner.close()
 
