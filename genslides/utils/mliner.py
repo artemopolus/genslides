@@ -26,7 +26,7 @@ class Mliner():
             if self.last > 0:
                 part_trg = self.parts - i
                 if self.index == self.parts:
-                    short_msg = self.msg[-self.last]
+                    short_msg = self.msg[len(self.msg)-self.last :]
                     print("Send last=", len(short_msg))
                     self.man.sending(self.id, self.reg, 0, short_msg)
                     self.sending_process = False
@@ -41,7 +41,7 @@ class Mliner():
             
                     
             short_msg = self.msg[i*self.max_len: ((i+1) * self.max_len)]
-            print("Send [", i*self.max_len,":", ((i+1) * self.max_len), "]=", len(short_msg))
+            print("=========>Send [", part_trg, "][", i*self.max_len,":", ((i+1) * self.max_len), "]=", len(short_msg))
             self.man.sending(self.id, self.reg, part_trg, short_msg)
 
 

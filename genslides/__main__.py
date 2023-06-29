@@ -220,7 +220,7 @@ def mliner_body(manager : Manager, projecter : Projecter):
 
     tasks = manager.getTaskJsonStr()
     print("Tasks=",len(tasks))
-    print("String:\n", tasks)
+    # print("String:\n", tasks)
 
     short_msg = tasks[:900]
 
