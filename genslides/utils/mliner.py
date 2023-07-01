@@ -8,6 +8,7 @@ class Mliner():
         self.man = ExactolinkPy.ZmqDevSec(7)
         self.sending_process = False
         self.max_len = 900
+        self.pack_input = ""
 
 
     def isDataGetted(self) -> bool:
@@ -15,6 +16,20 @@ class Mliner():
 
     def isDataSended(self) -> bool:
         return self.man.is_sended
+    
+
+    def checkData(self):
+        if self.man.get_request:
+            self.man.get_request = False
+            indata = self.man.responded_str
+            print(10*"======", "get part=", self.man.responded_prt)
+            if self.man.responded_prt == 0:
+                self.pack_input += indata
+                return True
+            else:
+                self.pack_input += indata
+        return False
+
 
     def update(self):
         self.man.update()

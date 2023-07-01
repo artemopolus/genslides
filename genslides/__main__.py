@@ -232,9 +232,17 @@ def mliner_body(manager : Manager, projecter : Projecter):
     # mliner.upload(short_msg, 7)
 
     while index < 1000:
+        print(10*"==================")
         if mliner.isDataSended():
-            print(10*"===","\nData is sended\n", 10*"===")
-            # break
+            print("Data is sended\n")
+        if mliner.isDataGetted():
+            print("Data is received\n")
+        print(10*"==================")
+
+        if mliner.checkData():
+            print("Get request=", len(mliner.pack_input))
+            break
+        
         mliner.update()
         index += 1
         print("index=", index)
