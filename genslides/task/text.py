@@ -63,6 +63,7 @@ class TextTask(BaseTask):
 
     def getJson(self):
         resp_json_out = {
+            'name' : self.getName(),
         'chat' : self.msg_list, 
         'type' : self.type,
         'params': self.params
@@ -79,9 +80,9 @@ class TextTask(BaseTask):
 
     def saveJsonToFile(self, msg_list):
         resp_json_out = {
-        'chat' : msg_list, 
-        'type' : self.type,
-        'params': self.params
+            'chat' : msg_list, 
+            'type' : self.type,
+            'params': self.params
         }
         linked = []
         for info in self.by_ext_affected_list:

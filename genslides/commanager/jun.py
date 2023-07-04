@@ -234,7 +234,8 @@ class Manager:
         out = []
         for task in self.task_list:
             out.append(task.getJson())
-        return str(out)
+        res = {"tasks" : out}
+        return json.dumps(res)
 
     def drawGraph(self):
         if len(self.task_list) > 0:

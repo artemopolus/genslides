@@ -16,6 +16,7 @@ from genslides.utils.mliner import Mliner
 from PIL.Image import Image
 import sys
 import time
+import json
 
 class Seafoam(Base):
     def __init__(
@@ -219,6 +220,11 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 def mliner_body(manager : Manager, projecter : Projecter):
 
     tasks = manager.getTaskJsonStr()
+
+    with open("C:\\Users\\Temka\\Documents\\exactoSim\\task.txt", "w") as f:
+        f.write(tasks)
+
+
     print("Tasks=",len(tasks))
     # print("String:\n", tasks)
 
@@ -228,25 +234,22 @@ def mliner_body(manager : Manager, projecter : Projecter):
 
     index = 0
 
-    mliner.upload(tasks, 7)
+    mliner.upload(tasks, 7, 69)
     # mliner.upload(short_msg, 7)
 
     while index < 1000:
-        print(10*"==================")
-        if mliner.isDataSended():
-            print("Data is sended\n")
-        if mliner.isDataGetted():
-            print("Data is received\n")
-        print(10*"==================")
+        # print(10*"==================")
+        # if mliner.isDataSended():
+        #     print("Data is sended\n")
+        # if mliner.isDataGetted():
+        #     print("Data is received\n")
+        # print(10*"==================")
 
-        if mliner.checkData():
-            print("Get request=", len(mliner.pack_input))
-            break
-        
+       
         mliner.update()
         index += 1
-        print("index=", index)
-        time.sleep(0.5)
+        # print("index=", index)
+        time.sleep(0.05)
 
     mliner.close()
 
