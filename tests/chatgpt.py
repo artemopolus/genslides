@@ -92,13 +92,13 @@ print(key)
 models = openai.Model.list()
 # print(models.data)
 for model in models.data:
-   #  print(model.id)
-    if model.id == "gpt-3.5-turbo":
-        print(model)
+    print(model.id)
+    # if model.id == "gpt-3.5-turbo" or model.id == "gpt-4":
+        # print(model)
    #  break
 
 # prompt = "I understand only clear and strict instructions. Give me json list of search actions to improve my request and formatted as: name is short name, ratings is  necessity of action for improving from 1 to 10, search is prompt for searching and browsing action for improving creation, web is true if you can use search result directly in creation. I want to create: Bisness presentation for investors. My idea is presentation creation automatization. You just type your idea then y software propose your steps to create presentation and try to automatize it."
-prompt = ''
+# prompt = ''
 # trg_req_name = '01info_present2'
 # trg_req_name = '01info_present1'
 # trg_req_name = '02slides_present1'
@@ -106,21 +106,21 @@ prompt = ''
 # trg_req_name = '03parts_slide1'
 # trg_req_name = '04text_parts_slides1'
 # trg_req_name = '05table_parts_slides1'
-trg_req_name = '06plot_parts_slides1'
+# trg_req_name = '06plot_parts_slides1'
 
-with open('../examples/' + trg_req_name + '_req.txt','r') as f:
-    prompt = f.read()
-path_resp = '../examples/' + trg_req_name + '_chat.txt'
+# with open('../examples/' + trg_req_name + '_req.txt','r') as f:
+#     prompt = f.read()
+# path_resp = '../examples/' + trg_req_name + '_chat.txt'
 
-print(prompt)
+# print(prompt)
 
-messages=[
-            {"role": "user", "content": prompt}
-]
-chatgpt_model="gpt-3.5-turbo"
+# messages=[
+#             {"role": "user", "content": prompt}
+# ]
+# chatgpt_model="gpt-3.5-turbo"
 
-# addCounterToPromts(path=path_to_config, token_num=num_tokens_from_messages(messages=messages, model=chatgpt_model))
+# # addCounterToPromts(path=path_to_config, token_num=num_tokens_from_messages(messages=messages, model=chatgpt_model))
 
 
-print('Done=', createChatCompletion(messages, chatgpt_model, path_resp, path_to_config))
+# print('Done=', createChatCompletion(messages, chatgpt_model, path_resp, path_to_config))
 

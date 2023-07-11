@@ -230,11 +230,22 @@ class Manager:
         # img = {'mask' : None}
         return img
     
+    def getActionTypes(self):
+        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"]
+    
+    def getRoleTypes(self):
+        return ["user","assistant"]
+
     def getTaskJsonStr(self):
         out = []
         for task in self.task_list:
             out.append(task.getJson())
         res = {"tasks" : out}
+        types = [t for t in self.helper.getNames()]
+        res['types'] = types
+        res['roles'] = self.getRoleTypes()
+        res['actions'] = self.getActionTypes()
+
         return json.dumps(res)
 
     def drawGraph(self):
