@@ -245,8 +245,9 @@ class Manager:
         res['types'] = types
         res['roles'] = self.getRoleTypes()
         res['actions'] = self.getActionTypes()
+        return res
 
-        return json.dumps(res)
+        # return json.dumps(res)
 
     def drawGraph(self):
         if len(self.task_list) > 0:

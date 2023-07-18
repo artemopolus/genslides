@@ -74,7 +74,8 @@ class TextTask(BaseTask):
         resp_json_out['linked'] = linked
         path = ""
         if self.parent:
-            path = self.parent.path
+            len_par_path = len(self.parent.path)
+            path = self.parent.path[6:(len_par_path - 5)]
         resp_json_out['parent'] = path
         child_names = []
         for child in self.childs:

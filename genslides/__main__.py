@@ -17,6 +17,7 @@ from PIL.Image import Image
 import sys
 import time
 import json
+import os
 
 class Seafoam(Base):
     def __init__(
@@ -217,12 +218,82 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
     demo.launch(share=False)
 
+def test_cmd_body(manager : Manager, projecter : Projecter):
+    projecter.clear()
+    projecter.load("simple_chat")
+
+    tasks_json = manager.getTaskJsonStr()
+    tasks_json['id'] = 'init'
+
+
+    path = "C:\\Users\\Temka\\Documents\\exactoSim\\"
+
+    tasks = json.dumps(tasks_json)
+    with open(path + "task.txt", "w") as f:
+        f.write(tasks)
+
+    path_msg = path + "msg.txt"
+    if(os.path.exists(path_msg)):
+        with open(path_msg,"r")as f:
+            # msg = f.read()
+            # print(msg)
+            json_msg = json.load(f)
+            print(json_msg)
+        if json_msg['id'] == 7:
+            cmd = json_msg['options']
+            manager.makeTaskAction(cmd['prompt'], cmd['type'], cmd['action'], cmd['role'])
+
+            tasks_json_new = manager.getTaskJsonStr()
+
+            task_list_old = tasks_json['tasks']
+            print("old=", len(task_list_old))
+            task_list_new = tasks_json_new['tasks']
+            print("new=", len(task_list_new))
+            send_task_list = []
+            for one_task in task_list_new:
+                # print("new=",one_task['name'])
+                if one_task not in task_list_old:
+                    print("New task:", one_task['name'],"\n", one_task['chat'][-1])
+                    send_task_list.append(one_task)
+                    for sec_task in task_list_old:
+                        if sec_task['name'] == one_task['name']:
+                            print("Edited")
+
+            delete_task_list = []
+            for one_task in task_list_old:
+                # print("old=",one_task['name'])
+                found = False
+                for sec_task in task_list_new:
+                    if sec_task['name'] == one_task['name']:
+                        found = True
+                if not found:
+                    delete_task_list.append(one_task['name'])    
+
+
+            send_task_list_json = {'tasks': send_task_list}
+            send_task_list_json['id'] = 'updt'
+            send_task_list_json['to_delete'] = delete_task_list
+            send_task_list_msg = json.dumps(send_task_list_json)
+            with open(path + "out_msg.txt", "w") as f:
+                f.write(send_task_list_msg)
+
+    return
+
+
+
 def mliner_body(manager : Manager, projecter : Projecter):
 
-    tasks = manager.getTaskJsonStr()
+    projecter.clear()
+    projecter.load("simple_chat")
 
-    with open("C:\\Users\\Temka\\Documents\\exactoSim\\task.txt", "w") as f:
+    tasks_json = manager.getTaskJsonStr()
+
+    path = "C:\\Users\\Temka\\Documents\\exactoSim\\"
+
+    tasks = json.dumps(tasks_json)
+    with open(path + "task.txt", "w") as f:
         f.write(tasks)
+
 
 
     print("Tasks=",len(tasks))
@@ -230,26 +301,31 @@ def mliner_body(manager : Manager, projecter : Projecter):
 
     short_msg = tasks[:900]
 
-    mliner = Mliner()
 
     index = 0
+    mliner = Mliner()
 
-    mliner.upload(tasks, 7, 69)
+    # mliner.upload(tasks, 7, 69)
     # mliner.upload(short_msg, 7)
 
-    while index < 1000:
+    # while index < 1000:
+    while True:
         # print(10*"==================")
         # if mliner.isDataSended():
         #     print("Data is sended\n")
-        # if mliner.isDataGetted():
-        #     print("Data is received\n")
+        if mliner.isDataGetted():
+            print("Data is received\n")
+
+            with open(path + "msg.txt", "w") as f:
+                f.write(mliner.getResponse())
+
         # print(10*"==================")
 
        
         mliner.update()
         index += 1
         # print("index=", index)
-        time.sleep(0.05)
+        time.sleep(0.25)
 
     mliner.close()
 
@@ -270,6 +346,9 @@ def main() -> None:
     elif mode == "mliner":
         print("Start console application")
         mliner_body(manager, projecter)
+    elif mode == "test":
+        print("Start console application")
+        test_cmd_body(manager, projecter)
     else:
         print("Unknown app type = ", mode)
 
