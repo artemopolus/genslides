@@ -33,7 +33,7 @@ class Mliner():
         out = self.pack_input
         print("Response=",out)
         self.pack_input = ""
-        print("Response=",out)
+        # print("Response=",out)
         self.is_input = False
         return out
 
@@ -44,6 +44,7 @@ class Mliner():
 
 
     def upload(self, msg: str, id: int, reg=0):
+        print("Send msg size=", len(msg))
         self.man.sending(id, reg, msg)
 
     def close(self):

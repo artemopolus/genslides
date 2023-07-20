@@ -222,13 +222,13 @@ def test_cmd_body(manager : Manager, projecter : Projecter):
     projecter.clear()
     projecter.load("simple_chat")
 
-    tasks_json = manager.getTaskJsonStr()
-    tasks_json['id'] = 'init'
+    init_task_json = manager.getTaskJsonStr()
+    init_task_json['id'] = 'init'
 
 
     path = "C:\\Users\\Temka\\Documents\\exactoSim\\"
 
-    tasks = json.dumps(tasks_json)
+    tasks = json.dumps(init_task_json)
     with open(path + "task.txt", "w") as f:
         f.write(tasks)
 
@@ -237,43 +237,10 @@ def test_cmd_body(manager : Manager, projecter : Projecter):
         with open(path_msg,"r")as f:
             # msg = f.read()
             # print(msg)
-            json_msg = json.load(f)
-            print(json_msg)
-        if json_msg['id'] == 7:
-            cmd = json_msg['options']
-            manager.makeTaskAction(cmd['prompt'], cmd['type'], cmd['action'], cmd['role'])
-
-            tasks_json_new = manager.getTaskJsonStr()
-
-            task_list_old = tasks_json['tasks']
-            print("old=", len(task_list_old))
-            task_list_new = tasks_json_new['tasks']
-            print("new=", len(task_list_new))
-            send_task_list = []
-            for one_task in task_list_new:
-                # print("new=",one_task['name'])
-                if one_task not in task_list_old:
-                    print("New task:", one_task['name'],"\n", one_task['chat'][-1])
-                    send_task_list.append(one_task)
-                    for sec_task in task_list_old:
-                        if sec_task['name'] == one_task['name']:
-                            print("Edited")
-
-            delete_task_list = []
-            for one_task in task_list_old:
-                # print("old=",one_task['name'])
-                found = False
-                for sec_task in task_list_new:
-                    if sec_task['name'] == one_task['name']:
-                        found = True
-                if not found:
-                    delete_task_list.append(one_task['name'])    
-
-
-            send_task_list_json = {'tasks': send_task_list}
-            send_task_list_json['id'] = 'updt'
-            send_task_list_json['to_delete'] = delete_task_list
-            send_task_list_msg = json.dumps(send_task_list_json)
+            input_msg_json = json.load(f)
+            # print(json_msg)
+            res_task_json = manager.processCommand(input_msg_json, init_task_json)
+            send_task_list_msg = json.dumps(res_task_json)
             with open(path + "out_msg.txt", "w") as f:
                 f.write(send_task_list_msg)
 
@@ -304,6 +271,7 @@ def mliner_body(manager : Manager, projecter : Projecter):
 
     index = 0
     mliner = Mliner()
+    comm_on = True
 
     # mliner.upload(tasks, 7, 69)
     # mliner.upload(short_msg, 7)
@@ -314,10 +282,25 @@ def mliner_body(manager : Manager, projecter : Projecter):
         # if mliner.isDataSended():
         #     print("Data is sended\n")
         if mliner.isDataGetted():
-            print("Data is received\n")
+            if comm_on:
+                print("Data is received\n")
 
-            with open(path + "msg.txt", "w") as f:
-                f.write(mliner.getResponse())
+                # clear prev
+
+                # projecter.clear()
+                # projecter.load("simple_chat")
+
+
+                init_task_json = manager.getTaskJsonStr()
+                rspns = mliner.getResponse()
+                if len(rspns)> 0:
+                    input_msg_json = json.loads(rspns)
+                    res_task_json = manager.processCommand(input_msg_json, init_task_json)
+                    send_task_list_msg = json.dumps(res_task_json)
+                    mliner.upload(send_task_list_msg, 7, 69)
+ 
+            # with open(path + "msg.txt", "w") as f:
+                # f.write(mliner.getResponse())
 
         # print(10*"==================")
 
