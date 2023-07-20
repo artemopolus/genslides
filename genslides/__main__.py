@@ -295,10 +295,16 @@ def mliner_body(manager : Manager, projecter : Projecter):
                 rspns = mliner.getResponse()
                 if len(rspns)> 0:
                     input_msg_json = json.loads(rspns)
-                    res_task_json = manager.processCommand(input_msg_json, init_task_json)
-                    send_task_list_msg = json.dumps(res_task_json)
-                    mliner.upload(send_task_list_msg, 7, 69)
- 
+                    if 'id' in input_msg_json:
+                        if input_msg_json['id'] == 7:
+                            res_task_json = manager.processCommand(input_msg_json, init_task_json)
+                            send_task_list_msg = json.dumps(res_task_json)
+                            mliner.upload(send_task_list_msg, 7, 7)
+                        elif input_msg_json['id'] == 11:
+                            res_task_json = manager.syncCommand(init_task_json)
+                            send_task_list_msg = json.dumps(res_task_json)
+                            mliner.upload(send_task_list_msg, 7, 11)
+
             # with open(path + "msg.txt", "w") as f:
                 # f.write(mliner.getResponse())
 

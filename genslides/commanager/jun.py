@@ -597,46 +597,48 @@ class Manager:
         return self.runIteration("")
     def processCommand(self, json_msg,  tasks_json):
         send_task_list_json = {}
-        if 'id' in json_msg and json_msg['id'] == 7:
-            cmd = json_msg['options']
-            if 'cur_task' in cmd:
-                self.setCurrentTaskByName(cmd['cur_task'])
-            self.makeTaskAction(cmd['prompt'], cmd['type'], cmd['action'], cmd['role'])
+        cmd = json_msg['options']
+        if 'cur_task' in cmd:
+            self.setCurrentTaskByName(cmd['cur_task'])
+        self.makeTaskAction(cmd['prompt'], cmd['type'], cmd['action'], cmd['role'])
 
-            tasks_json_new = self.getTaskJsonStr()
+        tasks_json_new = self.getTaskJsonStr()
 
-            task_list_old = tasks_json['tasks']
-            # print("old=", len(task_list_old))
-            task_list_new = tasks_json_new['tasks']
-            # print("new=", len(task_list_new))
-            send_task_list = []
-            for one_task in task_list_new:
-                # print("new=",one_task['name'])
-                if one_task not in task_list_old:
-                    # print("New task:", one_task['name'],"\n", one_task['chat'][-1])
-                    send_task_list.append(one_task)
-                    # for sec_task in task_list_old:
-                    #     if sec_task['name'] == one_task['name']:
-                    #         print("Edited")
+        task_list_old = tasks_json['tasks']
+        # print("old=", len(task_list_old))
+        task_list_new = tasks_json_new['tasks']
+        # print("new=", len(task_list_new))
+        send_task_list = []
+        for one_task in task_list_new:
+            # print("new=",one_task['name'])
+            if one_task not in task_list_old:
+                # print("New task:", one_task['name'],"\n", one_task['chat'][-1])
+                send_task_list.append(one_task)
+                # for sec_task in task_list_old:
+                #     if sec_task['name'] == one_task['name']:
+                #         print("Edited")
 
-            delete_task_list = []
-            for one_task in task_list_old:
-                # print("old=",one_task['name'])
-                found = False
-                for sec_task in task_list_new:
-                    if sec_task['name'] == one_task['name']:
-                        found = True
-                if not found:
-                    delete_task_list.append(one_task['name'])    
+        delete_task_list = []
+        for one_task in task_list_old:
+            # print("old=",one_task['name'])
+            found = False
+            for sec_task in task_list_new:
+                if sec_task['name'] == one_task['name']:
+                    found = True
+            if not found:
+                delete_task_list.append(one_task['name'])    
 
 
-            send_task_list_json = {'tasks': send_task_list}
-            send_task_list_json['id'] = 'updt'
-            send_task_list_json['to_delete'] = delete_task_list
-            print("Send task=", send_task_list_json)
+        send_task_list_json = {'tasks': send_task_list}
+        send_task_list_json['id'] = 'updt'
+        send_task_list_json['to_delete'] = delete_task_list
+        print("Send task=", send_task_list_json)
         return send_task_list_json
-
-
+    def syncCommand(self, send_task_list):
+        send_task_list_json = {'tasks': send_task_list}
+        send_task_list_json['id'] = 'init'
+        return send_task_list_json
+ 
 
 
 class Projecter:
