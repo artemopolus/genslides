@@ -220,10 +220,12 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
 def test_cmd_body(manager : Manager, projecter : Projecter):
     projecter.clear()
-    projecter.load("simple_chat")
+    name = "simple_chat"
+    projecter.load(name)
 
     init_task_json = manager.getTaskJsonStr()
     init_task_json['id'] = 'init'
+    init_task_json['name'] = name
 
 
     path = "C:\\Users\\Temka\\Documents\\exactoSim\\"
@@ -304,7 +306,22 @@ def mliner_body(manager : Manager, projecter : Projecter):
                             res_task_json = manager.syncCommand(init_task_json)
                             send_task_list_msg = json.dumps(res_task_json)
                             mliner.upload(send_task_list_msg, 7, 11)
+                        elif input_msg_json['id'] == 17:
+                            if 'options' in input_msg_json and 'action' in input_msg_json['options']:
+                                action_type = input_msg_json['options']['action']
+                                if action_type == 'load':
+                                    projecter.load(input_msg_json['options']['name'])
+                                elif action_type == 'save':
+                                    projecter.save(input_msg_json['options']['name'])
+                                elif action_type == 'clear':
+                                    projecter.clear()
+                                # res_tasks_json = manager.getTaskJsonStr()
+                                # res_tasks_json['id'] = 'prjt'
+                                res_tasks_json = projecter.getTaskJsonStr('prjt')
 
+                                res_tasks = json.dumps(res_tasks_json)
+                                mliner.upload(res_tasks, 7, 17)
+ 
             # with open(path + "msg.txt", "w") as f:
                 # f.write(mliner.getResponse())
 

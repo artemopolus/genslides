@@ -453,7 +453,12 @@ class Manager:
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
         return self.drawGraph(), gr.Dropdown.update(choices= self.getTaskList()), in_prompt, in_role, out_prompt
 
-
+    def setSelectedTaskByName(self, name):
+        task = self.getTaskByName(name)
+        if task:
+            print("Set current task=", task.getName())
+            self.slct_task = task
+ 
     def runIteration(self, prompt):
         print("Run iteration")
         img_path = "output/img.png"
@@ -600,6 +605,9 @@ class Manager:
         cmd = json_msg['options']
         if 'cur_task' in cmd:
             self.setCurrentTaskByName(cmd['cur_task'])
+
+        if 'slt_task' in cmd:
+            self.setSelectedTaskByName(cmd['slt_task'])
         self.makeTaskAction(cmd['prompt'], cmd['type'], cmd['action'], cmd['role'])
 
         tasks_json_new = self.getTaskJsonStr()
@@ -635,7 +643,7 @@ class Manager:
         print("Send task=", send_task_list_json)
         return send_task_list_json
     def syncCommand(self, send_task_list):
-        send_task_list_json = {'tasks': send_task_list}
+        send_task_list_json = {'tasks': send_task_list['tasks']}
         send_task_list_json['id'] = 'init'
         return send_task_list_json
  
@@ -649,8 +657,13 @@ class Projecter:
         self.mypath = mypath
         self.savedpath = "saved/"
         self.manager = manager
+        self.current_project_name = ""
 
-        
+    def getTaskJsonStr(self, id : str):
+        out = self.manager.getTaskJsonStr()
+        out['id'] = id
+        out['name'] = self.current_project_name
+        return out
 
     def loadList(self):
         mypath = self.mypath
@@ -680,6 +693,7 @@ class Projecter:
             archive.extractall(path=self.savedpath)
 
         self.manager.onStart() 
+        self.current_project_name = filename
 
         return filename
 

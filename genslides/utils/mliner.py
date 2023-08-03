@@ -16,6 +16,7 @@ class MlinerCallback(ExactolinkPy.ZmqDevCallback):
 class Mliner():
     def __init__(self) -> None:
         self.man = ExactolinkPy.ZmqDevSec(7)
+        self.man.initLogger()
         self.pack_input = ""
         self.call = MlinerCallback()
         self.call.setMliner(self)
