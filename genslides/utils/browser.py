@@ -5,6 +5,7 @@ from selenium.common.exceptions import InvalidSessionIdException
 from bs4 import BeautifulSoup
 
 import urllib3
+import json
 
 
 class Browser():
@@ -17,6 +18,11 @@ class Browser():
 class WebBrowser(Browser):
     def __init__(self) -> None:
         super().__init__()
+        path_to_config = "config\\base.json"
+        with open(path_to_config, 'r') as config:
+            values = json.load(config)
+            # self.path_to_browser = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+            self.path_to_browser = values["web browser"]
 
     def getData(self, links):
         print("Get data from web browser")
@@ -28,7 +34,7 @@ class WebBrowser(Browser):
         options.add_argument("--no-sandbox")
         options.add_experimental_option(
             'excludeSwitches', ['enable-logging'])
-        path = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+        path = self.path_to_browser
         options.binary_location = path
         out_text = ""
         for i,link in enumerate(links):
@@ -62,7 +68,7 @@ class WebBrowser(Browser):
         options.add_argument("--no-sandbox")
         options.add_experimental_option(
             'excludeSwitches', ['enable-logging'])
-        path = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+        path = self.path_to_browser
         options.binary_location = path
         out_text = ""
         try:
