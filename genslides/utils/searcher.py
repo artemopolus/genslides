@@ -23,7 +23,9 @@ class GoogleApiSearcher(WebSearcher):
         super().__init__()
 
     def getSearchs(self, request: str):
-        print('Web search')
+        if request[0] =="\"" and request[-1] == "\"":
+            request = request[1:-1]
+        print('Web search=', request)
         resource = build("customsearch", 'v1', developerKey=self.api_key).cse()
         result = resource.list(q=request, cx=self.cse_key).execute()
         out = []

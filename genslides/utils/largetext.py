@@ -53,6 +53,8 @@ class ChatGPT():
         self.path = path_to_config
         self.path_to_file = "output/openai.json"
 
+    def getMaxTokensNum(self) -> int:
+        return self.max_tokens
 
     def setTemperature(self, temp : float):
         if temp >= 0 and temp <= 2:
@@ -117,15 +119,16 @@ class ChatGPT():
             raise ValueError("ChatGPT is not active!")
             # return False, ""
         try:
+            print("use model=", self.model)
             if not self.temperature:
                 completion = openai.ChatCompletion.create(
-                    model=model,
+                    model=self.model,
                     messages=messages     
                 )
             else:
                 print("Cur temp=", self.temperature)
                 completion = openai.ChatCompletion.create(
-                    model=model,
+                    model=self.model,
                     messages=messages,
                     temperature=self.temperature     
                 )
@@ -193,6 +196,7 @@ class SimpleChatGPT(ChatGPT):
         for msg in msgs:
             text += msg["content"]
         token_cnt = self.getTokensCount(text)
+        print("Get response from req=", token_cnt)
         if token_cnt > self.max_tokens:
             # try divide last
             # it's too many of them!

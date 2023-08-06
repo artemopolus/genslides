@@ -28,7 +28,8 @@ driver.get("https://www.google.com")
 
 # # user_id = 12345
 # # url = 'http://www.kinopoisk.ru/user/%d/votes/list/ord/date/page/2/#list' % (user_id) # url для второй страницы
-url = 'https://yandex.com.am/weather/?lat=55.75581741&lon=37.61764526' 
+# url = 'https://yandex.com.am/weather/?lat=55.75581741&lon=37.61764526' 
+url = 'https://www.rockwellautomation.com/en-us/company/investor-relations/events-presentations.html' 
 
 driver.get(url=url)
 

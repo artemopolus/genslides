@@ -47,6 +47,11 @@ class ResponseTask(TextTask):
             print("t=",temperature)
             if temperature:
                 self.updateParam(name, temperature)
+
+    def executeResponseInternal(self, chat : SimpleChatGPT):
+        res, out = chat.recvRespFromMsgList(self.msg_list)
+        return res, out
+
  
     def executeResponse(self):
         model_name = self.getParam("model")
@@ -57,7 +62,7 @@ class ResponseTask(TextTask):
         print("temp=", temp)
         if temp:
             chat.setTemperature(temp)
-        res, out = chat.recvRespFromMsgList(self.msg_list)
+        res, out = self.executeResponseInternal(chat)
         if res:
             # print("out=", out)
             pair = {}

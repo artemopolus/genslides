@@ -1,7 +1,7 @@
 from genslides.task.response import ResponseTask
 from genslides.task.base import TaskDescription
 from genslides.utils.searcher import GoogleApiSearcher
-from genslides.task.readpage import ReadPageTask
+from genslides.utils.browser import WebBrowser
 
 
 class WebSurfTask(ResponseTask):
@@ -23,10 +23,11 @@ class WebSurfTask(ResponseTask):
         searcher = GoogleApiSearcher()
         link_list = searcher.getSearchs(self.getRichPrompt())
         text = ""
-        for link in link_list:
-        #     cmd = TaskDescription(prompt=link,parent=self,prompt_tag="user", method=ReadPageTask, type="ReadPage", helper=self.reqhelper)
-            text += link + '\n'
-        #     self.addChildToCrList(cmd)
+        for link in link_list:          
+            browser = WebBrowser()
+            text += link + "\n"
+            text += browser.get(link)
+
         self.msg_list.append({
             "role": self.prompt_tag,
             "content": text

@@ -35,8 +35,32 @@ class LargeTextResponseTask(ResponseTask):
             parts.append(part)
             i += 1
         return parts
+    
+    def executeResponseInternal(self, chat : SimpleChatGPT):
+        if len(self.msg_list) < 2:
+            return False, ""
+        start = self.msg_list[-2]["content"] + "\n"
+        last = self.msg_list[-1]["content"]
+        tokens_start = chat.getTokensCount(start)
+        tokens_last = chat.getTokensCount(last)
+        if (chat.getMaxTokensNum() < tokens_last):
+            divide_num_tokens = chat.getMaxTokensNum()  - tokens_start
+            parts = self.getParts(last, chat.getTokensCount, 1000, divide_num_tokens)
+            summation = ""
+            for part in parts:
+                req_list = [{"role" : chat.getUserTag(), "content": start + part}]
+                res, ans = chat.recvRespFromMsgList(req_list)
+                if res:
+                    summation += ans + "\n"
+            return True, summation
 
-    def executeResponse(self):
+        else:
+            res, out = chat.recvRespFromMsgList(self.msg_list)
+        return res, out
+
+
+ 
+    def executeResponseOldVersion(self):
         chat = SimpleChatGPT()
         text = ""
         for msg in self.msg_list:
