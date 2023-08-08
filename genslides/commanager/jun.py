@@ -264,11 +264,11 @@ class Manager:
                 elif task ==self.slct_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
                 else:
-                    if task.getParam("stopped"):
+                    if task.getParam("stopped") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="crimson")
-                    elif task.getParam("input"):
+                    elif task.getParam("input") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine")
-                    elif task.getParam("output"):
+                    elif task.getParam("output") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
                     elif task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
@@ -533,6 +533,7 @@ class Manager:
             log += "All task expanded\n"
             print("Complete task list")
             for task in self.task_list:
+                print("complete tasl=", task.getName())
                 if not task.completeTask():
                     all_task_completed = False
                 else:

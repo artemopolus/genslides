@@ -22,14 +22,16 @@ class ResponseTask(TextTask):
             self.setChatPram("temperature")
             self.setChatPram("model")
             if self.is_freeze:
-                model_name = self.getParam("model")
-                chat = SimpleChatGPT(model_name=model_name)
-                self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
+                res, model_name = self.getParam("model")
+                if res:
+                    chat = SimpleChatGPT(model_name=model_name)
+                    self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
             else:
                 self.executeResponse()
         else:
             # print("t=",temperature)
-            if not self.getParam("model"):
+            res, val = self.getParam("model")
+            if not res:
                 model_name =  self.reqhelper.getValue(self.type, "model")
                 if model_name:
                     self.updateParam("model", model_name)
@@ -49,18 +51,25 @@ class ResponseTask(TextTask):
                 self.updateParam(name, temperature)
 
     def executeResponseInternal(self, chat : SimpleChatGPT):
-        res, out = chat.recvRespFromMsgList(self.msg_list)
+        input_msg_list = self.msg_list.copy()
+        for msg in input_msg_list:
+            msg["content"] = self.findKeyParam(msg["content"])
+
+        res, out = chat.recvRespFromMsgList(input_msg_list)
         return res, out
 
  
     def executeResponse(self):
-        model_name = self.getParam("model")
+        res, model_name = self.getParam("model")
 
-        print("Exe resp with model=", model_name)
-        chat = SimpleChatGPT(model_name=model_name)
-        temp = self.getParam("temperature")
+        if res:
+            print("Exe resp with model=", model_name)
+            chat = SimpleChatGPT(model_name=model_name)
+        else:
+            chat = SimpleChatGPT()
+        res, temp = self.getParam("temperature")
         print("temp=", temp)
-        if temp:
+        if res:
             chat.setTemperature(temp)
         res, out = self.executeResponseInternal(chat)
         if res:
@@ -74,8 +83,8 @@ class ResponseTask(TextTask):
 
     def update(self, input : TaskDescription = None):
         self.preUpdate(input=input)
-        stopped = self.getParam("stopped")
-        if stopped:
+        res, stopped = self.getParam("stopped")
+        if res and stopped:
             print("Stopped=", self.getName())
             return "",self.prompt_tag,""
         
@@ -95,7 +104,7 @@ class ResponseTask(TextTask):
         
        
 
-        print("Update response task=", self.getName())
+        # print("Update response task=", self.getName())
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
         if self.parent:
             trg_list = self.parent.msg_list.copy()

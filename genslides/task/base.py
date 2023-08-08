@@ -172,6 +172,15 @@ class BaseTask():
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
         self.name = self.type + str(self.id)
+    
+    
+    def freezeTask(self):
+        self.is_freeze = True
+        # self.update()
+
+    def unfreezeTask(self):
+        self.is_freeze = False
+        # self.update()
 
     def getRichPrompt(self) -> str:
         out = self.prompt
@@ -189,9 +198,23 @@ class BaseTask():
 
     def getIdStr(self) -> str:
         return str(self.id)
+    
     def getName(self) -> str:
         return self.name
 
+    def getAncestorByName(self, trg_name):
+        index = 0
+        task = self
+        while(index < 1000):
+            if  task.parent != None:
+                if task.parent.getName() != trg_name:
+                    task = task.parent
+                else:
+                    return task.parent
+            else:
+                break
+            index += 1
+        return None
 
     def getNewID(self) -> int:
         task_manager = TaskManager()

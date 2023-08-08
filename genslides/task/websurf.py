@@ -13,6 +13,15 @@ class WebSurfTask(ResponseTask):
         return self.msg_list[-1]["content"]
         # return self.prompt
 
+    def getLinksData(self, link_list):
+        text = ""
+        for link in link_list:          
+            browser = WebBrowser()
+            text += link + "\n"
+            text += browser.get(link)
+        return text
+
+
     def executeResponse(self):
         param_name = "web_request"
         if param_name in self.params:
@@ -22,11 +31,7 @@ class WebSurfTask(ResponseTask):
         print("Searching")
         searcher = GoogleApiSearcher()
         link_list = searcher.getSearchs(self.getRichPrompt())
-        text = ""
-        for link in link_list:          
-            browser = WebBrowser()
-            text += link + "\n"
-            text += browser.get(link)
+        text = self.getLinksData(link_list)
 
         self.msg_list.append({
             "role": self.prompt_tag,

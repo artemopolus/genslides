@@ -17,15 +17,16 @@ import os
 from os import listdir
 from os.path import isfile, join
 import pprint
+import re
+
 
 class TextTask(BaseTask):
-    def __init__(self, task_info : TaskDescription, type='None') -> None:
+    def __init__(self, task_info: TaskDescription, type='None') -> None:
         super().__init__(task_info, type)
 
         print("Type=", self.type)
 
-
-        self.path = self.getPath() 
+        self.path = self.getPath()
         self.parentAction()
         self.params = []
 
@@ -35,7 +36,7 @@ class TextTask(BaseTask):
         else:
             self.msg_list = self.parent.msg_list.copy()
             print("parent path=", self.parent.path)
- 
+
     def getCountPrice(self):
         text = ""
         for msg in self.msg_list:
@@ -50,7 +51,7 @@ class TextTask(BaseTask):
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         self.name = self.type + str(self.id)
-        print("Name =",self.name)
+        print("Name =", self.name)
         name = self.name + ".json"
         found = False
         while not found:
@@ -63,9 +64,9 @@ class TextTask(BaseTask):
 
     def getJson(self):
         resp_json_out = {
-            'name' : self.getName(),
-            'chat' : self.msg_list, 
-            'type' : self.type,
+            'name': self.getName(),
+            'chat': self.msg_list,
+            'type': self.type,
             'params': self.params
         }
         linked = []
@@ -85,8 +86,8 @@ class TextTask(BaseTask):
 
     def saveJsonToFile(self, msg_list):
         resp_json_out = {
-            'chat' : msg_list, 
-            'type' : self.type,
+            'chat': msg_list,
+            'type': self.type,
             'params': self.params
         }
         linked = []
@@ -98,14 +99,12 @@ class TextTask(BaseTask):
             path = self.parent.path
         resp_json_out['parent'] = path
         with open(self.path, 'w') as f:
-            print("save to file=", self.path)
+            # print("save to file=", self.path)
             json.dump(resp_json_out, f, indent=1)
 
     def deleteJsonFile(self):
         os.remove(self.path)
 
-        
-        
         # path = self.path
         # if not os.path.exists(path):
         #     with open(path, 'w') as f:
@@ -114,6 +113,7 @@ class TextTask(BaseTask):
     def saveTxt(self, text):
         with open(self.path, 'w', encoding="utf-8") as f:
             f.write(text)
+
     def openTxt(self):
         with open(self.path, 'r', encoding="utf-8") as f:
             return f.read()
@@ -125,15 +125,13 @@ class TextTask(BaseTask):
         with open(self.path, 'w') as f:
             json.dump(resp_json_out, f, indent=1)
 
-
-
     def checkFile(self):
         if not os.path.exists(self.path):
             return False
         if os.stat(self.path).st_size == 0:
             return False
         return True
-    
+
     def processResponse(self):
         request = self.getRichPrompt()
         responses = self.getResponse(request)
@@ -145,7 +143,7 @@ class TextTask(BaseTask):
             if res:
                 self.saveRespJson(request, responses)
 
-    def getResponseFromFile(self, msg_list, remove_last = True):
+    def getResponseFromFile(self, msg_list, remove_last=True):
         print("Get response from file:")
 
         mypath = "saved/"
@@ -181,7 +179,6 @@ class TextTask(BaseTask):
                 except json.JSONDecodeError:
                     pass
         return []
-    
 
     def getResponse(self, request):
         mypath = "saved/"
@@ -201,18 +198,19 @@ class TextTask(BaseTask):
         return []
 
     def createLinkToTask(self, task) -> TaskDescription:
-        out =  super().createLinkToTask(task)
+        out = super().createLinkToTask(task)
         self.saveJsonToFile(self.msg_list)
         return out
-    
+
     def completeTask(self) -> bool:
         res = super().completeTask()
         # print("Prompt=", self.getRichPrompt())
         # print("Prompt=", self.prompt)
-        info = TaskDescription(prompt=self.getRichPrompt(),prompt_tag=self.getTagPrompt())
+        info = TaskDescription(prompt=self.getRichPrompt(),
+                               prompt_tag=self.getTagPrompt())
         self.update(info)
         return res
-    
+
     def getTagPrompt(self):
         return self.prompt_tag
         # return self.msg_list[len(self.msg_list) - 1]["role"]
@@ -232,7 +230,7 @@ class TextTask(BaseTask):
             input.enabled = not self.is_freeze
             task.method(input)
 
-    def affectedTaskCallback(self, input : TaskDescription):
+    def affectedTaskCallback(self, input: TaskDescription):
         pass
         # print("My name is ", self.getName())
         # print("My prompt now is ", self.getRichPrompt())
@@ -241,7 +239,7 @@ class TextTask(BaseTask):
     def beforeRemove(self):
         self.deleteJsonFile()
         super().beforeRemove()
-    
+
     def whenParentRemoved(self):
         super().whenParentRemoved()
         last = self.msg_list.pop()
@@ -249,10 +247,9 @@ class TextTask(BaseTask):
         self.msg_list.append(last)
         self.saveJsonToFile(self.msg_list)
 
-
     def getMsgInfo(self):
         return super().getMsgInfo()
-    
+
     def preUpdate(self, input: TaskDescription = None):
         if input:
             self.prompt = input.prompt
@@ -265,18 +262,16 @@ class TextTask(BaseTask):
     def stdProcessUnFreeze(self, input=None):
         if self.parent:
             self.is_freeze = self.parent.is_freeze
-        
-        is_input = self.getParam("input")
-        if input:
-            print(input.manual)
-        if is_input:
+
+        res, is_input = self.getParam("input")
+        # if input:
+        #     print("input manual=",input.manual)
+        if res and is_input:
             if input and input.manual:
                 self.is_freeze = False
             else:
                 self.is_freeze = True
-        print("freeze=", self.is_freeze)
-
-
+        # print("freeze=", self.is_freeze)
 
     def update(self, input: TaskDescription = None):
         if input:
@@ -287,12 +282,10 @@ class TextTask(BaseTask):
 
             self.saveJsonToFile(self.msg_list)
 
-        
         return super().update(input)
-    
 
-    def getInfo(self, short = True) -> str:
-        if  short and len(self.prompt) > 20:
+    def getInfo(self, short=True) -> str:
+        if short and len(self.prompt) > 20:
             return self.prompt[0:20] + "..."
         else:
             return self.prompt
@@ -306,11 +299,34 @@ class TextTask(BaseTask):
             if not found:
                 self.params.append({param_name: data})
 
-
     def getParam(self, param_name):
+        # print("Params=",self.params)
         for param in self.params:
-            if param_name in param:
-                return param[param_name]
-        return None 
+            for k,p in param.items():
+                # print("k=",k,"p=",p)
+                if param_name == k:
+                    return True, p
+        return False, None
+
+    def findKeyParam(self, text: str):
+         results = re.findall(r'\{.*?\}', text)
+        #  print("Find keys=", results)
+         rep_text = text
+         for res in results:
+             arr = res[1:-1].split(":")
+             if len(arr) == 2:
+                 task = self.getAncestorByName(arr[0])
+                 if task:
+                    p_exist, param = task.getParam(arr[1])
+                    if p_exist:
+                        # print("Replace ", res, " with ", param)
+                        rep_text = rep_text.replace(res, str(param))
+                    else:
+                        print("No param")
+                 else:
+                     print("No task")
+             else:
+                print("Incorrect len")
+         return rep_text
 
  

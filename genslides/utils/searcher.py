@@ -32,5 +32,6 @@ class GoogleApiSearcher(WebSearcher):
         for item in result['items']:
             print(item['title'], '='*10, item['link'])
             print(item)
-            out.append(item['link'] + ' title: ' + item['title'] + ' snippet:' + item['snippet'])
+            # out.append(item['link'] + ' title: ' + item['title'] + ' snippet:' + item['snippet'])
+            out.append(item['link'] )
         return out

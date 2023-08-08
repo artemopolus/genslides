@@ -39,8 +39,12 @@ class LargeTextResponseTask(ResponseTask):
     def executeResponseInternal(self, chat : SimpleChatGPT):
         if len(self.msg_list) < 2:
             return False, ""
-        start = self.msg_list[-2]["content"] + "\n"
-        last = self.msg_list[-1]["content"]
+        input_msg_list = self.msg_list.copy()
+        for msg in input_msg_list:
+            msg["content"] = self.findKeyParam(msg["content"])
+
+        start = input_msg_list[-2]["content"] + "\n"
+        last = input_msg_list[-1]["content"]
         tokens_start = chat.getTokensCount(start)
         tokens_last = chat.getTokensCount(last)
         if (chat.getMaxTokensNum() < tokens_last):
@@ -55,7 +59,7 @@ class LargeTextResponseTask(ResponseTask):
             return True, summation
 
         else:
-            res, out = chat.recvRespFromMsgList(self.msg_list)
+            res, out = chat.recvRespFromMsgList(input_msg_list)
         return res, out
 
 

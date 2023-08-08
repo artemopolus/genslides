@@ -21,7 +21,7 @@ class WriteToFileTask(TextTask):
 
     def getRichPrompt(self) -> str:
         if self.parent:
-            return self.msg_list[-1]["content"]
+            return self.findKeyParam( self.msg_list[-1]["content"])
         return self.prompt
 
     def executeResponse(self):
@@ -33,15 +33,15 @@ class WriteToFileTask(TextTask):
         # where to write 2
         # path           3
         # this task
-        print("-----------------------------------------------------------------------------------Msg lst=", len(self.msg_list))
+        # print("-----------------------------------------------------------------------------------Msg lst=", len(self.msg_list))
         if len(self.msg_list) < 3:
             return
         print("Path=", self.getRichPrompt())
         # if os.path.isfile(self.getRichPrompt()):
         with open(self.getRichPrompt(), 'w',encoding='utf8') as f:
-            print("path_to_read =", self.getRichPrompt())
+            print("path_to_write =", self.getRichPrompt())
             text = self.msg_list[len(self.msg_list) - 3]["content"]
-            print("Try to save=", text)
+            # print("Try to save=", text)
             f.write(text)
 
     def update(self, input: TaskDescription = None):
@@ -51,7 +51,7 @@ class WriteToFileTask(TextTask):
             trg_list = []
         if self.msg_list != trg_list:
             self.msg_list = trg_list
-            self.executeResponse()
+        self.executeResponse()
         super().update(input)
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"], ""

@@ -17,6 +17,11 @@ from genslides.task.readdial import ReadDialTask
 
 from genslides.task.gettime import GetTimeTask
 
+from genslides.task.iteration import IterationTask, IterationEndTask
+from genslides.task.runscript import RunScriptTask
+from genslides.task.websurfarray import WebSurfArrayTask
+from genslides.task.writejsontofile import WriteJsonToFileTask
+
 import genslides.commands.create as cr
 
 def checkTypeFromName(name : str, type :str) -> bool:
@@ -68,6 +73,20 @@ def createTaskByType(type : str,info : TaskDescription):
     if stype.endswith("WriteDialToFile"):
         info.method = WriteDialToFileTask
         return cr.CreateCommand(info)
-   
+    if stype.endswith("Iteration"):
+        info.method = IterationTask
+        return cr.CreateCommand(info)
+    if stype.endswith("IterationEnd"):
+        info.method = IterationEndTask
+        return cr.CreateCommand(info)
+    if stype.endswith("RunScript"):
+        info.method = RunScriptTask
+        return cr.CreateCommand(info)
+    if stype.endswith("WebSurfArray"):
+        info.method = WebSurfArrayTask
+        return cr.CreateCommand(info)
+    if stype.endswith("WriteJsonToFile"):
+        info.method = WriteJsonToFileTask
+        return cr.CreateCommand(info)
     else:
     	return None
