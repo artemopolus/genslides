@@ -533,7 +533,7 @@ class Manager:
             log += "All task expanded\n"
             print("Complete task list")
             for task in self.task_list:
-                print("complete tasl=", task.getName())
+                # print("complete tasl=", task.getName())
                 if not task.completeTask():
                     all_task_completed = False
                 else:

@@ -204,11 +204,9 @@ class TextTask(BaseTask):
 
     def completeTask(self) -> bool:
         res = super().completeTask()
-        # print("Prompt=", self.getRichPrompt())
-        # print("Prompt=", self.prompt)
-        info = TaskDescription(prompt=self.getRichPrompt(),
-                               prompt_tag=self.getTagPrompt())
-        self.update(info)
+        # info = TaskDescription(prompt=self.getRichPrompt(),
+                            #    prompt_tag=self.getTagPrompt())
+        # self.update(info)
         return res
 
     def getTagPrompt(self):
@@ -310,7 +308,7 @@ class TextTask(BaseTask):
 
     def findKeyParam(self, text: str):
          results = re.findall(r'\{.*?\}', text)
-        #  print("Find keys=", results)
+         print("Find keys=", results)
          rep_text = text
          for res in results:
              arr = res[1:-1].split(":")
@@ -319,7 +317,7 @@ class TextTask(BaseTask):
                  if task:
                     p_exist, param = task.getParam(arr[1])
                     if p_exist:
-                        # print("Replace ", res, " with ", param)
+                        print("Replace ", res, " with ", param)
                         rep_text = rep_text.replace(res, str(param))
                     else:
                         print("No param")

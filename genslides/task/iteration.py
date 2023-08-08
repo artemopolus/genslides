@@ -79,7 +79,7 @@ class IterationTask(TextTask):
             if self.dt_cur == self.dt_states["Ready"]:
                 self.dt_cur = self.dt_states["Processing"]
                 num_iter = len(self.array_list)
-                # num_iter = 2
+                num_iter = 2
                 print("=====================================================>Start Iteration")
                 for index in range(num_iter):
                     # print("====================>", index)

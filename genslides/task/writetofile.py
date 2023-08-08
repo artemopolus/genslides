@@ -18,6 +18,7 @@ class WriteToFileTask(TextTask):
             print("Get list from file=", self.path)
         print("name=", self.getName())
         print("path=", self.path)
+        self.saveJsonToFile(self.msg_list)
 
     def getRichPrompt(self) -> str:
         if self.parent:
@@ -34,17 +35,19 @@ class WriteToFileTask(TextTask):
         # path           3
         # this task
         # print("-----------------------------------------------------------------------------------Msg lst=", len(self.msg_list))
+        if self.is_freeze:
+            return
         if len(self.msg_list) < 3:
             return
         print("Path=", self.getRichPrompt())
         # if os.path.isfile(self.getRichPrompt()):
         with open(self.getRichPrompt(), 'w',encoding='utf8') as f:
             print("path_to_write =", self.getRichPrompt())
-            text = self.msg_list[len(self.msg_list) - 3]["content"]
+            text = self.findKeyParam(self.msg_list[len(self.msg_list) - 3]["content"])
             # print("Try to save=", text)
             f.write(text)
 
-    def update(self, input: TaskDescription = None):
+    def updateIternal(self, input : TaskDescription = None):
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
@@ -52,6 +55,8 @@ class WriteToFileTask(TextTask):
         if self.msg_list != trg_list:
             self.msg_list = trg_list
         self.executeResponse()
+
+    def update(self, input : TaskDescription = None):
         super().update(input)
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"], ""

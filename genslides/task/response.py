@@ -100,6 +100,7 @@ class ResponseTask(TextTask):
                     self.msg_list = msg_list_from_file
 
             else:
+                super().update(input)
                 return "","user",""
         
        

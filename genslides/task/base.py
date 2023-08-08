@@ -251,7 +251,8 @@ class BaseTask():
             else:
                 pass
 
-
+    def updateIternal(self, input : TaskDescription = None):
+        pass
    
     def update(self, input : TaskDescription = None):
         self.stdProcessUnFreeze(input)
@@ -263,6 +264,7 @@ class BaseTask():
                 print("New parent=", self.parent)
         
         print("Update===========================>",self.getName(), " frozen=", self.is_freeze)
+        self.updateIternal(input)
 
         for child in self.childs:
             child.update()
