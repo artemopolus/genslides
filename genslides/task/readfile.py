@@ -69,7 +69,7 @@ class ReadFileTask(ResponseTask):
                     pass
         return []
     
-    def loadContent(self, s_path, msg_trgs) -> bool:
+    def loadContent(self, s_path, msg_trgs):
         if os.path.isfile(s_path):
             with open(s_path, 'r') as f:
                 text = f.read()
