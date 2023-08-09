@@ -9,14 +9,41 @@ class WriteJsonToFileTask(WriteToFileTask):
 
 
     def executeResponse(self):
-        if self.parent == None:
+        if self.parent == None or self.is_freeze:
             return
         prop = self.msg_list[-1]["content"]
-        prop_json = json.dumps(prop)
-        if "filepath" in prop_json and "text" in prop_json:
-            with open(prop_json["filepath"], 'w',encoding='utf8') as f:
-                f.write(prop_json["text"])
-            param_name = "path_to_write"
-            self.updateParam(param_name,prop_json["filepath"])
-            self.saveJsonToFile(self.msg_list)
+        arr = prop.split("{",1)
+        if len(arr) > 0:
+            prop = "{" + arr[1]
+            for i in range(len(prop)):
+                val = len(prop) - 1 - i
+                if prop[val] == "}":
+                    prop = prop[:val] + "}"
+                    break
+
+        # print("Input str=", prop)
+        try:
+            prop_json = json.loads(prop)
+        except Exception as e:
+            print("Json load error=",e)
+            return
+        # print("exe resp write json to file=", prop_json)
+        try:
+            if "filepath" in prop_json and "text" in prop_json:
+                with open(prop_json["filepath"], 'w',encoding='utf8') as f:
+                    f.write(prop_json["text"])
+                param_name = "path_to_write"
+                self.updateParam(param_name,prop_json["filepath"])
+            elif "type" in prop_json:
+                if prop_json['type'] == 'code' and 'code' in prop_json and 'name' in prop_json:
+                    path = "output\\scripts\\"
+                    path += prop_json['name']
+                    print("Write by json in", path)
+                    with open(path, 'w',encoding='utf8') as f:
+                        f.write(prop_json["code"])
+        except Exception as e:
+            print('Error=',e)
+        self.saveJsonToFile(self.msg_list)
+
+
  

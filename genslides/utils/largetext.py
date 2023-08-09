@@ -196,7 +196,8 @@ class SimpleChatGPT(ChatGPT):
         for msg in msgs:
             text += msg["content"]
         token_cnt = self.getTokensCount(text)
-        print("Get response from req=", token_cnt)
+        print("Get response[", token_cnt,"]=",msgs[-1]["content"])
+
         if token_cnt > self.max_tokens:
             # try divide last
             # it's too many of them!

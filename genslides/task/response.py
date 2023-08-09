@@ -51,7 +51,10 @@ class ResponseTask(TextTask):
                 self.updateParam(name, temperature)
 
     def executeResponseInternal(self, chat : SimpleChatGPT):
-        input_msg_list = self.msg_list.copy()
+        # input_msg_list = self.msg_list.copy()
+        input_msg_list = [] 
+        for msg in self.msg_list:
+            input_msg_list.append(msg.copy())
         for msg in input_msg_list:
             msg["content"] = self.findKeyParam(msg["content"])
 

@@ -596,7 +596,9 @@ class Manager:
         #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
     
     def update(self):
-        print("New update",10*">>>>>>>>>>>")
+        print(10*"----------")
+        print("NEW UPDATE",10*">>>>>>>>>>>")
+        print(10*"----------")
         for task in self.task_list:
             if task.parent == None:
                 task.update()

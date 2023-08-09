@@ -314,7 +314,8 @@ class TextTask(BaseTask):
 
     def findKeyParam(self, text: str):
          results = re.findall(r'\{.*?\}', text)
-         print("Find keys=", results)
+        #  print("Find keys=", text)
+         print("Results=", results)
          rep_text = text
          for res in results:
              arr = res[1:-1].split(":")

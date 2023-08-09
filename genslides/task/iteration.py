@@ -80,6 +80,8 @@ class IterationTask(TextTask):
         self.saveJsonToFile(self.msg_list2)
 
     def update(self, input: TaskDescription = None):
+        mydict = self.dt_states
+        print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
@@ -87,13 +89,18 @@ class IterationTask(TextTask):
         if self.msg_list2 != trg_list:
             self.msg_list2 = trg_list
         self.executeResponse()
+        print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
 
         if not self.is_freeze:
             if self.dt_cur == self.dt_states["Ready"]:
                 self.dt_cur = self.dt_states["Processing"]
                 num_iter = len(self.array_list)
                 num_iter = 2
-                print("=====================================================>Start Iteration")
+                print("Unreeze task")
+                super().update(input)
+                print(10*"====")
+                print("Start Iteration")
+                print(10*"====")
                 for index in range(num_iter):
                     # print("====================>", index)
                     value = self.array_list[index]
@@ -101,8 +108,9 @@ class IterationTask(TextTask):
                     self.updateParam("iterable", value)
                     if index == num_iter - 1:
                         self.dt_cur = self.dt_states["Done"]
-
-                    print("Clear iter task")
+                    print(10*"====")
+                    print("Clear iter=", index)
+                    print(10*"====")
                     for ie in self.iter_end:
                         for trg in ie["targets"]:
                             trg.forceCleanChat()
@@ -173,10 +181,24 @@ class IterationEndTask(TextTask):
         self.saveJsonToFile(self.msg_list)
         
     def update(self, input: TaskDescription = None):
-        if self.parent and self.parent.msg_list != self.msg_list2:
-            self.msg_list2 = self.parent.msg_list.copy()
-            if self.iter_start:
-                self.iter_start.resetIter()
+        if self.parent:
+            if len(self.msg_list2) == len(self.parent.msg_list):
+                need_to_reset = False
+                for i in range(len(self.parent.msg_list)):
+                    msg = self.parent.msg_list[i]
+                    if msg["role"] == "user":
+                        if msg["content"] != self.msg_list2[i]["content"]:
+                            need_to_reset = True
+                            break
+                if need_to_reset:
+                    self.msg_list2 = self.parent.msg_list.copy()
+                    if self.iter_start:
+                        self.iter_start.resetIter()
+                   
+        # if self.parent and self.parent.msg_list != self.msg_list2:
+        #     self.msg_list2 = self.parent.msg_list.copy()
+        #     if self.iter_start:
+        #         self.iter_start.resetIter()
         self.executeResponse()
         if self.iter_start:
             if self.iter_start.freezeIterEndTask():
