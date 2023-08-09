@@ -54,7 +54,7 @@ class WriteToFileTask(TextTask):
             trg_list = []
         if self.msg_list != trg_list:
             self.msg_list = trg_list
-        self.executeResponse()
+            self.executeResponse()
 
     def update(self, input : TaskDescription = None):
         super().update(input)

@@ -263,7 +263,7 @@ class BaseTask():
                 self.parent.addChild(self)
                 print("New parent=", self.parent)
         
-        print("Update===========================>",self.getName(), " frozen=", self.is_freeze)
+        print("Update=",self.getName(), "|frozen=", self.is_freeze, "||")
         self.updateIternal(input)
 
         for child in self.childs:

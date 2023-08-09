@@ -37,6 +37,12 @@ class TextTask(BaseTask):
             self.msg_list = self.parent.msg_list.copy()
             print("parent path=", self.parent.path)
 
+    def forceCleanChat(self):
+        if len(self.msg_list) > 1:
+            last = self.msg_list[-1]
+            self.msg_list = []
+            self.msg_list.append(last)
+
     def getCountPrice(self):
         text = ""
         for msg in self.msg_list:

@@ -115,8 +115,9 @@ class ResponseTask(TextTask):
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
         else:
-            last = self.msg_list[- 1]
-            trg_list.append(last)
+            if len(self.msg_list) > 0:
+                last = self.msg_list[- 1]
+                trg_list.append(last)
             if self.msg_list != trg_list:
                 trg_list.pop()
                 self.msg_list = trg_list.copy()

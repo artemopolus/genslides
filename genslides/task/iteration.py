@@ -21,16 +21,29 @@ class IterationTask(TextTask):
         self.msg_list = []
         self.executeResponse()
         self.is_freeze = True
-        self.is_closed = False
+        self.iter_end = []
     
-    def closeIter(self) ->bool:
-        if not self.is_closed:
-            self.is_closed = True
-            return True
+    def addChild(self, child):
+        self.iter_end.append({"child": child, "targets" : None})
+        super().addChild(child)
+    
+    def closeIter(self, task_array) ->bool:
+        for index in range(len(task_array)):
+            print(index, ". ", task_array[index].getName())
+        for ie in self.iter_end:
+            if ie["child"] == task_array[-1]:
+                print("Found")
+                ie["targets"] = task_array
+                return True
         return False
 
-    def openIter(self):
-        self.is_closed = False
+    def openIter(self, task):
+        tmp = None
+        for ie in self.iter_end:
+            if ie["child"] == task:
+                tmp = ie
+        if tmp is not None:
+            self.iter_end.remove(tmp)
         self.freezeTask()
 
     def resetIter(self):
@@ -88,6 +101,11 @@ class IterationTask(TextTask):
                     self.updateParam("iterable", value)
                     if index == num_iter - 1:
                         self.dt_cur = self.dt_states["Done"]
+
+                    print("Clear iter task")
+                    for ie in self.iter_end:
+                        for trg in ie["targets"]:
+                            trg.forceCleanChat()
                     super().update(input)
         super().update(input)
 
@@ -138,11 +156,14 @@ class IterationEndTask(TextTask):
         if self.iter_start == None:
             index = 0
             task = self
+            out_task_list = []
             while(index < 1000):
                 if task.parent == None:
+                    print("No iterator found")
                     break 
                 else:
-                    if task.parent.type == "Iteration" and task.parent.closeIter():
+                    out_task_list.append(task)
+                    if task.parent.type == "Iteration" and task.parent.closeIter(out_task_list):
                         self.iter_start = task.parent
                         self.msg_list = self.iter_start.msg_list2.copy()
                         break
@@ -171,5 +192,5 @@ class IterationEndTask(TextTask):
 
     def beforeRemove(self):
         if self.iter_start:
-            self.iter_start.openIter()
+            self.iter_start.openIter(self)
         super().beforeRemove()
