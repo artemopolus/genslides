@@ -8,7 +8,7 @@ class ReadDialTask(ReadFileTask):
         super().__init__(task_info, type)
         self.saveJsonToFile(self.msg_list)
 
-    def parentAction(self):
+    def copyParentMsg(self):
         self.msg_list = []
 
     def getRichPrompt(self) -> str:

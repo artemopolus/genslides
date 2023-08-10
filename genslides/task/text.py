@@ -27,15 +27,18 @@ class TextTask(BaseTask):
         print("Type=", self.type)
 
         self.path = self.getPath()
-        self.parentAction()
+        self.copyParentMsg()
         self.params = []
 
-    def parentAction(self):
+    def copyParentMsg(self):
+        self.msg_list = self.getParentMsg()
+   
+    def getParentMsg(self):
         if self.parent is None:
-            self.msg_list = []
+            return []
         else:
-            self.msg_list = self.parent.msg_list.copy()
-            print("parent path=", self.parent.path)
+            out =  self.parent.msg_list.copy()
+            return out
 
     def forceCleanChat(self):
         if len(self.msg_list) > 1:
@@ -104,6 +107,7 @@ class TextTask(BaseTask):
         if self.parent:
             path = self.parent.path
         resp_json_out['parent'] = path
+        print("Save json to", self.path)
         with open(self.path, 'w') as f:
             # print("save to file=", self.path)
             json.dump(resp_json_out, f, indent=1)

@@ -83,9 +83,16 @@ class ResponseTask(TextTask):
             self.msg_list.append(pair)
 
 
-
     def update(self, input : TaskDescription = None):
-        self.preUpdate(input=input)
+        super().update()
+        if len(self.msg_list) == 0:
+            return "","user",""
+        out = self.msg_list[len(self.msg_list) - 1]
+        return "", out["role"],out["content"]
+
+
+    def updateIternal(self, input : TaskDescription = None):
+        # self.preUpdate(input=input)
         res, stopped = self.getParam("stopped")
         if res and stopped:
             print("Stopped=", self.getName())
@@ -95,7 +102,7 @@ class ResponseTask(TextTask):
             print("frozen=",self.getName())
             if not self.parent.is_freeze:
                 self.is_freeze = False
-                tmp_msg_list = self.parent.msg_list.copy()
+                tmp_msg_list = self.getParentMsg()
                 # print(pprint.pformat(tmp_msg_list))
                 msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
                 if len(msg_list_from_file):
@@ -103,17 +110,15 @@ class ResponseTask(TextTask):
                     self.msg_list = msg_list_from_file
 
             else:
-                super().update(input)
+                # super().update(input)
                 return "","user",""
         
        
 
-        # print("Update response task=", self.getName())
+        print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
-        if self.parent:
-            trg_list = self.parent.msg_list.copy()
-        else:
-            trg_list = []
+        trg_list = self.getParentMsg()
+
         if len(self.msg_list) == 0:
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
@@ -126,11 +131,9 @@ class ResponseTask(TextTask):
                 self.msg_list = trg_list.copy()
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
-        super().update(input)
-        if len(self.msg_list) == 0:
-            return "","user",""
-        out = self.msg_list[len(self.msg_list) - 1]
-        return "", out["role"],out["content"]
+            else:
+                print("Messages are same")
+        # super().update(input)
 
     def getMsgInfo(self):
         if len(self.msg_list):
