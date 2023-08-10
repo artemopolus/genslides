@@ -249,6 +249,10 @@ class Manager:
 
         # return json.dumps(res)
 
+    def getTaskParamRes(self, task, param) -> bool:
+        r,v = task.getParam(param)
+        return r and v
+
     def drawGraph(self):
         if len(self.task_list) > 0:
             f = graphviz.Digraph(comment='The Test Table')
@@ -264,11 +268,14 @@ class Manager:
                 elif task ==self.slct_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
                 else:
-                    if task.getParam("stopped") == [True, True]:
+                    if self.getTaskParamRes(task, "stopped"):
+                    # if task.getParam("stopped") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="crimson")
-                    elif task.getParam("input") == [True, True]:
+                    elif self.getTaskParamRes(task, "input"):
+                    # elif task.getParam("input") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine")
-                    elif task.getParam("output") == [True, True]:
+                    elif self.getTaskParamRes(task, "output"):
+                    # elif task.getParam("output") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
                     elif task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
@@ -313,7 +320,8 @@ class Manager:
     def getOutputDataSum(self):
         out = ""
         for task in self.task_list:
-            if task.getParam("output"):
+            r,v = task.getParam("output")
+            if r and v:
                 out += "Response from " + task.getName()  + "\n"
                 out += 10*"=====" + "\n"
                 out += task.getInfo(short=False)
@@ -335,9 +343,11 @@ class Manager:
     def getFlagTaskLst(self):
         out = []
         for task in self.task_list:
-            if task.getParam("input"):
+            r,v = task.getParam("input")
+            if r and v:
                 out.append({"name" : task.getName(), "type" : "input"})
-            elif task.getParam("output"):
+            r,v = task.getParam("output")
+            if r and v:
                 out.append({"name" : task.getName(), "type" : "output"})
         return out
   

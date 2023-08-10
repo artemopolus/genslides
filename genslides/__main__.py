@@ -209,6 +209,11 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             btn = gr.Button("edit").click(fn=manager.updatePromptForTask, inputs=[nmblck, txtblck], outputs=out)
                     input_txt.append(btn)
             gr.Button("update").click(fn=manager.updateAndGetOutputDataSum, outputs=out, api_name="update_task_btn")
+            with gr.Row() as r:
+                project_name = gr.Textbox(value = "Untitled", label="Project name")
+                projects_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
+                project_load = gr.Button(value = "load")
+            project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
             
         with gr.Row() as r:
             config_name = gr.Dropdown(choices=manager.getParamsLst())
