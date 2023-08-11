@@ -68,7 +68,15 @@ class IterationTask(TextTask):
                 self.dt_cur = self.dt_states["Ready"]
             elif self.dt_cur == self.dt_states["Done"]:
                 values = json.loads(self.parent.msg_list[-1]["content"])
-                if self.array_list != values:
+                is_not_found = False
+                for val in values:
+                    if val not in self.array_list:
+                        print("Not found=",val)
+                        is_not_found = True
+                # if self.array_list != values:
+                if is_not_found:
+                    print("old=", self.array_list)
+                    print("new=", values)
                     self.array_list = values
                     self.updateParam("index", str(0))
                     self.updateParam("iterable", values[0])
@@ -95,7 +103,7 @@ class IterationTask(TextTask):
             if self.dt_cur == self.dt_states["Ready"]:
                 self.dt_cur = self.dt_states["Processing"]
                 num_iter = len(self.array_list)
-                # num_iter = 2
+                num_iter = 2
                 print("Unreeze task")
                 super().update(input)
                 print(10*"====")
@@ -159,6 +167,10 @@ class IterationEndTask(TextTask):
         if self.iter_start:
             return self.iter_start.getName()
         return "No iter found"
+    
+    def copyIterationMsg(self):
+        if (self.iter_start):
+            self.msg_list = self.iter_start.msg_list2.copy()
 
     def executeResponse(self):
         if self.iter_start == None:
@@ -173,7 +185,6 @@ class IterationEndTask(TextTask):
                     out_task_list.append(task)
                     if task.parent.type == "Iteration" and task.parent.closeIter(out_task_list):
                         self.iter_start = task.parent
-                        self.msg_list = self.iter_start.msg_list2.copy()
                         break
                     else:
                         task = task.parent
@@ -204,7 +215,9 @@ class IterationEndTask(TextTask):
             if self.iter_start.freezeIterEndTask():
                 self.freezeTask()
             else:
+                print("Now update next task")
                 self.unfreezeTask()
+                self.copyIterationMsg()
         
         super().update()
         return "IterEnd", "user", "IterEnd"

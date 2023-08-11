@@ -22,6 +22,8 @@ from genslides.task.runscript import RunScriptTask
 from genslides.task.websurfarray import WebSurfArrayTask
 from genslides.task.writejsontofile import WriteJsonToFileTask
 
+from genslides.task.largedialresponse import LargeDialResponseTask
+
 import genslides.commands.create as cr
 
 def checkTypeFromName(name : str, type :str) -> bool:
@@ -42,6 +44,9 @@ def createTaskByType(type : str,info : TaskDescription):
         return cr.CreateCommand(info)
     if stype.endswith("LargeTextResponse"):
         info.method = LargeTextResponseTask
+        return cr.CreateCommand(info)
+    if stype.endswith("LargeDialResponseTask"):
+        info.method = LargeDialResponseTask
         return cr.CreateCommand(info)
     if stype.endswith("Response"):
         info.method = ResponseTask

@@ -84,7 +84,7 @@ class ResponseTask(TextTask):
 
 
     def update(self, input : TaskDescription = None):
-        super().update()
+        super().update(input)
         if len(self.msg_list) == 0:
             return "","user",""
         out = self.msg_list[len(self.msg_list) - 1]

@@ -120,6 +120,7 @@ class ChatGPT():
             # return False, ""
         try:
             print("use model=", self.model)
+            print("Send msgs=",len(messages))
             if not self.temperature:
                 completion = openai.ChatCompletion.create(
                     model=self.model,
@@ -134,7 +135,7 @@ class ChatGPT():
                 )
             msg = completion.choices[0].message
             # text = msg["content"]
-            print("resp=",completion.choices[0])
+            print("Get Chat response=",len(completion.choices[0]))
             return True, msg
         except RateLimitError as e:
             print('fuck rate')
@@ -196,7 +197,7 @@ class SimpleChatGPT(ChatGPT):
         for msg in msgs:
             text += msg["content"]
         token_cnt = self.getTokensCount(text)
-        print("Get response[", token_cnt,"]=",msgs[-1]["content"])
+        # print("Get response[", token_cnt,"]=",msgs[-1]["content"])
 
         if token_cnt > self.max_tokens:
             # try divide last
