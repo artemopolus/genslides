@@ -135,7 +135,7 @@ class ChatGPT():
                 )
             msg = completion.choices[0].message
             # text = msg["content"]
-            print("Get Chat response=",len(completion.choices[0]))
+            print("Get Chat response=",len(completion.choices[0].message))
             return True, msg
         except RateLimitError as e:
             print('fuck rate')

@@ -25,6 +25,12 @@ class RunScriptTask(ResponseTask):
                 result = subprocess.run(["python", script_path], capture_output=True, text=True)
                 data += result.stdout + "\n"
 
+                try:
+                    os.remove(script_path)
+                    print("Remove ", script_path)
+                except:
+                    print("Can't remove ", script_path)
+                    pass
         
 
         if len(data) > 0:
