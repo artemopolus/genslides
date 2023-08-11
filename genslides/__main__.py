@@ -11,7 +11,7 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 
-from genslides.utils.mliner import Mliner
+# from genslides.utils.mliner import Mliner
 
 from PIL.Image import Image
 import sys
