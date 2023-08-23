@@ -307,7 +307,20 @@ class TextTask(BaseTask):
             if not found:
                 self.params.append({param_name: data})
 
+    def getParamFromExtTask(self, param_name):
+        return False, None, None
+    
     def getParam(self, param_name):
+        parent_task = self.parent
+
+        index = 0
+        while(index < 1000):
+            res, parent_task, val = parent_task.getParamFromExtTask(param_name)
+            if res:
+                return True, val
+            if parent_task is None:
+                break
+        # если ничего не нашли загружаем стандартное
         # print("Params=",self.params)
         for param in self.params:
             for k,p in param.items():

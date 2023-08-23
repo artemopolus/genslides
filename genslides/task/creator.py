@@ -24,6 +24,8 @@ from genslides.task.writejsontofile import WriteJsonToFileTask
 
 from genslides.task.largedialresponse import LargeDialResponseTask
 
+from genslides.task.setoptions import SetOptionsTask
+
 import genslides.commands.create as cr
 
 def checkTypeFromName(name : str, type :str) -> bool:
@@ -92,6 +94,9 @@ def createTaskByType(type : str,info : TaskDescription):
         return cr.CreateCommand(info)
     if stype.endswith("WriteJsonToFile"):
         info.method = WriteJsonToFileTask
+        return cr.CreateCommand(info)
+    if stype.endswith("SetOptions"):
+        info.method = SetOptionsTask
         return cr.CreateCommand(info)
     else:
     	return None
