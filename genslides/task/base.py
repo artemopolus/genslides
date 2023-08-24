@@ -88,7 +88,7 @@ class TaskManager(metaclass=Singleton):
                 with open(path, 'r') as f:
                     rq = json.load(f)
                 if 'parent' in rq:
-                    # print(path):w
+                    # print(path)
 
                     parent_path = rq['parent']
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
@@ -114,8 +114,10 @@ class TaskManager(metaclass=Singleton):
                         #         pair['type'] = rq['type']
                         #         pair['content'] = elem['content']
                         #         out.append(pair)
+            except json.decoder.JSONDecodeError as e:
+                print("Get json error on task prompts=", e)
             except Exception as e:
-                print("error=", type(e))
+                print("Task prompts error=", type(e))
         return out
 
 

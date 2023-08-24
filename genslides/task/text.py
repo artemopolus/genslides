@@ -39,6 +39,17 @@ class TextTask(BaseTask):
         else:
             out =  self.parent.msg_list.copy()
             return out
+        
+    def forceCleanChildsChat(self):
+        chs4clean = self.childs
+        index = 0
+        while(index < 1000 and len(chs4clean) > 0):
+            chs4clean_next = []
+            for child in chs4clean:
+                child.forceCleanChat()
+                for ch in child.childs:
+                    chs4clean_next.append(ch)
+            chs4clean = chs4clean_next.copy()
 
     def forceCleanChat(self):
         if len(self.msg_list) > 1:
@@ -281,7 +292,7 @@ class TextTask(BaseTask):
                 self.is_freeze = True
         # print("freeze=", self.is_freeze)
 
-    def update(self, input: TaskDescription = None):
+    def checkInput(self, input: TaskDescription = None):
         if input:
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
@@ -290,6 +301,9 @@ class TextTask(BaseTask):
 
             self.saveJsonToFile(self.msg_list)
 
+
+    def update(self, input: TaskDescription = None):
+        self.checkInput(input)
         return super().update(input)
 
     def getInfo(self, short=True) -> str:
@@ -308,18 +322,20 @@ class TextTask(BaseTask):
                 self.params.append({param_name: data})
 
     def getParamFromExtTask(self, param_name):
-        return False, None, None
+        return False, self.parent, None
     
     def getParam(self, param_name):
-        parent_task = self.parent
+        forbidden_names = ['input', 'output', 'stopped']
+        if param_name not in forbidden_names:
+            parent_task = self.parent
 
-        index = 0
-        while(index < 1000):
-            res, parent_task, val = parent_task.getParamFromExtTask(param_name)
-            if res:
-                return True, val
-            if parent_task is None:
-                break
+            index = 0
+            while(index < 1000):
+                res, parent_task, val = parent_task.getParamFromExtTask(param_name)
+                if res:
+                    return True, val
+                if parent_task is None:
+                    break
         # если ничего не нашли загружаем стандартное
         # print("Params=",self.params)
         for param in self.params:
@@ -327,6 +343,12 @@ class TextTask(BaseTask):
                 # print("k=",k,"p=",p)
                 if param_name == k:
                     return True, p
+                
+        
+        res, default_value =  self.reqhelper.getValue(self.type, param_name)
+        if res:
+            return True, default_value
+        # print("Found nothing for", param_name)
         return False, None
 
     def findKeyParam(self, text: str):

@@ -19,35 +19,41 @@ class ResponseTask(TextTask):
         
 
         if len(msg_list_from_file) == 0:
-            self.setChatPram("temperature")
-            self.setChatPram("model")
-            if self.is_freeze:
-                res, model_name = self.getParam("model")
-                if res:
-                    chat = SimpleChatGPT(model_name=model_name)
-                    self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
-            else:
-                self.executeResponse()
+            self.onEmptyMsgListAction()
         else:
-            # print("t=",temperature)
-            res, val = self.getParam("model")
-            if not res:
-                model_name =  self.reqhelper.getValue(self.type, "model")
-                if model_name:
-                    self.updateParam("model", model_name)
-                else:
-                    self.updateParam("model", "gpt-3.5-turbo")
-
-            self.msg_list = msg_list_from_file
-            print("Get list from file=", self.path)
+            self.onExistedMsgListAction(msg_list_from_file)
         print("name=", self.getName())
         print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
+    def onEmptyMsgListAction(self):
+        self.setChatPram("temperature")
+        self.setChatPram("model")
+        if self.is_freeze:
+            res, model_name = self.getParam("model")
+            if res:
+                chat = SimpleChatGPT(model_name=model_name)
+                self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
+        else:
+            self.executeResponse()
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        # print("t=",temperature)
+        res, val = self.getParam("model")
+        if not res:
+            res, model_name =  self.reqhelper.getValue(self.type, "model")
+            if res:
+                self.updateParam("model", model_name)
+            else:
+                self.updateParam("model", "gpt-3.5-turbo")
+
+        self.msg_list = msg_list_from_file
+        print("Get list from file=", self.path)
+
     def setChatPram(self, name):
-            temperature =  self.reqhelper.getValue(self.type, name)
+            res, temperature =  self.reqhelper.getValue(self.type, name)
             print("t=",temperature)
-            if temperature:
+            if res:
                 self.updateParam(name, temperature)
 
     def executeResponseInternal(self, chat : SimpleChatGPT):

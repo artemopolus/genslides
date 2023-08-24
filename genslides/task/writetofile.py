@@ -51,12 +51,22 @@ class WriteToFileTask(TextTask):
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
-            trg_list = []
-        if self.msg_list != trg_list:
+            return
+        if self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False:
             self.msg_list = trg_list
             self.executeResponse()
+            self.saveJsonToFile(self.msg_list)
 
     def update(self, input : TaskDescription = None):
         super().update(input)
-        out = self.msg_list[len(self.msg_list) - 1]
-        return out["content"], out["role"], ""
+        if len(self.msg_list) > 0:
+            out = self.msg_list[len(self.msg_list) - 1]
+            return out["content"], out["role"], ""
+        return "None", "user", "None"
+    
+    def forceCleanChat(self):
+        if len(self.msg_list) > 0:
+            self.msg_list = []
+
+
+
