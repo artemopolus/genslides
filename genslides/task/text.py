@@ -30,6 +30,16 @@ class TextTask(BaseTask):
         self.copyParentMsg()
         self.params = []
 
+    def getLastMsgContent(self):
+        if len(self.msg_list) > 0:
+            return self.msg_list[-1]["content"]
+        return "Empty"
+    
+    def getLastMsgRole(self):
+        if len(self.msg_list) > 0:
+            return self.msg_list[-1]["role"]
+        return "None"
+ 
     def copyParentMsg(self):
         self.msg_list = self.getParentMsg()
    
@@ -241,6 +251,7 @@ class TextTask(BaseTask):
         if len(self.msg_list) == 0:
             return
         text = self.msg_list[len(self.msg_list) - 1]["content"]
+        text = self.findKeyParam(text)
         # input = TaskDescription(prompt=text, parent=self)
         for task in self.affect_to_ext_list:
             # task.prompt = text
@@ -365,12 +376,17 @@ class TextTask(BaseTask):
              if len(arr) == 2:
                  task = self.getAncestorByName(arr[0])
                  if task:
-                    p_exist, param = task.getParam(arr[1])
-                    if p_exist:
+                    if arr[1] == "msg_content":
+                        param = task.getLastMsgContent()
                         print("Replace ", res, " with ", param)
                         rep_text = rep_text.replace(res, str(param))
                     else:
-                        print("No param")
+                        p_exist, param = task.getParam(arr[1])
+                        if p_exist:
+                            print("Replace ", res, " with ", param)
+                            rep_text = rep_text.replace(res, str(param))
+                        else:
+                            print("No param")
                  else:
                      print("No task")
              else:
