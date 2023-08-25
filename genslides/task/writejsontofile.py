@@ -2,6 +2,7 @@ from genslides.task.base import TaskDescription
 from genslides.task.writetofile import WriteToFileTask
 
 import json
+import os
 
 class WriteJsonToFileTask(WriteToFileTask):
     def __init__(self, task_info: TaskDescription, type="WriteJsonToFile") -> None:
@@ -23,7 +24,8 @@ class WriteJsonToFileTask(WriteToFileTask):
 
         # print("Input str=", prop)
         try:
-            prop_json = json.loads(prop)
+            prop_json = json.loads(prop,strict=False)
+            print("json=",prop_json)
         except Exception as e:
             print("Json load error=",e)
             return
@@ -36,11 +38,19 @@ class WriteJsonToFileTask(WriteToFileTask):
                 self.updateParam(param_name,prop_json["filepath"])
             elif "type" in prop_json:
                 if prop_json['type'] == 'code' and 'code' in prop_json and 'name' in prop_json:
-                    path = "output\\scripts\\"
-                    path += prop_json['name']
-                    print("Write by json in", path)
-                    with open(path, 'w',encoding='utf8') as f:
-                        f.write(prop_json["code"])
+                    # path = "output\\scripts\\"
+                    res, path = self.getParam("folder_to_write")
+                    if res and os.path.exists(path):
+                        path += "\\" + prop_json['name'].replace(" ", "")
+                        print("Write by json in", path)
+                        with open(path, 'w',encoding='utf8') as f:
+                            f.write(prop_json["code"])
+                    else:
+                        print("Problem with path=",path)
+                else:
+                    print("Unknown struct")
+            else:
+                print("Unknown type")
         except Exception as e:
             print('Error=',e)
         self.saveJsonToFile(self.msg_list)

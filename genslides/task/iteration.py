@@ -9,7 +9,8 @@ class IterationTask(TextTask):
         super().__init__(task_info, type)
         self.dt_states = {"No data":0, "Ready": 1, "Processing" : 2, "Done": 3}
         self.dt_cur = self.dt_states['No data']
-        self.array_list = None
+        self.iter_data = None
+        self.iter_type = "None"
         tmp_msg_list = self.msg_list.copy()
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list, False)
         del tmp_msg_list
@@ -53,35 +54,42 @@ class IterationTask(TextTask):
         super().saveJsonToFile(self.msg_list2)
 
     def getRichPrompt(self) -> str:
-        if self.parent and self.array_list != None and len(self.array_list) > 0:
-            return self.array_list[0]
+        if self.parent and self.iter_data != None and len(self.iter_data) > 0:
+            return self.iter_data[0]
         return "Nothing to iterate"
+    
+    def parseJsonLastMsg(self):
+        lst_msg_jsn = json.loads(self.parent.msg_list[-1]["content"])
+        if "type" in lst_msg_jsn and "data" in lst_msg_jsn:
+            it_type = lst_msg_jsn["type"]
+            values = lst_msg_jsn["data"]
+            if self.iter_type == it_type:
+                is_not_found = False
+                for val in values:
+                    if val not in self.iter_data:
+                        print("Not found=",val)
+                        is_not_found = True
+                if not is_not_found:
+                    return
+            if it_type == "iteration":
+                self.updateParam("index", str(0))
+                self.updateParam("iterable", values[0])
+                # print("Ready to iterate")
+            else:
+                return
+            self.iter_data = values
+            self.iter_type = it_type
+            self.dt_cur = self.dt_states["Ready"]
+ 
+
+
 
     def executeResponse(self):
         try:
             if self.dt_cur == self.dt_states["No data"]:
-                values = json.loads(self.parent.msg_list[-1]["content"])
-                self.array_list = values
-                self.updateParam("index", str(0))
-                self.updateParam("iterable", values[0])
-                # print("Ready to iterate")
-                self.dt_cur = self.dt_states["Ready"]
+                self.parseJsonLastMsg()
             elif self.dt_cur == self.dt_states["Done"]:
-                values = json.loads(self.parent.msg_list[-1]["content"])
-                is_not_found = False
-                for val in values:
-                    if val not in self.array_list:
-                        print("Not found=",val)
-                        is_not_found = True
-                # if self.array_list != values:
-                if is_not_found:
-                    print("old=", self.array_list)
-                    print("new=", values)
-                    self.array_list = values
-                    self.updateParam("index", str(0))
-                    self.updateParam("iterable", values[0])
-                    print("Ready to iterate")
-                    self.dt_cur = self.dt_states["Ready"]
+                self.parseJsonLastMsg()
         except Exception as e:
             print("Can\'t find json data")
             self.dt_cur = self.dt_states["No data"]
@@ -102,8 +110,10 @@ class IterationTask(TextTask):
         if not self.is_freeze:
             if self.dt_cur == self.dt_states["Ready"]:
                 self.dt_cur = self.dt_states["Processing"]
-                num_iter = len(self.array_list)
-                # num_iter = 2
+                num_iter = len(self.iter_data)
+                res, max_num_iter = self.getParam("max_num_iter")
+                if res:
+                    num_iter = int(max_num_iter)
                 print("Unreeze task")
                 super().update(input)
                 print(10*"====")
@@ -111,7 +121,7 @@ class IterationTask(TextTask):
                 print(10*"====")
                 for index in range(num_iter):
                     # print("====================>", index)
-                    value = self.array_list[index]
+                    value = self.iter_data[index]
                     self.updateParam("index", str(index))
                     self.updateParam("iterable", value)
                     if index == num_iter - 1:
