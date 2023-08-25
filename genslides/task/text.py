@@ -307,10 +307,14 @@ class TextTask(BaseTask):
         return super().update(input)
 
     def getInfo(self, short=True) -> str:
-        if short and len(self.prompt) > 20:
-            return self.prompt[0:20] + "..."
+        if len(self.msg_list) > 0:
+            sprompt = self.msg_list[-1]['content']
         else:
-            return self.prompt
+            sprompt = self.prompt
+        if short and len(sprompt) > 20:
+            return sprompt[0:20] + "..."
+        else:
+            return sprompt
 
     def updateParam(self, param_name, data):
             found = False

@@ -15,7 +15,14 @@ class SetOptionsTask(WriteToFileTask):
             print("Can't load parameters")
 
     def updateIternal(self, input: TaskDescription = None):
-        pass
+        if self.parent:
+            trg_list = self.parent.msg_list.copy()
+        else:
+            return
+        if self.msg_list != trg_list:
+            self.msg_list = trg_list
+            self.saveJsonToFile(self.msg_list)
+
 
     def checkInput(self, input: TaskDescription = None):
         if input:
