@@ -309,7 +309,12 @@ class TextTask(BaseTask):
             self.prompt_tag = input.prompt_tag
             for param in input.params:
                 self.updateParam(param["name"], param["value"])
-
+            
+            if input.parent:
+                self.parent = input.parent
+                self.parent.addChild(self)
+                print("New parent=", self.parent)
+ 
             self.saveJsonToFile(self.msg_list)
 
 
@@ -369,7 +374,7 @@ class TextTask(BaseTask):
     def findKeyParam(self, text: str):
          results = re.findall(r'\{.*?\}', text)
         #  print("Find keys=", text)
-         print("Results=", results)
+        #  print("Results=", results)
          rep_text = text
          for res in results:
              arr = res[1:-1].split(":")

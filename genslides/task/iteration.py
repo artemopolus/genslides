@@ -59,27 +59,32 @@ class IterationTask(TextTask):
         return "Nothing to iterate"
     
     def parseJsonLastMsg(self):
-        lst_msg_jsn = json.loads(self.parent.msg_list[-1]["content"])
+        indata = self.parent.msg_list[-1]["content"]
+        lst_msg_jsn = json.loads(indata)
         if "type" in lst_msg_jsn and "data" in lst_msg_jsn:
             it_type = lst_msg_jsn["type"]
             values = lst_msg_jsn["data"]
-            if self.iter_type == it_type:
+            if self.iter_data and self.iter_type == it_type:
                 is_not_found = False
                 for val in values:
                     if val not in self.iter_data:
                         print("Not found=",val)
                         is_not_found = True
                 if not is_not_found:
+                    print("No changes found")
                     return
             if it_type == "iteration":
                 self.updateParam("index", str(0))
                 self.updateParam("iterable", values[0])
                 # print("Ready to iterate")
             else:
+                print("No available iteration type")
                 return
             self.iter_data = values
             self.iter_type = it_type
             self.dt_cur = self.dt_states["Ready"]
+        else:
+            print("Incorrect format of target message:", indata)
  
 
 
@@ -120,7 +125,7 @@ class IterationTask(TextTask):
                 print("Start Iteration")
                 print(10*"====")
                 for index in range(num_iter):
-                    # print("====================>", index)
+                    print("Itaration ====================>", index)
                     value = self.iter_data[index]
                     self.updateParam("index", str(index))
                     self.updateParam("iterable", value)
@@ -142,11 +147,11 @@ class IterationTask(TextTask):
 
     def freezeIterEndTask(self) -> bool:
         mydict = self.dt_states
-        print("State==================================",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
         if self.dt_cur == self.dt_states["Done"]:
             return False
         elif self.dt_cur == self.dt_states["Ready"]:
             pass
+        print("Make task unfeeze, state=",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
         self.unfreezeTask()
         return True
 
@@ -223,11 +228,14 @@ class IterationEndTask(TextTask):
         self.executeResponse()
         if self.iter_start:
             if self.iter_start.freezeIterEndTask():
+                print("Freeze iter end")
                 self.freezeTask()
             else:
-                print("Now update next task")
+                print("Now update next task after iter end")
                 self.unfreezeTask()
                 self.copyIterationMsg()
+        else:
+            print("No iteration start task")
         
         super().update()
         return "IterEnd", "user", "IterEnd"

@@ -259,12 +259,7 @@ class BaseTask():
     def update(self, input : TaskDescription = None):
         self.stdProcessUnFreeze(input)
 
-        if input:
-            if input.parent:
-                self.parent = input.parent
-                self.parent.addChild(self)
-                print("New parent=", self.parent)
-        
+       
         print("Update=",self.getName(), "|frozen=", self.is_freeze, "||")
         self.updateIternal(input)
 
