@@ -25,7 +25,7 @@ class WriteJsonToFileTask(WriteToFileTask):
         # print("Input str=", prop)
         try:
             prop_json = json.loads(prop,strict=False)
-            print("json=",prop_json)
+            # print("json=",prop_json)
         except Exception as e:
             print("Json load error=",e)
             return

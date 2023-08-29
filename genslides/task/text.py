@@ -12,6 +12,8 @@ from genslides.utils.chatgptrequester import ChatGPTrequester
 from genslides.utils.chatgptrequester import ChatGPTsimple
 from genslides.utils.largetext import SimpleChatGPT
 
+from genslides.utils.savedata import SaveData
+
 import json
 import os
 from os import listdir
@@ -308,17 +310,49 @@ class TextTask(BaseTask):
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
             for param in input.params:
-                self.updateParam(param["name"], param["value"])
+                self.updateParam(param["name"], param["value"],param["prompt"])
             
             if input.parent:
                 self.parent = input.parent
                 self.parent.addChild(self)
                 print("New parent=", self.parent)
- 
+
             self.saveJsonToFile(self.msg_list)
 
 
     def update(self, input: TaskDescription = None):
+        for param in self.params:
+            if "watched" in param and param["watched"]:
+                
+                res, w_param = self.getParamStruct("watched")
+                if not res:
+                    break
+                saver = SaveData()
+                
+                pack = saver.makePack(self.findKeyParam( w_param["message"]), self.msg_list, w_param)
+
+                index = 0
+                trg = self
+                names = self.getName() + "_"
+                while(index < 1000):
+                    par = trg.parent
+                    if par == None:
+                        break
+                    print("type=",par.type)
+                    if par.type == "Iteration":
+                        pname = par.getName().replace("Iteration","It")
+                        res, i = par.getParam("index")
+                        print("it_res_i",res,i)
+                        if res:
+                            names += pname + "_" + i + "_"
+                    elif par.type == "IterationEnd":
+                        if par.iter_start:
+                            trg = par.iter_start.parent
+                    else:
+                        pass
+                    trg = par
+                    index += 1
+                saver.save(names + ".json", json.dumps(pack,indent=1))
         self.checkInput(input)
         return super().update(input)
 
@@ -332,17 +366,33 @@ class TextTask(BaseTask):
         else:
             return sprompt
 
-    def updateParam(self, param_name, data):
+    def updateParam(self, param_name, data, add_param = None):
             found = False
+            print(add_param)
             for param in self.params:
                 if param_name in param:
                     param[param_name] = data
+                    if add_param is not None:
+                        param.update(add_param)
                     found = True
             if not found:
-                self.params.append({param_name: data})
+                param_new = {param_name: data}
+                if add_param is not None:
+                    param_new.update(add_param)
+                self.params.append(param_new)
 
     def getParamFromExtTask(self, param_name):
         return False, self.parent, None
+    
+    def getParamStruct(self, param_name):
+        for param in self.params:
+            for k,p in param.items():
+                # print("k=",k,"p=",p)
+                if param_name == k:
+                    return True, param
+                
+        return False, None
+ 
     
     def getParam(self, param_name):
         forbidden_names = ['input', 'output', 'stopped']
@@ -383,19 +433,20 @@ class TextTask(BaseTask):
                  if task:
                     if arr[1] == "msg_content":
                         param = task.getLastMsgContent()
-                        print("Replace ", res, " with ", param)
+                        # print("Replace ", res, " with ", param)
                         rep_text = rep_text.replace(res, str(param))
                     else:
                         p_exist, param = task.getParam(arr[1])
                         if p_exist:
-                            print("Replace ", res, " with ", param)
+                            # print("Replace ", res, " with ", param)
                             rep_text = rep_text.replace(res, str(param))
                         else:
                             print("No param")
                  else:
                      print("No task")
              else:
-                print("Incorrect len")
+                # print("Incorrect len")
+                pass
          return rep_text
 
  

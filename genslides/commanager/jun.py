@@ -9,6 +9,8 @@ from genslides.utils.searcher import WebSearcher
 from genslides.utils.largetext import Summator
 from genslides.utils.browser import WebBrowser
 
+from genslides.utils.savedata import SaveData
+
 import genslides.task.creator as cr
 
 import os
@@ -24,14 +26,14 @@ import pprint
 
 import py7zr
 
-
+import datetime
 
 class Manager:
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher) -> None:
         self.helper = helper
         self.requester = requester
         self.searcher = searcher
-        self.vars_param = ["stopped", "input", "output"]
+        self.vars_param = ["stopped", "input", "output", "watched"]
         self.path_to_file = "config/base.json"
         if os.path.exists(self.path_to_file):
             with open(self.path_to_file, 'r') as f:
@@ -195,13 +197,16 @@ class Manager:
     #                      pass
     #        return []
     def setNextTask(self, input):
+        saver = SaveData()
+        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+
         try:
             inc = int(input)
         except ValueError:
             print("Value error")
         #Try float.
             # ret = float(s)
-            return "","", self.drawGraph(), "",""
+            return "","", self.drawGraph(), "", "", chck
         print("Increment=",inc)
         self.task_index += inc
 
@@ -219,7 +224,8 @@ class Manager:
         output += "Price=" + str(price) + "\n"
         output += pprint.pformat(self.curr_task.msg_list)
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        return out_prompt, output ,self.drawGraph(), in_prompt, in_role
+        return out_prompt, output ,self.drawGraph(), in_prompt, in_role, chck
+
         # std_output_list = [info, output, graph_img, input, creation_tag_list]
         # next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
 
@@ -371,17 +377,22 @@ class Manager:
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True)
             self.curr_task.update(info)
             in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, log, self.drawGraph() , in_prompt, in_role
+            return out_prompt, log, self.drawGraph() , in_prompt, in_role, []
         vars_param = self.vars_param
         for param in vars_param:
+            input_params= {"name" :param, "value" : True,"prompt":None}
             if creation_type == param:
-                info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[{"name" :param, "value" : True}])
-                self.curr_task.update(info)
-                return out, log, self.drawGraph() , "",""
-            if creation_type == "un" + param:
-                info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[{"name" :param, "value" : False}])
-                self.curr_task.update(info)
-                return out, log, self.drawGraph() , "",""
+                input_params["value"] = True
+            elif creation_type == "un" + param:
+                input_params["value"] = False
+            else:
+                continue
+            if creation_type == "watched":
+                input_params["prompt"] = {"message": prompt, "options":["good","bad"]}
+
+            info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[input_params])
+            self.curr_task.update(info)
+            return out, log, self.drawGraph() , "","",[]
              # return self.runIteration(prompt)
         if creation_type == "Select":
             self.slct_task = self.curr_task
@@ -476,12 +487,15 @@ class Manager:
         if not os.path.exists(img_path):
             img_path = "examples/test.png"
 
+        saver = SaveData()
+        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+
 
         if self.need_human_response:
             self.need_human_response = False
             # return "", "", img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
             in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, "" ,self.drawGraph(), in_prompt, in_role
+            return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
         # if len(self.task_list) > 0:
         #     f = graphviz.Digraph(comment='The Test Table')
             
@@ -517,7 +531,7 @@ class Manager:
             out += task.task_description
             img_path = self.drawGraph()
             in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, log ,self.drawGraph(), in_prompt, in_role
+            return out_prompt, log ,self.drawGraph(), in_prompt, in_role, chck
             #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
 
         img_path = self.drawGraph()
@@ -559,7 +573,7 @@ class Manager:
         if all_task_completed:
             log += "All task complete\n"
             in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, log ,self.drawGraph(), in_prompt, in_role
+            return out_prompt, log ,self.drawGraph(), in_prompt, in_role, chck
             #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
             # if self.curr_task:
             #     self.curr_task.completeTask()
@@ -602,7 +616,7 @@ class Manager:
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        return out_prompt, log ,self.drawGraph(), in_prompt, in_role
+        return out_prompt, log ,self.drawGraph(), in_prompt, in_role, chck
         #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
     
     def update(self):
@@ -670,7 +684,16 @@ class Projecter:
         self.mypath = mypath
         self.savedpath = "saved/"
         self.manager = manager
-        self.current_project_name = ""
+        saver = SaveData()
+        saver.removeFiles()
+        self.current_project_name = self.manager.getParam("current_project_name")
+        self.updateSessionName()
+
+    def updateSessionName(self):
+        self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+        print("Name of session=",self.session_name)
+        self.manager.setParam("session_name",self.session_name)
+
 
     def getTaskJsonStr(self, id : str):
         out = self.manager.getTaskJsonStr()
@@ -694,6 +717,11 @@ class Projecter:
         self.clearFiles()
         self.manager.onStart() 
 
+    def getEvaluetionResults(self, input):
+        print("In:", input)
+        saver = SaveData()
+        saver.updateEstimation(input)
+
 
     def load(self, filename):
         if filename == "":
@@ -707,11 +735,16 @@ class Projecter:
 
         self.manager.onStart() 
         self.current_project_name = filename
+        self.manager.setParam("current_project_name",self.current_project_name)
+        self.updateSessionName()
 
         return filename
 
     
     def save(self, name):
+        self.current_project_name = name
+        self.manager.setParam("current_project_name",self.current_project_name)
+
         mypath = self.savedpath
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         first = True

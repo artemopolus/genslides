@@ -24,10 +24,7 @@ class WebSurfTask(ResponseTask):
 
     def executeResponse(self):
         param_name = "web_request"
-        if param_name in self.params:
-            self.params[param_name] = self.getRichPrompt()
-        else:
-            self.params.append({param_name: self.getRichPrompt()})
+        self.updateParam(param_name, self.getRichPrompt())
         print("Searching")
         searcher = GoogleApiSearcher()
         link_list = searcher.getSearchs(self.getRichPrompt())

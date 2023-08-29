@@ -23,6 +23,8 @@ class GoogleApiSearcher(WebSearcher):
         super().__init__()
 
     def getSearchs(self, request: str):
+        if len(request) == 0:
+            return []
         if request[0] =="\"" and request[-1] == "\"":
             request = request[1:-1]
         print('Web search=', request)

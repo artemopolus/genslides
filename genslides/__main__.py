@@ -138,13 +138,16 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
                 graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
                 graph_img.style(height=500)
+
+            
  
 
             input = gr.Textbox(label="Input", lines=4, value=request)
             file_input = gr.File()
 
             # init = gr.Textbox(label="Init", lines=4)
-            info = gr.Textbox(label="Info", lines=4)
+            # info = gr.Textbox(label="Info", lines=4)
+            info = gr.Markdown()
             output = gr.Textbox(label="Output Box")
             # endi = gr.Textbox(label="Endi", lines=4)
             # question = gr.Textbox(label="Question", lines=4)
@@ -155,12 +158,19 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
 
             with gr.Row() as r:
-                project_name = gr.Textbox(value = "Untitled", label="Project name")
+                project_name = gr.Textbox(value = projecter.current_project_name, label="Project name")
                 project_save = gr.Button(value="save")
                 projects_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
                 project_clear = gr.Button(value="clear")
             dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
+
+            with gr.Column():
+                with gr.Row():
+                    checkbox = gr.CheckboxGroup(["test1","1111", "val"])
+                with gr.Row():
+                    gr.Button("Evaluate").click(fn=projecter.getEvaluetionResults, inputs=checkbox)
+
             
             # graph_img.edit(fn=manager.updateGraph, inputs=[graph_img], outputs=[graph_img])
             gr.Button("Clear mask").click(fn=manager.updateGraph, inputs = [graph_img], outputs = [graph_img])
@@ -182,7 +192,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             project_clear.click(fn=projecter.clear)
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
 
-            std_output_list = [info, output, graph_img, input, prompt_tag_list]
+            std_output_list = [info, output, graph_img, input, prompt_tag_list, checkbox]
             run_iter_btn.click(fn=manager.runIteration, inputs=[input], outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
@@ -210,7 +220,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     input_txt.append(btn)
             gr.Button("update").click(fn=manager.updateAndGetOutputDataSum, outputs=out, api_name="update_task_btn")
             with gr.Row() as r:
-                project_name = gr.Textbox(value = "Untitled", label="Project name")
+                project_name = gr.Textbox(value = projecter.current_project_name, label="Project name")
                 projects_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
