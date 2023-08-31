@@ -376,21 +376,33 @@ class TextTask(BaseTask):
                         param.update(add_param)
                     found = True
             if not found:
-                param_new = {param_name: data}
+                param_new = {"type": param_name, param_name: data}
                 if add_param is not None:
                     param_new.update(add_param)
                 self.params.append(param_new)
 
     def getParamFromExtTask(self, param_name):
         return False, self.parent, None
-    
+
+    def getParamStructFromExtTask(self, param_name):
+        return False, self.parent, None
+     
     def getParamStruct(self, param_name):
+        print("Search for", param_name,"in", self.getName())
+        forbidden_names = ['input', 'output', 'stopped']
+        if param_name not in forbidden_names:
+            parent_task = self.parent
+
+            index = 0
+            while(index < 1000):
+                if parent_task is None:
+                    break
+                res, parent_task, val = parent_task.getParamStructFromExtTask(param_name)
+                if res:
+                    return True, val
         for param in self.params:
-            for k,p in param.items():
-                # print("k=",k,"p=",p)
-                if param_name == k:
-                    return True, param
-                
+            if "type" in param and param["type"] == param_name:
+                return True, param
         return False, None
  
     
@@ -401,11 +413,11 @@ class TextTask(BaseTask):
 
             index = 0
             while(index < 1000):
+                if parent_task is None:
+                    break
                 res, parent_task, val = parent_task.getParamFromExtTask(param_name)
                 if res:
                     return True, val
-                if parent_task is None:
-                    break
         # если ничего не нашли загружаем стандартное
         # print("Params=",self.params)
         for param in self.params:
@@ -441,9 +453,11 @@ class TextTask(BaseTask):
                             # print("Replace ", res, " with ", param)
                             rep_text = rep_text.replace(res, str(param))
                         else:
-                            print("No param")
+                            # print("No param")
+                            pass
                  else:
-                     print("No task")
+                    #  print("No task")
+                     pass
              else:
                 # print("Incorrect len")
                 pass

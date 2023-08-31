@@ -31,11 +31,13 @@ class RunScriptTask(ResponseTask):
         for file in onlyfiles:
             if file.endswith(".py"):
                 script_path = path_tmp + file
+                data += "Run script: " + path_to_python + " " + script_path + "\n"
                 print("Run script", path_to_python," on path", script_path)
                 result = subprocess.run([path_to_python, script_path], capture_output=True, text=True)
                 if result.returncode:
-                    print("Result=", result.stderr)
-                data += result.stdout + "\n"
+                    data += result.stderr + "\n"
+                else:
+                    data += result.stdout + "\n"
 
 
                 res, need_to_remove = self.getParam("remove_script")

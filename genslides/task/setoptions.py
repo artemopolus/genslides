@@ -33,8 +33,8 @@ class SetOptionsTask(WriteToFileTask):
                     self.params = in_params
                     print("Params changed update all")
                     self.forceCleanChildsChat()
-            except:
-                print("Can't load parameters")
+            except Exception as e:
+                print("Can't load parameters from",self.prompt,"due",e)
 
             self.saveJsonToFile(self.msg_list)
 
@@ -54,3 +54,14 @@ class SetOptionsTask(WriteToFileTask):
 
         return False, self.parent, None
  
+    def getParamStructFromExtTask(self, param_name):
+        # res, val = self.getParamStruct(param_name)
+        # return res, self.parent, val 
+        for param in self.params:
+            if "type" in param and param["type"] == param_name:
+                return True, self.parent, param
+        return False, self.parent, None
+      
+
+ 
+

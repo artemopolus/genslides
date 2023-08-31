@@ -54,7 +54,7 @@ class GroupTask(CollectTask):
         return text
 
     def updateCollectedMsgList(self, trg_list : list):
-        print("update not frozen=", self.getName())
+        # print("update not frozen=", self.getName())
         # print(pprint.pformat(trg_list))
         if self.parent:
             trg_list = self.parent.msg_list.copy()

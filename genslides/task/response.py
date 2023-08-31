@@ -138,7 +138,8 @@ class ResponseTask(TextTask):
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:
-                print("Messages are same")
+                # print("Messages are same")
+                pass
         # super().update(input)
 
     def getMsgInfo(self):

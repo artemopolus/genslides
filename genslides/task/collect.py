@@ -37,7 +37,7 @@ class CollectTask(TextTask):
             tsk_info.enabled = False
 
     def updateCollectedMsgList(self, trg_list : list):
-            print("update not frozen")
+            # print("update not frozen")
             last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
             trg_list.append(last)
             if self.msg_list != trg_list:
@@ -101,9 +101,10 @@ class CollectTask(TextTask):
         return text
 
     def stdProcessUnFreeze(self, input=None):
-        print("1 frozen=", self.is_freeze)
+        # print("1 frozen=", self.is_freeze)
         if self.parent:
-            print("parent frozen=",self.parent.is_freeze)
+            # print("parent frozen=",self.parent.is_freeze)
+            pass
         if self.is_freeze:
             to_unfreeze = False
             if self.parent and not self.parent.is_freeze:
@@ -117,6 +118,7 @@ class CollectTask(TextTask):
                         return
                 # print("Unfreeze")
                 self.is_freeze = False
+                print("Task",self.getName(),"is freeze:",self.is_freeze)
 
         else:
             for tsk_info in self.by_ext_affected_list:
@@ -134,7 +136,7 @@ class CollectTask(TextTask):
             if input.id == tsk_info.id:
                 tsk_info.prompt = input.prompt
                 tsk_info.enabled = input.enabled
-                # print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
+                print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
 
         out = super().affectedTaskCallback(input)
         self.stdProcessUnFreeze()

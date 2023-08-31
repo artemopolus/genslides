@@ -71,7 +71,7 @@ class IterationTask(TextTask):
                         print("Not found=",val)
                         is_not_found = True
                 if not is_not_found:
-                    print("No changes found")
+                    # print("No changes found")
                     return
             if it_type == "iteration":
                 self.updateParam("index", str(0))
@@ -102,7 +102,7 @@ class IterationTask(TextTask):
 
     def update(self, input: TaskDescription = None):
         mydict = self.dt_states
-        print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
+        # print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
@@ -110,7 +110,7 @@ class IterationTask(TextTask):
         if self.msg_list2 != trg_list:
             self.msg_list2 = trg_list
         self.executeResponse()
-        print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
+        # print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
 
         if not self.is_freeze:
             if self.dt_cur == self.dt_states["Ready"]:
