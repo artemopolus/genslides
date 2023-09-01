@@ -53,6 +53,16 @@ class ChatGPT():
         self.path = path_to_config
         self.path_to_file = "output/openai.json"
 
+    def getModelList(self):
+        out = []
+        with open(self.path, 'r') as config:
+            values = json.load(config)
+            key = values['prices']
+            for price_info in key:
+                out.append(price_info["name"])
+        return out
+ 
+
     def getMaxTokensNum(self) -> int:
         return self.max_tokens
 

@@ -13,6 +13,8 @@ from genslides.utils.savedata import SaveData
 
 import genslides.task.creator as cr
 
+from genslides.utils.largetext import SimpleChatGPT
+
 import os
 from os import listdir
 from os.path import isfile, join
@@ -455,6 +457,36 @@ class Manager:
                 return task
         return None
     
+    def updateSetOption(self, task_name, param_name, key, value):
+        print("Update set options")
+        task = self.getTaskByName(task_name)
+        if task.getType() == "SetOptions":
+            task.updateParamStruct(param_name, key, value)
+            return value
+        return None
+
+    def getFromSetOptions(self, task :BaseTask):
+        group = []
+        lst = task.getParamList()
+        if lst is not None:
+            for param in lst:
+                print("Param:",param)
+                out = {"type":param["type"],"parameters":[]}
+                if "type" in param:
+                    if param["type"] == "model":
+                        chat = SimpleChatGPT()
+                        val = {"ui":"listbox","key":"model","value":chat.getModelList()}
+                        
+                    for k,p in param.items():
+                        if k != "type" and k != "model":
+                            val = {"ui":"textbox","type":param["type"],"key":k,"value":p}
+                            if isinstance(p, bool):
+                                val["ui"] = "checkbox"
+                    out["parameters"].append(val)
+                group.append(out)
+        return group
+        
+ 
     def getTaskList(self):
         out = []
         for task in self.task_list:

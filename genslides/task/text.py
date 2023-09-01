@@ -387,6 +387,14 @@ class TextTask(BaseTask):
     def getParamStructFromExtTask(self, param_name):
         return False, self.parent, None
      
+    def updateParamStruct(self, param_name, key,val):
+        for param in self.params:
+            if "type" in param and param["type"] == param_name:
+                if key in param:
+                    param[key] = val
+        self.saveJsonToFile(self.msg_list)
+ 
+
     def getParamStruct(self, param_name):
         print("Search for", param_name,"in", self.getName())
         forbidden_names = ['input', 'output', 'stopped']
@@ -406,6 +414,15 @@ class TextTask(BaseTask):
         return False, None
  
     
+    def getParamList(self):
+        forbidden_names = ['input', 'output', 'stopped']
+        out = []
+        for p in self.params:
+            if 'type' in p:
+                if p['type'] not in forbidden_names:
+                    out.append(p)
+        return out
+
     def getParam(self, param_name):
         forbidden_names = ['input', 'output', 'stopped']
         if param_name not in forbidden_names:

@@ -36,6 +36,9 @@ class SetOptionsTask(WriteToFileTask):
             except Exception as e:
                 print("Can't load parameters from",self.prompt,"due",e)
 
+            for param in input.params:
+                self.updateParam(param["name"], param["value"],param["prompt"])
+ 
             self.saveJsonToFile(self.msg_list)
 
     def update(self, input : TaskDescription = None):

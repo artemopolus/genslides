@@ -203,21 +203,39 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             gr.themes.Base(text_size=sizes.text_lg)
             input_txt = []
             used = manager.getFlagTaskLst()
-            out = gr.Textbox(value=manager.getOutputDataSum(),label="output", interactive=False)
+            # out = gr.Textbox(value=manager.getOutputDataSum(),label="output", interactive=False)
+            out = gr.Markdown(value=manager.getOutputDataSum())
+            
             for info in used:
                 if info["type"] == "input":
                     interact = True
                     name = info["name"]
                     task = manager.getTaskByName(name)
                     txt = task.getInfo(short=False)
-                    with gr.Row() as r:
-                        with gr.Column(scale=4):
-                            txtblck = gr.Textbox(value=txt, interactive=interact, label="Input")
-                        with gr.Column(scale=1):
-                            nmblck = gr.Textbox( interactive=False,value=task.getName(), label="Task name")
-                        # with gr.Column(scale=1):
-                            btn = gr.Button("edit").click(fn=manager.updatePromptForTask, inputs=[nmblck, txtblck], outputs=out)
-                    input_txt.append(btn)
+                    print("Get task=",task.getName())
+                    if task.getType() == "SetOptions":
+                        list_options = manager.getFromSetOptions(task)
+                        print("List=",list_options)
+                        name_task = gr.Textbox(value=task.getName(), label="Task", interactive=False)
+                        with gr.Column():
+                            for options in list_options:
+                                opt_type = gr.Textbox(value=options["type"], label="type", interactive=False)
+                                with gr.Row():
+                                    for opt in options["parameters"]:
+                                        opt_key = gr.Textbox(value=opt["key"], label="key", interactive=False)
+                                        if opt["ui"] == "listbox":
+                                            opt_val = gr.Dropdown(choices=opt["value"],label="value", interactive=True)
+                                        
+                                        gr.Button("change").click(fn=manager.updateSetOption, inputs=[name_task, opt_type, opt_key, opt_val])
+                    else:
+                        with gr.Row() as r:
+                            with gr.Column(scale=4):
+                                txtblck = gr.Textbox(value=txt, interactive=interact, label="Input")
+                            with gr.Column(scale=1):
+                                nmblck = gr.Textbox( interactive=False,value=task.getName(), label="Task name")
+                            # with gr.Column(scale=1):
+                                btn = gr.Button("edit").click(fn=manager.updatePromptForTask, inputs=[nmblck, txtblck], outputs=out)
+                        input_txt.append(btn)
             gr.Button("update").click(fn=manager.updateAndGetOutputDataSum, outputs=out, api_name="update_task_btn")
             with gr.Row() as r:
                 project_name = gr.Textbox(value = projecter.current_project_name, label="Project name")

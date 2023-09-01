@@ -333,4 +333,10 @@ class BaseTask():
     
     def getParam(self, param_name):
         return None
+    
+    def getParamList(self):
+        return None
+    def updateParamStruct(self, param_name, key,val):
+        pass
+
  
