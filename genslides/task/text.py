@@ -26,7 +26,7 @@ class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
         super().__init__(task_info, type)
 
-        print("Type=", self.type)
+        print("Type=", self.getType())
 
         self.path = self.getPath()
         self.copyParentMsg()
@@ -82,13 +82,13 @@ class TextTask(BaseTask):
             os.makedirs("saved")
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        self.name = self.type + str(self.id)
+        self.name = self.getType() + str(self.id)
         print("Name =", self.name)
         name = self.name + ".json"
         found = False
         while not found:
             if name in onlyfiles:
-                self.name = self.type + str(self.getNewID())
+                self.name = self.getType() + str(self.getNewID())
                 name = self.name + ".json"
             else:
                 found = True
@@ -98,7 +98,7 @@ class TextTask(BaseTask):
         resp_json_out = {
             'name': self.getName(),
             'chat': self.msg_list,
-            'type': self.type,
+            'type': self.getType(),
             'params': self.params
         }
         linked = []
@@ -119,7 +119,7 @@ class TextTask(BaseTask):
     def saveJsonToFile(self, msg_list):
         resp_json_out = {
             'chat': msg_list,
-            'type': self.type,
+            'type': self.getType(),
             'params': self.params
         }
         linked = []
@@ -185,7 +185,7 @@ class TextTask(BaseTask):
         # for file in onlyfiles:
         if trg_file in onlyfiles:
             file = trg_file
-            if file.startswith(self.type):
+            if file.startswith(self.getType()):
                 path = mypath + file
                 try:
                     print(path)
@@ -217,7 +217,7 @@ class TextTask(BaseTask):
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for file in onlyfiles:
-            if file.startswith(self.type):
+            if file.startswith(self.getType()):
                 path = mypath + file
         # if os.stat(self.path).st_size != 0:
                 try:
@@ -338,14 +338,14 @@ class TextTask(BaseTask):
                     par = trg.parent
                     if par == None:
                         break
-                    print("type=",par.type)
-                    if par.type == "Iteration":
+                    print("type=",par.getType())
+                    if par.getType() == "Iteration":
                         pname = par.getName().replace("Iteration","It")
                         res, i = par.getParam("index")
                         print("it_res_i",res,i)
                         if res:
                             names += pname + "_" + i + "_"
-                    elif par.type == "IterationEnd":
+                    elif par.getType() == "IterationEnd":
                         if par.iter_start:
                             trg = par.iter_start.parent
                     else:
@@ -427,7 +427,7 @@ class TextTask(BaseTask):
                     return True, p
                 
         
-        res, default_value =  self.reqhelper.getValue(self.type, param_name)
+        res, default_value =  self.reqhelper.getValue(self.getType(), param_name)
         if res:
             return True, default_value
         # print("Found nothing for", param_name)

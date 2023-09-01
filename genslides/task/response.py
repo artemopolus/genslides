@@ -41,7 +41,7 @@ class ResponseTask(TextTask):
         # print("t=",temperature)
         res, val = self.getParam("model")
         if not res:
-            res, model_name =  self.reqhelper.getValue(self.type, "model")
+            res, model_name =  self.reqhelper.getValue(self.getType(), "model")
             if res:
                 self.updateParam("model", model_name)
             else:
@@ -51,7 +51,7 @@ class ResponseTask(TextTask):
         print("Get list from file=", self.path)
 
     def setChatPram(self, name):
-            res, temperature =  self.reqhelper.getValue(self.type, name)
+            res, temperature =  self.reqhelper.getValue(self.getType(), name)
             print("t=",temperature)
             if res:
                 self.updateParam(name, temperature)

@@ -204,7 +204,7 @@ class IterationEndTask(TextTask):
                     break 
                 else:
                     out_task_list.append(task)
-                    if task.parent.type == "Iteration" and task.parent.closeIter(out_task_list):
+                    if task.parent.getType() == "Iteration" and task.parent.closeIter(out_task_list):
                         self.iter_start = task.parent
                         break
                     else:

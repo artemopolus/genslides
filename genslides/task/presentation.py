@@ -99,19 +99,19 @@ class PresentationTask(TextTask):
     #             info_response = self.requester.getResponse(info_prompt)
     #             search_result = ""
     #             for pack in info_response:
-    #                 if(pack.type == 'Search'):
+    #                 if(pack.getType() == 'Search'):
     #                     print('Doing search')
     #             comb_prompt = self.reqhelper.getPrompt('Combinator', search_result)
     #             info_response = self.requester.getResponse(comb_prompt)
     #             for pack in info_response:
-    #                 if(pack.type == 'Text'):
+    #                 if(pack.getType() == 'Text'):
     #                     print('Add data to description')
 
                 
 
     #         response = self.requester.getResponse(presentation_prompt)
     #         for pack in response:
-    #             if pack.type == 'Slide':
+    #             if pack.getType() == 'Slide':
     #                 self.responselist.append(pack)
 
 

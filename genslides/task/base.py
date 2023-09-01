@@ -203,6 +203,9 @@ class BaseTask():
     
     def getName(self) -> str:
         return self.name
+    
+    def getType(self) -> str:
+        return self.type
 
     def getAncestorByName(self, trg_name):
         index = 0
