@@ -59,6 +59,7 @@ class IterationTask(TextTask):
         return "Nothing to iterate"
     
     def parseJsonLastMsg(self):
+        print("Parse json last message")
         indata = self.parent.msg_list[-1]["content"]
         lst_msg_jsn = json.loads(indata)
         if "type" in lst_msg_jsn and "data" in lst_msg_jsn:
@@ -71,7 +72,7 @@ class IterationTask(TextTask):
                         print("Not found=",val)
                         is_not_found = True
                 if not is_not_found:
-                    # print("No changes found")
+                    print("No changes found")
                     return
             if it_type == "iteration":
                 self.updateParam("index", str(0))
@@ -102,7 +103,7 @@ class IterationTask(TextTask):
 
     def update(self, input: TaskDescription = None):
         mydict = self.dt_states
-        # print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
+        print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
@@ -112,15 +113,18 @@ class IterationTask(TextTask):
         self.executeResponse()
         # print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
 
+        if self.is_freeze:
+            print("Unreeze task")
+            super().update(input)
+ 
         if not self.is_freeze:
+            print("Iteration task is not freeze")
             if self.dt_cur == self.dt_states["Ready"]:
                 self.dt_cur = self.dt_states["Processing"]
                 num_iter = len(self.iter_data)
                 res, max_num_iter = self.getParam("max_num_iter")
                 if res:
                     num_iter = int(max_num_iter)
-                print("Unreeze task")
-                super().update(input)
                 print(10*"====")
                 print("Start Iteration")
                 print(10*"====")
@@ -138,7 +142,9 @@ class IterationTask(TextTask):
                         for trg in ie["targets"]:
                             trg.forceCleanChat()
                     super().update(input)
-        super().update(input)
+                    if index == num_iter - 1:
+                        break
+        # super().update(input)
 
         return self.getRichPrompt(), "user", "Numbers"
 

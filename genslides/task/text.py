@@ -368,7 +368,7 @@ class TextTask(BaseTask):
 
     def updateParam(self, param_name, data, add_param = None):
             found = False
-            print(add_param)
+            # print(add_param)
             for param in self.params:
                 if param_name in param:
                     param[param_name] = data

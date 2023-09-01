@@ -156,6 +156,7 @@ class CollectTask(TextTask):
         self.update()
         self.freezeTask()
         super().removeLinkToTask()
+        self.saveJsonToFile(self.msg_list)
  
     def getMsgInfo(self):
         if len(self.msg_list) > 0:

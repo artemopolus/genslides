@@ -262,14 +262,11 @@ class BaseTask():
        
         print("Update=",self.getName(), "|frozen=", self.is_freeze, "||")
         self.updateIternal(input)
+        
+        self.useLinksToTask()
 
         for child in self.childs:
             child.update()
-
-
-        self.useLinksToTask()
-
-        # if not self.is_freeze:
 
         return "","",""
     
