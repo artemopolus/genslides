@@ -1,7 +1,7 @@
 from genslides.task.base import TaskDescription
 from genslides.task.readfile import ReadFileTask
 
-import os
+import os, json
 from os import listdir
 from os.path import isfile, join
 
@@ -36,6 +36,19 @@ class ReadFileParamTask(ReadFileTask):
                 print("Can\'t read params to read folder", e)
         param_name = "path_to_read"
         res, s_path = self.getParam(param_name)
+        if res:
+            rres, pparam = self.getParamStruct(param_name)
+            if rres and "read_dial" in pparam and pparam["read_dial"]:
+                with open(s_path, 'r') as f:
+                    print("path_to_read =", s_path)
+                    try:
+                        rq = json.load(f)
+                        self.msg_list = rq
+                    except ValueError as e:
+                        print("json error type=", type(e))
+                        self.msg_list = []
+ 
+                return False, ""
         if res and os.path.isfile(s_path):
             with open(s_path, 'r') as f:
                 text = f.read()

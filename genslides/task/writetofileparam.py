@@ -1,6 +1,7 @@
 from genslides.task.base import TaskDescription
 from genslides.task.writetofile import WriteToFileTask
 
+import json
 
 class WriteToFileParamTask(WriteToFileTask):
     def __init__(self, task_info: TaskDescription, type="WriteToFileParam") -> None:
@@ -22,16 +23,20 @@ class WriteToFileParamTask(WriteToFileTask):
             return
         self.writepath = path
         ctrl = 'w'
+        text = self.msg_list[len(self.msg_list) - 1]["content"]
         if res:
             res, pparam = self.getParamStruct(param_name)
             if res:
-                if pparam["write"] == "append":
+                if "write" in pparam and pparam["write"] == "append":
                     ctrl = 'a'
+                if "write_dial" in pparam and pparam["write_dial"]:
+                    resp_json_out = self.msg_list.copy()
+                    text = json.dumps(resp_json_out, indent=1)
+
 
 
         with open(path, ctrl, encoding='utf8') as f:
             print("path_to_write =", path)
-            text = self.msg_list[len(self.msg_list) - 1]["content"]
             # print("Try to save=", text)
             f.write(text)
 
