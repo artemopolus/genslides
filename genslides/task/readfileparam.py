@@ -1,4 +1,4 @@
-from genslides.task.base import TaskDescription
+from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.readfile import ReadFileTask
 
 import os, json
@@ -14,6 +14,7 @@ class ReadFileParamTask(ReadFileTask):
     def readContentInternal(self):
         param_name = "read_folder"
         res, read_folder = self.getParam(param_name)
+        
         if res and read_folder:
             res, pparam = self.getParamStruct(param_name)
             print("RF:", pparam)
@@ -38,15 +39,15 @@ class ReadFileParamTask(ReadFileTask):
         res, s_path = self.getParam(param_name)
         if res:
             rres, pparam = self.getParamStruct(param_name)
-            if rres and "read_dial" in pparam and pparam["read_dial"]:
+            if rres and "read_dial" in pparam and pparam["read_dial"] and os.path.isfile(s_path):
                 with open(s_path, 'r') as f:
-                    print("path_to_read =", s_path)
                     try:
                         rq = json.load(f)
                         self.msg_list = rq
                     except ValueError as e:
                         print("json error type=", type(e))
                         self.msg_list = []
+                    print(self.getName(),"read =", s_path,"msg=",len(self.msg_list))
  
                 return False, ""
         if res and os.path.isfile(s_path):
@@ -84,3 +85,14 @@ class ReadFileParamTask(ReadFileTask):
             return value, out["role"],out["content"]
         return value,"user",""
  
+    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        val = []
+        rres, pparam = self.getParamStruct("path_to_read")
+        if rres and "read_dial" in pparam and pparam["read_dial"]:
+            for msg in self.msg_list:
+                val.append({"role":msg["role"],"content":self.findKeyParam(msg["content"])})
+            return True, val, None
+        else:
+            val = [{"role":self.getLastMsgRole(), "content": self.findKeyParam(self.getLastMsgContent())}]
+            return True, val, self.parent
+

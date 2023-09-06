@@ -32,6 +32,20 @@ class TextTask(BaseTask):
         self.copyParentMsg()
         self.params = []
 
+    def checkParentMsgList(self, update = False) -> bool:
+        if self.parent:
+            trg = self.parent.msg_list.copy()
+            src = self.msg_list.copy()
+            last = None
+            if len(src) > 0:
+                last = src.pop()
+            if trg != src:
+                if update and last:
+                    trg.append(last)
+                    self.msg_list = trg
+                return False
+        return True
+
     def getLastMsgContent(self):
         if len(self.msg_list) > 0:
             return self.msg_list[-1]["content"]
@@ -44,6 +58,29 @@ class TextTask(BaseTask):
  
     def copyParentMsg(self):
         self.msg_list = self.getParentMsg()
+        
+    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        val = [{"role":self.getLastMsgRole(), "content": self.findKeyParam(self.getLastMsgContent())}]
+        return True, val, self.parent
+
+    def getMsgs(self, except_task = []):
+        # print("Get msgs excluded ",except_task)
+        task = self
+        index = 0
+        out = []
+        while(index < 1000):
+            res, msg, par = task.getLastMsgAndParent()
+            if res and task.getName() not in except_task:
+                # print(task.getName(),"give", len(msg), "msg to", out)
+                msg.extend(out)
+                out = msg
+            if par is None:
+                break
+            else:
+                task = par
+            index += 1
+
+        return out
    
     def getParentMsg(self):
         if self.parent is None:
@@ -396,7 +433,7 @@ class TextTask(BaseTask):
  
 
     def getParamStruct(self, param_name):
-        print("Search for", param_name,"in", self.getName())
+        # print("Search for", param_name,"in", self.getName())
         forbidden_names = ['input', 'output', 'stopped']
         if param_name not in forbidden_names:
             parent_task = self.parent

@@ -207,6 +207,9 @@ class BaseTask():
     def getType(self) -> str:
         return self.type
 
+    def isInputTask(self):
+        return True
+
     def getAncestorByName(self, trg_name):
         index = 0
         task = self

@@ -1,5 +1,6 @@
 from genslides.task.text import TextTask
-from genslides.task.base import TaskDescription
+from genslides.task.base import TaskDescription, BaseTask
+from genslides.utils.largetext import SimpleChatGPT
 
 import json
 
@@ -23,9 +24,18 @@ class IterationTask(TextTask):
         self.executeResponse()
         self.is_freeze = True
         self.iter_end = []
+    def getInfo(self, short = True) -> str:
+        return self.getName()
     
+    def isInputTask(self):
+        return False
+    
+    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        return False, [], self.parent
+
+
     def addChild(self, child):
-        self.iter_end.append({"child": child, "targets" : None})
+        self.iter_end.append({"child": child, "targets" : None, "freeze": False})
         super().addChild(child)
     
     def closeIter(self, task_array) ->bool:
@@ -62,28 +72,53 @@ class IterationTask(TextTask):
         print("Parse json last message")
         indata = self.parent.msg_list[-1]["content"]
         lst_msg_jsn = json.loads(indata)
-        if "type" in lst_msg_jsn and "data" in lst_msg_jsn:
+        if "type" in lst_msg_jsn:
             it_type = lst_msg_jsn["type"]
-            values = lst_msg_jsn["data"]
+            values = []
+            if it_type == "iteration" and "data" in lst_msg_jsn:
+                values = lst_msg_jsn["data"]
+            elif it_type == "for":
+                try:
+                    values = [i for i in range(lst_msg_jsn["start"],lst_msg_jsn["stop"],lst_msg_jsn["step"])]
+                except Exception as e:
+                    print("Can\'t read for params=",e)
+            else:
+                print("Unknown type of iterartion")
+                return
             if self.iter_data and self.iter_type == it_type:
                 is_not_found = False
                 for val in values:
                     if val not in self.iter_data:
                         print("Not found=",val)
                         is_not_found = True
+                
                 if not is_not_found:
                     print("No changes found")
                     return
-            if it_type == "iteration":
+            if it_type == "iteration" or it_type == "for":
                 self.updateParam("index", str(0))
-                self.updateParam("iterable", values[0])
+                if len(values) > 0:
+                    self.updateParam("iterable", values[0])
+                else:
+                    self.updateParam("iterable", "0")
+
                 # print("Ready to iterate")
             else:
                 print("No available iteration type")
                 return
+            try:
+                self.cond_max_spent = lst_msg_jsn["max_spent"]
+                self.cond_max_iter = lst_msg_jsn["max_iter"]
+                self.cond_max_tkns = lst_msg_jsn["max_tkns"]
+                self.cond_on = True
+            except:
+                self.cond_on = False
+                print("Can\'t read conditions")
+
             self.iter_data = values
             self.iter_type = it_type
             self.dt_cur = self.dt_states["Ready"]
+            print("iteration setup:\ntype:",self.iter_type,"iter on:", self.iter_data)
         else:
             print("Incorrect format of target message:", indata)
  
@@ -91,30 +126,47 @@ class IterationTask(TextTask):
 
 
     def executeResponse(self):
-        try:
+        # try:
             if self.dt_cur == self.dt_states["No data"]:
                 self.parseJsonLastMsg()
             elif self.dt_cur == self.dt_states["Done"]:
                 self.parseJsonLastMsg()
-        except Exception as e:
-            print("Can\'t find json data")
-            self.dt_cur = self.dt_states["No data"]
-        self.saveJsonToFile(self.msg_list2)
+        # except Exception as e:
+            # print("Can\'t find json data")
+            # self.dt_cur = self.dt_states["No data"]
+            self.saveJsonToFile(self.msg_list2)
 
-    def update(self, input: TaskDescription = None):
-        mydict = self.dt_states
-        print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
+
+    def checkParentMsgList(self, update = False) -> bool:
+
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
             trg_list = []
         if self.msg_list2 != trg_list:
-            self.msg_list2 = trg_list
+            if update:
+                self.msg_list2 = trg_list
+            return False
+        return True
+
+    def forceCleanChat(self):
+        if len(self.msg_list2) > 1:
+            self.msg_list2 = []
+ 
+
+    def update(self, input: TaskDescription = None):
+        mydict = self.dt_states
+        print("State[",self.getName(),"]=",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
+
+        if not self.checkParentMsgList(True):
+            print("Prev msg was changed: start iteration")
+            self.iter_data = None
+
         self.executeResponse()
         # print("State:",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
 
         if self.is_freeze:
-            print("Unreeze task")
+            print("First run")
             super().update(input)
  
         if not self.is_freeze:
@@ -142,11 +194,41 @@ class IterationTask(TextTask):
                         for trg in ie["targets"]:
                             trg.forceCleanChat()
                     super().update(input)
-                    if index == num_iter - 1:
+                    if self.checkEndConditions(index,num_iter):
                         break
         # super().update(input)
 
         return self.getRichPrompt(), "user", "Numbers"
+    
+    def startConditions(self):
+        if self.cond_on:
+            chat = SimpleChatGPT()
+            if self.cond_max_spent > 0:
+                self.cond_strt_spent = chat.getSpentToday()
+        
+    def checkEndConditions(self, index, num_iter)-> bool:
+        if self.cond_on:
+            chat = SimpleChatGPT()
+            delta = chat.getSpentToday - self.cond_strt_spent
+            if self.cond_max_spent > 0 and delta > self.cond_max_spent:
+                print("Condition: spent=", delta)
+                return False
+            if self.cond_max_iter > 0 and index < self.cond_max_iter - 1:
+                
+                print("Condition: max iter=", index)
+                return False
+            if self.cond_max_tkns > 0:
+                for ie in self.iter_end:
+                    msgs = ie["targets"][0].getMsgs()
+                    tokens = chat.getTokensCountFromChat(msgs)
+                    if tokens > self.cond_max_tkns:
+                        print("Condition: tokens=", tokens)
+                        return False
+        else:
+            if index < num_iter - 1:
+                return False
+        return True
+
 
     def stdProcessUnFreeze(self, input=None):
         pass
@@ -179,7 +261,18 @@ class IterationEndTask(TextTask):
         self.msg_list2 = self.msg_list.copy()
         self.msg_list = []
         self.executeResponse()
+    def getInfo(self, short = True) -> str:
+        return self.getName()
 
+    def isInputTask(self):
+        return False
+    
+
+    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        return False, [], self.parent
+
+
+    
     def saveJsonToFile(self, msg_list):
         super().saveJsonToFile(self.msg_list2)
 

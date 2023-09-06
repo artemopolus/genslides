@@ -77,6 +77,12 @@ class ChatGPT():
             model_names.append(model.id)
         return model_names
     
+    def getTokensCountFromChat(self, msgs):
+        text = ""
+        for msg in msgs:
+            text += msg["content"]
+        return self.getTokensCount(text)
+  
     def getTokensCount(self, text) -> int:
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         token_cnt = len(tokenizer.encode(text))
@@ -121,6 +127,15 @@ class ChatGPT():
                 val = []
                 val.append({ "date" : cur_date, "sum" : sum_price})
                 json.dump(val,f,indent=1)
+
+    def getSpentToday(self):
+        with open(self.path_to_file, 'r') as f:
+            cur_date = str(datetime.date.today())
+            days = json.load(f)
+            for day in days:
+                if 'date' in day and day['date'] == cur_date and 'sum' in day:
+                    return day['sum']
+        return 0
 
         
 
@@ -201,6 +216,7 @@ class SimpleChatGPT(ChatGPT):
                 self.addCounterToPromts(token_cnt)
                 return True, out["content"]        
             return False, ""
+    
     
     def recvRespFromMsgList(self, msgs):
         text = ""

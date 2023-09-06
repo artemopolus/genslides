@@ -1,4 +1,4 @@
-from genslides.task.base import TaskDescription
+from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.writetofile import WriteToFileTask
 
 import json
@@ -10,6 +10,12 @@ class WriteToFileParamTask(WriteToFileTask):
         res, path = self.getParam(param_name)
         if res:
             self.writepath = path
+
+    def isInputTask(self):
+        return False
+    
+    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        return False, [], self.parent
 
     def getRichPrompt(self) -> str:
         return self.writepath
@@ -30,13 +36,20 @@ class WriteToFileParamTask(WriteToFileTask):
                 if "write" in pparam and pparam["write"] == "append":
                     ctrl = 'a'
                 if "write_dial" in pparam and pparam["write_dial"]:
-                    resp_json_out = self.msg_list.copy()
-                    text = json.dumps(resp_json_out, indent=1)
-
+                    # print("Get excluded task", pparam)
+                    # print("Dial len=",len(self.msg_list))
+                    if "excld_task" in pparam:
+                        # print("Get msg excluded")
+                        text = json.dumps(self.getMsgs(except_task=pparam["excld_task"]), indent=1)
+                    else:
+                        resp_json_out = self.msg_list.copy()
+                        text = json.dumps(resp_json_out, indent=1)
+        else:
+            print("No struct param=",self.getName())
 
 
         with open(path, ctrl, encoding='utf8') as f:
-            print("path_to_write =", path)
+            print(self.getName(),"write =", path)
             # print("Try to save=", text)
             f.write(text)
 
@@ -46,4 +59,7 @@ class WriteToFileParamTask(WriteToFileTask):
 
     def getMsgInfo(self):
         return self.writepath, "user", ""
+ 
+    def getInfo(self, short = True) -> str:
+        return self.getName()
  
