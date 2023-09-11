@@ -106,14 +106,18 @@ class IterationTask(TextTask):
             else:
                 print("No available iteration type")
                 return
-            try:
-                self.cond_max_spent = lst_msg_jsn["max_spent"]
-                self.cond_max_iter = lst_msg_jsn["max_iter"]
-                self.cond_max_tkns = lst_msg_jsn["max_tkns"]
-                self.cond_on = True
-            except:
-                self.cond_on = False
-                print("Can\'t read conditions")
+            
+            if 'cond' in lst_msg_jsn:
+                for cond in lst_msg_jsn['cond']:
+                    if isinstance(cond, dict):
+                        self.updateParam2(cond)
+            
+            self.cond_on = True
+            # try:
+            #     self.cond_max_spent = lst_msg_jsn["max_spent"]
+            # except:
+            #     self.cond_on = False
+            #     print("Can\'t read conditions")
 
             self.iter_data = values
             self.iter_type = it_type
@@ -131,13 +135,17 @@ class IterationTask(TextTask):
                 self.parseJsonLastMsg()
             elif self.dt_cur == self.dt_states["Done"]:
                 self.parseJsonLastMsg()
+
+            else:
+                if not self.iter_data:
+                    self.parseJsonLastMsg()
         # except Exception as e:
             # print("Can\'t find json data")
             # self.dt_cur = self.dt_states["No data"]
             self.saveJsonToFile(self.msg_list2)
 
 
-    def checkParentMsgList(self, update = False) -> bool:
+    def checkParentMsgList(self, update = False, remove = True) -> bool:
 
         if self.parent:
             trg_list = self.parent.msg_list.copy()
@@ -169,7 +177,7 @@ class IterationTask(TextTask):
             print("First run")
             super().update(input)
  
-        if not self.is_freeze:
+        if not self.is_freeze and self.iter_data:
             print("Iteration task is not freeze")
             if self.dt_cur == self.dt_states["Ready"]:
                 self.dt_cur = self.dt_states["Processing"]
@@ -180,50 +188,86 @@ class IterationTask(TextTask):
                 print(10*"====")
                 print("Start Iteration")
                 print(10*"====")
+                self.startConditions()
                 for index in range(num_iter):
-                    print("Itaration ====================>", index)
+                    print("Iteration ====================>", index)
                     value = self.iter_data[index]
                     self.updateParam("index", str(index))
                     self.updateParam("iterable", value)
-                    if index == num_iter - 1:
+                    # new
+                    if not self.checkEndConditions(index, iter):
                         self.dt_cur = self.dt_states["Done"]
-                    print(10*"====")
-                    print("Clear iter=", index)
-                    print(10*"====")
-                    for ie in self.iter_end:
-                        for trg in ie["targets"]:
-                            trg.forceCleanChat()
-                    super().update(input)
-                    if self.checkEndConditions(index,num_iter):
+                        for ie in self.iter_end:
+                            ie["targets"][0].update()
                         break
+                    else:
+                        print(10*"====")
+                        print("Clear iter=", index)
+                        print(10*"====")
+                        for ie in self.iter_end:
+                            for trg in ie["targets"]:
+                                trg.forceCleanChat()
+                        super().update(input)
+
+                # self.dt_cur = self.dt_states["Done"]
+                # super().update(input)
+
+                    # old
+                    # if index == num_iter - 1:
+                    #     self.dt_cur = self.dt_states["Done"]
+                    # print(10*"====")
+                    # print("Clear iter=", index)
+                    # print(10*"====")
+                    # for ie in self.iter_end:
+                    #     for trg in ie["targets"]:
+                    #         trg.forceCleanChat()
+                    # super().update(input)
+                    # if self.checkEndConditions(index,num_iter):
+                    #     break
         # super().update(input)
 
         return self.getRichPrompt(), "user", "Numbers"
     
     def startConditions(self):
         if self.cond_on:
-            chat = SimpleChatGPT()
-            if self.cond_max_spent > 0:
-                self.cond_strt_spent = chat.getSpentToday()
+            for param in self.params:
+                if 'cond' in param and 'cur' in param and 'trg' in param:
+                    if param['type'] == 'spent':
+                        chat = SimpleChatGPT()
+                        self.cond_strt_spent = chat.getSpentToday()
         
     def checkEndConditions(self, index, num_iter)-> bool:
         if self.cond_on:
+
             chat = SimpleChatGPT()
-            delta = chat.getSpentToday - self.cond_strt_spent
-            if self.cond_max_spent > 0 and delta > self.cond_max_spent:
-                print("Condition: spent=", delta)
-                return False
-            if self.cond_max_iter > 0 and index < self.cond_max_iter - 1:
-                
-                print("Condition: max iter=", index)
-                return False
-            if self.cond_max_tkns > 0:
-                for ie in self.iter_end:
-                    msgs = ie["targets"][0].getMsgs()
-                    tokens = chat.getTokensCountFromChat(msgs)
-                    if tokens > self.cond_max_tkns:
-                        print("Condition: tokens=", tokens)
-                        return False
+
+            for param in self.params:
+                if 'cond' in param and 'cur' in param and 'trg' in param:
+
+                    if param['type'] == 'spent':
+                        delta = chat.getSpentToday() - self.cond_strt_spent
+                        self.updateParamStruct(param['type'],'cur', delta )
+                    elif param['type'] == 'token':
+                        max_tokens = 0
+                        for ie in self.iter_end:
+                            msgs = ie["targets"][0].getMsgs()
+                            tokens = chat.getTokensCountFromChat(msgs)
+                            max_tokens = max(max_tokens, tokens)
+                        print(10*'===','tokens=',max_tokens,10*'===')
+                        self.updateParamStruct(param['type'],'cur', max_tokens )
+                    elif param['type'] == 'max_iter':
+                        self.updateParamStruct(param['type'],'cur', index + 1 )
+
+                    if param['cond'] == '=':
+                        if param['cur'] != param['trg']:
+                            return False
+                    elif param['cond'] == '<':
+                        if int(param['cur']) < int(param['trg']):
+                            return False
+                    elif param['cond'] == '>':
+                        if int(param['cur']) > int(param['trg']):
+                            return False
+
         else:
             if index < num_iter - 1:
                 return False
@@ -233,7 +277,7 @@ class IterationTask(TextTask):
     def stdProcessUnFreeze(self, input=None):
         pass
 
-    def freezeIterEndTask(self) -> bool:
+    def isInternalContinue(self) -> bool:
         mydict = self.dt_states
         if self.dt_cur == self.dt_states["Done"]:
             return False
@@ -326,7 +370,7 @@ class IterationEndTask(TextTask):
         #         self.iter_start.resetIter()
         self.executeResponse()
         if self.iter_start:
-            if self.iter_start.freezeIterEndTask():
+            if self.iter_start.isInternalContinue():
                 print("Freeze iter end")
                 self.freezeTask()
             else:

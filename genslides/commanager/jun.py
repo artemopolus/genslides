@@ -298,6 +298,9 @@ class Manager:
                 # print("info=",task.getIdStr(),"   ", task.getName())
             
             for task in self.task_list:
+                if task.getType() == "IterationEnd":
+                    if task.iter_start:
+                        f.edge(task.getIdStr(), task.iter_start.getIdStr())
                 for child in task.childs:
                     f.edge(task.getIdStr(), child.getIdStr())
                     # print("edge=", task.getIdStr(), "====>",child.getIdStr())

@@ -39,22 +39,43 @@ class ReadFileParamTask(ReadFileTask):
         res, s_path = self.getParam(param_name)
         if res:
             rres, pparam = self.getParamStruct(param_name)
-            if rres and "read_dial" in pparam and pparam["read_dial"] and os.path.isfile(s_path):
-                with open(s_path, 'r') as f:
-                    try:
-                        rq = json.load(f)
-                        self.msg_list = rq
-                    except ValueError as e:
-                        print("json error type=", type(e))
-                        self.msg_list = []
-                    print(self.getName(),"read =", s_path,"msg=",len(self.msg_list))
- 
-                return False, ""
+            if rres:
+                if "read_dial" in pparam and pparam["read_dial"] and os.path.isfile(s_path):
+                    with open(s_path, 'r') as f:
+                        try:
+                            rq = json.load(f)
+                            self.msg_list = rq
+                        except ValueError as e:
+                            print("json error type=", type(e))
+                            self.msg_list = []
+                        print(self.getName(),"read =", s_path,"msg=",len(self.msg_list))
+    
+                    return False, ""
+                elif "read_part" in pparam and pparam["read_part"] and "start_part" in pparam and "max_part" in pparam:
+                    if os.path.isfile(s_path):
+                        with open(s_path, 'r',encoding='utf-8') as f:
+                            text = f.read()
+                        start = int(pparam["max_part"])
+                        stop = start + int(pparam["max_part"])
+                        if len(text) > stop*8:
+                            med = int((len(text) - stop)/2)
+                            return True, "This is parts of file:\n\n" + text[start:stop] + "...\n\n..." + text[med:med + stop]  + "...\n\n..." + text[len(text) - stop :]
+                        if len(text) > stop*4:
+                            return True, "This is parts of file:\n\n" + text[start:stop] + "...\n\n..." + text[len(text) - stop :]
+                        if len(text) > stop:
+                            return True, "This is part of file:\n\n" + text[start:stop]
+                        if 'delete' in pparam and pparam['delete']:
+                            os.remove(s_path)
+                            print('File bt path',s_path,'is removed')
+
+                        return True, text
+                        
+
         if res and os.path.isfile(s_path):
-            with open(s_path, 'r') as f:
+            with open(s_path, 'r', encoding='utf-8') as f:
                 text = f.read()
                 return True, text
-        return False, ""
+        return False, "No file found"
 
 
     def loadContent(self, s_path, msg_trgs):

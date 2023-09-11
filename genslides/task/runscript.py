@@ -73,5 +73,5 @@ class RunScriptTask(ResponseTask):
         if len(data) > 0:
             self.msg_list.append({"role": self.prompt_tag, "content": data})
         else:
-            print("No data is getted from",file)
+            print("No data is getted from")
         

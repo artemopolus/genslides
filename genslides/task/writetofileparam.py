@@ -24,6 +24,7 @@ class WriteToFileParamTask(WriteToFileTask):
         # print("Exe resp write to file param")
         param_name = "path_to_write"
         res, path = self.getParam(param_name)
+        path = self.findKeyParam(path)
 
         if self.is_freeze or len(self.msg_list) == 0 or res == False:
             return

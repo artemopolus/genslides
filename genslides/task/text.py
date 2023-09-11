@@ -32,16 +32,17 @@ class TextTask(BaseTask):
         self.copyParentMsg()
         self.params = []
 
-    def checkParentMsgList(self, update = False) -> bool:
+    def checkParentMsgList(self, update = False, remove = True) -> bool:
         if self.parent:
             trg = self.parent.msg_list.copy()
             src = self.msg_list.copy()
             last = None
-            if len(src) > 0:
+            if len(src) > 0 and remove:
                 last = src.pop()
             if trg != src:
-                if update and last:
-                    trg.append(last)
+                if update:
+                    if last:
+                        trg.append(last)
                     self.msg_list = trg
                 return False
         return True
@@ -402,6 +403,18 @@ class TextTask(BaseTask):
             return sprompt[0:20] + "..."
         else:
             return sprompt
+        
+    def updateParam2(self, param_vals : dict):
+        if 'type' in param_vals:
+            param_name = param_vals['type']
+        else:
+            return
+        for param in self.params:
+            if 'type' in param and param['type'] == param_name:
+                param.update(param_vals)
+                return
+        self.params.append(param_vals)
+
 
     def updateParam(self, param_name, data, add_param = None):
             found = False
@@ -486,6 +499,9 @@ class TextTask(BaseTask):
             return True, default_value
         # print("Found nothing for", param_name)
         return False, None
+    
+    def getMsgTag(self)-> str:
+        return "msg_content"
 
     def findKeyParam(self, text: str):
          results = re.findall(r'\{.*?\}', text)
@@ -497,7 +513,7 @@ class TextTask(BaseTask):
              if len(arr) == 2:
                  task = self.getAncestorByName(arr[0])
                  if task:
-                    if arr[1] == "msg_content":
+                    if arr[1] == self.getMsgTag():
                         param = task.getLastMsgContent()
                         # print("Replace ", res, " with ", param)
                         rep_text = rep_text.replace(res, str(param))
