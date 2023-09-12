@@ -395,7 +395,8 @@ class Manager:
             if creation_type == "watched":
                 input_params["prompt"] = {"message": prompt, "options":["good","bad"]}
 
-            info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[input_params])
+            info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), params=[input_params])
+            # info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[input_params])
             self.curr_task.update(info)
             return out, log, self.drawGraph() , "","",[]
              # return self.runIteration(prompt)
@@ -410,7 +411,8 @@ class Manager:
         elif creation_type == "Parent":
             if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
                 print("Make ", self.slct_task.getName()," parent of ", self.curr_task.getName())
-                info = TaskDescription(prompt=self.curr_task.getRichPrompt(),prompt_tag=self.curr_task.getTagPrompt(), parent=self.slct_task)
+                info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), parent=self.slct_task)
+                # info = TaskDescription(prompt=self.curr_task.getRichPrompt(),prompt_tag=self.curr_task.getTagPrompt(), parent=self.slct_task)
                 self.curr_task.update(info)
             return self.runIteration(prompt)
         elif creation_type == "Unlink":
@@ -662,6 +664,22 @@ class Manager:
             if task.parent == None:
                 task.update()
         return self.runIteration("")
+    
+    def updateSteppedSelected(self):
+        print(10*"----------")
+        print("STEP",8*">>>>>>>>>>>","||||||")
+        print(10*"----------")
+        self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
+        next = self.curr_task.getNextFromQueue()
+        if next:
+            print("Next task is", next.getName())
+            self.curr_task = next
+        saver = SaveData()
+        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
+        return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
+
+
     def processCommand(self, json_msg,  tasks_json):
         send_task_list_json = {}
         cmd = json_msg['options']

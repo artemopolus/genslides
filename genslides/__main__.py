@@ -112,6 +112,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             with gr.Row() as r:
                 run_iter_btn = gr.Button(value="Run")
                 update_task_btn = gr.Button(value="Update")
+                step_task_btn = gr.Button(value="Step")
                 with gr.Column():
                     l_set_btn = gr.Button("Up")
                     h_set_btn = gr.Button("Down")
@@ -195,6 +196,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             std_output_list = [info, output, graph_img, input, prompt_tag_list, checkbox]
             run_iter_btn.click(fn=manager.runIteration, inputs=[input], outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
+            step_task_btn.click(fn=manager.updateSteppedSelected,outputs=std_output_list, api_name="step_task_btn")
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
             prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
             action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[input, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")

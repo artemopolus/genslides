@@ -14,6 +14,8 @@ class SetOptionsTask(WriteToFileTask):
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
         return False, [], self.parent
 
+    def getLastMsgContent(self):
+        return json.dumps(self.params, indent=1)
     
     def executeResponse(self):
         try:
@@ -94,7 +96,7 @@ class SetOptionsTask(WriteToFileTask):
 
     def update(self, input : TaskDescription = None):
         super().update(input)
-        return json.dumps(self.params), "user", ""
+        return self.getLastMsgContent(), self.getLastMsgRole(), ""
     
     def getMsgInfo(self):
         return json.dumps(self.params, indent=1),"user",""

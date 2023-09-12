@@ -23,7 +23,7 @@ class CollectTask(TextTask):
             print("Get list from file=", self.path)
 
 
-
+        self.callback_link = []
 
 
     # def completeTask(self):
@@ -85,7 +85,7 @@ class CollectTask(TextTask):
     def createLinkToTask(self, task) -> TaskDescription:
         id = len(self.by_ext_affected_list)
         print("Create link to ", task.getName(),"id=", id)
-        out = TaskDescription(method=self.affectedTaskCallback, id=id, parent=task )
+        out = TaskDescription(method=self.affectedTaskCallback, id=id, parent=task , target=self)
         self.by_ext_affected_list.append(out)
         
         task.setLinkToTask(out)
@@ -132,6 +132,15 @@ class CollectTask(TextTask):
 
     def affectedTaskCallback(self, input : TaskDescription):
         print("From ", input.parent.getName(), " to ", self.getName())
+        if input and input.stepped:
+            found = False
+            for cl in self.callback_link:
+                if cl["pt"] == input.parent:
+                    cl["used"] = False
+                    found = True
+                    break
+            if not found:
+                self.callback_link.append({"pt":input.parent,"used": False})
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
                 tsk_info.prompt = input.prompt
@@ -140,7 +149,25 @@ class CollectTask(TextTask):
 
         out = super().affectedTaskCallback(input)
         self.stdProcessUnFreeze()
+        info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
         self.update()
+
+    def getNextFromQueue(self):
+        print("Get next from",self.getName(),"queue")
+        res = self.findNextFromQueue()
+        if res:
+            return res
+        
+        for cl in self.callback_link:
+            if cl["used"] == False:
+                cl["used"] = True
+                return cl["pt"]
+
+        if len(self.queue) == 0:
+            return self.getNextFromQueueRe()
+        return None
+
+
     #     trg_list = []
     #     if self.parent:
     #         trg_list = self.parent.msg_list.copy()

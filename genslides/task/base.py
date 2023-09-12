@@ -124,7 +124,7 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "", enabled = False, params = [], manual = False) -> None:
+    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "", enabled = False, params = [], manual = False, stepped = False) -> None:
         self.prompt = prompt
         self.prompt_tag = prompt_tag
         self.method = method
@@ -138,6 +138,7 @@ class TaskDescription():
         self.enabled = enabled
         self.params = params
         self.manual = manual
+        self.stepped = stepped
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
@@ -174,6 +175,7 @@ class BaseTask():
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
         self.name = self.type + str(self.id)
+        self.queue = None
     
     
     def freezeTask(self):
@@ -268,13 +270,73 @@ class BaseTask():
        
         print("Update=",self.getName(), "|frozen=", self.is_freeze, "||")
         self.updateIternal(input)
-        
-        self.useLinksToTask()
 
-        for child in self.childs:
-            child.update()
+        if input and not input.stepped:
+        
+            self.useLinksToTask()
+
+            for child in self.childs:
+                child.update()
+        else:
+            self.setupQueue()
 
         return "","",""
+    
+    def setupQueue(self):
+        if self.queue and len(self.queue) > 0:
+            pass
+        else:
+            self.queue = []
+            for task_info in self.affect_to_ext_list:
+                self.queue.append({ "id":task_info.id,"method":task_info.method,"pt":task_info.target, "type":"link","used":False})
+
+            for child in self.childs:
+                self.queue.append({ "pt":child, "type":"child","used":False})
+
+    def useLinksToTask(self):
+        input = TaskDescription(prompt=self.prompt)
+        for task in self.affect_to_ext_list:
+            input.id = task.id
+            task.method(input)
+
+    def findNextFromQueue(self):
+        if self.queue:
+            for info in self.queue:
+                if info["type"] == "child" and info["used"] == False:
+                    # info["pt"].update(TaskDescription(stepped=True))
+                    info["used"] = True
+                    return info["pt"]
+                if info["type"] == "link" and info["used"] == False:
+                    input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True)
+                    info["method"](input)
+                    info["used"] = True
+                    return info["pt"]
+        return None
+
+    def getNextFromQueue(self):
+        print("Get next from",self.getName(),"queue")
+        res = self.findNextFromQueue()
+        if res:
+            return res
+        if len(self.queue) == 0:
+            return self.getNextFromQueueRe()
+        return None
+        
+    def getNextFromQueueRe(self):
+        trg = self
+        index = 0
+        while(index < 1000):
+            if trg.parent is None:
+                return trg
+            else:
+                trg = trg.parent
+                res = trg.findNextFromQueue()
+                print("Check queue in",trg.getName())
+                if res:
+                    return res
+            index +=1
+        # self.queue.clear()
+        return None   
     
     def getMsgInfo(self):
         return "","",""
@@ -323,12 +385,6 @@ class BaseTask():
 
     def resetLinkToTask(self, info : TaskDescription) -> None:
         self.affect_to_ext_list.remove(info)
-
-    def useLinksToTask(self):
-        input = TaskDescription(prompt=self.prompt)
-        for task in self.affect_to_ext_list:
-            input.id = task.id
-            task.method(input)
 
     def completeTask(self) -> bool:
         # print(self.getName(),"=Complete Task")

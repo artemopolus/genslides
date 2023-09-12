@@ -8,7 +8,7 @@ import json
 class IterationTask(TextTask):
     def __init__(self, task_info: TaskDescription, type="Iteration") -> None:
         super().__init__(task_info, type)
-        self.dt_states = {"No data":0, "Ready": 1, "Processing" : 2, "Done": 3}
+        self.dt_states = {"No data":0, "Ready": 1, "Processing" : 2, "PostProcessing" : 3, "Done": 4}
         self.dt_cur = self.dt_states['No data']
         self.iter_data = None
         self.iter_type = "None"
@@ -23,7 +23,7 @@ class IterationTask(TextTask):
         self.msg_list = []
         self.executeResponse()
         self.is_freeze = True
-        self.iter_end = []
+        self.iter_childs = []
     def getInfo(self, short = True) -> str:
         return self.getName()
     
@@ -35,13 +35,13 @@ class IterationTask(TextTask):
 
 
     def addChild(self, child):
-        self.iter_end.append({"child": child, "targets" : None, "freeze": False})
+        self.iter_childs.append({"child": child, "targets" : None, "freeze": False})
         super().addChild(child)
     
     def closeIter(self, task_array) ->bool:
         for index in range(len(task_array)):
             print(index, ". ", task_array[index].getName())
-        for ie in self.iter_end:
+        for ie in self.iter_childs:
             if ie["child"] == task_array[-1]:
                 print("Found")
                 ie["targets"] = task_array
@@ -50,11 +50,11 @@ class IterationTask(TextTask):
 
     def openIter(self, task):
         tmp = None
-        for ie in self.iter_end:
+        for ie in self.iter_childs:
             if ie["child"] == task:
                 tmp = ie
         if tmp is not None:
-            self.iter_end.remove(tmp)
+            self.iter_childs.remove(tmp)
         self.freezeTask()
 
     def resetIter(self):
@@ -175,56 +175,11 @@ class IterationTask(TextTask):
 
         if self.is_freeze:
             print("First run")
-            super().update(input)
- 
-        if not self.is_freeze and self.iter_data:
-            print("Iteration task is not freeze")
-            if self.dt_cur == self.dt_states["Ready"]:
-                self.dt_cur = self.dt_states["Processing"]
-                num_iter = len(self.iter_data)
-                res, max_num_iter = self.getParam("max_num_iter")
-                if res:
-                    num_iter = int(max_num_iter)
-                print(10*"====")
-                print("Start Iteration")
-                print(10*"====")
-                self.startConditions()
-                for index in range(num_iter):
-                    print("Iteration ====================>", index)
-                    value = self.iter_data[index]
-                    self.updateParam("index", str(index))
-                    self.updateParam("iterable", value)
-                    # new
-                    if not self.checkEndConditions(index, iter):
-                        self.dt_cur = self.dt_states["Done"]
-                        for ie in self.iter_end:
-                            ie["targets"][0].update()
-                        break
-                    else:
-                        print(10*"====")
-                        print("Clear iter=", index)
-                        print(10*"====")
-                        for ie in self.iter_end:
-                            for trg in ie["targets"]:
-                                trg.forceCleanChat()
-                        super().update(input)
 
-                # self.dt_cur = self.dt_states["Done"]
-                # super().update(input)
+        if self.dt_cur == self.dt_states["Processing"]:
+            print("Iteration: ")
 
-                    # old
-                    # if index == num_iter - 1:
-                    #     self.dt_cur = self.dt_states["Done"]
-                    # print(10*"====")
-                    # print("Clear iter=", index)
-                    # print(10*"====")
-                    # for ie in self.iter_end:
-                    #     for trg in ie["targets"]:
-                    #         trg.forceCleanChat()
-                    # super().update(input)
-                    # if self.checkEndConditions(index,num_iter):
-                    #     break
-        # super().update(input)
+        super().update(input)
 
         return self.getRichPrompt(), "user", "Numbers"
     
@@ -249,7 +204,7 @@ class IterationTask(TextTask):
                         self.updateParamStruct(param['type'],'cur', delta )
                     elif param['type'] == 'token':
                         max_tokens = 0
-                        for ie in self.iter_end:
+                        for ie in self.iter_childs:
                             msgs = ie["targets"][0].getMsgs()
                             tokens = chat.getTokensCountFromChat(msgs)
                             max_tokens = max(max_tokens, tokens)
@@ -277,15 +232,66 @@ class IterationTask(TextTask):
     def stdProcessUnFreeze(self, input=None):
         pass
 
-    def isInternalContinue(self) -> bool:
+    def isInternalContinue(self, input : TaskDescription, watched) -> bool:
         mydict = self.dt_states
+        print("Make task unfeeze, state=",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
+        self.unfreezeTask()
+
+        num_iter = len(self.iter_data)
+        res, max_num_iter = self.getParam("max_num_iter")
+        if res:
+            num_iter = int(max_num_iter)
+
         if self.dt_cur == self.dt_states["Done"]:
             return False
         elif self.dt_cur == self.dt_states["Ready"]:
-            pass
-        print("Make task unfeeze, state=",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
-        self.unfreezeTask()
+            self.dt_cur = self.dt_states["Processing"]
+            self.startConditions()
+            self.runInternalChain(0,watched, input)
+        elif self.dt_cur == self.dt_states["Processing"]:
+            res, str_index = self.getParam("index")
+            if res:
+                index = int(str_index) + 1
+                if not self.checkEndConditions(index, num_iter):
+                    self.dt_cur = self.dt_states["Done"]
+                    return False
+                else:
+                    self.runInternalChain(index,watched, input)
+
         return True
+
+
+    def runInternalChain(self, index : int, watched : list, input : TaskDescription):
+        value = self.iter_data[index]
+        self.updateParam("index", str(index))
+        self.updateParam("iterable", value)
+        print("Update in iterable",self.getName(),"[",index,"out",len(self.iter_data),"]:", value)
+
+        # for trg in watched:
+        #     trg.forceCleanChat()
+        #     if trg.queue:
+        #         for info in trg.queue:
+        #             info["used"] = False
+            
+        for info in self.queue:
+            if watched[-1] == info["pt"]:
+                print("Reset child in iteration",watched[-1].getName())
+                info["used"] = False
+                break
+        super().update(input)
+
+    def findNextFromQueue(self):
+        res = super().findNextFromQueue()
+        if res:
+            for ie in self.iter_childs:
+                if ie["child"] == res:
+                    for trg in ie['targets']:
+                        trg.forceCleanChat()
+                        if trg.queue:
+                            for info in trg.queue:
+                                info["used"] = False
+                    break
+        return res
 
 
 
@@ -304,6 +310,7 @@ class IterationEndTask(TextTask):
         self.iter_start = None
         self.msg_list2 = self.msg_list.copy()
         self.msg_list = []
+        self.watched_task = None
         self.executeResponse()
     def getInfo(self, short = True) -> str:
         return self.getName()
@@ -340,9 +347,11 @@ class IterationEndTask(TextTask):
                     print("No iterator found")
                     break 
                 else:
-                    out_task_list.append(task)
+                    if task is not self:
+                        out_task_list.append(task)
                     if task.parent.getType() == "Iteration" and task.parent.closeIter(out_task_list):
                         self.iter_start = task.parent
+                        self.watched_task = out_task_list
                         break
                     else:
                         task = task.parent
@@ -370,19 +379,35 @@ class IterationEndTask(TextTask):
         #         self.iter_start.resetIter()
         self.executeResponse()
         if self.iter_start:
-            if self.iter_start.isInternalContinue():
+            if self.iter_start.isInternalContinue(input, self.watched_task):
                 print("Freeze iter end")
                 self.freezeTask()
             else:
                 print("Now update next task after iter end")
                 self.unfreezeTask()
                 self.copyIterationMsg()
+                super().update(input)
         else:
             print("No iteration start task")
         
-        super().update()
         return "IterEnd", "user", "IterEnd"
+    
+    def getNextFromQueue(self):
+        # for task in self.watched_task:
+        #     res = task.getNextFromQueue()
+        #     if res:
+        #         return res
 
+        
+        print("Get next from",self.getName(),"queue")
+        res = self.getNextFromQueueRe()
+        if res:
+            return res
+        res = self.findNextFromQueue()
+        
+
+        return None
+ 
     def stdProcessUnFreeze(self, input=None):
         pass
 
