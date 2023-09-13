@@ -215,15 +215,23 @@ class IterationTask(TextTask):
 
                     if param['cond'] == '=':
                         if param['cur'] != param['trg']:
+                            print("React on condition:",param)
                             return False
                     elif param['cond'] == '<':
                         if int(param['cur']) < int(param['trg']):
+                            print("React on condition:",param)
                             return False
                     elif param['cond'] == '>':
                         if int(param['cur']) > int(param['trg']):
+                            print("React on condition:",param)
                             return False
+            print("Check:",index, ">", num_iter - 1)
+            if index > num_iter - 1:
+                return False
+            
 
         else:
+            print("Check:",index, "<", num_iter - 1)
             if index < num_iter - 1:
                 return False
         return True
@@ -393,20 +401,12 @@ class IterationEndTask(TextTask):
         return "IterEnd", "user", "IterEnd"
     
     def getNextFromQueue(self):
-        # for task in self.watched_task:
-        #     res = task.getNextFromQueue()
-        #     if res:
-        #         return res
-
-        
         print("Get next from",self.getName(),"queue")
-        res = self.getNextFromQueueRe()
-        if res:
-            return res
-        res = self.findNextFromQueue()
-        
-
-        return None
+        if self.is_freeze:
+            res = self.getNextFromQueueRe()
+            if res:
+                return res
+        return self.findNextFromQueue()
  
     def stdProcessUnFreeze(self, input=None):
         pass

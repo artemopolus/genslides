@@ -141,6 +141,9 @@ class CollectTask(TextTask):
                     break
             if not found:
                 self.callback_link.append({"pt":input.parent,"used": False})
+                found = True
+            if found:
+                self.resetTreeQueue()
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
                 tsk_info.prompt = input.prompt
@@ -161,7 +164,7 @@ class CollectTask(TextTask):
         for cl in self.callback_link:
             if cl["used"] == False:
                 cl["used"] = True
-                return cl["pt"]
+                return cl["pt"].findNextFromQueue()
 
         if len(self.queue) == 0:
             return self.getNextFromQueueRe()

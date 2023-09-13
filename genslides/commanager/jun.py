@@ -673,6 +673,8 @@ class Manager:
         next = self.curr_task.getNextFromQueue()
         if next:
             print("Next task is", next.getName())
+            # if next.parent == None:
+                # next.resetTreeQueue()
             self.curr_task = next
         saver = SaveData()
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())

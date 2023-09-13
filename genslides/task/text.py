@@ -298,6 +298,7 @@ class TextTask(BaseTask):
             input = task
             input.prompt = text
             input.enabled = not self.is_freeze
+            input.parent = self
             task.method(input)
 
     def affectedTaskCallback(self, input: TaskDescription):

@@ -272,7 +272,7 @@ class BaseTask():
         self.updateIternal(input)
 
         if input and not input.stepped:
-        
+            
             self.useLinksToTask()
 
             for child in self.childs:
@@ -292,14 +292,34 @@ class BaseTask():
 
             for child in self.childs:
                 self.queue.append({ "pt":child, "type":"child","used":False})
+            print("Setup queue:",self.queue)
 
     def useLinksToTask(self):
-        input = TaskDescription(prompt=self.prompt)
+        input = TaskDescription(prompt=self.prompt, parent=self)
         for task in self.affect_to_ext_list:
             input.id = task.id
             task.method(input)
 
+
+    def resetTreeQueue(self):
+        trgs = [self]
+        index = 0
+        while(index < 1000):
+            n_trgs = []
+            for trg in trgs:
+                trg.resetQueue()
+                for ch in trg.childs:
+                    n_trgs.append(ch)
+            trgs = n_trgs
+            index += 1
+
+    def resetQueue(self):
+        if self.queue:
+            for info in self.queue:
+                info["used"] = False
+
     def findNextFromQueue(self):
+        # print("Search for next from queue")
         if self.queue:
             for info in self.queue:
                 if info["type"] == "child" and info["used"] == False:
@@ -307,7 +327,7 @@ class BaseTask():
                     info["used"] = True
                     return info["pt"]
                 if info["type"] == "link" and info["used"] == False:
-                    input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True)
+                    input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self)
                     info["method"](input)
                     info["used"] = True
                     return info["pt"]
@@ -323,6 +343,7 @@ class BaseTask():
         return None
         
     def getNextFromQueueRe(self):
+        print("Get recursevly")
         trg = self
         index = 0
         while(index < 1000):
@@ -331,7 +352,7 @@ class BaseTask():
             else:
                 trg = trg.parent
                 res = trg.findNextFromQueue()
-                print("Check queue in",trg.getName())
+                # print("Check queue in",trg.getName())
                 if res:
                     return res
             index +=1
