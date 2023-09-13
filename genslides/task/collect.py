@@ -152,22 +152,21 @@ class CollectTask(TextTask):
 
         out = super().affectedTaskCallback(input)
         self.stdProcessUnFreeze()
-        info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
-        self.update()
-
-    def getNextFromQueue(self):
-        print("Get next from",self.getName(),"queue")
-        res = self.findNextFromQueue()
+        if input and input.stepped:
+            info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
+            self.update(info)
+        else:
+            self.update()
+    
+    
+    def findNextFromQueue(self):
+        res = super().findNextFromQueue()
         if res:
             return res
-        
         for cl in self.callback_link:
             if cl["used"] == False:
                 cl["used"] = True
                 return cl["pt"].findNextFromQueue()
-
-        if len(self.queue) == 0:
-            return self.getNextFromQueueRe()
         return None
 
 
