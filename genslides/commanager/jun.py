@@ -361,8 +361,67 @@ class Manager:
             if r and v:
                 out.append({"name" : task.getName(), "type" : "output"})
         return out
+    
+    def getMainCommandList(self):
+        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"]
+    def getSecdCommandList(self):
+        return ["RemoveBranch", "RemoveTree", "Insert","Remove"]
+
   
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
+        if creation_type in self.getMainCommandList():
+            return self.makeTaskActionBase(prompt, type, creation_type, creation_tag)
+        elif creation_type in self.getSecdCommandList():
+            return self.makeTaskActionPro(prompt, type, creation_type, creation_tag)
+        saver = SaveData()
+        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+        return "", "" ,self.drawGraph(),"" , "user", chck
+ 
+    def makeTaskActionPro(self, prompt, type, creation_type, creation_tag):
+        out_prompt = ""
+        in_prompt = ""
+        in_role = "user"
+        if creation_type == "RemoveBranch":
+            tasks = self.curr_task.getChainBeforeBranching()
+            for task in tasks:
+                self.curr_task = task
+                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+        elif creation_type == "RemoveTree":
+            tasks = self.curr_task.getAllChildChains()
+            for task in tasks:
+                self.curr_task = task
+                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+        elif creation_type == "Insert":
+            task1 = self.curr_task.parent
+            task2 = self.curr_task
+            if task1:
+                self.makeTaskActionBase(prompt, type, "RemoveParent", creation_tag)
+                self.curr_task = task1
+                self.makeTaskActionBase(prompt, type, "SubTask", creation_tag)
+            else:
+                self.makeTaskActionBase(prompt, type, "New", creation_tag)
+            self.slct_task = self.curr_task
+            self.curr_task = task2
+            self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
+        elif creation_type == "Remove":
+            task1 = self.curr_task.parent
+            task2 = self.curr_task
+            if task1 is None:
+                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+            else:
+                task3_list = task2.getChilds()
+                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+                self.slct_task = task1
+                for task in task3_list:
+                    self.curr_task = task
+                    self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
+            
+        saver = SaveData()
+        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+        return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
+ 
+    
+    def makeTaskActionBase(self, prompt, type, creation_type, creation_tag):
         # print(10*"==")
         # print("Create new task")
         # print("type=",type)
@@ -665,7 +724,7 @@ class Manager:
                 task.update()
         return self.runIteration("")
     
-    def updateSteppedSelected(self):
+    def updateSteppedSelectedInternal(self):
         print(10*"----------")
         print("STEP",8*">>>>>>>>>>>","||||||")
         print(10*"----------")
@@ -676,6 +735,23 @@ class Manager:
             # if next.parent == None:
                 # next.resetTreeQueue()
             self.curr_task = next
+        return next
+    
+    def updateSteppedTree(self):
+        index = 0
+        while(index < 1000):
+            next = self.updateSteppedSelectedInternal()
+            if next is None:
+                print("Done in",index,"iteration")
+                break
+            index +=1
+        saver = SaveData()
+        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
+        return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
+
+    def updateSteppedSelected(self):
+        self.updateSteppedSelectedInternal()
         saver = SaveData()
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()

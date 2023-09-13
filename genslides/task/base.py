@@ -211,6 +211,50 @@ class BaseTask():
 
     def isInputTask(self):
         return True
+    
+    def getTree(self):
+        par = self
+        while(index < 1000):
+            if par.parent:
+                par = par.parent
+            else:
+                break
+            index += 1
+        out = par.getAllChildChains()
+        return out
+
+
+ 
+    def getAllChildChains(self):
+        index = 0
+        out = [self]
+        trgs = [self]
+        while(index < 1000):
+            n_trgs = []
+            found = False
+            for trg in trgs:
+                for ch in trg.childs:
+                    found = True
+                    n_trgs.append(ch)
+                    out.append(ch)
+            if not found:
+                break
+            trgs = n_trgs
+            index += 1
+        return out
+    
+    def getChainBeforeBranching(self):
+        out = self.getAllChildChains()
+        par = self
+        index = 0
+        while(index < 1000):
+            if par.parent and len(par.parent.childs) == 1:
+                par = par.parent
+                out.append(par)
+            else:
+                break
+            index += 1
+        return out
 
     def getAncestorByName(self, trg_name):
         index = 0
@@ -247,6 +291,9 @@ class BaseTask():
     def addChild(self, child):
         if child not in self.childs:
             self.childs.append(child)
+    
+    def getChilds(self):
+        return self.childs
 
     def getCmd(self):
         if len(self.crtasklist) > 0:
@@ -327,7 +374,7 @@ class BaseTask():
                     info["used"] = True
                     return info["pt"]
                 if info["type"] == "link" and info["used"] == False:
-                    input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self)
+                    input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self, enabled= not self.is_freeze)
                     info["method"](input)
                     info["used"] = True
                     return info["pt"]

@@ -110,9 +110,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
            
 
             with gr.Row() as r:
-                run_iter_btn = gr.Button(value="Run")
                 update_task_btn = gr.Button(value="Update")
                 step_task_btn = gr.Button(value="Step")
+                run_iter_btn = gr.Button(value="Step run")
                 with gr.Column():
                     l_set_btn = gr.Button("Up")
                     h_set_btn = gr.Button("Down")
@@ -126,7 +126,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             with gr.Row():
                 with gr.Column():
-                    creation_types_radio_list = ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"]
+                    creation_types_radio_list = manager.getMainCommandList()
+                    creation_types_radio_list += manager.getSecdCommandList()
                     for param in manager.vars_param:
                         creation_types_radio_list.append(param)
                         creation_types_radio_list.append("un" + param)
@@ -194,7 +195,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
 
             std_output_list = [info, output, graph_img, input, prompt_tag_list, checkbox]
-            run_iter_btn.click(fn=manager.runIteration, inputs=[input], outputs=std_output_list, api_name='runIteration')
+            run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
             step_task_btn.click(fn=manager.updateSteppedSelected,outputs=std_output_list, api_name="step_task_btn")
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
