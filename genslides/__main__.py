@@ -111,7 +111,6 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             with gr.Row() as r:
                 update_task_btn = gr.Button(value="Update")
-                step_task_btn = gr.Button(value="Step")
                 run_iter_btn = gr.Button(value="Step run")
                 with gr.Column():
                     l_set_btn = gr.Button("Up")
@@ -134,6 +133,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     # print("list=", creation_types_radio_list)
                     creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
                     action_to_task_btn = gr.Button(value="Make action!")
+                    step_task_btn = gr.Button(value="Step")
 
                     task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
                     prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")

@@ -39,10 +39,12 @@ class SetOptionsTask(WriteToFileTask):
                                 if src[2] == "json":
                                     pattern = regex.compile(r'\{(?:[^{}]|(?R))*\}')
                                     text = src_task.findKeyParam( src_task.getLastMsgContent())
-                                    pattern.findall(text)
-                                    for json_val in pattern:
+                                    json_list = pattern.findall(text)
+                                    print("Found pattern:", json_list)
+                                    for json_val in json_list:
                                         try:
                                             jparam = json.loads(json_val)
+                                            print("Found json:",jparam)
                                             if src[3] in jparam:
                                                 src_value = jparam[src[3]]
                                                 break
@@ -65,7 +67,7 @@ class SetOptionsTask(WriteToFileTask):
                         for tparam in trg_task.params:
                             print("p=",tparam)
                             if 'type' in tparam and tparam['type'] == trg[1] and trg[2] in tparam and src_value:
-                                print('update param struct')
+                                print('update param struct with', src_value)
                                 trg_task.updateParamStruct(trg[1],trg[2], src_value)
                                 break
                 except:

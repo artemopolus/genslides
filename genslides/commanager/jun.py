@@ -221,9 +221,10 @@ class Manager:
         self.curr_task = self.task_list[self.task_index]
 
         # return self.drawGraph(), pprint.pformat((self.curr_task.msg_list))
-        tokens, price = self.curr_task.getCountPrice()
-        output = "Tokens=" + str(tokens) +"\n"
-        output += "Price=" + str(price) + "\n"
+        # tokens, price = self.curr_task.getCountPrice()
+        # output = "Tokens=" + str(tokens) +"\n"
+        # output += "Price=" + str(price) + "\n"
+        output = ""
         output += pprint.pformat(self.curr_task.msg_list)
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
         return out_prompt, output ,self.drawGraph(), in_prompt, in_role, chck
@@ -736,7 +737,7 @@ class Manager:
                 # next.resetTreeQueue()
             self.curr_task = next
         else:
-            if next.parent:
+            if self.curr_task.parent:
                 print("Done some")
             else:
                 print("On start")

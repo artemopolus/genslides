@@ -40,6 +40,10 @@ class ReadFileParamTask(ReadFileTask):
         if res:
             rres, pparam = self.getParamStruct(param_name)
             if rres:
+                if "role" in pparam:
+                    self.prompt_tag = pparam["role"]
+                else:
+                    self.prompt_tag = "user"
                 if "read_dial" in pparam and pparam["read_dial"] and os.path.isfile(s_path):
                     with open(s_path, 'r') as f:
                         try:
