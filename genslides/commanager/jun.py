@@ -735,10 +735,16 @@ class Manager:
             # if next.parent == None:
                 # next.resetTreeQueue()
             self.curr_task = next
+        else:
+            if next.parent:
+                print("Done some")
+            else:
+                print("On start")
         return next
     
     def updateSteppedTree(self):
         index = 0
+        self.curr_task.resetTreeQueue()
         while(index < 1000):
             next = self.updateSteppedSelectedInternal()
             if next is None:

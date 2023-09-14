@@ -280,7 +280,9 @@ class IterationTask(TextTask):
         #     if trg.queue:
         #         for info in trg.queue:
         #             info["used"] = False
-            
+        if not self.queue:
+            self.setupQueue()
+               
         for info in self.queue:
             if watched[-1] == info["pt"]:
                 print("Reset child in iteration",watched[-1].getName())
