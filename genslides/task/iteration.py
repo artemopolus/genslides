@@ -214,7 +214,7 @@ class IterationTask(TextTask):
                         self.updateParamStruct(param['type'],'cur', index + 1 )
 
                     if param['cond'] == '=':
-                        if param['cur'] != param['trg']:
+                        if param['cur'] == param['trg']:
                             print("React on condition:",param)
                             return False
                     elif param['cond'] == '<':
@@ -408,7 +408,8 @@ class IterationEndTask(TextTask):
             res = self.getNextFromQueueRe()
             if res:
                 return res
-        return self.findNextFromQueue()
+        return super().getNextFromQueue()
+        # return self.findNextFromQueue()
  
     def stdProcessUnFreeze(self, input=None):
         pass
