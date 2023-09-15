@@ -364,13 +364,13 @@ class Manager:
         return out
     
     def getMainCommandList(self):
-        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent"]
+        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep"]
     def getSecdCommandList(self):
         return ["RemoveBranch", "RemoveTree", "Insert","Remove"]
 
   
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
-        if creation_type in self.getMainCommandList():
+        if creation_type in self.getMainCommandList() or creation_type in self.vars_param:
             return self.makeTaskActionBase(prompt, type, creation_type, creation_tag)
         elif creation_type in self.getSecdCommandList():
             return self.makeTaskActionPro(prompt, type, creation_type, creation_tag)
@@ -388,7 +388,7 @@ class Manager:
                 self.curr_task = task
                 self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
         elif creation_type == "RemoveTree":
-            tasks = self.curr_task.getAllChildChains()
+            tasks = self.curr_task.getTree()
             for task in tasks:
                 self.curr_task = task
                 self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
@@ -438,9 +438,13 @@ class Manager:
         if type is None or creation_type is None:
             return out, log, img_path
         if creation_type == "Edit":
-            
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True)
             self.curr_task.update(info)
+            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
+            return out_prompt, log, self.drawGraph() , in_prompt, in_role, []
+        elif creation_type == "EditAndStep":
+            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True, stepped=True)
+            self.updateSteppedSelectedInternal(info)
             in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
             return out_prompt, log, self.drawGraph() , in_prompt, in_role, []
         vars_param = self.vars_param
@@ -725,11 +729,15 @@ class Manager:
                 task.update()
         return self.runIteration("")
     
-    def updateSteppedSelectedInternal(self):
+    def updateSteppedSelectedInternal(self, info : TaskDescription = None):
         print(10*"----------")
         print("STEP",8*">>>>>>>>>>>","||||||")
         print(10*"----------")
-        self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
+        if info:
+            info.stepped = True
+            self.curr_task.update(info)
+        else:
+            self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
         next = self.curr_task.getNextFromQueue()
         if next:
             print("Next task is", next.getName())

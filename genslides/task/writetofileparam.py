@@ -14,8 +14,6 @@ class WriteToFileParamTask(WriteToFileTask):
     def isInputTask(self):
         return False
     
-    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
-        return False, [], self.parent
 
     def getRichPrompt(self) -> str:
         return self.writepath

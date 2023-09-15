@@ -14,7 +14,7 @@ class WriteJsonToFileTask(WriteToFileTask):
             return
         prop = self.msg_list[-1]["content"]
         arr = prop.split("{",1)
-        if len(arr) > 0:
+        if len(arr) > 1:
             prop = "{" + arr[1]
             for i in range(len(prop)):
                 val = len(prop) - 1 - i

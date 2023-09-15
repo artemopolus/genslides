@@ -241,6 +241,10 @@ class IterationTask(TextTask):
         pass
 
     def isInternalContinue(self, input : TaskDescription, watched) -> bool:
+        if self.parent and self.parent.is_freeze:
+            print("Parent chain is frozen")
+            return False
+        
         mydict = self.dt_states
         print("Make task unfeeze, state=",list(mydict.keys())[list(mydict.values()).index(self.dt_cur)])
         self.unfreezeTask()

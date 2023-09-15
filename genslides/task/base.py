@@ -214,6 +214,7 @@ class BaseTask():
     
     def getTree(self):
         par = self
+        index = 0
         while(index < 1000):
             if par.parent:
                 par = par.parent

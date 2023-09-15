@@ -1,5 +1,5 @@
 from genslides.task.text import TextTask
-from genslides.task.base import TaskDescription
+from genslides.task.base import TaskDescription, BaseTask
 
 
 import os
@@ -20,6 +20,9 @@ class WriteToFileTask(TextTask):
         print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
+    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        return False, [], self.parent
+    
     def getRichPrompt(self) -> str:
         if self.parent:
             return self.findKeyParam( self.msg_list[-1]["content"])
