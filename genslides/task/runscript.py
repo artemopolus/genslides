@@ -71,7 +71,7 @@ class RunScriptTask(ResponseTask):
                 print("File is not valid=", file)
 
         if len(data) > 0:
-            self.msg_list.append({"role": self.prompt_tag, "content": data})
+            self.msg_list.append({"role": "user", "content": data})
         else:
             print("No data is getted from")
         

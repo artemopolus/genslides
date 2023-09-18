@@ -64,6 +64,21 @@ class TextTask(BaseTask):
         val = [{"role":self.getLastMsgRole(), "content": self.findKeyParam(self.getLastMsgContent())}]
         return True, val, self.parent
 
+    def getMsgByIndex(self, i_trg):
+        task = self
+        index = 0
+        while(index < 1000):
+            res, msg, par = task.getLastMsgAndParent()
+            if res and i_trg == index:
+                # print(task.getName(),"give", len(msg), "msg to", out)
+                return True, msg
+            if par is None:
+                break
+            else:
+                task = par
+            index += 1
+        return False, None
+ 
     def getMsgs(self, except_task = []):
         # print("Get msgs excluded ",except_task)
         task = self

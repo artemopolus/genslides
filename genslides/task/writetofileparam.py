@@ -34,6 +34,10 @@ class WriteToFileParamTask(WriteToFileTask):
             if res:
                 if "write" in pparam and pparam["write"] == "append":
                     ctrl = 'a'
+                if "i_target" in pparam:
+                    in_val = pparam["i_target"]
+                    if isinstance(in_val, int):
+                        text = self.getMsgByIndex(in_val)
                 if "write_dial" in pparam and pparam["write_dial"]:
                     # print("Get excluded task", pparam)
                     # print("Dial len=",len(self.msg_list))

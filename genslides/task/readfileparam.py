@@ -48,7 +48,11 @@ class ReadFileParamTask(ReadFileTask):
                     with open(s_path, 'r') as f:
                         try:
                             rq = json.load(f)
-                            self.msg_list = rq
+                            if "i_target" in pparam and isinstance(pparam["i_target"], int) and pparam["i_target"] < len(rq):
+                                self.msg_list = rq[:(len(rq) - pparam["i_target"])]
+                                print("Input msgs:", self.msg_list)
+                            else:
+                                self.msg_list = rq
                         except ValueError as e:
                             print("json error type=", type(e))
                             self.msg_list = []

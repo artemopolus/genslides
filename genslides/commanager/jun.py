@@ -770,7 +770,12 @@ class Manager:
         saver = SaveData()
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
+        #quick fix
+        if len(self.curr_task.msg_list) > 1:
+            out_prompt2 = self.curr_task.msg_list[-2]["content"]
+        else:
+            out_prompt2 = ""
+        return out_prompt, out_prompt2 ,self.drawGraph(), in_prompt, in_role, chck
 
 
     def processCommand(self, json_msg,  tasks_json):
