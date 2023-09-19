@@ -373,42 +373,37 @@ class TextTask(BaseTask):
 
             self.saveJsonToFile(self.msg_list)
 
+    def getBranchedName(self) -> str:
+        index = 0
+        trg = self
+        names = self.getName() + "_"
+        while(index < 1000):
+            par = trg.parent
+            if par == None:
+                break
+            # print("type=",par.getType())
+            if par.getType() == "Iteration":
+                pname = par.getName().replace("Iteration","It")
+                res, i = par.getParam("index")
+                print("it_res_i",res,i)
+                if res:
+                    names += pname + "_" + i + "_"
+            elif par.getType() == "IterationEnd":
+                if par.iter_start:
+                    trg = par.iter_start.parent
+            else:
+                pass
+            trg = par
+            index += 1
+        return names
 
     def update(self, input: TaskDescription = None):
-        for param in self.params:
-            if "watched" in param and param["watched"]:
-                
-                res, w_param = self.getParamStruct("watched")
-                if not res:
-                    break
-                saver = SaveData()
-                
-                pack = saver.makePack(self.findKeyParam( w_param["message"]), self.msg_list, w_param)
-
-                index = 0
-                trg = self
-                names = self.getName() + "_"
-                while(index < 1000):
-                    par = trg.parent
-                    if par == None:
-                        break
-                    print("type=",par.getType())
-                    if par.getType() == "Iteration":
-                        pname = par.getName().replace("Iteration","It")
-                        res, i = par.getParam("index")
-                        print("it_res_i",res,i)
-                        if res:
-                            names += pname + "_" + i + "_"
-                    elif par.getType() == "IterationEnd":
-                        if par.iter_start:
-                            trg = par.iter_start.parent
-                    else:
-                        pass
-                    trg = par
-                    index += 1
-                saver.save(names + ".json", json.dumps(pack,indent=1))
         self.checkInput(input)
-        return super().update(input)
+        out = super().update(input)
+
+
+
+        return out
 
     def getInfo(self, short=True) -> str:
         if len(self.msg_list) > 0:

@@ -93,7 +93,7 @@ class ResponseTask(TextTask):
         super().update(input)
         if len(self.msg_list) == 0:
             return "","user",""
-        print("Msg kist:", self.msg_list)
+        # print("Msg kist:", self.msg_list)
         out = self.msg_list[len(self.msg_list) - 1]
         return "", out["role"],out["content"]
 

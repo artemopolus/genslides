@@ -400,11 +400,9 @@ class BaseTask():
             else:
                 trg = trg.parent
                 res = trg.findNextFromQueue()
-                # print("Check queue in",trg.getName())
                 if res:
                     return res
             index +=1
-        # self.queue.clear()
         return None   
     
     def getMsgInfo(self):
@@ -467,4 +465,6 @@ class BaseTask():
     def updateParamStruct(self, param_name, key,val):
         pass
 
+    def getParamStruct(self, param_name):
+        return False, None
  

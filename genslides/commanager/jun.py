@@ -457,9 +457,17 @@ class Manager:
             else:
                 continue
             if creation_type == "watched":
-                input_params["prompt"] = {"message": prompt, "options":["good","bad"]}
+                # input_params["prompt"] = {"message": prompt, "options":["good","bad"]}
+                res, cparam = self.curr_task.getParamStruct("watched")
+                w_list = []
+                if res and "targets" in cparam and self.slct_task.getName() not in cparam["targets"]:
+                    w_list = cparam["targets"]
+                    w_list.append(self.slct_task.getName())
+                    input_params["prompt"] = {"targets":w_list}
+                elif self.slct_task:
+                    input_params["prompt"] = {"targets":[self.slct_task.getName()]}
 
-            info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), params=[input_params])
+            info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), params=[input_params], target=self.slct_task)
             # info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[input_params])
             self.curr_task.update(info)
             return out, log, self.drawGraph() , "","",[]
@@ -738,6 +746,21 @@ class Manager:
             self.curr_task.update(info)
         else:
             self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
+
+        res, w_param = self.curr_task.getParamStruct("watched")
+        if res:
+            saver = SaveData()
+            names = self.curr_task.getBranchedName()
+            trgs = []
+            if "targets" in w_param:
+                for trg in w_param["targets"]:
+                    task = self.getTaskByName(trg)
+                    trgs.append({"name" : task.getName(), "chat": task.getMsgs()})
+            pack = saver.makePack(name=names, message=self.curr_task.findKeyParam( self.curr_task.getLastMsgContent()),chat= self.curr_task.getMsgs(), chat_raw=self.curr_task.msg_list, targets=trgs)
+            saver.save(pack)
+
+
+
         next = self.curr_task.getNextFromQueue()
         if next:
             print("Next task is", next.getName())
@@ -835,8 +858,8 @@ class Projecter:
         self.mypath = mypath
         self.savedpath = "saved/"
         self.manager = manager
-        saver = SaveData()
-        saver.removeFiles()
+        # saver = SaveData()
+        # saver.removeFiles()
         self.current_project_name = self.manager.getParam("current_project_name")
         self.updateSessionName()
 
