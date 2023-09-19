@@ -175,7 +175,7 @@ class BaseTask():
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
         self.name = self.type + str(self.id)
-        self.queue = None
+        self.queue = []
     
     
     def freezeTask(self):
@@ -289,10 +289,30 @@ class BaseTask():
                 return False
         return True
 
+    def getChildQueuePack(self, child) ->dict:
+        return { "pt":child, "type":"child","used":False}
+
     def addChild(self, child):
         if child not in self.childs:
             self.childs.append(child)
+            self.queue.append(self.getChildQueuePack())
     
+    def removeChild(self,child):
+        if child in self.childs:
+            self.childs.remove(child)
+            self.queue.remove(self.getChildQueuePack())
+
+    def getLinkQueuePack(self, info: TaskDescription) -> dict:
+        return { "id":info.id,"method":info.method,"pt":info.target, "type":"link","used":False}
+
+    def setLinkToTask(self, info : TaskDescription) -> None:
+        self.affect_to_ext_list.append(info)
+        self.queue.append(self.getLinkQueuePack())
+
+    def resetLinkToTask(self, info : TaskDescription) -> None:
+        self.affect_to_ext_list.remove(info)
+        self.queue.remove(self.getLinkQueuePack())
+
     def getChilds(self):
         return self.childs
 
@@ -331,15 +351,9 @@ class BaseTask():
         return "","",""
     
     def setupQueue(self):
-        if self.queue and len(self.queue) > 0:
+        if self.queue and not self.isQueueComplete():
             pass
         else:
-            self.queue = []
-            for task_info in self.affect_to_ext_list:
-                self.queue.append({ "id":task_info.id,"method":task_info.method,"pt":task_info.target, "type":"link","used":False})
-
-            for child in self.childs:
-                self.queue.append({ "pt":child, "type":"child","used":False})
             print("Setup queue:",self.queue)
 
     def useLinksToTask(self):
@@ -380,13 +394,18 @@ class BaseTask():
                     info["used"] = True
                     return info["pt"]
         return None
+    
+    def isQueueComplete(self):
+        if len(self.queue) > 0:
+            return False
+        return True
 
     def getNextFromQueue(self):
         print("Get next from",self.getName(),"queue")
         res = self.findNextFromQueue()
         if res:
             return res
-        if len(self.queue) == 0:
+        if self.isQueueComplete():
             return self.getNextFromQueueRe()
         return None
         
@@ -414,7 +433,7 @@ class BaseTask():
 
     def beforeRemove(self):
         if self.parent:
-            self.parent.childs.remove(self)
+            self.parent.removeChild(self)
         for child in self.childs:
             child.whenParentRemoved()
 
@@ -423,7 +442,7 @@ class BaseTask():
 
     def removeParent(self):
          if self.parent:
-            self.parent.childs.remove(self)
+            self.parent.removeChild(self)
             self.parent = None
        
 
@@ -447,11 +466,6 @@ class BaseTask():
             input.parent.resetLinkToTask(input)
         
     
-    def setLinkToTask(self, info : TaskDescription) -> None:
-        self.affect_to_ext_list.append(info)
-
-    def resetLinkToTask(self, info : TaskDescription) -> None:
-        self.affect_to_ext_list.remove(info)
 
     def completeTask(self) -> bool:
         # print(self.getName(),"=Complete Task")
