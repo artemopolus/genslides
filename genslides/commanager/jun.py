@@ -208,7 +208,7 @@ class Manager:
             print("Value error")
         #Try float.
             # ret = float(s)
-            return "","", self.drawGraph(), "", "", chck
+            return self.getCurrTaskPrompts()
         print("Increment=",inc)
         self.task_index += inc
 
@@ -227,7 +227,7 @@ class Manager:
         output = ""
         output += pprint.pformat(self.curr_task.msg_list)
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        return out_prompt, output ,self.drawGraph(), in_prompt, in_role, chck
+        return self.getCurrTaskPrompts()
 
         # std_output_list = [info, output, graph_img, input, creation_tag_list]
         # next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
@@ -436,17 +436,15 @@ class Manager:
         print(10*"====")
 
         if type is None or creation_type is None:
-            return out, log, img_path
+            return self.getCurrTaskPrompts()
         if creation_type == "Edit":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True)
             self.curr_task.update(info)
-            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, log, self.drawGraph() , in_prompt, in_role, []
+            return self.getCurrTaskPrompts()
         elif creation_type == "EditAndStep":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True, stepped=True)
             self.updateSteppedSelectedInternal(info)
-            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, log, self.drawGraph() , in_prompt, in_role, []
+            return self.getCurrTaskPrompts()
         vars_param = self.vars_param
         for param in vars_param:
             input_params= {"name" :param, "value" : True,"prompt":None}
@@ -470,7 +468,7 @@ class Manager:
             info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), params=[input_params], target=self.slct_task)
             # info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[input_params])
             self.curr_task.update(info)
-            return out, log, self.drawGraph() , "","",[]
+            return self.getCurrTaskPrompts()
              # return self.runIteration(prompt)
         if creation_type == "Select":
             self.slct_task = self.curr_task
@@ -517,7 +515,7 @@ class Manager:
         # print("Current cmd=", curr_cmd)
 
         if not curr_cmd:
-            return out, log, img_path
+            return self.getCurrTaskPrompts()
         self.cmd_list.append(curr_cmd)
         
 
@@ -604,7 +602,7 @@ class Manager:
             self.need_human_response = False
             # return "", "", img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
             in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
+            return self.getCurrTaskPrompts()
         # if len(self.task_list) > 0:
         #     f = graphviz.Digraph(comment='The Test Table')
             
@@ -640,7 +638,7 @@ class Manager:
             out += task.task_description
             img_path = self.drawGraph()
             in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, log ,self.drawGraph(), in_prompt, in_role, chck
+            return self.getCurrTaskPrompts()
             #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
 
         img_path = self.drawGraph()
@@ -681,8 +679,7 @@ class Manager:
 
         if all_task_completed:
             log += "All task complete\n"
-            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-            return out_prompt, log ,self.drawGraph(), in_prompt, in_role, chck
+            return self.getCurrTaskPrompts()
             #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
             # if self.curr_task:
             #     self.curr_task.completeTask()
@@ -725,7 +722,7 @@ class Manager:
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        return out_prompt, log ,self.drawGraph(), in_prompt, in_role, chck
+        return self.getCurrTaskPrompts()
         #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
     
     def update(self):
@@ -783,23 +780,26 @@ class Manager:
                 print("Done in",index,"iteration")
                 break
             index +=1
+        return self.getCurrTaskPrompts() 
+    
+    def getCurrTaskPrompts(self):
+        msgs = self.curr_task.getMsgs()
+        out_prompt = ""
+        out_prompt2 = ""
+        if msgs:
+            out_prompt = msgs[-1]["content"]
+            if len(msgs) > 1:
+                out_prompt2 = msgs[-2]["content"]
         saver = SaveData()
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())
-        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
+        in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
+        #quick fix
+        return out_prompt2, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), ""
+
 
     def updateSteppedSelected(self):
         self.updateSteppedSelectedInternal()
-        saver = SaveData()
-        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
-        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        #quick fix
-        if len(self.curr_task.msg_list) > 1:
-            out_prompt2 = self.curr_task.msg_list[-2]["content"]
-        else:
-            out_prompt2 = ""
-        return out_prompt, out_prompt2 ,self.drawGraph(), in_prompt, in_role, chck
-
+        return self.getCurrTaskPrompts()
 
     def processCommand(self, json_msg,  tasks_json):
         send_task_list_json = {}

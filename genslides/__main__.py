@@ -142,21 +142,17 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                 graph_img.style(height=500)
 
             
- 
 
-            input = gr.Textbox(label="Input", lines=4, value=request)
-            file_input = gr.File()
 
-            # init = gr.Textbox(label="Init", lines=4)
-            # info = gr.Textbox(label="Info", lines=4)
-            info = gr.Markdown()
+            name_info = gr.Text(value="None", label="Task")
+            # file_input = gr.File()
+            prompt = gr.Textbox(label="Prompt", lines=4, value=request)
+            fst_msg = gr.Textbox(label="Current", lines=4, value=request)
+            sec_msg = gr.Textbox(label="Previous", lines=4)
+            param_info = gr.Textbox(label="Params", lines=4)
+            # info = gr.Markdown()
             output = gr.Textbox(label="Output Box")
-            # endi = gr.Textbox(label="Endi", lines=4)
-            # question = gr.Textbox(label="Question", lines=4)
-            # search = gr.Textbox(label="Search", lines=4)
-            # userinput = gr.Textbox(label="User Input", lines=4)
-
-            file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
+            # file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
 
 
             with gr.Row() as r:
@@ -187,20 +183,20 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
 
-            sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs=[graph_img, task_list, input, prompt_tag_list, info])
+            sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs=[graph_img, task_list, fst_msg, prompt_tag_list, sec_msg])
 
 
             project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
             project_clear.click(fn=projecter.clear)
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
 
-            std_output_list = [info, output, graph_img, input, prompt_tag_list, checkbox]
+            std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt]
             run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
             step_task_btn.click(fn=manager.updateSteppedSelected,outputs=std_output_list, api_name="step_task_btn")
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
             prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
-            action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[input, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
+            action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
         
         elif manager.getParam("mode") == "user":
             gr.themes.Base(text_size=sizes.text_lg)
@@ -209,10 +205,10 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             # out = gr.Textbox(value=manager.getOutputDataSum(),label="output", interactive=False)
             out = gr.Markdown(value=manager.getOutputDataSum())
             
-            for info in used:
-                if info["type"] == "input":
+            for sec_msg in used:
+                if sec_msg["type"] == "input":
                     interact = True
-                    name = info["name"]
+                    name = sec_msg["name"]
                     task = manager.getTaskByName(name)
                     txt = task.getInfo(short=False)
                     print("Get task=",task.getName())

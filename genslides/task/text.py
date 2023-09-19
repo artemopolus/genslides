@@ -544,4 +544,7 @@ class TextTask(BaseTask):
                 pass
          return rep_text
 
+    def getAllParams(self):
+        return json.dumps(self.params, indent=1)
+
  
