@@ -481,4 +481,10 @@ class BaseTask():
 
     def getParamStruct(self, param_name):
         return False, None
+    
+    def getAllParams(self):
+        return ""
+    
+    def getMsgs(self, except_task = []):
+        return None
  
