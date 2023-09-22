@@ -288,7 +288,12 @@ class IterationTask(TextTask):
             self.setupQueue()
                
         for info in self.queue:
-            if watched[-1] == info["pt"]:
+            task = None
+            if info["type"] == "child":
+                task = self.getChildByName(info["name"])
+            elif info["type"] == "link":
+                task = self.getLinkedByName(info["name"])
+            if task and watched[-1] == task:
                 print("Reset child in iteration",watched[-1].getName())
                 info["used"] = False
                 break

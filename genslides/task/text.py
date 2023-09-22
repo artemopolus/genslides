@@ -31,6 +31,72 @@ class TextTask(BaseTask):
         self.path = self.getPath()
         self.copyParentMsg()
         self.params = []
+    
+    def addChild(self, child) -> bool:
+        if super().addChild(child):
+            self.saveJsonToFile(self.msg_list)
+            return True
+        return False
+    
+    def updateNameQueue(self, old_name : str, new_name : str):
+        trg = None
+        for param in self.params:
+            if "type" in param and "name" in param and param["name"] == old_name:
+                trg = param
+        if trg:
+            self.params.remove(trg)
+            for info in self.queue:
+                info["name"] = new_name
+        print("queue:", self.queue)
+        print("params:", self.params)
+        self.saveJsonToFile(self.msg_list)
+
+    def getChildQueuePack(self, child) -> dict:
+        for param in self.params:
+            if "type" in param and param["type"] == "child" and "name" in param and param["name"] == child.getName():
+                out = param.copy()
+                return out
+        pack = super().getChildQueuePack(child)
+        print("pack:",pack)
+        self.params.append(self.getJsonQueue(pack))
+        return pack
+    
+    def getLinkQueuePack(self, info: TaskDescription) -> dict:
+        for param in self.params:
+            if "type" in param and param["type"] == "link" and "name" in param and param["name"] == info.target.getName():
+                out = param.copy()
+                return out
+        pack = super().getLinkQueuePack(info)
+        self.params.append(self.getJsonQueue(pack))
+        return pack
+    
+    def syncQueueToParam(self):
+        for pack in self.queue:
+            found = False
+            for param in self.params:
+                if "type" in param  and "name" in param and param["name"] == pack["name"]:
+                    if param["type"] == "child":
+                        pass
+                    elif param["type"] == "link":
+                        pass
+                    else:
+                        continue
+                    param.update(self.getJsonQueue(pack))
+                    found = True
+                    break
+            if not found:
+                self.params.append(self.getJsonQueue(pack))
+        self.saveJsonToFile(self.msg_list)
+
+    def onQueueReset(self, info):
+        super().onQueueReset(info)
+        self.syncQueueToParam()
+
+    def onQueueCheck(self, param) -> bool:
+        if super().onQueueCheck(param):
+            self.syncQueueToParam()
+            return True
+        return False
 
     def checkParentMsgList(self, update = False, remove = True) -> bool:
         if self.parent:
@@ -257,10 +323,9 @@ class TextTask(BaseTask):
                         if msg_trgs == msg_list or stopped or self.is_freeze:
                             print(10*"====", "\nLoaded from file:")
                             self.path = path
-                            self.name = file.split('.')[0]
+                            self.setName(file.split('.')[0])
                             if 'params' in rq:
                                 self.params = rq['params']
-                            print("My new name is ", self.name)
                             return rq['chat']
                 except json.JSONDecodeError:
                     pass
@@ -483,6 +548,16 @@ class TextTask(BaseTask):
                 if p['type'] not in forbidden_names:
                     out.append(p)
         return out
+    
+    def setParam(self, param):
+        print("Set param:", param)
+        if isinstance(param, str):
+            self.params = json.loads(param)
+        elif isinstance(param, list):
+            self.params = param
+        else:
+            return
+        self.saveJsonToFile(self.msg_list)
 
     def getParam(self, param_name):
         forbidden_names = ['input', 'output', 'stopped']

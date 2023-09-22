@@ -420,7 +420,10 @@ class Manager:
         saver = SaveData()
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())
         return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
- 
+
+    def updateTaskParam(self, param):
+        self.curr_task.setParam(param)
+        return self.getCurrTaskPrompts()
     
     def makeTaskActionBase(self, prompt, type, creation_type, creation_tag):
         # print(10*"==")

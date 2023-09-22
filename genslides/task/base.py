@@ -159,6 +159,7 @@ class BaseTask():
         self.method = task_info.method
         task_manager = TaskManager()
         self.id = task_manager.getId(self)
+        self.name = self.type + str(self.id)
         request = self.init + self.prompt + self.endi
         self.task_description = "Task type = " + self.type + "\nRequest:\n" + request
         self.task_creation_result = "Results of task creation:\n"
@@ -174,7 +175,6 @@ class BaseTask():
 
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
-        self.name = self.type + str(self.id)
         self.queue = []
     
     
@@ -202,6 +202,20 @@ class BaseTask():
 
     def getIdStr(self) -> str:
         return str(self.id)
+    
+    def setName(self, name : str):
+        old_name = self.name
+        self.name = name
+        print("My new name is", self.name,", was", old_name)
+
+        if self.parent:
+            self.parent.updateNameQueue(old_name, name)
+
+        for info in self.by_ext_affected_list:
+            info.parent.updateNameQueue(old_name, name)
+
+        
+
     
     def getName(self) -> str:
         return self.name
@@ -289,29 +303,62 @@ class BaseTask():
                 return False
         return True
 
-    def getChildQueuePack(self, child) ->dict:
-        return { "pt":child, "type":"child","used":False}
+    def getDefCond(self) -> dict:
+        return {"cond" : "None", "cur": "None", "trg": "used", "str": "None"}
 
-    def addChild(self, child):
+    def getChildQueuePack(self, child) ->dict:
+        val = {  "type":"child", "used":False ,"name": child.getName()}
+        val.update(self.getDefCond())
+        return val
+
+    def getLinkQueuePack(self, info: TaskDescription) -> dict:
+        return { "name": info.target.getName(), "id":info.id,"method":info.method, "type":"link","used":False}.update(self.getDefCond())
+    
+    def getJsonQueue(self, pack : dict) -> dict:
+        if not pack:
+            return {}
+        if pack["type"] == "child" or pack["type"] == "link":
+            # print("val:",pack)
+            # if "name" not in pack:
+            #     pack["name"] = val.getName()
+            return pack
+        return {}
+
+    def addChild(self, child) -> bool:
         if child not in self.childs:
             self.childs.append(child)
-            self.queue.append(self.getChildQueuePack())
+            info = self.getChildQueuePack(child)
+            self.onQueueReset(info)
+            self.queue.append(info)
+            return True
+        return False
+    
+    def getChildByName(self, child_name):
+        for ch in self.getChilds():
+            if ch.getName() == child_name:
+                return ch
+            
+    def getLinkedByName(self, linked_name):
+        for info in self.affect_to_ext_list:
+            if info.target.getName() == linked_name:
+                return info.target
     
     def removeChild(self,child):
         if child in self.childs:
             self.childs.remove(child)
-            self.queue.remove(self.getChildQueuePack())
+            self.queue.remove(self.getChildQueuePack(child))
 
-    def getLinkQueuePack(self, info: TaskDescription) -> dict:
-        return { "id":info.id,"method":info.method,"pt":info.target, "type":"link","used":False}
 
-    def setLinkToTask(self, info : TaskDescription) -> None:
+    def setLinkToTask(self, info : TaskDescription) -> bool:
         self.affect_to_ext_list.append(info)
-        self.queue.append(self.getLinkQueuePack())
+        info1 = self.getLinkQueuePack(info)
+        self.onQueueReset(info1)
+        self.queue.append(info1)
+        return True
 
     def resetLinkToTask(self, info : TaskDescription) -> None:
         self.affect_to_ext_list.remove(info)
-        self.queue.remove(self.getLinkQueuePack())
+        self.queue.remove(self.getLinkQueuePack(info))
 
     def getChilds(self):
         return self.childs
@@ -375,24 +422,74 @@ class BaseTask():
             trgs = n_trgs
             index += 1
 
+    def updateNameQueue(self, old_name : str, new_name : str):
+        pass
+
     def resetQueue(self):
         if self.queue:
             for info in self.queue:
-                info["used"] = False
+                self.onQueueReset(info)
+    
+    def onQueueReset(self, info):
+        info["used"] = False
+        info["cur"] = info["str"]
+
+    def onQueueCheck(self, param) -> bool:
+        if param['cond'] == '=':
+            if isinstance(param['cur'], str):
+                if self.findKeyParam( param['cur']) != param['trg']:
+                    return False
+        elif isinstance(param['trg'], int) and isinstance(param['cur'], int):
+            cur = int(param['cur'])
+            trg = int(param['trg'])
+            if param['cond'] == '>' and cur < trg:
+                return False
+            elif param['cond'] == '<' and cur > trg:
+                return False
+            elif param['cond'] == '=' and cur != trg:
+                return False
+        elif param['cond'] == 'None':
+            if param['cur'] == param['trg']:
+                return False
+            else:
+                param['cur'] = "used"
+        elif param['cond'] == 'for':
+            try:
+                if param['cur'] == 0:
+                    pack = self.getAncestorByName(param['target']).getLastMsgContent()
+                    jp = json.loads(pack)
+                    param['data'] = jp['data']
+                    param['value'] = param['data'][0]
+                    param['trg'] = len(param['data'])
+                elif param['cur'] < param['trg']:
+                    index = param['cur'] + 1
+                    param['value'] = param['data'][index]
+                    param['cur'] = index
+                else:
+                    return False
+            except Exception as e:
+                print("Some go wrong", e)
+        print("React on condition:",param)
+        param["used"] = True
+        return True
+    
+
+    def syncQueueToParam(self):
+        pass
 
     def findNextFromQueue(self):
         # print("Search for next from queue")
         if self.queue:
             for info in self.queue:
                 if info["type"] == "child" and info["used"] == False:
-                    # info["pt"].update(TaskDescription(stepped=True))
-                    info["used"] = True
-                    return info["pt"]
+                    print("info:", info)
+                    if self.onQueueCheck(info):
+                        return self.getChildByName(info['name'])
                 if info["type"] == "link" and info["used"] == False:
-                    input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self, enabled= not self.is_freeze)
-                    info["method"](input)
-                    info["used"] = True
-                    return info["pt"]
+                    if self.onQueueCheck(info):
+                        input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self, enabled= not self.is_freeze)
+                        info["method"](input)
+                        return self.getLinkedByName(info['name'])
         return None
     
     def isQueueComplete(self):
@@ -401,13 +498,14 @@ class BaseTask():
         return True
 
     def getNextFromQueue(self):
-        print("Get next from",self.getName(),"queue")
         res = self.findNextFromQueue()
+        print("Get next from",self.getName(),"queue:", res)
         if res:
             return res
-        if self.isQueueComplete():
-            return self.getNextFromQueueRe()
-        return None
+        return self.getNextFromQueueRe()
+        # if self.isQueueComplete():
+        #     return self.getNextFromQueueRe()
+        # return None
         
     def getNextFromQueueRe(self):
         print("Get recursevly")
@@ -471,6 +569,9 @@ class BaseTask():
         # print(self.getName(),"=Complete Task")
         return False 
     
+    def setParam(self, param):
+        pass
+    
     def getParam(self, param_name):
         return None
     
@@ -487,4 +588,7 @@ class BaseTask():
     
     def getMsgs(self, except_task = []):
         return None
- 
+    
+    def findKeyParam(self, text: str):
+        return text
+    

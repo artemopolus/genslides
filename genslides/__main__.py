@@ -149,7 +149,11 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             prompt = gr.Textbox(label="Prompt", lines=4, value=request)
             fst_msg = gr.Textbox(label="Current", lines=4, value=request)
             sec_msg = gr.Textbox(label="Previous", lines=4)
-            param_info = gr.Textbox(label="Params", lines=4)
+            with gr.Row():
+                with gr.Column(scale=4):
+                    param_info = gr.Textbox(label="Params", lines=4)
+                with gr.Column(scale=1):
+                    param_updt = gr.Button(value="Edit param")
             # info = gr.Markdown()
             output = gr.Textbox(label="Output Box")
             # file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
@@ -197,7 +201,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
             prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
             action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
-        
+            param_updt.click(fn=manager.updateTaskParam, inputs=param_info, outputs=std_output_list, api_name="update_task_param")
+
         elif manager.getParam("mode") == "user":
             gr.themes.Base(text_size=sizes.text_lg)
             input_txt = []
