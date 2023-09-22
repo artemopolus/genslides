@@ -272,6 +272,8 @@ class BaseTask():
         return out
 
     def getAncestorByName(self, trg_name):
+        if self.getName() == trg_name:
+            return self
         index = 0
         task = self
         while(index < 1000):
@@ -435,6 +437,7 @@ class BaseTask():
         info["cur"] = info["str"]
 
     def onQueueCheck(self, param) -> bool:
+        # print("React on condition:",param)
         if param['cond'] == '=':
             if isinstance(param['cur'], str):
                 if self.findKeyParam( param['cur']) != param['trg']:
@@ -453,22 +456,33 @@ class BaseTask():
                 return False
             else:
                 param['cur'] = "used"
-        elif param['cond'] == 'for':
+        if param['cond'] == 'for':
+            print('here')
             try:
-                if param['cur'] == 0:
-                    pack = self.getAncestorByName(param['target']).getLastMsgContent()
-                    jp = json.loads(pack)
+                jp = json.loads(self.getAncestorByName(param['target']).getLastMsgContent())
+                if not "data" in param:
                     param['data'] = jp['data']
                     param['value'] = param['data'][0]
                     param['trg'] = len(param['data'])
-                elif param['cur'] < param['trg']:
-                    index = param['cur'] + 1
-                    param['value'] = param['data'][index]
-                    param['cur'] = index
+                    param['cur'] = 0
+                    param['str'] = 0
                 else:
-                    return False
+                    if jp['data'] != param['data']:
+                        param['value'] = param['data'][0]
+                        param['trg'] = len(param['data'])
+                        param['cur'] = 0
+                        param['str'] = 0
+                    else:
+                    # print(param)
+                        index = param['cur'] + 1
+                        param['value'] = param['data'][index]
+                        param['cur'] = index
+                    # print(param)
+                # else:
+                    # return False
             except Exception as e:
-                print("Some go wrong", e)
+                print("Some go wrong:", e)
+                return False
         print("React on condition:",param)
         param["used"] = True
         return True
@@ -478,14 +492,14 @@ class BaseTask():
         pass
 
     def findNextFromQueue(self):
-        # print("Search for next from queue")
+        # print("Search for next from queue", self.queue)
         if self.queue:
             for info in self.queue:
-                if info["type"] == "child" and info["used"] == False:
-                    print("info:", info)
+                if info["type"] == "child":
+                    # print("info:", info)
                     if self.onQueueCheck(info):
                         return self.getChildByName(info['name'])
-                if info["type"] == "link" and info["used"] == False:
+                if info["type"] == "link":
                     if self.onQueueCheck(info):
                         input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self, enabled= not self.is_freeze)
                         info["method"](input)

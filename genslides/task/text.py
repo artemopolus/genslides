@@ -40,15 +40,27 @@ class TextTask(BaseTask):
     
     def updateNameQueue(self, old_name : str, new_name : str):
         trg = None
+        # print("queue:", self.queue)
+        # print("params:", self.params)
         for param in self.params:
             if "type" in param and "name" in param and param["name"] == old_name:
                 trg = param
+        print("Delete param:",trg)
         if trg:
             self.params.remove(trg)
             for info in self.queue:
-                info["name"] = new_name
-        print("queue:", self.queue)
-        print("params:", self.params)
+                if info["name"] == old_name:
+                    info["name"] = new_name
+        self.syncParamToQueue()
+        # print("queue:", self.queue)
+        # print("params:", self.params)
+        q_names = [q["name"] for q in self.queue]
+        p_names = [p["name"] for p in self.params if "name" in p]
+        c_names = [ch.getName() for ch in self.getChilds()]
+        print("Queue:", q_names)
+        print("Params:", p_names)
+        print("Childs:", c_names)
+        
         self.saveJsonToFile(self.msg_list)
 
     def getChildQueuePack(self, child) -> dict:
@@ -70,7 +82,15 @@ class TextTask(BaseTask):
         self.params.append(self.getJsonQueue(pack))
         return pack
     
+    def syncParamToQueue(self):
+        for param in self.params:
+            if "type" in param:
+                for q in self.queue:
+                    if q["name"] == param["name"]:
+                        q.update(param)
+    
     def syncQueueToParam(self):
+        print("Sync",self.getName(),"queue to param")
         for pack in self.queue:
             found = False
             for param in self.params:
@@ -295,6 +315,13 @@ class TextTask(BaseTask):
             if res:
                 self.saveRespJson(request, responses)
 
+    def resetResetableParams(self, params):
+        for param in params:
+            try:
+                param['cur'] = param['str']
+            except:
+                pass
+        return params
     def getResponseFromFile(self, msg_list, remove_last=True):
         print("Get response from file:")
 
@@ -325,7 +352,7 @@ class TextTask(BaseTask):
                             self.path = path
                             self.setName(file.split('.')[0])
                             if 'params' in rq:
-                                self.params = rq['params']
+                                self.params = self.resetResetableParams(rq['params'])
                             return rq['chat']
                 except json.JSONDecodeError:
                     pass
