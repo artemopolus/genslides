@@ -1,5 +1,6 @@
 from genslides.task.base import TaskDescription
 from genslides.task.response import ResponseTask
+from genslides.utils.readfileman import ReadFileMan
 
 
 import os
@@ -23,6 +24,9 @@ class RunScriptTask(ResponseTask):
                 phrase_script = self.findKeyParam( pparam["init_phrase"] )
                 phrase_success = self.findKeyParam( pparam["on_success"] )
                 phrase_error = self.findKeyParam( pparam["on_error"] )
+
+                str_path_to_output_files = self.findKeyParam(pparam["output"])
+                output_paths = str_path_to_output_files.strip('][').split(',')
             except Exception as e:
                 print("Error on script struct param=",e)
         else:
@@ -58,6 +62,12 @@ class RunScriptTask(ResponseTask):
                     data += phrase_error + result.stderr + "\n"
                 else:
                     data += phrase_success + result.stdout + "\n"
+
+                if output_paths:
+                    for p in output_paths:
+                        tres, text = ReadFileMan.readPartitial(p,400)
+                        data += text + "\n"
+
 
 
                 if need_to_remove:

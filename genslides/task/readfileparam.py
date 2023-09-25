@@ -5,6 +5,7 @@ import os, json
 from os import listdir
 from os.path import isfile, join
 
+from genslides.utils.readfileman import ReadFileMan
 
 class ReadFileParamTask(ReadFileTask):
     def __init__(self, task_info: TaskDescription, type="ReadFileParam") -> None:
@@ -60,23 +61,26 @@ class ReadFileParamTask(ReadFileTask):
     
                     return False, ""
                 elif "read_part" in pparam and pparam["read_part"] and "start_part" in pparam and "max_part" in pparam:
-                    if os.path.isfile(s_path):
-                        with open(s_path, 'r',encoding='utf-8') as f:
-                            text = f.read()
-                        start = int(pparam["max_part"])
-                        stop = start + int(pparam["max_part"])
-                        if len(text) > stop*8:
-                            med = int((len(text) - stop)/2)
-                            return True, "This is parts of file:\n\n" + text[start:stop] + "...\n\n..." + text[med:med + stop]  + "...\n\n..." + text[len(text) - stop :]
-                        if len(text) > stop*4:
-                            return True, "This is parts of file:\n\n" + text[start:stop] + "...\n\n..." + text[len(text) - stop :]
-                        if len(text) > stop:
-                            return True, "This is part of file:\n\n" + text[start:stop]
-                        if 'delete' in pparam and pparam['delete']:
-                            os.remove(s_path)
-                            print('File bt path',s_path,'is removed')
+                    pres, text = ReadFileMan.readPartitial(s_path,int(pparam["max_part"]))
+                    if pres:
+                        return pres,text
+                    # if os.path.isfile(s_path):
+                    #     with open(s_path, 'r',encoding='utf-8') as f:
+                    #         text = f.read()
+                    #     start = int(pparam["max_part"])
+                    #     stop = start + int(pparam["max_part"])
+                    #     if len(text) > stop*8:
+                    #         med = int((len(text) - stop)/2)
+                    #         return True, "This is parts of file:\n\n" + text[start:stop] + "...\n\n..." + text[med:med + stop]  + "...\n\n..." + text[len(text) - stop :]
+                    #     if len(text) > stop*4:
+                    #         return True, "This is parts of file:\n\n" + text[start:stop] + "...\n\n..." + text[len(text) - stop :]
+                    #     if len(text) > stop:
+                    #         return True, "This is part of file:\n\n" + text[start:stop]
+                    #     if 'delete' in pparam and pparam['delete']:
+                    #         os.remove(s_path)
+                    #         print('File bt path',s_path,'is removed')
 
-                        return True, text
+                    #     return True, text
                         
 
         if res and os.path.isfile(s_path):
