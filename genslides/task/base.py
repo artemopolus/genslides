@@ -385,10 +385,10 @@ class BaseTask():
         self.stdProcessUnFreeze(input)
 
        
-        print("Update=",self.getName(), "|frozen=", self.is_freeze, "||")
+        print("Update=",self.getName(), "|frozen=", self.is_freeze)
         self.updateIternal(input)
 
-        if input and not input.stepped:
+        if input is None or input and not input.stepped:
             
             self.useLinksToTask()
 

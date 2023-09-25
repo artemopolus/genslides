@@ -25,7 +25,7 @@ class RunScriptTask(ResponseTask):
                 phrase_success = self.findKeyParam( pparam["on_success"] )
                 phrase_error = self.findKeyParam( pparam["on_error"] )
 
-                str_path_to_output_files = self.findKeyParam(pparam["output"])
+                str_path_to_output_files = self.findKeyParam(pparam["output_files"])
                 output_paths = str_path_to_output_files.strip('][').split(',')
             except Exception as e:
                 print("Error on script struct param=",e)
@@ -63,9 +63,12 @@ class RunScriptTask(ResponseTask):
                 else:
                     data += phrase_success + result.stdout + "\n"
 
+                data += "\n\n\nHere below outputs of script:\n\n\n"
+
                 if output_paths:
                     for p in output_paths:
-                        tres, text = ReadFileMan.readPartitial(p,400)
+                        ppath=p.strip("\'")
+                        tres, text = ReadFileMan.readPartitial(ppath,400)
                         data += text + "\n"
 
 

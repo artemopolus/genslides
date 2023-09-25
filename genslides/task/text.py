@@ -626,13 +626,21 @@ class TextTask(BaseTask):
          rep_text = text
          for res in results:
              arr = res[1:-1].split(":")
-             if len(arr) == 2:
+             if len(arr) > 1:
                  task = self.getAncestorByName(arr[0])
                  if task:
                     if arr[1] == self.getMsgTag():
                         param = task.getLastMsgContent()
+                        if len(arr) > 3 and arr[2] == 'json':
+                            try:
+                                j = json.loads(param)
+                                rep = j[arr[3]]
+                                rep_text = rep_text.replace(res, str(rep))
+                            except:
+                                print("No json in", self.getName())
+                        else:
                         # print("Replace ", res, " with ", param)
-                        rep_text = rep_text.replace(res, str(param))
+                            rep_text = rep_text.replace(res, str(param))
                     else:
                         p_exist, param = task.getParam(arr[1])
                         if p_exist:
