@@ -86,8 +86,11 @@ class TextTask(BaseTask):
         for param in self.params:
             if "type" in param:
                 for q in self.queue:
-                    if q["name"] == param["name"]:
-                        q.update(param)
+                    try:
+                        if q["name"] == param["name"]:
+                            q.update(param)
+                    except:
+                        pass
     
     def syncQueueToParam(self):
         print("Sync",self.getName(),"queue to param")
