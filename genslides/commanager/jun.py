@@ -760,18 +760,18 @@ class Manager:
             info.stepped = True
             self.curr_task.update(info)
         else:
-            idx = 0
-            while(idx < 1000):
-                if self.curr_task.parent is None:
-                    print('Parent of',self.curr_task.getName(),' is None')
-                    break
-                if self.curr_task.parent.findNextFromQueue(True) is not None:
-                    par = self.curr_task.parent
-                    self.curr_task = par
-                else:
-                    print('Can\'t step on',self.curr_task.parent.getName())
-                    break
-                idx += 1
+            # idx = 0
+            # while(idx < 1000):
+            #     if self.curr_task.parent is None:
+            #         print('Parent of',self.curr_task.getName(),' is None')
+            #         break
+            #     if self.curr_task.parent.findNextFromQueue(True) is not None:
+            #         par = self.curr_task.parent
+            #         self.curr_task = par
+            #     else:
+            #         print('Can\'t step on',self.curr_task.parent.getName())
+            #         break
+            #     idx += 1
             self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
 
         res, w_param = self.curr_task.getParamStruct("watched")

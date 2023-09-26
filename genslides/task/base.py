@@ -437,6 +437,7 @@ class BaseTask():
                 self.onQueueReset(info)
     
     def onQueueReset(self, info):
+        print('Reset queue from', self.getName(),'=',info)
         info["used"] = False
         info["cur"] = info["str"]
 
@@ -445,9 +446,10 @@ class BaseTask():
 
     def onQueueCheck(self, param) -> bool:
         # print("React on condition:",param)
-        self.printQueueInit()
+        # self.printQueueInit()
         if param['cond'] == '=':
             if isinstance(param['cur'], str):
+                print('Cond', self.getName(),':',param['cur'],'=',param['trg'])
                 if self.findKeyParam( param['cur']) != param['trg']:
                     return False
         elif isinstance(param['trg'], int) and isinstance(param['cur'], int):
@@ -500,7 +502,7 @@ class BaseTask():
         pass
 
     def findNextFromQueue(self, only_check = False):
-        # print("Search for next from queue", self.queue)
+        print("Search for next from queue", self.getName())
         if self.queue:
             for info1 in self.queue:
                 if only_check:
@@ -544,6 +546,8 @@ class BaseTask():
                 trg = trg.parent
                 res = trg.findNextFromQueue()
                 if res:
+                    print('Reset from task=', res.getName())
+                    res.resetTreeQueue()
                     return res
             index +=1
         return None   

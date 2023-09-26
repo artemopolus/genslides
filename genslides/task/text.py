@@ -35,6 +35,7 @@ class TextTask(BaseTask):
     def addChild(self, child) -> bool:
         if super().addChild(child):
             self.syncQueueToParam()
+            self.printQueueInit()
             self.saveJsonToFile(self.msg_list)
             return True
         return False
@@ -62,6 +63,8 @@ class TextTask(BaseTask):
         print("Childs:", c_names)
  
     def updateNameQueue(self, old_name : str, new_name : str):
+        if old_name == new_name:
+            return
         trg = None
         # print("queue:", self.queue)
         print("params:", self.params)
@@ -73,7 +76,9 @@ class TextTask(BaseTask):
             self.params.remove(trg)
             for info in self.queue:
                 if info["name"] == old_name:
-                    info["name"] = new_name
+                    trg = info
+        if trg:
+            self.queue.remove(trg)
         self.syncParamToQueue()
         # print("queue:", self.queue)
         # print("params:", self.params)
@@ -101,18 +106,20 @@ class TextTask(BaseTask):
         return pack
     
     def syncParamToQueue(self):
+        print('Sync param to queue')
         for param in self.params:
             if "type" in param:
-                found = False
-                for q in self.queue:
-                    try:
-                        if q["name"] == param["name"]:
-                            q.update(param)
-                            found = True
-                    except:
-                        pass
-                if not found:
-                    self.queue.append(param)
+                if param['type'] == 'child' or param['type'] == 'link':
+                    found = False
+                    for q in self.queue:
+                        try:
+                            if q["name"] == param["name"]:
+                                q.update(param)
+                                found = True
+                        except:
+                            pass
+                    if not found:
+                        self.queue.append(param)
         qd = []
         for q in self.queue:
             if 'name' in q:
@@ -147,6 +154,7 @@ class TextTask(BaseTask):
         self.saveJsonToFile(self.msg_list)
 
     def onQueueReset(self, info):
+        print("Queue reset")
         super().onQueueReset(info)
         self.syncQueueToParam()
 
