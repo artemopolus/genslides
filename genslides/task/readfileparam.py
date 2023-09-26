@@ -13,6 +13,7 @@ class ReadFileParamTask(ReadFileTask):
 
 
     def readContentInternal(self):
+        print('Read content from file by params')
         param_name = "read_folder"
         res, read_folder = self.getParam(param_name)
         
@@ -39,8 +40,10 @@ class ReadFileParamTask(ReadFileTask):
         param_name = "path_to_read"
         res, s_path = self.getParam(param_name)
         if res:
+            print('Get param')
             rres, pparam = self.getParamStruct(param_name)
             if rres:
+                print('Found param struct')
                 if "role" in pparam:
                     self.prompt_tag = pparam["role"]
                 else:
@@ -57,7 +60,7 @@ class ReadFileParamTask(ReadFileTask):
                         except ValueError as e:
                             print("json error type=", type(e))
                             self.msg_list = []
-                        print(self.getName(),"read =", s_path,"msg=",len(self.msg_list))
+                        print(self.getName(),"read from", s_path,"dial withmsg=",len(self.msg_list))
     
                     return False, ""
                 elif "read_part" in pparam and pparam["read_part"] and "start_part" in pparam and "max_part" in pparam:

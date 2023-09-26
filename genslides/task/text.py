@@ -135,7 +135,7 @@ class TextTask(BaseTask):
     
     def syncQueueToParam(self):
         print("Sync",self.getName(),"queue to param")
-        print('Queue:', self.queue)
+        # print('Queue:', self.queue)
         for pack in self.queue:
             found = False
             for param in self.params:
@@ -469,9 +469,10 @@ class TextTask(BaseTask):
 
     def whenParentRemoved(self):
         super().whenParentRemoved()
-        last = self.msg_list.pop()
-        self.msg_list = []
-        self.msg_list.append(last)
+        if len(self.msg_list) > 0:
+            last = self.msg_list.pop()
+            self.msg_list = []
+            self.msg_list.append(last)
         self.saveJsonToFile(self.msg_list)
 
     def getMsgInfo(self):

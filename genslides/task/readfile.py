@@ -102,6 +102,7 @@ class ReadFileTask(ResponseTask):
 
 
     def executeResponse(self):
+        print('Exe resp read')
       #   str = "J:\WorkspaceFast\genslides\examples\05table_parts_slides1_req.txt"
         path = self.getRichPrompt()
         if os.path.isfile(path):
