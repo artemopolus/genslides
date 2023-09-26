@@ -20,6 +20,5 @@ class ReadFileMan():
                 return True, "This is parts of file("+s_path+")\n\n" + text[start:stop] + "...\n\n..." + text[len(text) - stop :]
             if len(text) > stop:
                 return True, "This is part of file("+s_path+")\n\n" + text[start:stop]
-        else:
-            return False, "There is no any files on path: " + s_path
+        return False, "There is no any files on path: " + s_path
 

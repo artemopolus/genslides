@@ -404,6 +404,23 @@ class Manager:
             self.slct_task = self.curr_task
             self.curr_task = task2
             self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
+            print('Parents:\nFirst', task1.parent.getName(),'=',task1.getName())
+            print('Childs')
+            for ch in task1.getChilds():
+                print(ch.getName())
+            print(task1.queue)
+            print('Middle', self.slct_task.parent.getName(),'=',self.slct_task.getName())
+            print('Childs')
+            for ch in self.slct_task.getChilds():
+                print(ch.getName())
+            print(self.slct_task.queue)
+            print('Last', self.curr_task.parent.getName(),'=', self.curr_task.getName())
+            print('Childs')
+            for ch in self.curr_task.getChilds():
+                print(ch.getName())
+            print(self.curr_task.queue)
+            task1.update()
+
         elif creation_type == "Remove":
             task1 = self.curr_task.parent
             task2 = self.curr_task
@@ -417,9 +434,7 @@ class Manager:
                     self.curr_task = task
                     self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
             
-        saver = SaveData()
-        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
-        return out_prompt, "" ,self.drawGraph(), in_prompt, in_role, chck
+        return self.getCurrTaskPrompts()
 
     def updateTaskParam(self, param):
         self.curr_task.setParam(param)
@@ -580,9 +595,9 @@ class Manager:
         for i in range(0, len(self.task_list)):
             if self.task_list[i] == task:
                 self.task_index = i
-
-        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        return self.drawGraph(), gr.Dropdown.update(choices= self.getTaskList()), in_prompt, in_role, out_prompt
+        return self.getCurrTaskPrompts() 
+           # in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
+        # return self.drawGraph(), gr.Dropdown.update(choices= self.getTaskList()), in_prompt, in_role, out_prompt
 
     def setSelectedTaskByName(self, name):
         task = self.getTaskByName(name)
@@ -745,6 +760,18 @@ class Manager:
             info.stepped = True
             self.curr_task.update(info)
         else:
+            idx = 0
+            while(idx < 1000):
+                if self.curr_task.parent is None:
+                    print('Parent of',self.curr_task.getName(),' is None')
+                    break
+                if self.curr_task.parent.findNextFromQueue(True) is not None:
+                    par = self.curr_task.parent
+                    self.curr_task = par
+                else:
+                    print('Can\'t step on',self.curr_task.parent.getName())
+                    break
+                idx += 1
             self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
 
         res, w_param = self.curr_task.getParamStruct("watched")
@@ -796,8 +823,10 @@ class Manager:
         saver = SaveData()
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())
         in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
+        self.curr_task.printQueueInit()
         #quick fix
-        return out_prompt2, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), ""
+        return out_prompt2, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList())
+
 
 
     def updateSteppedSelected(self):

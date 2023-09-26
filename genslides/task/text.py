@@ -34,14 +34,37 @@ class TextTask(BaseTask):
     
     def addChild(self, child) -> bool:
         if super().addChild(child):
+            self.syncQueueToParam()
             self.saveJsonToFile(self.msg_list)
             return True
         return False
     
+    def removeChild(self,child) -> bool:
+        if super().removeChild(child):
+            self.syncQueueToParam()
+            trg =  None
+            for param in self.params:
+                if "type" in param and "name" in param and param['type'] == 'child' and param['name'] == child.getName():
+                    trg = param
+            print("Remove from param", trg)
+            self.params.remove(trg)
+            self.saveJsonToFile(self.msg_list)
+            return True
+        return False
+    
+    def printQueueInit(self):
+        print("Data from",self.getName())
+        q_names = [q["name"] for q in self.queue if 'name' in q]
+        p_names = [p["name"] for p in self.params if "name" in p]
+        c_names = [ch.getName() for ch in self.getChilds()]
+        print("Queue:", q_names)
+        print("Params:", p_names)
+        print("Childs:", c_names)
+ 
     def updateNameQueue(self, old_name : str, new_name : str):
         trg = None
         # print("queue:", self.queue)
-        # print("params:", self.params)
+        print("params:", self.params)
         for param in self.params:
             if "type" in param and "name" in param and param["name"] == old_name:
                 trg = param
@@ -54,13 +77,8 @@ class TextTask(BaseTask):
         self.syncParamToQueue()
         # print("queue:", self.queue)
         # print("params:", self.params)
-        q_names = [q["name"] for q in self.queue]
-        p_names = [p["name"] for p in self.params if "name" in p]
-        c_names = [ch.getName() for ch in self.getChilds()]
-        print("Queue:", q_names)
-        print("Params:", p_names)
-        print("Childs:", c_names)
-        
+        self.printQueueInit()
+       
         self.saveJsonToFile(self.msg_list)
 
     def getChildQueuePack(self, child) -> dict:
@@ -85,19 +103,36 @@ class TextTask(BaseTask):
     def syncParamToQueue(self):
         for param in self.params:
             if "type" in param:
+                found = False
                 for q in self.queue:
                     try:
                         if q["name"] == param["name"]:
                             q.update(param)
+                            found = True
                     except:
                         pass
+                if not found:
+                    self.queue.append(param)
+        qd = []
+        for q in self.queue:
+            if 'name' in q:
+                found = False
+                for param in self.params:
+                    if 'name' in param and param['name'] == q['name']:
+                        found = True
+                if not found:
+                    qd.append(q)
+        
+        for q in qd:
+            self.queue.remove(q)
     
     def syncQueueToParam(self):
         print("Sync",self.getName(),"queue to param")
+        print('Queue:', self.queue)
         for pack in self.queue:
             found = False
             for param in self.params:
-                if "type" in param  and "name" in param and param["name"] == pack["name"]:
+                if "type" in param  and "name" in param and 'name' in pack and param["name"] == pack["name"]:
                     if param["type"] == "child":
                         pass
                     elif param["type"] == "link":
@@ -224,16 +259,19 @@ class TextTask(BaseTask):
             os.makedirs("saved")
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        self.name = self.getType() + str(self.id)
-        print("Name =", self.name)
+        self.setName( self.getType() + str(self.id))
+        print("Start Name =", self.name)
         name = self.name + ".json"
         found = False
+        n = self.name
         while not found:
             if name in onlyfiles:
-                self.name = self.getType() + str(self.getNewID())
-                name = self.name + ".json"
+                n = self.getType() + str(self.getNewID())
+                name = n + ".json"
             else:
                 found = True
+                print("Res Name=", n)
+                self.setName(n)
         return mypath + name
 
     def getJson(self):
@@ -351,7 +389,7 @@ class TextTask(BaseTask):
                                 if 'stopped' in param and param['stopped']:
                                     stopped = True
                         if msg_trgs == msg_list or stopped or self.is_freeze:
-                            print(10*"====", "\nLoaded from file:")
+                            print(10*"====", "\nLoaded from file:",path)
                             self.path = path
                             self.setName(file.split('.')[0])
                             if 'params' in rq:

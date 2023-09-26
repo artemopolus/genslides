@@ -67,7 +67,7 @@ class ReadFileTask(ResponseTask):
 
                         
                         self.path = path
-                        self.name = file.split('.')[0]
+                        self.setName( file.split('.')[0])
                         if 'params' in rq:
                             self.params = rq['params']
 

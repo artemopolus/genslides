@@ -40,11 +40,11 @@ class SetOptionsTask(WriteToFileTask):
                                     pattern = regex.compile(r'\{(?:[^{}]|(?R))*\}')
                                     text = src_task.findKeyParam( src_task.getLastMsgContent())
                                     json_list = pattern.findall(text)
-                                    print("Found pattern:", json_list)
+                                    # print("Found pattern:", json_list)
                                     for json_val in json_list:
                                         try:
                                             jparam = json.loads(json_val)
-                                            print("Found json:",jparam)
+                                            # print("Found json:",jparam)
                                             if src[3] in jparam:
                                                 src_value = jparam[src[3]]
                                                 break

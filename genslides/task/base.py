@@ -327,6 +327,7 @@ class BaseTask():
         return {}
 
     def addChild(self, child) -> bool:
+        print('Add child',child.getName())
         if child not in self.childs:
             self.childs.append(child)
             info = self.getChildQueuePack(child)
@@ -345,10 +346,13 @@ class BaseTask():
             if info.target.getName() == linked_name:
                 return info.target
     
-    def removeChild(self,child):
+    def removeChild(self,child) -> bool:
         if child in self.childs:
+            print("Remove child", child.getName(),"from", self.getName())
             self.childs.remove(child)
             self.queue.remove(self.getChildQueuePack(child))
+            return True
+        return False
 
 
     def setLinkToTask(self, info : TaskDescription) -> bool:
@@ -436,8 +440,12 @@ class BaseTask():
         info["used"] = False
         info["cur"] = info["str"]
 
+    def printQueueInit(self):
+        pass
+
     def onQueueCheck(self, param) -> bool:
         # print("React on condition:",param)
+        self.printQueueInit()
         if param['cond'] == '=':
             if isinstance(param['cur'], str):
                 if self.findKeyParam( param['cur']) != param['trg']:
@@ -491,10 +499,14 @@ class BaseTask():
     def syncQueueToParam(self):
         pass
 
-    def findNextFromQueue(self):
+    def findNextFromQueue(self, only_check = False):
         # print("Search for next from queue", self.queue)
         if self.queue:
-            for info in self.queue:
+            for info1 in self.queue:
+                if only_check:
+                    info = info1.copy()
+                else:
+                    info = info1
                 if info["type"] == "child":
                     # print("info:", info)
                     if self.onQueueCheck(info):
