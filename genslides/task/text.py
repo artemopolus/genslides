@@ -371,9 +371,14 @@ class TextTask(BaseTask):
             except:
                 pass
         return params
+    
+    def checkLoadCondition(self, msg_trgs, msg_list) -> bool:
+        if msg_trgs == msg_list:
+            return True
+        return False
+    
     def getResponseFromFile(self, msg_list, remove_last=True):
         print("Get response from file:")
-
         mypath = "saved/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         trg_file = self.filename + ".json"
@@ -383,7 +388,7 @@ class TextTask(BaseTask):
             if file.startswith(self.getType()):
                 path = mypath + file
                 try:
-                    print(path)
+                    print('Open file by path', path)
                     with open(path, 'r') as f:
                         rq = json.load(f)
                     if 'chat' in rq:
@@ -396,15 +401,19 @@ class TextTask(BaseTask):
                             for param in rq['params']:
                                 if 'stopped' in param and param['stopped']:
                                     stopped = True
-                        if msg_trgs == msg_list or stopped or self.is_freeze:
+                        if self.checkLoadCondition(msg_trgs, msg_list) or stopped or self.is_freeze:
                             print(10*"====", "\nLoaded from file:",path)
                             self.path = path
                             self.setName(file.split('.')[0])
                             if 'params' in rq:
                                 self.params = self.resetResetableParams(rq['params'])
                             return rq['chat']
-                except json.JSONDecodeError:
-                    pass
+                        else:
+                            print('No right data in file')
+                    else:
+                        print('No chat in file')
+                except json.JSONDecodeError as e:
+                    print('Json error',e)
         return []
 
     def getResponse(self, request):

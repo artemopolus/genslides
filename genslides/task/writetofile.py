@@ -50,15 +50,21 @@ class WriteToFileTask(TextTask):
             # print("Try to save=", text)
             f.write(text)
 
+    def checkAnotherOptions(self) -> bool:
+        return False
+
     def updateIternal(self, input : TaskDescription = None):
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
             return
-        if self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False:
+        if self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False or self.checkAnotherOptions():
+            print('Exe write file')
             self.msg_list = trg_list
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
+        else:
+            print('Doing nothing')
 
     def update(self, input : TaskDescription = None):
         super().update(input)

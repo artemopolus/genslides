@@ -7,6 +7,9 @@ import json, regex
 class SetOptionsTask(WriteToFileTask):
     def __init__(self, task_info: TaskDescription, type="SetOptions") -> None:
         super().__init__(task_info, type)
+    
+    def checkLoadCondition(self, msg_trgs, msg_list) -> bool:
+        return True
 
     def isInputTask(self):
         return False

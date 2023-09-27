@@ -17,7 +17,16 @@ class WriteToFileParamTask(WriteToFileTask):
 
     def getRichPrompt(self) -> str:
         return self.writepath
-
+    
+    def checkAnotherOptions(self) -> bool:
+        param_name = "path_to_write"
+        res, pparam = self.getParamStruct(param_name)
+        if res:
+            op = 'always_update'
+            if op in pparam and pparam[op]:
+                return True
+        return False
+    
     def executeResponse(self):
         # print("Exe resp write to file param")
         param_name = "path_to_write"
