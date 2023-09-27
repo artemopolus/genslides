@@ -683,10 +683,17 @@ class TextTask(BaseTask):
          rep_text = text
          for res in results:
              arr = res[1:-1].split(":")
+            #  print("Keys:", arr)
              if len(arr) > 1:
                  task = self.getAncestorByName(arr[0])
                  if task:
-                    if arr[1] == self.getMsgTag():
+                    if len(arr) > 5:
+                        if 'type' == arr[1]:
+                            bres, pparam = task.getParamStruct(arr[2])
+                            if bres and arr[3] in pparam and pparam[arr[3]] == arr[4] and arr[5] in pparam:
+                                rep = pparam[arr[5]]
+                                rep_text = rep_text.replace(res, str(rep))
+                    elif arr[1] == self.getMsgTag():
                         param = task.getLastMsgContent()
                         if len(arr) > 3 and arr[2] == 'json':
                             bres, j = Loader.loadJsonFromText(param)

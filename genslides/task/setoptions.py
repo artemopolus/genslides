@@ -64,13 +64,13 @@ class SetOptionsTask(WriteToFileTask):
                         else:
                             pass
                     trg = param['trg'].split(':')
-                    print("Get trg",trg)
                     trg_task = self.getAncestorByName(trg[0])
-                    if len(trg) > 3:
+                    print("Insert in[",trg_task.getName(),'] using', trg)
+                    if len(trg) > 5:
                         for tparam in trg_task.params:
-                            if trg[1] in tparam and tparam[trg[1]] == trg[2] and trg[-1] in tparam:
-                                print('update param struct with', src_value)
-                                trg_task.updateParamStruct(trg[1],trg[-1], src_value)
+                            if trg[3] in tparam and tparam[trg[3]] == trg[4] and trg[-1] in tparam:
+                                print('update param [',trg[2],'] struct with [', src_value,']')
+                                trg_task.updateParamStruct(trg[2],trg[-1], src_value)
                                 break
                     elif len(trg) > 2:
                         for tparam in trg_task.params:

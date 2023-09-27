@@ -59,7 +59,7 @@ class ReadFileParamTask(ReadFileTask):
                                     self.msg_list = rq[pparam['del_msgs'] :]
                                 else:
                                     self.msg_list = rq
-                                print("Input msgs:", self.msg_list)
+                                # print("Input msgs:", self.msg_list)
                             else:
                                 self.msg_list = rq
                         except ValueError as e:
