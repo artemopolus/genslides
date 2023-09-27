@@ -13,6 +13,7 @@ from genslides.utils.chatgptrequester import ChatGPTsimple
 from genslides.utils.largetext import SimpleChatGPT
 
 from genslides.utils.savedata import SaveData
+from genslides.utils.loader import Loader
 
 import json
 import os
@@ -688,12 +689,12 @@ class TextTask(BaseTask):
                     if arr[1] == self.getMsgTag():
                         param = task.getLastMsgContent()
                         if len(arr) > 3 and arr[2] == 'json':
-                            try:
-                                j = json.loads(param)
+                            bres, j = Loader.loadJsonFromText(param)
+                            if bres:
                                 rep = j[arr[3]]
                                 rep_text = rep_text.replace(res, str(rep))
-                            except:
-                                print("No json in", self.getName())
+                            else:
+                                print("No json in", task.getName())
                         else:
                         # print("Replace ", res, " with ", param)
                             rep_text = rep_text.replace(res, str(param))

@@ -1,8 +1,10 @@
 from genslides.task.base import TaskDescription
 from genslides.task.writetofile import WriteToFileTask
+from genslides.utils.loader import Loader
 
 import json
 import os
+
 
 class WriteJsonToFileTask(WriteToFileTask):
     def __init__(self, task_info: TaskDescription, type="WriteJsonToFile") -> None:
@@ -13,22 +15,25 @@ class WriteJsonToFileTask(WriteToFileTask):
         if self.parent == None or self.is_freeze:
             return
         prop = self.msg_list[-1]["content"]
-        arr = prop.split("{",1)
-        if len(arr) > 1:
-            prop = "{" + arr[1]
-            for i in range(len(prop)):
-                val = len(prop) - 1 - i
-                if prop[val] == "}":
-                    prop = prop[:val] + "}"
-                    break
-
-        # print("Input str=", prop)
-        try:
-            prop_json = json.loads(prop,strict=False)
-            # print("json=",prop_json)
-        except Exception as e:
-            print("Json load error=",e)
+        res, prop_json = Loader.loadJsonFromText(prop)
+        if not res:
+            print("Json load error")
             return
+
+        # arr = prop.split("{",1)
+        # if len(arr) > 1:
+        #     prop = "{" + arr[1]
+        #     for i in range(len(prop)):
+        #         val = len(prop) - 1 - i
+        #         if prop[val] == "}":
+        #             prop = prop[:val] + "}"
+        #             break
+
+        # # print("Input str=", prop)
+        # try:
+        #     prop_json = json.loads(prop,strict=False)
+        #     # print("json=",prop_json)
+        # except Exception as e:
         # print("exe resp write json to file=", prop_json)
         try:
             if "filepath" in prop_json and "text" in prop_json:

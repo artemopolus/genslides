@@ -43,8 +43,8 @@ class WriteToFileParamTask(WriteToFileTask):
             if res:
                 if "write" in pparam and pparam["write"] == "append":
                     ctrl = 'a'
-                if "i_target" in pparam:
-                    in_val = pparam["i_target"]
+                if "del_msgs" in pparam:
+                    in_val = pparam["del_msgs"]
                     if isinstance(in_val, int):
                         text = self.getMsgByIndex(in_val)
                 if "write_dial" in pparam and pparam["write_dial"]:

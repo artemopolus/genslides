@@ -447,11 +447,22 @@ class BaseTask():
     def onQueueCheck(self, param) -> bool:
         # print("React on condition:",param)
         # self.printQueueInit()
-        if param['cond'] == '=':
+        if param['cond'] == '=' or param['cond'] == '!=':
             if isinstance(param['cur'], str):
-                print('Cond', self.getName(),':',param['cur'],'=',param['trg'])
-                if self.findKeyParam( param['cur']) != param['trg']:
-                    return False
+                cur = self.findKeyParam(param['cur'])
+                print('Cond', self.getName(),':',cur,param['cond'],param['trg'])
+                if param['cond'] == '=':
+                    if cur != param['trg'] or param['cur'] == 'None':
+                        return False
+                    else:
+                        if 'endless' not in param or not param['endless']:
+                            param['cur'] = 'None'
+                elif param['cond'] == '!=':
+                    if cur == param['trg'] or param['cur'] == 'None':
+                        return False
+                    else:
+                        if 'endless' not in param or not param['endless']:
+                            param['cur'] = 'None'
         elif isinstance(param['trg'], int) and isinstance(param['cur'], int):
             cur = int(param['cur'])
             trg = int(param['trg'])
