@@ -801,6 +801,10 @@ class Manager:
                 print("On start")
         return next
     
+    def resetCurTaskQueue(self):
+        self.curr_task.resetTreeQueue()
+        return self.getCurrTaskPrompts()
+    
     def updateSteppedTree(self):
         index = 0
         self.curr_task.resetTreeQueue()

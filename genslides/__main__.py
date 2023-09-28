@@ -133,7 +133,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     # print("list=", creation_types_radio_list)
                     creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
                     action_to_task_btn = gr.Button(value="Make action!")
-                    step_task_btn = gr.Button(value="Step")
+                    with gr.Row():
+                        res_step_btn = gr.Button(value='Reset Q')
+                        step_task_btn = gr.Button(value="Step Q")
 
                     task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
                     prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
@@ -196,6 +198,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
             project_clear.click(fn=projecter.clear)
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
+
+            res_step_btn.click(fn=manager.resetCurTaskQueue,outputs=std_output_list)
 
             run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")

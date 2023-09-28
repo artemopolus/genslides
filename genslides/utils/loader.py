@@ -1,6 +1,33 @@
-import json, re
+import json, re, os
 
 class Loader:
+
+    def stringToList(text: str) -> list:
+        output_paths = text.strip('][').split(',')
+        out = []
+        for ppath in output_paths:
+            i = ppath.strip("\'")
+            print('from',ppath,'insert',i)
+            out.append(i)
+        print('list path=',out)
+        return out
+    
+    def stringToPathList(  text:str):
+        pp = Loader.stringToList(text)
+
+        for path in pp:
+            # aps = path.strip('\'').split('\\')    
+            # aps = list(filter(None, aps))
+            # aps.pop()
+            # aps = "\\".join(aps)
+            # print(aps)
+            # path = aps
+            print('Check',path)
+            if not os.path.exists(path):
+                return False, pp
+        return True, pp
+
+
     def loadJsonFromText(text : str):
         # print(text)
         # results = re.findall(r'\{.*?\}', text)

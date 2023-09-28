@@ -703,7 +703,7 @@ class TextTask(BaseTask):
                             else:
                                 print("No json in", task.getName())
                         else:
-                        # print("Replace ", res, " with ", param)
+                            print("Replace", res, "from",task.getName())
                             rep_text = rep_text.replace(res, str(param))
                     else:
                         p_exist, param = task.getParam(arr[1])
@@ -711,13 +711,13 @@ class TextTask(BaseTask):
                             # print("Replace ", res, " with ", param)
                             rep_text = rep_text.replace(res, str(param))
                         else:
-                            # print("No param")
+                            print("No param")
                             pass
                  else:
-                    #  print("No task")
+                     print("No task", arr[0])
                      pass
              else:
-                # print("Incorrect len")
+                print("Incorrect len")
                 pass
          return rep_text
 

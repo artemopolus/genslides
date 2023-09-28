@@ -407,7 +407,8 @@ class BaseTask():
         if self.queue and not self.isQueueComplete():
             pass
         else:
-            print("Setup queue:",self.queue)
+            # print("Setup queue:",self.queue)
+            pass
 
     def useLinksToTask(self):
         input = TaskDescription(prompt=self.prompt, parent=self)
@@ -437,7 +438,8 @@ class BaseTask():
                 self.onQueueReset(info)
     
     def onQueueReset(self, info):
-        print('Reset queue from', self.getName(),'=',info)
+        # print('Reset queue from', self.getName(),'=',info)
+        print('Reset queue from', self.getName())
         info["used"] = False
         info["cur"] = info["str"]
 
@@ -504,7 +506,7 @@ class BaseTask():
             except Exception as e:
                 print("Some go wrong:", e)
                 return False
-        print("React on condition:",param)
+        # print("React on condition:",param)
         param["used"] = True
         return True
     
@@ -513,7 +515,7 @@ class BaseTask():
         pass
 
     def findNextFromQueue(self, only_check = False):
-        print("Search for next from queue", self.getName())
+        print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
         if self.queue:
             for info1 in self.queue:
                 if only_check:

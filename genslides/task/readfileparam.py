@@ -1,5 +1,6 @@
 from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.readfile import ReadFileTask
+from genslides.utils.loader import Loader
 
 import os, json
 from os import listdir
@@ -39,7 +40,25 @@ class ReadFileParamTask(ReadFileTask):
                 print("Can\'t read params to read folder", e)
         param_name = "path_to_read"
         res, s_path = self.getParam(param_name)
-        if res:
+        s_path = self.findKeyParam(s_path)
+        print('Target path:', s_path)
+        if not os.path.exists(s_path):
+            pres, paths = Loader.stringToPathList(s_path)
+            print('Paths:', paths)
+            if pres and len(paths) > 0:
+                text = ""
+                rres, pparam = self.getParamStruct(param_name)
+                if rres and 'header' in pparam:
+                    text = self.findKeyParam( pparam['header'] )
+                for t_path in paths:
+                    print('Read file by path:', t_path)
+                    header = 'Content of file by path ' + t_path +'\n'
+                    text += ReadFileMan.readWithHeader(t_path, header)
+                return True, text
+            else:
+                print("Can\'t read files using paths:" + s_path)
+                return False, "Can\'t read files using paths:" + s_path
+        elif res:
             print('Get param')
             rres, pparam = self.getParamStruct(param_name)
             if rres:
@@ -54,8 +73,10 @@ class ReadFileParamTask(ReadFileTask):
                             rq = json.load(f)
                             if "del_msgs" in pparam and isinstance(pparam["del_msgs"], int) :
                                 if pparam['del_msgs'] < 0 and pparam["del_msgs"] > -len(rq):
-                                    self.msg_list = rq[:(len(rq) - pparam["del_msgs"])]
+                                    print('Remove from end=',pparam['del_msgs'])
+                                    self.msg_list = rq[:(len(rq) + pparam["del_msgs"])]
                                 elif pparam['del_msgs'] > 0 and pparam['del_msgs'] < len(rq):
+                                    print('Remove from start=',pparam['del_msgs'])
                                     self.msg_list = rq[pparam['del_msgs'] :]
                                 else:
                                     self.msg_list = rq
@@ -65,7 +86,7 @@ class ReadFileParamTask(ReadFileTask):
                         except ValueError as e:
                             print("json error type=", type(e))
                             self.msg_list = []
-                        print(self.getName(),"read from", s_path,"dial withmsg=",len(self.msg_list))
+                        print(self.getName(),"read from[", s_path,"] dial with msg[",len(self.msg_list),'] out [',len(rq),']')
     
                     return False, ""
                 elif "read_part" in pparam and pparam["read_part"] and "start_part" in pparam and "max_part" in pparam:
