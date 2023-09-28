@@ -49,10 +49,24 @@ class TextTask(BaseTask):
                 if "type" in param and "name" in param and param['type'] == 'child' and param['name'] == child.getName():
                     trg = param
             print("Remove from param", trg)
-            self.params.remove(trg)
+            if trg is not None and trg in self.params:
+                self.params.remove(trg)
+            self.printQueueInit()
             self.saveJsonToFile(self.msg_list)
             return True
         return False
+    
+    def fixQueueByChildList(self):
+        super().fixQueueByChildList()
+        q_names = [q['name'] for q in self.queue if 'name' in q]
+        to_del = []
+        for param in self.params:
+            if 'type' in param and param['type'] == 'child' and 'name' in param:
+                if param['name'] not in q_names:
+                    to_del.append(param)
+        for p in to_del:
+            self.params.remove(p)
+        self.syncQueueToParam()
     
     def printQueueInit(self):
         print("Data from",self.getName())
@@ -166,6 +180,7 @@ class TextTask(BaseTask):
         return False
 
     def checkParentMsgList(self, update = False, remove = True) -> bool:
+        print('Check msg list')
         if self.parent:
             trg = self.parent.msg_list.copy()
             src = self.msg_list.copy()
@@ -410,7 +425,14 @@ class TextTask(BaseTask):
                                 self.params = self.resetResetableParams(rq['params'])
                             return rq['chat']
                         else:
-                            print('No right data in file')
+                            print(10*"====", "\nLoaded from file:",path)
+                            self.is_freeze = True
+                            self.path = path
+                            self.setName(file.split('.')[0])
+                            if 'params' in rq:
+                                self.params = self.resetResetableParams(rq['params'])
+                            return rq['chat']
+                            # print('No right data in file')
                     else:
                         print('No chat in file')
                 except json.JSONDecodeError as e:
@@ -711,13 +733,13 @@ class TextTask(BaseTask):
                             # print("Replace ", res, " with ", param)
                             rep_text = rep_text.replace(res, str(param))
                         else:
-                            print("No param")
+                            # print("No param")
                             pass
                  else:
-                     print("No task", arr[0])
+                    #  print("No task", arr[0])
                      pass
              else:
-                print("Incorrect len")
+                # print("Incorrect len")
                 pass
          return rep_text
 

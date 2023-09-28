@@ -66,7 +66,7 @@ class RunScriptTask(ResponseTask):
                 data += "\n\n\nHere below outputs of script:\n\n\n"
 
                 if str_path_to_output_files:
-                    tres, output_paths = Loader.stringToPathList(output_paths)
+                    tres, output_paths = Loader.stringToPathList(str_path_to_output_files)
                     print('Path to output:', output_paths)
                     if tres:
                         for p in output_paths:

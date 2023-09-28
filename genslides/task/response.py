@@ -124,21 +124,17 @@ class ResponseTask(TextTask):
 
         print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
-        trg_list = self.getParentMsg()
 
         if len(self.msg_list) == 0:
             print('Empty msg list')
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
         else:
-            print('Check msg list')
-            if len(self.msg_list) > 0:
-                last = self.msg_list[- 1]
-                trg_list.append(last)
-            if self.msg_list != trg_list:
-                print('Msgs not same')
-                trg_list.pop()
-                self.msg_list = trg_list.copy()
+            sres, sparam = self.getParamStruct(self.getType())
+            exe_always = False
+            if sres and 'do_always' in sparam and sparam['do_always']:
+                exe_always = True
+            if not self.checkParentMsgList(update=True) or exe_always:
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:

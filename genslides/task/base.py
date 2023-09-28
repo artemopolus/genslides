@@ -350,9 +350,45 @@ class BaseTask():
         if child in self.childs:
             print("Remove child", child.getName(),"from", self.getName())
             self.childs.remove(child)
-            self.queue.remove(self.getChildQueuePack(child))
+            trg = None
+            for q in self.queue:
+                if q['name'] == child.getName() and q['type'] == 'child':
+                    trg = q
+                    break
+            if trg is not None:
+                self.queue.remove(trg)
+            # self.queue.remove(self.getChildQueuePack(child))
             return True
         return False
+    
+    def fixQueueByChildList(self):
+        to_del = []
+        for child in self.childs:
+            found = False
+            for q in self.queue:
+                if q['name'] == child.getName() and q['type'] == 'child':
+                    if found:
+                        to_del.append(q)
+                    else:
+                        found = True
+            if not found:
+                info = self.getChildQueuePack(child)
+                self.onQueueReset(info)
+                self.queue.append(info)
+        for q in self.queue:
+            found = False
+            for child in self.childs:
+                if q['name'] == child.getName() and q['type'] == 'child':
+                    found = True
+            if not found and q not in to_del:
+                to_del.append(q)
+        
+        for q in to_del:
+            self.queue.remove(q)
+
+ 
+
+
 
 
     def setLinkToTask(self, info : TaskDescription) -> bool:

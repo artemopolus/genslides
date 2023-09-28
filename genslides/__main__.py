@@ -134,6 +134,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
                     action_to_task_btn = gr.Button(value="Make action!")
                     with gr.Row():
+                        fix_task_btn = gr.Button(value = 'Fix Tasks')
                         res_step_btn = gr.Button(value='Reset Q')
                         step_task_btn = gr.Button(value="Step Q")
 
@@ -150,7 +151,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             # file_input = gr.File()
             prompt = gr.Textbox(label="Prompt", lines=4, value=request)
             fst_msg = gr.Textbox(label="Current", lines=4, value=request)
-            sec_msg = gr.Textbox(label="Previous", lines=4)
+            # sec_msg = gr.Textbox(label="Previous", lines=4)
+            sec_msg = gr.Chatbot()
+            # sec_msg = gr.HighlightedText(label="Previous", color_map={"assistant":"green"},adjacent_separator="\n",show_legend=True,combine_adjacent=True)
             with gr.Row():
                 with gr.Column(scale=4):
                     param_info = gr.Textbox(label="Params", lines=4)
@@ -200,6 +203,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
 
             res_step_btn.click(fn=manager.resetCurTaskQueue,outputs=std_output_list)
+            fix_task_btn.click(fn=manager.fixTasks, outputs=std_output_list)
 
             run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")

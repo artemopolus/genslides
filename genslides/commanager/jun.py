@@ -805,6 +805,12 @@ class Manager:
         self.curr_task.resetTreeQueue()
         return self.getCurrTaskPrompts()
     
+    def fixTasks(self):
+        for task in self.task_list:
+            task.fixQueueByChildList()
+        return self.getCurrTaskPrompts()
+
+    
     def updateSteppedTree(self):
         index = 0
         self.curr_task.resetTreeQueue()
@@ -829,7 +835,27 @@ class Manager:
         in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
         self.curr_task.printQueueInit()
         #quick fix
-        return out_prompt2, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList())
+        r_msgs = []
+        first = ""
+        sec = ""
+        for msg in msgs:
+            if msg['role'] == 'assistant':
+                sec = msg['content']
+                r_msgs.append([first, sec])
+                first = ""
+                sec = ""
+            else:
+                first = msg['content']
+
+            # r_msgs.append((msg['role'], msg['content']))
+            # r_msgs.append([ msg['content'],msg['role']])
+            # if msg['role'] == 'assistant':
+            #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',msg['role']))
+            # else:
+            #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
+        
+        print(r_msgs)
+        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList())
 
 
 
