@@ -121,6 +121,25 @@ class Manager:
             # task.completeTask()
         self.branch_idx = 0
         self.branch_lastpar = None
+        self.tree_arr = []
+        self.tree_idx = 0
+
+    def goToNextTree(self):
+        if len(self.tree_arr) > 0:
+            self.curr_task = self.tree_arr[self.tree_idx]
+            if self.tree_idx + 1 < len(self.tree_arr):
+                self.tree_idx += 1
+            else:
+                self.tree_idx = 0
+        else:
+            for task in self.task_list:
+                if task.parent is None:
+                    self.tree_arr.append(task)
+            if len(self.tree_arr) > 0:
+                self.curr_task = self.tree_arr[0]
+                self.tree_idx = 1
+        return self.getCurrTaskPrompts()
+            
 
     def goToNextChild(self):
         chs = self.curr_task.getChilds()
@@ -302,14 +321,18 @@ class Manager:
         r,v = task.getParam(param)
         return r and v
 
-    def drawGraph(self):
-        if len(self.task_list) > 0:
+    def drawGraph(self, only_current= True):
+        if only_current:
+            trg_list = self.curr_task.getTree()
+        else:
+            trg_list = self.task_list
+        if len(trg_list) > 0:
             f = graphviz.Digraph(comment='The Test Table')
 
             # if self.curr_task:
             #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
             
-            for task in self.task_list:
+            for task in trg_list:
                 if task == self.curr_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
                     # f.node ("Current",task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
@@ -338,7 +361,7 @@ class Manager:
 
                 # print("info=",task.getIdStr(),"   ", task.getName())
             
-            for task in self.task_list:
+            for task in trg_list:
                 if task.getType() == "IterationEnd":
                     if task.iter_start:
                         f.edge(task.getIdStr(), task.iter_start.getIdStr())
