@@ -893,6 +893,8 @@ class Manager:
                     sec = ""
                 else:
                     first = msg['content']
+        if first != "":
+            r_msgs.append([first, sec])
 
             # r_msgs.append((msg['role'], msg['content']))
             # r_msgs.append([ msg['content'],msg['role']])
