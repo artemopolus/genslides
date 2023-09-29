@@ -108,16 +108,14 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             with gr.Row() as r:
                 with gr.Column():
-                    next_branch_btn = gr.Button(value='Next branch')
                     next_tree_btn = gr.Button(value='Next tree')
+                    next_branch_btn = gr.Button(value='Next branch')
                 with gr.Column():
                     go_parnt_btn = gr.Button(value='Go up')
                     go_child_btn = gr.Button(value='Go down')
                 with gr.Column():
-                    prev_task_btn = gr.Button(value="Prev task")
-                    next_task_btn = gr.Button(value="Next task")
-                task_list = gr.Dropdown(choices=manager.getTaskList())
-                sel_task_btn = gr.Button(value="Select")
+                    task_list = gr.Dropdown(choices=manager.getTaskList())
+                    sel_task_btn = gr.Button(value="Select")
 
             with gr.Row():
                 sec_msg = gr.Chatbot()
@@ -150,6 +148,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     # task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
                     prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
             
+            with gr.Column():
+                prev_task_btn = gr.Button(value="Prev task")
+                next_task_btn = gr.Button(value="Next task")
             next_task_val = gr.Textbox(value="1",label='Iteration next value')
             prev_task_val = gr.Textbox(value="-1", label='Iteration prev value')
 
