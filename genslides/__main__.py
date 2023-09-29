@@ -116,6 +116,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     l_set_btn = gr.Button("Up")
                     h_set_btn = gr.Button("Down")
             with gr.Row() as r:
+                next_branch_btn = gr.Button(value='Next branch')
+                go_parnt_btn = gr.Button(value='Go up')
+                go_child_btn = gr.Button(value='Go down')
                 next_task_val = gr.Textbox(value="1")
                 next_task_btn = gr.Button(value="Next task, plz")
                 prev_task_val = gr.Textbox(value="-1")
@@ -193,7 +196,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list]
 
-
+            next_branch_btn.click(fn=manager.goToNextBranch, outputs=std_output_list)
+            go_parnt_btn.click(fn=manager.goToParent, outputs=std_output_list)
+            go_child_btn.click(fn=manager.goToNextChild, outputs=std_output_list)            
 
             sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
 

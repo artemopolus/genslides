@@ -119,6 +119,46 @@ class Manager:
                 print("to ",info.parent.getName())
 
             # task.completeTask()
+        self.branch_idx = 0
+        self.branch_lastpar = None
+
+    def goToNextChild(self):
+        chs = self.curr_task.getChilds()
+        if len(chs) > 0:
+            if len(chs) > 1:
+                self.branch_lastpar = self.curr_task
+                self.branch_idx = 0
+            self.curr_task = chs[0]
+        return self.getCurrTaskPrompts()
+    
+    def goToParent(self):
+        if self.curr_task.parent is not None:
+            self.curr_task = self.curr_task.parent
+        return self.getCurrTaskPrompts()
+
+    def goToNextBranch(self):
+        trg = self.curr_task
+        idx = 0
+        while(idx < 1000):
+            if trg.parent is None:
+                return self.getCurrTaskPrompts()
+            if len(trg.parent.getChilds()) > 1:
+                if self.branch_lastpar is not None and trg.parent == self.branch_lastpar:
+                    self.curr_task = trg.parent.childs[self.branch_idx]
+                    if self.branch_idx + 1 < len(trg.parent.getChilds()):
+                        self.branch_idx += 1
+                    else:
+                        self.branch_idx = 0
+                else:
+                    self.branch_lastpar = trg.parent
+                    self.curr_task = trg.parent.childs[0]
+                    self.branch_idx += 1
+                break
+            else:
+                trg = trg.parent
+            idx += 1
+        return self.getCurrTaskPrompts()
+
 
     def getTextFromFile(self, text, filenames):
         if filenames is None:
@@ -845,7 +885,14 @@ class Manager:
                 first = ""
                 sec = ""
             else:
-                first = msg['content']
+                if first != "":
+                    r_msgs.append([first, sec])
+                    first = msg['content']
+                    r_msgs.append([first, sec])
+                    first = ""
+                    sec = ""
+                else:
+                    first = msg['content']
 
             # r_msgs.append((msg['role'], msg['content']))
             # r_msgs.append([ msg['content'],msg['role']])
