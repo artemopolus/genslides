@@ -104,6 +104,55 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
         if manager.getParam("mode") == "base":
 
+
+
+            with gr.Row() as r:
+                with gr.Column():
+                    next_branch_btn = gr.Button(value='Next branch')
+                    next_tree_btn = gr.Button(value='Next tree')
+                with gr.Column():
+                    go_parnt_btn = gr.Button(value='Go up')
+                    go_child_btn = gr.Button(value='Go down')
+                with gr.Column():
+                    prev_task_btn = gr.Button(value="Prev task")
+                    next_task_btn = gr.Button(value="Next task")
+                task_list = gr.Dropdown(choices=manager.getTaskList())
+                sel_task_btn = gr.Button(value="Select")
+
+            with gr.Row():
+                sec_msg = gr.Chatbot()
+                sec_msg.style(height=500)
+                graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
+                graph_img.style(height=500)
+
+            with gr.Row():
+                with gr.Column():
+                    name_info = gr.Text(value="None", label="Task")
+                    prompt = gr.Textbox(label="Prompt", lines=4, value=request)
+                    param_info = gr.Textbox(label="Params", lines=4)
+                    param_updt = gr.Button(value="Edit param")
+                with gr.Column():
+                    with gr.Row():
+                        res_step_btn = gr.Button(value='Reset Q')
+                        step_task_btn = gr.Button(value="Step Q")
+
+                    creation_types_radio_list = manager.getMainCommandList()
+                    creation_types_radio_list += manager.getSecdCommandList()
+                    for param in manager.vars_param:
+                        creation_types_radio_list.append(param)
+                        creation_types_radio_list.append("un" + param)
+                    # print("list=", creation_types_radio_list)
+                    # creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
+                    creation_types_radio = gr.Dropdown(choices=creation_types_radio_list, label="Type of task creation",value="New")
+                    task_type_list = gr.Dropdown(choices = types,label="Task to create", value=types[0])
+                    action_to_task_btn = gr.Button(value="Make action!")
+
+                    # task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
+                    prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
+            
+            next_task_val = gr.Textbox(value="1",label='Iteration next value')
+            prev_task_val = gr.Textbox(value="-1", label='Iteration prev value')
+
             base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
             base_img.style(height=800)
 
@@ -112,56 +161,16 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             with gr.Row() as r:
                 update_task_btn = gr.Button(value="Update")
                 run_iter_btn = gr.Button(value="Step run")
+                fix_task_btn = gr.Button(value = 'Fix Tasks')
                 with gr.Column():
                     l_set_btn = gr.Button("Up")
                     h_set_btn = gr.Button("Down")
-            with gr.Row() as r:
-                next_branch_btn = gr.Button(value='Next branch')
-                go_parnt_btn = gr.Button(value='Go up')
-                go_child_btn = gr.Button(value='Go down')
-                next_task_val = gr.Textbox(value="1")
-                next_task_btn = gr.Button(value="Next task, plz")
-                prev_task_val = gr.Textbox(value="-1")
-                prev_task_btn = gr.Button(value="Prev task, plz")
-                task_list = gr.Dropdown(choices=manager.getTaskList())
-                sel_task_btn = gr.Button(value="Select")
-
-            with gr.Row():
-                with gr.Column():
-                    creation_types_radio_list = manager.getMainCommandList()
-                    creation_types_radio_list += manager.getSecdCommandList()
-                    for param in manager.vars_param:
-                        creation_types_radio_list.append(param)
-                        creation_types_radio_list.append("un" + param)
-                    # print("list=", creation_types_radio_list)
-                    creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
-                    action_to_task_btn = gr.Button(value="Make action!")
-                    with gr.Row():
-                        fix_task_btn = gr.Button(value = 'Fix Tasks')
-                        res_step_btn = gr.Button(value='Reset Q')
-                        step_task_btn = gr.Button(value="Step Q")
-
-                    task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
-                    prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
-
-                graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
-                graph_img.style(height=500)
-
             
 
 
-            name_info = gr.Text(value="None", label="Task")
-            # file_input = gr.File()
-            prompt = gr.Textbox(label="Prompt", lines=4, value=request)
             fst_msg = gr.Textbox(label="Current", lines=4, value=request)
             # sec_msg = gr.Textbox(label="Previous", lines=4)
-            sec_msg = gr.Chatbot()
             # sec_msg = gr.HighlightedText(label="Previous", color_map={"assistant":"green"},adjacent_separator="\n",show_legend=True,combine_adjacent=True)
-            with gr.Row():
-                with gr.Column(scale=4):
-                    param_info = gr.Textbox(label="Params", lines=4)
-                with gr.Column(scale=1):
-                    param_updt = gr.Button(value="Edit param")
             # info = gr.Markdown()
             output = gr.Textbox(label="Output Box")
             # file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
@@ -197,6 +206,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list]
 
             next_branch_btn.click(fn=manager.goToNextBranch, outputs=std_output_list)
+            next_tree_btn.click(fn=manager.goToNextTree, outputs=std_output_list)
             go_parnt_btn.click(fn=manager.goToParent, outputs=std_output_list)
             go_child_btn.click(fn=manager.goToNextChild, outputs=std_output_list)            
 
