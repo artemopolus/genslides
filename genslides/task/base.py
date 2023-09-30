@@ -19,6 +19,7 @@ class TaskManager(metaclass=Singleton):
         self.model_list = []
         chat = SimpleChatGPT()
         self.model_list = chat.getModelNames()
+        self.cur_task_path = "saved/"
 
     def getId(self, task) -> int:
         id = self.task_id
@@ -27,10 +28,13 @@ class TaskManager(metaclass=Singleton):
             self.task_list.append(task)
         return id
     
+    def setPath(self, path: str):
+        self.cur_task_path = path
+    
     def getPath(self) -> str:
-        if not os.path.exists("saved"):
-            os.makedirs("saved")
-        return "saved/"
+        if not os.path.exists(self.cur_task_path):
+            os.makedirs(self.cur_task_path)
+        return self.cur_task_path
     
     def getLinks(self):
         mypath = self.getPath()

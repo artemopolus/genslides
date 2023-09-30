@@ -14,6 +14,7 @@ from genslides.utils.largetext import SimpleChatGPT
 
 from genslides.utils.savedata import SaveData
 from genslides.utils.loader import Loader
+from genslides.task.base import TaskManager
 
 import json
 import os
@@ -281,7 +282,8 @@ class TextTask(BaseTask):
     def getPath(self) -> str:
         if not os.path.exists("saved"):
             os.makedirs("saved")
-        mypath = "saved/"
+        task_man = TaskManager()
+        mypath = task_man.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         self.setName( self.getType() + str(self.id))
         print("Start Name =", self.name)
@@ -395,7 +397,8 @@ class TextTask(BaseTask):
     
     def getResponseFromFile(self, msg_list, remove_last=True):
         print("Get response from file:")
-        mypath = "saved/"
+        task_man = TaskManager()
+        mypath = task_man.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         trg_file = self.filename + ".json"
         # for file in onlyfiles:
@@ -440,7 +443,8 @@ class TextTask(BaseTask):
         return []
 
     def getResponse(self, request):
-        mypath = "saved/"
+        task_man = TaskManager()
+        mypath = task_man.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for file in onlyfiles:
             if file.startswith(self.getType()):

@@ -5,7 +5,7 @@ from typing import Iterable
 
 from genslides.task.base import TaskManager
 from genslides.commanager.jun import Manager
-from genslides.commanager.jun import Projecter
+from genslides.commanager.sen import Projecter
 
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
@@ -183,6 +183,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                 projects_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
                 project_clear = gr.Button(value="clear")
+                gr.Button(value='append').click(fn=projecter.append, inputs=[projects_list])
             dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
 
             with gr.Column():

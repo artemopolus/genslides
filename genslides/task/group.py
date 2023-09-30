@@ -1,5 +1,6 @@
 from genslides.task.base import TaskDescription
 from genslides.task.collect import CollectTask
+from genslides.task.base import TaskManager
 
 import json
 from os import listdir
@@ -16,8 +17,8 @@ class GroupTask(CollectTask):
 
     def getResponseFromFile(self, msg_list, remove_last = True):
         print("Get response from file:")
-
-        mypath = "saved/"
+        task_man = TaskManager()
+        mypath = task_man.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         trg_file = self.filename + ".json"
         # for file in onlyfiles:

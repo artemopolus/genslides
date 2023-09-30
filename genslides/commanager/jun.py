@@ -84,21 +84,30 @@ class Manager:
         self.cmd_list = []
         self.cmd_index = 0
         self.index = 0
+        self.branch_idx = 0
+        self.branch_lastpar = None
+        self.tree_arr = []
+        self.tree_idx = 0
 
         self.browser = WebBrowser()
 
         self.need_human_response = False
 
+        self.loadTasksList()
 
+    def appendExtendProjectTasks(self, path_to_project):
         task_manager = TaskManager()
+        task_manager.setPath(path_to_project)
+        self.loadTasksList()
+
+
+
+
+    def loadTasksList(self):
+        task_manager = TaskManager()
+        self.createTask()
 
         links = task_manager.getLinks()
-        # parent_task_list = task_manager.getParentTaskPrompts()
-        # print("parent tasks=", parent_task_list)
-        # for task in parent_task_list:
-        #     print(10*"==","=>type=", task['type'])
-        #     self.makeTaskAction(task['content'], task['type'], "New")
-        self.createTask()
 
         for link in links:
             trgs = link['linked']
@@ -118,11 +127,6 @@ class Manager:
             for info in task.affect_to_ext_list:
                 print("to ",info.parent.getName())
 
-            # task.completeTask()
-        self.branch_idx = 0
-        self.branch_lastpar = None
-        self.tree_arr = []
-        self.tree_idx = 0
 
     def goToNextTree(self):
         if len(self.tree_arr) > 0:
@@ -220,43 +224,6 @@ class Manager:
                     self.createTask(task)
         
 
-
-
-
-
-    #        if not os.path.exists("saved"):
-    #               os.makedirs("saved")
-    #        self.path_searches = "saved/searches.json"
-    #        self.path_links = "saved/links.json"
-    #        self.path_pagecontent = "saved/page_content.json"
-    #        path = self.path_searches
-    #        if not os.path.exists(path):
-    #               with open(path, 'w') as f:
-    #                      print('Create file: ', path)
-    #        path = self.path_links
-    #        if not os.path.exists(path):
-    #               with open(path, 'w') as f:
-    #                      print('Create file: ', path)
-    #        path = self.path_pagecontent
-    #        if not os.path.exists(path):
-    #               with open(path, 'w') as f:
-    #                      print('Create file: ', path)
-    # def saveRespJson(self,path, request, response):
-    #        resp_json_out = {}
-    #        resp_json_out['request'] = request
-    #        resp_json_out['responses'] = response
-    #        with open(path, 'w') as f:
-    #               json.dump(resp_json_out,f,indent=1)
-    # def getResponse(self, path, request):
-    #        if os.stat(path).st_size != 0:
-    #               try:
-    #                      with open(path, 'r') as f:
-    #                             rq = json.load(f)
-    #                      if 'request' in rq and rq['request'] == request:
-    #                             return rq['responses']
-    #               except json.JSONDecodeError:
-    #                      pass
-    #        return []
     def setNextTask(self, input):
         saver = SaveData()
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())
@@ -429,7 +396,7 @@ class Manager:
     def getMainCommandList(self):
         return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep"]
     def getSecdCommandList(self):
-        return ["RemoveBranch", "RemoveTree", "Insert","Remove"]
+        return ["RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp"]
 
   
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
@@ -496,6 +463,13 @@ class Manager:
                 for task in task3_list:
                     self.curr_task = task
                     self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
+
+        elif creation_type == "ReqResp":
+            if self.curr_task is not None:
+                self.makeTaskActionBase(prompt,"Request","SubTask","user")
+            else:
+                self.makeTaskActionBase(prompt,"Request","New","user")
+            self.makeTaskActionBase(prompt,"Response","SubTask","assistant")
             
         return self.getCurrTaskPrompts()
 
@@ -983,87 +957,4 @@ class Manager:
         return send_task_list_json
  
 
-
-class Projecter:
-    def __init__(self, manager : Manager = None) -> None:
-        mypath = "projects/"
-        if not os.path.exists(mypath):
-            os.makedirs(mypath)
-        self.mypath = mypath
-        self.savedpath = "saved/"
-        self.manager = manager
-        # saver = SaveData()
-        # saver.removeFiles()
-        self.current_project_name = self.manager.getParam("current_project_name")
-        self.updateSessionName()
-
-    def updateSessionName(self):
-        self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        print("Name of session=",self.session_name)
-        self.manager.setParam("session_name",self.session_name)
-
-
-    def getTaskJsonStr(self, id : str):
-        out = self.manager.getTaskJsonStr()
-        out['id'] = id
-        out['name'] = self.current_project_name
-        return out
-
-    def loadList(self):
-        mypath = self.mypath
-        onlyfiles = [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
-        return onlyfiles
-    
-    def clearFiles(self):
-        mypath = self.savedpath
-        for f in listdir(mypath):
-            f_path = join(mypath, f)
-            if isfile(f_path):
-                os.remove(f_path)
-
-    def clear(self):
-        self.clearFiles()
-        self.manager.onStart() 
-
-    def getEvaluetionResults(self, input):
-        print("In:", input)
-        saver = SaveData()
-        saver.updateEstimation(input)
-
-
-    def load(self, filename):
-        if filename == "":
-            return ""
-        onlyfiles = [f for f in listdir(self.mypath) if isfile(join(self.mypath, f))]
-        self.clearFiles()
-        if filename + ".7z" not in onlyfiles:
-            return ""
-        with py7zr.SevenZipFile(self.mypath + filename + ".7z", 'r') as archive:
-            archive.extractall(path=self.savedpath)
-
-        self.manager.onStart() 
-        self.current_project_name = filename
-        self.manager.setParam("current_project_name",self.current_project_name)
-        self.updateSessionName()
-
-        return filename
-
-    
-    def save(self, name):
-        self.current_project_name = name
-        self.manager.setParam("current_project_name",self.current_project_name)
-
-        mypath = self.savedpath
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        first = True
-        for file in onlyfiles:
-            if first:
-                with py7zr.SevenZipFile( self.mypath + name + ".7z", 'w') as archive:
-                    archive.write(self.savedpath + file, arcname = file)
-                first = False
-            else:
-                with py7zr.SevenZipFile( self.mypath + name + ".7z", 'a') as archive:
-                    archive.write(self.savedpath + file, arcname = file)
-
-        return gr.Dropdown.update( choices= self.loadList(), interactive=True)
 

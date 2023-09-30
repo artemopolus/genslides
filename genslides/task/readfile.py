@@ -1,6 +1,7 @@
 from genslides.task.response import ResponseTask
 from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
+from genslides.task.base import TaskManager
 
 import os
 import re
@@ -48,7 +49,8 @@ class ReadFileTask(ResponseTask):
     def getResponseFromFile(self, msg_list, remove_last = True):
         print("_______________Get from read task")
 
-        mypath = "saved/"
+        task_man = TaskManager()
+        mypath = task_man.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         trg_file = self.filename + ".json"
         # for file in onlyfiles:
