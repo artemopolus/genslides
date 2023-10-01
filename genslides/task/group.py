@@ -20,7 +20,7 @@ class GroupTask(CollectTask):
         task_man = TaskManager()
         mypath = task_man.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        trg_file = self.filename + ".json"
+        trg_file = self.filename + task_man.getTaskExtention()
         # for file in onlyfiles:
         if trg_file in onlyfiles:
             file = trg_file

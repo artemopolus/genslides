@@ -20,6 +20,7 @@ class TaskManager(metaclass=Singleton):
         chat = SimpleChatGPT()
         self.model_list = chat.getModelNames()
         self.cur_task_path = "saved/"
+        self.proj_pref = ""
 
     def getId(self, task) -> int:
         id = self.task_id
@@ -30,6 +31,13 @@ class TaskManager(metaclass=Singleton):
     
     def setPath(self, path: str):
         self.cur_task_path = path
+
+    def getProjPrefix(self) -> str:
+        return self.proj_pref
+    
+
+    def getTaskExtention(self) -> str:
+        return '.json'
     
     def getPath(self) -> str:
         if not os.path.exists(self.cur_task_path):
@@ -55,33 +63,6 @@ class TaskManager(metaclass=Singleton):
                 pass
         return out
 
-    
-    def getParentTaskPrompts(self):
-        mypath = self.getPath()
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        out = []
-        for filename in onlyfiles:
-            path = join(mypath,filename)
-            try:
-                with open(path, 'r') as f:
-                    rq = json.load(f)
-                if 'parent' in rq:
-                    print(path)
-                    parent_path = rq['parent']
-                    if parent_path == "" and 'chat' in rq and 'type' in rq:
-                        print(path)
-                        
-                        for elem in rq['chat']:
-                            if elem['role'] == 'user':
-                                pair = {
-                                'type' : rq['type'],
-                                'content' : elem['content']
-                                }
-                                out.append(pair)
-            except Exception as e:
-                pass
-        return out
-
     def getTaskPrompts(self, trg_path = ""):
         mypath = self.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
@@ -93,8 +74,14 @@ class TaskManager(metaclass=Singleton):
                     rq = json.load(f)
                 if 'parent' in rq:
                     # print(path)
-
-                    parent_path = rq['parent']
+                    task_man = TaskManager()
+                    path_from_file = rq['parent']
+                    if len(path_from_file.split('/')) > 0:
+                        print('Load from old style')
+                        path_from_file = path_from_file.splt('/')[-1]
+                    else:
+                        path_from_file += self.getTaskExtention()
+                    parent_path = task_man.getPath() + path_from_file
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
                         print("Get propmt from=",path)
                         # if rq['type'].endswith("RichText") or rq['type'].endswith("Response"):
@@ -163,7 +150,9 @@ class BaseTask():
         self.method = task_info.method
         task_manager = TaskManager()
         self.id = task_manager.getId(self)
-        self.name = self.type + str(self.id)
+        self.name =  ""
+        self.pref = task_manager.getProjPrefix()
+        self.setName( self.type + str(self.id))
         request = self.init + self.prompt + self.endi
         self.task_description = "Task type = " + self.type + "\nRequest:\n" + request
         self.task_creation_result = "Results of task creation:\n"
@@ -207,7 +196,9 @@ class BaseTask():
     def getIdStr(self) -> str:
         return str(self.id)
     
+    
     def setName(self, name : str):
+        name = self.pref + name
         old_name = self.name
         self.name = name
         print("My new name is", self.name,", was", old_name)
@@ -218,7 +209,8 @@ class BaseTask():
         for info in self.by_ext_affected_list:
             info.parent.updateNameQueue(old_name, name)
 
-        
+    def getClearName(self) -> str:
+        return self.name.replace(self.pref, "")
 
     
     def getName(self) -> str:

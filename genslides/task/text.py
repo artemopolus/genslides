@@ -287,13 +287,13 @@ class TextTask(BaseTask):
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         self.setName( self.getType() + str(self.id))
         print("Start Name =", self.name)
-        name = self.name + ".json"
+        name = self.name + task_man.getTaskExtention()
         found = False
         n = self.name
         while not found:
             if name in onlyfiles:
                 n = self.getType() + str(self.getNewID())
-                name = n + ".json"
+                name = n + task_man.getTaskExtention()
             else:
                 found = True
                 print("Res Name=", n)
@@ -334,7 +334,7 @@ class TextTask(BaseTask):
         resp_json_out['linked'] = linked
         path = ""
         if self.parent:
-            path = self.parent.path
+            path = self.parent.getClearName()
         resp_json_out['parent'] = path
         print("Save json to", self.path)
         with open(self.path, 'w') as f:
@@ -400,7 +400,7 @@ class TextTask(BaseTask):
         task_man = TaskManager()
         mypath = task_man.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        trg_file = self.filename + ".json"
+        trg_file = self.filename + task_man.getTaskExtention()
         # for file in onlyfiles:
         if trg_file in onlyfiles:
             file = trg_file
