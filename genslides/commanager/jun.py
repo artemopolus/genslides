@@ -429,7 +429,7 @@ class Manager:
     def getMainCommandList(self):
         return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep"]
     def getSecdCommandList(self):
-        return ["RemoveBranch", "RemoveTree", "Insert","Remove"]
+        return ["RemoveBranch", "RemoveTree", "Insert","Remove","RespReq","RespReqNew"]
 
   
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
@@ -496,6 +496,15 @@ class Manager:
                 for task in task3_list:
                     self.curr_task = task
                     self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
+        elif creation_type == "RespReq":
+            if self.curr_task:
+                self.makeTaskActionBase(prompt, "Request", "SubTask", "user")
+            else:
+                self.makeTaskActionBase(prompt, "Request", "New", "user")
+            self.makeTaskActionBase(prompt, "Response", "SubTask", "assistant")
+        elif creation_type == "RespReqNew":
+            self.makeTaskActionBase(prompt, "Request", "New", "user")
+            self.makeTaskActionBase(prompt, "Response", "SubTask", "assistant")
             
         return self.getCurrTaskPrompts()
 
