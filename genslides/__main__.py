@@ -143,6 +143,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     # creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
                     creation_types_radio = gr.Dropdown(choices=creation_types_radio_list, label="Type of task creation",value="New")
                     task_type_list = gr.Dropdown(choices = types,label="Task to create", value=types[0])
+                    base_reqresp_btn = gr.Button(value="REQUEST")
+                    new_reqresp_btn = gr.Button(value="NEW TREE")
+
                     action_to_task_btn = gr.Button(value="Make action!")
 
                     # task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
@@ -205,6 +208,10 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list]
+
+            base_reqresp_btn.click(fn=manager.makeRequestGetResponse, inputs=[prompt], outputs=std_output_list)
+            new_reqresp_btn.click(fn=manager.makeNewRequestGetResponse, inputs=[prompt], outputs=std_output_list)
+
 
             next_branch_btn.click(fn=manager.goToNextBranch, outputs=std_output_list)
             next_tree_btn.click(fn=manager.goToNextTree, outputs=std_output_list)
@@ -279,7 +286,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             config_btn = gr.Button(value="update mode config").click(fn=manager.setParam, inputs=[config_name, config_values])
             config_name.change(fn=manager.getParamGradioInput, inputs=[config_name], outputs=[config_values])
 
-    demo.launch(share=True)
+    demo.launch(share=False)
 
 def test_cmd_body(manager : Manager, projecter : Projecter):
     projecter.clear()

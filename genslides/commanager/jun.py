@@ -432,6 +432,13 @@ class Manager:
         return ["RemoveBranch", "RemoveTree", "Insert","Remove","RespReq","RespReqNew"]
 
   
+    def makeRequestGetResponse(self, prompt):
+        return self.makeTaskAction(prompt,"None", "RespReq","None")
+
+    def makeNewRequestGetResponse(self, prompt):
+        return self.makeTaskAction(prompt,"None", "RespReqNew","None")
+
+
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
         if creation_type in self.getMainCommandList() or creation_type in self.vars_param:
             return self.makeTaskActionBase(prompt, type, creation_type, creation_tag)
