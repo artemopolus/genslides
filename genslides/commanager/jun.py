@@ -1004,6 +1004,8 @@ class Projecter:
         # saver = SaveData()
         # saver.removeFiles()
         self.current_project_name = self.manager.getParam("current_project_name")
+        if not self.current_project_name:
+            self.current_project_name = "Untitled"
         self.updateSessionName()
 
     def updateSessionName(self):
