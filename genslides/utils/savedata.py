@@ -66,8 +66,10 @@ class SaveData:
             
     
     def getMessages(self):
-        filename = self.session_path + self.name +".json"
         out = []
+        if not self.name:
+            return out
+        filename = self.session_path + self.name +".json"
         try:
             with open(filename,"r") as f:
                 j = json.load(f)
