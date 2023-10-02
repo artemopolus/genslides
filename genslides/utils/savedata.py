@@ -17,6 +17,7 @@ class SaveData:
 
         self.session_path = "saved\\session\\"
         self.archive_path = "saved\\archive\\"
+        self.name = ""
 
     def save(self, data):
         filename = self.session_path + self.name
