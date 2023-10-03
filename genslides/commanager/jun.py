@@ -92,6 +92,7 @@ class Manager:
 
         self.need_human_response = False
         self.path = 'saved/'
+        self.proj_pref = ''
 
     def getPath(self) -> str:
         return self.path
@@ -101,7 +102,10 @@ class Manager:
 
     def getTaskExtention(self) -> str:
         return '.json'
- 
+
+    def getProjPrefix(self) -> str:
+        return self.proj_pref
+  
 
     def appendExtendProjectTasks(self, path_to_project, name):
         task_manager = TaskManager()

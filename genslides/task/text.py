@@ -14,7 +14,6 @@ from genslides.utils.largetext import SimpleChatGPT
 
 from genslides.utils.savedata import SaveData
 from genslides.utils.loader import Loader
-from genslides.task.base import TaskManager
 
 import json
 import os

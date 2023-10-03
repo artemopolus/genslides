@@ -1,6 +1,5 @@
 from genslides.task.base import TaskDescription
 from genslides.task.collect import CollectTask
-from genslides.task.base import TaskManager
 
 import json
 from os import listdir

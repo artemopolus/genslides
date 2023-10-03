@@ -1,7 +1,6 @@
 from genslides.task.response import ResponseTask
 from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
-from genslides.task.base import TaskManager
 
 import os
 import re

@@ -170,7 +170,7 @@ class BaseTask():
         task_manager = TaskManager()
         self.id = task_manager.getId(self)
         self.name =  ""
-        self.pref = task_manager.getProjPrefix()
+        self.pref = self.manager.getProjPrefix()
         self.parent = task_info.parent
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
