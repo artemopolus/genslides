@@ -1,5 +1,6 @@
 from genslides.task.base import TaskManager
 from genslides.utils.savedata import SaveData
+from genslides.utils.archivator import Archivator
 from genslides.commanager.jun import Manager
 
 from os import listdir
@@ -13,6 +14,7 @@ import graphviz
 import pprint
 import py7zr
 import datetime
+import shutil
 
 
 class Projecter:
@@ -28,6 +30,7 @@ class Projecter:
         # saver.removeFiles()
         self.current_project_name = self.manager.getParam("current_project_name")
         self.updateSessionName()
+        self.ext_proj_names = []
 
     def updateSessionName(self):
         self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -52,6 +55,8 @@ class Projecter:
             f_path = join(mypath, f)
             if isfile(f_path):
                 os.remove(f_path)
+            else:
+                shutil.rmtree(f_path)
 
     def clear(self):
         self.clearFiles()
@@ -96,24 +101,19 @@ class Projecter:
                 with open(proj_path, 'w') as f:
                     json.dump(proj_obj,f,indent=1) 
 
-            self.manager.appendExtendProjectTasks(trg)           
+            ext_pr_name = 'pr' + str(len(self.ext_proj_names))
+            self.ext_proj_names.append(ext_pr_name)
+
+            self.manager.appendExtendProjectTasks(trg, ext_pr_name)
+            self.manager.makeTaskAction(ext_pr_name,"ExtProject","New","user")
 
     
     def save(self, name):
         self.current_project_name = name
         self.manager.setParam("current_project_name",self.current_project_name)
 
-        mypath = self.savedpath
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        first = True
-        for file in onlyfiles:
-            if first:
-                with py7zr.SevenZipFile( self.mypath + name + ".7z", 'w') as archive:
-                    archive.write(self.savedpath + file, arcname = file)
-                first = False
-            else:
-                with py7zr.SevenZipFile( self.mypath + name + ".7z", 'a') as archive:
-                    archive.write(self.savedpath + file, arcname = file)
+        # Archivator.saveOnlyFiles(self.savedpath, self.mypath, name)
+        Archivator.saveAll(self.savedpath, self.mypath, name)
 
         return gr.Dropdown.update( choices= self.loadList(), interactive=True)
 

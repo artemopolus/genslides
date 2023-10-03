@@ -11,10 +11,7 @@ class CollectTask(TextTask):
 
         self.is_freeze = True
         tmp_msg_list = self.msg_list.copy()
-        # tmp_msg_list.append(pair)
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
-        # print("list from file=",msg_list_from_file)
-        # del tmp_msg_list
         
         if len(msg_list_from_file) == 0:
             self.updateCollectedMsgList(tmp_msg_list)
@@ -25,10 +22,6 @@ class CollectTask(TextTask):
 
         self.callback_link = []
 
-
-    # def completeTask(self):
-    #     self.is_solved = True
-    #     return True
 
     def freezeTask(self):
         print("Freeze!")
@@ -64,14 +57,10 @@ class CollectTask(TextTask):
         # print("Prompt=", self.getRichPrompt())
         trg_list = []
         if self.parent:
-            # print("==================>>>>>>>>>>>", pprint.pformat( self.parent.msg_list))
             trg_list = self.checkParentsMsg()
         else:
             trg_list = []
         
-        # self.msg_list[len(self.msg_list) - 1]["content"] = self.getRichPrompt()
-        # last = self.msg_list[- 1].copy()
-        # last["content"] = self.getRichPrompt()
         if not self.is_freeze:
             self.updateCollectedMsgList(trg_list)
         super().update(input)
@@ -170,16 +159,7 @@ class CollectTask(TextTask):
         return None
 
 
-    #     trg_list = []
-    #     if self.parent:
-    #         trg_list = self.parent.msg_list.copy()
-    #     old_msg_list = self.msg_list.copy()
-    #     last = old_msg_list.pop()
-    #     last["content"] = self.getRichPrompt()
-    #     trg_list.append(last)
-    #     if self.msg_list != trg_list:
 
-        return out
     def removeLinkToTask(self):
         self.prompt = ""
         self.update()

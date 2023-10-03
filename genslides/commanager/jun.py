@@ -26,7 +26,6 @@ import graphviz
 
 import pprint
 
-import py7zr
 
 import datetime
 
@@ -95,9 +94,10 @@ class Manager:
 
         self.loadTasksList()
 
-    def appendExtendProjectTasks(self, path_to_project):
+    def appendExtendProjectTasks(self, path_to_project, name):
         task_manager = TaskManager()
         task_manager.setPath(path_to_project)
+        task_manager.setProjPrefix(name)
         self.loadTasksList()
 
 

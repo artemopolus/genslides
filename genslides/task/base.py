@@ -21,6 +21,7 @@ class TaskManager(metaclass=Singleton):
         self.model_list = chat.getModelNames()
         self.cur_task_path = "saved/"
         self.proj_pref = ""
+        self.cur_proj_name = ""
 
     def getId(self, task) -> int:
         id = self.task_id
@@ -31,6 +32,10 @@ class TaskManager(metaclass=Singleton):
     
     def setPath(self, path: str):
         self.cur_task_path = path
+
+    def setProjPrefix(self, proj_name):
+        self.cur_proj_name = proj_name
+        self.proj_pref = proj_name + '_'
 
     def getProjPrefix(self) -> str:
         return self.proj_pref
@@ -78,10 +83,11 @@ class TaskManager(metaclass=Singleton):
                     path_from_file = rq['parent']
                     if len(path_from_file.split('/')) > 0:
                         print('Load from old style')
-                        path_from_file = path_from_file.splt('/')[-1]
+                        path_from_file = path_from_file.split('/')[-1]
                     else:
                         path_from_file += self.getTaskExtention()
                     parent_path = task_man.getPath() + path_from_file
+                    print('Check path:',parent_path,'=',trg_path)
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
                         print("Get propmt from=",path)
                         # if rq['type'].endswith("RichText") or rq['type'].endswith("Response"):
@@ -152,13 +158,16 @@ class BaseTask():
         self.id = task_manager.getId(self)
         self.name =  ""
         self.pref = task_manager.getProjPrefix()
+        self.parent = task_info.parent
+        self.affect_to_ext_list = []
+        self.by_ext_affected_list = []
+        self.queue = []
+        self.is_freeze = False
         self.setName( self.type + str(self.id))
         request = self.init + self.prompt + self.endi
         self.task_description = "Task type = " + self.type + "\nRequest:\n" + request
         self.task_creation_result = "Results of task creation:\n"
 
-        self.parent = task_info.parent
-        self.is_freeze = False
         if  self.parent:
             self.parent.addChild(self)
             if self.parent.is_freeze:
@@ -166,9 +175,6 @@ class BaseTask():
         self.target = task_info.target
         self.filename = task_info.filename
 
-        self.affect_to_ext_list = []
-        self.by_ext_affected_list = []
-        self.queue = []
     
     
     def freezeTask(self):
