@@ -284,18 +284,17 @@ class TextTask(BaseTask):
     def getPath(self) -> str:
         if not os.path.exists("saved"):
             os.makedirs("saved")
-        task_man = TaskManager()
-        mypath = task_man.getPath()
+        mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         self.setName( self.getType() + str(self.id))
         print("Start Name =", self.name)
-        name = self.name + task_man.getTaskExtention()
+        name = self.name + self.manager.getTaskExtention()
         found = False
         n = self.name
         while not found:
             if name in onlyfiles:
                 n = self.getType() + str(self.getNewID())
-                name = n + task_man.getTaskExtention()
+                name = n + self.manager.getTaskExtention()
             else:
                 found = True
                 print("Res Name=", n)
@@ -399,10 +398,9 @@ class TextTask(BaseTask):
     
     def getResponseFromFile(self, msg_list, remove_last=True):
         print("Get response from file:")
-        task_man = TaskManager()
-        mypath = task_man.getPath()
+        mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        trg_file = self.filename + task_man.getTaskExtention()
+        trg_file = self.filename + self.manager.getTaskExtention()
         # for file in onlyfiles:
         if trg_file in onlyfiles:
             file = trg_file
@@ -445,8 +443,7 @@ class TextTask(BaseTask):
         return []
 
     def getResponse(self, request):
-        task_man = TaskManager()
-        mypath = task_man.getPath()
+        mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for file in onlyfiles:
             if file.startswith(self.getType()):

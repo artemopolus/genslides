@@ -91,7 +91,17 @@ class Manager:
         self.browser = WebBrowser()
 
         self.need_human_response = False
+        self.path = 'saved/'
 
+    def getPath(self) -> str:
+        return self.path
+    
+    def setPath(self, path : str):
+        self.path = path
+
+    def getTaskExtention(self) -> str:
+        return '.json'
+ 
 
     def appendExtendProjectTasks(self, path_to_project, name):
         task_manager = TaskManager()
@@ -568,7 +578,9 @@ class Manager:
         
         print('Create task')
         
-        curr_cmd = cr.createTaskByType(type, TaskDescription(prompt=prompt, helper=self.helper, requester=self.requester, parent=parent,prompt_tag=creation_tag))
+        curr_cmd = cr.createTaskByType(type, TaskDescription(prompt=prompt, prompt_tag=creation_tag, 
+                                                             helper=self.helper, requester=self.requester, manager=self, 
+                                                             parent=parent))
 
         # print("Current cmd=", curr_cmd)
 

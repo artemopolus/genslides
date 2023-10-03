@@ -129,7 +129,11 @@ class TaskManager(metaclass=Singleton):
 
 
 class TaskDescription():
-    def __init__(self, prompt = "", method = None, parent=None, helper=None, requester=None, target=None, id = 0, type = "", prompt_tag = "user", filename = "", enabled = False, params = [], manual = False, stepped = False) -> None:
+    def __init__(self, prompt = "", method = None, parent=None, helper=None, 
+                 requester=None, target=None, manager=None, id = 0, type = "", 
+                 prompt_tag = "user", filename = "", enabled = False, 
+                 params = [], manual = False, stepped = False) -> None:
+        self.manager = manager
         self.prompt = prompt
         self.prompt_tag = prompt_tag
         self.method = method
@@ -147,6 +151,7 @@ class TaskDescription():
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
+        self.manager = task_info.manager
         self.childs = []
         self.is_solved = False
         self.reqhelper = task_info.helper
