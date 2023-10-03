@@ -30,6 +30,11 @@ class TaskManager(metaclass=Singleton):
             self.task_list.append(task)
         return id
     
+    def setDefaultProj(self):
+        self.cur_task_path = 'saved/'
+        self.cur_proj_name = ''
+        self.proj_pref = ''
+    
     def setPath(self, path: str):
         self.cur_task_path = path
 
@@ -72,6 +77,7 @@ class TaskManager(metaclass=Singleton):
         mypath = self.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         out = []
+        print('Get available tasks from',len(onlyfiles),'files')
         for filename in onlyfiles:
             path = join(mypath,filename)
             try:
@@ -79,16 +85,16 @@ class TaskManager(metaclass=Singleton):
                     rq = json.load(f)
                 if 'parent' in rq:
                     # print(path)
-                    task_man = TaskManager()
                     path_from_file = rq['parent']
-                    if len(path_from_file.split('/')) > 0:
-                        print('Load from old style')
-                        path_from_file = path_from_file.split('/')[-1]
-                    else:
-                        path_from_file += self.getTaskExtention()
                     parent_path = ""
-                    if path_from_file != "":
-                        parent_path = task_man.getPath() + path_from_file + task_man.getTaskExtention()
+                    print(path_from_file.split('/'))
+                    if len(path_from_file.split('/')) > 1:
+                        print('Load from old style')
+                        parent_path = path_from_file
+                    else:
+                        path_from_file = path_from_file.split('/')[-1]
+                        if path_from_file != "":
+                            parent_path = self.getPath() + path_from_file + self.getTaskExtention()
                     print('Check path:',parent_path,'=',trg_path)
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
                         print("Get propmt from=",path)

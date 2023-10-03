@@ -92,7 +92,6 @@ class Manager:
 
         self.need_human_response = False
 
-        self.loadTasksList()
 
     def appendExtendProjectTasks(self, path_to_project, name):
         task_manager = TaskManager()
@@ -491,6 +490,7 @@ class Manager:
         print(10*"====")
 
         if type is None or creation_type is None:
+            print('Abort maske action')
             return self.getCurrTaskPrompts()
         if creation_type == "Edit":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True)
@@ -558,12 +558,15 @@ class Manager:
         elif creation_type == "New":
             parent = None
             if cr.checkTypeFromName(type, "Response"):
+                print('Can\'t create new Response')
             # if type.startswith("Response"):
                 return out, log, img_path
         elif creation_type == "SubTask":
             parent = self.curr_task
         else:
             return out, log, img_path
+        
+        print('Create task')
         
         curr_cmd = cr.createTaskByType(type, TaskDescription(prompt=prompt, helper=self.helper, requester=self.requester, parent=parent,prompt_tag=creation_tag))
 
@@ -900,7 +903,7 @@ class Manager:
             # else:
             #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
         
-        print(r_msgs)
+        # print(r_msgs)
         return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList())
 
 

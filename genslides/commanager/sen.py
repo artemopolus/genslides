@@ -20,17 +20,19 @@ import shutil
 class Projecter:
     def __init__(self, manager : Manager = None) -> None:
         mypath = "projects/"
+        self.ext_proj_names = []
         if not os.path.exists(mypath):
             os.makedirs(mypath)
         self.mypath = mypath
         task_man = TaskManager()
         self.savedpath = task_man.getPath()
         self.manager = manager
+        self.manager.loadTasksList()
         # saver = SaveData()
         # saver.removeFiles()
         self.current_project_name = self.manager.getParam("current_project_name")
         self.updateSessionName()
-        self.ext_proj_names = []
+
 
     def updateSessionName(self):
         self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -68,20 +70,16 @@ class Projecter:
         saver.updateEstimation(input)
 
 
-    def extractFiles(self, filename, path_to_extract):
-        onlyfiles = [f for f in listdir(self.mypath) if isfile(join(self.mypath, f))]
-        if filename + ".7z" not in onlyfiles:
-            return ""
-        with py7zr.SevenZipFile(self.mypath + filename + ".7z", 'r') as archive:
-            archive.extractall(path=path_to_extract)
 
 
     def load(self, filename):
         if filename == "":
             return ""
         self.clearFiles()
-        self.extractFiles(filename, self.savedpath)
+        print(self.savedpath)
+        Archivator.extractFiles(self.mypath, filename, self.savedpath)
         self.manager.onStart() 
+        self.manager.loadTasksList()
         self.current_project_name = filename
         self.manager.setParam("current_project_name",self.current_project_name)
         self.updateSessionName()
@@ -89,23 +87,29 @@ class Projecter:
     
     def append(self, filename):
         if filename + '.7z' in [f for f in listdir(self.mypath) if isfile(join(self.mypath, f))]:
-            trg = os.path.join(self.savedpath, filename) +'/'
-            self.extractFiles(filename, trg)
+            ext_pr_name = 'pr' + str(len(self.ext_proj_names))
+            trg = os.path.join(self.savedpath,'ext', ext_pr_name) +'/'
+            Archivator.extractFiles(self.mypath, filename, trg)
             print('Append project',filename,'task to', trg)
             proj_file = 'proj.json'
             proj_path = os.path.join(self.savedpath, proj_file)
             if os.path.exists(proj_path):
                 pass
             else:
-                proj_obj = {"appended": [filename]}
+                proj_obj = {"appended": [{"src":filename, "pt": ext_pr_name}]}
                 with open(proj_path, 'w') as f:
                     json.dump(proj_obj,f,indent=1) 
 
-            ext_pr_name = 'pr' + str(len(self.ext_proj_names))
             self.ext_proj_names.append(ext_pr_name)
 
             self.manager.appendExtendProjectTasks(trg, ext_pr_name)
+            cur = self.manager.curr_task
+            task_man = TaskManager()
+            task_man.setDefaultProj()
             self.manager.makeTaskAction(ext_pr_name,"ExtProject","New","user")
+            if cur != self.manager.curr_task and cur is not None:
+                print('Successfully add external task')
+            print('List of tasks:',[n.getName() for n in self.manager.task_list])
 
     
     def save(self, name):

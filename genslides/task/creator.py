@@ -37,6 +37,7 @@ def checkTypeFromName(name : str, type :str) -> bool:
     return stype.endswith(type)
 
 def createTaskByType(type : str,info : TaskDescription):
+    print('Create task')
     # if type == "Presentation":
         # return PresentationTask(info)
     stype = ''.join([i for i in type if not i.isdigit()])
@@ -108,7 +109,7 @@ def createTaskByType(type : str,info : TaskDescription):
     if stype.endswith("ReadFileParam"):
         info.method = ReadFileParamTask
         return cr.CreateCommand(info)
-    if stype.endswith("ExtProjectTask"):
+    if stype.endswith("ExtProject"):
         info.method = ExtProjectTask
         return cr.CreateCommand(info)
     else:

@@ -33,6 +33,8 @@ class TextTask(BaseTask):
         self.path = self.getPath()
         self.copyParentMsg()
         self.params = []
+
+        print('Path to my file=', self.path)
     
     def addChild(self, child) -> bool:
         if super().addChild(child):
