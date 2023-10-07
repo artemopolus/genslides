@@ -144,12 +144,13 @@ class Manager:
 
 
     def goToNextTree(self):
+        print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
-            self.curr_task = self.tree_arr[self.tree_idx]
             if self.tree_idx + 1 < len(self.tree_arr):
                 self.tree_idx += 1
             else:
                 self.tree_idx = 0
+            self.curr_task = self.tree_arr[self.tree_idx]
         else:
             for task in self.task_list:
                 if task.parent is None:
@@ -709,6 +710,8 @@ class Manager:
             task = cmd.execute()
             if (task != None):
                 self.task_list.append(task)
+                if task.parent is None:
+                    self.tree_arr.append(task)
                 self.curr_task = task
             log += task.task_creation_result
             out += str(task) + '\n'
