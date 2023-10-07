@@ -12,15 +12,30 @@ class CollectTask(TextTask):
         self.is_freeze = True
         tmp_msg_list = self.msg_list.copy()
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+
+        self.afterFileLoading()
         
         if len(msg_list_from_file) == 0:
-            self.updateCollectedMsgList(tmp_msg_list)
+            self.hasNoMsgAction()
+            # self.updateCollectedMsgList(tmp_msg_list)
         else:
-            self.msg_list = msg_list_from_file
             print("Get list from file=", self.path)
+            self.haveMsgsAction(msg_list_from_file)
+            # self.setMsgList(msg_list_from_file)
 
 
         self.callback_link = []
+
+    def afterFileLoading(self):
+        pass
+
+    def hasNoMsgAction(self):
+        tmp_msg_list = self.msg_list.copy()
+        self.updateCollectedMsgList(tmp_msg_list)
+
+    def haveMsgsAction(self, msgs):
+        self.setMsgList(msgs)
+
 
 
     def freezeTask(self):
@@ -34,7 +49,7 @@ class CollectTask(TextTask):
             last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
             trg_list.append(last)
             if self.msg_list != trg_list:
-                self.msg_list = trg_list.copy()
+                self.setMsgList( trg_list.copy())
                 self.saveJsonToFile(self.msg_list)
 
 
@@ -43,8 +58,8 @@ class CollectTask(TextTask):
             cur_list = self.msg_list.copy()
             cut = cur_list.pop()
             if cur_list != trg_list:
-                self.msg_list = trg_list
-                self.msg_list.append(cut)
+                trg_list.append(cut)
+                self.setMsgList( trg_list)
                 self.saveJsonToFile(self.msg_list)
                 print("Freeze from checking")
                 self.freezeTask()

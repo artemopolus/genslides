@@ -117,6 +117,8 @@ class Manager:
 
 
     def loadTasksList(self):
+        print(10*"=======")
+        print('Load tasks from files')
         task_manager = TaskManager()
         self.createTask()
 
@@ -215,7 +217,7 @@ class Manager:
             print("Parent task path=", parent_path)
         init_task_list = self.task_list.copy()
         task_manager = TaskManager()
-        parent_prompt_list = task_manager.getTaskPrompts(parent_path)
+        parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), parent_path)
 
         print("prompt count=",len(parent_prompt_list))
 
@@ -580,20 +582,22 @@ class Manager:
         else:
             return out, log, img_path
         
-        print('Create task')
+        return self.createOrAddTask(prompt,type, creation_tag, parent)
         
-        curr_cmd = cr.createTaskByType(type, TaskDescription(prompt=prompt, prompt_tag=creation_tag, 
+    def createOrAddTask(self, prompt, type, tag, parent, params = None):
+        print('Create task')
+        info = TaskDescription(prompt=prompt, prompt_tag=tag, 
                                                              helper=self.helper, requester=self.requester, manager=self, 
-                                                             parent=parent))
-
-        # print("Current cmd=", curr_cmd)
+                                                             parent=parent)
+        if params is not None:
+            info.params = params
+        curr_cmd = cr.createTaskByType(type, info)
 
         if not curr_cmd:
             return self.getCurrTaskPrompts()
         self.cmd_list.append(curr_cmd)
-        
-
         return self.runIteration(prompt)
+
     
     def makeLink(self, task_in : BaseTask, task_out :BaseTask):
         if task_in != None and task_out != None:
@@ -867,11 +871,14 @@ class Manager:
         return self.getCurrTaskPrompts()
 
     
-    def updateSteppedTree(self):
+    def updateSteppedTree(self, info = None):
         index = 0
         self.curr_task.resetTreeQueue()
-        while(index < 1000):
-            next = self.updateSteppedSelectedInternal()
+        while(index < 3):
+            if index == 0 and info is not None:
+                next = self.updateSteppedSelectedInternal(info)
+            else:
+                next = self.updateSteppedSelectedInternal()
             if next is None:
                 print("Done in",index,"iteration")
                 break

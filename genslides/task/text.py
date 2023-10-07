@@ -31,7 +31,8 @@ class TextTask(BaseTask):
 
         self.path = self.getPath()
         self.copyParentMsg()
-        self.params = []
+
+        self.params = task_info.params
 
         print('Path to my file=', self.path)
     
@@ -181,7 +182,7 @@ class TextTask(BaseTask):
             return True
         return False
 
-    def checkParentMsgList(self, update = False, remove = True) -> bool:
+    def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
         print('Check msg list')
         if self.parent:
             trg = self.parent.msg_list.copy()
@@ -191,7 +192,7 @@ class TextTask(BaseTask):
                 last = src.pop()
             if trg != src:
                 if update:
-                    if last:
+                    if last and save_curr:
                         trg.append(last)
                     self.msg_list = trg
                 return False
@@ -206,9 +207,12 @@ class TextTask(BaseTask):
         if len(self.msg_list) > 0:
             return self.msg_list[-1]["role"]
         return "None"
+    
+    def setMsgList(self, msgs):
+        self.msg_list = msgs
  
     def copyParentMsg(self):
-        self.msg_list = self.getParentMsg()
+        self.msg_list = self.getRawParentMsgs()
         
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
         val = [{"role":self.getLastMsgRole(), "content": self.findKeyParam(self.getLastMsgContent())}]
@@ -248,7 +252,7 @@ class TextTask(BaseTask):
 
         return out
    
-    def getParentMsg(self):
+    def getRawParentMsgs(self):
         if self.parent is None:
             return []
         else:
@@ -539,6 +543,7 @@ class TextTask(BaseTask):
         if input:
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
+            print('Params:', input.params)
             for param in input.params:
                 self.updateParam(param["name"], param["value"],param["prompt"])
             
@@ -630,6 +635,11 @@ class TextTask(BaseTask):
                 if key in param:
                     param[key] = val
         self.saveJsonToFile(self.msg_list)
+
+
+    def setParamStruct(self, param):
+        if 'type' in param:
+            self.params.append(param)
  
 
     def getParamStruct(self, param_name):

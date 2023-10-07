@@ -64,6 +64,8 @@ class ResponseTask(TextTask):
         for msg in input_msg_list:
             msg["content"] = self.findKeyParam(msg["content"])
 
+        # print("Chat=",input_msg_list)
+
         res, out = chat.recvRespFromMsgList(input_msg_list)
         return res, out
 
@@ -109,7 +111,7 @@ class ResponseTask(TextTask):
             print("frozen=",self.getName())
             if not self.parent.is_freeze:
                 self.is_freeze = False
-                tmp_msg_list = self.getParentMsg()
+                tmp_msg_list = self.getRawParentMsgs()
                 # print(pprint.pformat(tmp_msg_list))
                 msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
                 if len(msg_list_from_file):
@@ -134,7 +136,7 @@ class ResponseTask(TextTask):
             exe_always = False
             if sres and 'do_always' in sparam and sparam['do_always']:
                 exe_always = True
-            if not self.checkParentMsgList(update=True) or exe_always:
+            if not self.checkParentMsgList(update=True, save_curr=False) or exe_always:
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:

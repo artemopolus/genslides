@@ -183,7 +183,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                 projects_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
                 project_clear = gr.Button(value="clear")
-                gr.Button(value='append').click(fn=projecter.append, inputs=[projects_list])
+                gr.Button(value='append').click(fn=projecter.append, inputs=[ projects_list,prompt])
             dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
 
             with gr.Column():

@@ -85,28 +85,16 @@ class Projecter:
         self.updateSessionName()
         return filename
     
-    def append(self, filename):
+    def append(self, filename, prompt):
         if filename + '.7z' in [f for f in listdir(self.mypath) if isfile(join(self.mypath, f))]:
             ext_pr_name = 'pr' + str(len(self.ext_proj_names))
             trg = os.path.join(self.savedpath,'ext', ext_pr_name) +'/'
             Archivator.extractFiles(self.mypath, filename, trg)
             print('Append project',filename,'task to', trg)
-            proj_file = 'proj.json'
-            proj_path = os.path.join(self.savedpath, proj_file)
-            if os.path.exists(proj_path):
-                pass
-            else:
-                proj_obj = {"appended": [{"src":filename, "pt": ext_pr_name}]}
-                with open(proj_path, 'w') as f:
-                    json.dump(proj_obj,f,indent=1) 
-
-            self.ext_proj_names.append(ext_pr_name)
-
-            self.manager.appendExtendProjectTasks(trg, ext_pr_name)
+            # self.manager.appendExtendProjectTasks(trg, ext_pr_name)
             cur = self.manager.curr_task
-            task_man = TaskManager()
-            task_man.setDefaultProj()
-            self.manager.makeTaskAction(ext_pr_name,"ExtProject","New","user")
+            # self.manager.makeTaskAction(ext_pr_name,"ExtProject","New","user")
+            self.manager.createOrAddTask(prompt, 'ExtProject','user',None,[{'type':'external','project':ext_pr_name}])
             if cur != self.manager.curr_task and cur is not None:
                 print('Successfully add external task')
             print('List of tasks:',[n.getName() for n in self.manager.task_list])
