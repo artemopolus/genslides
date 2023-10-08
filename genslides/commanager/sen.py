@@ -85,7 +85,11 @@ class Projecter:
         self.updateSessionName()
         return filename
     
-    def append(self, filename, prompt):
+    def newExtProject(self, filename, prompt):
+        return self.createExtProject(filename, prompt, self.manager.curr_task)
+    def appendExtProject(self, filename, prompt):
+        return self.createExtProject(filename, prompt, None)
+    def createExtProject(self, filename, prompt, parent):
         if filename + '.7z' in [f for f in listdir(self.mypath) if isfile(join(self.mypath, f))]:
             ext_pr_name = 'pr' + str(len(self.ext_proj_names))
             trg = os.path.join(self.savedpath,'ext', ext_pr_name) +'/'
@@ -94,10 +98,11 @@ class Projecter:
             # self.manager.appendExtendProjectTasks(trg, ext_pr_name)
             cur = self.manager.curr_task
             # self.manager.makeTaskAction(ext_pr_name,"ExtProject","New","user")
-            self.manager.createOrAddTask(prompt, 'ExtProject','user',None,[{'type':'external','project':ext_pr_name}])
+            self.manager.createOrAddTask(prompt, 'ExtProject','user',parent,[{'type':'external','project':ext_pr_name}])
             if cur != self.manager.curr_task and cur is not None:
                 print('Successfully add external task')
             print('List of tasks:',[n.getName() for n in self.manager.task_list])
+        return self.manager.getCurrTaskPrompts()
 
     
     def save(self, name):

@@ -23,6 +23,37 @@ class TaskManager(metaclass=Singleton):
         self.proj_pref = ""
         self.cur_proj_name = ""
 
+    def getListBasedOptionsDict(self, param):
+        with open('config\\options.json') as f:
+            opt_params = json.load(f)
+        if 'type' in param:
+            for p in opt_params:
+                if p['type'] == param['type']:
+                    return [k for k,v in p.items() if k != 'type']
+        return []
+
+
+    def getParamBasedOptionsDict(self, param_name):
+        with open('config\\options.json') as f:
+            opt_params = json.load(f)
+        for p in opt_params:
+            if p['type'] == param_name:
+                return p
+        return None
+     
+    def getOptionsBasedOptionsDict(self, param_name, param_key):
+        with open('config\\options.json') as f:
+            opt_params = json.load(f)
+        for p in opt_params:
+            if p['type'] == param_name and param_key in p:
+                if isinstance(p[param_key], list):
+                    return p[param_key]
+                else:
+                    return [p[param_key]]
+        return []
+
+        
+
     def getId(self, task) -> int:
         id = self.task_id
         self.task_id += 1
@@ -668,6 +699,9 @@ class BaseTask():
     
     def getParam(self, param_name):
         return None
+    
+    def setParamStruct(self, param):
+        pass
     
     def getParamList(self):
         return None

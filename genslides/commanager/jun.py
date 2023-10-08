@@ -930,9 +930,40 @@ class Manager:
             #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
         
         # print(r_msgs)
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList())
+        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=[p['type'] for p in self.curr_task.params if 'type' in p], interactive=True)
+    
+    def getTaskKeys(self, param_name):
+        res, data = self.curr_task.getParamStruct(param_name)
+        a = []
+        if res:
+            a = [k for k,v in data.items() if k != 'type']
+        return gr.Dropdown.update(choices=a, interactive=True)
+    
+    def getTaskKeyValue(self, param_name, param_key):
+        task_man = TaskManager()
+        res, data = self.curr_task.getParamStruct(param_name)
+        if res and param_key in data:
+            cur_val = data[param_key]
+            values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
+            if cur_val in values:
+                return gr.Dropdown.update(choices=values, value=cur_val, interactive=True)
+        return gr.Dropdown.update(choices=[cur_val], value=cur_val, interactive=True)
+    
+    def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
+        if mnl_value == "":
+            self.curr_task.updateParamStruct(param_name, key, slt_value)
+        else:
+            self.curr_task.updateParamStruct(param_name, key, mnl_value)
+        return  self.getCurrTaskPrompts()
 
+    def getAppendableParam(self):
+        task_man = TaskManager()
 
+    def appendNewParamToTask(self, param_name):
+        task_man = TaskManager()
+        param = task_man.getParamBasedOptionsDict(param_name)
+        if param is not None:
+            self.curr_task.setParamStruct(param)
 
     def updateSteppedSelected(self):
         self.updateSteppedSelectedInternal()
