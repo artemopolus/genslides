@@ -958,12 +958,14 @@ class Manager:
 
     def getAppendableParam(self):
         task_man = TaskManager()
+        return task_man.getParamOptBasedOptionsDict()
 
     def appendNewParamToTask(self, param_name):
         task_man = TaskManager()
         param = task_man.getParamBasedOptionsDict(param_name)
         if param is not None:
             self.curr_task.setParamStruct(param)
+        return self.getCurrTaskPrompts()
 
     def updateSteppedSelected(self):
         self.updateSteppedSelectedInternal()

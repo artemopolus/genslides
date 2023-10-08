@@ -32,6 +32,11 @@ class TaskManager(metaclass=Singleton):
                     return [k for k,v in p.items() if k != 'type']
         return []
 
+    def getParamOptBasedOptionsDict(self):
+        with open('config\\options.json') as f:
+            opt_params = json.load(f)
+        return [p['type'] for p in opt_params]
+ 
 
     def getParamBasedOptionsDict(self, param_name):
         with open('config\\options.json') as f:

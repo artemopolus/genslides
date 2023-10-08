@@ -138,6 +138,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     with gr.Row():
                         param_mnlval = gr.Textbox(label='value(manual)')
                         param_edit = gr.Button("Edit param")
+                        param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
+                        param_apnd = gr.Button('Append new')
                 with gr.Column():
                     with gr.Row():
                         res_step_btn = gr.Button(value='Reset Q')
@@ -221,6 +223,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type]
+
+            param_apnd.click(fn=manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
+
 
             param_edit.click(fn=manager.setTaskKeyValue, inputs=[param_type, param_key, param_slcval, param_mnlval], outputs=std_output_list)
             extpr_new.click(fn=projecter.newExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
