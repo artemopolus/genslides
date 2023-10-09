@@ -130,14 +130,20 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     param_info = gr.Textbox(label="Params", lines=4)
                     param_updt = gr.Button(value="Edit param")
                     with gr.Row():
-                        param_type = gr.Dropdown(choices=[],label="Params")
-                        param_key = gr.Dropdown(choices=[],label="Key")
-                        param_type.select(fn=manager.getTaskKeys, inputs=param_type, outputs=param_key)
-                        param_slcval = gr.Dropdown(choices=[],label="Value")
-                        param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval])
+                        with gr.Column():
+                            param_type = gr.Dropdown(choices=[],label="Params")
+                            param_key = gr.Dropdown(choices=[],label="Key")
+                            param_type.select(fn=manager.getTaskKeys, inputs=param_type, outputs=param_key)
+                            param_slcval = gr.Dropdown(choices=[],label="Value")
+                            param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval])
+                            param_mnlval = gr.Textbox(label='value(manual)')
+                        with gr.Column():
+                            param_edit = gr.Button("Edit param")
+                            parents_list = gr.Dropdown(label="Parent tasks:")
+                            find_key_type = gr.Dropdown(choices=['msg','json','param'], value='msg', interactive=True)
+                            trg_params_list = gr.Dropdown(label='List of params')
+                            parents_list.select(fn=manager.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
                     with gr.Row():
-                        param_mnlval = gr.Textbox(label='value(manual)')
-                        param_edit = gr.Button("Edit param")
                         param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
                         param_apnd = gr.Button('Append new')
                 with gr.Column():
@@ -222,7 +228,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
-            std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type]
+            std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list]
 
             param_apnd.click(fn=manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
 

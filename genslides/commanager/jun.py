@@ -930,13 +930,25 @@ class Manager:
             #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
         
         # print(r_msgs)
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=[p['type'] for p in self.curr_task.params if 'type' in p], interactive=True)
+        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=[p['type'] for p in self.curr_task.params if 'type' in p], interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True)
+    
+    def getByTaskNameParamList(self, task_name):
+        task = self.getTaskByName(task_name)
+        return gr.Dropdown.update(choices=[p['type'] for p in task.params if 'type' in p], interactive=True)
     
     def getTaskKeys(self, param_name):
+        return self.getNamedTaskKeys(self.curr_task, param_name)
+
+    def getByTaskNameTasksKeys(self, task_name, param_name):
+        task = self.getTaskByName(task_name)
+        return self.getNamedTaskKeys(task, param_name)
+
+    def getNamedTaskKeys(self, task : BaseTask, param_name : str):
         res, data = self.curr_task.getParamStruct(param_name)
         a = []
         if res:
-            a = [k for k,v in data.items() if k != 'type']
+            task_man = TaskManager()
+            a = task_man.getListBasedOptionsDict(data)
         return gr.Dropdown.update(choices=a, interactive=True)
     
     def getTaskKeyValue(self, param_name, param_key):

@@ -289,8 +289,19 @@ class BaseTask():
         out = par.getAllChildChains()
         return out
 
-
- 
+    def getAllParents(self) -> list:
+        par = self
+        index = 0
+        out = [self]
+        while(index < 1000):
+            if par.parent:
+                par = par.parent
+                out.append(par)
+            else:
+                break
+            index += 1
+        return out
+  
     def getAllChildChains(self):
         index = 0
         out = [self]
@@ -386,6 +397,7 @@ class BaseTask():
             self.queue.append(info)
             return True
         return False
+    
     
     def getChildByName(self, child_name):
         for ch in self.getChilds():
