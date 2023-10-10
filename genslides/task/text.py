@@ -711,6 +711,9 @@ class TextTask(BaseTask):
     
     def getMsgTag(self)-> str:
         return "msg_content"
+    
+    def getTknTag(self)-> str:
+        return 'tokens_cnt'
 
     def findKeyParam(self, text: str):
          results = re.findall(r'\{.*?\}', text)
@@ -741,6 +744,9 @@ class TextTask(BaseTask):
                         else:
                             print("Replace", res, "from",task.getName())
                             rep_text = rep_text.replace(res, str(param))
+                    elif arr[1] == self.getTknTag():
+                        tkns, price = task.getCountPrice()
+                        rep_text = rep_text.replace(res, str(tkns))
                     else:
                         p_exist, param = task.getParam(arr[1])
                         if p_exist:

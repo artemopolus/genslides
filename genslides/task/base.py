@@ -548,31 +548,71 @@ class BaseTask():
     def onQueueCheck(self, param) -> bool:
         # print("React on condition:",param)
         # self.printQueueInit()
-        if param['cond'] == '=' or param['cond'] == '!=':
-            if isinstance(param['cur'], str):
+
+        if param['cond'] in ['>','<','=','!=']:
+            res = True
+            if isinstance(param['trg'], str):
                 cur = self.findKeyParam(param['cur'])
-                print('Cond', self.getName(),':',cur,param['cond'],param['trg'])
-                if param['cond'] == '=':
-                    if cur != param['trg'] or param['cur'] == 'None':
-                        return False
+                if param['cond'] == '=' and cur != param['trg']:
+                    res = False
+                elif param['cond'] == '!=' and cur == param['trg']:
+                    res = False
+                elif param['cur'] == 'None':
+                    res = False
+            elif isinstance(param['trg'], int):
+                try:
+                    cur = param['cur']
+                    if isinstance(cur, str):
+                        cur = int(self.findKeyParam(cur))
                     else:
-                        if 'endless' not in param or not param['endless']:
-                            param['cur'] = 'None'
-                elif param['cond'] == '!=':
-                    if cur == param['trg'] or param['cur'] == 'None':
-                        return False
-                    else:
-                        if 'endless' not in param or not param['endless']:
-                            param['cur'] = 'None'
-        elif isinstance(param['trg'], int) and isinstance(param['cur'], int):
-            cur = int(param['cur'])
-            trg = int(param['trg'])
-            if param['cond'] == '>' and cur < trg:
+                        cur = int(cur)   
+                except:
+                    print('Can\'t get value')   
+                    return False
+                trg = param['trg']
+                if param['cond'] == '>' and cur < trg:
+                    res = False
+                elif param['cond'] == '<' and cur > trg:
+                    res = False
+                elif param['cond'] == '=' and cur != trg:
+                    res = False
+                elif param['cond'] == '!=' and cur == trg:
+                    res = False
+
+            if not res:
                 return False
-            elif param['cond'] == '<' and cur > trg:
-                return False
-            elif param['cond'] == '=' and cur != trg:
-                return False
+            else:
+                if 'endless' not in param or not param['endless']:
+                    param['cur'] = 'None' # Или возврат к исходному?
+
+  
+
+
+        # if param['cond'] == '=' or param['cond'] == '!=':
+        #     if isinstance(param['cur'], str):
+        #         cur = self.findKeyParam(param['cur'])
+        #         print('Cond', self.getName(),':',cur,param['cond'],param['trg'])
+        #         if param['cond'] == '=':
+        #             if cur != param['trg'] or param['cur'] == 'None':
+        #                 return False
+        #             else:
+        #                 if 'endless' not in param or not param['endless']:
+        #                     param['cur'] = 'None'
+        #         elif param['cond'] == '!=':
+        #             if cur == param['trg'] or param['cur'] == 'None':
+        #                 return False
+        #             else:
+        #                 if 'endless' not in param or not param['endless']:
+        #                     param['cur'] = 'None'
+        # elif isinstance(param['trg'], int) and isinstance(param['cur'], int):
+        #     cur = int(param['cur'])
+        #     trg = int(param['trg'])
+        #     if param['cond'] == '>' and cur < trg:
+        #         return False
+        #     elif param['cond'] == '<' and cur > trg:
+        #         return False
+        #     elif param['cond'] == '=' and cur != trg:
+        #         return False
         elif param['cond'] == 'None':
             if param['cur'] == param['trg']:
                 return False
