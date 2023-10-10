@@ -645,7 +645,7 @@ class TextTask(BaseTask):
  
 
     def getParamStruct(self, param_name):
-        # print("Search for", param_name,"in", self.getName())
+        print("Search for", param_name,"in", self.getName())
         forbidden_names = ['input', 'output', 'stopped']
         if param_name not in forbidden_names:
             parent_task = self.parent

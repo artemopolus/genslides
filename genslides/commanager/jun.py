@@ -26,6 +26,8 @@ import graphviz
 
 import pprint
 
+import pyperclip
+
 
 import datetime
 
@@ -937,20 +939,36 @@ class Manager:
         task = self.getTaskByName(task_name)
         return gr.Dropdown.update(choices=[p['type'] for p in task.params if 'type' in p], interactive=True)
     
+    def getFinderKeyString(self,task_name, fk_type, param_name, key_name):
+        if fk_type == 'msg':
+            value = '{' + task_name + ':msg_content}'
+        elif fk_type == 'json':
+            value = '{' + task_name + ':msg_content:json:}'
+        elif fk_type == 'tokens':
+            value = '{' + task_name + ':tokens_cnt}'
+        elif fk_type == 'param':
+            value = '{' + task_name + ':' + param_name + ':' + key_name + '}'
+        pyperclip.copy(value)
+        pyperclip.paste()
+
+    
     def getTaskKeys(self, param_name):
         return self.getNamedTaskKeys(self.curr_task, param_name)
 
     def getByTaskNameTasksKeys(self, task_name, param_name):
+        print(task_name, param_name)
         task = self.getTaskByName(task_name)
         return self.getNamedTaskKeys(task, param_name)
 
     def getNamedTaskKeys(self, task : BaseTask, param_name : str):
-        res, data = self.curr_task.getParamStruct(param_name)
+        res, data = task.getParamStruct(param_name)
+        print(res, data, task.getName(), task.params)
         a = []
         if res:
             task_man = TaskManager()
             a = task_man.getListBasedOptionsDict(data)
-        return gr.Dropdown.update(choices=a, interactive=True)
+        print('Get named task keys', a)
+        return gr.Dropdown(choices=a, interactive=True)
     
     def getTaskKeyValue(self, param_name, param_key):
         task_man = TaskManager()

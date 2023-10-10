@@ -139,10 +139,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             param_mnlval = gr.Textbox(label='value(manual)')
                         with gr.Column():
                             param_edit = gr.Button("Edit param")
-                            parents_list = gr.Dropdown(label="Parent tasks:")
-                            find_key_type = gr.Dropdown(choices=['msg','json','param'], value='msg', interactive=True)
-                            trg_params_list = gr.Dropdown(label='List of params')
-                            parents_list.select(fn=manager.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
+                           
                     with gr.Row():
                         param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
                         param_apnd = gr.Button('Append new')
@@ -169,6 +166,15 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         extpr_new = gr.Button(value='new')
                         extpr_append = gr.Button(value='append')
 
+                    parents_list = gr.Dropdown(label="Parent tasks:")
+                    find_key_type = gr.Dropdown(choices=['msg','json','param','tokens'], value='msg', interactive=True)
+                    with gr.Row():
+                        trg_params_list = gr.Dropdown(label='List of params')
+                        trg_keys_list = gr.Dropdown(label='List of keys')
+                    parents_list.select(fn=manager.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
+                    trg_params_list.select(fn=manager.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
+                    gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
+ 
             with gr.Row() as r:
                 project_name = gr.Textbox(value = projecter.current_project_name, label="Project name")
                 project_save = gr.Button(value="save")
