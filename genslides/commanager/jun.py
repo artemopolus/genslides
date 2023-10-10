@@ -956,13 +956,11 @@ class Manager:
         return self.getNamedTaskKeys(self.curr_task, param_name)
 
     def getByTaskNameTasksKeys(self, task_name, param_name):
-        print(task_name, param_name)
         task = self.getTaskByName(task_name)
         return self.getNamedTaskKeys(task, param_name)
 
     def getNamedTaskKeys(self, task : BaseTask, param_name : str):
         res, data = task.getParamStruct(param_name)
-        print(res, data, task.getName(), task.params)
         a = []
         if res:
             task_man = TaskManager()
