@@ -120,6 +120,6 @@ class ExtProjectTask(CollectTask):
         return self.intch.getLastMsgAndParent()
 
 
-    def getLastMsgContent(self):
+    def getLastMsCogntent(self):
         return self.prompt
 
