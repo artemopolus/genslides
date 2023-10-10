@@ -158,6 +158,7 @@ class Manager:
             if len(self.tree_arr) > 0:
                 self.curr_task = self.tree_arr[0]
                 self.tree_idx = 1
+        print('Current task is', self.curr_task.getName())
         return self.getCurrTaskPrompts()
             
 
@@ -503,7 +504,7 @@ class Manager:
         log = "Nothing"
         img_path = "output/img.png"
         print(10*"====")
-        print("Make action ", creation_type)
+        print("Make action", creation_type)
         print(10*"====")
 
         if type is None or creation_type is None:

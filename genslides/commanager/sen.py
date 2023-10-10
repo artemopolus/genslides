@@ -21,6 +21,10 @@ class Projecter:
     def __init__(self, manager : Manager = None) -> None:
         mypath = "projects/"
         self.ext_proj_names = []
+        ex_path = 'saved\\ext\\'
+        if os.path.exists(ex_path):
+            fldrs = [f for f in listdir(ex_path) if os.path.isdir(os.path.join(ex_path, f))]
+            self.ext_proj_names = fldrs
         if not os.path.exists(mypath):
             os.makedirs(mypath)
         self.mypath = mypath
@@ -86,14 +90,17 @@ class Projecter:
         return filename
     
     def newExtProject(self, filename, prompt):
-        return self.createExtProject(filename, prompt, self.manager.curr_task)
-    def appendExtProject(self, filename, prompt):
         return self.createExtProject(filename, prompt, None)
+    
+    def appendExtProject(self, filename, prompt):
+        return self.createExtProject(filename, prompt, self.manager.curr_task)
+    
     def createExtProject(self, filename, prompt, parent):
         if filename + '.7z' in [f for f in listdir(self.mypath) if isfile(join(self.mypath, f))]:
             ext_pr_name = 'pr' + str(len(self.ext_proj_names))
             trg = os.path.join(self.savedpath,'ext', ext_pr_name) +'/'
-            Archivator.extractFiles(self.mypath, filename, trg)
+            if Archivator.extractFiles(self.mypath, filename, trg):
+                self.ext_proj_names.append(ext_pr_name)
             print('Append project',filename,'task to', trg)
             # self.manager.appendExtendProjectTasks(trg, ext_pr_name)
             cur = self.manager.curr_task

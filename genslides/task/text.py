@@ -35,6 +35,8 @@ class TextTask(BaseTask):
         self.params = task_info.params
 
         print('Path to my file=', self.path)
+
+        self.save_parent = True
     
     def addChild(self, child) -> bool:
         if super().addChild(child):
@@ -85,7 +87,7 @@ class TextTask(BaseTask):
             return
         trg = None
         # print("queue:", self.queue)
-        print("params:", self.params)
+        # print("params:", self.params)
         for param in self.params:
             if "type" in param and "name" in param and param["name"] == old_name:
                 trg = param
@@ -110,7 +112,7 @@ class TextTask(BaseTask):
                 out = param.copy()
                 return out
         pack = super().getChildQueuePack(child)
-        print("pack:",pack)
+        # print("pack:",pack)
         self.params.append(self.getJsonQueue(pack))
         return pack
     
@@ -337,10 +339,10 @@ class TextTask(BaseTask):
             linked.append(info.parent.getName())
         resp_json_out['linked'] = linked
         path = ""
-        if self.parent:
+        if self.parent and self.save_parent:
             path = self.parent.getClearName()
         resp_json_out['parent'] = path
-        print("Save json to", self.path)
+        print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]")
         with open(self.path, 'w') as f:
             # print("save to file=", self.path)
             json.dump(resp_json_out, f, indent=1)

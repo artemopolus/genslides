@@ -1,4 +1,4 @@
-from genslides.task.base import TaskDescription
+from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.collect import CollectTask
 
 # from genslides.commanager.jun import Manager
@@ -20,11 +20,8 @@ class ExtProjectTask(CollectTask):
         self.intman = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         res, param = self.getParamStruct('external')
         if not res:
+            print('No path for ext project task')
             return
-            # path = os.path.join( self.manager.getPath(), 'ext', task_info.prompt) + '\\'
-            # self.setParamStruct({'type':'external','project':task_info.prompt,'path':path})
-            # print('Path to task=', path)
-            # self.intman.setPath(path)
         else:
             if 'path' in param:
                 path = param['path']
@@ -40,7 +37,7 @@ class ExtProjectTask(CollectTask):
                 self.updateParam2(param)
 
             self.intman.setPath(path)
-        
+        print('Load tasks from',path)
         self.intman.loadTasksList()
 
         print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
@@ -53,6 +50,7 @@ class ExtProjectTask(CollectTask):
             if res and param['input']:
                 self.intpar = task
                 self.intpar.parent = self.parent
+                self.intpar.save_parent = False
                 
             res, param = task.getParamStruct('output')
             if res and param['output']:
@@ -64,21 +62,23 @@ class ExtProjectTask(CollectTask):
     def updateExtProjectInternal(self, prompt):
         if self.intpar is not None:
             print('Update external task')
-            info = TaskDescription(prompt=prompt, prompt_tag=self.intpar.getLastMsgRole(), stepped=True, manual=True)
+            print('With prompt=',prompt)
+            info = TaskDescription(prompt=prompt, prompt_tag=self.intpar.getLastMsgRole(), manual=True)
             self.intman.curr_task = self.intpar
-            self.intman.updateSteppedTree(info)
+            # self.intman.updateSteppedTree(info)
+            self.intman.curr_task.update(info)
             if self.intch is not None:
-                res_list = self.getRawParentMsgs()
-                res_list.extend(self.intch.getMsgs())
+                # res_list = self.getRawParentMsgs()
+                res_list = self.intch.getMsgs()
                 self.setMsgList(res_list)
         self.updateParamStruct('external', 'prompt', prompt)
         self.saveJsonToFile(self.msg_list)
 
     def haveMsgsAction(self, msgs):
-        trg_list = self.getRawParentMsgs()
-        trg_list.extend(self.intch.getMsgs())
+        # trg_list = self.getRawParentMsgs()
+        trg_list = self.intch.getMsgs()
         if trg_list == msgs:
-            pass
+            self.setMsgList(msgs)
         else:
             self.updateExtProjectInternal(self.prompt)
     
@@ -89,7 +89,11 @@ class ExtProjectTask(CollectTask):
         pass
 
     def updateIternal(self, input : TaskDescription = None):
-        self.haveMsgsAction(self.msg_list)
+        # self.haveMsgsAction(self.msg_list)
+        if input.stepped:
+            self.intman.updateSteppedTree(input)
+        else:
+            self.intpar.update(input)
 
     def beforeRemove(self):
         print('Delete external proj files')
@@ -98,5 +102,9 @@ class ExtProjectTask(CollectTask):
             print('Remove', param['path'])
             shutil.rmtree(param['path'])
         super().beforeRemove()
+
+    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        return self.intch.getLastMsgAndParent()
+
 
 
