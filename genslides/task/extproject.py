@@ -90,10 +90,23 @@ class ExtProjectTask(CollectTask):
 
     def updateIternal(self, input : TaskDescription = None):
         # self.haveMsgsAction(self.msg_list)
-        if input.stepped:
-            self.intman.updateSteppedTree(input)
+        if input:
+            input.prompt_tag = self.intpar.getLastMsgRole() #quick fix, avoiding to change internal role param
+            input.manual = True
+            if input.stepped:
+                self.intman.curr_task = self.intpar
+                self.intman.updateSteppedTree(input)
+            else:
+                self.intpar.update(input)
         else:
-            self.intpar.update(input)
+            if not self.intpar.checkParentMsgList(update=False, remove=True):
+                print('Normal update', self.getName())
+                info = TaskDescription(prompt=self.prompt, prompt_tag=self.intpar.getLastMsgRole(), manual=True)
+                self.intpar.update(info)
+            else:
+                return
+        self.setMsgList(self.intch.getMsgs())
+        self.saveJsonToFile(self.msg_list)
 
     def beforeRemove(self):
         print('Delete external proj files')
@@ -107,4 +120,6 @@ class ExtProjectTask(CollectTask):
         return self.intch.getLastMsgAndParent()
 
 
+    def getLastMsgContent(self):
+        return self.prompt
 

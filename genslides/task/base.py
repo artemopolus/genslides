@@ -652,7 +652,7 @@ class BaseTask():
         trg = self
         index = 0
         while(index < 1000):
-            if trg.parent is None:
+            if trg.parent is None or not trg.save_parent:
                 return trg
             else:
                 trg = trg.parent

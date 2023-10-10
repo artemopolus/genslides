@@ -185,7 +185,7 @@ class TextTask(BaseTask):
         return False
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
-        print('Check msg list')
+        print('Check msg list of',self.getName(),'with', self.parent.getName())
         if self.parent:
             trg = self.parent.msg_list.copy()
             src = self.msg_list.copy()
