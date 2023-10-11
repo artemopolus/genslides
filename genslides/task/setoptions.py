@@ -102,6 +102,12 @@ class SetOptionsTask(WriteToFileTask):
 
             for param in input.params:
                 self.updateParam(param["name"], param["value"],param["prompt"])
+
+            if input.parent:
+                self.parent = input.parent
+                self.parent.addChild(self)
+                print("New parent=", self.parent)
+
  
             self.saveJsonToFile(self.msg_list)
 

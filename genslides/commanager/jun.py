@@ -891,6 +891,19 @@ class Manager:
             index +=1
         return self.getCurrTaskPrompts() 
     
+    def copyToClickBoardLstMsg(self):
+        msg = self.curr_task.getMsgs()[-1]
+        pyperclip.copy(msg)
+        pyperclip.paste()
+    def copyToClickBoardDial(self):
+        msgs = self.curr_task.getMsgs()
+        text = ""
+        for msg in msgs:
+            text += msg['role'] + '\n' + 10*'====' + '\n\n\n'
+            text += msg['content'] + '\n'
+        pyperclip.copy(text)
+        pyperclip.paste()
+    
     def getCurrTaskPrompts(self):
         msgs = self.curr_task.getMsgs()
         out_prompt = ""
@@ -948,10 +961,21 @@ class Manager:
             value = '{' + task_name + ':tokens_cnt}'
         elif fk_type == 'param':
             value = '{' + task_name + ':' + param_name + ':' + key_name + '}'
+        elif fk_type == 'man_path':
+            value = "{manager:path}"
         pyperclip.copy(value)
         pyperclip.paste()
 
+    def getMsgTag(self)-> str:
+        return "msg_content"
     
+    def getTknTag(self)-> str:
+        return 'tokens_cnt'
+    
+    def getMngTag(self)-> str:
+        return 'manager'
+
+   
     def getTaskKeys(self, param_name):
         return self.getNamedTaskKeys(self.curr_task, param_name)
 

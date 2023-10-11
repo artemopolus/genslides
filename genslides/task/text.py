@@ -185,8 +185,8 @@ class TextTask(BaseTask):
         return False
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
-        print('Check msg list of',self.getName(),'with', self.parent.getName())
         if self.parent:
+            print('Check msg list of',self.getName(),'with', self.parent.getName())
             trg = self.parent.msg_list.copy()
             src = self.msg_list.copy()
             last = None
@@ -542,6 +542,8 @@ class TextTask(BaseTask):
         # print("freeze=", self.is_freeze)
 
     def checkInput(self, input: TaskDescription = None):
+        print('Check input')
+        print(input)
         if input:
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
@@ -709,12 +711,6 @@ class TextTask(BaseTask):
         # print("Found nothing for", param_name)
         return False, None
     
-    def getMsgTag(self)-> str:
-        return "msg_content"
-    
-    def getTknTag(self)-> str:
-        return 'tokens_cnt'
-
     def findKeyParam(self, text: str):
          results = re.findall(r'\{.*?\}', text)
         #  print("Find keys=", text)
@@ -724,7 +720,13 @@ class TextTask(BaseTask):
              arr = res[1:-1].split(":")
             #  print("Keys:", arr)
              if len(arr) > 1:
-                 task = self.getAncestorByName(arr[0])
+                 task = None
+                 if arr[0] == 'manager':
+                    if arr[1] == 'path':
+                        trg_text = self.manager.getPath()
+                        rep_text = rep_text.replace(res, trg_text)
+                 else:
+                    task = self.getAncestorByName(arr[0])
                  if task:
                     if len(arr) > 5:
                         if 'type' == arr[1]:
@@ -732,7 +734,7 @@ class TextTask(BaseTask):
                             if bres and arr[3] in pparam and pparam[arr[3]] == arr[4] and arr[5] in pparam:
                                 rep = pparam[arr[5]]
                                 rep_text = rep_text.replace(res, str(rep))
-                    elif arr[1] == self.getMsgTag():
+                    elif arr[1] == self.manager.getMsgTag():
                         param = task.getLastMsgContent()
                         if len(arr) > 3 and arr[2] == 'json':
                             bres, j = Loader.loadJsonFromText(param)
@@ -744,7 +746,7 @@ class TextTask(BaseTask):
                         else:
                             print("Replace", res, "from",task.getName())
                             rep_text = rep_text.replace(res, str(param))
-                    elif arr[1] == self.getTknTag():
+                    elif arr[1] == self.manager.getTknTag():
                         tkns, price = task.getCountPrice()
                         rep_text = rep_text.replace(res, str(tkns))
                     else:

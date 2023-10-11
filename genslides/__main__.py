@@ -118,10 +118,14 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     sel_task_btn = gr.Button(value="Select")
 
             with gr.Row():
-                sec_msg = gr.Chatbot()
-                sec_msg.style(height=500)
-                graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
-                graph_img.style(height=500)
+                with gr.Column():
+                    sec_msg = gr.Chatbot(height=500)
+                    with gr.Row():
+                        gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
+                        gr.Button("Coly lst msg").click(fn=manager.copyToClickBoardLstMsg)
+                # sec_msg.style(height=500)
+                graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil", height=500)
+                # graph_img.style(height=500)
 
             with gr.Row():
                 with gr.Column():
@@ -167,7 +171,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         extpr_append = gr.Button(value='append')
 
                     parents_list = gr.Dropdown(label="Parent tasks:")
-                    find_key_type = gr.Dropdown(choices=['msg','json','param','tokens'], value='msg', interactive=True)
+                    find_key_type = gr.Dropdown(choices=['msg','json','param','tokens','man_path'], value='msg', interactive=True)
                     with gr.Row():
                         trg_params_list = gr.Dropdown(label='List of params')
                         trg_keys_list = gr.Dropdown(label='List of keys')
@@ -190,8 +194,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             next_task_val = gr.Textbox(value="1",label='Iteration next value')
             prev_task_val = gr.Textbox(value="-1", label='Iteration prev value')
 
-            base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil")
-            base_img.style(height=800)
+            base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil",height=800)
+            # base_img.style(height=800)
 
            
 
