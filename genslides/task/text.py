@@ -126,7 +126,7 @@ class TextTask(BaseTask):
         return pack
     
     def syncParamToQueue(self):
-        print('Sync param to queue')
+        print('Sync', self.getName(), 'param to queue')
         for param in self.params:
             if "type" in param:
                 if param['type'] == 'child' or param['type'] == 'link':
@@ -543,7 +543,6 @@ class TextTask(BaseTask):
 
     def checkInput(self, input: TaskDescription = None):
         print('Check input')
-        print(input)
         if input:
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
@@ -644,6 +643,7 @@ class TextTask(BaseTask):
     def setParamStruct(self, param):
         if 'type' in param:
             self.params.append(param)
+        self.saveJsonToFile(self.msg_list)
  
 
     def getParamStruct(self, param_name):

@@ -122,7 +122,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     sec_msg = gr.Chatbot(height=500)
                     with gr.Row():
                         gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
-                        gr.Button("Coly lst msg").click(fn=manager.copyToClickBoardLstMsg)
+                        gr.Button("Copy lst msg").click(fn=manager.copyToClickBoardLstMsg)
+                        gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
                 # sec_msg.style(height=500)
                 graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil", height=500)
                 # graph_img.style(height=500)
@@ -151,6 +152,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     with gr.Row():
                         res_step_btn = gr.Button(value='Reset Q')
                         step_task_btn = gr.Button(value="Step Q")
+                        step_branch_btn = gr.Button(value='Branch Q')
 
                     creation_types_radio_list = manager.getMainCommandList()
                     creation_types_radio_list += manager.getSecdCommandList()
@@ -265,6 +267,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
             step_task_btn.click(fn=manager.updateSteppedSelected,outputs=std_output_list, api_name="step_task_btn")
+            step_branch_btn.click(fn=manager.updateSteppedTrgBranch, outputs=std_output_list)
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
             prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
             action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")

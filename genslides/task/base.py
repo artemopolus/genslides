@@ -43,6 +43,9 @@ class TaskManager(metaclass=Singleton):
             opt_params = json.load(f)
         for p in opt_params:
             if p['type'] == param_name:
+                for k, v in p.items():
+                    if isinstance(v,list):
+                        p[k] = v[0]
                 return p
         return None
      
@@ -567,7 +570,7 @@ class BaseTask():
                     else:
                         cur = int(cur)   
                 except:
-                    print('Can\'t get value')   
+                    print('Can\'t get value from',param['cur'],'and', self.findKeyParam(param['cur']))   
                     return False
                 trg = param['trg']
                 if param['cond'] == '>' and cur < trg:
@@ -578,12 +581,14 @@ class BaseTask():
                     res = False
                 elif param['cond'] == '!=' and cur == trg:
                     res = False
+                print('Check',cur,param['cond'],trg)
 
             if not res:
                 return False
             else:
-                if 'endless' not in param or not param['endless']:
-                    param['cur'] = 'None' # Или возврат к исходному?
+                if 'endless' in param and param['endless']:
+                    print('Infinity loop!')
+                    param['cur'] = param['str'] # Или возврат к исходному?
 
   
 
@@ -619,9 +624,12 @@ class BaseTask():
             else:
                 param['cur'] = "used"
         if param['cond'] == 'for':
-            print('here')
+            print('Cond for:', param['cur'])
             try:
-                jp = json.loads(self.getAncestorByName(param['target']).getLastMsgContent())
+                if self.getName() == param['target']:
+                    jp = json.loads(self.getLastMsgContent())
+                else:
+                    jp = json.loads(self.getAncestorByName(param['target']).getLastMsgContent())
                 if not "data" in param:
                     param['data'] = jp['data']
                     param['value'] = param['data'][0]
@@ -630,6 +638,7 @@ class BaseTask():
                     param['str'] = 0
                 else:
                     if jp['data'] != param['data']:
+                        param['data'] = jp['data']
                         param['value'] = param['data'][0]
                         param['trg'] = len(param['data'])
                         param['cur'] = 0
@@ -645,7 +654,7 @@ class BaseTask():
             except Exception as e:
                 print("Some go wrong:", e)
                 return False
-        # print("React on condition:",param)
+        print("React on condition:",param)
         param["used"] = True
         return True
     

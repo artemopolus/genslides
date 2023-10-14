@@ -820,7 +820,7 @@ class Manager:
     
     def updateSteppedSelectedInternal(self, info : TaskDescription = None):
         print(10*"----------")
-        print("STEP",8*">>>>>>>>>>>","||||||")
+        print("STEP",8*">>>>>>>>>>>",self.curr_task.getName(),"||||||")
         print(10*"----------")
         if info:
             info.stepped = True
@@ -875,6 +875,24 @@ class Manager:
         for task in self.task_list:
             task.fixQueueByChildList()
         return self.getCurrTaskPrompts()
+    
+    def updateSteppedTrgBranch(self, info = None):
+        if self.curr_task.parent == None:
+            self.updateSteppedTree(info)
+        else:
+            branches = [ch.getName() for ch in self.curr_task.parent.getChilds() if ch != self.curr_task]
+            print('Update branch until:', branches)
+            index = 0
+            while(index < 100):
+                if index == 0 and info is not None:
+                    next = self.updateSteppedSelectedInternal(info)
+                else:
+                    next = self.updateSteppedSelectedInternal()
+                if next is None or next.getName() in branches or next.parent is None:
+                    print("Done in",index,"iteration")
+                    break
+                index +=1
+        return self.getCurrTaskPrompts() 
 
     
     def updateSteppedTree(self, info = None):
@@ -892,9 +910,11 @@ class Manager:
         return self.getCurrTaskPrompts() 
     
     def copyToClickBoardLstMsg(self):
-        msg = self.curr_task.getMsgs()[-1]
+        msg = self.curr_task.getMsgs()[-1]['content']
         pyperclip.copy(msg)
         pyperclip.paste()
+
+    
     def copyToClickBoardDial(self):
         msgs = self.curr_task.getMsgs()
         text = ""
@@ -903,6 +923,13 @@ class Manager:
             text += msg['content'] + '\n'
         pyperclip.copy(text)
         pyperclip.paste()
+
+    def copyToClickBoardTokens(self):
+        tokens, price = self.curr_task.getCountPrice()
+        text  = 'Tokens: ' + str(tokens) + ' price: ' + str(price)
+        pyperclip.copy(text)
+        pyperclip.paste()
+
     
     def getCurrTaskPrompts(self):
         msgs = self.curr_task.getMsgs()
@@ -946,11 +973,21 @@ class Manager:
             #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
         
         # print(r_msgs)
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=[p['type'] for p in self.curr_task.params if 'type' in p], interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True)
+        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True)
+    
+    def getByTaskNameParamListInternal(self, task : BaseTask):
+        out = []
+        for p in task.params:
+            if 'type' in p:
+                if p['type'] == 'child' and 'name' in p:
+                    out.append(p['type'] + '(' + p['name'] + ')')
+                else:
+                    out.append(p['type'])
+        return out
     
     def getByTaskNameParamList(self, task_name):
         task = self.getTaskByName(task_name)
-        return gr.Dropdown.update(choices=[p['type'] for p in task.params if 'type' in p], interactive=True)
+        return gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(task), interactive=True)
     
     def getFinderKeyString(self,task_name, fk_type, param_name, key_name):
         if fk_type == 'msg':
