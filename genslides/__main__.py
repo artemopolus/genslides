@@ -110,6 +110,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                 with gr.Column():
                     next_tree_btn = gr.Button(value='Next tree')
                     next_branch_btn = gr.Button(value='Next branch')
+                    next_brend_bt = gr.Button(value='Next final')
                 with gr.Column():
                     go_parnt_btn = gr.Button(value='Go up')
                     go_child_btn = gr.Button(value='Go down')
@@ -249,6 +250,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             extpr_new.click(fn=projecter.newExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
             extpr_append.click(fn=projecter.appendExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
 
+            next_brend_bt.click(fn=manager.goToNextBranchEnd, outputs=std_output_list)
             next_branch_btn.click(fn=manager.goToNextBranch, outputs=std_output_list)
             next_tree_btn.click(fn=manager.goToNextTree, outputs=std_output_list)
             go_parnt_btn.click(fn=manager.goToParent, outputs=std_output_list)

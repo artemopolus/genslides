@@ -90,6 +90,9 @@ class Manager:
         self.tree_arr = []
         self.tree_idx = 0
 
+        self.endes = []
+        self.endes_idx = 0
+
         self.browser = WebBrowser()
 
         self.need_human_response = False
@@ -176,6 +179,30 @@ class Manager:
     def goToParent(self):
         if self.curr_task.parent is not None:
             self.curr_task = self.curr_task.parent
+        return self.getCurrTaskPrompts()
+    
+    def goToNextBranchEnd(self):
+        tree = self.curr_task.getTree()
+        endes = []
+        for task in tree:
+            if len(task.getChilds()) == 0:
+                endes.append(task)
+        if len(self.endes) == 0:
+            endes = []
+            for task in tree:
+                if len(task.getChilds()) == 0:
+                    endes.append(task)
+            self.endes = endes
+        else:
+            if endes == self.endes:
+                if self.endes_idx + 1 < len(self.endes):
+                    self.endes_idx += 1
+                else:
+                    self.endes_idx = 0
+            else:
+                self.endes = endes
+                self.endes_idx = 0
+            self.curr_task = self.endes[self.endes_idx]
         return self.getCurrTaskPrompts()
 
     def goToNextBranch(self):
@@ -309,7 +336,11 @@ class Manager:
 
     def drawGraph(self, only_current= True):
         if only_current:
-            trg_list = self.curr_task.getTree()
+            if self.curr_task.parent is None:
+                trg_list = self.curr_task.getTree()
+            else:
+                trg_list = self.curr_task.getAllParents()
+                trg_list.extend(self.curr_task.getAllChildChains()[1:])
         else:
             trg_list = self.task_list
         if len(trg_list) > 0:
