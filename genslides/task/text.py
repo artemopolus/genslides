@@ -234,6 +234,12 @@ class TextTask(BaseTask):
                 task = par
             index += 1
         return False, None
+    
+    def replaceImMsgs(self, trg_old, trg_new):
+        for msg in self.msg_list:
+            text = msg['content']
+            text.replace(trg_old, trg_new)
+            msg['content'] = text
  
     def getMsgs(self, except_task = []):
         # print("Get msgs excluded ",except_task)
@@ -750,6 +756,25 @@ class TextTask(BaseTask):
                     elif arr[1] == self.manager.getTknTag():
                         tkns, price = task.getCountPrice()
                         rep_text = rep_text.replace(res, str(tkns))
+                    elif arr[1] == self.manager.getBranchCodeTag():
+                        p_tasks = task.getAllParents()
+                        code_s = ""
+                        if len(p_tasks) > 0:
+                            trg = p_tasks[0]
+                            code_s = self.manager.getShortName(trg.getType(), trg.getName())
+                            for i in range(len(p_tasks)-1):
+                                trg = p_tasks[i]
+                                if len(trg.getChilds()) > 1:
+                                    if p_tasks[i+1] == task and task.getType() == 'WriteToFileParam':
+                                        pass
+                                    else:
+                                        trg1 = p_tasks[0]
+                                        code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+                                        trg1 = p_tasks[1]
+                                        code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+                        rep_text = rep_text.replace(res, code_s)
+
+
                     else:
                         p_exist, param = task.getParam(arr[1])
                         if p_exist:

@@ -1004,6 +1004,9 @@ class Manager:
             #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
         
         # print(r_msgs)
+        value = '{' + self.curr_task.getName() + ':' + self.getBranchCodeTag() + '}'
+        print('BranchCode=', self.curr_task.findKeyParam(value))
+
         return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True)
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
@@ -1026,7 +1029,9 @@ class Manager:
         elif fk_type == 'json':
             value = '{' + task_name + ':msg_content:json:}'
         elif fk_type == 'tokens':
-            value = '{' + task_name + ':tokens_cnt}'
+            value = '{' + task_name + ':' + self.getTknTag() + '}'
+        elif fk_type == 'br_code':
+            value = '{' + task_name + ':' + self.getBranchCodeTag() + '}'
         elif fk_type == 'param':
             value = '{' + task_name + ':' + param_name + ':' + key_name + '}'
         elif fk_type == 'man_path':
@@ -1043,6 +1048,15 @@ class Manager:
     def getMngTag(self)-> str:
         return 'manager'
 
+    def getBranchCodeTag(self) -> str:
+        return 'branch_code'
+    
+    def getShortName(self, n_type : str, n_name : str) -> str:
+        tasks_dict  = cr.getTasksDict()
+        for t in tasks_dict:
+            if t['type']== n_type:
+                return n_name.replace(n_type, t['short'])
+        return n_name
    
     def getTaskKeys(self, param_name):
         return self.getNamedTaskKeys(self.curr_task, param_name)

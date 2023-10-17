@@ -228,15 +228,21 @@ class SimpleChatGPT(ChatGPT):
         if token_cnt > self.max_tokens:
             # try divide last
             # it's too many of them!
-            pass
-        else:
-            self.addCounterToPromts(token_cnt,price=self.input_price)
-            res, out = self.createChatCompletion(messages=msgs)
+            idx = 0
+            while (idx < 1000 and token_cnt > self.max_tokens):
+                msgs.pop(0)
+                text = ""
+                for msg in msgs:
+                    text += msg["content"]
+                token_cnt = self.getTokensCount(text)
+                idx += 1
+        self.addCounterToPromts(token_cnt,price=self.input_price)
+        res, out = self.createChatCompletion(messages=msgs)
 
-            if res:
-                token_cnt = self.getTokensCount(out["content"])
-                self.addCounterToPromts(token_cnt, price= self.output_price)
-                return True, out["content"]        
+        if res:
+            token_cnt = self.getTokensCount(out["content"])
+            self.addCounterToPromts(token_cnt, price= self.output_price)
+            return True, out["content"]        
         return False, ""
 
     def getUserTag(self):

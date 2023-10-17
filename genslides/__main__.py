@@ -174,7 +174,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         extpr_append = gr.Button(value='append')
 
                     parents_list = gr.Dropdown(label="Parent tasks:")
-                    find_key_type = gr.Dropdown(choices=['msg','json','param','tokens','man_path'], value='msg', interactive=True)
+                    find_key_type = gr.Dropdown(choices=['msg','json','param','tokens','man_path','br_code'], value='msg', interactive=True)
                     with gr.Row():
                         trg_params_list = gr.Dropdown(label='List of params')
                         trg_keys_list = gr.Dropdown(label='List of keys')

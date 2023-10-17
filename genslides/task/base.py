@@ -299,7 +299,10 @@ class BaseTask():
         while(index < 1000):
             if par.parent:
                 par = par.parent
-                out.append(par)
+                # out.append(par)
+                p = [par]
+                p.extend(out)
+                out = p
             else:
                 break
             index += 1
@@ -715,6 +718,9 @@ class BaseTask():
     
     def getMsgInfo(self):
         return "","",""
+    
+    def replaceImMsgs(self, trg_old, trg_new):
+        pass
     
     def getInfo(self, short = True) -> str:
         return "Some description"

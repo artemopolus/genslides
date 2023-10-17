@@ -114,3 +114,20 @@ def createTaskByType(type : str,info : TaskDescription):
         return cr.CreateCommand(info)
     else:
     	return None
+    
+def getTasksDict() -> list:
+    out = []
+    out.append({"type":"Request","short":"Rq","creation":RequestTask})
+    out.append({"type":"Response","short":"Rs","creation":ResponseTask})
+    out.append({"type":"Collect","short":"Cl","creation":CollectTask})
+    out.append({"type":"ReadDial","short":"Rd","creation":ReadDialTask})
+    out.append({"type":"WriteDialToFile","short":"Wd","creation":WriteDialToFileTask})
+    out.append({"type":"ReadFile","short":"Rf","creation":ReadFileTask})
+    out.append({"type":"WriteToFile","short":"Wf","creation":WriteToFileTask})
+    out.append({"type":"WriteToFileParam","short":"Wp","creation":WriteToFileParamTask})
+    out.append({"type":"ReadFileParam","short":"Rp","creation":ReadFileParamTask})
+    out.append({"type":"WriteJsonToFile","short":"Wj","creation":WriteJsonToFileTask})
+    out.append({"type":"SetOptions","short":"So","creation":SetOptionsTask})
+    out.append({"type":"RunScript","short":"Rs","creation":RunScriptTask})
+    out.append({"type":"ExtProject","short":"Ep","creation":ExtProjectTask})
+    return out
