@@ -307,7 +307,49 @@ class BaseTask():
                 break
             index += 1
         return out
-  
+
+    def getChildChainList(self):
+        index = 0
+        branch_list = [{'branch':[self],'done':False,'parent':None,'i_par':None,'idx':[]}]
+        while(index < 1000):
+            childs_to_add = []
+            for branch in branch_list:
+                trg = branch['branch'][-1]
+                j = 0
+                while (j < 1000 and not branch['done']):
+                    childs = trg.getChilds()
+                    if len(childs) == 1:
+                        branch['branch'].append(childs[0])
+                        trg = childs[0]
+                    elif len(childs) > 1:
+                        childs_to_add.extend(childs)
+                        branch['done'] = True
+                        break
+                    else:
+                        branch['done'] = True
+                        break
+                    j += 1
+            if len(childs_to_add) == 0:
+                break
+            for child in childs_to_add:
+                branch_list.append({'branch':[child],'done':False,'parent':None,'i_par':None,'idx':[]})
+
+            index += 1
+        
+        for j in range(len(branch_list)):
+            trg = branch_list[j]['branch'][-1]
+            childs = trg.getChilds()
+            i_out = []
+            for i in range(len(branch_list)):
+                if branch_list[i]['branch'][0] in childs:
+                    i_out.append(i)
+                    branch_list[i]['parent'] = trg
+                    branch_list[i]['i_par'] = j
+            print(i_out)
+            branch_list[j]['idx'] = i_out
+        return branch_list
+
+
     def getAllChildChains(self):
         index = 0
         out = [self]

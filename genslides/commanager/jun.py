@@ -457,11 +457,55 @@ class Manager:
         saver = SaveData()
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())
         return "", "" ,self.drawGraph(),"" , "user", chck
+    
+    def copyChildChains(self):
+        tasks_chains = self.curr_task.getChildChainList()
+        print('Task chains:')
+        i = 0
+        for branch in tasks_chains:
+            print(i,[task.getName() for task in branch['branch']], branch['done'], branch['idx'],  branch['parent'].getName() if branch['parent'] else "None", branch['i_par'])
+            i+= 1
+        parent = None
+        for i in range(len(tasks_chains)):
+            branch = tasks_chains[i]
+            for j in range(len(branch['branch'])):
+                if j == 0:
+                    if i != 0:
+                        parent = tasks_chains[branch['i_par']]['created'][-1]
+                    branch['created'] = []
+                else:
+                    parent = self.curr_task
+                task = branch['branch'][j]
+                prompt=task.getLastMsgContent() 
+                prompt_tag=task.getLastMsgRole()
+                print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
+                self.createOrAddTask(prompt, task.getType(),prompt_tag, parent, None)
+                branch['created'].append(self.curr_task)
+
+        
+ 
+        # i = 0
+        # next_idx = [0]
+        # st_parent = None
+        # while (i < 1000):
+        #     for idx in next_idx:
+        #         branch = tasks_chains[idx]
+        #         for j in range(len(branch['branch'])):
+        #             if j == 0:
+        #                 parent = st_parent
+        #             else:
+        #                 parent = self.curr_task
+        #             task = branch['branch'][j]
+        #             self.curr_task.getla
+        #             prompt=self.curr_task.getLastMsgContent() 
+        #             prompt_tag=self.curr_task.getLastMsgRole()
+        #             self.createOrAddTask(prompt, task.getType(),prompt_tag, parent, None)
+        #         next_idx = branch['idx']
+        #         st_parent = self.curr_task
+        #     i+=1
+        return self.getCurrTaskPrompts()
  
     def makeTaskActionPro(self, prompt, type, creation_type, creation_tag):
-        out_prompt = ""
-        in_prompt = ""
-        in_role = "user"
         if creation_type == "RemoveBranch":
             tasks = self.curr_task.getChainBeforeBranching()
             for task in tasks:
