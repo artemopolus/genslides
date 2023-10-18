@@ -319,6 +319,11 @@ class BaseTask():
                     out = p
                 par = par.parent
             else:
+                if par.caretaker is not None:
+                    out.pop(0)
+                    p = [par.caretaker]
+                    p.extend(out)
+                    out = p
                 break
             index += 1
         print('Parent list:', [t.getName() for t in out])
@@ -767,7 +772,7 @@ class BaseTask():
         trg = self
         index = 0
         while(index < 1000):
-            if trg.parent is None or not trg.save_parent:
+            if trg.parent is None or trg.caretaker is not None:
                 return trg
             else:
                 trg = trg.parent

@@ -36,7 +36,7 @@ class TextTask(BaseTask):
 
         print('Path to my file=', self.path)
 
-        self.save_parent = True
+        self.caretaker = None
 
         print('Input params',task_info.params)
         print('Task params',self.params)
@@ -350,7 +350,7 @@ class TextTask(BaseTask):
             linked.append(info.parent.getName())
         resp_json_out['linked'] = linked
         path = ""
-        if self.parent and self.save_parent:
+        if self.parent and self.caretaker is None:
             path = self.parent.getClearName()
         resp_json_out['parent'] = path
         print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]")

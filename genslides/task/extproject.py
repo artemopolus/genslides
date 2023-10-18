@@ -50,7 +50,7 @@ class ExtProjectTask(CollectTask):
             if res and param['input']:
                 self.intpar = task
                 self.intpar.parent = self.parent
-                self.intpar.save_parent = False
+                self.intpar.caretaker = self
                 
             res, param = task.getParamStruct('output')
             if res and param['output']:
