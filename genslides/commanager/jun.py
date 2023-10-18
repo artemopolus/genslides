@@ -479,7 +479,10 @@ class Manager:
                 prompt=task.getLastMsgContent() 
                 prompt_tag=task.getLastMsgRole()
                 print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
-                self.createOrAddTask(prompt, task.getType(),prompt_tag, parent, None)
+                if task.getType() == 'ExtProject':
+                    pass
+                else:
+                    self.createOrAddTask(prompt, task.getType(),prompt_tag, parent, None)
                 branch['created'].append(self.curr_task)
 
         

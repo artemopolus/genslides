@@ -1,7 +1,9 @@
 from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.writetofile import WriteToFileTask
 
+import os
 import json
+from pathlib import Path
 
 class WriteToFileParamTask(WriteToFileTask):
     def __init__(self, task_info: TaskDescription, type="WriteToFileParam") -> None:
@@ -59,7 +61,11 @@ class WriteToFileParamTask(WriteToFileTask):
         else:
             print("No struct param=",self.getName())
 
-
+        if not os.path.exists(path):
+            lst_path = os.path.split(path)
+            if not os.path.exists( lst_path[0]):
+                Path(lst_path[0]).mkdir(parents=True, exist_ok=True)
+            
         with open(path, ctrl, encoding='utf8') as f:
             print(self.getName(),"write =", path)
             # print("Try to save=", text)

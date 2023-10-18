@@ -37,6 +37,9 @@ class TextTask(BaseTask):
         print('Path to my file=', self.path)
 
         self.save_parent = True
+
+        print('Input params',task_info.params)
+        print('Task params',self.params)
     
     def addChild(self, child) -> bool:
         if super().addChild(child):
@@ -117,11 +120,13 @@ class TextTask(BaseTask):
         return pack
     
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
+        print('Check param link queue pack')
         for param in self.params:
             if "type" in param and param["type"] == "link" and "name" in param and param["name"] == info.target.getName():
                 out = param.copy()
                 return out
         pack = super().getLinkQueuePack(info)
+        print('Get default link queue pack',pack)
         self.params.append(self.getJsonQueue(pack))
         return pack
     

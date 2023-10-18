@@ -56,6 +56,9 @@ class ExtProjectTask(CollectTask):
             if res and param['output']:
                 self.intch = task
 
+    def isTaskInternal(self, task :BaseTask):
+        return True if task in self.intman.task_list else False
+
     def hasNoMsgAction(self):
         self.updateExtProjectInternal(self.prompt)
 

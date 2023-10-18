@@ -45,7 +45,10 @@ class TaskManager(metaclass=Singleton):
             if p['type'] == param_name:
                 for k, v in p.items():
                     if isinstance(v,list):
-                        p[k] = v[0]
+                        if len(v) > 0:
+                            p[k] = v[0]
+                        else:
+                            p[k] = v
                 return p
         return None
      
@@ -298,14 +301,27 @@ class BaseTask():
         out = [self]
         while(index < 1000):
             if par.parent:
+                if par not in par.parent.getChilds(): #ExtProject issue
+                    found = False
+                    for child in par.parent.getChilds():
+                        if child.getType() == 'ExtProject' and child.isTaskInternal(par):
+                            p = [par.parent, child]
+                            out.pop(0)
+                            p.extend(out)
+                            out = p
+                            found = True
+                            break
+                    if not found:
+                        raise Exception('Parent task not connected with target')
+                else:
+                    p = [par.parent]
+                    p.extend(out)
+                    out = p
                 par = par.parent
-                # out.append(par)
-                p = [par]
-                p.extend(out)
-                out = p
             else:
                 break
             index += 1
+        print('Parent list:', [t.getName() for t in out])
         return out
 
     def getChildChainList(self):
@@ -424,7 +440,10 @@ class BaseTask():
         return val
 
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
-        return { "name": info.target.getName(), "id":info.id,"method":info.method, "type":"link","used":False}.update(self.getDefCond())
+        val = { "name": info.target.getName(), "id":info.id,"method":info.method, "type":"link","used":False}
+        val.update(self.getDefCond())
+        print(val)
+        return val
     
     def getJsonQueue(self, pack : dict) -> dict:
         if not pack:
@@ -433,6 +452,8 @@ class BaseTask():
             # print("val:",pack)
             # if "name" not in pack:
             #     pack["name"] = val.getName()
+            if 'method' in pack:
+                del pack['method']
             return pack
         return {}
 
