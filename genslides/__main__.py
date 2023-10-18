@@ -328,7 +328,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             config_btn = gr.Button(value="update mode config").click(fn=manager.setParam, inputs=[config_name, config_values])
             config_name.change(fn=manager.getParamGradioInput, inputs=[config_name], outputs=[config_values])
 
-    demo.launch(share=False)
+    demo.launch(share=manager.getParam('shared'))
 
 def test_cmd_body(manager : Manager, projecter : Projecter):
     projecter.clear()
