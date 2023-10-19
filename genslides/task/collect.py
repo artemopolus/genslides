@@ -61,7 +61,7 @@ class CollectTask(TextTask):
                 trg_list.append(cut)
                 self.setMsgList( trg_list)
                 self.saveJsonToFile(self.msg_list)
-                print("Freeze from checking")
+                print("Freeze => parents msgs not equal target")
                 self.freezeTask()
             return trg_list
 

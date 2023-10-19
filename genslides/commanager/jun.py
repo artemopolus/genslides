@@ -125,9 +125,10 @@ class Manager:
         print(10*"=======")
         print('Load tasks from files')
         task_manager = TaskManager()
+        links = task_manager.getLinks()
         self.createTask()
 
-        links = task_manager.getLinks()
+        print('Links', links)
 
         for link in links:
             trgs = link['linked']

@@ -737,6 +737,7 @@ class BaseTask():
         print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
         if self.queue:
             for info1 in self.queue:
+                print(info1)
                 if only_check:
                     info = info1.copy()
                 else:
@@ -748,7 +749,10 @@ class BaseTask():
                 if info["type"] == "link":
                     if self.onQueueCheck(info):
                         input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self, enabled= not self.is_freeze)
-                        info["method"](input)
+                        # info["method"](input)
+                        for affected in self.affect_to_ext_list:
+                            if affected.target.getName() == info['name']:
+                                affected.method(input)
                         return self.getLinkedByName(info['name'])
         return None
     

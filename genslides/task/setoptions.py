@@ -101,7 +101,8 @@ class SetOptionsTask(WriteToFileTask):
                 print("Can't load parameters from",self.prompt,"due",e)
 
             for param in input.params:
-                self.updateParam(param["name"], param["value"],param["prompt"])
+                if 'name' in param and 'value' in param and 'prompt' in param:
+                    self.updateParam(param["name"], param["value"],param["prompt"])
 
             if input.parent:
                 self.parent = input.parent
