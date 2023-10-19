@@ -57,6 +57,10 @@ class ReadFileParamTask(ReadFileTask):
                 return True, text
             else:
                 print("Can\'t read files using paths:" + s_path)
+                if res:
+                    rres, pparam = self.getParamStruct(param_name)
+                    if rres and "read_dial" in pparam and pparam["read_dial"]:
+                        self.msg_list = []
                 return False, "Can\'t read files using paths:" + s_path
         elif res:
             print('Get param')

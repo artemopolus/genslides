@@ -96,8 +96,9 @@ class TaskManager(metaclass=Singleton):
             os.makedirs(self.cur_task_path)
         return self.cur_task_path
     
-    def getLinks(self):
-        mypath = self.getPath()
+    def getLinks(self,mypath):
+        # mypath = self.getPath()
+        print('Get links by path', mypath)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         out = []
         for filename in onlyfiles:
@@ -751,7 +752,6 @@ class BaseTask():
         self.sortQueue()
         if self.queue:
             for info1 in self.queue:
-                print(info1)
                 if only_check:
                     info = info1.copy()
                 else:

@@ -125,7 +125,7 @@ class Manager:
         print(10*"=======")
         print('Load tasks from files')
         task_manager = TaskManager()
-        links = task_manager.getLinks()
+        links = task_manager.getLinks(self.getPath())
         self.createTask()
 
         print('Links', links)

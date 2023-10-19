@@ -56,7 +56,8 @@ class WriteToFileParamTask(WriteToFileTask):
                         # print("Get msg excluded")
                         text = json.dumps(self.getMsgs(except_task=pparam["excld_task"]), indent=1)
                     else:
-                        resp_json_out = self.msg_list.copy()
+                        # resp_json_out = self.msg_list.copy()
+                        resp_json_out = self.getMsgs()
                         text = json.dumps(resp_json_out, indent=1)
         else:
             print("No struct param=",self.getName())
