@@ -160,7 +160,7 @@ class TextTask(BaseTask):
     
     def syncQueueToParam(self):
         print("Sync",self.getName(),"queue to param")
-        # print('Queue:', self.queue)
+        # print(10*'===','Queue:', self.queue)
         for pack in self.queue:
             found = False
             for param in self.params:
@@ -694,6 +694,7 @@ class TextTask(BaseTask):
             self.params = param
         else:
             return
+        self.syncParamToQueue()
         self.saveJsonToFile(self.msg_list)
 
     def getParam(self, param_name):

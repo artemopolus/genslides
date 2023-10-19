@@ -437,7 +437,7 @@ class BaseTask():
         return True
 
     def getDefCond(self) -> dict:
-        return {"cond" : "None", "cur": "None", "trg": "used", "str": "None"}
+        return {"cond" : "None", "cur": "None", "trg": "used", "str": "None","idx":0}
 
     def getChildQueuePack(self, child) ->dict:
         val = {  "type":"child", "used":False ,"name": child.getName()}
@@ -499,6 +499,7 @@ class BaseTask():
         return False
     
     def fixQueueByChildList(self):
+        print('Fix queue of', self.getName(),'by childs and links list')
         to_del = []
         for child in self.childs:
             found = False
@@ -517,13 +518,18 @@ class BaseTask():
             for child in self.childs:
                 if q['name'] == child.getName() and q['type'] == 'child':
                     found = True
+            for link in self.affect_to_ext_list:
+                if q['name'] == link.target.getName() and q['type'] == 'link':
+                    found = True
             if not found and q not in to_del:
                 to_del.append(q)
         
         for q in to_del:
             self.queue.remove(q)
 
- 
+        for trg in self.queue:
+            if 'idx' not in trg:
+                trg['idx'] = 0
 
 
 
@@ -733,8 +739,16 @@ class BaseTask():
     def syncQueueToParam(self):
         pass
 
+    def sortKey(self, trg):
+        return trg['idx']
+
+    def sortQueue(self):
+        self.queue.sort(key=self.sortKey)
+        # print([[q['name'], q['idx']] for q in self.queue])
+
     def findNextFromQueue(self, only_check = False):
         print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
+        self.sortQueue()
         if self.queue:
             for info1 in self.queue:
                 print(info1)
