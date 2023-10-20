@@ -445,7 +445,7 @@ class Manager:
         return out
     
     def getMainCommandList(self):
-        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep"]
+        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep","EditAndStepTree"]
     def getSecdCommandList(self):
         return ["RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp"]
 
@@ -598,6 +598,10 @@ class Manager:
         elif creation_type == "EditAndStep":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True, stepped=True)
             self.updateSteppedSelectedInternal(info)
+            return self.getCurrTaskPrompts()
+        elif creation_type == "EditAndStepTree":
+            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True, stepped=True)
+            self.updateSteppedTree(info)
             return self.getCurrTaskPrompts()
         vars_param = self.vars_param
         for param in vars_param:
@@ -917,6 +921,7 @@ class Manager:
             #         print('Can\'t step on',self.curr_task.parent.getName())
             #         break
             #     idx += 1
+            print('Use old prompt:', self.curr_task.getLastMsgContent())
             self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
 
         res, w_param = self.curr_task.getParamStruct("watched")
@@ -977,7 +982,8 @@ class Manager:
     def updateSteppedTree(self, info = None):
         index = 0
         self.curr_task.resetTreeQueue()
-        while(index < 3):
+        last = self.curr_task
+        while(index < 1000):
             if index == 0 and info is not None:
                 next = self.updateSteppedSelectedInternal(info)
             else:
@@ -985,7 +991,15 @@ class Manager:
             if next is None:
                 print("Done in",index,"iteration")
                 break
+            else:
+                if last == next:
+                    print("Get repeat in",index,"iteration")
+                    break
+                else:
+                    print('After',last.getName(),'will be', next.getName())
+                    last = next
             index +=1
+        print('Done: update tree step by step in', index)
         return self.getCurrTaskPrompts() 
     
     def copyToClickBoardLstMsg(self):

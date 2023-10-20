@@ -77,7 +77,7 @@ class TextTask(BaseTask):
         self.syncQueueToParam()
     
     def printQueueInit(self):
-        print("Data from",self.getName())
+        print("Print queue init",self.getName())
         q_names = [q["name"] for q in self.queue if 'name' in q]
         p_names = [p["name"] for p in self.params if "name" in p]
         c_names = [ch.getName() for ch in self.getChilds()]

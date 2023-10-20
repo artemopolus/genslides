@@ -536,10 +536,16 @@ class BaseTask():
 
 
     def setLinkToTask(self, info : TaskDescription) -> bool:
+        print('Set link to', info.target.getName())
         self.affect_to_ext_list.append(info)
         info1 = self.getLinkQueuePack(info)
         self.onQueueReset(info1)
-        self.queue.append(info1)
+        found = False
+        for pack in self.queue:
+            if pack['type'] == 'link' and pack['name'] == info1['name']:
+                found = True
+        if not found:
+            self.queue.append(info1)
         return True
 
     def resetLinkToTask(self, info : TaskDescription) -> None:
@@ -627,7 +633,7 @@ class BaseTask():
         pass
 
     def onQueueCheck(self, param) -> bool:
-        # print("React on condition:",param)
+        print("React on condition:",param)
         # self.printQueueInit()
 
         if param['cond'] in ['>','<','=','!=']:

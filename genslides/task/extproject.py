@@ -68,8 +68,8 @@ class ExtProjectTask(CollectTask):
             print('With prompt=',prompt)
             info = TaskDescription(prompt=prompt, prompt_tag=self.intpar.getLastMsgRole(), manual=True)
             self.intman.curr_task = self.intpar
-            # self.intman.updateSteppedTree(info)
-            self.intman.curr_task.update(info)
+            self.intman.updateSteppedTree(info)
+            # self.intman.curr_task.update(info)
             if self.intch is not None:
                 # res_list = self.getRawParentMsgs()
                 res_list = self.intch.getMsgs()
@@ -92,11 +92,13 @@ class ExtProjectTask(CollectTask):
         pass
 
     def updateIternal(self, input : TaskDescription = None):
+        print('Update internal', self.getName())
         # self.haveMsgsAction(self.msg_list)
         if input:
             input.prompt_tag = self.intpar.getLastMsgRole() #quick fix, avoiding to change internal role param
             input.manual = True
             if input.stepped:
+                print('Stepped update')
                 self.intman.curr_task = self.intpar
                 self.intman.updateSteppedTree(input)
             else:
@@ -123,6 +125,6 @@ class ExtProjectTask(CollectTask):
         return self.intch.getLastMsgAndParent()
 
 
-    def getLastMsCogntent(self):
+    def getLastMsgContent(self):
         return self.prompt
 
