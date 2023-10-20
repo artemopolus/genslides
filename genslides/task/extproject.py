@@ -128,3 +128,15 @@ class ExtProjectTask(CollectTask):
     def getLastMsgContent(self):
         return self.prompt
 
+    def getBranchCode(self, second) -> str:
+        code_s = ""
+        if second in self.intman.task_list and len(self.intpar.getChilds()) > 1:
+            trg1 = second
+            code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+        elif len(self.getChilds()) > 1:
+            trg1 = self
+            code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+            trg1 = second
+            code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+        return code_s
+

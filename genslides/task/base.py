@@ -555,6 +555,19 @@ class BaseTask():
     def getChilds(self):
         return self.childs
 
+   
+    def getBranchCode(self, second) -> str:
+        code_s = ""
+        if len(self.getChilds()) > 1:
+            if second.getType() == 'WriteToFileParam':
+                return code_s
+            # else:
+            trg1 = self
+            code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+            trg1 = second
+            code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+        return code_s
+
     def getCmd(self):
         if len(self.crtasklist) > 0:
             task = self.crtasklist.pop()
@@ -633,7 +646,7 @@ class BaseTask():
         pass
 
     def onQueueCheck(self, param) -> bool:
-        print("React on condition:",param)
+        # print("React on condition:",param)
         # self.printQueueInit()
 
         if param['cond'] in ['>','<','=','!=']:
@@ -738,7 +751,7 @@ class BaseTask():
             except Exception as e:
                 print("Some go wrong:", e)
                 return False
-        print("React on condition:",param)
+        # print("React on condition:",param)
         param["used"] = True
         return True
     

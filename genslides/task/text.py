@@ -764,20 +764,13 @@ class TextTask(BaseTask):
                         rep_text = rep_text.replace(res, str(tkns))
                     elif arr[1] == self.manager.getBranchCodeTag():
                         p_tasks = task.getAllParents()
+                        print('Get branch code',[t.getName() for t in p_tasks])
                         code_s = ""
                         if len(p_tasks) > 0:
                             trg = p_tasks[0]
                             code_s = self.manager.getShortName(trg.getType(), trg.getName())
                             for i in range(len(p_tasks)-1):
-                                trg = p_tasks[i]
-                                if len(trg.getChilds()) > 1:
-                                    if p_tasks[i+1] == task and task.getType() == 'WriteToFileParam':
-                                        pass
-                                    else:
-                                        trg1 = p_tasks[0]
-                                        code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
-                                        trg1 = p_tasks[1]
-                                        code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+                                code_s += p_tasks[i].getBranchCode( p_tasks[i+1])
                         rep_text = rep_text.replace(res, code_s)
 
 
