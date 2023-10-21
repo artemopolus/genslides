@@ -105,7 +105,7 @@ class SetOptionsTask(WriteToFileTask):
                     self.updateParam(param["name"], param["value"],param["prompt"])
 
             if input.parent:
-                self.parent = input.parent
+                self.setParent(input.parent)
                 self.parent.addChild(self)
                 print("New parent=", self.parent)
 

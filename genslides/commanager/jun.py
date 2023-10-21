@@ -27,6 +27,7 @@ import graphviz
 import pprint
 
 import pyperclip
+import shutil
 
 
 import datetime
@@ -159,7 +160,7 @@ class Manager:
             self.curr_task = self.tree_arr[self.tree_idx]
         else:
             for task in self.task_list:
-                if task.parent is None:
+                if task.isRootParent():
                     self.tree_arr.append(task)
             if len(self.tree_arr) > 0:
                 self.curr_task = self.tree_arr[0]
@@ -210,7 +211,7 @@ class Manager:
         trg = self.curr_task
         idx = 0
         while(idx < 1000):
-            if trg.parent is None:
+            if trg.isRootParent():
                 return self.getCurrTaskPrompts()
             if len(trg.parent.getChilds()) > 1:
                 if self.branch_lastpar is not None and trg.parent == self.branch_lastpar:
@@ -337,13 +338,21 @@ class Manager:
 
     def drawGraph(self, only_current= True):
         if only_current:
-            if self.curr_task.parent is None:
+            if self.curr_task.isRootParent():
                 trg_list = self.curr_task.getTree()
             else:
                 trg_list = self.curr_task.getAllParents()
                 trg_list.extend(self.curr_task.getAllChildChains()[1:])
         else:
             trg_list = self.task_list
+
+        rsm =  self.curr_task.getRootParent().resume_manager
+        trgs_rsm = []
+        if rsm is not None:
+            for t in rsm.task_list:
+                for l in t.by_ext_affected_list:
+                    trgs_rsm.append(l.parent)
+
         if len(trg_list) > 0:
             f = graphviz.Digraph(comment='The Test Table')
 
@@ -351,7 +360,12 @@ class Manager:
             #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
             
             for task in trg_list:
-                if task == self.curr_task:
+                if task in trgs_rsm:
+                    if task == self.curr_task:
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="blueviolet")
+                    else:
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkmagenta")
+                elif task == self.curr_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
                     # f.node ("Current",task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
                     # f.edge (task.getIdStr(), "Current", color = "skyblue", arrowhead = "dot")
@@ -691,10 +705,14 @@ class Manager:
             print("Make link from ", task_out.getName(), " to ", task_in.getName())
             task_in.createLinkToTask(task_out)
 
-    def getTaskByName(self, name : str) -> BaseTask:
+    def getTaskByName(self, name : str, plus_resume= False) -> BaseTask:
         for task in self.task_list:
             if task.getName() == name:
                 return task
+            if plus_resume and task.isRootParent() and task.resume_manager:
+                for t in task.resume_manager.task_list:
+                    if t.getName() == name:
+                        return t
         return None
     
     def updateSetOption(self, task_name, param_name, key, value):
@@ -796,7 +814,7 @@ class Manager:
             task = cmd.execute()
             if (task != None):
                 self.task_list.append(task)
-                if task.parent is None:
+                if task.isRootParent():
                     self.tree_arr.append(task)
                 self.curr_task = task
             log += task.task_creation_result
@@ -911,7 +929,7 @@ class Manager:
         else:
             # idx = 0
             # while(idx < 1000):
-            #     if self.curr_task.parent is None:
+            #     if self.curr_task.isRootParent():
             #         print('Parent of',self.curr_task.getName(),' is None')
             #         break
             #     if self.curr_task.parent.findNextFromQueue(True) is not None:
@@ -972,7 +990,7 @@ class Manager:
                     next = self.updateSteppedSelectedInternal(info)
                 else:
                     next = self.updateSteppedSelectedInternal()
-                if next is None or next.getName() in branches or next.parent is None:
+                if next is None or next.getName() in branches or next.isRootParent():
                     print("Done in",index,"iteration")
                     break
                 index +=1
@@ -1215,5 +1233,20 @@ class Manager:
         send_task_list_json['id'] = 'init'
         return send_task_list_json
  
+    def addSumTree(self):
+        rootnode = self.curr_task.getRootParent()
+        rootnode.addResumeTask(self.curr_task)
+        return self.getCurrTaskPrompts()
+    
+    def beforeRemove(self, remove_folder = False):
+        print('Clean files by manager')
+        for task in self.task_list:
+            task.beforeRemove()
+            self.task_list.remove(task)
+            del task
+        if remove_folder:
+            # os.path.split(self.getPath())
+            # Path.rmdir(self.getPath())
+            shutil.rmtree(self.getPath())
 
 

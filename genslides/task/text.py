@@ -15,12 +15,15 @@ from genslides.utils.largetext import SimpleChatGPT
 from genslides.utils.savedata import SaveData
 from genslides.utils.loader import Loader
 
+from genslides.commanager.jun import Manager
+
 import json
 import os
 from os import listdir
 from os.path import isfile, join
 import pprint
 import re
+from pathlib import Path
 
 
 class TextTask(BaseTask):
@@ -37,6 +40,8 @@ class TextTask(BaseTask):
         print('Path to my file=', self.path)
 
         self.caretaker = None
+
+        self.loadResumeTask()
 
         print('Input params',task_info.params)
         print('Task params',self.params)
@@ -266,7 +271,7 @@ class TextTask(BaseTask):
         return out
    
     def getRawParentMsgs(self):
-        if self.parent is None:
+        if self.isRootParent():
             return []
         else:
             out =  self.parent.msg_list.copy()
@@ -563,7 +568,7 @@ class TextTask(BaseTask):
                     self.updateParam(param["name"], param["value"],param["prompt"])
             
             if input.parent:
-                self.parent = input.parent
+                self.setParent(input.parent)
                 self.parent.addChild(self)
                 print("New parent=", self.parent)
 
@@ -792,5 +797,32 @@ class TextTask(BaseTask):
 
     def getAllParams(self):
         return json.dumps(self.params, indent=1)
+    
+    def loadResumeTask(self):
+        if self.isRootParent():
+            res, param = self.getParamStruct('resume_manager')
+            if res:
+                path = param['path']
+                self.resume_manager = Manager()
+                self.resume_manager.setPath(path)
+                self.resume_manager.loadTasksList()
 
+    def addResumeTask(self, task):
+        if self.isRootParent():
+            if self.resume_manager is None:
+                self.resume_manager = Manager()
+                path = 'saved\\sum\\tree' + self.getName() +'\\'
+                if not os.path.exists(path):
+                    Path(path).mkdir(parents=True, exist_ok=True)
+                
+                self.resume_manager.setPath(path)
+
+                self.params.append({'type':'resume_manager','path':path})
+                self.saveJsonToFile(self.msg_list)
+                # self.resume_manager.loadTasksList()
+                self.resume_manager.createOrAddTask("","Collect","user",None)
+                self.resume_manager.makeLink(self.resume_manager.curr_task, task)
+            else:
+                self.resume_manager.createOrAddTask("","Collect","user",self.resume_manager.curr_task)
+                self.resume_manager.makeLink(self.resume_manager.curr_task, task)
  
