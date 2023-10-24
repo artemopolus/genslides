@@ -1231,11 +1231,7 @@ class Manager:
         send_task_list_json['id'] = 'init'
         return send_task_list_json
  
-    def addSumTree(self):
-        rootnode = self.curr_task.getRootParent()
-        rootnode.addResumeTask(self.curr_task)
-        return self.getCurrTaskPrompts()
-    
+   
     def beforeRemove(self, remove_folder = False):
         print('Clean files by manager')
         for task in self.task_list:

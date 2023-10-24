@@ -215,7 +215,6 @@ class BaseTask():
         self.name =  ""
         self.pref = self.manager.getProjPrefix()
         self.parent = None
-        self.resume_manager = None
         self.setParent(task_info.parent)
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
@@ -477,15 +476,6 @@ class BaseTask():
             print('Remove parent')
         else:
             print('Set new parent', parent.getName())
-            if self.resume_manager is not None:
-                print('I was root task')
-                new_root = parent.getRootParent()
-                for task in self.resume_manager.task_list:
-                    for link in task.by_ext_affected_list:
-                        new_root.addResumeTask(link.parent)
-               #TODO: remove manager 
-                self.resume_manager.beforeRemove(True)
-                del self.resume_manager
         self.parent = parent
 
     def addChild(self, child) -> bool:
