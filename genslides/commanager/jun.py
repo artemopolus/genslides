@@ -99,6 +99,7 @@ class Manager:
         self.need_human_response = False
         self.path = 'saved/'
         self.proj_pref = ''
+        self.return_points = []
 
     def getPath(self) -> str:
         return self.path
@@ -128,12 +129,14 @@ class Manager:
         task_manager = TaskManager()
         links = task_manager.getLinks(self.getPath())
         self.createTask()
+        for task in self.task_list:
+            links.extend(task.saved_links)
 
         print('Links', links)
 
         for link in links:
             trgs = link['linked']
-            affect_task = self.getTaskByName(link['name'])
+            affect_task = self.getTaskByName(link['name'], True)
             for trg in trgs:
                 influense_task = self.getTaskByName(trg)
                 self.makeLink(affect_task, influense_task)
@@ -346,12 +349,7 @@ class Manager:
         else:
             trg_list = self.task_list
 
-        rsm =  self.curr_task.getRootParent().resume_manager
-        trgs_rsm = []
-        if rsm is not None:
-            for t in rsm.task_list:
-                for l in t.by_ext_affected_list:
-                    trgs_rsm.append(l.parent)
+        trgs_rsm = self.curr_task.getResumedTasksList()
 
         if len(trg_list) > 0:
             f = graphviz.Digraph(comment='The Test Table')
@@ -746,13 +744,17 @@ class Manager:
         
  
     def getTaskList(self):
+        print('Get tasks list')
         out = []
         for task in self.task_list:
+            out.append(task.getName())
+        rsm = self.curr_task.getResumeTasks()
+        for task in rsm:
             out.append(task.getName())
         return out
     
     def setCurrentTaskByName(self, name):
-        task = self.getTaskByName(name)
+        task = self.getTaskByName(name, True)
         if task:
             print("Set current task=", task.getName())
             self.curr_task = task
@@ -955,18 +957,24 @@ class Manager:
             saver.save(pack)
 
 
-
+        
         next = self.curr_task.getNextFromQueue()
-        if next:
-            print("Next task is", next.getName())
+        if next not in self.curr_task.getTree():
+            print('Go to the next tree')
+            self.return_points.append(self.curr_task)
+        print(len(self.return_points))
+        if next and self.curr_task != next:
             # if next.parent == None:
                 # next.resetTreeQueue()
             self.curr_task = next
         else:
-            if self.curr_task.parent:
+            if len(self.return_points) > 0:
+                self.curr_task = self.return_points.pop()
+            elif self.curr_task.parent:
                 print("Done some")
             else:
                 print("On start")
+        print("Next task is", next.getName())
         return next
     
     def resetCurTaskQueue(self):

@@ -1,13 +1,11 @@
-from genslides.task.base import BaseTask
+from genslides.task.base import BaseTask, TaskManager
 from genslides.task.base import TaskDescription
 
-import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 import genslides.utils.browser as Browser
 import genslides.utils.browser as WebBrowser
 import genslides.utils.largetext as Summator
 
-from genslides.utils.searcher import GoogleApiSearcher
 from genslides.utils.chatgptrequester import ChatGPTrequester
 from genslides.utils.chatgptrequester import ChatGPTsimple
 from genslides.utils.largetext import SimpleChatGPT
@@ -15,7 +13,11 @@ from genslides.utils.largetext import SimpleChatGPT
 from genslides.utils.savedata import SaveData
 from genslides.utils.loader import Loader
 
-from genslides.commanager.jun import Manager
+import genslides.commanager.jun as man
+from genslides.utils.reqhelper import RequestHelper
+from genslides.utils.testrequest import TestRequester
+from genslides.utils.searcher import GoogleApiSearcher
+
 
 import json
 import os
@@ -41,7 +43,6 @@ class TextTask(BaseTask):
 
         self.caretaker = None
 
-        self.loadResumeTask()
 
         print('Input params',task_info.params)
         print('Task params',self.params)
@@ -442,20 +443,16 @@ class TextTask(BaseTask):
                                 if 'stopped' in param and param['stopped']:
                                     stopped = True
                         if self.checkLoadCondition(msg_trgs, msg_list) or stopped or self.is_freeze:
-                            print(10*"====", "\nLoaded from file:",path)
-                            self.path = path
-                            self.setName(file.split('.')[0])
-                            if 'params' in rq:
-                                self.params = self.resetResetableParams(rq['params'])
-                            return rq['chat']
+                            pass
                         else:
-                            print(10*"====", "\nLoaded from file:",path)
                             self.is_freeze = True
-                            self.path = path
-                            self.setName(file.split('.')[0])
-                            if 'params' in rq:
-                                self.params = self.resetResetableParams(rq['params'])
-                            return rq['chat']
+                        print(10*"====", "\nLoaded from file:",path)
+                        self.path = path
+                        self.setName(file.split('.')[0])
+                        if 'params' in rq:
+                            self.params = self.resetResetableParams(rq['params'])
+                        self.loadResumeTask()
+                        return rq['chat']
                             # print('No right data in file')
                     else:
                         print('No chat in file')
@@ -799,18 +796,23 @@ class TextTask(BaseTask):
         return json.dumps(self.params, indent=1)
     
     def loadResumeTask(self):
+        
         if self.isRootParent():
+            print('Load resume task manager')
             res, param = self.getParamStruct('resume_manager')
             if res:
                 path = param['path']
-                self.resume_manager = Manager()
+                print(path)
+                self.resume_manager = man.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
                 self.resume_manager.setPath(path)
+                task_manager = TaskManager()
+                self.saved_links = task_manager.getLinks(self.resume_manager.getPath())
                 self.resume_manager.loadTasksList()
 
     def addResumeTask(self, task):
         if self.isRootParent():
             if self.resume_manager is None:
-                self.resume_manager = Manager()
+                self.resume_manager = man.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
                 path = 'saved\\sum\\tree' + self.getName() +'\\'
                 if not os.path.exists(path):
                     Path(path).mkdir(parents=True, exist_ok=True)

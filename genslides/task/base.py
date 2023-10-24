@@ -215,6 +215,7 @@ class BaseTask():
         self.name =  ""
         self.pref = self.manager.getProjPrefix()
         self.parent = None
+        self.resume_manager = None
         self.setParent(task_info.parent)
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
@@ -232,8 +233,7 @@ class BaseTask():
         self.target = task_info.target
         self.filename = task_info.filename
 
-        self.resume_manager = None
-
+        self.saved_links = []
     
     
     def freezeTask(self):
@@ -872,7 +872,7 @@ class BaseTask():
                         break
         for child in self.childs:
             child.whenParentRemoved()
-        if self.isRootParent():
+        if self.isRootParent() and self.resume_manager is not None:
             self.resume_manager.beforeRemove(True)
             del self.resume_manager
 
@@ -942,4 +942,22 @@ class BaseTask():
 
     def addResumeTask(self, task):
         pass
+
+    def getResumedTasksList(self) -> list:
+        rsm =  self.getRootParent().resume_manager
+        trgs_rsm = []
+        if rsm is not None:
+            for t in rsm.task_list:
+                for l in t.by_ext_affected_list:
+                    trgs_rsm.append(l.parent)
+        return trgs_rsm
+    
+    def getResumeTasks(self) -> list:
+        rsm =  self.getRootParent().resume_manager
+        trgs_rsm = []
+        if rsm is not None:
+            for t in rsm.task_list:
+                trgs_rsm.append(t)
+        return trgs_rsm
+ 
  
