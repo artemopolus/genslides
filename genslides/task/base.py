@@ -214,7 +214,9 @@ class BaseTask():
         self.id = task_manager.getId(self)
         self.name =  ""
         self.pref = self.manager.getProjPrefix()
-        self.parent = task_info.parent
+        self.parent = None
+        self.resume_manager = None
+        self.setParent(task_info.parent)
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
         self.queue = []
@@ -284,7 +286,10 @@ class BaseTask():
     def isInputTask(self):
         return True
     
-    def getTree(self):
+    def isRootParent(self):
+        return self.parent is None
+    
+    def getRootParent(self):
         par = self
         index = 0
         while(index < 1000):
@@ -293,6 +298,10 @@ class BaseTask():
             else:
                 break
             index += 1
+        return par
+
+    def getTree(self):
+        par = self.getRootParent()
         out = par.getAllChildChains()
         return out
 
@@ -462,6 +471,22 @@ class BaseTask():
                 del pack['method']
             return pack
         return {}
+    
+    def setParent(self, parent):
+        if parent is None:
+            print('Remove parent')
+        else:
+            print('Set new parent', parent.getName())
+            if self.resume_manager is not None:
+                print('I was root task')
+                new_root = parent.getRootParent()
+                for task in self.resume_manager.task_list:
+                    for link in task.by_ext_affected_list:
+                        new_root.addResumeTask(link.parent)
+               #TODO: remove manager 
+                self.resume_manager.beforeRemove(True)
+                del self.resume_manager
+        self.parent = parent
 
     def addChild(self, child) -> bool:
         print('Add child',child.getName())
@@ -809,7 +834,7 @@ class BaseTask():
         trg = self
         index = 0
         while(index < 1000):
-            if trg.parent is None or trg.caretaker is not None:
+            if trg.isRootParent() or trg.caretaker is not None:
                 return trg
             else:
                 trg = trg.parent
@@ -832,18 +857,20 @@ class BaseTask():
 
 
     def beforeRemove(self):
-        if self.parent:
+        if self.isRootParent():
+            pass #TODO: remove manager
+        else:
             self.parent.removeChild(self)
         for child in self.childs:
             child.whenParentRemoved()
 
     def whenParentRemoved(self):
-        self.parent = None
+        self.setParent(None)
 
     def removeParent(self):
          if self.parent:
             self.parent.removeChild(self)
-            self.parent = None
+            self.setParent(None)
        
 
     def getCountPrice(self):

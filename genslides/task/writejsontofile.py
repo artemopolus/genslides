@@ -12,7 +12,7 @@ class WriteJsonToFileTask(WriteToFileTask):
 
 
     def executeResponse(self):
-        if self.parent == None or self.is_freeze:
+        if self.isRootParent() or self.is_freeze:
             return
         prop = self.msg_list[-1]["content"]
         res, prop_json = Loader.loadJsonFromText(prop)

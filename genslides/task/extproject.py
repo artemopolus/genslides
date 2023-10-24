@@ -115,10 +115,12 @@ class ExtProjectTask(CollectTask):
 
     def beforeRemove(self):
         print('Delete external proj files')
-        res, param = self.getParamStruct('external')
-        if res and 'path' in param:
-            print('Remove', param['path'])
-            shutil.rmtree(param['path'])
+        # res, param = self.getParamStruct('external')
+        # if res and 'path' in param:
+        #     print('Remove', param['path'])
+        #     shutil.rmtree(param['path'])
+        self.intman.beforeRemove(True)
+        del self.intman
         super().beforeRemove()
 
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
