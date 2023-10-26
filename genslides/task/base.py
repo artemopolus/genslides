@@ -499,20 +499,6 @@ class BaseTask():
             if info.target.getName() == linked_name:
                 return info.target
     
-    def removeChild(self,child) -> bool:
-        if child in self.childs:
-            print("Remove child", child.getName(),"from", self.getName())
-            self.childs.remove(child)
-            trg = None
-            for q in self.queue:
-                if q['name'] == child.getName() and q['type'] == 'child':
-                    trg = q
-                    break
-            if trg is not None:
-                self.queue.remove(trg)
-            # self.queue.remove(self.getChildQueuePack(child))
-            return True
-        return False
     
     def fixQueueByChildList(self):
         print('Fix queue of', self.getName(),'by childs and links list')
@@ -861,7 +847,25 @@ class BaseTask():
          if self.parent:
             self.parent.removeChild(self)
             self.setParent(None)
+
+    def removeAllChilds(self):
+        for child in self.childs:
+            self.removeChild(child)
        
+    def removeChild(self,child) -> bool:
+        if child in self.childs:
+            print("Remove child", child.getName(),"from", self.getName())
+            self.childs.remove(child)
+            trg = None
+            for q in self.queue:
+                if q['name'] == child.getName() and q['type'] == 'child':
+                    trg = q
+                    break
+            if trg is not None:
+                self.queue.remove(trg)
+            # self.queue.remove(self.getChildQueuePack(child))
+            return True
+        return False
 
     def getCountPrice(self):
         return 0,0
@@ -913,4 +917,17 @@ class BaseTask():
     
     def findKeyParam(self, text: str):
         return text
+    
+    def getAffectingOnTask(self) -> list:
+        out = []
+        for pack in self.by_ext_affected_list:
+            out.append(pack.parent)
+        return out
+    
+    def getAffectedTasks(self) -> list:
+        out = []
+        for pack in self.affect_to_ext_list:
+            out.append(pack.target)
+        return out
+ 
     

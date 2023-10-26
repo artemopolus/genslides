@@ -155,6 +155,13 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         step_task_btn = gr.Button(value="Step Q")
                         step_branch_btn = gr.Button(value='Branch Q')
 
+                    with gr.Row():
+                        selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
+                        select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
+                        clear_select_list_btn = gr.Button(value='Clear').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
+                        generate_tree_btn = gr.Button(value='Gen')
+                    
+
                     creation_types_radio_list = manager.getMainCommandList()
                     creation_types_radio_list += manager.getSecdCommandList()
                     for param in manager.vars_param:
@@ -245,6 +252,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list]
 
+            generate_tree_btn.click(fn=manager.createCollectTreeOnSelectedTasks, outputs= std_output_list)
             copy_tree.click(fn=manager.copyChildChains, outputs=std_output_list)
             param_apnd.click(fn=manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
 

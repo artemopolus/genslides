@@ -100,6 +100,67 @@ class Manager:
         self.path = 'saved/'
         self.proj_pref = ''
         self.return_points = []
+        self.selected_tasks = []
+
+    def addTaskToSelectList(self, task :BaseTask):
+        self.selected_tasks.append(task)
+
+    def clearSelectList(self):
+        self.selected_tasks.clear()
+        return ','.join( self.getSelectList())
+
+    def addCurrTaskToSelectList(self):
+        self.addTaskToSelectList(self.curr_task)
+        return ','.join( self.getSelectList())
+
+    def getSelectList(self) -> list:
+        return [t.getName() for t in self.selected_tasks]
+    
+    def createCollectTreeOnSelectedTasks(self):
+        first = True
+        for task in self.selected_tasks:
+            if first:
+                self.createOrAddTask("","Collect","user",None)
+                first = False
+            else:
+                parent = self.curr_task
+                self.createOrAddTask("","Collect","user",parent)
+            self.makeLink(self.curr_task, task)
+        self.clearSelectList()
+        return self.getCurrTaskPrompts()
+    
+    def moveCurrentTaskUP(self):
+        self.moveTaskUP(self.curr_task)
+        return self.getCurrTaskPrompts()
+    
+    def moveTaskUP(self, task : BaseTask):
+        task_B = task.parent
+        task_C = task
+        if task_B is not None:
+            if task_B.parent is not None:
+                task_A = task_B.parent
+            childs_C = task.getChilds()
+            childs_B = task_B.getChilds()
+            childs_B.remove(task_C)
+
+            task_B.removeAllChilds()
+            task_B.removeParent()
+            task_C.removeAllChilds()
+            task_C.removeParent()
+
+            for child in childs_C:
+                task_B.addChild(child)
+
+            for child in childs_B:
+                task_C.addChild(child)
+
+            if task.parent.parent is not None:
+                task_A.addChild(task_C)
+        else:
+            print('Nothing to switch')
+                        
+
+
 
     def getPath(self) -> str:
         return self.path
@@ -129,14 +190,12 @@ class Manager:
         task_manager = TaskManager()
         links = task_manager.getLinks(self.getPath())
         self.createTask()
-        for task in self.task_list:
-            links.extend(task.saved_links)
 
         print('Links', links)
 
         for link in links:
             trgs = link['linked']
-            affect_task = self.getTaskByName(link['name'], True)
+            affect_task = self.getTaskByName(link['name'])
             for trg in trgs:
                 influense_task = self.getTaskByName(trg)
                 self.makeLink(affect_task, influense_task)
@@ -353,7 +412,11 @@ class Manager:
 
             # if self.curr_task:
             #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
-            
+            trgs_rsm = []
+            for task in self.task_list:
+                if len(task.getAffectedTasks()) > 0:
+                    trg_list.append(task)
+
             for task in trg_list:
                 if task in trgs_rsm:
                     if task == self.curr_task:
