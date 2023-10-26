@@ -126,7 +126,14 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         gr.Button("Copy lst msg").click(fn=manager.copyToClickBoardLstMsg)
                         gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
                 # sec_msg.style(height=500)
-                graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil", height=500)
+                with gr.Column():
+                    graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil", height=500)
+                    with gr.Row():
+                        res_step_btn = gr.Button(value='Reset Q')
+                        step_task_btn = gr.Button(value="Step Q")
+                        step_branch_btn = gr.Button(value='Branch Q')
+
+
                 # graph_img.style(height=500)
 
             with gr.Row():
@@ -150,11 +157,6 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
                         param_apnd = gr.Button('Append new')
                 with gr.Column():
-                    with gr.Row():
-                        res_step_btn = gr.Button(value='Reset Q')
-                        step_task_btn = gr.Button(value="Step Q")
-                        step_branch_btn = gr.Button(value='Branch Q')
-
                     with gr.Row():
                         selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
                         select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
