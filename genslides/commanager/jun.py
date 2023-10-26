@@ -519,7 +519,7 @@ class Manager:
     def getMainCommandList(self):
         return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep","EditAndStepTree"]
     def getSecdCommandList(self):
-        return ["RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp"]
+        return ["MoveUp","RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp"]
 
   
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
@@ -640,6 +640,8 @@ class Manager:
             else:
                 self.makeTaskActionBase(prompt,"Request","New","user")
             self.makeTaskActionBase(prompt,"Response","SubTask","assistant")
+        elif creation_type == "MoveUp":
+            return self.moveCurrentTaskUP()
             
         return self.getCurrTaskPrompts()
 
