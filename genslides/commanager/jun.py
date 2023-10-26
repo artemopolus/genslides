@@ -211,22 +211,29 @@ class Manager:
             for info in task.affect_to_ext_list:
                 print("to ",info.parent.getName())
 
+    def goToNextTreeFirstTime(self):
+        for task in self.task_list:
+            if task.isRootParent():
+                self.tree_arr.append(task)
+        if len(self.tree_arr) > 0:
+            self.curr_task = self.tree_arr[0]
+            self.tree_idx = 1
 
     def goToNextTree(self):
         print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
+            for task in self.tree_arr:
+                if not task.isRootParent():
+                    self.goToNextTreeFirstTime()
+                    return self.getCurrTaskPrompts()
+                
             if self.tree_idx + 1 < len(self.tree_arr):
                 self.tree_idx += 1
             else:
                 self.tree_idx = 0
             self.curr_task = self.tree_arr[self.tree_idx]
         else:
-            for task in self.task_list:
-                if task.isRootParent():
-                    self.tree_arr.append(task)
-            if len(self.tree_arr) > 0:
-                self.curr_task = self.tree_arr[0]
-                self.tree_idx = 1
+            self.goToNextTreeFirstTime()
         print('Current task is', self.curr_task.getName())
         return self.getCurrTaskPrompts()
             
@@ -520,8 +527,17 @@ class Manager:
         return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep","EditAndStepTree"]
     def getSecdCommandList(self):
         return ["MoveUp","RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp"]
-
-  
+    
+    def makeRequestAction(self, prompt, selected_action, selected_tag):
+        if selected_action == "New" or selected_action == "SubTask":
+            return self.makeTaskAction(prompt,selected_action, "Request", "user")
+        if selected_action == "Edit":
+            return self.makeTaskAction(prompt,selected_action, "Request", selected_tag)
+        
+    def makeResponseAction(self, selected_action):
+        return self.makeTaskAction("",selected_action, "Response", "assistant")
+        
+ 
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
         if creation_type in self.getMainCommandList() or creation_type in self.vars_param:
             return self.makeTaskActionBase(prompt, type, creation_type, creation_tag)
@@ -531,55 +547,6 @@ class Manager:
         chck = gr.CheckboxGroup.update(choices=saver.getMessages())
         return "", "" ,self.drawGraph(),"" , "user", chck
     
-    def copyChildChains(self):
-        tasks_chains = self.curr_task.getChildChainList()
-        print('Task chains:')
-        i = 0
-        for branch in tasks_chains:
-            print(i,[task.getName() for task in branch['branch']], branch['done'], branch['idx'],  branch['parent'].getName() if branch['parent'] else "None", branch['i_par'])
-            i+= 1
-        parent = None
-        for i in range(len(tasks_chains)):
-            branch = tasks_chains[i]
-            for j in range(len(branch['branch'])):
-                if j == 0:
-                    if i != 0:
-                        parent = tasks_chains[branch['i_par']]['created'][-1]
-                    branch['created'] = []
-                else:
-                    parent = self.curr_task
-                task = branch['branch'][j]
-                prompt=task.getLastMsgContent() 
-                prompt_tag=task.getLastMsgRole()
-                print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
-                if task.getType() == 'ExtProject':
-                    pass
-                else:
-                    self.createOrAddTask(prompt, task.getType(),prompt_tag, parent, None)
-                branch['created'].append(self.curr_task)
-
-        
- 
-        # i = 0
-        # next_idx = [0]
-        # st_parent = None
-        # while (i < 1000):
-        #     for idx in next_idx:
-        #         branch = tasks_chains[idx]
-        #         for j in range(len(branch['branch'])):
-        #             if j == 0:
-        #                 parent = st_parent
-        #             else:
-        #                 parent = self.curr_task
-        #             task = branch['branch'][j]
-        #             self.curr_task.getla
-        #             prompt=self.curr_task.getLastMsgContent() 
-        #             prompt_tag=self.curr_task.getLastMsgRole()
-        #             self.createOrAddTask(prompt, task.getType(),prompt_tag, parent, None)
-        #         next_idx = branch['idx']
-        #         st_parent = self.curr_task
-        #     i+=1
-        return self.getCurrTaskPrompts()
  
     def makeTaskActionPro(self, prompt, type, creation_type, creation_tag):
         if creation_type == "RemoveBranch":
@@ -764,6 +731,8 @@ class Manager:
         if task_in != None and task_out != None:
             print("Make link from ", task_out.getName(), " to ", task_in.getName())
             task_in.createLinkToTask(task_out)
+
+
 
     def getTaskByName(self, name : str) -> BaseTask:
         for task in self.task_list:
@@ -1083,8 +1052,23 @@ class Manager:
         print('Done: update tree step by step in', index)
         return self.getCurrTaskPrompts() 
     
+    def actionTypeChanging(self, action):
+        if action == 'New':
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True)
+        elif action == 'SubTask':
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True)
+        elif action == 'Edit':
+            return self.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False)
+    
+    def getCurTaskLstMsg(self) -> str:
+        return self.curr_task.getMsgs()[-1]['content']
+    
+    def getCurTaskLstMsgRaw(self) -> str:
+        return self.curr_task.getRawMsgs()[-1]['content']
+    
+    
     def copyToClickBoardLstMsg(self):
-        msg = self.curr_task.getMsgs()[-1]['content']
+        msg = self.getCurTaskLstMsg()
         pyperclip.copy(msg)
         pyperclip.paste()
 
@@ -1308,4 +1292,23 @@ class Manager:
             # Path.rmdir(self.getPath())
             shutil.rmtree(self.getPath())
 
-
+    def makeParent(self):
+        return self.makeTaskAction("","","Parent","")
+    def makeUnParent(self):
+        return self.makeTaskAction("","","Unparent","")
+    def makeLink(self):
+        return self.makeTaskAction("","","Link","")
+    def makeUnLink(self):
+        return self.makeTaskAction("","","Unlink","")
+    
+    def deleteTask(self):
+        return self.makeTaskAction("","","Delete","")
+    def extractTask(self):
+        return self.makeTaskAction("","","Remove","")
+    def removeBranch(self):
+        return self.makeTaskAction("","","RemoveBranch","")
+    def removeTree(self):
+        return self.makeTaskAction("","","RemoveTree","")
+     
+    
+   

@@ -265,6 +265,9 @@ class TextTask(BaseTask):
 
         return out
    
+    def getRawMsgs(self):
+        return self.msg_list.copy()
+    
     def getRawParentMsgs(self):
         if self.parent is None:
             return []

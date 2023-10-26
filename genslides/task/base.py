@@ -912,6 +912,9 @@ class BaseTask():
     def getAllParams(self):
         return ""
     
+    def getRawMsgs(self):
+        return None
+    
     def getMsgs(self, except_task = []):
         return None
     
