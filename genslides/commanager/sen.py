@@ -195,10 +195,13 @@ class Projecter:
 
     def getCustomCmdList(self) -> list:
         mypath = 'tools\\'
-        return [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        return [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
     
     def getFullCmdList(self):
-        return self.getStdCmdList().extend(self.getCustomCmdList())
+        a = self.getCustomCmdList()
+        p = self.getStdCmdList()
+        a.extend(p)
+        return a
 
 
     def makeCustomAction(self, prompt, selected_action, custom_action):

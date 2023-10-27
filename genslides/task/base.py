@@ -335,7 +335,7 @@ class BaseTask():
                     out = p
                 break
             index += 1
-        print('Parent list:', [t.getName() for t in out])
+        # print('Parent list:', [t.getName() for t in out])
         return out
 
     def getChildChainList(self):
@@ -481,6 +481,7 @@ class BaseTask():
     def addChild(self, child) -> bool:
         print('Add child',child.getName())
         if child not in self.childs:
+            child.setParent(self)
             self.childs.append(child)
             info = self.getChildQueuePack(child)
             self.onQueueReset(info)
@@ -554,7 +555,7 @@ class BaseTask():
         self.queue.remove(self.getLinkQueuePack(info))
 
     def getChilds(self):
-        return self.childs
+        return self.childs.copy()
 
    
     def getBranchCode(self, second) -> str:

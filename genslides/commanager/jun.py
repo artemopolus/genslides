@@ -134,12 +134,14 @@ class Manager:
         return self.getCurrTaskPrompts()
     
     def moveTaskUP(self, task : BaseTask):
+        print('Move task', task.getName(),'UP')
         task_B = task.parent
         task_C = task
+        print('Start chain:',[t.getName() for t in task.getAllParents()])
         if task_B is not None:
             if task_B.parent is not None:
                 task_A = task_B.parent
-            childs_C = task.getChilds()
+            childs_C = task_C.getChilds()
             childs_B = task_B.getChilds()
             childs_B.remove(task_C)
 
@@ -148,16 +150,31 @@ class Manager:
             task_C.removeAllChilds()
             task_C.removeParent()
 
+            print('Child C:',[t.getName() for t in childs_C])
             for child in childs_C:
                 task_B.addChild(child)
 
+            childs_B.append(task_B)
+
+            print('Child B:',[t.getName() for t in childs_B])
             for child in childs_B:
                 task_C.addChild(child)
 
-            if task.parent.parent is not None:
+            if task_A is not None:
                 task_A.addChild(task_C)
         else:
             print('Nothing to switch')
+
+        
+        print('Task A:',[t.getName() for t in task_A.getAllParents()])
+        print('ChildA:',[t.getName() for t in task_A.getChilds()])
+        print('Task C:',[t.getName() for t in task_C.getAllParents()])
+        print('ChildC:',[t.getName() for t in task_C.getChilds()])
+        print('Task B:',[t.getName() for t in task_B.getAllParents()])
+        print('ChildB:',[t.getName() for t in task_B.getChilds()])
+
+        self.curr_task = task_C
+        return self.getCurrTaskPrompts()
                         
 
 
@@ -406,6 +423,7 @@ class Manager:
         return r and v
 
     def drawGraph(self, only_current= True):
+        print('Draw graph')
         if only_current:
             if self.curr_task.isRootParent():
                 trg_list = self.curr_task.getTree()
@@ -414,6 +432,7 @@ class Manager:
                 trg_list.extend(self.curr_task.getAllChildChains()[1:])
         else:
             trg_list = self.task_list
+        # print('Target tasks:',[t.getName() for t in trg_list])
         if len(trg_list) > 0:
             f = graphviz.Digraph(comment='The Test Table')
 
@@ -529,13 +548,15 @@ class Manager:
         return ["MoveUp","RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp"]
     
     def makeRequestAction(self, prompt, selected_action, selected_tag):
+        print('Make',selected_action,'Request')
         if selected_action == "New" or selected_action == "SubTask":
-            return self.makeTaskAction(prompt,selected_action, "Request", "user")
+            return self.makeTaskAction(prompt, "Request", selected_action, "user")
         if selected_action == "Edit":
-            return self.makeTaskAction(prompt,selected_action, "Request", selected_tag)
+            return self.makeTaskAction(prompt, "Request", selected_action, selected_tag)
+        
         
     def makeResponseAction(self, selected_action):
-        return self.makeTaskAction("",selected_action, "Response", "assistant")
+        return self.makeTaskAction("", "Response",selected_action, "assistant")
         
  
     def makeTaskAction(self, prompt, type, creation_type, creation_tag):
@@ -696,6 +717,8 @@ class Manager:
             task = self.curr_task
             task.beforeRemove()
             self.task_list.remove(task)
+            if task in self.tree_arr:
+                self.tree_arr.remove(task)
             self.setNextTask("1")
             del task
             return self.runIteration(prompt)
@@ -1054,11 +1077,11 @@ class Manager:
     
     def actionTypeChanging(self, action):
         if action == 'New':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True)
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
         elif action == 'SubTask':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True)
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
         elif action == 'Edit':
-            return self.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False)
+            return self.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False), gr.Radio(interactive=True)
     
     def getCurTaskLstMsg(self) -> str:
         return self.curr_task.getMsgs()[-1]['content']
@@ -1292,22 +1315,22 @@ class Manager:
             # Path.rmdir(self.getPath())
             shutil.rmtree(self.getPath())
 
-    def makeParent(self):
+    def makeActionParent(self):
         return self.makeTaskAction("","","Parent","")
-    def makeUnParent(self):
+    def makeActionUnParent(self):
         return self.makeTaskAction("","","Unparent","")
-    def makeLink(self):
+    def makeActionLink(self):
         return self.makeTaskAction("","","Link","")
-    def makeUnLink(self):
+    def makeActionUnLink(self):
         return self.makeTaskAction("","","Unlink","")
     
-    def deleteTask(self):
+    def deleteActionTask(self):
         return self.makeTaskAction("","","Delete","")
-    def extractTask(self):
+    def extractActionTask(self):
         return self.makeTaskAction("","","Remove","")
-    def removeBranch(self):
+    def removeActionBranch(self):
         return self.makeTaskAction("","","RemoveBranch","")
-    def removeTree(self):
+    def removeActionTree(self):
         return self.makeTaskAction("","","RemoveTree","")
      
     

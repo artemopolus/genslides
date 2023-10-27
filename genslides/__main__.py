@@ -144,15 +144,13 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user")
                     with gr.Row():
                         request_btn = gr.Button(value='Request')
-                        response_btn = gr.Button(value='Response')
-                        custom_list = gr.Dropdown(label='Custom actions')
+                        response_btn = gr.Button(value='Response',interactive=False)
+                        custom_list_data = projecter.getFullCmdList()
+                        custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
                         custom_btn = gr.Button(value='Custom')
 
-                    request_btn.click(fn=manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list])
-                    response_btn.click(fn=manager.makeResponseAction, inputs=[base_action_list])
-                    custom_btn.click(fn=projecter.makeCustomAction, inputs=[prompt, base_action_list, custom_list])
-                    
-                    base_action_list.change(fn=manager.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn])
+                   
+                    base_action_list.change(fn=manager.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list])
                     
                     with gr.Row():
                         with gr.Column():
@@ -161,20 +159,18 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             param_type.select(fn=manager.getTaskKeys, inputs=param_type, outputs=param_key)
                             param_slcval = gr.Dropdown(choices=[],label="Value")
                             param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval])
-                            param_mnlval = gr.Textbox(label='value(manual)')
+                            param_mnlval = gr.Textbox(label='value',info='manual')
                         with gr.Column():
                             param_edit = gr.Button("Edit param")
                             param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
                             param_apnd = gr.Button('Append new')
                            
-                    param_info = gr.Textbox(label="Params", lines=4)
-                    param_updt = gr.Button(value="Edit param")
                 with gr.Column():
                     with gr.Row():
                         selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
                         select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
-                        clear_select_list_btn = gr.Button(value='Clear').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
-                        generate_tree_btn = gr.Button(value='Gen')
+                        clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
+                        generate_tree_btn = gr.Button(value='Gen from Select')
 
 
                     with gr.Row():
@@ -189,37 +185,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         rm_branch_btn = gr.Button(value='Remove Branch')
                         rm_tree_btn = gr.Button(value='Remove Tree')
 
-                    moveup_btn.click(fn=manager.moveCurrentTaskUP)
-                    parent_btn.click(fn=manager.makeParent)
-                    unparent_btn.click(fn=manager.makeUnParent)
-                    link_btn.click(fn=manager.makeLink)
-                    unlink_btn.click(fn=manager.makeUnLink)
-                    delete_btn.click(fn=manager.deleteTask)
-                    extract_btn.click(fn=manager.extractTask)
-                    copy_brnch_btn.click(fn=projecter.copyChildChains)
-                    rm_branch_btn.click(fn=manager.removeBranch)
-                    rm_tree_btn.click(fn=manager.removeTree)
-                    
-
-                    creation_types_radio_list = manager.getMainCommandList()
-                    creation_types_radio_list += manager.getSecdCommandList()
-                    for param in manager.vars_param:
-                        creation_types_radio_list.append(param)
-                        creation_types_radio_list.append("un" + param)
-                    # print("list=", creation_types_radio_list)
-                    # creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
-                    creation_types_radio = gr.Dropdown(choices=creation_types_radio_list, label="Type of task creation",value="New")
-                    task_type_list = gr.Dropdown(choices = types,label="Task to create", value=types[0])
-                    with gr.Row():
-                        action_to_task_btn = gr.Button(value="Make action!")
-                        copy_tree = gr.Button(value='Copy')
-
-                    # task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
-                    prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
-                    extpr_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
-                    with gr.Row():
-                        extpr_new = gr.Button(value='new')
-                        extpr_append = gr.Button(value='append')
+                   
 
                     parents_list = gr.Dropdown(label="Parent tasks:")
                     find_key_type = gr.Dropdown(choices=['msg','json','param','tokens','man_path','br_code'], value='msg', interactive=True)
@@ -230,12 +196,37 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     trg_params_list.select(fn=manager.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
                     gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
  
+
             with gr.Row() as r:
                 project_name = gr.Textbox(value = projecter.current_project_name, label="Project name")
                 project_save = gr.Button(value="save")
                 projects_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
                 project_clear = gr.Button(value="clear")
+
+            param_info = gr.Textbox(label="Params", lines=4)
+            param_updt = gr.Button(value="Edit param")
+
+            
+            creation_types_radio_list = manager.getMainCommandList()
+            creation_types_radio_list += manager.getSecdCommandList()
+            for param in manager.vars_param:
+                creation_types_radio_list.append(param)
+                creation_types_radio_list.append("un" + param)
+            # print("list=", creation_types_radio_list)
+            # creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
+            creation_types_radio = gr.Dropdown(choices=creation_types_radio_list, label="Type of task creation",value="New")
+            task_type_list = gr.Dropdown(choices = types,label="Task to create", value=types[0])
+            with gr.Row():
+                action_to_task_btn = gr.Button(value="Make action!")
+                copy_tree = gr.Button(value='Copy')
+
+            # task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
+            prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
+            extpr_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
+            with gr.Row():
+                extpr_new = gr.Button(value='new')
+                extpr_append = gr.Button(value='append')
 
 
 
@@ -291,6 +282,21 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list]
 
+            request_btn.click(fn=manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
+            response_btn.click(fn=manager.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)
+            custom_btn.click(fn=projecter.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
+
+            moveup_btn.click(fn=manager.moveCurrentTaskUP, outputs=std_output_list)
+            parent_btn.click(fn=manager.makeActionParent, outputs=std_output_list)
+            unparent_btn.click(fn=manager.makeActionUnParent, outputs=std_output_list)
+            link_btn.click(fn=manager.makeActionLink, outputs=std_output_list)
+            unlink_btn.click(fn=manager.makeActionUnLink, outputs=std_output_list)
+            delete_btn.click(fn=manager.deleteActionTask, outputs=std_output_list)
+            extract_btn.click(fn=manager.extractActionTask, outputs=std_output_list)
+            copy_brnch_btn.click(fn=projecter.copyChildChains, outputs=std_output_list)
+            rm_branch_btn.click(fn=manager.removeActionBranch, outputs=std_output_list)
+            rm_tree_btn.click(fn=manager.removeActionTree, outputs=std_output_list)
+ 
             generate_tree_btn.click(fn=manager.createCollectTreeOnSelectedTasks, outputs= std_output_list)
             # copy_tree.click(fn=manager.copyChildChains, outputs=std_output_list)
             param_apnd.click(fn=manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
