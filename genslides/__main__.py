@@ -141,7 +141,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     base_action_list = gr.Radio(choices=["New","SubTask","Edit"], label="Select actions", value="New")
                     name_info = gr.Text(value="None", label="Task")
                     prompt = gr.Textbox(label="Prompt", lines=4, value=request)
-                    roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user")
+                    roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
                     with gr.Row():
                         request_btn = gr.Button(value='Request')
                         response_btn = gr.Button(value='Response',interactive=False)
@@ -207,7 +207,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             param_info = gr.Textbox(label="Params", lines=4)
             param_updt = gr.Button(value="Edit param")
 
-            
+
             creation_types_radio_list = manager.getMainCommandList()
             creation_types_radio_list += manager.getSecdCommandList()
             for param in manager.vars_param:
@@ -281,6 +281,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list]
+
+            roles_list.change(fn=manager.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
             request_btn.click(fn=manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
             response_btn.click(fn=manager.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)

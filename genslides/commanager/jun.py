@@ -554,6 +554,11 @@ class Manager:
         if selected_action == "Edit":
             return self.makeTaskAction(prompt, "Request", selected_action, selected_tag)
         
+    def switchRole(self, role, prompt):
+        print('Set role[', role, ']for',self.curr_task.getName())
+        self.makeTaskAction(self.curr_task.getLastMsgContent(), "Request", "Edit", role)
+        return self.getCurrTaskPrompts(prompt)
+        
         
     def makeResponseAction(self, selected_action):
         return self.makeTaskAction("", "Response",selected_action, "assistant")
@@ -1112,7 +1117,7 @@ class Manager:
         pyperclip.paste()
 
     
-    def getCurrTaskPrompts(self):
+    def getCurrTaskPrompts(self, set_prompt = ""):
         msgs = self.curr_task.getMsgs()
         out_prompt = ""
         out_prompt2 = ""
@@ -1157,7 +1162,7 @@ class Manager:
         value = '{' + self.curr_task.getName() + ':' + self.getBranchCodeTag() + '}'
         print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), "", gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True)
+        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True)
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []
