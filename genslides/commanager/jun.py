@@ -137,10 +137,12 @@ class Manager:
         print('Move task', task.getName(),'UP')
         task_B = task.parent
         task_C = task
+        task_trgs = [task_B, task_C]
         print('Start chain:',[t.getName() for t in task.getAllParents()])
         if task_B is not None:
             if task_B.parent is not None:
                 task_A = task_B.parent
+                task_trgs.append(task_A)
             childs_C = task_C.getChilds()
             childs_B = task_B.getChilds()
             childs_B.remove(task_C)
@@ -151,17 +153,29 @@ class Manager:
             task_C.removeParent()
 
             print('Child C:',[t.getName() for t in childs_C])
+            print('child',task_B.getName(),'start:',[t.getName() for t in task_B.getChilds()],'of')
             for child in childs_C:
                 task_B.addChild(child)
+            print('CHILDS RESULT:',[t.getName() for t in task_B.getChilds()])
 
             childs_B.append(task_B)
+            task_trgs.extend(childs_B)
+            task_trgs.extend(childs_C)
 
             print('Child B:',[t.getName() for t in childs_B])
+            print('child start:',[t.getName() for t in task_C.getChilds()])
             for child in childs_B:
                 task_C.addChild(child)
+            print('CHILDS RESULT:',[t.getName() for t in task_C.getChilds()])
 
             if task_A is not None:
                 task_A.addChild(task_C)
+                task_A.update()
+            else:
+                task_C.update()
+
+            for t in task_trgs:
+                t.saveAllParams()
         else:
             print('Nothing to switch')
 
@@ -1162,7 +1176,7 @@ class Manager:
         value = '{' + self.curr_task.getName() + ':' + self.getBranchCodeTag() + '}'
         print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True)
+        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask")
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []

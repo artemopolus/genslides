@@ -850,7 +850,8 @@ class BaseTask():
             self.setParent(None)
 
     def removeAllChilds(self):
-        for child in self.childs:
+        childs_list = self.getChilds()
+        for child in childs_list:
             self.removeChild(child)
        
     def removeChild(self,child) -> bool:
@@ -912,6 +913,9 @@ class BaseTask():
     
     def getAllParams(self):
         return ""
+    
+    def saveAllParams(self):
+        pass
     
     def getRawMsgs(self):
         return None

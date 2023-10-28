@@ -341,6 +341,10 @@ class TextTask(BaseTask):
             child_names.append(child.getName())
         resp_json_out['childs'] = child_names
         return resp_json_out
+    
+    def saveAllParams(self):
+        self.saveJsonToFile(self.msg_list)
+
 
     def saveJsonToFile(self, msg_list):
         resp_json_out = {
