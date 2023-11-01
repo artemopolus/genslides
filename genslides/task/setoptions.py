@@ -120,9 +120,10 @@ class SetOptionsTask(WriteToFileTask):
         return json.dumps(self.params, indent=1),"user",""
  
     def getParamFromExtTask(self, param_name):
+        print('Try to get param from',self.getName())
         for param in self.params:
             for k,p in param.items():
-                # print("k=",k,"p=",p)
+                print("k=",k,"p=",p)
                 if param_name == k:
                     return True,self.parent, p
 

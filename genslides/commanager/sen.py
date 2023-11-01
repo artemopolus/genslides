@@ -186,11 +186,14 @@ class Projecter:
         return self.manager.getCurrTaskPrompts()
     
     def getStdCmdList(self)->list:
-        comm = self.manager.getMainCommandList()
-        comm.extend(self.manager.getSecdCommandList())
-        comm.remove("New")
-        comm.remove("SubTask")
-        comm.remove("Edit")
+        # comm = self.manager.getMainCommandList()
+        # comm.extend(self.manager.getSecdCommandList())
+        # comm.remove("New")
+        # comm.remove("SubTask")
+        # comm.remove("Edit")
+        comm = [t for t in self.manager.helper.getNames()]
+        comm.remove("Request")
+        comm.remove("Response")
         return comm
 
     def getCustomCmdList(self) -> list:
@@ -206,7 +209,7 @@ class Projecter:
 
     def makeCustomAction(self, prompt, selected_action, custom_action):
         if custom_action in self.getStdCmdList():
-            return self.manager.makeTaskAction(prompt,selected_action, custom_action, "assistant")
+            return self.manager.makeTaskAction(prompt, custom_action, selected_action, "assistant")
         elif custom_action in self.getCustomCmdList():
             if selected_action == "New":
                 self.newExtProject(custom_action, prompt)
