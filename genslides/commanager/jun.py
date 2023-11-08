@@ -283,19 +283,20 @@ class Manager:
             self.curr_task = self.curr_task.parent
         return self.getCurrTaskPrompts()
     
-    def goToNextBranchEnd(self):
-        tree = self.curr_task.getTree()
+    def getSceletonBranchBuds(self, trg_task :BaseTask):
+        tree = trg_task.getTree()
         endes = []
         for task in tree:
             if len(task.getChilds()) == 0:
                 endes.append(task)
+        return endes
+    
+    def goToNextBranchEnd(self):
         if len(self.endes) == 0:
-            endes = []
-            for task in tree:
-                if len(task.getChilds()) == 0:
-                    endes.append(task)
-            self.endes = endes
+            self.endes = self.getSceletonBranchBuds(self.curr_task)
+            self.endes_idx = 0
         else:
+            endes = self.getSceletonBranchBuds(self.curr_task)
             if endes == self.endes:
                 if self.endes_idx + 1 < len(self.endes):
                     self.endes_idx += 1
@@ -304,7 +305,7 @@ class Manager:
             else:
                 self.endes = endes
                 self.endes_idx = 0
-            self.curr_task = self.endes[self.endes_idx]
+        self.curr_task = self.endes[self.endes_idx]
         return self.getCurrTaskPrompts()
 
     def goToNextBranch(self):
@@ -435,6 +436,42 @@ class Manager:
     def getTaskParamRes(self, task, param) -> bool:
         r,v = task.getParam(param)
         return r and v
+    
+    def drawSceletonBranches(self):
+        f = graphviz.Digraph(comment='The Test Table')
+        sceleton_branches = []
+        for sc_branch in self.tree_arr:
+            task = sc_branch
+            f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
+            buds = self.getSceletonBranchBuds(sc_branch)
+            sc_br = {'root': sc_branch,'buds':[]}
+            for bud in buds:
+                f.node( bud.getIdStr(), bud.getName(),style="filled",color="skyblue")
+                f.edge(task.getIdStr(), bud.getIdStr())
+                branch = bud.getAllParents()
+                garland_holders = []
+                for t in branch:
+                    garland_holders.extend(t.getHoldGarlands())
+                sc_br['buds'].append({'bud':bud,'holds':garland_holders})
+
+            sceleton_branches.append(sc_br)
+
+        for trg_sceleton_branch in sceleton_branches:
+            for sceleton_branch in sceleton_branches:
+                if sceleton_branch is not trg_sceleton_branch:
+                    for bud in sceleton_branch['buds']:
+                        branch = bud['bud'].getAllParents()
+                        for t in branch:
+                            for trg_bud in trg_sceleton_branch['buds']:
+                                if t in trg_bud['holds']:
+                                    f.edge(trg_bud['bud'].getIdStr(), bud['bud'].getIdStr())
+
+
+        img_path = "output/tree"
+        f.render(filename=img_path,view=False,format='png')
+        img_path += ".png"
+        return img_path
+
 
     def drawGraph(self, only_current= True):
         print('Draw graph')

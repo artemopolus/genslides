@@ -178,9 +178,13 @@ class ChatGPT():
             print('status==>', e.http_status)
             return False, ""
         except ServiceUnavailableError as e:
+            print('Service is unavailable=',e)
             return False, ""
         except TimeoutError as e:
             print('timeot error')
+            return False, ""
+        except Exception as e:
+            print('Unknown err=',e)
             return False, ""
 
 class SimpleChatGPT(ChatGPT):

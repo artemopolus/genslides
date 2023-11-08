@@ -239,6 +239,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil",height=800)
             # base_img.style(height=800)
 
+            gr.Button(value='Draw tree').click(fn=manager.drawSceletonBranches, outputs=[base_img])
+
            
 
             with gr.Row() as r:

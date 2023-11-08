@@ -535,6 +535,11 @@ class BaseTask():
                 trg['idx'] = 0
 
 
+    def getHoldGarlands(self):
+        return [t.target for t in self.affect_to_ext_list]
+    
+    def getGarlandPart(self):
+        return [t.parent for t in self.by_ext_affected_list]
 
 
     def setLinkToTask(self, info : TaskDescription) -> bool:
