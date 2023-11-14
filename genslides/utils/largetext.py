@@ -1,6 +1,7 @@
 from transformers import GPT2Tokenizer
 import openai
-from openai.error import APIError, RateLimitError, APIConnectionError, ServiceUnavailableError
+from openai import OpenAI
+# from openai.cli import  APIError, RateLimitError, APIConnectionError, ServiceUnavailableError
 import json
 import tiktoken
 import os
@@ -17,13 +18,14 @@ class ChatGPT():
             values = json.load(config)
             key = values['api_key']
             openai.api_key = key
+            self.api_key = key
             self.active = values['active']
 
         if not key and not self.active:
             print("chat gpt model not active")
             return
 
-        models = openai.Model.list()
+        models = openai.models.list()
         mdl_found = False
         # print("model name=", model_name)
         for mdl in models.data:
@@ -71,7 +73,7 @@ class ChatGPT():
             self.temperature = temp
 
     def getModelNames(self):
-        models = openai.Model.list()
+        models = openai.models.list()
         model_names = []
         for model in models.data:
             model_names.append(model.id)
@@ -146,40 +148,56 @@ class ChatGPT():
         try:
             print("use model=", self.model)
             print("Send msgs=",len(messages))
-            if not self.temperature:
-                completion = openai.ChatCompletion.create(
+            if self.model == 'gpt-3.5-turbo-instruct':
+                text = ''
+                if len(messages) > 1:
+                    text = messages[-2]['content'] + '\n'+ messages[-1]['content']
+                else:
+                    text = messages[-1]['content']
+                # print('prompt=', text)
+                client = OpenAI(api_key=self.api_key)
+                completion = client.completions.create(
+                    model = self.model,
+                    prompt = text,
+                    max_tokens= 1024
+                )
+            elif not self.temperature:
+                completion =  openai.chat.completions.create(
                     model=self.model,
                     messages=messages     
                 )
             else:
                 print("Cur temp=", self.temperature)
-                completion = openai.ChatCompletion.create(
+                client = OpenAI(api_key=self.api_key)
+                completion = client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=self.temperature     
+                    temperature=self.temperature,
+                    max_tokens=1024     
                 )
-            msg = completion.choices[0].message
+            msg = completion.choices[0].text
+            print(completion)
             # text = msg["content"]
-            print("Get Chat response=",len(completion.choices[0].message))
+            print("Get Chat response=",len(completion.choices[0].text))
             return True, msg
-        except RateLimitError as e:
-            print('fuck rate')
-            print(e)
-            print('status==>', e.http_status)
-            return False, ""
-        except APIError as e:
-            print('fuck api')
-            print(e)
-            print('status==>', e.http_status)
-            return False, ""
-        except APIConnectionError as e:
-            print('fuck api')
-            print(e)
-            print('status==>', e.http_status)
-            return False, ""
-        except ServiceUnavailableError as e:
-            print('Service is unavailable=',e)
-            return False, ""
+        # except RateLimitError as e:
+        #     print('fuck rate')
+        #     print(e)
+        #     print('status==>', e.http_status)
+        #     return False, ""
+        # except APIError as e:
+        #     print('fuck api')
+        #     print(e)
+        #     print('status==>', e.http_status)
+        #     return False, ""
+        # except APIConnectionError as e:
+        #     print('fuck api')
+        #     print(e)
+        #     print('status==>', e.http_status)
+        #     return False, ""
+        # except ServiceUnavailableError as e:
+        #     print('Service is unavailable=',e)
+        #     return False, ""
         except TimeoutError as e:
             print('timeot error')
             return False, ""
@@ -244,9 +262,9 @@ class SimpleChatGPT(ChatGPT):
         res, out = self.createChatCompletion(messages=msgs)
 
         if res:
-            token_cnt = self.getTokensCount(out["content"])
+            token_cnt = self.getTokensCount(out)
             self.addCounterToPromts(token_cnt, price= self.output_price)
-            return True, out["content"]        
+            return True, out        
         return False, ""
 
     def getUserTag(self):
