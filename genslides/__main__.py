@@ -286,8 +286,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             roles_list.change(fn=manager.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
-            request_btn.click(fn=manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
-            response_btn.click(fn=manager.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)
+            request_btn.click(fn=projecter.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
+            response_btn.click(fn=projecter.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)
             custom_btn.click(fn=projecter.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
 
             moveup_btn.click(fn=manager.moveCurrentTaskUP, outputs=std_output_list)

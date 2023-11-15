@@ -234,5 +234,20 @@ class Projecter:
                 self.newExtProject(custom_action, prompt)
             elif selected_action == "SubTask":
                 self.appendExtProject(custom_action, prompt)
+        elif custom_action == 'MakeGarland':
+            self.manager.createCollectTreeOnSelectedTasks(selected_action)
         return self.manager.getCurrTaskPrompts()
+    
+    def makeResponseAction(self, selected_action):
+        return self.manager.makeTaskAction("", "Response",selected_action, "assistant")
+    
+    def makeRequestAction(self, prompt, selected_action, selected_tag):
+        print('Make',selected_action,'Request')
+        if selected_action == "New" or selected_action == "SubTask" or selected_action == "Insert":
+            return self.manager.makeTaskAction(prompt, "Request", selected_action, "user")
+        if selected_action == "Edit":
+            return self.manager.makeTaskAction(prompt, "Request", selected_action, selected_tag)
+        if selected_action == "EditCopy":
+            return self.copyChildChains(edited_prompt=prompt)
+
  
