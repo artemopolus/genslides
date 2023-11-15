@@ -304,7 +304,7 @@ class BaseTask():
         out = par.getAllChildChains()
         return out
 
-    def getAllParents(self) -> list:
+    def getAllParents(self):
         par = self
         index = 0
         out = [self]

@@ -54,6 +54,7 @@ class LLModel():
     def createChatCompletion(self, messages) -> (bool, str):
         if not self.active:
             return False, ''
+        messages = self.checkTokens(messages)
         res, response, intok, outtok = self.method(messages, self.params)
         self.addCounterToPromts(intok, self.input_price)
         self.addCounterToPromts(outtok, self.output_price)
@@ -99,14 +100,35 @@ class LLModel():
     
     def getPrice(self, text)-> float:
         tokens = self.getTokensCount(text)
-        price = 0.002
+        price = self.input_price
         return tokens, tokens * price/1000
 
     def getUserTag(self) -> str:
         return "user"
+    
     def getAssistTag(self) -> str:
         return "assistant"
+    
     def getSystemTag(self) -> str:
         return "system"
 
- 
+    def checkTokens(self, in_msgs: list):
+        msgs = in_msgs.copy()
+        for msg in msgs:
+            text += msg["content"]
+        token_cnt = self.getTokensCount(text)
+        # print("Get response[", token_cnt,"]=",msgs[-1]["content"])
+
+        if token_cnt > self.max_tokens:
+            # try divide last
+            # it's too many of them!
+            idx = 0
+            while (idx < 1000 and token_cnt > self.max_tokens):
+                msgs.pop(0)
+                text = ""
+                for msg in msgs:
+                    text += msg["content"]
+                token_cnt = self.getTokensCount(text)
+                idx += 1
+        return msgs
+    

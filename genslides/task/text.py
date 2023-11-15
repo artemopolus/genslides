@@ -10,7 +10,8 @@ import genslides.utils.largetext as Summator
 from genslides.utils.searcher import GoogleApiSearcher
 from genslides.utils.chatgptrequester import ChatGPTrequester
 from genslides.utils.chatgptrequester import ChatGPTsimple
-from genslides.utils.largetext import SimpleChatGPT
+
+from genslides.utils.llmodel import LLModel
 
 from genslides.utils.savedata import SaveData
 from genslides.utils.loader import Loader
@@ -294,11 +295,40 @@ class TextTask(BaseTask):
 
     def getCountPrice(self):
         text = ""
-        for msg in self.msg_list:
+        for msg in self.getMsgs():
             text += msg["content"]
 
-        chat = SimpleChatGPT()
+        res, param = self.getParamStruct('model')
+        if res:
+            chat = LLModel(param)
+        else:
+            chat = LLModel()
         return chat.getPrice(text)
+    
+    def getUsedTasks(self) -> list:
+        msgs = self.getMsgs()
+        res, param = self.getParamStruct('model')
+        if res:
+            chat = LLModel(param)
+        else:
+            chat = LLModel()
+        trg_msgs = chat.checkTokens(msgs)
+       
+        par_tasks = self.getAllParents()
+        out = []
+        for par in par_tasks:
+            par_msgs = par.getMsgs()
+            found = False
+            for msg in par_msgs:
+                if msg in trg_msgs:
+                    found = True
+                    break
+            if not found:
+                break
+            else:
+                out.append(par)
+        return out
+
 
     def getPath(self) -> str:
         if not os.path.exists("saved"):
@@ -399,7 +429,7 @@ class TextTask(BaseTask):
         request = self.getRichPrompt()
         responses = self.getResponse(request)
         if len(responses) == 0:
-            chat = SimpleChatGPT()
+            chat = LLModel()
             self.user = chat.getUserTag()
             self.chat = chat.getAssistTag()
             res, text = chat.recvResponse(request)
