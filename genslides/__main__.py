@@ -138,7 +138,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             with gr.Row():
                 with gr.Column():
-                    base_action_list = gr.Radio(choices=["New","SubTask","Edit"], label="Select actions", value="New")
+                    base_action_list = gr.Radio(choices=["New","SubTask","Insert","EditCopy","Edit"], label="Select actions", value="New")
                     name_info = gr.Text(value="None", label="Task")
                     prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                     roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
@@ -301,7 +301,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             rm_branch_btn.click(fn=manager.removeActionBranch, outputs=std_output_list)
             rm_tree_btn.click(fn=manager.removeActionTree, outputs=std_output_list)
  
-            generate_tree_btn.click(fn=manager.createCollectTreeOnSelectedTasks, outputs= std_output_list)
+            generate_tree_btn.click(fn=manager.createCollectTreeOnSelectedTasks,inputs=base_action_list, outputs= std_output_list)
             # copy_tree.click(fn=manager.copyChildChains, outputs=std_output_list)
             param_apnd.click(fn=manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
 

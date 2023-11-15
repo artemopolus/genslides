@@ -116,11 +116,14 @@ class Manager:
     def getSelectList(self) -> list:
         return [t.getName() for t in self.selected_tasks]
     
-    def createCollectTreeOnSelectedTasks(self):
+    def createCollectTreeOnSelectedTasks(self, action_type):
         first = True
         for task in self.selected_tasks:
             if first:
-                self.createOrAddTask("","Collect","user",None)
+                parent = None
+                if action_type == 'SubTask':
+                    parent = self.curr_task
+                self.createOrAddTask("","Collect","user",parent)
                 first = False
             else:
                 parent = self.curr_task
