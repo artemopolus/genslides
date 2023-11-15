@@ -12,7 +12,9 @@ from genslides.utils.openai import openaiGetChatCompletion, openaiGetSmplComplet
 
 
 class LLModel():
-    def __init__(self, params : dict) -> None:
+    def __init__(self, params = None) -> None:
+        if params == None:
+            params = {'type':'model','model':'gpt-3.5-turbo'}
         path_to_config = 'config/models.json'
 
         self.temperature = None
@@ -50,6 +52,8 @@ class LLModel():
 
 
     def createChatCompletion(self, messages) -> (bool, str):
+        if not self.active:
+            return False, ''
         res, response, intok, outtok = self.method(messages, self.params)
         self.addCounterToPromts(intok, self.input_price)
         self.addCounterToPromts(outtok, self.output_price)
@@ -97,4 +101,12 @@ class LLModel():
         tokens = self.getTokensCount(text)
         price = 0.002
         return tokens, tokens * price/1000
+
+    def getUserTag(self) -> str:
+        return "user"
+    def getAssistTag(self) -> str:
+        return "assistant"
+    def getSystemTag(self) -> str:
+        return "system"
+
  

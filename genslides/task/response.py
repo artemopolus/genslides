@@ -1,7 +1,8 @@
 from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
 import pprint
-from genslides.utils.largetext import SimpleChatGPT
+
+from genslides.utils.llmodel import LLModel
 
 
 
@@ -30,10 +31,12 @@ class ResponseTask(TextTask):
         self.setChatPram("temperature")
         self.setChatPram("model")
         if self.is_freeze:
-            res, model_name = self.getParam("model")
+            res, param = self.getParamStruct('model')
             if res:
-                chat = SimpleChatGPT(model_name=model_name)
+                chat = LLModel(param) 
                 self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
+            else:
+                self.msg_list.append({"role": "assistant", "content": ""})
         else:
             self.executeResponse()
 
@@ -56,7 +59,7 @@ class ResponseTask(TextTask):
             if res:
                 self.updateParam(name, temperature)
 
-    def executeResponseInternal(self, chat : SimpleChatGPT):
+    def executeResponseInternal(self, chat : LLModel):
         # input_msg_list = self.msg_list.copy()
         input_msg_list = [] 
         for msg in self.msg_list:
@@ -66,22 +69,17 @@ class ResponseTask(TextTask):
 
         # print("Chat=",input_msg_list)
 
-        res, out = chat.recvRespFromMsgList(input_msg_list)
+        res, out = chat.createChatCompletion(input_msg_list)
         return res, out
 
  
     def executeResponse(self):
-        res, model_name = self.getParam("model")
+        res, param = self.getParamStruct('model')
 
         if res:
-            print("Exe resp with model=", model_name)
-            chat = SimpleChatGPT(model_name=model_name)
+            chat = LLModel(param)
         else:
-            chat = SimpleChatGPT()
-        res, temp = self.getParam("temperature")
-        print("temp=", temp)
-        if res:
-            chat.setTemperature(temp)
+            chat = LLModel()
         res, out = self.executeResponseInternal(chat)
         if res:
             # print("out=", out)
