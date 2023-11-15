@@ -96,12 +96,18 @@ class CollectTask(TextTask):
         return super().createLinkToTask(task) 
     
     def getRichPrompt(self) -> str:
+        res, param = self.getParamStruct('linkedfrom')
         text = ""
-        # print("affect count=",len(self.by_ext_affected_list))
+        if res:
+            names = [t['name'] for t in param['tasks']]
+            if names == [t.getName() for t in self.getAffectingOnTask()]:
+                for t in param['task']:
+                    for intask in self.by_ext_affected_list:
+                        if intask.parent.getName() == t['name']:
+                            text += intask.prompt + '\n'
+            return text
         for task in self.by_ext_affected_list:
             text += task.prompt +"\n"
-            # print("text=",task.prompt)
-            # print("text=",task.parent.prompt)
         return text
 
     def stdProcessUnFreeze(self, input=None):
@@ -200,3 +206,8 @@ class CollectTask(TextTask):
         for task in self.by_ext_affected_list:
             out += task.parent.getName()
         return out
+    
+    def setParamStruct(self, param):
+        if 'type' in param and param['type'] == 'linkedfrom':
+            param['tasks'] = [t.getName() for t in self.getAffectingOnTask()]
+        return super().setParamStruct(param)

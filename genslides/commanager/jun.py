@@ -808,6 +808,12 @@ class Manager:
     
     def makeLink(self, task_in : BaseTask, task_out :BaseTask):
         if task_in != None and task_out != None:
+            if task_out.getType() == 'Collect':
+                print('Relink from', task_out.getName(),':')
+                trgs = task_out.getAffectingOnTask()
+                for trg in trgs:
+                    print("   -Make link from ", trg.getName(), " to ", task_in.getName())
+                    task_in.createLinkToTask(trg)
             print("Make link from ", task_out.getName(), " to ", task_in.getName())
             task_in.createLinkToTask(task_out)
 
