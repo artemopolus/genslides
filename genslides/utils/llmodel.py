@@ -13,6 +13,7 @@ from genslides.utils.openai import openaiGetChatCompletion, openaiGetSmplComplet
 
 class LLModel():
     def __init__(self, params = None) -> None:
+        print('Start llmodel with params=', params)
         if params == None:
             params = {'type':'model','model':'gpt-3.5-turbo'}
         path_to_config = 'config/models.json'
@@ -34,7 +35,7 @@ class LLModel():
                 for option in values['prices']:
                     if option['name'] == model_name:
                         if name == 'openai':
-                            if model_name == 'gpt-3.5-instruct':
+                            if model_name == 'gpt-3.5-turbo-instruct':
                                 self.method = openaiGetSmplCompletion
                             else:
                                 self.method = openaiGetChatCompletion
@@ -55,6 +56,7 @@ class LLModel():
         if not self.active:
             return False, ''
         messages = self.checkTokens(messages)
+        print('Input Chat=', [[msg['role'], len(msg['content'])] for msg in messages])
         res, response, intok, outtok = self.method(messages, self.params)
         self.addCounterToPromts(intok, self.input_price)
         self.addCounterToPromts(outtok, self.output_price)

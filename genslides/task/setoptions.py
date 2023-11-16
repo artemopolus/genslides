@@ -130,8 +130,10 @@ class SetOptionsTask(WriteToFileTask):
         return False, self.parent, None
  
     def getParamStructFromExtTask(self, param_name):
+        print("Search for", param_name,"in", self.getName())
         # res, val = self.getParamStruct(param_name)
         # return res, self.parent, val 
+        print('Params=', self.params)
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 return True, self.parent, param

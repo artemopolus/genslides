@@ -133,6 +133,7 @@ class TextTask(BaseTask):
     
     def syncParamToQueue(self):
         print('Sync', self.getName(), 'param to queue')
+        print('Init param=', self.params)
         for param in self.params:
             if "type" in param:
                 if param['type'] == 'child' or param['type'] == 'link':
@@ -158,6 +159,7 @@ class TextTask(BaseTask):
         
         for q in qd:
             self.queue.remove(q)
+        print('After sync param=', self.params)
     
     def syncQueueToParam(self):
         print("Sync",self.getName(),"queue to param")
@@ -682,25 +684,26 @@ class TextTask(BaseTask):
         return False, self.parent, None
      
     def updateParamStruct(self, param_name, key,val):
+        print('Update', param_name, key, 'with', val,'for', self.getName())
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 if key in param:
                     param[key] = val
+        print('Res params=',self.params)
         self.saveJsonToFile(self.msg_list)
 
 
     def setParamStruct(self, param):
+        print(self.params)
         if 'type' in param:
             self.params.append(param)
         self.saveJsonToFile(self.msg_list)
  
 
     def getParamStruct(self, param_name):
-        print("Search for", param_name,"in", self.getName())
         forbidden_names = ['input', 'output', 'stopped']
         if param_name not in forbidden_names:
             parent_task = self.parent
-
             index = 0
             while(index < 1000):
                 if parent_task is None:
@@ -708,6 +711,7 @@ class TextTask(BaseTask):
                 res, parent_task, val = parent_task.getParamStructFromExtTask(param_name)
                 if res:
                     return True, val
+        print('Search in self params')
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 return True, param

@@ -792,15 +792,16 @@ class Manager:
         else:
             return out, log, img_path
         
-        return self.createOrAddTask(prompt,type, creation_tag, parent)
+        return self.createOrAddTask(prompt,type, creation_tag, parent,[])
         
-    def createOrAddTask(self, prompt, type, tag, parent, params = None):
+    def createOrAddTask(self, prompt, type, tag, parent, params = []):
         print('Create task')
+        print('Params=',params)
         info = TaskDescription(prompt=prompt, prompt_tag=tag, 
                                                              helper=self.helper, requester=self.requester, manager=self, 
-                                                             parent=parent)
-        if params is not None:
-            info.params = params
+                                                             parent=parent, params=params)
+        # if params is not None:
+            # info.params = params
         curr_cmd = cr.createTaskByType(type, info)
 
         if not curr_cmd:
@@ -1311,6 +1312,7 @@ class Manager:
         return task_man.getParamOptBasedOptionsDict()
 
     def appendNewParamToTask(self, param_name):
+        print('Append new param to task')
         task_man = TaskManager()
         param = task_man.getParamBasedOptionsDict(param_name)
         if param is not None:
