@@ -30,7 +30,7 @@ class LLModel():
 
         with open(path_to_config, 'r') as config:
             models = json.load(config)
-            for name, values in models:
+            for name, values in models.items():
                 for option in values['prices']:
                     if option['name'] == model_name:
                         if name == 'openai':
@@ -114,6 +114,7 @@ class LLModel():
 
     def checkTokens(self, in_msgs: list):
         msgs = in_msgs.copy()
+        text = ''
         for msg in msgs:
             text += msg["content"]
         token_cnt = self.getTokensCount(text)

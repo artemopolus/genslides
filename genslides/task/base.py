@@ -10,15 +10,13 @@ from os.path import isfile, join
 
 import json
 
-from genslides.utils.largetext import SimpleChatGPT
+
 
 class TaskManager(metaclass=Singleton):
     def __init__(self) -> None:
         self.task_id = 0
         self.task_list = []
         self.model_list = []
-        chat = SimpleChatGPT()
-        self.model_list = chat.getModelNames()
         self.cur_task_path = "saved/"
         self.proj_pref = ""
         self.cur_proj_name = ""

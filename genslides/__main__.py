@@ -333,7 +333,6 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
             prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
             action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
-            param_updt.click(fn=manager.updateTaskParam, inputs=param_info, outputs=std_output_list, api_name="update_task_param")
 
         elif manager.getParam("mode") == "user":
             gr.themes.Base(text_size=sizes.text_lg)
