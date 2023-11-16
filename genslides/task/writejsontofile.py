@@ -43,10 +43,9 @@ class WriteJsonToFileTask(WriteToFileTask):
                 self.updateParam(param_name,prop_json["filepath"])
             elif "type" in prop_json:
                 if prop_json['type'] == 'code' and 'code' in prop_json and 'name' in prop_json:
-                    # path = "output\\scripts\\"
                     res, path = self.getParam("folder_to_write")
                     if res and os.path.exists(path):
-                        path += "\\" + prop_json['name'].replace(" ", "")
+                        path = os.path.join(path, prop_json['name'].replace(" ", ""))
                         print("Write by json in", path)
                         with open(path, 'w',encoding='utf8') as f:
                             f.write(prop_json["code"])

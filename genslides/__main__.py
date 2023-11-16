@@ -397,7 +397,7 @@ def test_cmd_body(manager : Manager, projecter : Projecter):
     init_task_json['name'] = name
 
 
-    path = "C:\\Users\\Temka\\Documents\\exactoSim\\"
+    path = os.path.join('C:','Users','Temka','Documents','exactoSim')
 
     tasks = json.dumps(init_task_json)
     with open(path + "task.txt", "w") as f:
@@ -426,7 +426,7 @@ def mliner_body(manager : Manager, projecter : Projecter):
 
     tasks_json = manager.getTaskJsonStr()
 
-    path = "C:\\Users\\Temka\\Documents\\exactoSim\\"
+    path = os.path.join('C:','Users','Temka','Documents','exactoSim')
 
     tasks = json.dumps(tasks_json)
     with open(path + "task.txt", "w") as f:

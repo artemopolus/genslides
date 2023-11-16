@@ -5,7 +5,7 @@ from selenium.common.exceptions import InvalidSessionIdException
 from bs4 import BeautifulSoup
 
 import urllib3
-import json
+import json, os
 
 
 class Browser():
@@ -18,7 +18,7 @@ class Browser():
 class WebBrowser(Browser):
     def __init__(self) -> None:
         super().__init__()
-        path_to_config = "config\\base.json"
+        path_to_config = os.path.join("config","base.json")
         with open(path_to_config, 'r') as config:
             values = json.load(config)
             # self.path_to_browser = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"

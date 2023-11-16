@@ -19,9 +19,9 @@ import shutil
 
 class Projecter:
     def __init__(self, manager : Manager = None) -> None:
-        mypath = "projects/"
+        mypath = os.path.join("projects")
         self.ext_proj_names = []
-        ex_path = 'saved\\ext\\'
+        ex_path = os.path.join('saved','ext')
         if os.path.exists(ex_path):
             fldrs = [f for f in listdir(ex_path) if os.path.isdir(os.path.join(ex_path, f))]
             self.ext_proj_names = fldrs
@@ -99,7 +99,7 @@ class Projecter:
     
     def createExtProject(self, filename, prompt, parent) -> bool:
         # mypath = self.mypath
-        mypath = 'tools\\'
+        mypath = os.path.join('tools')
         if filename + '.7z' in [f for f in listdir(mypath) if isfile(join(mypath, f))]:
             ext_pr_name = 'pr' + str(len(self.ext_proj_names))
             trg = os.path.join(self.savedpath,'ext', ext_pr_name) +'/'
@@ -197,7 +197,7 @@ class Projecter:
         return comm
 
     def getCustomCmdList(self) -> list:
-        mypath = 'tools\\'
+        mypath = os.path.join('tools')
         return [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
     
     def getFullCmdList(self):

@@ -11,7 +11,6 @@ import subprocess
 
 class RunScriptTask(ResponseTask):
     def __init__(self, task_info: TaskDescription, type="RunScript") -> None:
-        # self.path_to_script = "output\\scripts\\"
         super().__init__(task_info, type)
 
     def executeResponse(self):

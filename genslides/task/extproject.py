@@ -26,7 +26,7 @@ class ExtProjectTask(CollectTask):
             if 'path' in param:
                 path = param['path']
             else:
-                path = os.path.join( self.manager.getPath(), 'ext', param['project']) + '\\'
+                path = os.path.join( self.manager.getPath(), 'ext', param['project'])
                 param['path'] = path
                 self.updateParam2(param)
 

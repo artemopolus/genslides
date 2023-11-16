@@ -7,7 +7,7 @@ import datetime
 
 class SaveData:
     def __init__(self) -> None:
-        path_to_config = "config\\base.json"
+        path_to_config = os.path.join("config","base.json")
         self.loaded = False
         with open(path_to_config, 'r') as config:
             values = json.load(config)
@@ -15,11 +15,11 @@ class SaveData:
                 self.name = values["session_name"]
                 self.loaded = True
 
-        self.session_path = "saved\\session\\"
-        self.archive_path = "saved\\archive\\"
+        self.session_path = os.path.join("saved","session")
+        self.archive_path = os.path.join("saved","archive")
 
     def save(self, data):
-        filename = self.session_path + self.name
+        filename = os.path.join(self.session_path,self.name)
         self.saveInternal(filename, data)
 
     def saveInternal(self, filename, data):
@@ -47,7 +47,7 @@ class SaveData:
         return pack
     
     def updateEstimation(self, checked_message):
-        filename = self.session_path + self.name +".json"
+        filename = os.path.join(self.session_path,self.name +".json")
         out = []
         try:
             with open(filename,"r") as f:
@@ -64,7 +64,7 @@ class SaveData:
             
     
     def getMessages(self):
-        filename = self.session_path + self.name +".json"
+        filename = os.path.join(self.session_path ,self.name +".json")
         out = []
         try:
             with open(filename,"r") as f:
@@ -82,13 +82,13 @@ class SaveData:
         mypath = self.session_path
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for file in onlyfiles:
-            os.rename(self.session_path + file, self.archive_path + file)
+            os.rename(os.path.join(self.session_path ,file), os.path.join( self.archive_path, file))
             # os.remove(self.session_path + file)
 
     def removeFiles(self):
         mypath = self.session_path
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for file in onlyfiles:
-            os.remove(self.session_path + file)
+            os.remove(os.path.join(self.session_path, file))
 
 

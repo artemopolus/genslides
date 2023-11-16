@@ -24,7 +24,8 @@ class TaskManager(metaclass=Singleton):
         self.cur_proj_name = ""
 
     def getListBasedOptionsDict(self, param):
-        with open('config\\options.json') as f:
+        
+        with open(os.path.join('config', 'options.json')) as f:
             opt_params = json.load(f)
         if 'type' in param:
             for p in opt_params:
@@ -33,13 +34,13 @@ class TaskManager(metaclass=Singleton):
         return []
 
     def getParamOptBasedOptionsDict(self):
-        with open('config\\options.json') as f:
+        with open(os.path.join('config', 'options.json')) as f:
             opt_params = json.load(f)
         return [p['type'] for p in opt_params]
  
 
     def getParamBasedOptionsDict(self, param_name):
-        with open('config\\options.json') as f:
+        with open(os.path.join('config', 'options.json')) as f:
             opt_params = json.load(f)
         for p in opt_params:
             if p['type'] == param_name:
@@ -53,7 +54,7 @@ class TaskManager(metaclass=Singleton):
         return None
      
     def getOptionsBasedOptionsDict(self, param_name, param_key):
-        with open('config\\options.json') as f:
+        with open(os.path.join('config', 'options.json')) as f:
             opt_params = json.load(f)
         for p in opt_params:
             if p['type'] == param_name and param_key in p:
