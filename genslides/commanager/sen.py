@@ -127,6 +127,9 @@ class Projecter:
         return gr.Dropdown.update( choices= self.loadList(), interactive=True)
 
     def copyChildChains(self, edited_prompt = '',swith_to_type = '', apply_link = False, remove_old_link = False):
+        print(10*"----------")
+        print('Copy child chains')
+        print(10*"----------")
         tasks_chains = self.manager.curr_task.getChildChainList()
         print('Task chains:')
         i = 0
@@ -138,6 +141,7 @@ class Projecter:
         for i in range(len(tasks_chains)):
             branch = tasks_chains[i]
             for j in range(len(branch['branch'])):
+                task = branch['branch'][j]
                 prompt=task.getLastMsgContent() 
                 prompt_tag=task.getLastMsgRole()
                 trg_type = task.getType()
@@ -145,14 +149,14 @@ class Projecter:
                     if i != 0:
                         parent = tasks_chains[branch['i_par']]['created'][-1]
                     branch['created'] = []
-                    if len(edited_prompt) > 0:
-                        parent = self.manager.curr_task.parent
-                        prompt = edited_prompt
-                    if len(swith_to_type) > 0:
-                        trg_type = swith_to_type
+                    if i == 0:
+                        if len(edited_prompt) > 0:
+                            parent = self.manager.curr_task.parent
+                            prompt = edited_prompt
+                        if len(swith_to_type) > 0:
+                            trg_type = swith_to_type
                 else:
                     parent = self.manager.curr_task
-                task = branch['branch'][j]
                 print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
                 if trg_type == 'ExtProject':
                     res, param = task.getParamStruct('external')
@@ -166,7 +170,7 @@ class Projecter:
                         print('No options')
                         return self.manager.getCurrTaskPrompts()
                 else:
-                    self.manager.createOrAddTask(prompt, trg_type, prompt_tag, parent, None)
+                    self.manager.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
 
                 if apply_link:                
                     in_tasks_list = task.getAffectingOnTask()

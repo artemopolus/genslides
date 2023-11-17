@@ -818,8 +818,9 @@ class Manager:
                 for trg in trgs:
                     print("   -Make link from ", trg.getName(), " to ", task_in.getName())
                     task_in.createLinkToTask(trg)
-            print("Make link from ", task_out.getName(), " to ", task_in.getName())
-            task_in.createLinkToTask(task_out)
+            else:
+                print("Make link from ", task_out.getName(), " to ", task_in.getName())
+                task_in.createLinkToTask(task_out)
 
 
 
@@ -1142,11 +1143,12 @@ class Manager:
         return self.getCurrTaskPrompts() 
     
     def actionTypeChanging(self, action):
+        print('Action switch to=', action)
         if action == 'New':
             return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
-        elif action == 'SubTask':
+        elif action == 'SubTask' or action == 'Insert':
             return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
-        elif action == 'Edit':
+        elif action == 'Edit' or action == 'EditCopy':
             return self.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False), gr.Radio(interactive=True)
     
     def getCurTaskLstMsg(self) -> str:
