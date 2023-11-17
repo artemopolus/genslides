@@ -521,12 +521,14 @@ class Manager:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
                     elif task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
+                    elif len(task.getAffectedTasks()) > 0:
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine4")
                     else:
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":
                             f.node( task.getIdStr(), task.getName(),style="filled",color="azure2")
                         else:
-                            f.node( task.getIdStr(), info)
+                            f.node( task.getIdStr(), task.getName())
 
 
                 # print("info=",task.getIdStr(),"   ", task.getName())

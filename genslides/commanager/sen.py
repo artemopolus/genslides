@@ -251,7 +251,16 @@ class Projecter:
             return self.manager.makeTaskAction(prompt, "Request", selected_action, "user")
         if selected_action == "Edit":
             return self.manager.makeTaskAction(prompt, "Request", selected_action, selected_tag)
-        if selected_action == "EditCopy":
-            return self.copyChildChains(edited_prompt=prompt)
+        # # if selected_action == "EditCopy":
+        #     return self.copyChildChains(edited_prompt=prompt)
+        if selected_action == "EdCp1":
+            return self.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=True)
+        if selected_action == "EdCp2":
+            return self.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=False)
+        if selected_action == "EdCp3":
+            return self.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=True)
+        if selected_action == "EdCp4":
+            return self.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=False)
+
 
  

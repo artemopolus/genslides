@@ -138,7 +138,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             with gr.Row():
                 with gr.Column():
-                    base_action_list = gr.Radio(choices=["New","SubTask","Insert","EditCopy","Edit"], label="Select actions", value="New")
+                    base_action_list = gr.Radio(choices=["New","SubTask","Insert","EdCp1","EdCp2","EdCp3","EdCp4","EditCopy","Edit"], label="Select actions", value="New")
                     name_info = gr.Text(value="None", label="Task")
                     prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                     roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
