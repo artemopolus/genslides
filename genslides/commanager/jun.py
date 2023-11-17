@@ -1150,7 +1150,7 @@ class Manager:
             return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
         elif action == 'SubTask' or action == 'Insert':
             return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
-        elif action == 'Edit' or action == 'EditCopy':
+        elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
             return self.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False), gr.Radio(interactive=True)
     
     def getCurTaskLstMsg(self) -> str:
