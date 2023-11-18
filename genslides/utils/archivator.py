@@ -1,4 +1,5 @@
 import py7zr
+import os
 from os import listdir
 from os.path import isfile, join
 
@@ -9,21 +10,27 @@ class Archivator():
         onlyfiles = [f for f in listdir(src_path) if isfile(join(src_path, f))]
         first = True
         for file in onlyfiles:
+            tpathname = os.path.join(trg_path, name + ".7z")
+            srcpathfile = os.path.join(src_path, file)
             if first:
-                with py7zr.SevenZipFile( trg_path + name + ".7z", 'w') as archive:
-                    archive.write(src_path + file, arcname = file)
+                with py7zr.SevenZipFile( tpathname , 'w') as archive:
+                    archive.write(srcpathfile, arcname = file)
                 first = False
             else:
-                with py7zr.SevenZipFile( trg_path + name + ".7z", 'a') as archive:
-                    archive.write(src_path + file, arcname = file)
+                with py7zr.SevenZipFile( tpathname, 'a') as archive:
+                    archive.write(srcpathfile, arcname = file)
 
     def saveAll(src_path, trg_path, name):
+        print('Archivator save all')
         Archivator.saveOnlyFiles(src_path, trg_path, name)
         onlyfolders = [f for f in listdir(src_path) if not isfile(join(src_path, f))]
+        print(onlyfolders)
         for fld in onlyfolders:
             if fld != 'tmp':
                 with py7zr.SevenZipFile( trg_path + name + ".7z", 'w') as archive:
-                    archive.writeall(src_path + fld)
+                    ppath = os.path.join(src_path, fld)
+                    print('Archive write=',ppath)
+                    archive.writeall(ppath)
 
     def extractFiles(trg_path, filename, path_to_extract):
         onlyfiles = [f for f in listdir(trg_path) if isfile(join(trg_path, f))]
