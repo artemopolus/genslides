@@ -118,6 +118,7 @@ class Projecter:
 
     
     def save(self, name):
+        print('save project', name)
         self.current_project_name = name
         self.manager.setParam("current_project_name",self.current_project_name)
 
