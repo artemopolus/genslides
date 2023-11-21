@@ -184,15 +184,15 @@ class Projecter:
                     self.manager.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
 
                 if apply_link:                
-                    in_tasks_list = task.getAffectingOnTask()
+                    in_tasks_list = task.getAffectedTasks()
                     for in_task in in_tasks_list:
+                        if remove_old_link:
+                            in_task.removeLinkToTask()
                         self.manager.makeLink(in_task, self.manager.curr_task)
-                    out_tasks_list = task.getAffectedTasks()
+                    out_tasks_list = task.getAffectingOnTask()
                     for out_task in out_tasks_list:
                         self.manager.makeLink( self.manager.curr_task, out_task)
 
-                if remove_old_link:
-                    task.removeLinkToTask()
                         
                 branch['created'].append(self.manager.curr_task)
 
@@ -269,8 +269,6 @@ class Projecter:
         if selected_action == "EdCp2":
             return self.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=False)
         if selected_action == "EdCp3":
-            return self.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=True)
-        if selected_action == "EdCp4":
             return self.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=False)
 
     def createCollectTreeOnSelectedTasks(self, action_type):
