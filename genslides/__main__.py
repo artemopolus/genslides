@@ -105,6 +105,10 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
         if manager.getParam("mode") == "base":
 
 
+            project_manipulator = projecter
+            userinput_manager = projecter
+            manipulate_manager = projecter
+            parameters_manager = projecter
 
             with gr.Row() as r:
                 with gr.Column():
@@ -170,7 +174,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
                         select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
                         clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
-                        generate_tree_btn = gr.Button(value='Gen from Select')
+                        garland_btn = gr.Button(value='Garland')
 
 
                     with gr.Row():
@@ -196,11 +200,10 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     trg_params_list.select(fn=manager.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
                     gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
  
-
             with gr.Row() as r:
-                project_name = gr.Textbox(value = projecter.current_project_name, label="Project name")
+                project_name = gr.Textbox(value = project_manipulator.current_project_name, label="Project name")
                 project_save = gr.Button(value="save")
-                projects_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
+                projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
                 project_clear = gr.Button(value="clear")
 
@@ -286,27 +289,27 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
             roles_list.change(fn=manager.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
-            request_btn.click(fn=projecter.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
-            response_btn.click(fn=projecter.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)
-            custom_btn.click(fn=projecter.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
+            request_btn.click(fn=userinput_manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
+            response_btn.click(fn=userinput_manager.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)
+            custom_btn.click(fn=userinput_manager.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
+            garland_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=base_action_list, outputs= std_output_list)
 
-            moveup_btn.click(fn=manager.moveCurrentTaskUP, outputs=std_output_list)
-            parent_btn.click(fn=manager.makeActionParent, outputs=std_output_list)
-            unparent_btn.click(fn=manager.makeActionUnParent, outputs=std_output_list)
-            link_btn.click(fn=manager.makeActionLink, outputs=std_output_list)
-            unlink_btn.click(fn=manager.makeActionUnLink, outputs=std_output_list)
-            delete_btn.click(fn=manager.deleteActionTask, outputs=std_output_list)
-            extract_btn.click(fn=manager.extractActionTask, outputs=std_output_list)
-            copy_brnch_btn.click(fn=projecter.copyChildChains, outputs=std_output_list)
-            rm_branch_btn.click(fn=manager.removeActionBranch, outputs=std_output_list)
-            rm_tree_btn.click(fn=manager.removeActionTree, outputs=std_output_list)
+            moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
+            parent_btn.click(fn=manipulate_manager.makeActionParent, outputs=std_output_list)
+            unparent_btn.click(fn=manipulate_manager.makeActionUnParent, outputs=std_output_list)
+            link_btn.click(fn=manipulate_manager.makeActionLink, outputs=std_output_list)
+            unlink_btn.click(fn=manipulate_manager.makeActionUnLink, outputs=std_output_list)
+            delete_btn.click(fn=manipulate_manager.deleteActionTask, outputs=std_output_list)
+            extract_btn.click(fn=manipulate_manager.extractActionTask, outputs=std_output_list)
+            copy_brnch_btn.click(fn=manipulate_manager.copyChildChains, outputs=std_output_list)
+            rm_branch_btn.click(fn=manipulate_manager.removeActionBranch, outputs=std_output_list)
+            rm_tree_btn.click(fn=manipulate_manager.removeActionTree, outputs=std_output_list)
  
-            generate_tree_btn.click(fn=manager.createCollectTreeOnSelectedTasks,inputs=base_action_list, outputs= std_output_list)
             # copy_tree.click(fn=manager.copyChildChains, outputs=std_output_list)
-            param_apnd.click(fn=manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
+            param_apnd.click(fn=parameters_manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
+            param_edit.click(fn=parameters_manager.setTaskKeyValue, inputs=[param_type, param_key, param_slcval, param_mnlval], outputs=std_output_list)
 
 
-            param_edit.click(fn=manager.setTaskKeyValue, inputs=[param_type, param_key, param_slcval, param_mnlval], outputs=std_output_list)
             extpr_new.click(fn=projecter.newExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
             extpr_append.click(fn=projecter.appendExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
 

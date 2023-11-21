@@ -38,7 +38,7 @@ class Manager:
         self.requester = requester
         self.searcher = searcher
         self.vars_param = ["stopped", "input", "output", "watched"]
-        self.path_to_file = "config/base.json"
+        self.path_to_file = os.path.join("config","base.json")
         if os.path.exists(self.path_to_file):
             with open(self.path_to_file, 'r') as f:
                 params = json.load(f)
@@ -1386,23 +1386,4 @@ class Manager:
             # Path.rmdir(self.getPath())
             shutil.rmtree(self.getPath())
 
-    def makeActionParent(self):
-        return self.makeTaskAction("","","Parent","")
-    def makeActionUnParent(self):
-        return self.makeTaskAction("","","Unparent","")
-    def makeActionLink(self):
-        return self.makeTaskAction("","","Link","")
-    def makeActionUnLink(self):
-        return self.makeTaskAction("","","Unlink","")
-    
-    def deleteActionTask(self):
-        return self.makeTaskAction("","","Delete","")
-    def extractActionTask(self):
-        return self.makeTaskAction("","","Remove","")
-    def removeActionBranch(self):
-        return self.makeTaskAction("","","RemoveBranch","")
-    def removeActionTree(self):
-        return self.makeTaskAction("","","RemoveTree","")
-     
-    
-   
+  

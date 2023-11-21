@@ -21,7 +21,7 @@ class Projecter:
     def __init__(self, manager : Manager = None) -> None:
         mypath = "projects/"
         self.ext_proj_names = []
-        ex_path = 'saved\\ext\\'
+        ex_path = os.path.join('saved','ext')
         if os.path.exists(ex_path):
             fldrs = [f for f in listdir(ex_path) if os.path.isdir(os.path.join(ex_path, f))]
             self.ext_proj_names = fldrs
@@ -37,6 +37,17 @@ class Projecter:
         self.current_project_name = self.manager.getParam("current_project_name")
         self.updateSessionName()
 
+        self.path_to_projectfile = os.path.join('saved','project.json')
+        if os.path.exists(self.path_to_projectfile):
+            with open(self.path_to_projectfile,'r') as f:
+                self.info = json.load(f)
+        else:
+            self.info = {'actions':[]}
+            self.save()
+
+    def save(self):
+        with open(self.path_to_projectfile,'w') as f:
+            json.dump(self.info, indent=1)
 
     def updateSessionName(self):
         self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -99,7 +110,7 @@ class Projecter:
     
     def createExtProject(self, filename, prompt, parent) -> bool:
         # mypath = self.mypath
-        mypath = 'tools\\'
+        mypath = 'tools'
         if filename + '.7z' in [f for f in listdir(mypath) if isfile(join(mypath, f))]:
             ext_pr_name = 'pr' + str(len(self.ext_proj_names))
             trg = os.path.join(self.savedpath,'ext', ext_pr_name) +'/'
@@ -232,7 +243,7 @@ class Projecter:
 
     def makeCustomAction(self, prompt, selected_action, custom_action):
         if custom_action in self.getStdCmdList():
-            return self.manager.makeTaskAction(prompt, custom_action, selected_action, "assistant")
+            return self.makeTaskAction(prompt, custom_action, selected_action, "assistant")
         elif custom_action in self.getCustomCmdList():
             if selected_action == "New":
                 self.newExtProject(custom_action, prompt)
@@ -243,14 +254,14 @@ class Projecter:
         return self.manager.getCurrTaskPrompts()
     
     def makeResponseAction(self, selected_action):
-        return self.manager.makeTaskAction("", "Response",selected_action, "assistant")
+        return self.makeTaskAction("", "Response",selected_action, "assistant")
     
     def makeRequestAction(self, prompt, selected_action, selected_tag):
         print('Make',selected_action,'Request')
         if selected_action == "New" or selected_action == "SubTask" or selected_action == "Insert":
-            return self.manager.makeTaskAction(prompt, "Request", selected_action, "user")
+            return self.makeTaskAction(prompt, "Request", selected_action, "user")
         if selected_action == "Edit":
-            return self.manager.makeTaskAction(prompt, "Request", selected_action, selected_tag)
+            return self.makeTaskAction(prompt, "Request", selected_action, selected_tag)
         # # if selected_action == "EditCopy":
         #     return self.copyChildChains(edited_prompt=prompt)
         if selected_action == "EdCp1":
@@ -262,5 +273,48 @@ class Projecter:
         if selected_action == "EdCp4":
             return self.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=False)
 
+    def createCollectTreeOnSelectedTasks(self, action_type):
+        return self.manager.createCollectTreeOnSelectedTasks(action_type)
+    
 
+    def addActions(self, action = '', prompt = '', tag = '', act_type = ''):
+        id = len(self.info)
+        self.info['actions'].append({'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type })
+
+
+    
+    def makeTaskAction(self, prompt, type, creation_type, creation_tag):
+        if creation_type in self.getMainCommandList() or creation_type in self.vars_param:
+            return self.manager.makeTaskActionBase(prompt, type, creation_type, creation_tag)
+        elif creation_type in self.getSecdCommandList():
+            return self.manager.makeTaskActionPro(prompt, type, creation_type, creation_tag)
+        elif creation_type == "MoveCurrTaskUP":
+            return self.manager.moveTaskUP(self.manager.curr_task)
+        return self.manager.getCurrTaskPrompts()
+ 
+
+    def makeActionParent(self):
+        return self.makeTaskAction("","","Parent","")
+    def makeActionUnParent(self):
+        return self.makeTaskAction("","","Unparent","")
+    def makeActionLink(self):
+        return self.makeTaskAction("","","Link","")
+    def makeActionUnLink(self):
+        return self.makeTaskAction("","","Unlink","")
+    def deleteActionTask(self):
+        return self.makeTaskAction("","","Delete","")
+    def extractActionTask(self):
+        return self.makeTaskAction("","","Remove","")
+    def removeActionBranch(self):
+        return self.makeTaskAction("","","RemoveBranch","")
+    def removeActionTree(self):
+        return self.makeTaskAction("","","RemoveTree","")
+ 
+    def appendNewParamToTask(self, param_name):
+        return self.manager.appendNewParamToTask(param_name)
+    
+    def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
+        return self.manager.setTaskKeyValue(param_name, key, slt_value, mnl_value)
+    
+    
  
