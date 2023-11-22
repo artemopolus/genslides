@@ -38,16 +38,21 @@ class Projecter:
         self.updateSessionName()
 
         self.path_to_projectfile = os.path.join('saved','project.json')
+        loaded = False
         if os.path.exists(self.path_to_projectfile):
-            with open(self.path_to_projectfile,'r') as f:
-                self.info = json.load(f)
-        else:
+            try:
+                with open(self.path_to_projectfile,'r') as f:
+                    self.info = json.load(f)
+                    loaded = True
+            except:
+                pass
+        if not loaded:
             self.info = {'actions':[]}
-            self.save()
+            self.saveInfo()
 
-    def save(self):
+    def saveInfo(self):
         with open(self.path_to_projectfile,'w') as f:
-            json.dump(self.info, indent=1)
+            json.dump(obj=self.info, fp=f, indent=1)
 
     def updateSessionName(self):
         self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -246,11 +251,11 @@ class Projecter:
             return self.makeTaskAction(prompt, custom_action, selected_action, "assistant")
         elif custom_action in self.getCustomCmdList():
             if selected_action == "New":
-                self.newExtProject(custom_action, prompt)
+                return self.makeTaskAction(prompt, custom_action, "NewExtProject", "")
             elif selected_action == "SubTask":
-                self.appendExtProject(custom_action, prompt)
-        elif custom_action == 'MakeGarland':
-            self.manager.createCollectTreeOnSelectedTasks(selected_action)
+                return self.makeTaskAction(prompt, custom_action, "SubExtProject", "")
+        elif custom_action == 'Garland':
+            self.makeTaskAction('', custom_action, selected_action, '')
         return self.manager.getCurrTaskPrompts()
     
     def makeResponseAction(self, selected_action):
@@ -260,34 +265,58 @@ class Projecter:
         print('Make',selected_action,'Request')
         if selected_action == "New" or selected_action == "SubTask" or selected_action == "Insert":
             return self.makeTaskAction(prompt, "Request", selected_action, "user")
-        if selected_action == "Edit":
+        elif selected_action == "Edit":
             return self.makeTaskAction(prompt, "Request", selected_action, selected_tag)
+        else:
+            return self.makeTaskAction(prompt, "", selected_action, selected_tag)
         # # if selected_action == "EditCopy":
         #     return self.copyChildChains(edited_prompt=prompt)
-        if selected_action == "EdCp1":
-            return self.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=True)
-        if selected_action == "EdCp2":
-            return self.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=False)
-        if selected_action == "EdCp3":
-            return self.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=False)
 
     def createCollectTreeOnSelectedTasks(self, action_type):
         return self.manager.createCollectTreeOnSelectedTasks(action_type)
     
 
-    def addActions(self, action = '', prompt = '', tag = '', act_type = ''):
+    def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}, manager = None):
         id = len(self.info)
-        self.info['actions'].append({'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type })
+        action = {'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type, 'param': param }
+        if not manager:
+            manager = self.manager
+
+        action['current'] = self.manager.curr_task.getName()
+        action['slct'] = self.manager.slct_task.getName()
+        action['selected'] = [t.getName() for t in self.manager.selected_tasks]
+
+
+        self.info['actions'].append(action)
 
 
     
-    def makeTaskAction(self, prompt, type, creation_type, creation_tag):
-        if creation_type in self.getMainCommandList() or creation_type in self.vars_param:
-            return self.manager.makeTaskActionBase(prompt, type, creation_type, creation_tag)
+    def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}):
+        self.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, manager = self.manager)
+        if type1 == "Garland":
+            return self.manager.createCollectTreeOnSelectedTasks(creation_type)
+        elif creation_type == "NewExtProject":
+            return self.newExtProject(type1, prompt)
+        elif creation_type == "SubExtProject":
+            return self.appendExtProject(type1, prompt)
+        elif creation_type in self.getMainCommandList() or creation_type in self.vars_param:
+            return self.manager.makeTaskActionBase(prompt, type1, creation_type, creation_tag)
         elif creation_type in self.getSecdCommandList():
-            return self.manager.makeTaskActionPro(prompt, type, creation_type, creation_tag)
+            return self.manager.makeTaskActionPro(prompt, type1, creation_type, creation_tag)
         elif creation_type == "MoveCurrTaskUP":
             return self.manager.moveTaskUP(self.manager.curr_task)
+        elif creation_type == "EdCp1":
+            return self.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=True)
+        elif creation_type == "EdCp2":
+            return self.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=False)
+        elif creation_type == "EdCp3":
+            return self.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=False)
+        elif creation_type == "AppendNewParam":
+            return self.manager.appendNewParamToTask(param['name'])
+        elif creation_type == "SetParamValue":
+            return self.manager.setTaskKeyValue(param['name'], param['key'], param['select'], param['manual'])
+        
+
         return self.manager.getCurrTaskPrompts()
  
 
@@ -307,12 +336,13 @@ class Projecter:
         return self.makeTaskAction("","","RemoveBranch","")
     def removeActionTree(self):
         return self.makeTaskAction("","","RemoveTree","")
+    def moveCurrentTaskUP(self):
+        return self.makeTaskAction("","","MoveCurrTaskUP","")
  
     def appendNewParamToTask(self, param_name):
-        return self.manager.appendNewParamToTask(param_name)
+        return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
-        return self.manager.setTaskKeyValue(param_name, key, slt_value, mnl_value)
-    
+        return self.makeTaskAction('','','AppendNewParam','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
     
  
