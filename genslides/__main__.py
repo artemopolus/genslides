@@ -211,7 +211,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             param_updt = gr.Button(value="Edit param")
 
 
-            creation_types_radio_list = manager.getMainCommandList()
+            creation_types_radio_list = projecter.getMainCommandList()
             creation_types_radio_list += manager.getSecdCommandList()
             for param in manager.vars_param:
                 creation_types_radio_list.append(param)

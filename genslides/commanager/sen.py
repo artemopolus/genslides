@@ -277,17 +277,18 @@ class Projecter:
     
 
     def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}, manager = None):
-        id = len(self.info)
+        id = len(self.info['actions'])
         action = {'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type, 'param': param }
         if not manager:
             manager = self.manager
 
-        action['current'] = self.manager.curr_task.getName()
-        action['slct'] = self.manager.slct_task.getName()
+        action['current'] = self.manager.curr_task.getName() if self.manager.curr_task else None
+        action['slct'] = self.manager.slct_task.getName() if self.manager.slct_task else None
         action['selected'] = [t.getName() for t in self.manager.selected_tasks]
 
 
         self.info['actions'].append(action)
+        self.saveInfo()
 
 
     
@@ -345,4 +346,5 @@ class Projecter:
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
     
- 
+    def getMainCommandList(self):
+        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep","EditAndStepTree"]

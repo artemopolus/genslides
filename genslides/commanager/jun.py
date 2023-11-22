@@ -598,8 +598,6 @@ class Manager:
                 out.append({"name" : task.getName(), "type" : "output"})
         return out
     
-    def getMainCommandList(self):
-        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep","EditAndStepTree"]
     def getSecdCommandList(self):
         return ["MoveUp","RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp"]
     
