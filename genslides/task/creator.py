@@ -36,10 +36,8 @@ def checkTypeFromName(name : str, type :str) -> bool:
     stype = ''.join([i for i in name if not i.isdigit()])
     return stype.endswith(type)
 
-def createTaskByType(type : str,info : TaskDescription):
+def createTaskByType(type : str, info : TaskDescription):
     print('Create task', type)
-    # if type == "Presentation":
-        # return PresentationTask(info)
     print('Start params=',info.params)
     stype = ''.join([i for i in type if not i.isdigit()])
     info.type = stype

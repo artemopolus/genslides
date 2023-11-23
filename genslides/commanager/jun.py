@@ -771,8 +771,9 @@ class Manager:
                 self.curr_task.removeLinkToTask()
             return self.runIteration(prompt)
         elif creation_type == "Link":
-            if self.curr_task != self.slct_task:
-                self.makeLink(self.curr_task, self.slct_task)
+            for t in self.selected_tasks:
+            # if self.curr_task != self.slct_task:
+                self.makeLink(self.curr_task, t)
             return self.runIteration(prompt)
         elif creation_type == "Delete":
             task = self.curr_task
