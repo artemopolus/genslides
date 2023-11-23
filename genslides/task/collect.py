@@ -3,7 +3,7 @@ from genslides.task.base import TaskDescription
 import pprint
 from genslides.utils.largetext import SimpleChatGPT
 
-
+import json
 
 class CollectTask(TextTask):
     def __init__(self, task_info : TaskDescription, type = "Collect") -> None:
@@ -99,12 +99,20 @@ class CollectTask(TextTask):
         res, param = self.getParamStruct('linkedfrom')
         text = ""
         if res:
-            names = [t['name'] for t in param['tasks']]
-            if names == [t.getName() for t in self.getAffectingOnTask()]:
-                for t in param['task']:
+            names = param['tasks']
+            checkers = [t.getName() for t in self.getAffectingOnTask()]
+            print('=================>>>>>>>>>>>>Check', names, '==',checkers)
+            print(set(names) ==set(checkers))
+            for name in names:
+                print('Check',name,':',name in checkers)
+            if set(names).difference(set(checkers)) == set():
+                print('Yes')
+                for t in names:
                     for intask in self.by_ext_affected_list:
-                        if intask.parent.getName() == t['name']:
+                        if intask.parent.getName() == t:
                             text += intask.prompt + '\n'
+            else:
+                print('No')
             return text
         for task in self.by_ext_affected_list:
             text += task.prompt +"\n"

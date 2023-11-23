@@ -300,7 +300,7 @@ class Projecter:
             return self.newExtProject(type1, prompt)
         elif creation_type == "SubExtProject":
             return self.appendExtProject(type1, prompt)
-        elif creation_type in self.getMainCommandList() or creation_type in self.vars_param:
+        elif creation_type in self.getMainCommandList() or creation_type in self.manager.vars_param:
             return self.manager.makeTaskActionBase(prompt, type1, creation_type, creation_tag)
         elif creation_type in self.getSecdCommandList():
             return self.manager.makeTaskActionPro(prompt, type1, creation_type, creation_tag)
@@ -344,8 +344,10 @@ class Projecter:
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
-        return self.makeTaskAction('','','AppendNewParam','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
+        return self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
     
     def getMainCommandList(self):
         return self.manager.getMainCommandList()
- 
+
+    def getSecdCommandList(self):
+        return self.manager.getSecdCommandList()

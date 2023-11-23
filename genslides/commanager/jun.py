@@ -495,7 +495,11 @@ class Manager:
             trgs_rsm = []
             for task in self.task_list:
                 if len(task.getAffectedTasks()) > 0:
-                    trg_list.append(task)
+                    trgs = task.getAffectedTasks()
+                    if trgs in trg_list:
+                        trg_list.append(task)
+
+            
 
             for task in trg_list:
                 if task in trgs_rsm:

@@ -22,7 +22,7 @@ from os import listdir
 from os.path import isfile, join
 import pprint
 import re
-
+import ast
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
@@ -688,7 +688,10 @@ class TextTask(BaseTask):
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 if key in param:
-                    param[key] = val
+                    if isinstance(val, str) and isinstance(param[key], list):
+                        param[key] = ast.literal_eval(val)
+                    else:
+                        param[key] = val
         print('Res params=',self.params)
         self.saveJsonToFile(self.msg_list)
 
