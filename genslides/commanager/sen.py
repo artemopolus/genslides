@@ -347,4 +347,5 @@ class Projecter:
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
     
     def getMainCommandList(self):
-        return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep","EditAndStepTree"]
+        return self.manager.getMainCommandList()
+ 
