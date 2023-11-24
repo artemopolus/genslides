@@ -173,8 +173,10 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     with gr.Row():
                         selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
                         select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
+                    with gr.Row():
                         clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
                         garland_btn = gr.Button(value='Garland')
+                        shoot_btn = gr.Button(value='Shoot')
 
 
                     with gr.Row():
@@ -292,7 +294,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             request_btn.click(fn=userinput_manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
             response_btn.click(fn=userinput_manager.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)
             custom_btn.click(fn=userinput_manager.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
+            
             garland_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=base_action_list, outputs= std_output_list)
+            shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=base_action_list, outputs= std_output_list)
 
             moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
             parent_btn.click(fn=manipulate_manager.makeActionParent, outputs=std_output_list)

@@ -273,8 +273,10 @@ class Projecter:
         #     return self.copyChildChains(edited_prompt=prompt)
 
     def createCollectTreeOnSelectedTasks(self, action_type):
-        return self.manager.createCollectTreeOnSelectedTasks(action_type)
+        return self.manager.createTreeOnSelectedTasks(action_type,"Collect")
     
+    def createShootTreeOnSelectedTasks(self, action_type):
+        return self.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
 
     def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}, manager = None):
         id = len(self.info['actions'])

@@ -117,17 +117,20 @@ class Manager:
         return [t.getName() for t in self.selected_tasks]
     
     def createCollectTreeOnSelectedTasks(self, action_type):
+        self.createTreeOnSelectedTasks(action_type,"Collect")
+
+    def createTreeOnSelectedTasks(self, action_type : str, task_type : str):
         first = True
         for task in self.selected_tasks:
             if first:
                 parent = None
                 if action_type == 'SubTask':
                     parent = self.curr_task
-                self.createOrAddTask("","Collect","user",parent)
+                self.createOrAddTask("",task_type,"user",parent)
                 first = False
             else:
                 parent = self.curr_task
-                self.createOrAddTask("","Collect","user",parent)
+                self.createOrAddTask("",task_type,"user",parent)
             self.makeLink(self.curr_task, task)
         self.clearSelectList()
         return self.getCurrTaskPrompts()
@@ -819,7 +822,7 @@ class Manager:
     
     def makeLink(self, task_in : BaseTask, task_out :BaseTask):
         if task_in != None and task_out != None:
-            if task_out.getType() == 'Collect':
+            if task_out.getType() == 'Collect' and task_in.getType() == 'Collect':
                 print('Relink from', task_out.getName(),':')
                 trgs = task_out.getAffectingOnTask()
                 for trg in trgs:

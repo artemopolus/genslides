@@ -29,6 +29,7 @@ from genslides.task.writetofileparam import WriteToFileParamTask
 from genslides.task.readfileparam import ReadFileParamTask
 
 from genslides.task.extproject import ExtProjectTask
+from genslides.task.groupcollect import GroupCollectTask
 
 import genslides.commands.create as cr
 
@@ -59,6 +60,9 @@ def createTaskByType(type : str, info : TaskDescription):
         return cr.CreateCommand(info)
     if stype.endswith("Group"):
         info.method = GroupTask
+        return cr.CreateCommand(info)
+    if stype.endswith("GroupCollect"):
+        info.method = GroupCollectTask
         return cr.CreateCommand(info)
     if stype.endswith("Collect"):
         info.method = CollectTask

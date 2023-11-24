@@ -45,12 +45,11 @@ class CollectTask(TextTask):
             tsk_info.enabled = False
 
     def updateCollectedMsgList(self, trg_list : list):
-            # print("update not frozen")
-            last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
-            trg_list.append(last)
-            if self.msg_list != trg_list:
-                self.setMsgList( trg_list.copy())
-                self.saveJsonToFile(self.msg_list)
+        print("update collected msg list")
+        last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
+        trg_list.append(last)
+        self.setMsgList( trg_list.copy())
+        self.saveJsonToFile(self.msg_list)
 
 
     def checkParentsMsg(self):
@@ -146,7 +145,15 @@ class CollectTask(TextTask):
                     self.freezeTask()
                     return
             # print("1 frozen=", self.is_freeze)
-  
+
+
+    def updateLinkedPrompts(self, input : TaskDescription):
+        for tsk_info in self.by_ext_affected_list:
+            if input.id == tsk_info.id:
+                tsk_info.prompt = input.prompt
+                tsk_info.enabled = input.enabled
+                print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
+
 
     def affectedTaskCallback(self, input : TaskDescription):
         print("From ", input.parent.getName(), " to ", self.getName())
@@ -162,11 +169,8 @@ class CollectTask(TextTask):
                 found = True
             if found:
                 self.resetTreeQueue()
-        for tsk_info in self.by_ext_affected_list:
-            if input.id == tsk_info.id:
-                tsk_info.prompt = input.prompt
-                tsk_info.enabled = input.enabled
-                print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
+
+        self.updateLinkedPrompts(input=input)
 
         out = super().affectedTaskCallback(input)
         self.stdProcessUnFreeze()

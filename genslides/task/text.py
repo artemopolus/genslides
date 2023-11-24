@@ -257,7 +257,7 @@ class TextTask(BaseTask):
         while(index < 1000):
             res, msg, par = task.getLastMsgAndParent()
             if res and task.getName() not in except_task:
-                # print(task.getName(),"give", len(msg), "msg to", out)
+                print(task.getName(),"give", len(msg), "msg")
                 msg.extend(out)
                 out = msg
             if par is None:
@@ -531,16 +531,12 @@ class TextTask(BaseTask):
         # return self.msg_list[len(self.msg_list) - 1]["role"]
 
     def useLinksToTask(self):
-        # if self.getName() == "Collect8":
-        #     print("==========================================================================")
-        #     print(len(self.affect_to_ext_list))
+        print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
         if len(self.msg_list) == 0:
             return
         text = self.msg_list[len(self.msg_list) - 1]["content"]
         text = self.findKeyParam(text)
-        # input = TaskDescription(prompt=text, parent=self)
         for task in self.affect_to_ext_list:
-            # task.prompt = text
             input = task
             input.prompt = text
             input.enabled = not self.is_freeze
