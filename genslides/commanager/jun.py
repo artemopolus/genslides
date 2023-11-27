@@ -898,36 +898,10 @@ class Manager:
  
     def runIteration(self, prompt):
         print("Run iteration")
-        img_path = "output/img.png"
-
-        if not os.path.exists(img_path):
-            img_path = "examples/test.png"
-
-        saver = SaveData()
-        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
-
 
         if self.need_human_response:
             self.need_human_response = False
-            # return "", "", img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
-            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
             return self.getCurrTaskPrompts()
-        # if len(self.task_list) > 0:
-        #     f = graphviz.Digraph(comment='The Test Table')
-            
-        #     for task in self.task_list:
-        #         if task == self.curr_task:
-        #             f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
-        #         else:
-        #             f.node( task.getIdStr(), task.getName())
-            
-        #     for task in self.task_list:
-        #         for child in task.childs:
-        #             f.edge(task.getIdStr(), child.getIdStr())
-        #     img_path = "output/img"
-        #     f.render(filename=img_path,view=False,format='png')
-        #     img_path += ".png"
-        #     del f
 
         self.index += 1
         log = 'id[' + str(self.index) + '] '
@@ -947,13 +921,8 @@ class Manager:
             out += str(task) + '\n'
             out += "Task description:\n"
             out += task.task_description
-            img_path = self.drawGraph()
-            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
             return self.getCurrTaskPrompts()
-            #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
 
-        img_path = self.drawGraph()
-        index = 0
 
         all_task_expanded = False 
         if len(self.task_list) > 0:
@@ -966,8 +935,6 @@ class Manager:
                 log += "From task:" + str(task) + " "
                 log += "add command:" + str(cmd)
                 self.cmd_list.append(cmd)
-            # else:
-                # task.completeTask()
                 all_task_expanded = False
         all_task_completed = False
         if all_task_expanded:
@@ -975,7 +942,6 @@ class Manager:
             log += "All task expanded\n"
             print("Complete task list")
             for task in self.task_list:
-                # print("complete tasl=", task.getName())
                 if not task.completeTask():
                     all_task_completed = False
                 else:
@@ -990,51 +956,14 @@ class Manager:
 
         if all_task_completed:
             log += "All task complete\n"
-            return self.getCurrTaskPrompts()
-            #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
-            # if self.curr_task:
-            #     self.curr_task.completeTask()
-
-        # for task in self.task_list[:]:
-        #     if task.isSolved():
-        #         self.task_list.remove(task)
-
         if len(self.task_list) == 0:
             if True:
                 log += "No any task"
-                return out, log, img_path, "", ""
-            log += "Start command\n"
-            curr_task = PresentationTask(TaskDescription(prompt=prompt, helper=self.helper, requester=self.requester))
-            self.task_list.append(curr_task)
-            out += "Task description:\n"
-            log += curr_task.task_creation_result
-            out += curr_task.task_description
-            self.curr_task = curr_task
-            return out, log, img_path
+                return self.getCurrTaskPrompts()
 
-           # curr_task = InformationTask( None, self.helper, self.requester, prompt)
-            # responses = []
-            # responses = chatgpttask.completeTask()
-            # log += "Search list:\n"
-            # for resp in responses:
-            #        log += resp + '\n'
-            # log += "Getted links:\n"
-            # links = []
-            # googletask = GoogleTask(searcher=self.searcher, reqhelper=self.helper, requester=self.requester, prompt=responses)
-            # links = googletask.completeTask()
-            # for link in links:
-            #        log += link + '\n'
-
-            # browsertask = BrowserTask(browser=self.browser, reqhelper=self.helper, requester=self.requester, prompt=links)
-            # text = browsertask.completeTask()
-            # print('text len=',len(text))
-            # summtask = SummaryTask(summator=self.summator,reqhelper=self.helper,requester=self.requester,prompt=text)
-            # summtask.completeTask()
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
-        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
         return self.getCurrTaskPrompts()
-        #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
     
     def update(self):
         print(10*"----------")
