@@ -1,13 +1,12 @@
 from abc import ABCMeta, abstractmethod
 
-
 class SimpleCommand(metaclass=ABCMeta):
-    def __init__(self, method) -> None:
-        self.method = method
+    def __init__(self, input ) -> None:
+        self.input = input
 
     @abstractmethod
     def execute(self) -> None:
-        pass
+        return None
 
     @abstractmethod
     def unexecute(self) -> None:

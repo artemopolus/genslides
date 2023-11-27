@@ -123,6 +123,7 @@ def getTasksDict() -> list:
     out.append({"type":"Request","short":"Rq","creation":RequestTask})
     out.append({"type":"Response","short":"Rs","creation":ResponseTask})
     out.append({"type":"Collect","short":"Cl","creation":CollectTask})
+    out.append({"type":"GroupCollect","short":"Gc","creation":GroupCollectTask})
     out.append({"type":"ReadDial","short":"Rd","creation":ReadDialTask})
     out.append({"type":"WriteDialToFile","short":"Wd","creation":WriteDialToFileTask})
     out.append({"type":"ReadFile","short":"Rf","creation":ReadFileTask})

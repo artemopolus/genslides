@@ -12,6 +12,10 @@ from genslides.utils.browser import WebBrowser
 from genslides.utils.savedata import SaveData
 
 import genslides.task.creator as cr
+import genslides.commands.edit as edit
+import genslides.commands.create as create
+import genslides.commands.parent as parcmd
+import genslides.commands.link as lnkcmd
 
 from genslides.utils.largetext import SimpleChatGPT
 
@@ -126,11 +130,11 @@ class Manager:
                 parent = None
                 if action_type == 'SubTask':
                     parent = self.curr_task
-                self.createOrAddTask("",task_type,"user",parent)
+                self.createOrAddTask("",task_type,"user",parent,[])
                 first = False
             else:
                 parent = self.curr_task
-                self.createOrAddTask("",task_type,"user",parent)
+                self.createOrAddTask("",task_type,"user",parent,[])
             self.makeLink(self.curr_task, task)
         self.clearSelectList()
         return self.getCurrTaskPrompts()
@@ -140,62 +144,10 @@ class Manager:
         return self.getCurrTaskPrompts()
     
     def moveTaskUP(self, task : BaseTask):
-        print('Move task', task.getName(),'UP')
-        task_B = task.parent
-        task_C = task
-        task_trgs = [task_B, task_C]
-        print('Start chain:',[t.getName() for t in task.getAllParents()])
-        if task_B is not None:
-            if task_B.parent is not None:
-                task_A = task_B.parent
-                task_trgs.append(task_A)
-            childs_C = task_C.getChilds()
-            childs_B = task_B.getChilds()
-            childs_B.remove(task_C)
-
-            task_B.removeAllChilds()
-            task_B.removeParent()
-            task_C.removeAllChilds()
-            task_C.removeParent()
-
-            print('Child C:',[t.getName() for t in childs_C])
-            print('child',task_B.getName(),'start:',[t.getName() for t in task_B.getChilds()],'of')
-            for child in childs_C:
-                task_B.addChild(child)
-            print('CHILDS RESULT:',[t.getName() for t in task_B.getChilds()])
-
-            childs_B.append(task_B)
-            task_trgs.extend(childs_B)
-            task_trgs.extend(childs_C)
-
-            print('Child B:',[t.getName() for t in childs_B])
-            print('child start:',[t.getName() for t in task_C.getChilds()])
-            for child in childs_B:
-                task_C.addChild(child)
-            print('CHILDS RESULT:',[t.getName() for t in task_C.getChilds()])
-
-            if task_A is not None:
-                task_A.addChild(task_C)
-                task_A.update()
-            else:
-                task_C.update()
-
-            for t in task_trgs:
-                t.saveAllParams()
-        else:
-            print('Nothing to switch')
-
-        
-        print('Task A:',[t.getName() for t in task_A.getAllParents()])
-        print('ChildA:',[t.getName() for t in task_A.getChilds()])
-        print('Task C:',[t.getName() for t in task_C.getAllParents()])
-        print('ChildC:',[t.getName() for t in task_C.getChilds()])
-        print('Task B:',[t.getName() for t in task_B.getAllParents()])
-        print('ChildB:',[t.getName() for t in task_B.getChilds()])
-
-        self.curr_task = task_C
-        return self.getCurrTaskPrompts()
-                        
+        info = TaskDescription(target=task)
+        cmd = edit.MoveUpTaskCommand(info)
+        self.cmd_list.append(cmd)
+        return self.runIteration('')
 
 
 
@@ -722,9 +674,11 @@ class Manager:
             print('Abort maske action')
             return self.getCurrTaskPrompts()
         if creation_type == "Edit":
-            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True)
-            self.curr_task.update(info)
-            return self.getCurrTaskPrompts()
+            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
+            info.target = self.curr_task
+            cmd = edit.EditCommand(info)
+            self.cmd_list.append(cmd)
+            return self.runIteration()
         elif creation_type == "EditAndStep":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True, stepped=True)
             self.updateSteppedSelectedInternal(info)
@@ -763,19 +717,23 @@ class Manager:
             return self.runIteration(prompt)
         elif creation_type == "RemoveParent":
             if self.curr_task != self.slct_task and self.curr_task:
-                self.curr_task.removeParent()
-                self.curr_task.update()
+                info = TaskDescription(target=self.curr_task)
+                cmd = parcmd.RemoveParentCommand(info)
+                self.cmd_list.append(cmd)
             return self.runIteration(prompt)
         elif creation_type == "Parent":
             if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
                 print("Make ", self.slct_task.getName()," parent of ", self.curr_task.getName())
                 info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), parent=self.slct_task)
-                # info = TaskDescription(prompt=self.curr_task.getRichPrompt(),prompt_tag=self.curr_task.getTagPrompt(), parent=self.slct_task)
-                self.curr_task.update(info)
+                info.target = self.curr_task
+                cmd = parcmd.ParentCommand(info)
+                self.cmd_list.append(cmd)
             return self.runIteration(prompt)
         elif creation_type == "Unlink":
             if self.curr_task:
-                self.curr_task.removeLinkToTask()
+                info = TaskDescription(target=self.curr_task)
+                cmd = lnkcmd.UnLinkCommand(info)
+                self.cmd_list.append(cmd)
             return self.runIteration(prompt)
         elif creation_type == "Link":
             for t in self.selected_tasks:
@@ -784,23 +742,25 @@ class Manager:
             return self.runIteration(prompt)
         elif creation_type == "Delete":
             task = self.curr_task
-            task.beforeRemove()
+            info = TaskDescription(target=self.curr_task)
+            cmd_delete = create.RemoveCommand(info)
+            self.cmd_list.append(cmd_delete)
+            self.runIteration(prompt)
             self.task_list.remove(task)
             if task in self.tree_arr:
                 self.tree_arr.remove(task)
             self.setNextTask("1")
             del task
-            return self.runIteration(prompt)
+            return self.getCurrTaskPrompts()
         elif creation_type == "New":
             parent = None
             if cr.checkTypeFromName(type, "Response"):
                 print('Can\'t create new Response')
-            # if type.startswith("Response"):
-                return out, log, img_path
+                return self.getCurrTaskPrompts()
         elif creation_type == "SubTask":
             parent = self.curr_task
         else:
-            return out, log, img_path
+            return self.getCurrTaskPrompts()
         
         return self.createOrAddTask(prompt,type, creation_tag, parent,[])
         
@@ -827,10 +787,14 @@ class Manager:
                 trgs = task_out.getAffectingOnTask()
                 for trg in trgs:
                     print("   -Make link from ", trg.getName(), " to ", task_in.getName())
-                    task_in.createLinkToTask(trg)
+                    info = TaskDescription(target=task_in, parent=trg)
+                    cmd = lnkcmd.LinkCommand(info)
+                    self.cmd_list.append(cmd)
             else:
                 print("Make link from ", task_out.getName(), " to ", task_in.getName())
-                task_in.createLinkToTask(task_out)
+                info = TaskDescription(target=task_in, parent=task_out)
+                cmd = lnkcmd.LinkCommand(info)
+                self.cmd_list.append(cmd)
 
 
 
@@ -1243,10 +1207,12 @@ class Manager:
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
         if mnl_value == "":
-            self.curr_task.updateParamStruct(param_name, key, slt_value)
+            info = TaskDescription(target=self.curr_task, params={'name':param_name,'key':key,'select':slt_value})
         else:
-            self.curr_task.updateParamStruct(param_name, key, mnl_value)
-        return  self.getCurrTaskPrompts()
+            info = TaskDescription(target=self.curr_task, params={'name':param_name,'key':key,'select':mnl_value})
+        cmd = edit.EditParamCommand(info)
+        self.cmd_list.append(cmd)
+        return self.runIteration('')
 
     def getAppendableParam(self):
         task_man = TaskManager()
@@ -1257,8 +1223,10 @@ class Manager:
         task_man = TaskManager()
         param = task_man.getParamBasedOptionsDict(param_name)
         if param is not None:
-            self.curr_task.setParamStruct(param)
-        return self.getCurrTaskPrompts()
+            info = TaskDescription(target=self.curr_task, params=param)
+            cmd = edit.AppendParamCommand(info)
+            self.cmd_list.append(cmd)
+        return self.runIteration('')
 
     def updateSteppedSelected(self):
         self.updateSteppedSelectedInternal()
