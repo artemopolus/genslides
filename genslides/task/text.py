@@ -353,32 +353,13 @@ class TextTask(BaseTask):
         return mypath + name
 
     def getJson(self):
-        resp_json_out = {
-            'name': self.getName(),
-            'chat': self.msg_list,
-            'type': self.getType(),
-            'params': self.params
-        }
-        linked = []
-        for info in self.by_ext_affected_list:
-            linked.append(info.parent.getName())
-        resp_json_out['linked'] = linked
-        path = ""
-        if self.parent:
-            len_par_path = len(self.parent.path)
-            path = self.parent.path[6:(len_par_path - 5)]
-        resp_json_out['parent'] = path
-        child_names = []
-        for child in self.childs:
-            child_names.append(child.getName())
-        resp_json_out['childs'] = child_names
-        return resp_json_out
+        return self.getJsonMsg(self.msg_list)
     
     def saveAllParams(self):
         self.saveJsonToFile(self.msg_list)
 
 
-    def saveJsonToFile(self, msg_list):
+    def getJsonMsg(self, msg_list):
         resp_json_out = {
             'chat': msg_list,
             'type': self.getType(),
@@ -392,9 +373,12 @@ class TextTask(BaseTask):
         if self.parent and self.caretaker is None:
             path = self.parent.getClearName()
         resp_json_out['parent'] = path
+        return resp_json_out
+    
+    def saveJsonToFile(self, msg_list):
+        resp_json_out = self.getJsonMsg(msg_list)
         print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]")
         with open(self.path, 'w') as f:
-            # print("save to file=", self.path)
             json.dump(resp_json_out, f, indent=1)
 
     def deleteJsonFile(self):
@@ -692,12 +676,25 @@ class TextTask(BaseTask):
         print('Res params=',self.params)
         self.saveJsonToFile(self.msg_list)
 
+    def getCurParamStructValue(self, param_name, key):
+        for param in self.params:
+            if "type" in param and param["type"] == param_name:
+                if key in param:
+                    return True, param[key]
+        return False, ''
 
     def setParamStruct(self, param):
-        print(self.params)
+        print('Init params=',self.params)
         if 'type' in param:
             self.params.append(param)
         self.saveJsonToFile(self.msg_list)
+
+    def rmParamStruct(self, param):
+        try:
+            self.params.remove(param)
+            self.saveJsonToFile(self.msg_list)
+        except Exception as e:
+            print('Error on remove param:',e)
  
 
     def getParamStruct(self, param_name):
@@ -833,5 +830,8 @@ class TextTask(BaseTask):
 
     def getAllParams(self):
         return json.dumps(self.params, indent=1)
+    
+    def afterRestoration(self):
+        self.saveJsonToFile(self.msg_list)
 
  

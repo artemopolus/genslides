@@ -724,8 +724,9 @@ class Manager:
         elif creation_type == "Parent":
             if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
                 print("Make ", self.slct_task.getName()," parent of ", self.curr_task.getName())
-                info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), parent=self.slct_task)
+                info = TaskDescription( )
                 info.target = self.curr_task
+                info.parent = self.slct_task
                 cmd = parcmd.ParentCommand(info)
                 self.cmd_list.append(cmd)
             return self.runIteration(prompt)
@@ -875,12 +876,15 @@ class Manager:
             log += 'Command executed: '
             log += str(cmd) + '\n'
             log += "Command to execute: " + str(len(self.cmd_list)) +"\n"
-            task = cmd.execute()
-            if (task != None):
+            task, action = cmd.execute()
+            if action == 'create' and task != None:
                 self.task_list.append(task)
                 if task.isRootParent():
                     self.tree_arr.append(task)
                 self.curr_task = task
+            elif action == 'delete':
+                self.task_list.remove(task)
+                self.curr_task = self.task_list[0]
             log += task.task_creation_result
             out += str(task) + '\n'
             out += "Task description:\n"
@@ -891,15 +895,15 @@ class Manager:
         all_task_expanded = False 
         if len(self.task_list) > 0:
             all_task_expanded = True
-        for task in self.task_list:
-            log += "["+ str(index) + "] "
-            index += 1
-            cmd = task.getCmd()
-            if (cmd != None):
-                log += "From task:" + str(task) + " "
-                log += "add command:" + str(cmd)
-                self.cmd_list.append(cmd)
-                all_task_expanded = False
+        # for task in self.task_list:
+        #     log += "["+ str(index) + "] "
+        #     index += 1
+        #     cmd = task.getCmd()
+        #     if (cmd != None):
+        #         log += "From task:" + str(task) + " "
+        #         log += "add command:" + str(cmd)
+        #         self.cmd_list.append(cmd)
+        #         all_task_expanded = False
         all_task_completed = False
         if all_task_expanded:
             all_task_completed = True

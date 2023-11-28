@@ -12,6 +12,8 @@ class LinkCommand(SimpleCommand):
         return super().execute()
     
     def unexecute(self) -> None:
+        task = self.input.target
+        task.removeLinkToTask()
         return super().unexecute()
     
 class UnLinkCommand(SimpleCommand):
@@ -20,8 +22,13 @@ class UnLinkCommand(SimpleCommand):
 
     def execute(self) -> None:
         task = self.input.target
+        self.holders = task.getHoldGarlands()
         task.removeLinkToTask()
         return super().execute()
     
     def unexecute(self) -> None:
+        task = self.input.target
+        for holder in self.holders:
+            task.createLinkToTask(holder)
+
         return super().unexecute()

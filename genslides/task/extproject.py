@@ -142,3 +142,6 @@ class ExtProjectTask(CollectTask):
             code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
         return code_s
 
+    def afterRestoration(self):
+        self.afterFileLoading()
+        return super().afterRestoration()

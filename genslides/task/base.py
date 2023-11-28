@@ -1,7 +1,7 @@
 import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 
-from genslides.commands.create import CreateCommand
+# import genslides.commands.create as create
 from genslides.helpers.singleton import Singleton
 
 import os
@@ -573,12 +573,12 @@ class BaseTask():
             code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
         return code_s
 
-    def getCmd(self):
-        if len(self.crtasklist) > 0:
-            task = self.crtasklist.pop()
-            print('Register command:' + str(task.method))
-            return CreateCommand( task)
-        return None
+    # def getCmd(self):
+    #     if len(self.crtasklist) > 0:
+    #         task = self.crtasklist.pop()
+    #         print('Register command:' + str(task.method))
+    #         return create.CreateCommand( task)
+    #     return None
     
     def stdProcessUnFreeze(self, input=None):
             if self.parent:

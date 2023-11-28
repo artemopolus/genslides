@@ -1,4 +1,5 @@
 from genslides.commands.simple import SimpleCommand
+from genslides.task.base import TaskDescription
 
 
 class EditCommand(SimpleCommand):
@@ -6,14 +7,16 @@ class EditCommand(SimpleCommand):
         super().__init__(input)
 
     def execute(self) -> None:
-        input = self.input.copy()
+        input = self.input
+        info = TaskDescription(prompt=input.prompt,prompt_tag=input.creation_tag, manual=True)
+        self.info = TaskDescription( prompt=trg.getLastMsgContent(), prompt_tag=trg.getLastMsgRole(), manual=True)
         trg = input.target
-        input.target = None
-        input.manual = True
-        trg.update(input)
-        return None
+        self.trg = trg
+        trg.update(info)
+        return super().execute()
     
     def unexecute(self) -> None:
+        self.trg.update(self.info)
         return super().unexecute()
     
 class AppendParamCommand(SimpleCommand):
@@ -21,7 +24,7 @@ class AppendParamCommand(SimpleCommand):
         super().__init__(input)
 
     def execute(self) -> None:
-        task = self.input
+        task = self.input.target
         p = self.input.params
         task.setParamStruct(p)
         return super().execute()
@@ -34,12 +37,18 @@ class EditParamCommand(SimpleCommand):
         super().__init__(input)
     
     def execute(self) -> None:
-        task = self.input
+        task = self.input.target
         p = self.input.params
+        res, val = task.getCurParamStructValue(p['name'], p['key'])
         task.updateParamStruct(p['name'], p['key'], p['select'])
+        if res:
+            p['select'] = val
         return super().execute()
     
     def unexecute(self) -> None:
+        task = self.input.target
+        p = self.input.params
+        task.updateParamStruct(p['name'], p['key'], p['select'])
         return super().unexecute()
     
 
@@ -49,10 +58,13 @@ class MoveUpTaskCommand(SimpleCommand):
 
     def execute(self) -> None:
         task = self.input.target
+        self.parent = task.parent
         self.moveTaskUP(task)
         return super().execute()
     
     def unexecute(self) -> None:
+        if self.parent:
+            self.moveTaskUP(self.parent)
         return super().unexecute()
     
     def moveTaskUP(self, task ):
