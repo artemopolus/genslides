@@ -722,13 +722,14 @@ class Manager:
                 self.cmd_list.append(cmd)
             return self.runIteration(prompt)
         elif creation_type == "Parent":
-            if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
-                print("Make ", self.slct_task.getName()," parent of ", self.curr_task.getName())
+            for t in self.selected_tasks:
+                print("Make ", t.getName()," parent of ", self.curr_task.getName())
                 info = TaskDescription( )
                 info.target = self.curr_task
-                info.parent = self.slct_task
+                info.parent = t 
                 cmd = parcmd.ParentCommand(info)
                 self.cmd_list.append(cmd)
+                break
             return self.runIteration(prompt)
         elif creation_type == "Unlink":
             if self.curr_task:
@@ -738,8 +739,8 @@ class Manager:
             return self.runIteration(prompt)
         elif creation_type == "Link":
             for t in self.selected_tasks:
-            # if self.curr_task != self.slct_task:
                 self.makeLink(self.curr_task, t)
+                break
             return self.runIteration(prompt)
         elif creation_type == "Delete":
             task = self.curr_task
@@ -747,7 +748,6 @@ class Manager:
             cmd_delete = create.RemoveCommand(info)
             self.cmd_list.append(cmd_delete)
             self.runIteration(prompt)
-            self.task_list.remove(task)
             if task in self.tree_arr:
                 self.tree_arr.remove(task)
             self.setNextTask("1")
@@ -796,6 +796,7 @@ class Manager:
                 info = TaskDescription(target=task_in, parent=task_out)
                 cmd = lnkcmd.LinkCommand(info)
                 self.cmd_list.append(cmd)
+        self.runIteration()
 
 
 
@@ -861,7 +862,7 @@ class Manager:
             print("Set current task=", task.getName())
             self.slct_task = task
  
-    def runIteration(self, prompt):
+    def runIteration(self, prompt = ''):
         print("Run iteration")
 
         if self.need_human_response:
@@ -885,10 +886,10 @@ class Manager:
             elif action == 'delete':
                 self.task_list.remove(task)
                 self.curr_task = self.task_list[0]
-            log += task.task_creation_result
+            # log += task.task_creation_result
             out += str(task) + '\n'
             out += "Task description:\n"
-            out += task.task_description
+            # out += task.task_description
             return self.getCurrTaskPrompts()
 
 

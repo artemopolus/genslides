@@ -8,9 +8,9 @@ class EditCommand(SimpleCommand):
 
     def execute(self) -> None:
         input = self.input
-        info = TaskDescription(prompt=input.prompt,prompt_tag=input.creation_tag, manual=True)
-        self.info = TaskDescription( prompt=trg.getLastMsgContent(), prompt_tag=trg.getLastMsgRole(), manual=True)
+        info = TaskDescription(prompt=input.prompt,prompt_tag=input.prompt_tag, manual=True)
         trg = input.target
+        self.info = TaskDescription( prompt=trg.getLastMsgContent(), prompt_tag=trg.getLastMsgRole(), manual=True)
         self.trg = trg
         trg.update(info)
         return super().execute()
