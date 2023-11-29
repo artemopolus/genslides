@@ -1,4 +1,3 @@
-from genslides.task.presentation import PresentationTask
 from genslides.task.base import TaskDescription
 from genslides.task.base import TaskManager
 from genslides.task.base import BaseTask
@@ -1104,6 +1103,7 @@ class Manager:
         r_msgs = []
         first = ""
         sec = ""
+        print(msgs)
         for msg in msgs:
             if msg['role'] == 'assistant':
                 sec = msg['content']

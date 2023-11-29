@@ -23,6 +23,7 @@ from os.path import isfile, join
 import pprint
 import re
 import ast
+import genslides.utils.finder as finder
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
@@ -763,70 +764,9 @@ class TextTask(BaseTask):
         return False, None
     
     def findKeyParam(self, text: str):
-         results = re.findall(r'\{.*?\}', text)
-        #  print("Find keys=", text)
-        #  print("Results=", results)
-         rep_text = text
-         for res in results:
-             arr = res[1:-1].split(":")
-            #  print("Keys:", arr)
-             if len(arr) > 1:
-                 task = None
-                 if arr[0] == 'manager':
-                    if arr[1] == 'path':
-                        trg_text = self.manager.getPath()
-                        rep_text = rep_text.replace(res, trg_text)
-                 else:
-                    task = self.getAncestorByName(arr[0])
-                 if task:
-                    if len(arr) > 5:
-                        if 'type' == arr[1]:
-                            bres, pparam = task.getParamStruct(arr[2])
-                            if bres and arr[3] in pparam and pparam[arr[3]] == arr[4] and arr[5] in pparam:
-                                rep = pparam[arr[5]]
-                                rep_text = rep_text.replace(res, str(rep))
-                    elif arr[1] == self.manager.getMsgTag():
-                        param = task.getLastMsgContent()
-                        if len(arr) > 3 and arr[2] == 'json':
-                            bres, j = Loader.loadJsonFromText(param)
-                            if bres:
-                                rep = j[arr[3]]
-                                rep_text = rep_text.replace(res, str(rep))
-                            else:
-                                print("No json in", task.getName())
-                        else:
-                            print("Replace", res, "from",task.getName())
-                            rep_text = rep_text.replace(res, str(param))
-                    elif arr[1] == self.manager.getTknTag():
-                        tkns, price = task.getCountPrice()
-                        rep_text = rep_text.replace(res, str(tkns))
-                    elif arr[1] == self.manager.getBranchCodeTag():
-                        p_tasks = task.getAllParents()
-                        print('Get branch code',[t.getName() for t in p_tasks])
-                        code_s = ""
-                        if len(p_tasks) > 0:
-                            trg = p_tasks[0]
-                            code_s = self.manager.getShortName(trg.getType(), trg.getName())
-                            for i in range(len(p_tasks)-1):
-                                code_s += p_tasks[i].getBranchCode( p_tasks[i+1])
-                        rep_text = rep_text.replace(res, code_s)
-
-
-                    else:
-                        p_exist, param = task.getParam(arr[1])
-                        if p_exist:
-                            # print("Replace ", res, " with ", param)
-                            rep_text = rep_text.replace(res, str(param))
-                        else:
-                            # print("No param")
-                            pass
-                 else:
-                    #  print("No task", arr[0])
-                     pass
-             else:
-                # print("Incorrect len")
-                pass
-         return rep_text
+         manager = self.manager
+         base = self
+         return finder.findByKey(text, manager, base )
 
     def getAllParams(self):
         return json.dumps(self.params, indent=1)

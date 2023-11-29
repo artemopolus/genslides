@@ -1,4 +1,3 @@
-from genslides.task.presentation import PresentationTask
 from genslides.task.base import BaseTask
 from genslides.task.base import TaskDescription
 from genslides.task.richtext import RichTextTask
