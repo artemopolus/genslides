@@ -18,6 +18,7 @@ import sys
 import time
 import json
 import os
+import genslides.utils.finder as finder
 
 class Seafoam(Base):
     def __init__(
@@ -194,7 +195,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                    
 
                     parents_list = gr.Dropdown(label="Parent tasks:")
-                    find_key_type = gr.Dropdown(choices=['msg','json','param','tokens','man_path','br_code'], value='msg', interactive=True)
+                    find_key_type = gr.Dropdown(choices=finder.getKayArray(), value='msg', interactive=True)
                     with gr.Row():
                         trg_params_list = gr.Dropdown(label='List of params')
                         trg_keys_list = gr.Dropdown(label='List of keys')

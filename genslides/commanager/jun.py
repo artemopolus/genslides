@@ -35,6 +35,9 @@ import shutil
 
 import datetime
 
+import genslides.utils.finder as finder
+
+
 class Manager:
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher) -> None:
         self.helper = helper
@@ -609,6 +612,7 @@ class Manager:
             else:
                 self.makeTaskActionBase(prompt, type, "New", creation_tag)
             self.slct_task = self.curr_task
+            self.selected_tasks = [self.curr_task]
             self.curr_task = task2
             self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
             print('Parents:\nFirst', task1.parent.getName(),'=',task1.getName())
@@ -1103,7 +1107,6 @@ class Manager:
         r_msgs = []
         first = ""
         sec = ""
-        print(msgs)
         for msg in msgs:
             if msg['role'] == 'assistant':
                 sec = msg['content']
@@ -1130,7 +1133,7 @@ class Manager:
             #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
         
         # print(r_msgs)
-        value = '{' + self.curr_task.getName() + ':' + self.getBranchCodeTag() + '}'
+        value = '{' + self.curr_task.getName() + ':' + finder.getBranchCodeTag() + '}'
         print('BranchCode=', self.curr_task.findKeyParam(value))
 
         return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask")
@@ -1150,33 +1153,11 @@ class Manager:
         return gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(task), interactive=True)
     
     def getFinderKeyString(self,task_name, fk_type, param_name, key_name):
-        if fk_type == 'msg':
-            value = '{' + task_name + ':msg_content}'
-        elif fk_type == 'json':
-            value = '{' + task_name + ':msg_content:json:}'
-        elif fk_type == 'tokens':
-            value = '{' + task_name + ':' + self.getTknTag() + '}'
-        elif fk_type == 'br_code':
-            value = '{' + task_name + ':' + self.getBranchCodeTag() + '}'
-        elif fk_type == 'param':
-            value = '{' + task_name + ':' + param_name + ':' + key_name + '}'
-        elif fk_type == 'man_path':
-            value = "{manager:path}"
+        value = finder.getKey(task_name, fk_type, param_name, key_name, self)
         pyperclip.copy(value)
         pyperclip.paste()
 
-    def getMsgTag(self)-> str:
-        return "msg_content"
-    
-    def getTknTag(self)-> str:
-        return 'tokens_cnt'
-    
-    def getMngTag(self)-> str:
-        return 'manager'
-
-    def getBranchCodeTag(self) -> str:
-        return 'branch_code'
-    
+   
     def getShortName(self, n_type : str, n_name : str) -> str:
         tasks_dict  = cr.getTasksDict()
         for t in tasks_dict:

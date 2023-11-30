@@ -26,7 +26,7 @@ class RemoveParentCommand(SimpleCommand):
         super().__init__(input)
 
     def execute(self) -> None:
-        trg = input.target
+        trg = self.input.target
         oldpar = trg.parent
         info = TaskDescription( prompt=trg.getLastMsgContent(), prompt_tag=trg.getLastMsgRole())
         info.parent = oldpar

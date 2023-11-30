@@ -2,6 +2,7 @@ from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.writetofile import WriteToFileTask
 
 import json, regex
+import genslides.utils.finder as finder
 
 
 class SetOptionsTask(WriteToFileTask):
@@ -37,7 +38,7 @@ class SetOptionsTask(WriteToFileTask):
                     elif param['updateable'] == 'get':
                         src = param["src"].split(":")
                         src_task = self.getAncestorByName(src[0])
-                        if src[1] == self.getMsgTag():
+                        if src[1] == finder.getMsgTag():
                             if len(src) > 3:
                                 if src[2] == "json":
                                     pattern = regex.compile(r'\{(?:[^{}]|(?R))*\}')

@@ -1,9 +1,37 @@
 import re
 import genslides.utils.loader as Loader
 
+def convertMdToScript(md_text):
+    print('convert md to script')
+    code_pattern = r'```python\n(.*?)\n```'
+    
+    parts = re.split(code_pattern, md_text, flags=re.DOTALL)
+    text = ""
+    for i, part in enumerate(parts):
+        if i % 2 == 0:  # Non-code parts treated as comments
+            lines = part.strip().split('\n')
+            comment_lines = ['# ' + line for line in lines]
+            text += '\n'.join(comment_lines) + '\n'
+        else:  # Code parts
+            text += part.strip() + "\n"
+    return text
+
+
+def getMsgTag()-> str:
+    return "msg_content"
+
+def getTknTag()-> str:
+    return 'tokens_cnt'
+
+def getMngTag()-> str:
+    return 'manager'
+
+def getBranchCodeTag() -> str:
+    return 'branch_code'
+ 
 def findByKey(text, manager , base ):
          results = re.findall(r'\{.*?\}', text)
-         print("Find keys=", text)
+        #  print("Find keys=", text)
         #  print("Results=", results)
          rep_text = text
          for res in results:
@@ -24,7 +52,7 @@ def findByKey(text, manager , base ):
                             if bres and arr[3] in pparam and pparam[arr[3]] == arr[4] and arr[5] in pparam:
                                 rep = pparam[arr[5]]
                                 rep_text = rep_text.replace(res, str(rep))
-                    elif arr[1] == manager.getMsgTag():
+                    elif arr[1] == getMsgTag():
                         param = task.getLastMsgContent()
                         if len(arr) > 3 and arr[2] == 'json':
                             bres, j = Loader.loadJsonFromText(param)
@@ -36,10 +64,10 @@ def findByKey(text, manager , base ):
                         else:
                             print("Replace", res, "from",task.getName())
                             rep_text = rep_text.replace(res, str(param))
-                    elif arr[1] == manager.getTknTag():
+                    elif arr[1] == getTknTag():
                         tkns, price = task.getCountPrice()
                         rep_text = rep_text.replace(res, str(tkns))
-                    elif arr[1] == manager.getBranchCodeTag():
+                    elif arr[1] == getBranchCodeTag():
                         p_tasks = task.getAllParents()
                         print('Get branch code',[t.getName() for t in p_tasks])
                         code_s = ""
@@ -49,8 +77,8 @@ def findByKey(text, manager , base ):
                             for i in range(len(p_tasks)-1):
                                 code_s += p_tasks[i].getBranchCode( p_tasks[i+1])
                         rep_text = rep_text.replace(res, code_s)
-
-
+                    elif arr[1] == 'code':
+                        rep_text = convertMdToScript(md_text=task.getLastMsgContent())
                     else:
                         p_exist, param = task.getParam(arr[1])
                         if p_exist:
@@ -67,3 +95,22 @@ def findByKey(text, manager , base ):
                 pass
          return rep_text
 
+def getKey(task_name, fk_type, param_name, key_name, manager) -> str:
+    if fk_type == 'msg':
+        value = '{' + task_name + ':msg_content}'
+    elif fk_type == 'json':
+        value = '{' + task_name + ':msg_content:json:}'
+    elif fk_type == 'tokens':
+        value = '{' + task_name + ':' + getTknTag() + '}'
+    elif fk_type == 'br_code':
+        value = '{' + task_name + ':' + getBranchCodeTag() + '}'
+    elif fk_type == 'param':
+        value = '{' + task_name + ':' + param_name + ':' + key_name + '}'
+    elif fk_type == 'code':
+        value = '{' + task_name + ':code}'
+    elif fk_type == 'man_path':
+        value = "{manager:path}"
+    return value
+
+def getKayArray():
+    return ['msg','json','param','tokens','man_path','br_code','code']
