@@ -69,6 +69,7 @@ class MoveUpTaskCommand(SimpleCommand):
     
     def moveTaskUP(self, task ):
         print('Move task', task.getName(),'UP')
+        task_A = None
         task_B = task.parent
         task_C = task
         task_trgs = [task_B, task_C]
@@ -114,8 +115,9 @@ class MoveUpTaskCommand(SimpleCommand):
             print('Nothing to switch')
 
         
-        print('Task A:',[t.getName() for t in task_A.getAllParents()])
-        print('ChildA:',[t.getName() for t in task_A.getChilds()])
+        if task_A is not None:
+            print('Task A:',[t.getName() for t in task_A.getAllParents()])
+            print('ChildA:',[t.getName() for t in task_A.getChilds()])
         print('Task C:',[t.getName() for t in task_C.getAllParents()])
         print('ChildC:',[t.getName() for t in task_C.getChilds()])
         print('Task B:',[t.getName() for t in task_B.getAllParents()])

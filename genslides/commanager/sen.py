@@ -142,10 +142,54 @@ class Projecter:
 
         return gr.Dropdown.update( choices= self.loadList(), interactive=True)
 
-    def copyChildChains(self, edited_prompt = '',swith_to_type = '', apply_link = False, remove_old_link = False):
+    def copyChildChains(self, edited_prompt = '',swith_to_type = '', apply_link = False, remove_old_link = False, copy = False):
         print(10*"----------")
         print('Copy child chains')
         print(10*"----------")
+        link_array, start_node = self.copyChildChainTask(edited_prompt, swith_to_type)
+        print(link_array)
+        idx = 0
+        while(idx < 1000):
+            link_array_new = []
+            for link in link_array:
+                task = link['task']
+                holders = link['holders']
+                garlandparts = link['garlandparts']
+                print(task.getName())
+                print('holders', [t.getName() for t in holders])
+                print('garlandparts', [t.getName() for t in garlandparts])
+                if apply_link:                
+                    for holder in holders:
+                        if remove_old_link:
+                            self.manager.curr_task = holder
+                            self.manager.makeTaskActionBase("","","Unlink","")
+                            holder.removeLinkToTask()
+                            # self.manager.makeLink( task, holder)
+                        if copy:
+                            print('================================================Copy')
+                            self.manager.curr_task = holder
+                            new_la, new_sn = self.copyChildChainTask(task.getLastMsgContent(), forced_parent=True)
+                            print(holder)
+                            print(new_sn)
+                            for l in new_la:
+                                if new_sn == l['task']:
+                                    new_la.remove(l)
+                            link_array_new.extend( new_la )
+                            print(link_array_new)
+                            self.manager.makeLink( new_sn, task )
+
+                    for part in garlandparts:
+                        self.manager.makeLink( task, part )
+                        
+            if len(link_array_new) == 0:
+                break
+            link_array = link_array_new
+            idx += 1
+
+        return self.manager.getCurrTaskPrompts()
+    
+    def copyChildChainTask(self, edited_prompt = '',swith_to_type = '', forced_parent = False):
+        print('Copy child chain tasks')
         tasks_chains = self.manager.curr_task.getChildChainList()
         print('Task chains:')
         i = 0
@@ -153,6 +197,9 @@ class Projecter:
             print(i,[task.getName() for task in branch['branch']], branch['done'], branch['idx'],  branch['parent'].getName() if branch['parent'] else "None", branch['i_par'])
             i+= 1
         parent = None
+
+        link_array = []
+        start = None
 
         for i in range(len(tasks_chains)):
             branch = tasks_chains[i]
@@ -166,7 +213,7 @@ class Projecter:
                         parent = tasks_chains[branch['i_par']]['created'][-1]
                     branch['created'] = []
                     if i == 0:
-                        if len(edited_prompt) > 0:
+                        if len(edited_prompt) > 0 or forced_parent:
                             parent = self.manager.curr_task.parent
                             prompt = edited_prompt
                         if len(swith_to_type) > 0:
@@ -188,41 +235,17 @@ class Projecter:
                 else:
                     self.manager.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
 
-                if apply_link:                
-                    in_tasks_list = task.getAffectedTasks()
-                    for in_task in in_tasks_list:
-                        if remove_old_link:
-                            in_task.removeLinkToTask()
-                        self.manager.makeLink(in_task, self.manager.curr_task)
-                    out_tasks_list = task.getAffectingOnTask()
-                    for out_task in out_tasks_list:
-                        self.manager.makeLink( self.manager.curr_task, out_task)
+                if i == 0 and j == 0:
+                    start = self.manager.curr_task
+                if len(task.getHoldGarlands()) or len(task.getGarlandPart()):
+                    link_array.append({'task':self.manager.curr_task,
+                                   'holders': task.getHoldGarlands(), 
+                                   'garlandparts': task.getGarlandPart()})
 
                         
                 branch['created'].append(self.manager.curr_task)
+        return link_array, start
 
-        
- 
-        # i = 0
-        # next_idx = [0]
-        # st_parent = None
-        # while (i < 1000):
-        #     for idx in next_idx:
-        #         branch = tasks_chains[idx]
-        #         for j in range(len(branch['branch'])):
-        #             if j == 0:
-        #                 parent = st_parent
-        #             else:
-        #                 parent = self.curr_task
-        #             task = branch['branch'][j]
-        #             self.curr_task.getla
-        #             prompt=self.curr_task.getLastMsgContent() 
-        #             prompt_tag=self.curr_task.getLastMsgRole()
-        #             self.createOrAddTask(prompt, task.getType(),prompt_tag, parent, None)
-        #         next_idx = branch['idx']
-        #         st_parent = self.curr_task
-        #     i+=1
-        return self.manager.getCurrTaskPrompts()
     
     def getStdCmdList(self)->list:
         # comm = self.manager.getMainCommandList()
@@ -314,6 +337,8 @@ class Projecter:
             return self.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=False)
         elif creation_type == "EdCp3":
             return self.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=False)
+        elif creation_type == "EdCp4":
+            return self.copyChildChains(edited_prompt=prompt, apply_link= True, copy=True)
         elif creation_type == "AppendNewParam":
             return self.manager.appendNewParamToTask(param['name'])
         elif creation_type == "SetParamValue":

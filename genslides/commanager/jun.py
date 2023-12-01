@@ -790,12 +790,12 @@ class Manager:
                 print('Relink from', task_out.getName(),':')
                 trgs = task_out.getAffectingOnTask()
                 for trg in trgs:
-                    print("   -Make link from ", trg.getName(), " to ", task_in.getName())
+                    print("   - [Make link] from ", trg.getName(), " to ", task_in.getName())
                     info = TaskDescription(target=task_in, parent=trg)
                     cmd = lnkcmd.LinkCommand(info)
                     self.cmd_list.append(cmd)
             else:
-                print("Make link from ", task_out.getName(), " to ", task_in.getName())
+                print("[Make link] from ", task_out.getName(), " to ", task_in.getName())
                 info = TaskDescription(target=task_in, parent=task_out)
                 cmd = lnkcmd.LinkCommand(info)
                 self.cmd_list.append(cmd)
