@@ -15,6 +15,7 @@ class RunScriptTask(ResponseTask):
         self.execute_success = False
 
     def executeResponse(self):
+        print('[EXE] run script task')
         res, pparam = self.getParamStruct("script")
         if res:
             try:
@@ -34,6 +35,7 @@ class RunScriptTask(ResponseTask):
                     if isinstance(path_tmp, list):
                         onlyfiles = path_tmp
                     else:
+                        print('No args')
                         return
                 else:
                     if exe_type == 'py':
@@ -42,21 +44,27 @@ class RunScriptTask(ResponseTask):
                         elif targets_type == 'files':
                             if isinstance(path_tmp, list):
                                 onlyfiles1 = path_tmp
+                            elif isinstance(path_tmp, str):
+                                onlyfiles1 = path_tmp.split(',')
                             else:
+                                print('Unknown files')
                                 return
                         else:
+                            print('Unknown target types')
                             return
                         onlyfiles = []
                         if os.path.exists(path_to_python):
                             for file in onlyfiles1:
                                 if file.endswith(".py"):
-                                    script_path = os.path.join(path_tmp, file)
+                                    # script_path = os.path.join(path_tmp, file)
+                                    script_path = file
                                     onlyfiles.append([path_to_python, script_path])
 
 
             except Exception as e:
                 print("Error on script struct param=",e)
         else:
+            print('No params')
             return    
         print("Trg files=", onlyfiles)
         data = ""
@@ -73,18 +81,19 @@ class RunScriptTask(ResponseTask):
             else:
                 data += phrase_success + result.stdout + "\n"
 
-            data += "\n\n\nHere below outputs of script:\n\n\n"
 
             if str_path_to_output_files:
                 tres, output_paths = Loader.stringToPathList(str_path_to_output_files)
-                print('Path to output:', output_paths)
+                print('Path to output:', output_paths, tres)
                 if tres:
+                    data += "\n\n\nHere below outputs of script:\n\n\n"
                     for p in output_paths:
                         # ppath=p.strip("\'")
                         tres, text = ReadFileMan.readPartitial(p,400)
                         data += text + "\n"
                 else:
-                    data += "No files on path" + str_path_to_output_files
+                    pass
+                    # data += "No files on path" + str_path_to_output_files
 
 
 
@@ -96,6 +105,8 @@ class RunScriptTask(ResponseTask):
                     print("Can't remove ", script_path)
                     pass
         self.execute_success = done
+
+        print('Execute result=', self.execute_success)
 
         if len(data) > 0:
             self.msg_list.append({"role": "user", "content": data})

@@ -300,6 +300,13 @@ class Projecter:
     
     def createShootTreeOnSelectedTasks(self, action_type):
         return self.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
+    
+    # Изменяем и обновляем проект
+    # Читаем команды из файла проекта
+    # Ищем задачи, помеченные для проверки
+    # Устанавливаем начальные условия: текущая активная задача
+    # Выполняем заданные команды
+    # Проверяем пока будут выполнены конечные условия
 
     def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}, manager = None):
         id = len(self.info['actions'])
@@ -315,10 +322,18 @@ class Projecter:
         self.info['actions'].append(action)
         self.saveInfo()
 
-
+        
+    def makeSavedAction(self, pack):
+        prompt = pack['prompt']
+        act_type = pack['type']
+        param = pack['param']
+        tag = pack['tag']
+        action = pack['action']
+        self.makeTaskAction(prompt, act_type, action, tag, param, save_action=False)
     
-    def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}):
-        self.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, manager = self.manager)
+    def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
+        if save_action:
+            self.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, manager = self.manager, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif creation_type == "NewExtProject":
