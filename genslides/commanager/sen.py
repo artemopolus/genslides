@@ -18,10 +18,10 @@ import shutil
 
 
 class Projecter:
-    def __init__(self, manager : Manager = None) -> None:
+    def __init__(self, manager : Manager = None, path = 'saved') -> None:
         mypath = "projects/"
         self.ext_proj_names = []
-        ex_path = os.path.join('saved','ext')
+        ex_path = os.path.join(path,'ext')
         if os.path.exists(ex_path):
             fldrs = [f for f in listdir(ex_path) if os.path.isdir(os.path.join(ex_path, f))]
             self.ext_proj_names = fldrs
@@ -37,7 +37,7 @@ class Projecter:
         self.current_project_name = self.manager.getParam("current_project_name")
         self.updateSessionName()
 
-        self.path_to_projectfile = os.path.join('saved','project.json')
+        self.path_to_projectfile = os.path.join(path,'project.json')
         loaded = False
         if os.path.exists(self.path_to_projectfile):
             try:
@@ -114,7 +114,6 @@ class Projecter:
         return self.manager.getCurrTaskPrompts()
     
     def createExtProject(self, filename, prompt, parent) -> bool:
-        # mypath = self.mypath
         mypath = 'tools'
         if filename + '.7z' in [f for f in listdir(mypath) if isfile(join(mypath, f))]:
             ext_pr_name = 'pr' + str(len(self.ext_proj_names))
@@ -122,9 +121,7 @@ class Projecter:
             if Archivator.extractFiles(mypath, filename, trg):
                 self.ext_proj_names.append(ext_pr_name)
             print('Append project',filename,'task to', trg)
-            # self.manager.appendExtendProjectTasks(trg, ext_pr_name)
             cur = self.manager.curr_task
-            # self.manager.makeTaskAction(ext_pr_name,"ExtProject","New","user")
             self.manager.createOrAddTask(prompt, 'ExtProject','user',parent,[{'type':'external','project':ext_pr_name,'filename':filename}])
             if cur != self.manager.curr_task and cur is not None:
                 print('Successfully add external task')
@@ -301,10 +298,29 @@ class Projecter:
     def createShootTreeOnSelectedTasks(self, action_type):
         return self.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
     
+    def exeComList(self, pack, manager: Manager, outputs):
+        currs = []
+        for cmd in pack:
+            for input in cmd['inputs']:
+                self.makeSavedAction(input)
+        success = True
+        for out in outputs:
+            if not out.checkTask():
+                success = False
+        return success, currs
+
+    def exeProgrammedCommand(self, pack):
     # Изменяем и обновляем проект
+        self.exeComList(pack['inputs']['start'], self.manager)
     # Читаем команды из файла проекта
     # Ищем задачи, помеченные для проверки
+        outputs = []
+        for task in self.manager.task_list:
+            res, val = task.getParamStruct('output')
+            if res and val:
+                outputs.append(task)
     # Устанавливаем начальные условия: текущая активная задача
+
     # Выполняем заданные команды
     # Проверяем пока будут выполнены конечные условия
 
@@ -336,6 +352,9 @@ class Projecter:
             self.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, manager = self.manager, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
+        elif creation_type == "SetCurrTask":
+            self.manager.setCurrentTaskByName(name=prompt)
+            return self.manager.getCurrTaskPrompts()
         elif creation_type == "NewExtProject":
             return self.newExtProject(type1, prompt)
         elif creation_type == "SubExtProject":

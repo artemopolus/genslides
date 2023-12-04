@@ -25,6 +25,7 @@ class RunScriptTask(ResponseTask):
                 phrase_script = self.findKeyParam( pparam["init_phrase"] )
                 phrase_success = self.findKeyParam( pparam["on_success"] )
                 phrase_error = self.findKeyParam( pparam["on_error"] )
+                phrase_final = self.findKeyParam( pparam["on_final"] )
 
                 str_path_to_output_files = self.findKeyParam(pparam["output_files"])
 
@@ -105,6 +106,8 @@ class RunScriptTask(ResponseTask):
                     print("Can't remove ", script_path)
                     pass
         self.execute_success = done
+
+        data += phrase_final
 
         print('Execute result=', self.execute_success)
 

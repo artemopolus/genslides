@@ -940,5 +940,7 @@ class BaseTask():
         for pack in self.affect_to_ext_list:
             out.append(pack.target)
         return out
- 
+
+    def checkTask(self):
+        return True
     

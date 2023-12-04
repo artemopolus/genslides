@@ -164,16 +164,6 @@ class Manager:
 
     def getProjPrefix(self) -> str:
         return self.proj_pref
-  
-
-    def appendExtendProjectTasks(self, path_to_project, name):
-        task_manager = TaskManager()
-        task_manager.setPath(path_to_project)
-        task_manager.setProjPrefix(name)
-        self.loadTasksList()
-
-
-
 
     def loadTasksList(self):
         print(10*"=======")
@@ -845,6 +835,11 @@ class Manager:
         for task in self.task_list:
             out.append(task.getName())
         return out
+    
+    def getCurrTaskName(self):
+        if self.curr_task:
+            return self.curr_task.getName()
+        return "None"
     
     def setCurrentTaskByName(self, name):
         task = self.getTaskByName(name)
