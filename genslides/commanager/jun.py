@@ -55,6 +55,14 @@ class Manager:
                 json.dump(params,f,indent=1)
         self.params = params
         self.onStart()
+        self.loadexttask = None
+        self.name = 'Base'
+
+    def setName(self, name : str):
+        self.name = name
+
+    def getName(self) -> str:
+        return self.name
 
     def setParam(self, param_name, param_value):
         if param_name in self.params:
@@ -107,6 +115,7 @@ class Manager:
         self.proj_pref = ''
         self.return_points = []
         self.selected_tasks = []
+        self.info = None
 
     def addTaskToSelectList(self, task :BaseTask):
         self.selected_tasks.append(task)
@@ -1272,4 +1281,160 @@ class Manager:
             # Path.rmdir(self.getPath())
             shutil.rmtree(self.getPath())
 
-  
+    def createExtProject(self, filename, prompt, parent) -> bool:
+        res, ext_pr_name = self.loadexttask(filename, self)
+        if res:
+            cur = self.curr_task
+            self.createOrAddTask(prompt, 'ExtProject','user',parent,[{'type':'external','project':ext_pr_name,'filename':filename}])
+            if cur != self.curr_task and cur is not None:
+                print('Successfully add external task')
+                print('List of tasks:',[n.getName() for n in self.task_list])
+                return True
+        return False
+
+    def copyChildChainTask(self, edited_prompt = '',swith_to_type = '', forced_parent = False):
+        print('Copy child chain tasks')
+        tasks_chains = self.curr_task.getChildChainList()
+        print('Task chains:')
+        i = 0
+        for branch in tasks_chains:
+            print(i,[task.getName() for task in branch['branch']], branch['done'], branch['idx'],  branch['parent'].getName() if branch['parent'] else "None", branch['i_par'])
+            i+= 1
+        parent = None
+
+        link_array = []
+        start = None
+
+        for i in range(len(tasks_chains)):
+            branch = tasks_chains[i]
+            for j in range(len(branch['branch'])):
+                task = branch['branch'][j]
+                prompt=task.getLastMsgContent() 
+                prompt_tag=task.getLastMsgRole()
+                trg_type = task.getType()
+                if j == 0:
+                    if i != 0:
+                        parent = tasks_chains[branch['i_par']]['created'][-1]
+                    branch['created'] = []
+                    if i == 0:
+                        if len(edited_prompt) > 0 or forced_parent:
+                            parent = self.curr_task.parent
+                            prompt = edited_prompt
+                        if len(swith_to_type) > 0:
+                            trg_type = swith_to_type
+                else:
+                    parent = self.curr_task
+                print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
+                if trg_type == 'ExtProject':
+                    res, param = task.getParamStruct('external')
+                    if res:
+                        prompt = param['prompt']
+                        filename = param['filename']
+                        if not self.createExtProject(filename, prompt, parent):
+                            print('Can not create')
+                            return self.getCurrTaskPrompts()
+                    else:
+                        print('No options')
+                        return self.getCurrTaskPrompts()
+                else:
+                    self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
+
+                if i == 0 and j == 0:
+                    start = self.curr_task
+                if len(task.getHoldGarlands()) or len(task.getGarlandPart()):
+                    link_array.append({'task':self.curr_task,
+                                   'holders': task.getHoldGarlands(), 
+                                   'garlandparts': task.getGarlandPart()})
+
+                        
+                branch['created'].append(self.curr_task)
+        return link_array, start
+
+    def copyChildChains(self, edited_prompt = '',swith_to_type = '', apply_link = False, remove_old_link = False, copy = False):
+        print(10*"----------")
+        print('Copy child chains')
+        print(10*"----------")
+        link_array, start_node = self.copyChildChainTask(edited_prompt, swith_to_type)
+        print(link_array)
+        idx = 0
+        while(idx < 1000):
+            link_array_new = []
+            for link in link_array:
+                task = link['task']
+                holders = link['holders']
+                garlandparts = link['garlandparts']
+                print(task.getName())
+                print('holders', [t.getName() for t in holders])
+                print('garlandparts', [t.getName() for t in garlandparts])
+                if apply_link:                
+                    for holder in holders:
+                        if remove_old_link:
+                            self.curr_task = holder
+                            self.makeTaskActionBase("","","Unlink","")
+                            holder.removeLinkToTask()
+                            # self.manager.makeLink( task, holder)
+                        if copy:
+                            print('================================================Copy')
+                            self.curr_task = holder
+                            new_la, new_sn = self.copyChildChainTask(task.getLastMsgContent(), forced_parent=True)
+                            print(holder)
+                            print(new_sn)
+                            for l in new_la:
+                                if new_sn == l['task']:
+                                    new_la.remove(l)
+                            link_array_new.extend( new_la )
+                            print(link_array_new)
+                            self.makeLink( new_sn, task )
+
+                    for part in garlandparts:
+                        self.makeLink( task, part )
+                        
+            if len(link_array_new) == 0:
+                break
+            link_array = link_array_new
+            idx += 1
+
+        return self.getCurrTaskPrompts()
+ 
+
+    def saveInfo(self):
+        path_to_projectfile = os.path.join(self.getPath(),'project.json')
+        if not self.info and os.path.exists(path_to_projectfile):
+            loaded = False
+            try:
+                with open(path_to_projectfile,'r') as f:
+                    self.info = json.load(f)
+                    loaded = True
+            except:
+                pass
+            if not loaded:
+                self.info = {'actions':[]}
+
+        with open(path_to_projectfile,'w') as f:
+            json.dump(obj=self.info, fp=f, indent=1)
+
+    def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}):
+        id = len(self.info['actions'])
+        action = {'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type, 'param': param }
+
+        action['current'] = self.curr_task.getName() if self.curr_task else None
+        action['slct'] = self.slct_task.getName() if self.slct_task else None
+        action['selected'] = [t.getName() for t in self.selected_tasks]
+
+
+        self.info['actions'].append(action)
+        self.saveInfo()
+
+    def fromActionToScript(self):
+        script = {'Base':[]}
+        for task in self.task_list:
+            res, val = task.getParamStruct('input')
+            if  res and val:
+                action = {'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type, 'param': param }
+                script["Base"].append(action)
+        script['managers'] = []
+        man = {'task':'','todo':self.info['actions'],'repeat':3}
+        script["managers"].append(man)
+        self.info['script'] = script
+        self.saveInfo()
+
