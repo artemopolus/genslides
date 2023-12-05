@@ -17,6 +17,7 @@ import genslides.commands.parent as parcmd
 import genslides.commands.link as lnkcmd
 
 from genslides.utils.largetext import SimpleChatGPT
+import genslides.utils.writer as writer
 
 import os
 from os import listdir
@@ -1270,12 +1271,13 @@ class Manager:
         return send_task_list_json
  
    
-    def beforeRemove(self, remove_folder = False):
+    def beforeRemove(self, remove_folder = False, remove_task = True):
         print('Clean files by manager')
-        for task in self.task_list:
-            task.beforeRemove()
-            self.task_list.remove(task)
-            del task
+        if remove_task:
+            for task in self.task_list:
+                task.beforeRemove()
+                self.task_list.remove(task)
+                del task
         if remove_folder:
             # os.path.split(self.getPath())
             # Path.rmdir(self.getPath())
@@ -1399,21 +1401,23 @@ class Manager:
 
     def saveInfo(self):
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
-        if not self.info and os.path.exists(path_to_projectfile):
+        if not self.info: 
             loaded = False
-            try:
-                with open(path_to_projectfile,'r') as f:
-                    self.info = json.load(f)
-                    loaded = True
-            except:
-                pass
+            if os.path.exists(path_to_projectfile):
+                try:
+                    with open(path_to_projectfile,'r') as f:
+                        self.info = json.load(f)
+                        loaded = True
+                except:
+                    pass
             if not loaded:
                 self.info = {'actions':[]}
 
-        with open(path_to_projectfile,'w') as f:
-            json.dump(obj=self.info, fp=f, indent=1)
+        writer.writeJsonToFile(path_to_projectfile, self.info, 'w',1)
 
     def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}):
+        if self.info is None:
+            self.saveInfo()
         id = len(self.info['actions'])
         action = {'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type, 'param': param }
 
@@ -1423,18 +1427,5 @@ class Manager:
 
 
         self.info['actions'].append(action)
-        self.saveInfo()
-
-    def fromActionToScript(self):
-        script = {'Base':[]}
-        for task in self.task_list:
-            res, val = task.getParamStruct('input')
-            if  res and val:
-                action = {'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type, 'param': param }
-                script["Base"].append(action)
-        script['managers'] = []
-        man = {'task':'','todo':self.info['actions'],'repeat':3}
-        script["managers"].append(man)
-        self.info['script'] = script
         self.saveInfo()
 

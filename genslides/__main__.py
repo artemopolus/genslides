@@ -188,9 +188,11 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         unlink_btn = gr.Button(value='Unlink')
                         delete_btn = gr.Button(value='Delete')
                         extract_btn = gr.Button(value='Extract')
-                        copy_brnch_btn = gr.Button(value='exe actions')
+                        exe_act_btn = gr.Button(value='exe actions')
                         rm_branch_btn = gr.Button(value='Remove Branch')
                         rm_tree_btn = gr.Button(value='Remove Tree')
+                        init_prman_btn = gr.Button(value='Init PrMan')
+                        stop_prman_btn = gr.Button(value='Stop PrMan')
 
                    
 
@@ -306,9 +308,11 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             unlink_btn.click(fn=manipulate_manager.makeActionUnLink, outputs=std_output_list)
             delete_btn.click(fn=manipulate_manager.deleteActionTask, outputs=std_output_list)
             extract_btn.click(fn=manipulate_manager.extractActionTask, outputs=std_output_list)
-            copy_brnch_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_list)
+            exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_list)
             rm_branch_btn.click(fn=manipulate_manager.removeActionBranch, outputs=std_output_list)
             rm_tree_btn.click(fn=manipulate_manager.removeActionTree, outputs=std_output_list)
+            init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_list)
+            stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_list)
  
             # copy_tree.click(fn=manager.copyChildChains, outputs=std_output_list)
             param_apnd.click(fn=parameters_manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)

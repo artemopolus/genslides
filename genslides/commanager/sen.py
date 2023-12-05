@@ -44,6 +44,7 @@ class Projecter:
         # saver.removeFiles()
         self.current_project_name = self.manager.getParam("current_project_name")
         self.updateSessionName()
+        self.clearTmp()
 
     def updateSessionName(self):
         self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -70,6 +71,11 @@ class Projecter:
                 os.remove(f_path)
             else:
                 shutil.rmtree(f_path)
+    
+    def clearTmp(self):
+        tmppath = os.path.join('saved','tmp')
+        if os.path.exists(tmppath):
+            shutil.rmtree(tmppath)
 
     def clear(self):
         self.clearFiles()
@@ -197,7 +203,13 @@ class Projecter:
         return self.makeTaskAction("","","RemoveTree","")
     def moveCurrentTaskUP(self):
         return self.makeTaskAction("","","MoveCurrTaskUP","")
- 
+    
+    def initPrivManager(self):
+        return self.makeTaskAction("","","InitPrivManager","", {'act_list':[],'repeat':3})
+    
+    def stopPrivManager(self):
+        return self.makeTaskAction("","","StopPrivManager","", {'repeat': 3})
+
     def appendNewParamToTask(self, param_name):
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
     

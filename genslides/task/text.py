@@ -331,6 +331,12 @@ class TextTask(BaseTask):
             else:
                 out.append(par)
         return out
+    
+    def setManager(self, manager):
+        super().setManager(manager)
+        self.removeJsonFile()
+        self.path = self.getPath()
+        self.saveJsonToFile(self.msg_list)
 
 
     def getPath(self) -> str:
@@ -351,7 +357,7 @@ class TextTask(BaseTask):
                 found = True
                 print("Res Name=", n)
                 self.setName(n)
-        return mypath + name
+        return os.path.join( mypath, name)
 
     def getJson(self):
         return self.getJsonMsg(self.msg_list)
@@ -375,6 +381,9 @@ class TextTask(BaseTask):
             path = self.parent.getClearName()
         resp_json_out['parent'] = path
         return resp_json_out
+    
+    def removeJsonFile(self):
+        os.remove(self.path)
     
     def saveJsonToFile(self, msg_list):
         resp_json_out = self.getJsonMsg(msg_list)

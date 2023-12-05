@@ -230,6 +230,10 @@ class BaseTask():
         self.target = task_info.target
         self.filename = task_info.filename
 
+
+    def setManager(self, manager):
+        self.manager = manager
+
     
     
     def freezeTask(self):
