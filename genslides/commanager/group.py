@@ -29,6 +29,7 @@ class Actioner():
         manager.setName(task.getName())
         manager.setPath(os.path.join('saved','tmp', manager.getName()))
         manager.saveInfo()
+        manager.info['task'] = task.getName()
         manager.info['act_list'] = act_list
         manager.info['idx'] = 0
         manager.info['repeat'] = repeat
@@ -46,7 +47,7 @@ class Actioner():
         # self.exeComList(pack['Base'])
         # Читаем команды из файла проекта
         for man in pack['managers']:
-            self.addPrivateManagerForTaskByName(man['task'], man['act_list'], man['repeat'])
+            self.addPrivateManagerForTaskByName(man['task'], man['actions'], man['repeat'])
         # Ищем задачи, помеченные для проверки
         # Устанавливаем начальные условия: текущая активная задача
 
@@ -142,12 +143,12 @@ class Actioner():
             return self.manager.setTaskKeyValue(param['name'], param['key'], param['select'], param['manual'])
         
 
-    def fromActionToScript(self, trg: Manager, src : Manager, repeat = 3):
+    def fromActionToScript(self, trg: Manager, src : Manager):
         if 'script' in trg.info:
             script = trg.info['script']
         else:
             script = {'managers':[]}
-        man2 = {'task': src.getName(),'act_list': src.info['actions'],'repeat':repeat}
+        man2 = src.info
         found = False
         for man in script['managers']:
             if src.getName() == man['task']:
