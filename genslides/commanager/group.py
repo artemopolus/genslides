@@ -19,20 +19,15 @@ class Actioner():
         return self.createPrivateManagerForTask(task, act_list, repeat)
 
     def createPrivateManagerForTask(self, task: BaseTask, act_list = [], repeat = 3)-> Manager:
+        print(10*"----------")
+        print('Create private manager based on', task.getName())
+        print(10*"----------")
+        print(act_list)
         for man in self.tmp_managers:
             if task.getName() == man.getName():
                 return None
         manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
-        manager.loadexttask = self.loadExtProject
-        manager.task_list =  task.getAllParents()
-        manager.curr_task = task
-        manager.setName(task.getName())
-        manager.setPath(os.path.join('saved','tmp', manager.getName()))
-        manager.saveInfo()
-        manager.info['task'] = task.getName()
-        manager.info['act_list'] = act_list
-        manager.info['idx'] = 0
-        manager.info['repeat'] = repeat
+        manager.initInfo(self.loadExtProject, task, act_list, repeat)
         return manager
     
     def addPrivateManagerForTaskByName(self, name : str, act_list = [], repeat = 3) ->Manager:
@@ -43,28 +38,32 @@ class Actioner():
 
     def exeProgrammedCommand(self):
         pack = self.manager.info['script']
-        # Изменяем и обновляем проект
-        # self.exeComList(pack['Base'])
+        limits = self.manager.info['limits']
         # Читаем команды из файла проекта
         for man in pack['managers']:
             self.addPrivateManagerForTaskByName(man['task'], man['actions'], man['repeat'])
-        # Ищем задачи, помеченные для проверки
-        # Устанавливаем начальные условия: текущая активная задача
 
         # Выполняем заданные команды
         idx = 0
-        while( not all_done and idx < pack['limits']):
+        all_done = False
+        while( not all_done and idx < limits):
             all_done = True
             for manager in self.tmp_managers:
                 if not manager.info['done']:
                     self.manager = manager
-                    self.exeComList(manager.info['act_list'])
+                    self.exeComList(manager.info['actions'])
                     all_done = False
             idx +=1
+        tmp = self.tmp_managers.copy()
+        for man in tmp:
+            self.removeTmpManager(man, self.std_manager)
         self.manager = self.std_manager
-        self.tmp_managers = []
         
     def makeSavedAction(self, pack):
+        print(10*"----------")
+        print('Make saved actions')
+        print(10*"----------")
+
         prompt = pack['prompt']
         act_type = pack['type']
         param = pack['param']
@@ -74,9 +73,11 @@ class Actioner():
 
 
     def exeComList(self, pack) -> bool:
+        # Устанавливаем начальные условия: текущая активная задача
         for input in pack:
             self.makeSavedAction(input)
         success = True
+        # Ищем задачи, помеченные для проверки
         for task in self.manager.task_list:
             res, val = task.getParamStruct('output')
             if res and val:
@@ -103,20 +104,33 @@ class Actioner():
         elif creation_type == "StopPrivManager":
             if self.manager == self.std_manager:
                 return
-            man = self.manager
-            self.tmp_managers.remove(man)
-            # копировать все задачи
-            for task in man.task_list:
-                if task not in self.std_manager.task_list:
-                    self.std_manager.task_list.append(task)
-                    task.setManager(self.std_manager)
-            man.beforeRemove(remove_folder=True, remove_task=False)
-            self.fromActionToScript(self.std_manager, man, param['repeat'])
-            del man
-            # сохранить все действия в скрипт
-            self.manager = self.std_manager
+            if len(self.tmp_managers) > 0:
+                trg = self.tmp_manager[-1]
+            else:
+                trg = self.std_manager
+            self.removeTmpManager(self.manager, trg)
             if save_action:
                 self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
+        elif creation_type == "RmvePrivManager":
+            if self.manager == self.std_manager:
+                return
+            man = self.manager
+            self.tmp_managers.remove(man)
+            # удалить все задачи
+            man.beforeRemove(remove_folder=True, remove_task=True)
+            del man
+            # установить следущий менедежер
+            if len(self.tmp_managers) > 0:
+                # временный
+                self.manager = self.tmp_managers[-1]
+            else:
+                # или базовый
+                self.manager = self.std_manager
+            if save_action:
+                self.manager.remLastActions()
+           
+        elif creation_type == "ExeActions":
+            self.exeProgrammedCommand()
         elif creation_type == "SetCurrTask":
             self.manager.setCurrentTaskByName(name=prompt)
         elif creation_type == "NewExtProject":
@@ -141,7 +155,7 @@ class Actioner():
             return self.manager.appendNewParamToTask(param['name'])
         elif creation_type == "SetParamValue":
             return self.manager.setTaskKeyValue(param['name'], param['key'], param['select'], param['manual'])
-        
+        return self.manager.getCurrTaskPrompts()
 
     def fromActionToScript(self, trg: Manager, src : Manager):
         if 'script' in trg.info:
@@ -160,3 +174,19 @@ class Actioner():
         trg.info['script'] = script
         trg.saveInfo()
 
+    def removeTmpManager(self, man : Manager, next_man: Manager):
+        # проверяем целевой
+        if next_man is None:
+            return
+        self.tmp_managers.remove(man)
+        # копировать все задачи
+        for task in man.task_list:
+            if task not in next_man.task_list:
+                next_man.task_list.append(task)
+                task.setManager(next_man)
+        man.beforeRemove(remove_folder=True, remove_task=False)
+        # сохранить все действия в скрипт
+        self.fromActionToScript(next_man, man)
+        del man
+        # установить следущий менедежер
+        self.manager = next_man

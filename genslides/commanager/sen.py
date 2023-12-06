@@ -36,7 +36,7 @@ class Projecter:
         task_man = TaskManager()
         self.savedpath = task_man.getPath()
         self.manager = manager
-        self.manager.loadexttask = self.loadExtProject
+        self.manager.initInfo(self.loadExtProject)
         self.manager.loadTasksList()
 
         self.actioner = Actioner(manager)
@@ -181,8 +181,8 @@ class Projecter:
         return self.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
     
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
-        self.actioner.makeTaskAction(prompt, type1, creation_type, creation_tag, param , save_action)
-        return self.manager.getCurrTaskPrompts()
+        return self.actioner.makeTaskAction(prompt, type1, creation_type, creation_tag, param , save_action)
+        # return self.manager.getCurrTaskPrompts()
  
 
     def makeActionParent(self):
@@ -210,6 +210,9 @@ class Projecter:
     def stopPrivManager(self):
         return self.makeTaskAction("","","StopPrivManager","", {'repeat': 3})
 
+    def exeActions(self):
+        return self.makeTaskAction("","","ExeActions","")
+ 
     def appendNewParamToTask(self, param_name):
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
     
@@ -222,10 +225,7 @@ class Projecter:
     def getSecdCommandList(self):
         return self.manager.getSecdCommandList()
     
-    def exeActions(self):
-        self.actioner.exeProgrammedCommand()
-        return self.manager.getCurrTaskPrompts()
-    
+   
 
     def newExtProject(self, filename, prompt):
         return self.makeTaskAction(prompt,"New","NewExtProject","")

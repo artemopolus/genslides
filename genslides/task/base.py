@@ -135,8 +135,8 @@ class TaskManager(metaclass=Singleton):
                     else:
                         # path_from_file = path_from_file.split('/')[-1]
                         if path_from_file != "":
-                            parent_path = mypath + path_from_file + self.getTaskExtention()
-                    # print('Check path:',parent_path,'=',trg_path)
+                            parent_path = os.path.join(mypath , path_from_file + self.getTaskExtention())
+                    print('Check path:',parent_path,'=',trg_path)
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
                         print("Get propmt from=",path)
                         # if rq['type'].endswith("RichText") or rq['type'].endswith("Response"):

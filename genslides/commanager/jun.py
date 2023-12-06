@@ -1400,9 +1400,11 @@ class Manager:
  
 
     def saveInfo(self):
+
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
         if not self.info: 
             loaded = False
+            print('Try to load', path_to_projectfile)
             if os.path.exists(path_to_projectfile):
                 try:
                     with open(path_to_projectfile,'r') as f:
@@ -1428,4 +1430,34 @@ class Manager:
 
         self.info['actions'].append(action)
         self.saveInfo()
+
+    def remLastActions(self):
+        if len(self.info['actions']) > 0:
+            cmd = self.info['actions'].pop()
+            print('Remove last cmd:', cmd)
+            self.saveInfo()
+
+    def initInfo(self, method, task : BaseTask = None, act_list = [], repeat = 3, limits = 1000):
+        print('Manager init info')
+        self.loadexttask = method
+        self.task_list =  task.getAllParents() if task is not None else []
+        self.curr_task = task
+        task_name = task.getName() if task is not None else 'Base'
+        self.setName(task_name)
+        if task is not None:
+            self.setPath(os.path.join('saved','tmp', self.getName()))
+        else:
+            self.setPath('saved')
+        self.saveInfo()
+        if 'task' not in self.info:
+            self.info['task'] = task_name
+        if task is not None and len(act_list) > 0:
+            self.info['actions'] = act_list
+            self.info['repeat'] = repeat
+            self.info['limits'] = limits
+        self.info['done'] = False
+        self.info['idx'] = 0
+        self.saveInfo()
+        print(self.info)
+
 
