@@ -103,7 +103,7 @@ class Actioner():
                 self.manager = self.addPrivateManagerForTaskByName(self.manager.curr_task.getName(), param['act_list'], param['repeat'])
         elif creation_type == "StopPrivManager":
             if self.manager == self.std_manager:
-                return
+                return self.manager.getCurrTaskPrompts()
             if len(self.tmp_managers) > 0:
                 trg = self.tmp_manager[-1]
             else:
@@ -113,7 +113,7 @@ class Actioner():
                 self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         elif creation_type == "RmvePrivManager":
             if self.manager == self.std_manager:
-                return
+                return self.manager.getCurrTaskPrompts()
             man = self.manager
             self.tmp_managers.remove(man)
             # удалить все задачи
