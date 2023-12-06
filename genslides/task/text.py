@@ -549,7 +549,7 @@ class TextTask(BaseTask):
 
     def whenParentRemoved(self):
         super().whenParentRemoved()
-        # TODO: check why????
+        # TODO: check why???? Переделать пусть тип задачи решает сколько нужно оставить
         if len(self.msg_list) > 0:
             last = self.msg_list.pop()
             self.msg_list = []

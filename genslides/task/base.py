@@ -842,7 +842,8 @@ class BaseTask():
 
     def beforeRemove(self):
         if self.isRootParent():
-            pass #TODO: remove manager
+            # Последняя задача для дерева
+            pass #Только проектер решает об удалении менеджера
         else:
             self.parent.removeChild(self)
         for child in self.childs:
