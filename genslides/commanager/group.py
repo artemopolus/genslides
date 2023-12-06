@@ -15,6 +15,8 @@ class Actioner():
         self.loadExtProject = manager.loadexttask
 
     def createPrivateManagerForTaskByName(self, name : str, act_list = [], repeat = 3)-> Manager:
+        # TODO: изменять стартовые задачи по правилам, которые следуют из названия
+        # получаем имя задачи из текущего менеджера
         task = self.manager.getTaskByName(name)
         return self.createPrivateManagerForTask(task, act_list, repeat)
 
