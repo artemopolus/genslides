@@ -14,31 +14,30 @@ class Actioner():
         self.tmp_managers = []
         self.loadExtProject = manager.loadexttask
 
-    def createPrivateManagerForTaskByName(self, name : str, act_list = [], repeat = 3)-> Manager:
+    def createPrivateManagerForTaskByName(self, man)-> Manager:
         # TODO: изменять стартовые задачи по правилам, которые следуют из названия
         # получаем имя задачи из текущего менеджера
-        task = self.manager.getTaskByName(name)
-        return self.createPrivateManagerForTask(task, act_list, repeat)
+        task = self.manager.getTaskByName(man['name'])
+        return self.createPrivateManagerForTask(task, man)
 
-    def createPrivateManagerForTask(self, task: BaseTask, act_list = [], repeat = 3)-> Manager:
+    def createPrivateManagerForTask(self, task: BaseTask, man)-> Manager:
         print(10*"----------")
         print('Create private manager based on', task.getName())
         print(10*"----------")
-        print(act_list)
-        for man in self.tmp_managers:
-            if task.getName() == man.getName():
+        for manager in self.tmp_managers:
+            if task.getName() == manager.getName():
                 return None
         manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
-        manager.initInfo(self.loadExtProject, task, act_list, repeat)
+        manager.initInfo(self.loadExtProject, task, man['actions'], man['repeat'] )
         return manager
     
-    def addPrivateManagerForTaskByName(self, name : str, act_list = [], repeat = 3) ->Manager:
+    def addPrivateManagerForTaskByName(self, man) ->Manager:
         # Проверяем создавались ли раньше менеджеры
-        for man in self.tmp_managers:
-            if name == man.getName():
+        for manager in self.tmp_managers:
+            if man['name'] == manager.getName():
                 return None
         # Создаем менеджера
-        manager = self.createPrivateManagerForTaskByName(name, act_list, repeat)
+        manager = self.createPrivateManagerForTaskByName(man)
         # Добавляем менеджера
         if manager is not None:
             self.tmp_managers.append(manager)
@@ -47,7 +46,7 @@ class Actioner():
     def exeTmpManagers(self):
         pack = self.manager.info['script']
         for man in pack['managers']:
-            self.addPrivateManagerForTaskByName(man['task'], man['actions'], man['repeat'])
+            self.addPrivateManagerForTaskByName(man)
         for manager in self.tmp_managers:
             self.manager = manager
             self.exeComList(manager.info['actions'])
@@ -74,7 +73,7 @@ class Actioner():
         limits = self.manager.info['limits']
         # Читаем команды из файла проекта
         for man in pack['managers']:
-            self.addPrivateManagerForTaskByName(man['task'], man['actions'], man['repeat'])
+            self.addPrivateManagerForTaskByName(man)
 
         # Выполняем заданные команды
         idx = 0
