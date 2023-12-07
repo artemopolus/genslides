@@ -33,10 +33,41 @@ class Actioner():
         return manager
     
     def addPrivateManagerForTaskByName(self, name : str, act_list = [], repeat = 3) ->Manager:
+        # Проверяем создавались ли раньше менеджеры
+        for man in self.tmp_managers:
+            if name == man.getName():
+                return None
+        # Создаем менеджера
         manager = self.createPrivateManagerForTaskByName(name, act_list, repeat)
+        # Добавляем менеджера
         if manager is not None:
             self.tmp_managers.append(manager)
         return manager
+    
+    def exeTmpManagers(self):
+        pack = self.manager.info['script']
+        for man in pack['managers']:
+            self.addPrivateManagerForTaskByName(man['task'], man['actions'], man['repeat'])
+        for manager in self.tmp_managers:
+            self.manager = manager
+            self.exeComList(manager.info['actions'])
+    
+    def clearTmpManagers(self):
+        tmp = self.tmp_managers.copy()
+        for man in tmp:
+            self.removeTmpManager(man, self.std_manager)
+        self.manager = self.std_manager
+
+    def removeTmpManager(self, name : str):
+        trg = None
+        for man in self.tmp_managers:
+            if name == man.getName():
+                trg = man
+        if trg is not None:
+            self.tmp_managers.remove(trg)
+
+    def getTmpManagersList(self):
+        return [t.getName() for t in self.tmp_managers]
 
     def exeProgrammedCommand(self):
         pack = self.manager.info['script']
@@ -102,7 +133,9 @@ class Actioner():
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif creation_type == "InitPrivManager":
             if self.manager.curr_task:
-                self.manager = self.addPrivateManagerForTaskByName(self.manager.curr_task.getName(), param['act_list'], param['repeat'])
+                man = self.addPrivateManagerForTaskByName(self.manager.curr_task.getName(), param['act_list'], param['repeat'])
+                if man is not None:
+                    self.manager = man
         elif creation_type == "StopPrivManager":
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
