@@ -188,11 +188,32 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         unlink_btn = gr.Button(value='Unlink')
                         delete_btn = gr.Button(value='Delete')
                         extract_btn = gr.Button(value='Extract')
-                        exe_act_btn = gr.Button(value='exe actions')
                         rm_branch_btn = gr.Button(value='Remove Branch')
                         rm_tree_btn = gr.Button(value='Remove Tree')
+
+                    with gr.Row():
+                        name_prman = gr.Text(value='None', label = 'Manager')
+                    with gr.Row():
                         init_prman_btn = gr.Button(value='Init PrMan')
                         stop_prman_btn = gr.Button(value='Stop PrMan')
+                    with gr.Row():
+                        params_prman = gr.Textbox(label="Params", lines=4)
+                    with gr.Row():
+                        edit_param_prman = gr.Button(value='Edit param managers')
+                    with gr.Row():
+                        get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
+                        get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
+                        load_prman_btn = gr.Button(value='Load manager')
+                        exe_act_btn = gr.Button(value='Exe action')
+
+                    
+                    std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman]
+                    edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
+                    init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_man_list)
+                    stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_man_list)
+                    
+                    exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_man_list)
+                    load_prman_btn.click(fn=manipulate_manager.loadPrivManager, inputs=get_savdman_btn, outputs = std_output_man_list)
 
                    
 
@@ -308,11 +329,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             unlink_btn.click(fn=manipulate_manager.makeActionUnLink, outputs=std_output_list)
             delete_btn.click(fn=manipulate_manager.deleteActionTask, outputs=std_output_list)
             extract_btn.click(fn=manipulate_manager.extractActionTask, outputs=std_output_list)
-            exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_list)
             rm_branch_btn.click(fn=manipulate_manager.removeActionBranch, outputs=std_output_list)
             rm_tree_btn.click(fn=manipulate_manager.removeActionTree, outputs=std_output_list)
-            init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_list)
-            stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_list)
  
             # copy_tree.click(fn=manager.copyChildChains, outputs=std_output_list)
             param_apnd.click(fn=parameters_manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)

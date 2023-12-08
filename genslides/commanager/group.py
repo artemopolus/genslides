@@ -6,6 +6,8 @@ from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 
 import os
+import json
+import gradio as gr
 
 class Actioner():
     def __init__(self, manager : Manager) -> None:
@@ -144,6 +146,8 @@ class Actioner():
             man = self.addSavedScript(param['task_name'])
             if man is not None:
                 self.manager = man
+        elif creation_type == "EditPrivManager":
+            self.setParamToManagerInfo(param, self.manager)
         elif creation_type == "ExecuteManager":
             self.exeCurManager()
         elif creation_type == "InitPrivManager":
@@ -240,3 +244,19 @@ class Actioner():
         del man
         # установить следущий менедежер
         self.manager = next_man
+
+    def getTmpManagerInfo(self):
+        saved_man = [t['task'] for t in self.manager.info['script']['managers']]
+        param = self.manager.info.copy()
+        del param['script']
+        del param['actions']
+        del param['task']
+        del param['idx']
+        del param['done']
+        tmp_man = [t.getName() for t in self.tmp_managers]
+        name = self.manager.getName()
+        return gr.Dropdown(choices= saved_man, value=name), gr.Dropdown(choices= tmp_man), json.dumps(param, indent=1), name
+
+    def setParamToManagerInfo(self, param : dict, manager : Manager):
+        for key, value in param.keys():
+            manager.info[key] = value

@@ -204,14 +204,6 @@ class Projecter:
     def moveCurrentTaskUP(self):
         return self.makeTaskAction("","","MoveCurrTaskUP","")
     
-    def initPrivManager(self):
-        return self.makeTaskAction("","","InitPrivManager","", {'act_list':[],'repeat':3})
-    
-    def stopPrivManager(self):
-        return self.makeTaskAction("","","StopPrivManager","", {'repeat': 3})
-
-    def exeActions(self):
-        return self.makeTaskAction("","","ExeActions","")
  
     def appendNewParamToTask(self, param_name):
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
@@ -231,3 +223,25 @@ class Projecter:
         return self.makeTaskAction(prompt,"New","NewExtProject","")
     def appendExtProject(self, filename, prompt):
         return self.makeTaskAction(prompt,"SubTask","SubExtProject","")
+    
+
+    def initPrivManager(self):
+        self.makeTaskAction("","","InitPrivManager","", {'act_list':[],'repeat':3})
+        return self.actioner.getTmpManagerInfo()
+    
+    def loadPrivManager(self, name):
+        self.makeTaskAction("","","InitSavdManager","", {'task_name': name})
+        return self.actioner.getTmpManagerInfo()
+   
+    def stopPrivManager(self):
+        self.makeTaskAction("","","StopPrivManager","", {'repeat': 3})
+        return self.actioner.getTmpManagerInfo()
+
+    def exeActions(self):
+        self.makeTaskAction("","","ExecuteManager","")
+        return self.actioner.getTmpManagerInfo()
+
+    def editParamPrivManager(self, param):
+        self.makeTaskAction("","","EditPrivManager","",param)
+        return self.actioner.getTmpManagerInfo()
+
