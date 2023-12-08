@@ -260,3 +260,4 @@ class Actioner():
     def setParamToManagerInfo(self, param : dict, manager : Manager):
         for key, value in param.keys():
             manager.info[key] = value
+        manager.saveInfo()
