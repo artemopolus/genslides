@@ -43,6 +43,17 @@ class Actioner():
             self.tmp_managers.append(manager)
         return manager
     
+    def exeCurManager(self):
+        self.exeComList(self.manager.info['actions'])
+
+    def addSavedScript(self, name: str):
+        pack = self.manager.info['script']
+        for man in pack['managers']:
+            if name == man['name']:
+                return self.addPrivateManagerForTaskByName(man)
+        return None
+
+    
     def exeTmpManagers(self):
         pack = self.manager.info['script']
         for man in pack['managers']:
@@ -70,14 +81,13 @@ class Actioner():
 
     def exeProgrammedCommand(self):
         pack = self.manager.info['script']
-        limits = self.manager.info['limits']
         # Читаем команды из файла проекта
         for man in pack['managers']:
             self.addPrivateManagerForTaskByName(man)
-
         # Выполняем заданные команды
         idx = 0
         all_done = False
+        limits = self.manager.info['limits']
         while( not all_done and idx < limits):
             all_done = True
             for manager in self.tmp_managers:
@@ -130,6 +140,12 @@ class Actioner():
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
+        elif creation_type == "InitSavdManager":
+            man = self.addSavedScript(param['task_name'])
+            if man is not None:
+                self.manager = man
+        elif creation_type == "ExecuteManager":
+            self.exeCurManager()
         elif creation_type == "InitPrivManager":
             if self.manager.curr_task:
                 man = self.addPrivateManagerForTaskByName(self.manager.curr_task.getName(), param['act_list'], param['repeat'])
