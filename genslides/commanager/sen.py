@@ -226,15 +226,19 @@ class Projecter:
     
 
     def initPrivManager(self):
-        self.makeTaskAction("","","InitPrivManager","", {'act_list':[],'repeat':3})
+        self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3})
         return self.actioner.getTmpManagerInfo()
     
     def loadPrivManager(self, name):
-        self.makeTaskAction("","","InitSavdManager","", {'task_name': name})
+        self.makeTaskAction("","","InitSavdManager","", {'task': name})
         return self.actioner.getTmpManagerInfo()
    
     def stopPrivManager(self):
-        self.makeTaskAction("","","StopPrivManager","", {'repeat': 3})
+        self.makeTaskAction("","","StopPrivManager","")
+        return self.actioner.getTmpManagerInfo()
+  
+    def rmvePrivManager(self):
+        self.makeTaskAction("","","RmvePrivManager","")
         return self.actioner.getTmpManagerInfo()
 
     def exeActions(self):

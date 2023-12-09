@@ -194,8 +194,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     with gr.Row():
                         name_prman = gr.Text(value='None', label = 'Manager')
                     with gr.Row():
-                        init_prman_btn = gr.Button(value='Init PrMan')
-                        stop_prman_btn = gr.Button(value='Stop PrMan')
+                        init_prman_btn = gr.Button(value='Init')
+                        stop_prman_btn = gr.Button(value='Stop')
+                        rset_prman_btn = gr.Button(value='Rset')
                     with gr.Row():
                         params_prman = gr.Textbox(label="Params", lines=4)
                     with gr.Row():
@@ -211,7 +212,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
                     init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_man_list)
                     stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_man_list)
-                    
+                    rset_prman_btn.click(fn=manipulate_manager.rmvePrivManager, outputs=std_output_man_list)                    
                     exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_man_list)
                     load_prman_btn.click(fn=manipulate_manager.loadPrivManager, inputs=get_savdman_btn, outputs = std_output_man_list)
 

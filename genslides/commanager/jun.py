@@ -1451,6 +1451,8 @@ class Manager:
         self.saveInfo()
         if 'task' not in self.info:
             self.info['task'] = task_name
+        if 'script' not in self.info:
+            self.info['script'] = {'managers':[]}
         if task is not None and len(act_list) > 0:
             self.info['actions'] = act_list
             self.info['repeat'] = repeat

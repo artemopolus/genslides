@@ -19,7 +19,7 @@ class Actioner():
     def createPrivateManagerForTaskByName(self, man)-> Manager:
         # TODO: изменять стартовые задачи по правилам, которые следуют из названия
         # получаем имя задачи из текущего менеджера
-        task = self.manager.getTaskByName(man['name'])
+        task = self.manager.getTaskByName(man['task'])
         return self.createPrivateManagerForTask(task, man)
 
     def createPrivateManagerForTask(self, task: BaseTask, man)-> Manager:
@@ -36,7 +36,7 @@ class Actioner():
     def addPrivateManagerForTaskByName(self, man) ->Manager:
         # Проверяем создавались ли раньше менеджеры
         for manager in self.tmp_managers:
-            if man['name'] == manager.getName():
+            if man['task'] == manager.getName():
                 return None
         # Создаем менеджера
         manager = self.createPrivateManagerForTaskByName(man)
@@ -46,13 +46,20 @@ class Actioner():
         return manager
     
     def exeCurManager(self):
-        self.exeComList(self.manager.info['actions'])
+        if self.manager is not self.std_manager:
+            self.exeComList(self.manager.info['actions'])
 
     def addSavedScript(self, name: str):
         pack = self.manager.info['script']
         for man in pack['managers']:
-            if name == man['name']:
+            if name == man['task']:
                 return self.addPrivateManagerForTaskByName(man)
+        return None
+    
+    def addEmptyScript(self, param):
+        if self.manager.curr_task:
+            param['task'] = self.manager.curr_task.getName()
+            return self.addPrivateManagerForTaskByName(param)
         return None
 
     
@@ -69,14 +76,6 @@ class Actioner():
         for man in tmp:
             self.removeTmpManager(man, self.std_manager)
         self.manager = self.std_manager
-
-    def removeTmpManager(self, name : str):
-        trg = None
-        for man in self.tmp_managers:
-            if name == man.getName():
-                trg = man
-        if trg is not None:
-            self.tmp_managers.remove(trg)
 
     def getTmpManagersList(self):
         return [t.getName() for t in self.tmp_managers]
@@ -143,7 +142,7 @@ class Actioner():
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif creation_type == "InitSavdManager":
-            man = self.addSavedScript(param['task_name'])
+            man = self.addSavedScript(param['task'])
             if man is not None:
                 self.manager = man
         elif creation_type == "EditPrivManager":
@@ -151,40 +150,24 @@ class Actioner():
         elif creation_type == "ExecuteManager":
             self.exeCurManager()
         elif creation_type == "InitPrivManager":
-            if self.manager.curr_task:
-                man = self.addPrivateManagerForTaskByName(self.manager.curr_task.getName(), param['act_list'], param['repeat'])
-                if man is not None:
-                    self.manager = man
+            man = self.addEmptyScript(param)
+            if man is not None:
+                self.manager = man
         elif creation_type == "StopPrivManager":
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
-            if len(self.tmp_managers) > 0:
-                trg = self.tmp_manager[-1]
-            else:
-                trg = self.std_manager
-            self.removeTmpManager(self.manager, trg)
+            trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
+            self.removeTmpManager(self.manager, trg, copy=True)
             if save_action:
                 self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         elif creation_type == "RmvePrivManager":
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
-            man = self.manager
-            self.tmp_managers.remove(man)
-            # удалить все задачи
-            man.beforeRemove(remove_folder=True, remove_task=True)
-            del man
-            # установить следущий менедежер
-            if len(self.tmp_managers) > 0:
-                # временный
-                self.manager = self.tmp_managers[-1]
-            else:
-                # или базовый
-                self.manager = self.std_manager
+            trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
+            self.removeTmpManager(self.manager, trg, copy=False)
             if save_action:
                 self.manager.remLastActions()
            
-        elif creation_type == "ExeActions":
-            self.exeProgrammedCommand()
         elif creation_type == "SetCurrTask":
             self.manager.setCurrentTaskByName(name=prompt)
         elif creation_type == "NewExtProject":
@@ -212,35 +195,40 @@ class Actioner():
         return self.manager.getCurrTaskPrompts()
 
     def fromActionToScript(self, trg: Manager, src : Manager):
-        if 'script' in trg.info:
-            script = trg.info['script']
-        else:
-            script = {'managers':[]}
-        man2 = src.info
-        found = False
-        for man in script['managers']:
+        print('From',src.info['task'], 'to', trg.info['task'])
+        script = trg.info['script']['managers']
+        man2 = src.info.copy()
+        found = None
+        for man in script:
             if src.getName() == man['task']:
-                found = True
-                man = man2
+                found = man
                 break 
-        if not found:
-            script["managers"].append(man2)
-        trg.info['script'] = script
+        if found is None:
+            script.append(man2)
+        else:
+            script.remove(found)
+            script.append(man2)
+        print(man2)
+        print(script)
+        # trg.info['script'] = script.copy()
         trg.saveInfo()
 
-    def removeTmpManager(self, man : Manager, next_man: Manager):
+    def removeTmpManager(self, man : Manager, next_man: Manager, copy = True):
         # проверяем целевой
         if next_man is None:
             return
         self.tmp_managers.remove(man)
-        # копировать все задачи
-        for task in man.task_list:
-            if task not in next_man.task_list:
-                next_man.task_list.append(task)
-                task.setManager(next_man)
-        man.beforeRemove(remove_folder=True, remove_task=False)
-        # сохранить все действия в скрипт
-        self.fromActionToScript(next_man, man)
+        if copy:
+            # копировать все задачи
+            for task in man.task_list:
+                if task not in next_man.task_list:
+                    next_man.task_list.append(task)
+                    task.setManager(next_man)
+            man.beforeRemove(remove_folder=True, remove_task=False)
+            # сохранить все действия в скрипт
+            self.fromActionToScript(next_man, man)
+        else:
+            man.beforeRemove(remove_folder=True, remove_task=True)
         del man
         # установить следущий менедежер
         self.manager = next_man
@@ -254,7 +242,13 @@ class Actioner():
         del param['idx']
         del param['done']
         tmp_man = [t.getName() for t in self.tmp_managers]
-        name = self.manager.getName()
+        if len(tmp_man) == 0:
+            name = self.manager.getName()
+        else:
+            n = [self.std_manager.getName()]
+            n.extend(tmp_man)
+            name = '->'.join(n)
+
         return gr.Dropdown(choices= saved_man, value=name), gr.Dropdown(choices= tmp_man), json.dumps(param, indent=1), name
 
     def setParamToManagerInfo(self, param : dict, manager : Manager):
