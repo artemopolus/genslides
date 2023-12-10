@@ -204,6 +204,12 @@ class Projecter:
     def moveCurrentTaskUP(self):
         return self.makeTaskAction("","","MoveCurrTaskUP","")
     
+    def goToNextChild(self):
+        return self.makeTaskAction("","","GoToNextChild","")
+
+    def goToParent(self):
+        return self.makeTaskAction("","","GoToParent","")
+    
  
     def appendNewParamToTask(self, param_name):
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})

@@ -141,6 +141,10 @@ class Actioner():
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
+        elif creation_type == "GoToNextChild":
+            self.manager.goToNextChild()
+        elif creation_type == "GoToParent":
+            self.manager.goToParent()
         elif creation_type == "InitSavdManager":
             man = self.addSavedScript(param['task'])
             if man is not None:

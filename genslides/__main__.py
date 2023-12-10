@@ -355,8 +355,8 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             next_brend_bt.click(fn=manager.goToNextBranchEnd, outputs=std_output_list)
             next_branch_btn.click(fn=manager.goToNextBranch, outputs=std_output_list)
             next_tree_btn.click(fn=manager.goToNextTree, outputs=std_output_list)
-            go_parnt_btn.click(fn=manager.goToParent, outputs=std_output_list)
-            go_child_btn.click(fn=manager.goToNextChild, outputs=std_output_list)            
+            go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
+            go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)            
 
             sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
 
