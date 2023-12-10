@@ -445,7 +445,8 @@ class Manager:
             trg_list = self.task_list
         # print('Target tasks:',[t.getName() for t in trg_list])
         if len(trg_list) > 0:
-            f = graphviz.Digraph(comment='The Test Table')
+            f = graphviz.Digraph(comment='The Test Table',
+                                  graph_attr={'size':"7.75,10.25",'ratio':'fill'})
 
             # if self.curr_task:
             #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
@@ -1141,7 +1142,7 @@ class Manager:
         value = '{' + self.curr_task.getName() + ':' + finder.getBranchCodeTag() + '}'
         print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask")
+        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask"), r_msgs
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []

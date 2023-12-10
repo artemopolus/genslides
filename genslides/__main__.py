@@ -123,41 +123,47 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     task_list = gr.Dropdown(choices=manager.getTaskList())
                     sel_task_btn = gr.Button(value="Select")
 
-            with gr.Row():
-                with gr.Column():
-                    sec_msg = gr.Chatbot(height=500)
-                    with gr.Row():
-                        gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
-                        gr.Button("Copy lst msg").click(fn=manager.copyToClickBoardLstMsg)
-                        gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
-                # sec_msg.style(height=500)
-                with gr.Column():
-                    graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil", height=500)
-                    with gr.Row():
-                        res_step_btn = gr.Button(value='Reset Q')
-                        step_task_btn = gr.Button(value="Step Q")
-                        step_branch_btn = gr.Button(value='Branch Q')
-
+            with gr.Tab('Both'):
+                with gr.Row():
+                    with gr.Column():
+                        sec_msg = gr.Chatbot(height=500)
+                        with gr.Accordion('Tools', open=False):
+                        # with gr.Row():
+                            gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
+                            gr.Button("Copy lst msg").click(fn=manager.copyToClickBoardLstMsg)
+                            gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
+                    # sec_msg.style(height=500)
+                    with gr.Column():
+                        graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil", width=500)
+                        # with gr.Row():
+                        with gr.Accordion('Queue', open=False):
+                            res_step_btn = gr.Button(value='Reset Q')
+                            step_task_btn = gr.Button(value="Step Q")
+                            step_branch_btn = gr.Button(value='Branch Q')
+            with gr.Tab('Dial'):
+                dial_block = gr.Chatbot(height=500)
 
                 # graph_img.style(height=500)
 
             with gr.Row():
                 with gr.Column():
-                    base_action_list = gr.Radio(choices=["New","SubTask","Insert","EdCp1","EdCp2","EdCp3","EdCp4","Edit"], label="Select actions", value="New")
-                    name_info = gr.Text(value="None", label="Task")
-                    prompt = gr.Textbox(label="Prompt", lines=4, value=request)
-                    roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
-                    with gr.Row():
-                        request_btn = gr.Button(value='Request')
-                        response_btn = gr.Button(value='Response',interactive=False)
-                        custom_list_data = projecter.getFullCmdList()
-                        custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
-                        custom_btn = gr.Button(value='Custom')
+                    with gr.Tab('Prompt'):
+                        base_action_list = gr.Radio(choices=["New","SubTask","Insert","EdCp1","EdCp2","EdCp3","EdCp4","Edit"], label="Select actions", value="New")
+                        name_info = gr.Text(value="None", label="Task")
+                        prompt = gr.Textbox(label="Prompt", lines=4, value=request)
+                        roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
+                        with gr.Row():
+                            request_btn = gr.Button(value='Request')
+                            response_btn = gr.Button(value='Response',interactive=False)
+                            custom_list_data = projecter.getFullCmdList()
+                            custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
+                            custom_btn = gr.Button(value='Custom')
 
                    
                     base_action_list.change(fn=manager.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list])
                     
-                    with gr.Row():
+                    with gr.Tab('Params'):
+                    # with gr.Row():
                         with gr.Column():
                             param_type = gr.Dropdown(choices=[],label="Params")
                             param_key = gr.Dropdown(choices=[],label="Key")
@@ -171,41 +177,46 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             param_apnd = gr.Button('Append new')
                            
                 with gr.Column():
-                    with gr.Row():
-                        selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
-                        select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
-                    with gr.Row():
-                        clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
-                        garland_btn = gr.Button(value='Garland')
-                        shoot_btn = gr.Button(value='Shoot')
+                    with gr.Tab('Select'):
+                        with gr.Row():
+                            selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
+                            select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
+                        with gr.Row():
+                            clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
+                            garland_btn = gr.Button(value='Garland')
+                            shoot_btn = gr.Button(value='Shoot')
 
 
-                    with gr.Row():
-                        moveup_btn = gr.Button(value='MoveUP')
-                        parent_btn = gr.Button(value='Parent')
-                        unparent_btn = gr.Button(value='Unparent')
-                        link_btn = gr.Button(value='Link')
-                        unlink_btn = gr.Button(value='Unlink')
-                        delete_btn = gr.Button(value='Delete')
-                        extract_btn = gr.Button(value='Extract')
-                        rm_branch_btn = gr.Button(value='Remove Branch')
-                        rm_tree_btn = gr.Button(value='Remove Tree')
+                    # with gr.Row():
+                    # with gr.Accordion():
+                    with gr.Tab('Cmds'):
+                        with gr.Row():
+                            moveup_btn = gr.Button(value='MoveUP')
+                            parent_btn = gr.Button(value='Parent')
+                            unparent_btn = gr.Button(value='Unparent')
+                            link_btn = gr.Button(value='Link')
+                            unlink_btn = gr.Button(value='Unlink')
+                            delete_btn = gr.Button(value='Delete')
+                            extract_btn = gr.Button(value='Extract')
+                            rm_branch_btn = gr.Button(value='Remove Branch')
+                            rm_tree_btn = gr.Button(value='Remove Tree')
 
-                    with gr.Row():
-                        name_prman = gr.Text(value='None', label = 'Manager')
-                    with gr.Row():
-                        init_prman_btn = gr.Button(value='Init')
-                        stop_prman_btn = gr.Button(value='Stop')
-                        rset_prman_btn = gr.Button(value='Rset')
-                    with gr.Row():
-                        params_prman = gr.Textbox(label="Params", lines=4)
-                    with gr.Row():
-                        edit_param_prman = gr.Button(value='Edit param managers')
-                    with gr.Row():
-                        get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
-                        get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
-                        load_prman_btn = gr.Button(value='Load manager')
-                        exe_act_btn = gr.Button(value='Exe action')
+                    with gr.Tab('Manager'):
+                        with gr.Row():
+                            name_prman = gr.Text(value='None', label = 'Manager')
+                        with gr.Row():
+                            init_prman_btn = gr.Button(value='Init')
+                            stop_prman_btn = gr.Button(value='Stop')
+                            rset_prman_btn = gr.Button(value='Rset')
+                        with gr.Row():
+                            params_prman = gr.Textbox(label="Params", lines=4)
+                        with gr.Row():
+                            edit_param_prman = gr.Button(value='Edit param managers')
+                        with gr.Row():
+                            get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
+                            get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
+                            load_prman_btn = gr.Button(value='Load manager')
+                            exe_act_btn = gr.Button(value='Exe action')
 
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman]
@@ -312,7 +323,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
-            std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list, base_action_list]
+            std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list, base_action_list, dial_block]
 
             roles_list.change(fn=manager.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
