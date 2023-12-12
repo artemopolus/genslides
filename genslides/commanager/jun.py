@@ -112,6 +112,7 @@ class Manager:
         self.browser = WebBrowser()
 
         self.need_human_response = False
+        # TODO: убрать косую черту и посмотреть что будет
         self.path = 'saved/'
         self.proj_pref = ''
         self.return_points = []
@@ -1442,6 +1443,7 @@ class Manager:
         self.curr_task = task
         task_name = task.getName() if task is not None else 'Base'
         self.setName(task_name)
+        # TODO: получить путь из переменных функции
         if task is not None:
             self.setPath(os.path.join('saved','tmp', self.getName()))
         else:

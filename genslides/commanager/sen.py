@@ -73,7 +73,7 @@ class Projecter:
                 os.remove(f_path)
             else:
                 shutil.rmtree(f_path)
-    
+    # TODO: перенести в actioner
     def clearTmp(self):
         tmppath = os.path.join('saved','tmp')
         if os.path.exists(tmppath):

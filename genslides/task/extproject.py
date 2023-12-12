@@ -26,6 +26,7 @@ class ExtProjectTask(CollectTask):
             if 'path' in param:
                 path = param['path']
             else:
+                #TODO: убрать косую черту и посмотреть, что будет
                 path = os.path.join( self.manager.getPath(), 'ext', param['project']) + '\\'
                 param['path'] = path
                 self.updateParam2(param)
@@ -37,6 +38,7 @@ class ExtProjectTask(CollectTask):
                 self.updateParam2(param)
 
             self.intman.setPath(path)
+            # TODO: удалить временную папку
         print('Load tasks from',path)
         self.intman.loadTasksList()
 
