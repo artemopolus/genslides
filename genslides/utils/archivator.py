@@ -1,4 +1,5 @@
 import py7zr
+
 from os import listdir
 from os.path import isfile, join
 
@@ -10,11 +11,11 @@ class Archivator():
         first = True
         for file in onlyfiles:
             if first:
-                with py7zr.SevenZipFile( trg_path + name + ".7z", 'w') as archive:
+                with py7zr.SevenZipFile( join(trg_path, name + ".7z"), 'w') as archive:
                     archive.write(src_path + file, arcname = file)
                 first = False
             else:
-                with py7zr.SevenZipFile( trg_path + name + ".7z", 'a') as archive:
+                with py7zr.SevenZipFile( join(trg_path, name + ".7z"), 'a') as archive:
                     archive.write(src_path + file, arcname = file)
 
     def saveAll(src_path, trg_path, name):

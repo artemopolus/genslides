@@ -43,11 +43,12 @@ class Actioner():
         # Добавляем менеджера
         if manager is not None:
             self.tmp_managers.append(manager)
+            # Устанавливаем начальные условия: текущая активная задача
+            task = manager.getTaskByName(manager.getName())
+            # print('Start ', task.getName())
+            manager.curr_task = task
         return manager
     
-    def exeCurManager(self):
-        if self.manager is not self.std_manager:
-            self.exeComList(self.manager.info['actions'])
 
     def addSavedScript(self, name: str):
         pack = self.manager.info['script']
@@ -114,9 +115,13 @@ class Actioner():
         action = pack['action']
         self.makeTaskAction(prompt, act_type, action, tag, param, save_action=False)
 
+    def exeCurManager(self):
+        if self.manager is not self.std_manager:
+            self.exeComList(self.manager.info['actions'])
 
     def exeComList(self, pack) -> bool:
-        # Устанавливаем начальные условия: текущая активная задача
+       # return True
+        # Выполняем задачи
         for input in pack:
             self.makeSavedAction(input)
         success = True
@@ -265,10 +270,11 @@ class Actioner():
 
     def getTmpManagerInfo(self):
         saved_man = [t['task'] for t in self.manager.info['script']['managers']]
+        saved_man.append('None')
         param = self.manager.info.copy()
         del param['script']
         del param['actions']
-        del param['task']
+        # del param['task']
         del param['idx']
         del param['done']
         tmp_man = [t.getName() for t in self.tmp_managers]
@@ -279,7 +285,7 @@ class Actioner():
             n.extend(tmp_man)
             name = '->'.join(n)
 
-        return gr.Dropdown(choices= saved_man, value=name), gr.Dropdown(choices= tmp_man), json.dumps(param, indent=1), name
+        return gr.Dropdown(choices= saved_man, value=None, interactive=True), gr.Dropdown(choices= tmp_man, value=None, interactive=True), json.dumps(param, indent=1), gr.Text(value=name)
 
     def setParamToManagerInfo(self, param : dict, manager : Manager):
         for key, value in param.keys():

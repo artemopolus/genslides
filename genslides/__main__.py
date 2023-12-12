@@ -170,7 +170,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             param_type.select(fn=manager.getTaskKeys, inputs=param_type, outputs=param_key)
                             param_slcval = gr.Dropdown(choices=[],label="Value")
                             param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval])
-                            param_mnlval = gr.Textbox(label='value',info='manual')
+                            param_mnlval = gr.Textbox(label='value',info='manual',lines=4)
                         with gr.Column():
                             param_edit = gr.Button("Edit param")
                             param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
@@ -208,6 +208,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             init_prman_btn = gr.Button(value='Init')
                             stop_prman_btn = gr.Button(value='Stop')
                             rset_prman_btn = gr.Button(value='Rset')
+                            updt_prman_btn = gr.Button(value='Updt')
                         with gr.Row():
                             params_prman = gr.Textbox(label="Params", lines=4)
                         with gr.Row():
@@ -217,20 +218,24 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
                             load_prman_btn = gr.Button(value='Load manager')
                             exe_act_btn = gr.Button(value='Exe action')
+                            setname_prman_text = gr.Button('Back')
+                            setname_prman_btn = gr.Button('Set name')
                     with gr.Tab("Actions"):
                         actions_list = gr.CheckboxGroup()
                         gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
                         gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)
                         gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
+                        gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman]
                     edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
                     init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_man_list)
                     stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_man_list)
-                    rset_prman_btn.click(fn=manipulate_manager.rmvePrivManager, outputs=std_output_man_list)                    
+                    rset_prman_btn.click(fn=manipulate_manager.rmvePrivManager, outputs=std_output_man_list)  
+                    updt_prman_btn.click(fn=manipulate_manager.getPrivManager, outputs=std_output_man_list)                  
                     exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_man_list)
                     load_prman_btn.click(fn=manipulate_manager.loadPrivManager, inputs=get_savdman_btn, outputs = std_output_man_list)
-
+                    setname_prman_btn.click(fn=manipulate_manager.setCurrAsManagerStartTask, outputs=std_output_man_list)
                    
 
                     parents_list = gr.Dropdown(label="Parent tasks:")
@@ -329,6 +334,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list, base_action_list, dial_block]
 
+            setname_prman_text.click(fn=projecter.backToStartTask, outputs=std_output_list)
             roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
             request_btn.click(fn=userinput_manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
@@ -356,9 +362,9 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             extpr_new.click(fn=projecter.newExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
             extpr_append.click(fn=projecter.appendExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
 
-            next_brend_bt.click(fn=manager.goToNextBranchEnd, outputs=std_output_list)
-            next_branch_btn.click(fn=manager.goToNextBranch, outputs=std_output_list)
-            next_tree_btn.click(fn=manager.goToNextTree, outputs=std_output_list)
+            next_brend_bt.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
+            next_branch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
+            next_tree_btn.click(fn=projecter.goToNextTree, outputs=std_output_list)
             go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
             go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)            
 

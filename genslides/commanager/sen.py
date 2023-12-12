@@ -43,6 +43,8 @@ class Projecter:
         # saver = SaveData()
         # saver.removeFiles()
         self.current_project_name = self.manager.getParam("current_project_name")
+        if self.current_project_name is None:
+            self.current_project_name = 'Unnamed'
         self.updateSessionName()
         self.clearTmp()
 
@@ -204,12 +206,21 @@ class Projecter:
     def moveCurrentTaskUP(self):
         return self.makeTaskAction("","","MoveCurrTaskUP","")
     
+    def goToNextBranchEnd(self):
+        return self.actioner.manager.goToNextBranchEnd()
+    
+    def goToNextBranch(self):
+        return self.actioner.manager.goToNextBranch()
+    
+    def goToNextTree(self):
+        return self.actioner.manager.goToNextTree()
+    
     def goToNextChild(self):
-        return self.manager.goToNextChild()
+        return self.actioner.manager.goToNextChild()
         # return self.makeTaskAction("","","GoToNextChild","")
 
     def goToParent(self):
-        return self.manager.goToParent()
+        return self.actioner.manager.goToParent()
         # return self.makeTaskAction("","","GoToParent","")
    
     def switchRole(self, role, prompt):
@@ -254,9 +265,17 @@ class Projecter:
     def rmvePrivManager(self):
         self.makeTaskAction("","","RmvePrivManager","")
         return self.actioner.getTmpManagerInfo()
+    
+    def getPrivManager(self):
+        return self.actioner.getTmpManagerInfo()
 
     def exeActions(self):
-        self.makeTaskAction("","","ExecuteManager","")
+        # Закомментированной командой производится запись команды в список команд менеджера
+        # self.makeTaskAction("","","ExecuteManager","")
+        # Для исполнения команд нужна отдельная команда, чтобы не переводить это все в цикл
+        self.actioner.exeCurManager()
+        # Альтернатива
+        # self.makeTaskAction("","","ExecuteManager","",{},save_action=False)
         return self.actioner.getTmpManagerInfo()
 
     def editParamPrivManager(self, param):
@@ -280,7 +299,7 @@ class Projecter:
         for act in actions:
             name = ':'.join([str(act['id']),act['action'],act['type']])
             out.append(name)
-        return gr.CheckboxGroup(choices=out, interactive=True)
+        return gr.CheckboxGroup(choices=out, interactive=True,value=None)
     
     def moveActionUp(self, names: list):
         for name in names:
@@ -309,6 +328,38 @@ class Projecter:
 
         self.fixActionsIdx()
         return self.getActionsList()
+    
+    def saveAction(self):
+        self.actioner.manager.saveInfo()
+        return self.getActionsList()
+    
+    def setManagerStartTask(self, name: str):
+        print('set Manager start task to',name)
+        all_mans = [self.actioner.std_manager]
+        all_mans.extend(self.actioner.tmp_managers)
+        all_mans.remove(self.actioner.manager)
+        all_tasks = []
+        for man in all_mans:
+            all_tasks.extend([t.getName() for t in man.task_list])
+        print('Available task:', all_tasks)
+        if name in all_tasks:
+            print('set name')
+            self.actioner.manager.info['task'] = name
+        return self.actioner.getTmpManagerInfo()
+    
+    def setCurrAsManagerStartTask(self):
+        name = self.actioner.manager.curr_task.getName()
+        return self.setManagerStartTask(name)
+    
+    def backToStartTask(self):
+        manager = self.actioner.manager
+        task = manager.getTaskByName(manager.getName())
+        manager.curr_task = task
+        return self.actioner.manager.getCurrTaskPrompts()
+
+
+
+
 
         
 
