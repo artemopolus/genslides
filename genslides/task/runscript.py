@@ -107,7 +107,8 @@ class RunScriptTask(ResponseTask):
                     pass
         self.execute_success = done
 
-        data += phrase_final
+        if not done:
+            data += phrase_final
 
         print('Execute result=', self.execute_success)
 

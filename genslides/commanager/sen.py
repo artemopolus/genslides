@@ -205,11 +205,19 @@ class Projecter:
         return self.makeTaskAction("","","MoveCurrTaskUP","")
     
     def goToNextChild(self):
-        return self.makeTaskAction("","","GoToNextChild","")
+        return self.manager.goToNextChild()
+        # return self.makeTaskAction("","","GoToNextChild","")
 
     def goToParent(self):
-        return self.makeTaskAction("","","GoToParent","")
-    
+        return self.manager.goToParent()
+        # return self.makeTaskAction("","","GoToParent","")
+   
+    def switchRole(self, role, prompt):
+        task = self.actioner.manager.curr_task
+        print('Set role[', role, ']for',task.getName())
+        self.makeTaskAction(task.getLastMsgContent(), "Request", "Edit", role)
+        return self.actioner.manager.getCurrTaskPrompts(prompt)
+  
  
     def appendNewParamToTask(self, param_name):
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
@@ -255,3 +263,55 @@ class Projecter:
         self.makeTaskAction("","","EditPrivManager","",param)
         return self.actioner.getTmpManagerInfo()
 
+    def actionTypeChanging(self, action):
+        print('Action switch to=', action)
+        if action == 'New':
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
+        elif action == 'SubTask' or action == 'Insert':
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
+        elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
+            print('Get text from',self.actioner.manager.curr_task.getName(),'(',self.actioner.manager.getName(),')')
+            _,role,_ = self.actioner.manager.curr_task.getMsgInfo()
+            return self.actioner.manager.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False), gr.Radio(interactive=True,value=role)
+
+    def getActionsList(self) -> list:
+        actions = self.actioner.manager.info['actions']
+        out = []
+        for act in actions:
+            name = ':'.join([str(act['id']),act['action'],act['type']])
+            out.append(name)
+        return gr.CheckboxGroup(choices=out, interactive=True)
+    
+    def moveActionUp(self, names: list):
+        for name in names:
+            pack = name.split(':')
+            actions = self.actioner.manager.info['actions']
+            print(pack)
+            for idx in range(len(actions)):
+                print(pack[0],'check',actions[idx]['id'])
+                if pack[0] == str(actions[idx]['id']) and idx > 0:
+                    actions.insert(idx - 1, actions.pop(idx))
+        self.fixActionsIdx()
+        return self.getActionsList()
+    
+    def fixActionsIdx(self):
+        actions = self.actioner.manager.info['actions']
+        for idx in range(len(actions)):
+            actions[idx]['id'] = idx
+
+    def delAction(self, names: list):
+        for name in names:
+            pack = name.split(':')
+            actions = self.actioner.manager.info['actions']
+            for idx in range(len(actions)):
+                if pack[0] == str(actions[idx]['id']) and idx > 0:
+                    actions.pop(idx)
+
+        self.fixActionsIdx()
+        return self.getActionsList()
+
+        
+
+    
+
+        

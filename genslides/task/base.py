@@ -230,11 +230,14 @@ class BaseTask():
         self.target = task_info.target
         self.filename = task_info.filename
 
-
+    def getManager(self):
+        return self.manager
+    
     def setManager(self, manager):
         self.manager = manager
 
-    
+    def getParent(self):
+        return self.parent
     
     def freezeTask(self):
         self.is_freeze = True
@@ -842,10 +845,12 @@ class BaseTask():
 
     def beforeRemove(self):
         if self.isRootParent():
+            print('Task',self.getName(),'is Root')
             # Последняя задача для дерева
             pass #Только проектер решает об удалении менеджера
         else:
             self.parent.removeChild(self)
+        print('Task',self.getName(),'have',len(self.childs),'childs')
         for child in self.childs:
             child.whenParentRemoved()
 

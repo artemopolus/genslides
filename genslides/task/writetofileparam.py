@@ -41,6 +41,8 @@ class WriteToFileParamTask(WriteToFileTask):
         self.writepath = path
         ctrl = 'w'
         text = self.findKeyParam( self.getLastMsgContent() )
+        task_msgs = self.getMsgs()
+        text = task_msgs[-1]['content'] if len(task_msgs) > 0 else ''
         if res:
             res, pparam = self.getParamStruct(param_name)
             if res:

@@ -118,6 +118,9 @@ class Manager:
         self.selected_tasks = []
         self.info = None
 
+    def getCurrentTask(self) -> BaseTask:
+        return self.curr_task
+
     def addTaskToSelectList(self, task :BaseTask):
         self.selected_tasks.append(task)
 
@@ -572,11 +575,7 @@ class Manager:
         if selected_action == "Edit":
             return self.makeTaskAction(prompt, "Request", selected_action, selected_tag)
         
-    def switchRole(self, role, prompt):
-        print('Set role[', role, ']for',self.curr_task.getName())
-        self.makeTaskAction(self.curr_task.getLastMsgContent(), "Request", "Edit", role)
-        return self.getCurrTaskPrompts(prompt)
-        
+       
         
     def makeResponseAction(self, selected_action):
         return self.makeTaskAction("", "Response",selected_action, "assistant")
@@ -616,22 +615,27 @@ class Manager:
             self.selected_tasks = [self.curr_task]
             self.curr_task = task2
             self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
-            print('Parents:\nFirst', task1.parent.getName(),'=',task1.getName())
-            print('Childs')
-            for ch in task1.getChilds():
-                print(ch.getName())
-            print(task1.queue)
-            print('Middle', self.slct_task.parent.getName(),'=',self.slct_task.getName())
-            print('Childs')
-            for ch in self.slct_task.getChilds():
-                print(ch.getName())
-            print(self.slct_task.queue)
+            if task1 is not None:
+                print('Parents:\nFirst', task1.parent.getName(),'=',task1.getName())
+                print('Childs')
+                for ch in task1.getChilds():
+                    print(ch.getName())
+                print(task1.queue)
+            if self.slct_task is not None:
+                print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
+                print('Childs')
+                for ch in self.slct_task.getChilds():
+                    print(ch.getName())
+                print(self.slct_task.queue)
             print('Last', self.curr_task.parent.getName(),'=', self.curr_task.getName())
             print('Childs')
             for ch in self.curr_task.getChilds():
                 print(ch.getName())
             print(self.curr_task.queue)
-            task1.update()
+            if task1 is not None:
+                task1.update()
+            else:
+                self.slct_task.update()
 
         elif creation_type == "Remove":
             task1 = self.curr_task.parent
@@ -1059,14 +1063,6 @@ class Manager:
         print('Done: update tree step by step in', index)
         return self.getCurrTaskPrompts() 
     
-    def actionTypeChanging(self, action):
-        print('Action switch to=', action)
-        if action == 'New':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
-        elif action == 'SubTask' or action == 'Insert':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
-        elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
-            return self.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False), gr.Radio(interactive=True)
     
     def getCurTaskLstMsg(self) -> str:
         return self.curr_task.getMsgs()[-1]['content']
@@ -1274,6 +1270,7 @@ class Manager:
    
     def beforeRemove(self, remove_folder = False, remove_task = True):
         print('Clean files by manager')
+        print('Tasks:', [t.getName() for t in self.task_list])
         if remove_task:
             for task in self.task_list:
                 task.beforeRemove()

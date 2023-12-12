@@ -160,7 +160,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             custom_btn = gr.Button(value='Custom')
 
                    
-                    base_action_list.change(fn=manager.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list])
+                    base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list])
                     
                     with gr.Tab('Params'):
                     # with gr.Row():
@@ -217,7 +217,11 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                             get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
                             load_prman_btn = gr.Button(value='Load manager')
                             exe_act_btn = gr.Button(value='Exe action')
-
+                    with gr.Tab("Actions"):
+                        actions_list = gr.CheckboxGroup()
+                        gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
+                        gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)
+                        gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman]
                     edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
@@ -325,7 +329,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list, base_action_list, dial_block]
 
-            roles_list.change(fn=manager.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
+            roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
             request_btn.click(fn=userinput_manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
             response_btn.click(fn=userinput_manager.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)

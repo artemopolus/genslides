@@ -162,6 +162,7 @@ class Actioner():
                 return self.manager.getCurrTaskPrompts()
             trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
             self.removeTmpManager(self.manager, trg, copy=True)
+            print('New manager is', self.manager.getName())
             if save_action:
                 self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         elif creation_type == "RmvePrivManager":
@@ -221,8 +222,12 @@ class Actioner():
         # проверяем целевой
         if next_man is None:
             return
-        self.tmp_managers.remove(man)
+        if man is self.std_manager:
+            return
+        print('Cur task list', [t.getName() for t in man.task_list])
+        print('Nxt task list', [t.getName() for t in next_man.task_list])
         if copy:
+            self.tmp_managers.remove(man)
             # копировать все задачи
             for task in man.task_list:
                 if task not in next_man.task_list:
@@ -232,7 +237,28 @@ class Actioner():
             # сохранить все действия в скрипт
             self.fromActionToScript(next_man, man)
         else:
-            man.beforeRemove(remove_folder=True, remove_task=True)
+            all_managers = [self.std_manager]
+            all_managers.extend(self.tmp_managers)
+            all_managers.remove(man)
+            del_tasks = man.task_list
+            notdel_tasks = []
+            for manager in all_managers:
+                for task in del_tasks:
+                    if task in manager.task_list:
+                        notdel_tasks.append(task)
+                        print(task.getManager().getName())
+            for task in notdel_tasks:
+                del_tasks.remove(task)
+            print('Task to delete:',[t.getName() for t in del_tasks])
+            print('Retarget task:',[t.getName() for t in notdel_tasks])
+            for task in del_tasks:
+                    task.beforeRemove()
+                    man.task_list.remove(task)
+                    del task
+
+            man.beforeRemove(remove_folder=True, remove_task=False)
+            self.tmp_managers.remove(man)
+
         del man
         # установить следущий менедежер
         self.manager = next_man
