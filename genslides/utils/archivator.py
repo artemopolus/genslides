@@ -30,6 +30,6 @@ class Archivator():
         onlyfiles = [f for f in listdir(trg_path) if isfile(join(trg_path, f))]
         if filename + ".7z" not in onlyfiles:
             return False
-        with py7zr.SevenZipFile(trg_path + filename + ".7z", 'r') as archive:
+        with py7zr.SevenZipFile(join(trg_path, filename + ".7z"), 'r') as archive:
             archive.extractall(path=path_to_extract)
         return True

@@ -918,7 +918,11 @@ class BaseTask():
     
     def getParamList(self):
         return None
+    
     def updateParamStruct(self, param_name, key,val):
+        pass
+    
+    def updateParam2(self, param_vals : dict):
         pass
 
     def getParamStruct(self, param_name):

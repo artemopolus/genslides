@@ -708,7 +708,8 @@ class TextTask(BaseTask):
  
 
     def getParamStruct(self, param_name):
-        forbidden_names = ['input', 'output', 'stopped']
+        # print('Get in param', param_name, 'struct')
+        forbidden_names = finder.getExtTaskSpecialKeys()
         if param_name not in forbidden_names:
             parent_task = self.parent
             index = 0
@@ -718,7 +719,7 @@ class TextTask(BaseTask):
                 res, parent_task, val = parent_task.getParamStructFromExtTask(param_name)
                 if res:
                     return True, val
-        print('Search in self params')
+        # print('Search in self params')
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 return True, param
@@ -726,7 +727,7 @@ class TextTask(BaseTask):
  
     
     def getParamList(self):
-        forbidden_names = ['input', 'output', 'stopped']
+        forbidden_names = finder.getExtTaskSpecialKeys()
         out = []
         for p in self.params:
             if 'type' in p:
@@ -746,7 +747,7 @@ class TextTask(BaseTask):
         self.saveJsonToFile(self.msg_list)
 
     def getParam(self, param_name):
-        forbidden_names = ['input', 'output', 'stopped']
+        forbidden_names = finder.getExtTaskSpecialKeys()
         if param_name not in forbidden_names:
             parent_task = self.parent
 

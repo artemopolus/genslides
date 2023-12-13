@@ -46,7 +46,7 @@ class Projecter:
         if self.current_project_name is None:
             self.current_project_name = 'Unnamed'
         self.updateSessionName()
-        self.clearTmp()
+        self.actioner.clearTmp()
 
     def updateSessionName(self):
         self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -73,15 +73,10 @@ class Projecter:
                 os.remove(f_path)
             else:
                 shutil.rmtree(f_path)
-    # TODO: перенести в actioner
-    def clearTmp(self):
-        tmppath = os.path.join('saved','tmp')
-        if os.path.exists(tmppath):
-            shutil.rmtree(tmppath)
-
     def clear(self):
         self.clearFiles()
         self.manager.onStart() 
+        self.manager.initInfo(self.loadExtProject)
 
     def getEvaluetionResults(self, input):
         print("In:", input)
@@ -357,12 +352,7 @@ class Projecter:
         manager.curr_task = task
         return self.actioner.manager.getCurrTaskPrompts()
 
+    def setCurrentExtTaskOptions(self, names : list):
+        self.actioner.manager.setCurrentExtTaskOptions(names)
+        return self.actioner.getTmpManagerInfo()
 
-
-
-
-        
-
-    
-
-        

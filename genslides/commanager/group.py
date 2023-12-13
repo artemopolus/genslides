@@ -1,5 +1,6 @@
 from genslides.task.base import TaskManager, BaseTask
-from genslides.commanager.jun import Manager
+# from genslides.commanager.jun import Manager
+import genslides.commanager.jun as Manager
 
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
@@ -8,32 +9,46 @@ from genslides.utils.searcher import GoogleApiSearcher
 import os
 import json
 import gradio as gr
+import shutil
 
 class Actioner():
-    def __init__(self, manager : Manager) -> None:
+    def __init__(self, manager : Manager.Manager) -> None:
         self.std_manager = manager
         self.manager = manager
         self.tmp_managers = []
         self.loadExtProject = manager.loadexttask
+        self.path = 'saved'
 
-    def createPrivateManagerForTaskByName(self, man)-> Manager:
+    def setPath(self, path: str):
+        self.path = path
+
+    def getPath(self) -> str:
+        return self.path
+
+    def clearTmp(self):
+        tmppath = os.path.join(self.getPath(),'tmp')
+        if os.path.exists(tmppath):
+            shutil.rmtree(tmppath)
+
+
+    def createPrivateManagerForTaskByName(self, man)-> Manager.Manager:
         # TODO: изменять стартовые задачи по правилам, которые следуют из названия
         # получаем имя задачи из текущего менеджера
         task = self.manager.getTaskByName(man['task'])
         return self.createPrivateManagerForTask(task, man)
 
-    def createPrivateManagerForTask(self, task: BaseTask, man)-> Manager:
+    def createPrivateManagerForTask(self, task: BaseTask, man)-> Manager.Manager:
         print(10*"----------")
         print('Create private manager based on', task.getName())
         print(10*"----------")
         for manager in self.tmp_managers:
             if task.getName() == manager.getName():
                 return None
-        manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
-        manager.initInfo(self.loadExtProject, task, man['actions'], man['repeat'] )
+        manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        manager.initInfo(self.loadExtProject, task, self.getPath(), man['actions'], man['repeat'] )
         return manager
     
-    def addPrivateManagerForTaskByName(self, man) ->Manager:
+    def addPrivateManagerForTaskByName(self, man) ->Manager.Manager:
         # Проверяем создавались ли раньше менеджеры
         for manager in self.tmp_managers:
             if man['task'] == manager.getName():
@@ -285,7 +300,7 @@ class Actioner():
             n.extend(tmp_man)
             name = '->'.join(n)
 
-        return gr.Dropdown(choices= saved_man, value=None, interactive=True), gr.Dropdown(choices= tmp_man, value=None, interactive=True), json.dumps(param, indent=1), gr.Text(value=name)
+        return gr.Dropdown(choices= saved_man, value=None, interactive=True), gr.Dropdown(choices= tmp_man, value=None, interactive=True), json.dumps(param, indent=1), gr.Text(value=name), self.manager.getCurrentExtTaskOptions()
 
     def setParamToManagerInfo(self, param : dict, manager : Manager):
         for key, value in param.keys():

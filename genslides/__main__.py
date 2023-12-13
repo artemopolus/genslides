@@ -4,7 +4,9 @@ from gradio.themes.utils import colors, fonts, sizes
 from typing import Iterable
 
 from genslides.task.base import TaskManager
-from genslides.commanager.jun import Manager
+# from genslides.commanager.jun import Manager
+import genslides.commanager.group as Actioner
+
 from genslides.commanager.sen import Projecter
 
 from genslides.utils.reqhelper import RequestHelper
@@ -94,7 +96,7 @@ def moveDown( img, H_pos):
 
 
 
-def gr_body(request, manager : Manager, projecter : Projecter) -> None:
+def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) -> None:
 
     seafoam = Seafoam()
     with gr.Blocks(theme=seafoam) as demo:
@@ -191,6 +193,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     # with gr.Accordion():
                     with gr.Tab('Cmds'):
                         with gr.Row():
+
                             moveup_btn = gr.Button(value='MoveUP')
                             parent_btn = gr.Button(value='Parent')
                             unparent_btn = gr.Button(value='Unparent')
@@ -204,6 +207,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     with gr.Tab('Manager'):
                         with gr.Row():
                             name_prman = gr.Text(value='None', label = 'Manager')
+                            exttaskopt_chgr = gr.CheckboxGroup()
                         with gr.Row():
                             init_prman_btn = gr.Button(value='Init')
                             stop_prman_btn = gr.Button(value='Stop')
@@ -227,7 +231,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                         gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
                         gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
                     
-                    std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman]
+                    std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr]
                     edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
                     init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_man_list)
                     stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_man_list)
@@ -236,7 +240,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
                     exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_man_list)
                     load_prman_btn.click(fn=manipulate_manager.loadPrivManager, inputs=get_savdman_btn, outputs = std_output_man_list)
                     setname_prman_btn.click(fn=manipulate_manager.setCurrAsManagerStartTask, outputs=std_output_man_list)
-                   
+                    exttaskopt_chgr.change(fn=manipulate_manager.setCurrentExtTaskOptions, inputs=exttaskopt_chgr, outputs=std_output_man_list)
 
                     parents_list = gr.Dropdown(label="Parent tasks:")
                     find_key_type = gr.Dropdown(choices=finder.getKayArray(), value='msg', interactive=True)
@@ -332,7 +336,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
             l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
-            std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list, base_action_list, dial_block]
+            std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list, base_action_list, dial_block, exttaskopt_chgr]
 
             setname_prman_text.click(fn=projecter.backToStartTask, outputs=std_output_list)
             roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
@@ -438,7 +442,7 @@ def gr_body(request, manager : Manager, projecter : Projecter) -> None:
 
     demo.launch(share=manager.getParam('shared'))
 
-def test_cmd_body(manager : Manager, projecter : Projecter):
+def test_cmd_body(manager : Actioner.Manager, projecter : Projecter):
     projecter.clear()
     name = "simple_chat"
     projecter.load(name)
@@ -470,7 +474,7 @@ def test_cmd_body(manager : Manager, projecter : Projecter):
 
 
 
-def mliner_body(manager : Manager, projecter : Projecter):
+def mliner_body(manager : Actioner.Manager, projecter : Projecter):
 
     projecter.clear()
     projecter.load("simple_chat")
@@ -560,7 +564,7 @@ def mliner_body(manager : Manager, projecter : Projecter):
 def main() -> None:
     prompt = "Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
     # prompt = "automation of presentation"
-    manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+    manager = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
 
     projecter = Projecter(manager)
 

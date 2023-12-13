@@ -27,7 +27,8 @@ from genslides.task.setoptions import SetOptionsTask
 from genslides.task.writetofileparam import WriteToFileParamTask
 from genslides.task.readfileparam import ReadFileParamTask
 
-from genslides.task.extproject import ExtProjectTask
+# from genslides.task.extproject import ExtProjectTask
+import genslides.task.extproject as ExtProjectTask
 from genslides.task.groupcollect import GroupCollectTask
 
 import genslides.commands.create as cr
@@ -112,7 +113,7 @@ def createTaskByType(type : str, info : TaskDescription):
         info.method = ReadFileParamTask
         return cr.CreateCommand(info)
     if stype.endswith("ExtProject"):
-        info.method = ExtProjectTask
+        info.method = ExtProjectTask.ExtProjectTask
         return cr.CreateCommand(info)
     else:
     	return None

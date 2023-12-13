@@ -2,7 +2,7 @@ from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.collect import CollectTask
 
 # from genslides.commanager.jun import Manager
-import genslides.commanager.jun as Manager
+import genslides.commanager.group as Actioner
 
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
@@ -17,7 +17,7 @@ class ExtProjectTask(CollectTask):
 
     def afterFileLoading(self):
         print('Init external project task')
-        self.intman = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         res, param = self.getParamStruct('external')
         if not res:
             print('No path for ext project task')
@@ -26,8 +26,7 @@ class ExtProjectTask(CollectTask):
             if 'path' in param:
                 path = param['path']
             else:
-                #TODO: убрать косую черту и посмотреть, что будет
-                path = os.path.join( self.manager.getPath(), 'ext', param['project']) + '\\'
+                path = os.path.join( self.manager.getPath(), 'ext', param['project']) 
                 param['path'] = path
                 self.updateParam2(param)
 
@@ -39,7 +38,13 @@ class ExtProjectTask(CollectTask):
 
             self.intman.setPath(path)
             # TODO: удалить временную папку
+        self.intman.initInfo(self.manager.loadexttask, task = None, path = path)
+        self.actioner = Actioner.Actioner(self.intman)
+        self.actioner.setPath(path)
+        self.actioner.clearTmp()
+        print(10*"----------")
         print('Load tasks from',path)
+        print(10*"----------")
         self.intman.loadTasksList()
 
         print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
@@ -57,6 +62,15 @@ class ExtProjectTask(CollectTask):
             res, param = task.getParamStruct('output')
             if res and param['output']:
                 self.intch = task
+
+        print(10*"----------")
+        print('Execute', self.getName(),'from',self.intman.getPath())
+        print(10*"----------")
+        scripts = [t['task'] for t in self.actioner.manager.info['script']['managers']]
+        print('Script:', scripts)
+        self.actioner.makeTaskAction("","","InitSavdManager","", {'task': scripts[0]})
+        self.actioner.exeCurManager()
+        
 
     def isTaskInternal(self, task :BaseTask):
         return True if task in self.intman.task_list else False

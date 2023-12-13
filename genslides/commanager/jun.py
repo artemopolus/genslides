@@ -112,8 +112,7 @@ class Manager:
         self.browser = WebBrowser()
 
         self.need_human_response = False
-        # TODO: убрать косую черту и посмотреть что будет
-        self.path = 'saved/'
+        self.path = 'saved'
         self.proj_pref = ''
         self.return_points = []
         self.selected_tasks = []
@@ -1093,6 +1092,28 @@ class Manager:
         pyperclip.copy(text)
         pyperclip.paste()
 
+    def getCurrentExtTaskOptions(self):
+        p = []
+        names = finder.getExtTaskSpecialKeys()
+        for name in names:
+            res, val = self.curr_task.getParamStruct(name)
+            # print(name,'=',val)
+            if res and val[name]:
+                p.append(name)
+        return gr.CheckboxGroup(choices=names,value = p, interactive=True)
+    
+    def setCurrentExtTaskOptions(self, names : list):
+        full_names = finder.getExtTaskSpecialKeys()
+        for name in full_names:
+            if name not in names:
+                self.curr_task.updateParam2({'type': name, name : False})
+            else:
+                self.curr_task.updateParam2({'type': name, name : True})
+
+        self.curr_task.saveAllParams()
+        return self.getCurrentExtTaskOptions()
+
+
     
     def getCurrTaskPrompts(self, set_prompt = ""):
         msgs = self.curr_task.getMsgs()
@@ -1139,7 +1160,7 @@ class Manager:
         value = '{' + self.curr_task.getName() + ':' + finder.getBranchCodeTag() + '}'
         print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask"), r_msgs
+        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask"), r_msgs, self.getCurrentExtTaskOptions()
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []
@@ -1436,26 +1457,26 @@ class Manager:
             print('Remove last cmd:', cmd)
             self.saveInfo()
 
-    def initInfo(self, method, task : BaseTask = None, act_list = [], repeat = 3, limits = 1000):
+    def initInfo(self, method, task : BaseTask = None, path = 'saved', act_list = [], repeat = 3, limits = 1000):
         print('Manager init info')
         self.loadexttask = method
         self.task_list =  task.getAllParents() if task is not None else []
         self.curr_task = task
         task_name = task.getName() if task is not None else 'Base'
         self.setName(task_name)
-        # TODO: получить путь из переменных функции
         if task is not None:
-            self.setPath(os.path.join('saved','tmp', self.getName()))
+            self.setPath(os.path.join(path,'tmp', self.getName()))
         else:
-            self.setPath('saved')
+            self.setPath(path)
         self.saveInfo()
         if 'task' not in self.info:
             self.info['task'] = task_name
         if 'script' not in self.info:
             self.info['script'] = {'managers':[]}
+        if 'repeat' not in self.info:
+            self.info['repeat'] = repeat
         if task is not None and len(act_list) > 0:
             self.info['actions'] = act_list
-            self.info['repeat'] = repeat
             self.info['limits'] = limits
         self.info['done'] = False
         self.info['idx'] = 0

@@ -130,3 +130,7 @@ def getKey(task_name, fk_type, param_name, key_name, manager) -> str:
 
 def getKayArray():
     return ['msg','json','param','tokens','man_path','man_curr','br_code','code']
+
+def getExtTaskSpecialKeys():
+    return ['input', 'output', 'stopped', 'check']
+
