@@ -217,6 +217,8 @@ class Actioner():
             return self.manager.appendNewParamToTask(param['name'])
         elif creation_type == "SetParamValue":
             return self.manager.setTaskKeyValue(param['name'], param['key'], param['select'], param['manual'])
+        elif creation_type == "SetCurrentExtTaskOptions":
+            self.manager.setCurrentExtTaskOptions(param['names'])
         return self.manager.getCurrTaskPrompts()
 
     def fromActionToScript(self, trg: Manager, src : Manager):
@@ -306,3 +308,38 @@ class Actioner():
         for key, value in param.keys():
             manager.info[key] = value
         manager.saveInfo()
+
+    # Получить информацию о состоянии ExtProjectTask и выполнить соответствующие действия
+    # Collect:__init__ -> ExtProject:haveMsgsAction                         = init_loaded
+    # Что делать после загрузки задачи из файла
+    # Collect:__init__ -> ExtProject:haveNoMsgsAction                       = init_created
+    # Что делать после инициализации новой задачи
+    # Base:update->ExtProject:updateInternal-> if there is input            = update_input
+    # Что делать, если новые вводные в задачу
+    # Base:update->ExtProject:updateInternal-> if there is no direct change = update
+    # Что делать, если обновлены родительские задачи
+
+    def callScript(self, state: str):
+        try:
+            scripts = [t['task'] for t in self.manager.info['script']['managers']]
+            print('Script:', scripts)
+            # Убрать и сделать выполнение скриптов в зависимости от настроек скриптов?
+            for script in scripts:
+                # если скрипт относится к данному состоянию
+                for st in script['ext_states']:
+                    if st == state:
+                        # Проверить тип скрипта
+                        if script['type'] == 'simple':
+                            # обычный вариант
+                            # установить начальное состояние
+                            self.makeTaskAction("","","InitSavdManager","", {'task': script},save_action=False)
+                            # Выполнить скрипт
+                            self.exeCurManager()
+                            # Сохранить результаты скрипта
+                            self.makeTaskAction("","","StopPrivManager","",{})
+                            return
+        except Exception as e:
+            print('Cant exe script', e)
+
+
+

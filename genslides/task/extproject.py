@@ -37,7 +37,6 @@ class ExtProjectTask(CollectTask):
                 self.updateParam2(param)
 
             self.intman.setPath(path)
-            # TODO: удалить временную папку
         self.intman.initInfo(self.manager.loadexttask, task = None, path = path)
         self.actioner = Actioner.Actioner(self.intman)
         self.actioner.setPath(path)
@@ -66,10 +65,6 @@ class ExtProjectTask(CollectTask):
         print(10*"----------")
         print('Execute', self.getName(),'from',self.intman.getPath())
         print(10*"----------")
-        scripts = [t['task'] for t in self.actioner.manager.info['script']['managers']]
-        print('Script:', scripts)
-        self.actioner.makeTaskAction("","","InitSavdManager","", {'task': scripts[0]})
-        self.actioner.exeCurManager()
         
 
     def isTaskInternal(self, task :BaseTask):
@@ -77,6 +72,7 @@ class ExtProjectTask(CollectTask):
 
     def hasNoMsgAction(self):
         self.updateExtProjectInternal(self.prompt)
+        self.actioner.callScript('init_created')
 
     def updateExtProjectInternal(self, prompt):
         if self.intpar is not None:
@@ -100,6 +96,7 @@ class ExtProjectTask(CollectTask):
             self.setMsgList(msgs)
         else:
             self.updateExtProjectInternal(self.prompt)
+            self.actioner.callScript('init_loaded_change')
     
     def checkParentsMsg(self):
         return []
@@ -117,13 +114,16 @@ class ExtProjectTask(CollectTask):
                 print('Stepped update')
                 self.intman.curr_task = self.intpar
                 self.intman.updateSteppedTree(input)
+                self.actioner.callScript('update_input_step')
             else:
                 self.intpar.update(input)
+                self.actioner.callScript('update_input_nostep')
         else:
             if not self.intpar.checkParentMsgList(update=False, remove=True):
                 print('Normal update', self.getName())
                 info = TaskDescription(prompt=self.prompt, prompt_tag=self.intpar.getLastMsgRole(), manual=True)
                 self.intpar.update(info)
+                self.actioner.callScript('update_noinput')
             else:
                 return
         self.setMsgList(self.intch.getMsgs())

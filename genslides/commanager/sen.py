@@ -353,6 +353,6 @@ class Projecter:
         return self.actioner.manager.getCurrTaskPrompts()
 
     def setCurrentExtTaskOptions(self, names : list):
-        self.actioner.manager.setCurrentExtTaskOptions(names)
+        self.makeTaskAction("","","SetCurrentExtTaskOptions","", {'names': names})
         return self.actioner.getTmpManagerInfo()
 

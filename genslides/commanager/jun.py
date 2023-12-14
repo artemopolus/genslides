@@ -1480,6 +1480,12 @@ class Manager:
             self.info['limits'] = limits
         self.info['done'] = False
         self.info['idx'] = 0
+        # Начальные данные для вызова скриптов, если их нет
+        if 'state' not in self.info:
+            self.info['ext_states'] = ['init_created']
+        if 'type' not in self.info:
+            self.info['type'] = 'simple'
+
         self.saveInfo()
         print(self.info)
 
