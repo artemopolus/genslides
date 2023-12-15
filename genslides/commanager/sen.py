@@ -355,4 +355,17 @@ class Projecter:
     def setCurrentExtTaskOptions(self, names : list):
         self.makeTaskAction("","","SetCurrentExtTaskOptions","", {'names': names})
         return self.actioner.getTmpManagerInfo()
+    
+    def getAvailableActionsList(self):
+        return [t['action'] for t in self.actioner.getActionList()]
+    
+    def getAvailableActionTemplate(self, action_name : str):
+        for action in self.actioner.getActionList():
+            if action['action'] == action_name:
+                return json.dumps(action['param'], indent=1)
+        return '{\n}'
+    
+    def addActionToCurrentManager(self, action: str, param : str):
+        self.actioner.manager.addActions(action=action, param=json.loads(param))
+        return self.getActionsList()
 

@@ -230,7 +230,14 @@ class Manager:
             self.goToNextTreeFirstTime()
         print('Current task is', self.curr_task.getName())
         return self.getCurrTaskPrompts()
-            
+
+    def takeFewSteps(self, dir:str, times : int):
+        for idx in range(times):
+            if dir == 'child':
+                self.goToNextChild()
+            elif dir == 'parent':
+                self.goToParent()
+
 
     def goToNextChild(self):
         chs = self.curr_task.getChilds()

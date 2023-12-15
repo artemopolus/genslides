@@ -155,12 +155,28 @@ class Actioner():
 
 
         return success
+    
+    def getActionList(self):
+        out = []
+        out.append({"action":"TakeFewSteps","param":{'dir':'child', 'times':3}})
+        out.append({"action":"GoToNextChild","param":{}})
+        out.append({"action":"GoToParent","param":{}})
+        out.append({"action":"InitSavdManager","param":{'task':'task_name'}})
+        out.append({"action":"EditPrivManager","param":{}})
+        out.append({"action":"ExecuteManager","param":{}})
+        out.append({"action":"InitPrivManager","param":{}})
+        out.append({"action":"StopPrivManager","param":{}})
+        out.append({"action":"RmvePrivManager","param":{}})
+        out.append({"action":"SetCurrTask","param":{}})
+        return out
  
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
         if save_action and creation_type != "StopPrivManager":
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
+        elif creation_type == "TakeFewSteps":
+            self.manager.takeFewSteps(param['dir'], param['times'])
         elif creation_type == "GoToNextChild":
             self.manager.goToNextChild()
         elif creation_type == "GoToParent":

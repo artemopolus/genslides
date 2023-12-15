@@ -226,12 +226,19 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             setname_prman_btn = gr.Button('Set name')
                     with gr.Tab("Actions"):
                         actions_list = gr.CheckboxGroup()
-                        gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
-                        gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)
-                        gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
-                        gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
+                        with gr.Row():
+                            gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
+                            gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)
+                            gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
+                            gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
+                        actions_list_toadd = gr.Dropdown(choices=projecter.getAvailableActionsList())
+                        action_param = gr.Textbox(lines = 4, interactive=True)
+                        actions_list_toadd.select(fn=projecter.getAvailableActionTemplate,inputs=actions_list_toadd, outputs=action_param)
+                        gr.Button('Save action').click(fn=projecter.addActionToCurrentManager, inputs=[actions_list_toadd, action_param], outputs=actions_list)
+
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr]
+
                     edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
                     init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_man_list)
                     stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_man_list)
