@@ -296,6 +296,18 @@ class Projecter:
             out.append(name)
         return gr.CheckboxGroup(choices=out, interactive=True,value=None)
     
+    def getActionInfo(self, names : list):
+        print('Get action info from', names)
+        text = ''
+        for name in names:
+            pack = name.split(':')
+            actions = self.actioner.manager.info['actions']
+            for idx in range(len(actions)):
+                if pack[0] == str(actions[idx]['id']):
+                    text += json.dumps(actions[idx], indent=1) + '\n'
+        return text
+ 
+    
     def moveActionUp(self, names: list):
         for name in names:
             pack = name.split(':')

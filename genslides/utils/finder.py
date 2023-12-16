@@ -111,21 +111,22 @@ def findByKey(text, manager , base ):
 
 def getKey(task_name, fk_type, param_name, key_name, manager) -> str:
     if fk_type == 'msg':
-        value = '{' + task_name + ':msg_content}'
+        value = task_name + ':msg_content'
     elif fk_type == 'json':
-        value = '{' + task_name + ':msg_content:json:}'
+        value = task_name + ':msg_content:json:'
     elif fk_type == 'tokens':
-        value = '{' + task_name + ':' + getTknTag() + '}'
+        value = task_name + ':' + getTknTag()
     elif fk_type == 'br_code':
-        value = '{' + task_name + ':' + getBranchCodeTag() + '}'
+        value = task_name + ':' + getBranchCodeTag()
     elif fk_type == 'param':
-        value = '{' + task_name + ':' + param_name + ':' + key_name + '}'
+        value = task_name + ':' + param_name + ':' + key_name 
     elif fk_type == 'code':
-        value = '{' + task_name + ':code}'
+        value = task_name + ':code'
     elif fk_type == 'man_path':
-        value = "{manager:path}"
+        value = "manager:path"
     elif fk_type == 'man_curr':
-        value = "{manager:current}"
+        value = "manager:current"
+    value = '{' + value + '}'
     return value
 
 def getKayArray():
