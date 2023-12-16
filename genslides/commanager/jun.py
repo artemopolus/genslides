@@ -238,12 +238,20 @@ class Manager:
             elif dir == 'parent':
                 self.goToParent()
 
-
+    # Переключаться между наследованием со спуском вниз: от родителя к потомку. Потомков может быть несколько, поэтому существует неопределенность со следующим наследником.
+    # Текущий вариант не отслеживает начальную ветку
+    # TODO: Передвигаться вниз с учетом кода ветви
     def goToNextChild(self):
+        # Список направлений
         chs = self.curr_task.getChilds()
+        # Если есть потомки
         if len(chs) > 0:
+            # Если потомков нескольно
             if len(chs) > 1:
+                # Обычный вариант
+                # Запоминаем место ветвления
                 self.branch_lastpar = self.curr_task
+                # Выбираем просто нулевую ветку
                 self.branch_idx = 0
             self.curr_task = chs[0]
         return self.getCurrTaskPrompts()
@@ -261,6 +269,7 @@ class Manager:
                 endes.append(task)
         return endes
     
+    # Перебираем все возможные варианты листьев/почек деревьев
     def goToNextBranchEnd(self):
         if len(self.endes) == 0:
             self.endes = self.getSceletonBranchBuds(self.curr_task)
@@ -275,6 +284,7 @@ class Manager:
             else:
                 self.endes = endes
                 self.endes_idx = 0
+        # TODO: сохранить код ветви для перключения между наследованием
         self.curr_task = self.endes[self.endes_idx]
         return self.getCurrTaskPrompts()
 
