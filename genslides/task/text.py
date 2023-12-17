@@ -42,6 +42,7 @@ class TextTask(BaseTask):
 
         print('Input params',task_info.params)
         print('Task params',self.params)
+        # TODO: сделать временные метки и сохранять их в параметры
     
     def addChild(self, child) -> bool:
         if super().addChild(child):

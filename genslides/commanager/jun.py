@@ -253,6 +253,10 @@ class Manager:
                 self.branch_lastpar = self.curr_task
                 # Выбираем просто нулевую ветку
                 self.branch_idx = 0
+                # С использованием кода
+                # Перебираем коды потомков
+                    # Если код совпал с кодом в памяти
+                        # Установить новую текущую
             self.curr_task = chs[0]
         return self.getCurrTaskPrompts()
     
