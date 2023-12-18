@@ -55,7 +55,7 @@ class ReadFileTask(ResponseTask):
         if trg_file in onlyfiles:
             file = trg_file
             if file.startswith(self.getType()):
-                path = mypath + file
+                path = os.path.join( mypath, file) 
                 try:
                     print(path)
                     with open(path, 'r') as f:

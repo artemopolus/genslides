@@ -230,6 +230,18 @@ class BaseTask():
         self.target = task_info.target
         self.filename = task_info.filename
 
+    def getBranchCodeTag(self) -> str:
+        p_tasks = self.getAllParents()
+        print('Get branch code',[t.getName() for t in p_tasks])
+        code_s = ""
+        if len(p_tasks) > 0:
+            trg = p_tasks[0]
+            code_s = self.manager.getShortName(trg.getType(), trg.getName())
+            for i in range(len(p_tasks)-1):
+                code_s += p_tasks[i].getBranchCode( p_tasks[i+1])
+        return code_s
+
+
     def getManager(self):
         return self.manager
     
@@ -567,10 +579,11 @@ class BaseTask():
     def getChilds(self):
         return self.childs.copy()
 
-   
+    # Возвращает пару символов для точек ветвления
     def getBranchCode(self, second) -> str:
         code_s = ""
         if len(self.getChilds()) > 1:
+            # Если ветвится в точке с потомком записи в файл, то это ветвление игнорируется
             if second.getType() == 'WriteToFileParam':
                 return code_s
             # else:
@@ -957,4 +970,7 @@ class BaseTask():
 
     def checkTask(self):
         return True
+    
+    def getTextInfo(self):
+        return []
     

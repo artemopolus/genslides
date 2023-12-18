@@ -153,6 +153,15 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         base_action_list = gr.Radio(choices=["New","SubTask","Insert","EdCp1","EdCp2","EdCp3","EdCp4","Edit"], label="Select actions", value="New")
                         name_info = gr.Text(value="None", label="Task")
                         prompt = gr.Textbox(label="Prompt", lines=4, value=request)
+                        analysis_text = gr.Highlightedtext(label="Diff",
+                                    combine_adjacent=True,
+                                    show_legend=True,
+                                    color_map={
+                                        "bad": "red", 
+                                        "good": "green",
+                                        "notgood":"yellow"
+                                        })
+                        
                         roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
                         with gr.Row():
                             request_btn = gr.Button(value='Request')
@@ -162,7 +171,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             custom_btn = gr.Button(value='Custom')
 
                    
-                    base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list])
+                    base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list, analysis_text])
                     
                     with gr.Tab('Params'):
                     # with gr.Row():

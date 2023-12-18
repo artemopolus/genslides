@@ -708,10 +708,10 @@ class TextTask(BaseTask):
             print('Error on remove param:',e)
  
 
-    def getParamStruct(self, param_name):
+    def getParamStruct(self, param_name, only_current = False):
         # print('Get in param', param_name, 'struct')
         forbidden_names = finder.getExtTaskSpecialKeys()
-        if param_name not in forbidden_names:
+        if param_name not in forbidden_names and not only_current:
             parent_task = self.parent
             index = 0
             while(index < 1000):

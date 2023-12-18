@@ -69,8 +69,7 @@ class ResponseTask(TextTask):
 
         # print("Chat=",input_msg_list)
 
-        res, out = chat.createChatCompletion(input_msg_list)
-        return res, out
+        return chat.createChatCompletion(input_msg_list)
 
  
     def executeResponse(self):
@@ -80,7 +79,8 @@ class ResponseTask(TextTask):
             chat = LLModel(param)
         else:
             chat = LLModel()
-        res, out = self.executeResponseInternal(chat)
+        res, out, out_params = self.executeResponseInternal(chat)
+        self.updateParam2(out_params)
         if res:
             # print("out=", out)
             pair = {}
@@ -157,3 +157,28 @@ class ResponseTask(TextTask):
                 return txt[:20]
             return txt
         return self.msg_list[-1]["content"]
+    
+    
+    def getTextInfo(self):
+        res, param = self.getParamStruct('response', only_current=True)
+        if res:
+            out = []
+            max_log = -1000
+            min_log = 0
+            for value in param['logprobs']:
+                log = value['logprob']
+                if log > -0.1:
+                    pair = [value['token'], 'good']
+                elif log > -5:
+                    pair = [value['token'], 'notgood']
+                else:
+                    pair = [value['token'], 'bad']
+                out.append(pair)
+                max_log = max(max_log, log)
+                min_log = min(min_log, log)
+
+            print('Log vars from', max_log,'to',min_log)
+            return out
+        else:
+            return super().getTextInfo()
+

@@ -279,14 +279,21 @@ class Projecter:
 
     def actionTypeChanging(self, action):
         print('Action switch to=', action)
+        highlighttext = []
         if action == 'New':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False), highlighttext
         elif action == 'SubTask' or action == 'Insert':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False), highlighttext
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
             print('Get text from',self.actioner.manager.curr_task.getName(),'(',self.actioner.manager.getName(),')')
             _,role,_ = self.actioner.manager.curr_task.getMsgInfo()
-            return self.actioner.manager.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False), gr.Radio(interactive=True,value=role)
+            highlighttext = self.actioner.manager.curr_task.getTextInfo()
+            return (self.actioner.manager.getCurTaskLstMsgRaw(), 
+                    gr.Button(value='Apply'), 
+                    gr.Button(value='',interactive=False), 
+                    gr.Button(value='',interactive=False), 
+                    gr.Radio(interactive=True,value=role), 
+                    highlighttext)
 
     def getActionsList(self) -> list:
         actions = self.actioner.manager.info['actions']

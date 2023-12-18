@@ -103,6 +103,7 @@ class Manager:
         self.index = 0
         self.branch_idx = 0
         self.branch_lastpar = None
+        self.branch_code = ''
         self.tree_arr = []
         self.tree_idx = 0
 
@@ -244,20 +245,29 @@ class Manager:
     def goToNextChild(self):
         # Список направлений
         chs = self.curr_task.getChilds()
+        self.curr_task = None
         # Если есть потомки
         if len(chs) > 0:
             # Если потомков нескольно
             if len(chs) > 1:
-                # Обычный вариант
-                # Запоминаем место ветвления
                 self.branch_lastpar = self.curr_task
-                # Выбираем просто нулевую ветку
                 self.branch_idx = 0
                 # С использованием кода
+                # Запоминаем место ветвления
+                for ch in chs:
                 # Перебираем коды потомков
+                    ch_tag = ch.getBranchCodeTag()
                     # Если код совпал с кодом в памяти
+                    print('Check', ch_tag,'with',self.branch_code)
+                    if ch_tag.startswith(self.branch_code):
                         # Установить новую текущую
-            self.curr_task = chs[0]
+                        self.curr_task = ch
+
+
+            # Обычный вариант
+            if self.curr_task is None:
+                # Выбираем просто нулевую ветку
+                self.curr_task = chs[0]
         return self.getCurrTaskPrompts()
     
     def goToParent(self):
@@ -290,6 +300,8 @@ class Manager:
                 self.endes_idx = 0
         # TODO: сохранить код ветви для перключения между наследованием
         self.curr_task = self.endes[self.endes_idx]
+        self.branch_code = self.curr_task.getBranchCodeTag()
+        print('Get new branch code:', self.branch_code)
         return self.getCurrTaskPrompts()
 
     def goToNextBranch(self):
