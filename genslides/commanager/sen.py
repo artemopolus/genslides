@@ -169,7 +169,7 @@ class Projecter:
         elif selected_action == "Edit":
             act_type = "Request"
         param = {}
-        if 'extedit' in checks:
+        if len(checks) > 0:
             param['extedit'] = True
             for name in ['apply_link','remove_old','copy','change','subtask']:
                 param[name] = True if name in checks else False
@@ -289,9 +289,21 @@ class Projecter:
         print('Action switch to=', action)
         # highlighttext = []
         if action == 'New':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
+            return ("", 
+                    gr.Button(value='Request'), 
+                    gr.Button(value='Response', interactive=False), 
+                    gr.Button(value='Custom',interactive=True), 
+                    gr.Radio(interactive=False),
+                    gr.CheckboxGroup(choices=[])
+                    )
         elif action == 'SubTask' or action == 'Insert':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
+            return ("", 
+                    gr.Button(value='Request'), 
+                    gr.Button(value='Response', interactive=True), 
+                    gr.Button(value='Custom',interactive=True), 
+                    gr.Radio(interactive=False),
+                    gr.CheckboxGroup(choices=[])
+                    )
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
             print('Get text from',self.actioner.manager.curr_task.getName(),'(',self.actioner.manager.getName(),')')
             _,role,_ = self.actioner.manager.curr_task.getMsgInfo()
@@ -299,7 +311,8 @@ class Projecter:
                     gr.Button(value='Apply'), 
                     gr.Button(value='',interactive=False), 
                     gr.Button(value='',interactive=False), 
-                    gr.Radio(interactive=True,value=role)
+                    gr.Radio(interactive=True,value=role),
+                    gr.CheckboxGroup(choices=['change','subtask','apply_link','remove_old','resp2req','copy'], interactive=True)
                     )
     def getTextInfo(self, notgood, bad):
         param = {'notgood': notgood, 'bad':bad}

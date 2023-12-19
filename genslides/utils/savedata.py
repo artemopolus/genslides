@@ -3,6 +3,10 @@ import os
 from os import listdir
 from os.path import isfile, join
 import datetime
+import time
+
+def getTimeForSaving():
+    return str(time.perf_counter_ns())
 
 
 class SaveData:

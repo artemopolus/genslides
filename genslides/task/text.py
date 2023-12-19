@@ -13,8 +13,10 @@ from genslides.utils.chatgptrequester import ChatGPTsimple
 
 from genslides.utils.llmodel import LLModel
 
-from genslides.utils.savedata import SaveData
+import genslides.utils.savedata as savedata
+
 from genslides.utils.loader import Loader
+
 
 import json
 import os
@@ -43,6 +45,7 @@ class TextTask(BaseTask):
         print('Input params',task_info.params)
         print('Task params',self.params)
         # TODO: сделать временные метки и сохранять их в параметры
+        self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})
     
     def addChild(self, child) -> bool:
         if super().addChild(child):
