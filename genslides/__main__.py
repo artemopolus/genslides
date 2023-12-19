@@ -114,17 +114,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             parameters_manager = projecter
 
             with gr.Row() as r:
-                with gr.Column():
-                    next_tree_btn = gr.Button(value='Next tree')
-                    next_branch_btn = gr.Button(value='Next branch')
-                    next_brend_bt = gr.Button(value='Next final')
-                with gr.Column():
+                # with gr.Column(min_width=150):
+                    next_tree_btn = gr.Button(value='Next tree', min_width=150)
+                    next_branch_btn = gr.Button(value='Next branch', min_width=150)
+                    next_brend_bt = gr.Button(value='Next final', min_width=150)
+                # with gr.Column():
                     go_parnt_btn = gr.Button(value='Go up')
                     go_child_btn = gr.Button(value='Go down')
-                with gr.Column():
-                    task_list = gr.Dropdown(choices=manager.getTaskList())
-                    sel_task_btn = gr.Button(value="Select")
+                # with gr.Column():
 
+            with gr.Tab('Dial'):
+                dial_block = gr.Chatbot()
             with gr.Tab('Both'):
                 with gr.Row():
                     with gr.Column():
@@ -142,17 +142,22 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             res_step_btn = gr.Button(value='Reset Q')
                             step_task_btn = gr.Button(value="Step Q")
                             step_branch_btn = gr.Button(value='Branch Q')
-            with gr.Tab('Dial'):
-                dial_block = gr.Chatbot(height=500)
 
                 # graph_img.style(height=500)
 
             with gr.Row():
-                with gr.Column():
+                # with gr.Column():
                     with gr.Tab('Prompt'):
-                        base_action_list = gr.Radio(choices=["New","SubTask","Insert","EdCp1","EdCp2","EdCp3","EdCp4","Edit"], label="Select actions", value="New")
-                        name_info = gr.Text(value="None", label="Task")
-                        prompt = gr.Textbox(label="Prompt", lines=4, value=request)
+                        with gr.Row():
+                            with gr.Column(scale=1,min_width=150):
+                                name_info = gr.Text(value="None", label="Task")
+                                base_action_list = gr.Radio(choices=["New","SubTask","Insert","EdCp1","EdCp2","EdCp3","EdCp4","Edit"], 
+                                                            label="Select actions", 
+                                                            value="New"
+                                                            )
+                            with gr.Column(scale = 19):
+                                prompt = gr.Textbox(label="Prompt", lines=4, value=request)
+
                         analysis_text = gr.Highlightedtext(label="Diff",
                                     combine_adjacent=True,
                                     show_legend=True,
@@ -187,7 +192,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
                             param_apnd = gr.Button('Append new')
                            
-                with gr.Column():
+                # with gr.Column():
                     with gr.Tab('Select'):
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
@@ -259,14 +264,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     setname_prman_btn.click(fn=manipulate_manager.setCurrAsManagerStartTask, outputs=std_output_man_list)
                     exttaskopt_chgr.change(fn=manipulate_manager.setCurrentExtTaskOptions, inputs=exttaskopt_chgr, outputs=std_output_man_list)
 
-                    parents_list = gr.Dropdown(label="Parent tasks:")
-                    find_key_type = gr.Dropdown(choices=finder.getKayArray(), value='msg', interactive=True)
-                    with gr.Row():
-                        trg_params_list = gr.Dropdown(label='List of params')
-                        trg_keys_list = gr.Dropdown(label='List of keys')
-                    parents_list.select(fn=manager.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
-                    trg_params_list.select(fn=manager.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
-                    gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
+                    with gr.Tab("Others"):
+                        parents_list = gr.Dropdown(label="Parent tasks:")
+                        find_key_type = gr.Dropdown(choices=finder.getKayArray(), value='msg', interactive=True)
+                        with gr.Row():
+                            trg_params_list = gr.Dropdown(label='List of params')
+                            trg_keys_list = gr.Dropdown(label='List of keys')
+                        parents_list.select(fn=manager.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
+                        trg_params_list.select(fn=manager.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
+                        gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
+                        task_list = gr.Dropdown(choices=manager.getTaskList())
+                        sel_task_btn = gr.Button(value="Select")
  
             with gr.Row() as r:
                 project_name = gr.Textbox(value = project_manipulator.current_project_name, label="Project name")

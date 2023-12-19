@@ -241,7 +241,6 @@ class Manager:
 
     # Переключаться между наследованием со спуском вниз: от родителя к потомку. Потомков может быть несколько, поэтому существует неопределенность со следующим наследником.
     # Текущий вариант не отслеживает начальную ветку
-    # TODO: Передвигаться вниз с учетом кода ветви
     def goToNextChild(self):
         # Список направлений
         chs = self.curr_task.getChilds()
@@ -298,7 +297,6 @@ class Manager:
             else:
                 self.endes = endes
                 self.endes_idx = 0
-        # TODO: сохранить код ветви для перключения между наследованием
         self.curr_task = self.endes[self.endes_idx]
         self.branch_code = self.curr_task.getBranchCodeTag()
         print('Get new branch code:', self.branch_code)
@@ -1405,6 +1403,7 @@ class Manager:
                 branch['created'].append(self.curr_task)
         return link_array, start
 
+    
     def copyChildChains(self, edited_prompt = '',swith_to_type = '', apply_link = False, remove_old_link = False, copy = False):
         print(10*"----------")
         print('Copy child chains')
