@@ -171,7 +171,7 @@ class Projecter:
         param = {}
         if 'extedit' in checks:
             param['extedit'] = True
-            for name in ['apply_link','remove_old','copy']:
+            for name in ['apply_link','remove_old','copy','change','subtask']:
                 param[name] = True if name in checks else False
             if 'resp2req' in checks:
                 param['trg_type'] = 'Request'

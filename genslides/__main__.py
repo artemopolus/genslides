@@ -155,7 +155,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                                             label="Select actions", 
                                                             value="New"
                                                             )
-                                extcopy_chck = gr.CheckboxGroup(choices=['extedit','apply_link','remove_old','resp2req','copy'])
                             with gr.Column(scale = 19):
                                 prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                                 with gr.Row():
@@ -164,6 +163,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     custom_list_data = projecter.getFullCmdList()
                                     custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
                                     custom_btn = gr.Button(value='Custom')
+                                
+                                extcopy_chck = gr.CheckboxGroup(choices=['extedit','change','subtask','apply_link','remove_old','resp2req','copy'])
 
                         analysis_text = gr.Highlightedtext(label="Diff",
                                     combine_adjacent=True,
@@ -226,37 +227,40 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
 
                     with gr.Tab('Manager'):
                         with gr.Row():
-                            name_prman = gr.Text(value='None', label = 'Manager')
-                            exttaskopt_chgr = gr.CheckboxGroup()
-                        with gr.Row():
-                            init_prman_btn = gr.Button(value='Init')
-                            stop_prman_btn = gr.Button(value='Stop')
-                            rset_prman_btn = gr.Button(value='Rset')
-                            updt_prman_btn = gr.Button(value='Updt')
-                        with gr.Row():
-                            params_prman = gr.Textbox(label="Params", lines=4)
-                        with gr.Row():
-                            edit_param_prman = gr.Button(value='Edit param managers')
-                        with gr.Row():
-                            get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
-                            get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
-                            load_prman_btn = gr.Button(value='Load manager')
-                            exe_act_btn = gr.Button(value='Exe action')
-                            setname_prman_text = gr.Button('Back')
-                            setname_prman_btn = gr.Button('Set name')
-                    with gr.Tab("Actions"):
-                        actions_list = gr.CheckboxGroup()
-                        with gr.Row():
-                            gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
-                            gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)
-                            gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
-                            gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
-                        actions_info_txt = gr.Textbox(lines=4)
-                        actions_list_toadd = gr.Dropdown(choices=projecter.getAvailableActionsList())
-                        action_param = gr.Textbox(lines = 4, interactive=True)
-                        actions_list_toadd.select(fn=projecter.getAvailableActionTemplate,inputs=actions_list_toadd, outputs=action_param)
-                        gr.Button('Save action').click(fn=projecter.addActionToCurrentManager, inputs=[actions_list_toadd, action_param], outputs=actions_list)
-                        actions_list.change(fn=projecter.getActionInfo, inputs=actions_list, outputs=actions_info_txt)
+                            with gr.Column():
+                                with gr.Row():
+                                    name_prman = gr.Text(value='None', label = 'Manager')
+                                    exttaskopt_chgr = gr.CheckboxGroup()
+                                with gr.Row():
+                                    init_prman_btn = gr.Button(value='Init')
+                                    stop_prman_btn = gr.Button(value='Stop')
+                                    rset_prman_btn = gr.Button(value='Rset')
+                                    updt_prman_btn = gr.Button(value='Updt')
+                                with gr.Row():
+                                    params_prman = gr.Textbox(label="Params", lines=4)
+                                with gr.Row():
+                                    edit_param_prman = gr.Button(value='Edit param managers')
+                                with gr.Row():
+                                    get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
+                                    get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
+                                    load_prman_btn = gr.Button(value='Load manager')
+                                    exe_act_btn = gr.Button(value='Exe action')
+                                    setname_prman_text = gr.Button('Back')
+                                    setname_prman_btn = gr.Button('Set name')
+                        # with gr.Tab("Actions"):
+                            with gr.Column():
+                                actions_list = gr.CheckboxGroup()
+                                with gr.Row():
+                                    gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
+                                    gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)
+                                    gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
+                                    gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
+                                actions_info_txt = gr.Textbox(lines=4)
+                                actions_list_toadd = gr.Dropdown(choices=projecter.getAvailableActionsList())
+                                action_param = gr.Textbox(lines = 4, interactive=True)
+                                actions_list_toadd.select(fn=projecter.getAvailableActionTemplate,inputs=actions_list_toadd, outputs=action_param)
+                                gr.Button('Save action').click(fn=projecter.addActionToCurrentManager, inputs=[actions_list_toadd, action_param], outputs=actions_list)
+                                actions_list.change(fn=projecter.getActionInfo, inputs=actions_list, outputs=actions_info_txt)
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr]
 

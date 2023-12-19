@@ -177,12 +177,12 @@ class Actioner():
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif 'copy' in param and 'apply_link' in param and 'remove_old' in param and 'extedit' in param and param['extedit']:
             
-            return self.manager.copyChildChains(change_prompt = True if creation_type == "Edit" else False,
+            return self.manager.copyChildChains(change_prompt = param['change'],
                                                 edited_prompt=prompt, 
                                                 apply_link= param['apply_link'], 
                                                 remove_old_link=param['remove_old'],
                                                 copy=param['copy'],
-                                                subtask=True if creation_type == "SubTask" or creation_type == "Edit" else False,
+                                                subtask=param['subtask'],
                                                 trg_type= param['trg_type'] if 'trg_type' in param else '',
                                                 src_type = param['src_type'] if 'src_type' in param else ''
                                                 )
