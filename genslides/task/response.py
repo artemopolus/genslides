@@ -159,17 +159,17 @@ class ResponseTask(TextTask):
         return self.msg_list[-1]["content"]
     
     
-    def getTextInfo(self):
-        res, param = self.getParamStruct('response', only_current=True)
+    def getTextInfo(self, param):
+        res, p = self.getParamStruct('response', only_current=True)
         if res:
             out = []
             max_log = -1000
             min_log = 0
-            for value in param['logprobs']:
+            for value in p['logprobs']:
                 log = value['logprob']
-                if log > -0.1:
+                if log > param['notgood']:
                     pair = [value['token'], 'good']
-                elif log > -5:
+                elif log > param['bad']:
                     pair = [value['token'], 'notgood']
                 else:
                     pair = [value['token'], 'bad']
@@ -177,8 +177,8 @@ class ResponseTask(TextTask):
                 max_log = max(max_log, log)
                 min_log = min(min_log, log)
 
-            print('Log vars from', max_log,'to',min_log)
-            return out
+            text = 'Log vars from' + str( max_log) + 'to' + str(min_log)
+            return out, text
         else:
             return super().getTextInfo()
 

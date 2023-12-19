@@ -971,6 +971,6 @@ class BaseTask():
     def checkTask(self):
         return True
     
-    def getTextInfo(self):
-        return []
+    def getTextInfo(self, param):
+        return [],'Not Response Task'
     

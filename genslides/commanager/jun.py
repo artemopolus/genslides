@@ -1345,7 +1345,8 @@ class Manager:
                 return True
         return False
 
-    def copyChildChainTask(self, edited_prompt = '',swith_to_type = '', forced_parent = False):
+    # TODO: добавить переменную управления
+    def copyChildChainTask(self, change_prompt = False, edited_prompt = '',trg_type_t = '', src_type_t = '', forced_parent = False):
         print('Copy child chain tasks')
         tasks_chains = self.curr_task.getChildChainList()
         print('Task chains:')
@@ -1370,14 +1371,19 @@ class Manager:
                         parent = tasks_chains[branch['i_par']]['created'][-1]
                     branch['created'] = []
                     if i == 0:
-                        if len(edited_prompt) > 0 or forced_parent:
+                        # Если есть промпт для замены вставляем его
+                        if forced_parent:
                             parent = self.curr_task.parent
+                        if change_prompt:
                             prompt = edited_prompt
-                        if len(swith_to_type) > 0:
-                            trg_type = swith_to_type
+                        # if len(trg_type) > 0:
+                            # trg_type = trg_type
                 else:
                     parent = self.curr_task
                 print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
+                # Меняем тип задачи
+                if trg_type == src_type_t:
+                    trg_type = trg_type_t
                 if trg_type == 'ExtProject':
                     res, param = task.getParamStruct('external')
                     if res:
@@ -1403,12 +1409,19 @@ class Manager:
                 branch['created'].append(self.curr_task)
         return link_array, start
 
-    
-    def copyChildChains(self, edited_prompt = '',swith_to_type = '', apply_link = False, remove_old_link = False, copy = False):
+    # копирует цепочку задач с использованием правил
+    # change_prompt = False, -- изменяет текстовое содержание родительской задачи цепи
+    # edited_prompt = '', -- текст, на который производится изменение
+    # trg_type = '', -- тип, на который меняется
+    # apply_link = False,  -- копировать также свзяи
+    # remove_old_link = False, -- удалять связи со старых задач
+    # copy -- копировать связи
+    # subtask -- создать ветвление от родительской задачи
+    def copyChildChains(self, change_prompt = False, edited_prompt = '',trg_type = '', src_type = '', apply_link = False, remove_old_link = False, copy = False, subtask = False):
         print(10*"----------")
         print('Copy child chains')
         print(10*"----------")
-        link_array, start_node = self.copyChildChainTask(edited_prompt, swith_to_type)
+        link_array, start_node = self.copyChildChainTask(change_prompt=change_prompt, edited_prompt= edited_prompt, trg_type_t= trg_type, src_type_t=src_type, forced_parent=subtask)
         print(link_array)
         idx = 0
         while(idx < 1000):
@@ -1430,7 +1443,7 @@ class Manager:
                         if copy:
                             print('================================================Copy')
                             self.curr_task = holder
-                            new_la, new_sn = self.copyChildChainTask(task.getLastMsgContent(), forced_parent=True)
+                            new_la, new_sn = self.copyChildChainTask(change_prompt=False, edited_prompt=task.getLastMsgContent(), forced_parent=True)
                             print(holder)
                             print(new_sn)
                             for l in new_la:

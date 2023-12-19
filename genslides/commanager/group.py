@@ -175,6 +175,17 @@ class Actioner():
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
+        elif 'copy' in param and 'apply_link' in param and 'remove_old' in param and 'extedit' in param and param['extedit']:
+            return self.manager.copyChildChains(change_prompt = True if creation_type == "Edit" else False,
+                                                edited_prompt=prompt, 
+                                                apply_link= param['apply_link'], 
+                                                remove_old_link=param['remove_old'],
+                                                copy=param['copy'],
+                                                subtask=True if creation_type == "SubTask" or creation_type == "Edit" else False,
+                                                trg_type= param['trg_type'] if 'trg_type' in param else '',
+                                                src_type = param['src_type'] if 'src_type' in param else ''
+                                                )
+
         elif creation_type == "TakeFewSteps":
             self.manager.takeFewSteps(param['dir'], param['times'])
         elif creation_type == "GoToNextChild":
@@ -224,11 +235,11 @@ class Actioner():
         elif creation_type == "EdCp1":
             return self.manager.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=True)
         elif creation_type == "EdCp2":
-            return self.manager.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=False)
+            return self.manager.copyChildChains(change_prompt = True,edited_prompt=prompt, apply_link= True, remove_old_link=False)
         elif creation_type == "EdCp3":
-            return self.manager.copyChildChains(edited_prompt=prompt, apply_link= False, remove_old_link=False)
+            return self.manager.copyChildChains(change_prompt = True,edited_prompt=prompt, apply_link= False, remove_old_link=False)
         elif creation_type == "EdCp4":
-            return self.manager.copyChildChains(edited_prompt=prompt, apply_link= True, copy=True)
+            return self.manager.copyChildChains(change_prompt = True,edited_prompt=prompt, apply_link= True, copy=True)
         elif creation_type == "AppendNewParam":
             return self.manager.appendNewParamToTask(param['name'])
         elif creation_type == "SetParamValue":

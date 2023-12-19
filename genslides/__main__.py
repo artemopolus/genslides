@@ -155,6 +155,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                                             label="Select actions", 
                                                             value="New"
                                                             )
+                                extcopy_chck = gr.CheckboxGroup(choices=['extedit','apply_link','remove_old','resp2req','copy'])
                             with gr.Column(scale = 19):
                                 prompt = gr.Textbox(label="Prompt", lines=4, value=request)
 
@@ -166,6 +167,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                         "good": "green",
                                         "notgood":"yellow"
                                         })
+                        with gr.Row():
+                            notgood = gr.Number(value=-0.1, label='Notgood')
+                            bad = gr.Number(value=-5)
+                            analysis_log = gr.Textbox()
+                            gr.Button('Get').click(fn=projecter.getTextInfo, inputs=[notgood, bad], outputs=[analysis_text, analysis_log])
                         
                         roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
                         with gr.Row():
@@ -176,7 +182,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             custom_btn = gr.Button(value='Custom')
 
                    
-                    base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list, analysis_text])
+                    base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list])
                     
                     with gr.Tab('Params'):
                     # with gr.Row():
@@ -366,7 +372,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             setname_prman_text.click(fn=projecter.backToStartTask, outputs=std_output_list)
             roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
-            request_btn.click(fn=userinput_manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
+            request_btn.click(fn=userinput_manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list, extcopy_chck], outputs=std_output_list)
             response_btn.click(fn=userinput_manager.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)
             custom_btn.click(fn=userinput_manager.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
             
@@ -383,7 +389,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             rm_branch_btn.click(fn=manipulate_manager.removeActionBranch, outputs=std_output_list)
             rm_tree_btn.click(fn=manipulate_manager.removeActionTree, outputs=std_output_list)
  
-            # copy_tree.click(fn=manager.copyChildChains, outputs=std_output_list)
             param_apnd.click(fn=parameters_manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
             param_edit.click(fn=parameters_manager.setTaskKeyValue, inputs=[param_type, param_key, param_slcval, param_mnlval], outputs=std_output_list)
 

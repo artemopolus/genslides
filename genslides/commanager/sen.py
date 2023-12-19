@@ -160,16 +160,23 @@ class Projecter:
     def makeResponseAction(self, selected_action):
         return self.makeTaskAction("", "Response",selected_action, "assistant")
     
-    def makeRequestAction(self, prompt, selected_action, selected_tag):
+    def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')
+        act_type = ""
         if selected_action == "New" or selected_action == "SubTask" or selected_action == "Insert":
-            return self.makeTaskAction(prompt, "Request", selected_action, "user")
+            act_type = "Request"
+            selected_tag = "user"
         elif selected_action == "Edit":
-            return self.makeTaskAction(prompt, "Request", selected_action, selected_tag)
-        else:
-            return self.makeTaskAction(prompt, "", selected_action, selected_tag)
-        # # if selected_action == "EditCopy":
-        #     return self.copyChildChains(edited_prompt=prompt)
+            act_type = "Request"
+        param = {}
+        if 'resp2req' in checks:
+            param['trg_type'] = 'Request'
+            param['src_type'] = 'Response'
+        if 'extedit' in checks:
+            param['extedit'] = True
+            for name in ['apply_link','remove_old','copy']:
+                param[name] = True if name in checks else False
+        return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 
     def createCollectTreeOnSelectedTasks(self, action_type):
         return self.manager.createTreeOnSelectedTasks(action_type,"Collect")
@@ -279,21 +286,24 @@ class Projecter:
 
     def actionTypeChanging(self, action):
         print('Action switch to=', action)
-        highlighttext = []
+        # highlighttext = []
         if action == 'New':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False), highlighttext
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
         elif action == 'SubTask' or action == 'Insert':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False), highlighttext
+            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
             print('Get text from',self.actioner.manager.curr_task.getName(),'(',self.actioner.manager.getName(),')')
             _,role,_ = self.actioner.manager.curr_task.getMsgInfo()
-            highlighttext = self.actioner.manager.curr_task.getTextInfo()
             return (self.actioner.manager.getCurTaskLstMsgRaw(), 
                     gr.Button(value='Apply'), 
                     gr.Button(value='',interactive=False), 
                     gr.Button(value='',interactive=False), 
-                    gr.Radio(interactive=True,value=role), 
-                    highlighttext)
+                    gr.Radio(interactive=True,value=role)
+                    )
+    def getTextInfo(self, notgood, bad):
+        param = {'notgood': notgood, 'bad':bad}
+        return self.actioner.manager.curr_task.getTextInfo(param)
+        
 
     def getActionsList(self) -> list:
         actions = self.actioner.manager.info['actions']
