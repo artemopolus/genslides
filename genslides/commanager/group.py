@@ -176,6 +176,7 @@ class Actioner():
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif 'copy' in param and 'apply_link' in param and 'remove_old' in param and 'extedit' in param and param['extedit']:
+            
             return self.manager.copyChildChains(change_prompt = True if creation_type == "Edit" else False,
                                                 edited_prompt=prompt, 
                                                 apply_link= param['apply_link'], 

@@ -151,13 +151,19 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         with gr.Row():
                             with gr.Column(scale=1,min_width=150):
                                 name_info = gr.Text(value="None", label="Task")
-                                base_action_list = gr.Radio(choices=["New","SubTask","Insert","EdCp1","EdCp2","EdCp3","EdCp4","Edit"], 
+                                base_action_list = gr.Radio(choices=["New","SubTask","Insert","Edit"], 
                                                             label="Select actions", 
                                                             value="New"
                                                             )
                                 extcopy_chck = gr.CheckboxGroup(choices=['extedit','apply_link','remove_old','resp2req','copy'])
                             with gr.Column(scale = 19):
                                 prompt = gr.Textbox(label="Prompt", lines=4, value=request)
+                                with gr.Row():
+                                    request_btn = gr.Button(value='Request')
+                                    response_btn = gr.Button(value='Response',interactive=False)
+                                    custom_list_data = projecter.getFullCmdList()
+                                    custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
+                                    custom_btn = gr.Button(value='Custom')
 
                         analysis_text = gr.Highlightedtext(label="Diff",
                                     combine_adjacent=True,
@@ -174,15 +180,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             gr.Button('Get').click(fn=projecter.getTextInfo, inputs=[notgood, bad], outputs=[analysis_text, analysis_log])
                         
                         roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
-                        with gr.Row():
-                            request_btn = gr.Button(value='Request')
-                            response_btn = gr.Button(value='Response',interactive=False)
-                            custom_list_data = projecter.getFullCmdList()
-                            custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
-                            custom_btn = gr.Button(value='Custom')
 
                    
-                    base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list])
+                    base_action_list.input(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list])
                     
                     with gr.Tab('Params'):
                     # with gr.Row():

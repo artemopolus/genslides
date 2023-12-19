@@ -169,13 +169,14 @@ class Projecter:
         elif selected_action == "Edit":
             act_type = "Request"
         param = {}
-        if 'resp2req' in checks:
-            param['trg_type'] = 'Request'
-            param['src_type'] = 'Response'
         if 'extedit' in checks:
             param['extedit'] = True
             for name in ['apply_link','remove_old','copy']:
                 param[name] = True if name in checks else False
+            if 'resp2req' in checks:
+                param['trg_type'] = 'Request'
+                param['src_type'] = 'Response'
+        print('Action param=', param)
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 
     def createCollectTreeOnSelectedTasks(self, action_type):

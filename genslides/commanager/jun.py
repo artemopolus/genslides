@@ -243,6 +243,7 @@ class Manager:
     # Текущий вариант не отслеживает начальную ветку
     def goToNextChild(self):
         # Список направлений
+        prev = self.curr_task
         chs = self.curr_task.getChilds()
         self.curr_task = None
         # Если есть потомки
@@ -261,12 +262,13 @@ class Manager:
                     if ch_tag.startswith(self.branch_code):
                         # Установить новую текущую
                         self.curr_task = ch
+        else:
+            self.curr_task = prev
 
-
-            # Обычный вариант
-            if self.curr_task is None:
-                # Выбираем просто нулевую ветку
-                self.curr_task = chs[0]
+        # Обычный вариант
+        if self.curr_task is None:
+            # Выбираем просто нулевую ветку
+            self.curr_task = chs[0]
         return self.getCurrTaskPrompts()
     
     def goToParent(self):
