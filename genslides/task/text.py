@@ -44,7 +44,6 @@ class TextTask(BaseTask):
 
         print('Input params',task_info.params)
         print('Task params',self.params)
-        # TODO: сделать временные метки и сохранять их в параметры
         self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})
     
     def addChild(self, child) -> bool:

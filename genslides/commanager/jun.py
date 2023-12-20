@@ -1347,7 +1347,6 @@ class Manager:
                 return True
         return False
 
-    # TODO: добавить переменную управления
     def copyChildChainTask(self, change_prompt = False, edited_prompt = '',trg_type_t = '', src_type_t = '', forced_parent = False):
         print('Copy child chain tasks')
         tasks_chains = self.curr_task.getChildChainList()

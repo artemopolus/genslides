@@ -5,8 +5,11 @@ from os.path import isfile, join
 import datetime
 import time
 
-def getTimeForSaving():
-    return str(time.perf_counter_ns())
+def getTimeForSaving() -> str:
+    return datetime.time.strftime("%Y-%m-%d %H:%M:%S")
+
+def setTimeForSaving(time : str)->datetime:
+    return datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
 
 
 class SaveData:
