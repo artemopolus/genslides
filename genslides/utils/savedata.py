@@ -6,7 +6,7 @@ import datetime
 import time
 
 def getTimeForSaving() -> str:
-    return datetime.time.strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def setTimeForSaving(time : str)->datetime:
     return datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")

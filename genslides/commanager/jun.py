@@ -1193,7 +1193,29 @@ class Manager:
         value = '{' + self.curr_task.getName() + ':' + finder.getBranchCodeTag() + '}'
         print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask"), r_msgs, self.getCurrentExtTaskOptions()
+        graph = self.drawGraph()
+
+        return (
+            r_msgs, 
+            in_prompt ,
+            graph, 
+            out_prompt, 
+            in_role, 
+            chck, 
+            self.curr_task.getName(), 
+            self.curr_task.getAllParams(), 
+            set_prompt, 
+            gr.Dropdown.update(choices= self.getTaskList()),
+            gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), 
+                               interactive=True), 
+            gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], 
+                               value=self.curr_task.getName(), 
+                               interactive=True), 
+            gr.Radio(value="SubTask"), 
+            r_msgs,
+            self.getCurrentExtTaskOptions(),
+            graph
+            )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []

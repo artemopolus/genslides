@@ -125,6 +125,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
 
             with gr.Tab('Dial'):
                 dial_block = gr.Chatbot()
+            with gr.Tab('Img'):
+                graph_alone = gr.Image(
+                        width=500
+                    )
             with gr.Tab('Both'):
                 with gr.Row():
                     with gr.Column():
@@ -136,7 +140,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
                     # sec_msg.style(height=500)
                     with gr.Column():
-                        graph_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil", width=500)
+                        graph_img = gr.Image(
+                            # tool="sketch", 
+                            # interactive=True, 
+                            # source="upload", type="pil", 
+                            height=500)
                         # with gr.Row():
                         with gr.Accordion('Queue', open=False):
                             res_step_btn = gr.Button(value='Reset Q')
@@ -371,7 +379,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
-            std_output_list = [sec_msg, output, graph_img, fst_msg, prompt_tag_list, checkbox, name_info, param_info, prompt, task_list, param_type, parents_list, base_action_list, dial_block, exttaskopt_chgr]
+            std_output_list = [sec_msg, output, graph_img, fst_msg, 
+                               prompt_tag_list, checkbox, name_info, 
+                               param_info, prompt, task_list, param_type, 
+                               parents_list, base_action_list, dial_block, 
+                               exttaskopt_chgr, graph_alone
+                               ]
 
             setname_prman_text.click(fn=projecter.backToStartTask, outputs=std_output_list)
             roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
