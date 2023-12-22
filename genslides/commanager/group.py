@@ -361,11 +361,16 @@ class Actioner():
     # Что делать, если обновлены родительские задачи
 
     def callScript(self, state: str):
+        print(10*"----------")
+        print("Call script")
+        print(10*"----------")
         try:
-            scripts = [t['task'] for t in self.manager.info['script']['managers']]
-            print('Script:', scripts)
+            scripts = [t for t in self.manager.info['script']['managers']]
             # Убрать и сделать выполнение скриптов в зависимости от настроек скриптов?
             for script in scripts:
+                print('Script:', script['ext_states'])
+                print('Type:', script['type'])
+                print('Task:', script['task'])
                 # если скрипт относится к данному состоянию
                 for st in script['ext_states']:
                     if st == state:
@@ -373,15 +378,11 @@ class Actioner():
                         if script['type'] == 'simple':
                             # обычный вариант
                             # установить начальное состояние
-                            self.makeTaskAction("","","InitSavdManager","", {'task': script},save_action=False)
+                            self.makeTaskAction("","","InitSavdManager","", {'task': script['task']},save_action=False)
                             # Выполнить скрипт несколько раз
-                            idx = 0
-                            while(idx < self.manager.info['repeat']):
-                                self.exeCurManager()
-                                if self.manager.info['done']:
-                                    break
+                            self.exeCurManagerSmpl()
                             # Сохранить результаты скрипта
-                            self.makeTaskAction("","","StopPrivManager","",{}, save_action=False)
+                            # self.makeTaskAction("","","StopPrivManager","",{}, save_action=False)
                             return
         except Exception as e:
             print('Cant exe script', e)

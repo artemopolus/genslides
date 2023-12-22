@@ -810,7 +810,7 @@ class Manager:
         
     def createOrAddTask(self, prompt, type, tag, parent, params = []):
         print('Create task')
-        print('Params=',params)
+        # print('Params=',params)
         info = TaskDescription(prompt=prompt, prompt_tag=tag, 
                                                              helper=self.helper, requester=self.requester, manager=self, 
                                                              parent=parent, params=params)
