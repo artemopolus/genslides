@@ -280,6 +280,10 @@ class Projecter:
         # Альтернатива
         # self.makeTaskAction("","","ExecuteManager","",{},save_action=False)
         return self.actioner.getTmpManagerInfo()
+    
+    def exeSmplScript(self):
+        self.actioner.exeCurManagerSmpl()
+        return self.actioner.getTmpManagerInfo()
 
     def editParamPrivManager(self, param):
         self.makeTaskAction("","","EditPrivManager","",param)
@@ -363,6 +367,7 @@ class Projecter:
             for idx in range(len(actions)):
                 if pack[0] == str(actions[idx]['id']) and idx > 0:
                     actions.pop(idx)
+                    break
 
         self.fixActionsIdx()
         return self.getActionsList()
@@ -397,6 +402,10 @@ class Projecter:
 
     def setCurrentExtTaskOptions(self, names : list):
         self.makeTaskAction("","","SetCurrentExtTaskOptions","", {'names': names})
+        return self.actioner.getTmpManagerInfo()
+
+    def resetAllExtTaskOptions(self):
+        self.makeTaskAction("","","ResetAllExtTaskOptions","", {})
         return self.actioner.getTmpManagerInfo()
     
     def getAvailableActionsList(self):

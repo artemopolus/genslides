@@ -130,9 +130,20 @@ class Actioner():
         action = pack['action']
         self.makeTaskAction(prompt, act_type, action, tag, param, save_action=False)
 
+    def exeCurManagerSmpl(self):
+        idx = 0
+        # print(self.manager.info['repeat'])
+        while(idx < self.manager.info['repeat']):
+            self.exeCurManager()
+            if self.manager.info['done']:
+                break
+
+
     def exeCurManager(self):
         if self.manager is not self.std_manager:
-            self.exeComList(self.manager.info['actions'])
+            return self.exeComList(self.manager.info['actions'])
+        return False
+        
 
     def exeComList(self, pack) -> bool:
        # return True
@@ -142,7 +153,7 @@ class Actioner():
         success = True
         # Ищем задачи, помеченные для проверки
         for task in self.manager.task_list:
-            res, val = task.getParamStruct('output')
+            res, val = task.getParamStruct('check')
             if res and val:
                 if not task.checkTask():
                     success = False
@@ -217,9 +228,9 @@ class Actioner():
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
             trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
-            self.removeTmpManager(self.manager, trg, copy=False)
             if save_action:
                 self.manager.remLastActions()
+            self.removeTmpManager(self.manager, trg, copy=False)
            
         elif creation_type == "SetCurrTask":
             self.manager.setCurrentTaskByName(name=prompt)
@@ -247,6 +258,8 @@ class Actioner():
             return self.manager.setTaskKeyValue(param['name'], param['key'], param['select'], param['manual'])
         elif creation_type == "SetCurrentExtTaskOptions":
             self.manager.setCurrentExtTaskOptions(param['names'])
+        elif creation_type == "ResetAllExtTaskOptions":
+            self.manager.resetAllExtTaskOptions()
         return self.manager.getCurrTaskPrompts()
 
     def fromActionToScript(self, trg: Manager, src : Manager):
@@ -361,10 +374,14 @@ class Actioner():
                             # обычный вариант
                             # установить начальное состояние
                             self.makeTaskAction("","","InitSavdManager","", {'task': script},save_action=False)
-                            # Выполнить скрипт
-                            self.exeCurManager()
+                            # Выполнить скрипт несколько раз
+                            idx = 0
+                            while(idx < self.manager.info['repeat']):
+                                self.exeCurManager()
+                                if self.manager.info['done']:
+                                    break
                             # Сохранить результаты скрипта
-                            self.makeTaskAction("","","StopPrivManager","",{})
+                            self.makeTaskAction("","","StopPrivManager","",{}, save_action=False)
                             return
         except Exception as e:
             print('Cant exe script', e)

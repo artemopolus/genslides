@@ -517,6 +517,8 @@ class Manager:
                     elif self.getTaskParamRes(task, "output"):
                     # elif task.getParam("output") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
+                    elif self.getTaskParamRes(task, "check"):
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkorchid1")
                     elif task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
                     elif len(task.getAffectedTasks()) > 0:
@@ -1145,7 +1147,15 @@ class Manager:
 
         self.curr_task.saveAllParams()
         return self.getCurrentExtTaskOptions()
-
+    
+    def resetAllExtTaskOptions(self):
+        full_names = finder.getExtTaskSpecialKeys()
+        full_names.remove('input')
+        for task in self.task_list:
+            for name in full_names:
+                task.updateParam2({'type': name, name : False})
+            task.saveAllParams()
+        return self.getCurrentExtTaskOptions()
 
     
     def getCurrTaskPrompts(self, set_prompt = ""):
@@ -1369,9 +1379,18 @@ class Manager:
                 return True
         return False
 
-    def copyChildChainTask(self, change_prompt = False, edited_prompt = '',trg_type_t = '', src_type_t = '', forced_parent = False):
+    def copyChildChainTask(self, change_prompt = False, edited_prompt = '',
+                           trg_type_t = '', src_type_t = '', 
+                           forced_parent = False
+                           ):
         print('Copy child chain tasks')
         tasks_chains = self.curr_task.getChildChainList()
+
+        return self.copyTasksChain(tasks_chains, change_prompt, edited_prompt, trg_type_t, src_type_t, forced_parent)
+    
+    def copyTasksChain(self, tasks_chains, change_prompt = False, 
+                       edited_prompt = '',trg_type_t = '', src_type_t = '', 
+                       forced_parent = False):
         print('Task chains:')
         i = 0
         for branch in tasks_chains:
@@ -1440,11 +1459,20 @@ class Manager:
     # remove_old_link = False, -- удалять связи со старых задач
     # copy -- копировать связи
     # subtask -- создать ветвление от родительской задачи
-    def copyChildChains(self, change_prompt = False, edited_prompt = '',trg_type = '', src_type = '', apply_link = False, remove_old_link = False, copy = False, subtask = False):
+    def copyChildChains(self, change_prompt = False, edited_prompt = '',
+                        trg_type = '', src_type = '', 
+                        apply_link = False, remove_old_link = False, 
+                        copy = False, subtask = False):
         print(10*"----------")
         print('Copy child chains')
         print(10*"----------")
-        link_array, start_node = self.copyChildChainTask(change_prompt=change_prompt, edited_prompt= edited_prompt, trg_type_t= trg_type, src_type_t=src_type, forced_parent=subtask)
+        link_array, start_node = self.copyChildChainTask(
+                                                        change_prompt=change_prompt, 
+                                                        edited_prompt= edited_prompt, 
+                                                        trg_type_t= trg_type, 
+                                                        src_type_t=src_type, 
+                                                        forced_parent=subtask
+                                                        )
         print(link_array)
         idx = 0
         while(idx < 1000):
