@@ -186,7 +186,7 @@ class Manager:
         links = task_manager.getLinks(self.getPath())
         self.createTask()
 
-        print('Links', links)
+        # print('Links', links)
 
         for link in links:
             trgs = link['linked']
@@ -1011,7 +1011,7 @@ class Manager:
             #         print('Can\'t step on',self.curr_task.parent.getName())
             #         break
             #     idx += 1
-            print('Use old prompt:', self.curr_task.getLastMsgContent())
+            # print('Use old prompt:', self.curr_task.getLastMsgContent())
             self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
 
         res, w_param = self.curr_task.getParamStruct("watched")
@@ -1556,7 +1556,8 @@ class Manager:
     def initInfo(self, method, task : BaseTask = None, path = 'saved', act_list = [], repeat = 3, limits = 1000):
         print('Manager init info')
         self.loadexttask = method
-        self.task_list =  task.getAllParents() if task is not None else []
+        # TODO: А зачем мне вообще все задачи, а не только родительская?
+        # self.task_list =  task.getAllParents() if task is not None else []
         self.curr_task = task
         task_name = task.getName() if task is not None else 'Base'
         self.setName(task_name)
@@ -1583,6 +1584,6 @@ class Manager:
             self.info['type'] = 'simple'
 
         self.saveInfo()
-        print(self.info)
+        # print(self.info)
 
 

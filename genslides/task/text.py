@@ -82,13 +82,13 @@ class TextTask(BaseTask):
         self.syncQueueToParam()
     
     def printQueueInit(self):
-        print("Print queue init",self.getName())
+        # print("Print queue init",self.getName())
         q_names = [q["name"] for q in self.queue if 'name' in q]
         p_names = [p["name"] for p in self.params if "name" in p]
         c_names = [ch.getName() for ch in self.getChilds()]
-        print("Queue:", q_names)
-        print("Params:", p_names)
-        print("Childs:", c_names)
+        # print("Queue:", q_names)
+        # print("Params:", p_names)
+        # print("Childs:", c_names)
  
     def updateNameQueue(self, old_name : str, new_name : str):
         if old_name == new_name:
@@ -137,7 +137,7 @@ class TextTask(BaseTask):
     
     def syncParamToQueue(self):
         print('Sync', self.getName(), 'param to queue')
-        print('Init param=', self.params)
+        # print('Init param=', self.params)
         for param in self.params:
             if "type" in param:
                 if param['type'] == 'child' or param['type'] == 'link':
@@ -163,7 +163,7 @@ class TextTask(BaseTask):
         
         for q in qd:
             self.queue.remove(q)
-        print('After sync param=', self.params)
+        # print('After sync param=', self.params)
     
     def syncQueueToParam(self):
         print("Sync",self.getName(),"queue to param")
@@ -261,7 +261,7 @@ class TextTask(BaseTask):
         while(index < 1000):
             res, msg, par = task.getLastMsgAndParent()
             if res and task.getName() not in except_task:
-                print(task.getName(),"give", len(msg), "msg")
+                # print(task.getName(),"give", len(msg), "msg")
                 msg.extend(out)
                 out = msg
             if par is None:
@@ -697,7 +697,7 @@ class TextTask(BaseTask):
         return False, ''
 
     def setParamStruct(self, param):
-        print('Init params=',self.params)
+        # print('Init params=',self.params)
         if 'type' in param:
             self.params.append(param)
         self.saveJsonToFile(self.msg_list)

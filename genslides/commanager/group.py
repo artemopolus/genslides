@@ -59,9 +59,9 @@ class Actioner():
         if manager is not None:
             self.tmp_managers.append(manager)
             # Устанавливаем начальные условия: текущая активная задача
-            task = manager.getTaskByName(manager.getName())
+            # task = manager.getTaskByName(manager.getName())
             # print('Start ', task.getName())
-            manager.curr_task = task
+            # manager.curr_task = task
         return manager
     
 
@@ -290,6 +290,7 @@ class Actioner():
         if copy:
             self.tmp_managers.remove(man)
             # копировать все задачи
+            print('Copy task',[task.getName() for task in man.task_list])
             for task in man.task_list:
                 if task not in next_man.task_list:
                     next_man.task_list.append(task)
@@ -359,10 +360,10 @@ class Actioner():
     # Что делать, если обновлены родительские задачи
 
     def callScript(self, state: str):
-        print(10*"----------")
-        print("Call script")
-        print(10*"----------")
-        try:
+        # print(10*"----------")
+        # print("Call script")
+        # print(10*"----------")
+        # try:
             scripts = [t for t in self.manager.info['script']['managers']]
             # Убрать и сделать выполнение скриптов в зависимости от настроек скриптов?
             for script in scripts:
@@ -380,10 +381,10 @@ class Actioner():
                             # Выполнить скрипт несколько раз
                             self.exeCurManagerSmpl()
                             # Сохранить результаты скрипта
-                            # self.makeTaskAction("","","StopPrivManager","",{}, save_action=False)
+                            self.makeTaskAction("","","StopPrivManager","",{}, save_action=False)
                             return
-        except Exception as e:
-            print('Cant exe script', e)
+        # except Exception as e:
+            # print('Cant exe script', e)
 
 
 
