@@ -276,8 +276,6 @@ class Actioner():
         else:
             script.remove(found)
             script.append(man2)
-        print(man2)
-        print(script)
         # trg.info['script'] = script.copy()
         trg.saveInfo()
 
