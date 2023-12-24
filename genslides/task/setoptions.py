@@ -124,7 +124,7 @@ class SetOptionsTask(WriteToFileTask):
         print('Try to get param from',self.getName())
         for param in self.params:
             for k,p in param.items():
-                print("k=",k,"p=",p)
+                # print("k=",k,"p=",p)
                 if param_name == k:
                     return True,self.parent, p
 
@@ -134,7 +134,7 @@ class SetOptionsTask(WriteToFileTask):
         print("Search for", param_name,"in", self.getName())
         # res, val = self.getParamStruct(param_name)
         # return res, self.parent, val 
-        print('Params=', self.params)
+        # print('Params=', self.params)
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 return True, self.parent, param

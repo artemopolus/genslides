@@ -115,7 +115,7 @@ class LLModel():
     
     def getPrice(self, text)-> float:
         tokens = self.getTokensCount(text)
-        price = self.input_price
+        price = self.params['input']
         return tokens, tokens * price/1000
 
     def getUserTag(self) -> str:
@@ -139,7 +139,7 @@ class LLModel():
             # try divide last
             # it's too many of them!
             idx = 0
-            while (idx < 1000 and token_cnt > self.max_tokens):
+            while (idx < 1000 and token_cnt > self.params['max_tokens']):
                 msgs.pop(0)
                 text = ""
                 for msg in msgs:

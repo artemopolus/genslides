@@ -169,13 +169,14 @@ class Projecter:
         elif selected_action == "Edit":
             act_type = "Request"
         param = {}
-        if 'resp2req' in checks:
-            param['trg_type'] = 'Request'
-            param['src_type'] = 'Response'
-        if 'extedit' in checks:
+        if len(checks) > 0:
             param['extedit'] = True
-            for name in ['apply_link','remove_old','copy']:
+            for name in ['apply_link','remove_old','copy','change','subtask']:
                 param[name] = True if name in checks else False
+            if 'resp2req' in checks:
+                param['trg_type'] = 'Request'
+                param['src_type'] = 'Response'
+        print('Action param=', param)
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 
     def createCollectTreeOnSelectedTasks(self, action_type):
@@ -279,6 +280,10 @@ class Projecter:
         # Альтернатива
         # self.makeTaskAction("","","ExecuteManager","",{},save_action=False)
         return self.actioner.getTmpManagerInfo()
+    
+    def exeSmplScript(self):
+        self.actioner.exeCurManagerSmpl()
+        return self.actioner.getTmpManagerInfo()
 
     def editParamPrivManager(self, param):
         self.makeTaskAction("","","EditPrivManager","",param)
@@ -288,9 +293,21 @@ class Projecter:
         print('Action switch to=', action)
         # highlighttext = []
         if action == 'New':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
+            return ("", 
+                    gr.Button(value='Request'), 
+                    gr.Button(value='Response', interactive=False), 
+                    gr.Button(value='Custom',interactive=True), 
+                    gr.Radio(interactive=False),
+                    gr.CheckboxGroup(choices=[])
+                    )
         elif action == 'SubTask' or action == 'Insert':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
+            return ("", 
+                    gr.Button(value='Request'), 
+                    gr.Button(value='Response', interactive=True), 
+                    gr.Button(value='Custom',interactive=True), 
+                    gr.Radio(interactive=False),
+                    gr.CheckboxGroup(choices=[])
+                    )
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
             print('Get text from',self.actioner.manager.curr_task.getName(),'(',self.actioner.manager.getName(),')')
             _,role,_ = self.actioner.manager.curr_task.getMsgInfo()
@@ -298,7 +315,8 @@ class Projecter:
                     gr.Button(value='Apply'), 
                     gr.Button(value='',interactive=False), 
                     gr.Button(value='',interactive=False), 
-                    gr.Radio(interactive=True,value=role)
+                    gr.Radio(interactive=True,value=role),
+                    gr.CheckboxGroup(choices=['change','subtask','apply_link','remove_old','resp2req','copy'], interactive=True)
                     )
     def getTextInfo(self, notgood, bad):
         param = {'notgood': notgood, 'bad':bad}
@@ -349,6 +367,7 @@ class Projecter:
             for idx in range(len(actions)):
                 if pack[0] == str(actions[idx]['id']) and idx > 0:
                     actions.pop(idx)
+                    break
 
         self.fixActionsIdx()
         return self.getActionsList()
@@ -383,6 +402,10 @@ class Projecter:
 
     def setCurrentExtTaskOptions(self, names : list):
         self.makeTaskAction("","","SetCurrentExtTaskOptions","", {'names': names})
+        return self.actioner.getTmpManagerInfo()
+
+    def resetAllExtTaskOptions(self):
+        self.makeTaskAction("","","ResetAllExtTaskOptions","", {})
         return self.actioner.getTmpManagerInfo()
     
     def getAvailableActionsList(self):

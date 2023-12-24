@@ -9,9 +9,10 @@ def convertMdToScript(md_text):
     text = ""
     for i, part in enumerate(parts):
         if i % 2 == 0:  # Non-code parts treated as comments
-            lines = part.strip().split('\n')
-            comment_lines = ['# ' + line for line in lines]
-            text += '\n'.join(comment_lines) + '\n'
+            pass
+            # lines = part.strip().split('\n')
+            # comment_lines = ['# ' + line for line in lines]
+            # text += '\n'.join(comment_lines) + '\n'
         else:  # Code parts
             text += part.strip() + "\n"
     return text

@@ -186,7 +186,7 @@ class Manager:
         links = task_manager.getLinks(self.getPath())
         self.createTask()
 
-        print('Links', links)
+        # print('Links', links)
 
         for link in links:
             trgs = link['linked']
@@ -243,6 +243,7 @@ class Manager:
     # Текущий вариант не отслеживает начальную ветку
     def goToNextChild(self):
         # Список направлений
+        prev = self.curr_task
         chs = self.curr_task.getChilds()
         self.curr_task = None
         # Если есть потомки
@@ -261,12 +262,13 @@ class Manager:
                     if ch_tag.startswith(self.branch_code):
                         # Установить новую текущую
                         self.curr_task = ch
+        else:
+            self.curr_task = prev
 
-
-            # Обычный вариант
-            if self.curr_task is None:
-                # Выбираем просто нулевую ветку
-                self.curr_task = chs[0]
+        # Обычный вариант
+        if self.curr_task is None:
+            # Выбираем просто нулевую ветку
+            self.curr_task = chs[0]
         return self.getCurrTaskPrompts()
     
     def goToParent(self):
@@ -515,6 +517,8 @@ class Manager:
                     elif self.getTaskParamRes(task, "output"):
                     # elif task.getParam("output") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
+                    elif self.getTaskParamRes(task, "check"):
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkorchid1")
                     elif task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
                     elif len(task.getAffectedTasks()) > 0:
@@ -806,7 +810,7 @@ class Manager:
         
     def createOrAddTask(self, prompt, type, tag, parent, params = []):
         print('Create task')
-        print('Params=',params)
+        # print('Params=',params)
         info = TaskDescription(prompt=prompt, prompt_tag=tag, 
                                                              helper=self.helper, requester=self.requester, manager=self, 
                                                              parent=parent, params=params)
@@ -1007,7 +1011,7 @@ class Manager:
             #         print('Can\'t step on',self.curr_task.parent.getName())
             #         break
             #     idx += 1
-            print('Use old prompt:', self.curr_task.getLastMsgContent())
+            # print('Use old prompt:', self.curr_task.getLastMsgContent())
             self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
 
         res, w_param = self.curr_task.getParamStruct("watched")
@@ -1143,7 +1147,15 @@ class Manager:
 
         self.curr_task.saveAllParams()
         return self.getCurrentExtTaskOptions()
-
+    
+    def resetAllExtTaskOptions(self):
+        full_names = finder.getExtTaskSpecialKeys()
+        full_names.remove('input')
+        for task in self.task_list:
+            for name in full_names:
+                task.updateParam2({'type': name, name : False})
+            task.saveAllParams()
+        return self.getCurrentExtTaskOptions()
 
     
     def getCurrTaskPrompts(self, set_prompt = ""):
@@ -1191,7 +1203,29 @@ class Manager:
         value = '{' + self.curr_task.getName() + ':' + finder.getBranchCodeTag() + '}'
         print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask"), r_msgs, self.getCurrentExtTaskOptions()
+        graph = self.drawGraph()
+
+        return (
+            r_msgs, 
+            in_prompt ,
+            graph, 
+            out_prompt, 
+            in_role, 
+            chck, 
+            self.curr_task.getName(), 
+            self.curr_task.getAllParams(), 
+            set_prompt, 
+            gr.Dropdown.update(choices= self.getTaskList()),
+            gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), 
+                               interactive=True), 
+            gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], 
+                               value=self.curr_task.getName(), 
+                               interactive=True), 
+            gr.Radio(value="SubTask"), 
+            r_msgs,
+            self.getCurrentExtTaskOptions(),
+            graph
+            )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []
@@ -1345,10 +1379,18 @@ class Manager:
                 return True
         return False
 
-    # TODO: добавить переменную управления
-    def copyChildChainTask(self, change_prompt = False, edited_prompt = '',trg_type_t = '', src_type_t = '', forced_parent = False):
+    def copyChildChainTask(self, change_prompt = False, edited_prompt = '',
+                           trg_type_t = '', src_type_t = '', 
+                           forced_parent = False
+                           ):
         print('Copy child chain tasks')
         tasks_chains = self.curr_task.getChildChainList()
+
+        return self.copyTasksChain(tasks_chains, change_prompt, edited_prompt, trg_type_t, src_type_t, forced_parent)
+    
+    def copyTasksChain(self, tasks_chains, change_prompt = False, 
+                       edited_prompt = '',trg_type_t = '', src_type_t = '', 
+                       forced_parent = False):
         print('Task chains:')
         i = 0
         for branch in tasks_chains:
@@ -1417,11 +1459,20 @@ class Manager:
     # remove_old_link = False, -- удалять связи со старых задач
     # copy -- копировать связи
     # subtask -- создать ветвление от родительской задачи
-    def copyChildChains(self, change_prompt = False, edited_prompt = '',trg_type = '', src_type = '', apply_link = False, remove_old_link = False, copy = False, subtask = False):
+    def copyChildChains(self, change_prompt = False, edited_prompt = '',
+                        trg_type = '', src_type = '', 
+                        apply_link = False, remove_old_link = False, 
+                        copy = False, subtask = False):
         print(10*"----------")
         print('Copy child chains')
         print(10*"----------")
-        link_array, start_node = self.copyChildChainTask(change_prompt=change_prompt, edited_prompt= edited_prompt, trg_type_t= trg_type, src_type_t=src_type, forced_parent=subtask)
+        link_array, start_node = self.copyChildChainTask(
+                                                        change_prompt=change_prompt, 
+                                                        edited_prompt= edited_prompt, 
+                                                        trg_type_t= trg_type, 
+                                                        src_type_t=src_type, 
+                                                        forced_parent=subtask
+                                                        )
         print(link_array)
         idx = 0
         while(idx < 1000):
@@ -1505,7 +1556,8 @@ class Manager:
     def initInfo(self, method, task : BaseTask = None, path = 'saved', act_list = [], repeat = 3, limits = 1000):
         print('Manager init info')
         self.loadexttask = method
-        self.task_list =  task.getAllParents() if task is not None else []
+        # TODO: А зачем мне вообще все задачи, а не только родительская?
+        # self.task_list =  task.getAllParents() if task is not None else []
         self.curr_task = task
         task_name = task.getName() if task is not None else 'Base'
         self.setName(task_name)
@@ -1532,6 +1584,6 @@ class Manager:
             self.info['type'] = 'simple'
 
         self.saveInfo()
-        print(self.info)
+        # print(self.info)
 
 

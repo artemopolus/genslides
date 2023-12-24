@@ -3,6 +3,13 @@ import os
 from os import listdir
 from os.path import isfile, join
 import datetime
+import time
+
+def getTimeForSaving() -> str:
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def setTimeForSaving(time : str)->datetime:
+    return datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
 
 
 class SaveData:

@@ -50,8 +50,14 @@ class ExtProjectTask(CollectTask):
 
         self.intpar = None
         self.intch = None
+        self.updateInOutExtProject()
 
-        for task in self.intman.task_list:
+        print(10*"----------")
+        print('Execute', self.getName(),'from',self.intman.getPath())
+        print(10*"----------")
+
+    def updateInOutExtProject(self):
+         for task in self.intman.task_list:
             res, param = task.getParamStruct('input')
             if res and param['input']:
                 self.intpar = task
@@ -62,10 +68,7 @@ class ExtProjectTask(CollectTask):
             if res and param['output']:
                 self.intch = task
 
-        print(10*"----------")
-        print('Execute', self.getName(),'from',self.intman.getPath())
-        print(10*"----------")
-        
+       
 
     def isTaskInternal(self, task :BaseTask):
         return True if task in self.intman.task_list else False
@@ -73,6 +76,7 @@ class ExtProjectTask(CollectTask):
     def hasNoMsgAction(self):
         self.updateExtProjectInternal(self.prompt)
         self.actioner.callScript('init_created')
+        self.updateInOutExtProject()
 
     def updateExtProjectInternal(self, prompt):
         if self.intpar is not None:
@@ -97,6 +101,7 @@ class ExtProjectTask(CollectTask):
         else:
             self.updateExtProjectInternal(self.prompt)
             self.actioner.callScript('init_loaded_change')
+            self.updateInOutExtProject()
     
     def checkParentsMsg(self):
         return []
@@ -115,15 +120,18 @@ class ExtProjectTask(CollectTask):
                 self.intman.curr_task = self.intpar
                 self.intman.updateSteppedTree(input)
                 self.actioner.callScript('update_input_step')
+                self.updateInOutExtProject()
             else:
                 self.intpar.update(input)
                 self.actioner.callScript('update_input_nostep')
+                self.updateInOutExtProject()
         else:
             if not self.intpar.checkParentMsgList(update=False, remove=True):
                 print('Normal update', self.getName())
                 info = TaskDescription(prompt=self.prompt, prompt_tag=self.intpar.getLastMsgRole(), manual=True)
                 self.intpar.update(info)
                 self.actioner.callScript('update_noinput')
+                self.updateInOutExtProject()
             else:
                 return
         self.setMsgList(self.intch.getMsgs())

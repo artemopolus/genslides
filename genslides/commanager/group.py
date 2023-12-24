@@ -59,9 +59,9 @@ class Actioner():
         if manager is not None:
             self.tmp_managers.append(manager)
             # Устанавливаем начальные условия: текущая активная задача
-            task = manager.getTaskByName(manager.getName())
+            # task = manager.getTaskByName(manager.getName())
             # print('Start ', task.getName())
-            manager.curr_task = task
+            # manager.curr_task = task
         return manager
     
 
@@ -130,9 +130,20 @@ class Actioner():
         action = pack['action']
         self.makeTaskAction(prompt, act_type, action, tag, param, save_action=False)
 
+    def exeCurManagerSmpl(self):
+        idx = 0
+        # print(self.manager.info['repeat'])
+        while(idx < self.manager.info['repeat']):
+            self.exeCurManager()
+            if self.manager.info['done']:
+                break
+
+
     def exeCurManager(self):
         if self.manager is not self.std_manager:
-            self.exeComList(self.manager.info['actions'])
+            return self.exeComList(self.manager.info['actions'])
+        return False
+        
 
     def exeComList(self, pack) -> bool:
        # return True
@@ -142,7 +153,7 @@ class Actioner():
         success = True
         # Ищем задачи, помеченные для проверки
         for task in self.manager.task_list:
-            res, val = task.getParamStruct('output')
+            res, val = task.getParamStruct('check')
             if res and val:
                 if not task.checkTask():
                     success = False
@@ -176,12 +187,13 @@ class Actioner():
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif 'copy' in param and 'apply_link' in param and 'remove_old' in param and 'extedit' in param and param['extedit']:
-            return self.manager.copyChildChains(change_prompt = True if creation_type == "Edit" else False,
+            
+            return self.manager.copyChildChains(change_prompt = param['change'],
                                                 edited_prompt=prompt, 
                                                 apply_link= param['apply_link'], 
                                                 remove_old_link=param['remove_old'],
                                                 copy=param['copy'],
-                                                subtask=True if creation_type == "SubTask" or creation_type == "Edit" else False,
+                                                subtask=param['subtask'],
                                                 trg_type= param['trg_type'] if 'trg_type' in param else '',
                                                 src_type = param['src_type'] if 'src_type' in param else ''
                                                 )
@@ -216,9 +228,9 @@ class Actioner():
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
             trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
-            self.removeTmpManager(self.manager, trg, copy=False)
             if save_action:
                 self.manager.remLastActions()
+            self.removeTmpManager(self.manager, trg, copy=False)
            
         elif creation_type == "SetCurrTask":
             self.manager.setCurrentTaskByName(name=prompt)
@@ -246,6 +258,8 @@ class Actioner():
             return self.manager.setTaskKeyValue(param['name'], param['key'], param['select'], param['manual'])
         elif creation_type == "SetCurrentExtTaskOptions":
             self.manager.setCurrentExtTaskOptions(param['names'])
+        elif creation_type == "ResetAllExtTaskOptions":
+            self.manager.resetAllExtTaskOptions()
         return self.manager.getCurrTaskPrompts()
 
     def fromActionToScript(self, trg: Manager, src : Manager):
@@ -262,8 +276,6 @@ class Actioner():
         else:
             script.remove(found)
             script.append(man2)
-        print(man2)
-        print(script)
         # trg.info['script'] = script.copy()
         trg.saveInfo()
 
@@ -278,6 +290,7 @@ class Actioner():
         if copy:
             self.tmp_managers.remove(man)
             # копировать все задачи
+            print('Copy task',[task.getName() for task in man.task_list])
             for task in man.task_list:
                 if task not in next_man.task_list:
                     next_man.task_list.append(task)
@@ -347,11 +360,16 @@ class Actioner():
     # Что делать, если обновлены родительские задачи
 
     def callScript(self, state: str):
-        try:
-            scripts = [t['task'] for t in self.manager.info['script']['managers']]
-            print('Script:', scripts)
+        # print(10*"----------")
+        # print("Call script")
+        # print(10*"----------")
+        # try:
+            scripts = [t for t in self.manager.info['script']['managers']]
             # Убрать и сделать выполнение скриптов в зависимости от настроек скриптов?
             for script in scripts:
+                print('Script:', script['ext_states'])
+                print('Type:', script['type'])
+                print('Task:', script['task'])
                 # если скрипт относится к данному состоянию
                 for st in script['ext_states']:
                     if st == state:
@@ -359,14 +377,14 @@ class Actioner():
                         if script['type'] == 'simple':
                             # обычный вариант
                             # установить начальное состояние
-                            self.makeTaskAction("","","InitSavdManager","", {'task': script},save_action=False)
-                            # Выполнить скрипт
-                            self.exeCurManager()
+                            self.makeTaskAction("","","InitSavdManager","", {'task': script['task']},save_action=False)
+                            # Выполнить скрипт несколько раз
+                            self.exeCurManagerSmpl()
                             # Сохранить результаты скрипта
-                            self.makeTaskAction("","","StopPrivManager","",{})
+                            self.makeTaskAction("","","StopPrivManager","",{}, save_action=False)
                             return
-        except Exception as e:
-            print('Cant exe script', e)
+        # except Exception as e:
+            # print('Cant exe script', e)
 
 
 
