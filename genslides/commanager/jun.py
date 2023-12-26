@@ -1451,6 +1451,95 @@ class Manager:
                 branch['created'].append(self.curr_task)
         return link_array, start
 
+
+    def copyTasksByInfo(self, tasks_chains, change_prompt = False, 
+                       edited_prompt = '',trg_type_t = '', src_type_t = ''):
+        print('Copy tasks by info')
+        i = 0
+        links_chain = []
+        for branch in tasks_chains:
+            print(i,
+                  [task.getName() for task in branch['branch']], 
+                  branch['done'], branch['idx'],  
+                  branch['parent'].getName() if branch['parent'] else "None", 
+                  branch['i_par'])
+
+            for link in branch['links']:
+                found = False
+                for sv in links_chain:
+                    if sv['in'] == link['in'] and sv['out'] == link['out']:
+                        found = True
+                if not found:
+                    links_chain.append(link)
+            i+= 1
+
+
+
+        for i in range(len(tasks_chains)):
+            branch = tasks_chains[i]
+            for j in range(len(branch['branch'])):
+                task = branch['branch'][j]
+                prompt=task.getLastMsgContent() 
+                prompt_tag=task.getLastMsgRole()
+                trg_type = task.getType()
+                if j == 0:
+                    if branch['i_par'] is not None:
+                        parent = tasks_chains[branch['i_par']]['created'][-1]
+                    else:
+                        parent = self.curr_task.parent
+                        if change_prompt:
+                            prompt = edited_prompt
+                    branch['created'] = []
+                    branch['convert'] = []
+                else:
+                    parent = self.curr_task
+                print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
+                # Меняем тип задачи
+                if trg_type == src_type_t:
+                    trg_type = trg_type_t
+                if trg_type == 'ExtProject':
+                    res, param = task.getParamStruct('external')
+                    if res:
+                        prompt = param['prompt']
+                        filename = param['filename']
+                        if not self.createExtProject(filename, prompt, parent):
+                            print('Can not create')
+                            return self.getCurrTaskPrompts()
+                    else:
+                        print('No options')
+                        return self.getCurrTaskPrompts()
+                else:
+                    self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
+
+
+                for link in branch['links']:
+                    if link['out'] == task:
+                        link['res'] == self.curr_task 
+                branch['created'].append(self.curr_task)
+                branch['convert'].append({'from': task, 'to': self.curr_task})
+
+        for branch in tasks_chains:
+            print('branch convert results:')
+            print([[t['from'],t['to']] for t in branch['convert']])
+        print('Links list:')
+        print([[link['out'].getName(),link['in'].getName()] for link in links_chain])
+
+        for link in links_chain:
+            outtask = self.getCopyedTask(tasks_chains, link['out'])
+            intask = self.getCopyedTask(tasks_chains,link['in'])
+            self.makeLink( intask, outtask )
+
+        
+        return tasks_chains
+
+    def getCopyedTask(self, tasks_chans, task):
+        for branch in tasks_chans:
+            for info in branch['convert']:
+                if info['from'] == task:
+                    return info['to']
+        return task
+
+
     # копирует цепочку задач с использованием правил
     # change_prompt = False, -- изменяет текстовое содержание родительской задачи цепи
     # edited_prompt = '', -- текст, на который производится изменение
@@ -1495,13 +1584,13 @@ class Manager:
                             print('================================================Copy')
                             self.curr_task = holder
                             new_la, new_sn = self.copyChildChainTask(change_prompt=False, edited_prompt=task.getLastMsgContent(), forced_parent=True)
-                            print(holder)
-                            print(new_sn)
+                            # print(holder)
+                            # print(new_sn)
                             for l in new_la:
                                 if new_sn == l['task']:
                                     new_la.remove(l)
                             link_array_new.extend( new_la )
-                            print(link_array_new)
+                            # print(link_array_new)
                             self.makeLink( new_sn, task )
 
                     for part in garlandparts:

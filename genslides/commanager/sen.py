@@ -421,3 +421,8 @@ class Projecter:
         self.actioner.manager.addActions(action=action, param=json.loads(param))
         return self.getActionsList()
 
+    def copyChainStepped(self):
+        print('Copy chain stepped')
+        tasks_chains = self.actioner.manager.curr_task.getTasksFullLinks(True)
+        self.actioner.manager.copyTasksByInfo(tasks_chains=tasks_chains)
+        return self.actioner.manager.getCurrTaskPrompts()

@@ -395,6 +395,76 @@ class BaseTask():
             print(i_out)
             branch_list[j]['idx'] = i_out
         return branch_list
+    
+    def getLinkedTaskFromBranches(self, branches):
+        linked_task = []
+        for branch in branches:
+            for link in branch['links']:
+                if link['dir'] == 'in':
+                    linked_task.extend([link['in']])
+        return linked_task
+
+    def getTasksFullLinks(self, copy = True):
+        branches = self.getChildAndLinks(self)
+        if not copy:
+            return branches
+        idx = 0
+        linked_task = self.getLinkedTaskFromBranches(branches)
+        while(idx < 1000):
+            tmp = []
+            for task in linked_task:
+                new_b = self.getChildAndLinks(task)
+                branches.extend(new_b)
+                tmp.extend(new_b)
+            linked_task = self.getLinkedTaskFromBranches(tmp)
+            idx += 1
+        return branches
+
+    def getChildAndLinks(self, task):
+        index = 0
+        branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
+        while(index < 1000):
+            childs_to_add = []
+            for branch in branch_list:
+                trg = branch['branch'][-1]
+                j = 0
+                while (j < 1000 and not branch['done']):
+                    childs = trg.getChilds()
+                    if len(trg.getHoldGarlands()):
+                        for ll in trg.getHoldGarlands():
+                            branch['links'].append( {'out': trg, 'in': ll, 'dir': 'in'})
+                    if len(trg.getGarlandPart()):
+                        for ll in trg.getGarlandPart():
+                            branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
+                    if len(childs) == 1:
+                        branch['branch'].append(childs[0])
+                        trg = childs[0]
+                    elif len(childs) > 1:
+                        childs_to_add.extend(childs)
+                        branch['done'] = True
+                        break
+                    else:
+                        branch['done'] = True
+                        break
+                    j += 1
+            if len(childs_to_add) == 0:
+                break
+            for child in childs_to_add:
+                branch_list.append({'branch':[child],'done':False,'parent':None,'i_par':None,'idx':[],'links':[]})
+
+            index += 1
+        
+        for j in range(len(branch_list)):
+            trg = branch_list[j]['branch'][-1]
+            childs = trg.getChilds()
+            i_out = []
+            for i in range(len(branch_list)):
+                if branch_list[i]['branch'][0] in childs:
+                    i_out.append(i)
+                    branch_list[i]['parent'] = trg
+                    branch_list[i]['i_par'] = j
+            branch_list[j]['idx'] = i_out
+        return branch_list
 
 
     def getAllChildChains(self):

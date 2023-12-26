@@ -232,6 +232,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             extract_btn = gr.Button(value='Extract')
                             rm_branch_btn = gr.Button(value='Remove Branch')
                             rm_tree_btn = gr.Button(value='Remove Tree')
+                            copy_chain_btn = gr.Button(value='Copy ch step')
 
                     with gr.Tab('Manager'):
                         with gr.Row():
@@ -409,6 +410,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             extract_btn.click(fn=manipulate_manager.extractActionTask, outputs=std_output_list)
             rm_branch_btn.click(fn=manipulate_manager.removeActionBranch, outputs=std_output_list)
             rm_tree_btn.click(fn=manipulate_manager.removeActionTree, outputs=std_output_list)
+            copy_chain_btn.click(fn=manipulate_manager.copyChainStepped, outputs=std_output_list)
  
             param_apnd.click(fn=parameters_manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
             param_edit.click(fn=parameters_manager.setTaskKeyValue, inputs=[param_type, param_key, param_slcval, param_mnlval], outputs=std_output_list)
