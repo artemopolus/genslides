@@ -405,7 +405,7 @@ class BaseTask():
         return linked_task
 
     def getTasksFullLinks(self, copy = True):
-        branches = self.getChildAndLinks(self)
+        branches = self.getChildAndLinks(self, copy_link=copy)
         if not copy:
             return branches
         idx = 0
@@ -420,7 +420,7 @@ class BaseTask():
             idx += 1
         return branches
 
-    def getChildAndLinks(self, task):
+    def getChildAndLinks(self, task, copy_link = True):
         index = 0
         branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
         while(index < 1000):
@@ -430,10 +430,10 @@ class BaseTask():
                 j = 0
                 while (j < 1000 and not branch['done']):
                     childs = trg.getChilds()
-                    if len(trg.getHoldGarlands()):
+                    if len(trg.getHoldGarlands()) and copy_link:
                         for ll in trg.getHoldGarlands():
                             branch['links'].append( {'out': trg, 'in': ll, 'dir': 'in'})
-                    if len(trg.getGarlandPart()):
+                    if len(trg.getGarlandPart()) and copy_link:
                         for ll in trg.getGarlandPart():
                             branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
                     if len(childs) == 1:

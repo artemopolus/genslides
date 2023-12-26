@@ -1486,7 +1486,7 @@ class Manager:
                     if branch['i_par'] is not None:
                         parent = tasks_chains[branch['i_par']]['created'][-1]
                     else:
-                        parent = self.curr_task.parent
+                        parent = branch['parent']
                         if change_prompt:
                             prompt = edited_prompt
                     branch['created'] = []
@@ -1512,15 +1512,15 @@ class Manager:
                     self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
 
 
-                for link in branch['links']:
-                    if link['out'] == task:
-                        link['res'] == self.curr_task 
+                # for link in branch['links']:
+                    # if link['out'] == task:
+                        # link['res'] == self.curr_task 
                 branch['created'].append(self.curr_task)
                 branch['convert'].append({'from': task, 'to': self.curr_task})
 
         for branch in tasks_chains:
             print('branch convert results:')
-            print([[t['from'],t['to']] for t in branch['convert']])
+            print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
         print('Links list:')
         print([[link['out'].getName(),link['in'].getName()] for link in links_chain])
 

@@ -424,5 +424,5 @@ class Projecter:
     def copyChainStepped(self):
         print('Copy chain stepped')
         tasks_chains = self.actioner.manager.curr_task.getTasksFullLinks(True)
-        self.actioner.manager.copyTasksByInfo(tasks_chains=tasks_chains)
+        self.actioner.manager.copyTasksByInfo(tasks_chains=tasks_chains,edited_prompt='test', change_prompt=True)
         return self.actioner.manager.getCurrTaskPrompts()
