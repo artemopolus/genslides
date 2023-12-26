@@ -1451,6 +1451,50 @@ class Manager:
                 branch['created'].append(self.curr_task)
         return link_array, start
 
+    def copyTaskByInfoInternal(self, tasks_chains, i, j, change_prompt = False, 
+                       edited_prompt = '',trg_type_t = '', src_type_t = ''):
+        branch = tasks_chains[i]
+        task = branch['branch'][j]
+        prompt=task.getLastMsgContent() 
+        prompt_tag=task.getLastMsgRole()
+        trg_type = task.getType()
+        if j == 0:
+            if branch['i_par'] is not None:
+                parent = tasks_chains[branch['i_par']]['created'][-1]
+            else:
+                parent = branch['parent']
+                if change_prompt:
+                    prompt = edited_prompt
+            branch['created'] = []
+            branch['convert'] = []
+        else:
+            parent = self.curr_task
+        print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
+        # Меняем тип задачи
+        if trg_type == src_type_t:
+            trg_type = trg_type_t
+        if trg_type == 'ExtProject':
+            res, param = task.getParamStruct('external')
+            if res:
+                prompt = param['prompt']
+                filename = param['filename']
+                if not self.createExtProject(filename, prompt, parent):
+                    print('Can not create')
+                    return self.getCurrTaskPrompts()
+            else:
+                print('No options')
+                return self.getCurrTaskPrompts()
+        else:
+            self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
+
+
+        # for link in branch['links']:
+            # if link['out'] == task:
+                # link['res'] == self.curr_task 
+        branch['created'].append(self.curr_task)
+        branch['convert'].append({'from': task, 'to': self.curr_task})
+
+
 
     def copyTasksByInfo(self, tasks_chains, change_prompt = False, 
                        edited_prompt = '',trg_type_t = '', src_type_t = ''):
