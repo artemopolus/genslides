@@ -118,6 +118,8 @@ class Manager:
         self.return_points = []
         self.selected_tasks = []
         self.info = None
+        self.tc_start = False
+        self.tc_stop = False
 
     def getCurrentTask(self) -> BaseTask:
         return self.curr_task
@@ -1451,8 +1453,16 @@ class Manager:
                 branch['created'].append(self.curr_task)
         return link_array, start
 
-    def copyTaskByInfoInternal(self, tasks_chains, i, j, change_prompt = False, 
-                       edited_prompt = '',trg_type_t = '', src_type_t = ''):
+    def copyTaskByInfoInternal(self):
+        if self.tc_stop:
+            return False
+        i, j = self.tc_ij_list[self.tc_ij_list_idx]
+        change_prompt = self.tc_change_prompt
+        edited_prompt = self.tc_edited_prompt
+        trg_type_t = self.tc_trg_type_t
+        src_type_t = self.tc_src_type_t
+
+        tasks_chains = self.tc_tasks_chains
         branch = tasks_chains[i]
         task = branch['branch'][j]
         prompt=task.getLastMsgContent() 
@@ -1480,10 +1490,12 @@ class Manager:
                 filename = param['filename']
                 if not self.createExtProject(filename, prompt, parent):
                     print('Can not create')
-                    return self.getCurrTaskPrompts()
+                    # return self.getCurrTaskPrompts()
+                    return False
             else:
                 print('No options')
-                return self.getCurrTaskPrompts()
+                # return self.getCurrTaskPrompts()
+                return False
         else:
             self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
 
@@ -1494,11 +1506,22 @@ class Manager:
         branch['created'].append(self.curr_task)
         branch['convert'].append({'from': task, 'to': self.curr_task})
 
+        self.tc_ij_list_idx +=1
+        if self.tc_ij_list_idx < len(self.tc_ij_list):
+            return True
+        else:
+            self.tc_stop = True
+            return False
 
 
-    def copyTasksByInfo(self, tasks_chains, change_prompt = False, 
-                       edited_prompt = '',trg_type_t = '', src_type_t = ''):
+
+    def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '',trg_type_t = '', src_type_t = ''):
         print('Copy tasks by info')
+        self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, trg_type_t, src_type_t)
+        self.copyTasksByInfoExe()
+        return self.copyTasksByInfoStop()
+
+    def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',trg_type_t = '', src_type_t = ''):
         i = 0
         links_chain = []
         for branch in tasks_chains:
@@ -1517,64 +1540,48 @@ class Manager:
                     links_chain.append(link)
             i+= 1
 
+        self.tc_tasks_chains = tasks_chains
+        self.tc_links_chain = links_chain
+        self.tc_ij_list = []
+        self.tc_ij_list_idx = 0
+        self.tc_change_prompt = change_prompt
+        self.tc_edited_prompt = edited_prompt
+        self.tc_trg_type_t = trg_type_t
+        self.tc_src_type_t = src_type_t
 
+        self.tc_start = True
+        self.tc_stop = False
 
         for i in range(len(tasks_chains)):
-            branch = tasks_chains[i]
-            for j in range(len(branch['branch'])):
-                task = branch['branch'][j]
-                prompt=task.getLastMsgContent() 
-                prompt_tag=task.getLastMsgRole()
-                trg_type = task.getType()
-                if j == 0:
-                    if branch['i_par'] is not None:
-                        parent = tasks_chains[branch['i_par']]['created'][-1]
-                    else:
-                        parent = branch['parent']
-                        if change_prompt:
-                            prompt = edited_prompt
-                    branch['created'] = []
-                    branch['convert'] = []
-                else:
-                    parent = self.curr_task
-                print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
-                # Меняем тип задачи
-                if trg_type == src_type_t:
-                    trg_type = trg_type_t
-                if trg_type == 'ExtProject':
-                    res, param = task.getParamStruct('external')
-                    if res:
-                        prompt = param['prompt']
-                        filename = param['filename']
-                        if not self.createExtProject(filename, prompt, parent):
-                            print('Can not create')
-                            return self.getCurrTaskPrompts()
-                    else:
-                        print('No options')
-                        return self.getCurrTaskPrompts()
-                else:
-                    self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
+            for j in range(len(tasks_chains[i]['branch'])):
+                self.tc_ij_list.append([i,j])
+                
+    def copyTasksByInfoExe(self):
+        while self.copyTaskByInfoInternal():
+            pass
 
+    def copyTasksByInfoStep(self):
+        if self.tc_start:
+            if self.tc_stop:
+                self.copyTasksByInfoStop()
+            else:
+                self.copyTaskByInfoInternal()
 
-                # for link in branch['links']:
-                    # if link['out'] == task:
-                        # link['res'] == self.curr_task 
-                branch['created'].append(self.curr_task)
-                branch['convert'].append({'from': task, 'to': self.curr_task})
-
-        for branch in tasks_chains:
+    def copyTasksByInfoStop(self):
+        for branch in self.tc_tasks_chains:
             print('branch convert results:')
             print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
         print('Links list:')
-        print([[link['out'].getName(),link['in'].getName()] for link in links_chain])
+        print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
 
-        for link in links_chain:
-            outtask = self.getCopyedTask(tasks_chains, link['out'])
-            intask = self.getCopyedTask(tasks_chains,link['in'])
+        for link in self.tc_links_chain:
+            outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
+            intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
             self.makeLink( intask, outtask )
 
-        
-        return tasks_chains
+        self.tc_start = False
+        self.tc_stop = False
+        return self.tc_tasks_chains
 
     def getCopyedTask(self, tasks_chans, task):
         for branch in tasks_chans:

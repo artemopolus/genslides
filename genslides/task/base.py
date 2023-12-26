@@ -404,23 +404,23 @@ class BaseTask():
                     linked_task.extend([link['in']])
         return linked_task
 
-    def getTasksFullLinks(self, copy = True):
-        branches = self.getChildAndLinks(self, copy_link=copy)
-        if not copy:
+    def getTasksFullLinks(self, pparam):
+        branches = self.getChildAndLinks(self, pparam)
+        if not pparam['link']:
             return branches
         idx = 0
         linked_task = self.getLinkedTaskFromBranches(branches)
         while(idx < 1000):
             tmp = []
             for task in linked_task:
-                new_b = self.getChildAndLinks(task)
+                new_b = self.getChildAndLinks(task, pparam)
                 branches.extend(new_b)
                 tmp.extend(new_b)
             linked_task = self.getLinkedTaskFromBranches(tmp)
             idx += 1
         return branches
 
-    def getChildAndLinks(self, task, copy_link = True):
+    def getChildAndLinks(self, task, pparam):
         index = 0
         branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
         while(index < 1000):
@@ -430,10 +430,10 @@ class BaseTask():
                 j = 0
                 while (j < 1000 and not branch['done']):
                     childs = trg.getChilds()
-                    if len(trg.getHoldGarlands()) and copy_link:
+                    if len(trg.getHoldGarlands()) and pparam['out']:
                         for ll in trg.getHoldGarlands():
                             branch['links'].append( {'out': trg, 'in': ll, 'dir': 'in'})
-                    if len(trg.getGarlandPart()) and copy_link:
+                    if len(trg.getGarlandPart()) and pparam['in']:
                         for ll in trg.getGarlandPart():
                             branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
                     if len(childs) == 1:

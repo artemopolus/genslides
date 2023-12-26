@@ -186,17 +186,34 @@ class Actioner():
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
-        elif 'copy' in param and 'apply_link' in param and 'remove_old' in param and 'extedit' in param and param['extedit']:
+        elif 'extedit' in param and param['extedit']:
+            tasks_chains = self.manager.curr_task.getTasksFullLinks(param)
+            if param['step']:
+                self.manager.copyTasksByInfoStart(
+                                        tasks_chains=tasks_chains,
+                                         edited_prompt=prompt, 
+                                         change_prompt=param['change'], 
+                                         trg_type= param['trg_type'] if 'trg_type' in param else '',
+                                         src_type = param['src_type'] if 'src_type' in param else ''
+                )
+            else:
+                self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
+                                         edited_prompt=prompt, 
+                                         change_prompt=param['change'], 
+                                         trg_type= param['trg_type'] if 'trg_type' in param else '',
+                                         src_type = param['src_type'] if 'src_type' in param else ''
+                                         )
             
-            return self.manager.copyChildChains(change_prompt = param['change'],
-                                                edited_prompt=prompt, 
-                                                apply_link= param['apply_link'], 
-                                                remove_old_link=param['remove_old'],
-                                                copy=param['copy'],
-                                                subtask=param['subtask'],
-                                                trg_type= param['trg_type'] if 'trg_type' in param else '',
-                                                src_type = param['src_type'] if 'src_type' in param else ''
-                                                )
+
+            # return self.manager.copyChildChains(change_prompt = param['change'],
+            #                                     edited_prompt=prompt, 
+            #                                     apply_link= param['apply_link'], 
+            #                                     remove_old_link=param['remove_old'],
+            #                                     copy=param['copy'],
+            #                                     subtask=param['subtask'],
+            #                                     trg_type= param['trg_type'] if 'trg_type' in param else '',
+            #                                     src_type = param['src_type'] if 'src_type' in param else ''
+            #                                     )
 
         elif creation_type == "TakeFewSteps":
             self.manager.takeFewSteps(param['dir'], param['times'])

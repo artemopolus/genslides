@@ -160,6 +160,9 @@ class Projecter:
     def makeResponseAction(self, selected_action):
         return self.makeTaskAction("", "Response",selected_action, "assistant")
     
+    def getParamListForEdit(self):
+        return ['resp2req','in','out','link','step']
+    
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')
         act_type = ""
@@ -171,7 +174,9 @@ class Projecter:
         param = {}
         if len(checks) > 0:
             param['extedit'] = True
-            for name in ['apply_link','remove_old','copy','change','subtask']:
+            names = self.getParamListForEdit()
+            names.remove('resp2req')
+            for name in names:
                 param[name] = True if name in checks else False
             if 'resp2req' in checks:
                 param['trg_type'] = 'Request'
@@ -316,7 +321,7 @@ class Projecter:
                     gr.Button(value='',interactive=False), 
                     gr.Button(value='',interactive=False), 
                     gr.Radio(interactive=True,value=role),
-                    gr.CheckboxGroup(choices=['change','subtask','apply_link','remove_old','resp2req','copy'], interactive=True)
+                    gr.CheckboxGroup(choices=self.getParamListForEdit(), interactive=True)
                     )
     def getTextInfo(self, notgood, bad):
         param = {'notgood': notgood, 'bad':bad}
@@ -423,6 +428,7 @@ class Projecter:
 
     def copyChainStepped(self):
         print('Copy chain stepped')
-        tasks_chains = self.actioner.manager.curr_task.getTasksFullLinks(True)
-        self.actioner.manager.copyTasksByInfo(tasks_chains=tasks_chains,edited_prompt='test', change_prompt=True)
+        # tasks_chains = self.actioner.manager.curr_task.getTasksFullLinks({'in':True, 'out':True,'link':True})
+        # self.actioner.manager.copyTasksByInfo(tasks_chains=tasks_chains,edited_prompt='test', change_prompt=True, trg_type_t='', src_type_t='')
+        self.actioner.manager.copyTasksByInfoStep()
         return self.actioner.manager.getCurrTaskPrompts()
