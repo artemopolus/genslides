@@ -193,15 +193,13 @@ class Actioner():
                                         tasks_chains=tasks_chains,
                                          edited_prompt=prompt, 
                                          change_prompt=param['change'], 
-                                         trg_type= param['trg_type'] if 'trg_type' in param else '',
-                                         src_type = param['src_type'] if 'src_type' in param else ''
+                                         switch=param['switch']
                 )
             else:
                 self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
                                          edited_prompt=prompt, 
-                                         change_prompt=param['change'], 
-                                         trg_type= param['trg_type'] if 'trg_type' in param else '',
-                                         src_type = param['src_type'] if 'src_type' in param else ''
+                                         change_prompt=param['change'],
+                                         switch=param['switch']
                                          )
             
 

@@ -161,7 +161,7 @@ class Projecter:
         return self.makeTaskAction("", "Response",selected_action, "assistant")
     
     def getParamListForEdit(self):
-        return ['resp2req','in','out','link','step']
+        return ['resp2req','coll2req','in','out','link','step','change']
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')
@@ -178,9 +178,11 @@ class Projecter:
             names.remove('resp2req')
             for name in names:
                 param[name] = True if name in checks else False
+            param['switch'] = []
             if 'resp2req' in checks:
-                param['trg_type'] = 'Request'
-                param['src_type'] = 'Response'
+                param['switch'].append({'src':'Response','trg':'Request'})
+            if 'coll2req' in checks:
+                param['switch'].append({'src':'Collect','trg':'Request'})
         print('Action param=', param)
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 

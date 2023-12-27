@@ -1459,8 +1459,6 @@ class Manager:
         i, j = self.tc_ij_list[self.tc_ij_list_idx]
         change_prompt = self.tc_change_prompt
         edited_prompt = self.tc_edited_prompt
-        trg_type_t = self.tc_trg_type_t
-        src_type_t = self.tc_src_type_t
 
         tasks_chains = self.tc_tasks_chains
         branch = tasks_chains[i]
@@ -1481,8 +1479,9 @@ class Manager:
             parent = self.curr_task
         print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
         # Меняем тип задачи
-        if trg_type == src_type_t:
-            trg_type = trg_type_t
+        for switch in self.tc_switch_type:
+            if trg_type == switch['src']:
+                trg_type = switch['trg']
         if trg_type == 'ExtProject':
             res, param = task.getParamStruct('external')
             if res:
@@ -1515,13 +1514,13 @@ class Manager:
 
 
 
-    def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '',trg_type_t = '', src_type_t = ''):
+    def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = []):
         print('Copy tasks by info')
-        self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, trg_type_t, src_type_t)
+        self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch)
         self.copyTasksByInfoExe()
         return self.copyTasksByInfoStop()
 
-    def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',trg_type_t = '', src_type_t = ''):
+    def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = []):
         i = 0
         links_chain = []
         for branch in tasks_chains:
@@ -1546,8 +1545,8 @@ class Manager:
         self.tc_ij_list_idx = 0
         self.tc_change_prompt = change_prompt
         self.tc_edited_prompt = edited_prompt
-        self.tc_trg_type_t = trg_type_t
-        self.tc_src_type_t = src_type_t
+        
+        self.tc_switch_type = switch
 
         self.tc_start = True
         self.tc_stop = False
