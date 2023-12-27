@@ -119,7 +119,7 @@ class Projecter:
         # Archivator.saveOnlyFiles(self.savedpath, self.mypath, name)
         Archivator.saveAll(self.savedpath, self.mypath, name)
 
-        return gr.Dropdown.update( choices= self.loadList(), interactive=True)
+        return gr.Dropdown( choices= self.loadList(), interactive=True)
 
    
     
