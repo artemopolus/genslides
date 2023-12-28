@@ -984,6 +984,10 @@ class Manager:
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
         return self.getCurrTaskPrompts()
     
+    def updateCurrent(self):
+        self.curr_task.update()
+        return self.runIteration("")
+    
     def update(self):
         print(10*"----------")
         print("NEW UPDATE",10*">>>>>>>>>>>")

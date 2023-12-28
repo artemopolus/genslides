@@ -233,6 +233,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             rm_branch_btn = gr.Button(value='Remove Branch')
                             rm_tree_btn = gr.Button(value='Remove Tree')
                             copy_chain_btn = gr.Button(value='Copy ch step')
+                            update_task_btn = gr.Button(value="Update")
+                            updatecur_task_btn = gr.Button(value='Update current')
 
                     with gr.Tab('Manager'):
                         with gr.Row():
@@ -346,7 +348,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
            
 
             with gr.Row() as r:
-                update_task_btn = gr.Button(value="Update")
                 run_iter_btn = gr.Button(value="Step run")
                 fix_task_btn = gr.Button(value = 'Fix Tasks')
                 with gr.Column():
@@ -437,6 +438,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
 
             run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
+            updatecur_task_btn.click(fn=manager.updateCurrent, outputs=std_output_list)
             step_task_btn.click(fn=manager.updateSteppedSelected,outputs=std_output_list, api_name="step_task_btn")
             step_branch_btn.click(fn=manager.updateSteppedTrgBranch, outputs=std_output_list)
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
