@@ -27,12 +27,22 @@ def openaiGetChatCompletion(msgs, params):
     try:
         print('Input params:', params)
         client = OpenAI(api_key=params['api_key'])
-        print(params['api_key'])
-        print('Target model=',params['model'])
+        # print(params['api_key'])
+        # print('Target model=',params['model'])
         # print('Msgs:', msgs)
         logprobs = params['logprobs'] if 'logprobs' in params else False
         top_logprobs = params['top_logprobs'] if 'top_logprobs' in params else 0
-        if 'logprobs' in params and params['logprobs']:
+        if 'logprobs' in params and params['logprobs'] and 'temperature' in params:
+            print('Get with logprobs and temperature')
+            completion = client.chat.completions.create(
+                model = params['model'],
+                messages=msgs,
+                logprobs=logprobs,
+                top_logprobs=top_logprobs,
+                temperature=params['temperature']
+            )
+        elif 'logprobs' in params and params['logprobs']:
+            print('Get with logprobs')
             completion = client.chat.completions.create(
                 model = params['model'],
                 messages=msgs,
@@ -40,6 +50,7 @@ def openaiGetChatCompletion(msgs, params):
                 top_logprobs=top_logprobs
             )
         else:
+            print('Get simple')
             completion = client.chat.completions.create(
                 model = params['model'],
                 messages=msgs
@@ -72,7 +83,7 @@ def openaiGetChatCompletion(msgs, params):
                     'top_logprobs': l
                         })
             out_param['logprobs'] =  log       
-        print(out_param)    
+        # print(out_param)    
         return True, msg, out_param
     except Exception as e:
         print('Open Ai api error=', e) 

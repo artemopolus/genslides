@@ -166,12 +166,13 @@ class Projecter:
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')
         act_type = ""
+        param = {}
         if selected_action == "New" or selected_action == "SubTask" or selected_action == "Insert":
             act_type = "Request"
             selected_tag = "user"
+            return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
         elif selected_action == "Edit":
             act_type = "Request"
-        param = {}
         if len(checks) > 0:
             param['extedit'] = True
             names = self.getParamListForEdit()

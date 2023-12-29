@@ -224,7 +224,7 @@ class ReceiveTask(TextTask):
             param['tasks'] = [t.getName() for t in self.getAffectingOnTask()]
         return super().setParamStruct(param)
     
-class CollectTask(TextTask):
+class CollectTask(ReceiveTask):
     def __init__(self, task_info: TaskDescription, type='Collect') -> None:
         super().__init__(task_info, type)
 
