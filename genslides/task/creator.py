@@ -3,7 +3,7 @@ from genslides.task.base import TaskDescription
 from genslides.task.richtext import RichTextTask
 from genslides.task.request import RequestTask
 from genslides.task.response import ResponseTask
-from genslides.task.collect import CollectTask
+from genslides.task.collect import CollectTask, GarlandTask, ReceiveTask
 from genslides.task.group import GroupTask
 from genslides.task.readfile import ReadFileTask
 from genslides.task.writetofile import WriteToFileTask
@@ -64,8 +64,14 @@ def createTaskByType(type : str, info : TaskDescription):
     if stype.endswith("GroupCollect"):
         info.method = GroupCollectTask
         return cr.CreateCommand(info)
+    if stype.endswith("Receive"):
+        info.method = ReceiveTask
+        return cr.CreateCommand(info)
     if stype.endswith("Collect"):
         info.method = CollectTask
+        return cr.CreateCommand(info)
+    if stype.endswith("Garland"):
+        info.method = GarlandTask
         return cr.CreateCommand(info)
     if stype.endswith("ReadFile"):
         info.method = ReadFileTask

@@ -5,8 +5,8 @@ from genslides.utils.largetext import SimpleChatGPT
 
 import json
 
-class CollectTask(TextTask):
-    def __init__(self, task_info : TaskDescription, type = "Collect") -> None:
+class ReceiveTask(TextTask):
+    def __init__(self, task_info : TaskDescription, type = "Receive") -> None:
         super().__init__(task_info, type=type)
 
         self.is_freeze = True
@@ -223,3 +223,11 @@ class CollectTask(TextTask):
         if 'type' in param and param['type'] == 'linkedfrom':
             param['tasks'] = [t.getName() for t in self.getAffectingOnTask()]
         return super().setParamStruct(param)
+    
+class CollectTask(TextTask):
+    def __init__(self, task_info: TaskDescription, type='Collect') -> None:
+        super().__init__(task_info, type)
+
+class GarlandTask(CollectTask):
+    def __init__(self, task_info: TaskDescription, type="Garland") -> None:
+        super().__init__(task_info, type)
