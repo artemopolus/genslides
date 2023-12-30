@@ -1044,3 +1044,6 @@ class BaseTask():
     def getTextInfo(self, param):
         return [],'Not Response Task'
     
+    def resaveWithID(self, id : int):
+        pass
+    

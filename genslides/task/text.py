@@ -365,6 +365,14 @@ class TextTask(BaseTask):
     def getJson(self):
         return self.getJsonMsg(self.msg_list)
     
+    def resaveWithID(self, id : int):
+        self.id = id
+        old_path = self.path
+        self.path = self.getPath()
+        print('Rewrite',old_path,'to', self.path)
+        os.remove(old_path)
+        self.saveAllParams()
+    
     def saveAllParams(self):
         self.saveJsonToFile(self.msg_list)
 

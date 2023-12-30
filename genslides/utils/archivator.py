@@ -47,5 +47,6 @@ class Archivator():
         if filename + ".7z" not in onlyfiles:
             return False
         with py7zr.SevenZipFile(join(trg_path, filename + ".7z"), 'r') as archive:
+            print('Extract all from',trg_path, filename,'to',path_to_extract)
             archive.extractall(path=path_to_extract)
         return True

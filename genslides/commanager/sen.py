@@ -90,7 +90,7 @@ class Projecter:
         if filename == "":
             return ""
         self.clearFiles()
-        print(self.savedpath)
+        print('Load files to',self.savedpath)
         Archivator.extractFiles(self.mypath, filename, self.savedpath)
         self.manager.onStart() 
         self.manager.loadTasksList()
@@ -98,6 +98,37 @@ class Projecter:
         self.manager.setParam("current_project_name",self.current_project_name)
         self.updateSessionName()
         return filename
+    
+    def appendProjectTasks(self, filename):
+        tmp_manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        tmp_path = os.path.join('saved','tmp', filename)
+        print('Open file',filename,'from',self.mypath,'to',tmp_path)
+        tmp_manager.initInfo(method = self.actioner.loadExtProject, task=None, path = tmp_path  )
+        Archivator.extractFiles(self.mypath, filename, tmp_manager.getPath())
+        self.actioner.tmp_managers.append(tmp_manager)
+        tmp_manager.loadTasksList()
+        # Переименовываем задачи, если нужно
+        print('New task list:',[t.getName() for t in tmp_manager.task_list])
+        print('Cur task list:',[t.getName() for t in self.actioner.std_manager.task_list])
+        names = [t.getName() for t in self.actioner.std_manager.task_list]
+        idx = 0
+        for task in tmp_manager.task_list:
+            trg = task.getName()
+            if trg in names:
+                print('Found same name',trg)
+                n_name = task.getType() + str(idx)
+                idx += 1
+                while (n_name in names):
+                    n_name = task.getType() + str(idx)
+                    idx += 1
+                print('New id is',idx)
+                task.resaveWithID(idx)
+        for task in tmp_manager.task_list:
+            task.saveAllParams()
+        # Копируем все в одну папку
+        self.actioner.removeTmpManager(tmp_manager, self.actioner.std_manager, copy=True)
+
+
     
     
     def loadExtProject(self, filename, manager : Manager) -> bool:

@@ -307,6 +307,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                 projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
                 project_clear = gr.Button(value="clear")
+                gr.Button('append').click(fn=project_manipulator.appendProjectTasks,inputs=[projects_list])
 
             param_info = gr.Textbox(label="Params", lines=4)
             param_updt = gr.Button(value="Edit param")
