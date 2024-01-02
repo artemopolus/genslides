@@ -214,8 +214,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
                         with gr.Row():
                             clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
-                            garland_btn = gr.Button(value='Garland')
+                            slct_action_list = gr.Radio(choices=["New","SubTask"], 
+                                                            label="Select actions", 
+                                                            value="New"
+                                                            )
+                            collect_btn = gr.Button(value='Collect')
                             shoot_btn = gr.Button(value='Shoot')
+                            garland_btn = gr.Button(value='Garland')
 
 
                     # with gr.Row():
@@ -400,8 +405,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             response_btn.click(fn=userinput_manager.makeResponseAction, inputs=[base_action_list], outputs=std_output_list)
             custom_btn.click(fn=userinput_manager.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
             
-            garland_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=base_action_list, outputs= std_output_list)
-            shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=base_action_list, outputs= std_output_list)
+            collect_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
+            shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
+            garland_btn.click(fn=userinput_manager.createGarlandOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
 
             moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
             parent_btn.click(fn=manipulate_manager.makeActionParent, outputs=std_output_list)

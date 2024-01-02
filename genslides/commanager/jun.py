@@ -1527,6 +1527,7 @@ class Manager:
     def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = []):
         i = 0
         links_chain = []
+        insert_tasks = []
         for branch in tasks_chains:
             print(i,
                   [task.getName() for task in branch['branch']], 
@@ -1537,14 +1538,19 @@ class Manager:
             for link in branch['links']:
                 found = False
                 for sv in links_chain:
-                    if sv['in'] == link['in'] and sv['out'] == link['out']:
+                    if (sv['dir'] == 'in' or sv['dir'] == 'out') and (
+                        sv['in'] == link['in'] 
+                        and sv['out'] == link['out']):
                         found = True
+                if 'insert' in link:
+                    insert_tasks.append(link)
                 if not found:
                     links_chain.append(link)
             i+= 1
 
         self.tc_tasks_chains = tasks_chains
         self.tc_links_chain = links_chain
+        self.tc_insert_tasks = insert_tasks
         self.tc_ij_list = []
         self.tc_ij_list_idx = 0
         self.tc_change_prompt = change_prompt
@@ -1577,9 +1583,15 @@ class Manager:
         print('Links list:')
         print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
 
+        
         for link in self.tc_links_chain:
             outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
-            intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
+            if 'insert' in link and 'prompt' in link:
+                self.curr_task = link['in']
+                self.makeTaskActionPro(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'])
+                intask = self.curr_task
+            else:
+                intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
             self.makeLink( intask, outtask )
 
         self.tc_start = False

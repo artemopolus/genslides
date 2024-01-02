@@ -419,6 +419,22 @@ class BaseTask():
             linked_task = self.getLinkedTaskFromBranches(tmp)
             idx += 1
         return branches
+    
+    # Возвращает можно ли вообще копировать наследников ветки 
+    def isLinkForCopy(self):
+        return True
+
+    # Копирует информацию о связях между задачами в переменную trg_links, 
+    # переменная copy_in запрашивает информацию о входящих
+    # переменная copy_out запрашивае информацию о исходящих 
+    def getLinkCopyInfo(self, trg_links:list, copy_in = True, copy_out = True):
+        if len(self.getHoldGarlands()) and copy_out:
+            for ll in self.getHoldGarlands():
+                if ll.isLinkForCopy():
+                    trg_links.append( {'out': self, 'in': ll, 'dir': 'in'})
+        if len(self.getGarlandPart()) and copy_in:
+            for ll in self.getGarlandPart():
+                trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
 
     def getChildAndLinks(self, task, pparam):
         index = 0
@@ -430,12 +446,13 @@ class BaseTask():
                 j = 0
                 while (j < 1000 and not branch['done']):
                     childs = trg.getChilds()
-                    if len(trg.getHoldGarlands()) and pparam['out']:
-                        for ll in trg.getHoldGarlands():
-                            branch['links'].append( {'out': trg, 'in': ll, 'dir': 'in'})
-                    if len(trg.getGarlandPart()) and pparam['in']:
-                        for ll in trg.getGarlandPart():
-                            branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
+                    trg.getLinkCopyInfo(branch['links'], pparam['in'], pparam['out'])
+                    # if len(trg.getHoldGarlands()) and pparam['out']:
+                    #     for ll in trg.getHoldGarlands():
+                    #         branch['links'].append( {'out': trg, 'in': ll, 'dir': 'in'})
+                    # if len(trg.getGarlandPart()) and pparam['in']:
+                    #     for ll in trg.getGarlandPart():
+                    #         branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
                     if len(childs) == 1:
                         branch['branch'].append(childs[0])
                         trg = childs[0]

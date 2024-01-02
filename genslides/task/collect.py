@@ -223,11 +223,27 @@ class ReceiveTask(TextTask):
         if 'type' in param and param['type'] == 'linkedfrom':
             param['tasks'] = [t.getName() for t in self.getAffectingOnTask()]
         return super().setParamStruct(param)
-    
+
+    #TODO: переместить сюда задачу размораживания, 
+    # просто задача Receive не должна замораживать себя и наследников
 class CollectTask(ReceiveTask):
     def __init__(self, task_info: TaskDescription, type='Collect') -> None:
         super().__init__(task_info, type)
-
+# TODO: особый способ уведомления о связях
 class GarlandTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="Garland") -> None:
         super().__init__(task_info, type)
+
+    def isLinkForCopy(self):
+        return False
+
+    def getLinkCopyInfo(self, trg_links: list, copy_in=True, copy_out=True):
+        if len(self.getGarlandPart()) and copy_in:
+            for ll in self.getGarlandPart():
+                trg_links.append( {'out': ll, 'in': self, 'dir':'out',
+                                   'insert':True,
+                                   'type': self.getType(),
+                                   'tag': self.prompt_tag,
+                                   'prompt':''
+                                   })
+

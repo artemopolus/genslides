@@ -218,6 +218,9 @@ class Projecter:
         print('Action param=', param)
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 
+    def createGarlandOnSelectedTasks(self, action_type):
+        return self.manager.createTreeOnSelectedTasks(action_type,'Garland')
+
     def createCollectTreeOnSelectedTasks(self, action_type):
         return self.manager.createTreeOnSelectedTasks(action_type,"Collect")
     
