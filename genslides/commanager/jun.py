@@ -1517,7 +1517,7 @@ class Manager:
             return False
 
 
-
+# TODO: при копировании учитывать только ветви с Response, чтобы не плодить ненужные копии
     def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = []):
         print('Copy tasks by info')
         self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch)
