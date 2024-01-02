@@ -187,7 +187,8 @@ class Actioner():
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif 'extedit' in param and param['extedit']:
-            tasks_chains = self.manager.curr_task.getTasksFullLinks(param)
+            # tasks_chains = self.manager.curr_task.getTasksFullLinks(param)
+            tasks_chains = self.manager.getTasksChainsFromCurrTask(param)
             if param['step']:
                 self.manager.copyTasksByInfoStart(
                                         tasks_chains=tasks_chains,

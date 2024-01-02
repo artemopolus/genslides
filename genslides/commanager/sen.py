@@ -192,7 +192,7 @@ class Projecter:
         return self.makeTaskAction("", "Response",selected_action, "assistant")
     
     def getParamListForEdit(self):
-        return ['resp2req','coll2req','in','out','link','step','change']
+        return ['resp2req','coll2req','in','out','link','step','change','chckresp']
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')

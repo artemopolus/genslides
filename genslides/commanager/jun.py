@@ -1518,6 +1518,47 @@ class Manager:
 
 
 # TODO: при копировании учитывать только ветви с Response, чтобы не плодить ненужные копии
+    def getTasksChainsFromCurrTask(self, param):
+        tasks_chains = self.curr_task.getTasksFullLinks(param)
+        if 'chckresp' not in param:
+            return  tasks_chains
+        elif 'chckresp' in param and not param['chckresp']:
+            return  tasks_chains
+        buds = self.getSceletonBranchBuds(self.curr_task)
+        accepted = []
+        for bud in buds:
+            partasks = bud.getAllParents()
+            right = False
+            for task in partasks:
+                if task.getType() == 'Response':
+                    right = True
+                    break
+            if right:
+                accepted.extend(partasks)
+        print('Accepted:',[t.getName() for t in accepted])
+        res_tasks_chains = []
+        i = 0
+        for branch in tasks_chains:
+            print(i,
+                  [task.getName() for task in branch['branch']], 
+                  branch['done'], branch['idx'],  
+                  branch['parent'].getName() if branch['parent'] else "None", 
+                  branch['i_par'])
+
+
+            remove = False
+            for task in branch['branch']:
+                if task not in accepted:
+                    remove = True
+            if not remove:
+                print('Accept branch')
+                res_tasks_chains.append(branch)
+            else:
+                print('Deny branch')
+            i += 1
+        return res_tasks_chains
+
+
     def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = []):
         print('Copy tasks by info')
         self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch)
