@@ -1525,6 +1525,23 @@ class Manager:
         elif 'chckresp' in param and not param['chckresp']:
             return  tasks_chains
         buds = self.getSceletonBranchBuds(self.curr_task)
+
+        # учитываем линковку задач
+        tree = self.curr_task.getTree()
+        trees = [tree.copy()]
+        idx = 0
+        while(idx < 1000):
+            linked_tasks = []
+            for task in tree:
+                linked_tasks.extend( task.getHoldGarlands())
+            tree = []
+            if len(linked_tasks) == 0:
+                break
+            for task in linked_tasks:
+                tree.extend( task.getTree())
+                trees.append(task.getTree())
+            idx +=1
+
         accepted = []
         for bud in buds:
             partasks = bud.getAllParents()
