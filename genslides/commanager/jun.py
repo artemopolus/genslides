@@ -37,6 +37,9 @@ import shutil
 import datetime
 
 import genslides.utils.finder as finder
+from tkinter import Tk     # from tkinter import Tk for Python 3.x
+from tkinter.filedialog import askopenfilename
+
 
 
 class Manager:
@@ -1277,14 +1280,21 @@ class Manager:
         return gr.Dropdown(choices=a, interactive=True)
     
     def getTaskKeyValue(self, param_name, param_key):
+        print('Get task key value:',param_name,'|', param_key)
+        if param_key == 'path_to_read':
+            app = Tk()
+            app.withdraw() # we don't want a full GUI, so keep the root window from appearing
+            app.attributes('-topmost', True)
+            filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+            return gr.Dropdown(choices=[filename], value=filename, interactive=True)
         task_man = TaskManager()
         res, data = self.curr_task.getParamStruct(param_name)
         if res and param_key in data:
             cur_val = data[param_key]
             values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
             if cur_val in values:
-                return gr.Dropdown.update(choices=values, value=cur_val, interactive=True)
-        return gr.Dropdown.update(choices=[cur_val], value=cur_val, interactive=True)
+                return gr.Dropdown(choices=values, value=cur_val, interactive=True)
+        return gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True)
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
         if mnl_value == "":

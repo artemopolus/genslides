@@ -194,18 +194,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     base_action_list.input(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck])
                     
                     with gr.Tab('Params'):
-                    # with gr.Row():
-                        with gr.Column():
-                            param_type = gr.Dropdown(choices=[],label="Params")
-                            param_key = gr.Dropdown(choices=[],label="Key")
-                            param_type.select(fn=manager.getTaskKeys, inputs=param_type, outputs=param_key)
-                            param_slcval = gr.Dropdown(choices=[],label="Value")
-                            param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval])
-                            param_mnlval = gr.Textbox(label='value',info='manual',lines=4)
-                        with gr.Column():
-                            param_edit = gr.Button("Edit param")
-                            param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
-                            param_apnd = gr.Button('Append new')
+                        with gr.Row():
+                            with gr.Column():
+                                param_type = gr.Dropdown(choices=[],label="Params")
+                                param_key = gr.Dropdown(choices=[],label="Key")
+                                param_type.select(fn=manager.getTaskKeys, inputs=param_type, outputs=param_key)
+                                param_slcval = gr.Dropdown(choices=[],label="Value")
+                                param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval])
+                                param_mnlval = gr.Textbox(label='value',info='manual',lines=4)
+                            with gr.Column():
+                                param_edit = gr.Button("Edit param")
+                                param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
+                                param_apnd = gr.Button('Append new')
                            
                 # with gr.Column():
                     with gr.Tab('Select'):

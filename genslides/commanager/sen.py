@@ -279,6 +279,7 @@ class Projecter:
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
+        print('Set task key value:','|'.join([param_name,key,slt_value,mnl_value]))
         return self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
     
     def getMainCommandList(self):
@@ -287,7 +288,6 @@ class Projecter:
     def getSecdCommandList(self):
         return self.manager.getSecdCommandList()
     
-   
 
     def newExtProject(self, filename, prompt):
         return self.makeTaskAction(prompt,"New","NewExtProject","")
