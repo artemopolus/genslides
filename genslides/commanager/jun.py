@@ -38,7 +38,7 @@ import datetime
 
 import genslides.utils.finder as finder
 from tkinter import Tk     # from tkinter import Tk for Python 3.x
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, askdirectory
 
 
 
@@ -1287,6 +1287,13 @@ class Manager:
             app.attributes('-topmost', True)
             filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
             return gr.Dropdown(choices=[filename], value=filename, interactive=True)
+        elif param_key == 'path_to_write':
+            app = Tk()
+            app.withdraw() # we don't want a full GUI, so keep the root window from appearing
+            app.attributes('-topmost', True)
+            filename = askdirectory() # show an "Open" dialog box and return the path to the selected file
+            return gr.Dropdown(choices=[filename], value=filename, interactive=True)
+
         task_man = TaskManager()
         res, data = self.curr_task.getParamStruct(param_name)
         if res and param_key in data:

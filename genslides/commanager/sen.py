@@ -279,7 +279,7 @@ class Projecter:
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
-        print('Set task key value:','|'.join([param_name,key,slt_value,mnl_value]))
+        print('Set task key value:','|'.join([param_name,key,str(slt_value),str(mnl_value)]))
         return self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
     
     def getMainCommandList(self):
