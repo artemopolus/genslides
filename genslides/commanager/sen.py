@@ -48,6 +48,7 @@ class Projecter:
         self.updateSessionName()
         self.actioner.clearTmp()
 
+# сохранение сессионных имен необходимо связать только с проектером сеном, а не с менеджером
     def updateSessionName(self):
         self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
         print("Name of session=",self.session_name)

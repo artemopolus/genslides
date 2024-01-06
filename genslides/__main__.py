@@ -500,6 +500,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             config_name = gr.Dropdown(choices=manager.getParamsLst())
             config_values = gr.Dropdown(choices=manager.getParam("mode lst"))
             config_btn = gr.Button(value="update mode config").click(fn=manager.setParam, inputs=[config_name, config_values])
+            # TODO: сменить владельца на проектер
             config_name.change(fn=manager.getParamGradioInput, inputs=[config_name], outputs=[config_values])
 
     demo.launch(share=manager.getParam('shared'))

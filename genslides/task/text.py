@@ -14,7 +14,7 @@ from genslides.utils.chatgptrequester import ChatGPTsimple
 from genslides.utils.llmodel import LLModel
 
 import genslides.utils.savedata as savedata
-
+import genslides.utils.writer as wr
 from genslides.utils.loader import Loader
 
 
@@ -343,9 +343,8 @@ class TextTask(BaseTask):
 
 
     def getPath(self) -> str:
-        if not os.path.exists("saved"):
-            os.makedirs("saved")
         mypath = self.manager.getPath()
+        wr.checkFolderPathAndCreate(mypath)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         self.setName( self.getType() + str(self.id))
         print("Start Name =", self.name)

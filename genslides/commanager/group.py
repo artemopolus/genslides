@@ -17,6 +17,7 @@ class Actioner():
         self.manager = manager
         self.tmp_managers = []
         self.loadExtProject = manager.loadexttask
+        # TODO: установить как значение по умолчанию
         self.path = 'saved'
 
     def setPath(self, path: str):

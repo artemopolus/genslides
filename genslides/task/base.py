@@ -17,9 +17,7 @@ class TaskManager(metaclass=Singleton):
         self.task_id = 0
         self.task_list = []
         self.model_list = []
-        self.cur_task_path = "saved/"
-        self.proj_pref = ""
-        self.cur_proj_name = ""
+        self.setDefaultProj()
 
     def getListBasedOptionsDict(self, param):
         with open('config\\options.json') as f:

@@ -48,6 +48,7 @@ class Manager:
         self.requester = requester
         self.searcher = searcher
         self.vars_param = ["stopped", "input", "output", "watched"]
+        # TODO: все связанное с этим файлом необходимо перенести в проектер
         self.path_to_file = os.path.join("config","base.json")
         if os.path.exists(self.path_to_file):
             with open(self.path_to_file, 'r') as f:
@@ -68,6 +69,7 @@ class Manager:
     def getName(self) -> str:
         return self.name
 
+# TODO: сменить место хранения параметров менеджера
     def setParam(self, param_name, param_value):
         if param_name in self.params:
             print("Set ",param_name," to ",param_value)
@@ -116,6 +118,7 @@ class Manager:
         self.browser = WebBrowser()
 
         self.need_human_response = False
+        # TODO: установить как значение по умолчанию
         self.path = 'saved'
         self.proj_pref = ''
         self.return_points = []
