@@ -663,22 +663,24 @@ class Manager:
                 print('Childs')
                 for ch in task1.getChilds():
                     print(ch.getName())
-                print(task1.queue)
+                # print(task1.queue)
             if self.slct_task is not None:
                 print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
                 print('Childs')
                 for ch in self.slct_task.getChilds():
                     print(ch.getName())
-                print(self.slct_task.queue)
+                # print(self.slct_task.queue)
             print('Last', self.curr_task.parent.getName(),'=', self.curr_task.getName())
             print('Childs')
             for ch in self.curr_task.getChilds():
                 print(ch.getName())
-            print(self.curr_task.queue)
+            # print(self.curr_task.queue)
             if task1 is not None:
                 task1.update()
             else:
                 self.slct_task.update()
+            print('Selected',self.slct_task.getName())
+            print('Current', self.curr_task.getName())
 
         elif creation_type == "Remove":
             task1 = self.curr_task.parent
@@ -1661,15 +1663,16 @@ class Manager:
         print('Links list:')
         print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
 
-        
+        #TODO: протестировать вставку 
         for link in self.tc_links_chain:
             outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
             if 'insert' in link and 'prompt' in link:
                 self.curr_task = link['in']
                 self.makeTaskActionPro(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'])
-                intask = self.curr_task
+                intask = self.slct_task
             else:
                 intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
+            
             self.makeLink( intask, outtask )
 
         self.tc_start = False

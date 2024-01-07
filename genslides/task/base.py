@@ -421,15 +421,22 @@ class BaseTask():
     # Возвращает можно ли вообще копировать наследников ветки 
     def isLinkForCopy(self):
         return True
+    
+    def getTrgLinkInfo(self, trg):
+        return False, {'out': trg, 'in': self, 'dir': 'in'}
 
     # Копирует информацию о связях между задачами в переменную trg_links, 
     # переменная copy_in запрашивает информацию о входящих
     # переменная copy_out запрашивае информацию о исходящих 
+    # TODO: разделить между обычными задачами и задачами типа Прием обработку исходящих и входящих
     def getLinkCopyInfo(self, trg_links:list, copy_in = True, copy_out = True):
+        print('Get link copy info from',self.getName())
         if len(self.getHoldGarlands()) and copy_out:
             for ll in self.getHoldGarlands():
-                if ll.isLinkForCopy():
-                    trg_links.append( {'out': self, 'in': ll, 'dir': 'in'})
+                res, val = ll.getTrgLinkInfo(self)
+                if res:
+                    print('Append',val)
+                    trg_links.append(val)
         if len(self.getGarlandPart()) and copy_in:
             for ll in self.getGarlandPart():
                 trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
@@ -451,6 +458,7 @@ class BaseTask():
                     # if len(trg.getGarlandPart()) and pparam['in']:
                     #     for ll in trg.getGarlandPart():
                     #         branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
+                    print('links=',branch['links'])
                     if len(childs) == 1:
                         branch['branch'].append(childs[0])
                         trg = childs[0]
