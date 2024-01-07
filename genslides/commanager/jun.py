@@ -658,22 +658,26 @@ class Manager:
             self.selected_tasks = [self.curr_task]
             self.curr_task = task2
             self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
-            if task1 is not None:
-                print('Parents:\nFirst', task1.parent.getName(),'=',task1.getName())
+            try:
+            # if task1 is not None:
+                print('Parents\nFirst', task1.parent.getName() if task1.parent is not None else 'None','=',task1.getName())
                 print('Childs')
                 for ch in task1.getChilds():
                     print(ch.getName())
+            
                 # print(task1.queue)
-            if self.slct_task is not None:
+            # if self.slct_task is not None:
                 print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
                 print('Childs')
                 for ch in self.slct_task.getChilds():
                     print(ch.getName())
                 # print(self.slct_task.queue)
-            print('Last', self.curr_task.parent.getName(),'=', self.curr_task.getName())
-            print('Childs')
-            for ch in self.curr_task.getChilds():
-                print(ch.getName())
+                print('Last', self.curr_task.parent.getName() if self.curr_task.parent is not None else 'None','=', self.curr_task.getName())
+                print('Childs')
+                for ch in self.curr_task.getChilds():
+                    print(ch.getName())
+            except Exception as e:
+                print('Error:', e)
             # print(self.curr_task.queue)
             if task1 is not None:
                 task1.update()
