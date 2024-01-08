@@ -1218,7 +1218,7 @@ class Manager:
             #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
         
         # print(r_msgs)
-        value = '{' + self.curr_task.getName() + ':' + finder.getBranchCodeTag() + '}'
+        value = finder.getBranchCodeTag(self.curr_task.getName())
         print('BranchCode=', self.curr_task.findKeyParam(value))
 
         graph = self.drawGraph()

@@ -27,8 +27,8 @@ def getTknTag()-> str:
 def getMngTag()-> str:
     return 'manager'
 
-def getBranchCodeTag() -> str:
-    return 'branch_code'
+def getBranchCodeTag(name: str) -> str:
+    return '[[' + name + ':' + 'branch_code' + ']]'
 
 def getFromTask(arr : list, res : str, rep_text, task, manager):
         if len(arr) > 5:
@@ -52,7 +52,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
         elif arr[1] == getTknTag():
             tkns, price = task.getCountPrice()
             rep_text = rep_text.replace(res, str(tkns))
-        elif arr[1] == getBranchCodeTag():
+        elif arr[1] == 'branch_code':
             p_tasks = task.getAllParents()
             print('Get branch code',[t.getName() for t in p_tasks])
             code_s = ""
@@ -73,14 +73,15 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                 # print("No param")
                 pass
         return rep_text
-
+# TODO: сменить на квадратные скобки
 def findByKey(text, manager , base ):
-         results = re.findall(r'\{.*?\}', text)
+        #  results = re.findall(r'\{.*?\}', text)
+         results = re.findall(r"\[\[.*?\]\]", text)
         #  print("Find keys=", text)
         #  print("Results=", results)
          rep_text = text
          for res in results:
-             arr = res[1:-1].split(":")
+             arr = res[2:-2].split(":")
             #  print("Keys:", arr)
              if len(arr) > 1:
                  task = None
@@ -127,7 +128,7 @@ def getKey(task_name, fk_type, param_name, key_name, manager) -> str:
         value = "manager:path"
     elif fk_type == 'man_curr':
         value = "manager:current"
-    value = '{' + value + '}'
+    value = '[[' + value + ']]'
     return value
 
 def getKayArray():
