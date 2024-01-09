@@ -686,6 +686,12 @@ class TextTask(BaseTask):
      
     def updateParamStruct(self, param_name, key,val):
         print('Update', param_name, key, 'with', val,'for', self.getName())
+        if isinstance(val,str):
+            print('get str')
+        elif isinstance(val,list):
+            print('get list')
+        else:
+            print('not str and not list')
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 if key in param:

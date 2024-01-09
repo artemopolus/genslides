@@ -40,7 +40,9 @@ class TaskManager(metaclass=Singleton):
         for p in opt_params:
             if p['type'] == param_name:
                 for k, v in p.items():
-                    if isinstance(v,list):
+                    if k == 'path_to_trgs' and param_name == 'script':
+                        p[k] = v
+                    elif isinstance(v,list):
                         if len(v) > 0:
                             p[k] = v[0]
                         else:

@@ -19,7 +19,11 @@ class RunScriptTask(ResponseTask):
         res, pparam = self.getParamStruct("script")
         if res:
             try:
-                path_tmp = self.findKeyParam(pparam["path_to_trgs"] )
+                path_trgs_tmp = pparam["path_to_trgs"]
+                if isinstance(path_trgs_tmp, str):
+                    path_tmp = self.findKeyParam(pparam["path_to_trgs"] )
+                else:
+                    path_tmp = path_trgs_tmp
                 path_to_python = pparam["path_to_python"]
                 need_to_remove = pparam["remove_script"]  
                 phrase_script = self.findKeyParam( pparam["init_phrase"] )
@@ -33,6 +37,7 @@ class RunScriptTask(ResponseTask):
                 exe_type = self.findKeyParam(pparam["exe_type"] )
 
                 if targets_type == 'args':
+                    print('Get args:', path_tmp)
                     if isinstance(path_tmp, list):
                         onlyfiles = path_tmp
                     else:
@@ -73,7 +78,8 @@ class RunScriptTask(ResponseTask):
         if len(onlyfiles) == 0:
             done = False
         for file in onlyfiles:
-            data += phrase_script + str(file) + "\n"
+            if phrase_script != 'None':
+                data += phrase_script + str(file) + "\n"
             print("Run script", file)
             result = subprocess.run(file, capture_output=True, text=True)
             if result.returncode:

@@ -134,10 +134,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     with gr.Column():
                         sec_msg = gr.Chatbot(height=500)
                         with gr.Accordion('Tools', open=False):
-                        # with gr.Row():
-                            gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
-                            gr.Button("Copy lst msg").click(fn=manager.copyToClickBoardLstMsg)
-                            gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
+                            with gr.Row():
+                                gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
+                                gr.Button("Copy lst msg").click(fn=manager.copyToClickBoardLstMsg)
+                                gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
+                                gr.Button("Cp fldr path").click(fn=manager.getPathToFolder)
+                                gr.Button("Cp file path").click(fn=manager.getPathToFile)
                     # sec_msg.style(height=500)
                     with gr.Column():
                         graph_img = gr.Image(
@@ -200,8 +202,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 param_key = gr.Dropdown(choices=[],label="Key")
                                 param_type.select(fn=manager.getTaskKeys, inputs=param_type, outputs=param_key)
                                 param_slcval = gr.Dropdown(choices=[],label="Value")
-                                param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval])
                                 param_mnlval = gr.Textbox(label='value',info='manual',lines=4)
+                                param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
                             with gr.Column():
                                 param_edit = gr.Button("Edit param")
                                 param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')

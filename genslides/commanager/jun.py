@@ -38,7 +38,7 @@ import datetime
 
 import genslides.utils.finder as finder
 from tkinter import Tk     # from tkinter import Tk for Python 3.x
-from tkinter.filedialog import askopenfilename, askdirectory
+from tkinter.filedialog import askopenfilename, askdirectory, askopenfilenames
 
 
 
@@ -1121,6 +1121,7 @@ class Manager:
         return self.curr_task.getMsgs()[-1]['content']
     
     def getCurTaskLstMsgRaw(self) -> str:
+        # TODO: Сделать отдельную функцию для получения последнего сообщения и переопределить его в SetOptions
         return self.curr_task.getRawMsgs()[-1]['content']
     
     
@@ -1264,7 +1265,24 @@ class Manager:
         pyperclip.copy(value)
         pyperclip.paste()
 
-   
+    def getPathToFolder(self):
+        app = Tk()
+        app.withdraw() 
+        app.attributes('-topmost', True)
+        filename = askdirectory() 
+        pyperclip.copy(filename)
+        pyperclip.paste()
+        return filename
+    
+    def getPathToFile(self):
+        app = Tk()
+        app.withdraw() 
+        app.attributes('-topmost', True)
+        filename = askopenfilename() 
+        pyperclip.copy(filename)
+        pyperclip.paste()
+        return filename
+  
     def getShortName(self, n_type : str, n_name : str) -> str:
         tasks_dict  = cr.getTasksDict()
         for t in tasks_dict:
@@ -1295,22 +1313,38 @@ class Manager:
             app.withdraw() # we don't want a full GUI, so keep the root window from appearing
             app.attributes('-topmost', True)
             filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
-            return gr.Dropdown(choices=[filename], value=filename, interactive=True)
+            return gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False), gr.Textbox()
+        elif param_name == 'script' and param_key == 'path_to_trgs':
+            app = Tk()
+            app.withdraw()  
+            app.attributes('-topmost', True)
+            filename_src = list(askopenfilenames() )
+            res, data = self.curr_task.getParamStruct(param_name)
+            # data['targets_type'] = 'args'
+            filename = []
+            print('Get filenames for args:', filename)
+            for val in filename_src:
+                filename.append( data['path_to_python'] + ' ' + val)
+            return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
+                    gr.Textbox(str(filename)))
+
         elif param_key == 'path_to_write':
             app = Tk()
             app.withdraw() # we don't want a full GUI, so keep the root window from appearing
             app.attributes('-topmost', True)
             filename = askdirectory() # show an "Open" dialog box and return the path to the selected file
-            return gr.Dropdown(choices=[filename], value=filename, interactive=True)
+            return gr.Dropdown(choices=[filename], value=filename, interactive=True), gr.Textbox(value=filename, interactive=True)
 
         task_man = TaskManager()
         res, data = self.curr_task.getParamStruct(param_name)
         if res and param_key in data:
             cur_val = data[param_key]
             values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
+            print('Update with',cur_val,'from', values)
             if cur_val in values:
-                return gr.Dropdown(choices=values, value=cur_val, interactive=True)
-        return gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True)
+                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=''))
+        return gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), gr.Textbox('')
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
         if mnl_value == "":

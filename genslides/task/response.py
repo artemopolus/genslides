@@ -61,12 +61,12 @@ class ResponseTask(TextTask):
 
     def executeResponseInternal(self, chat : LLModel):
         # input_msg_list = self.msg_list.copy()
-        input_msg_list = [] 
-        for msg in self.msg_list:
-            input_msg_list.append(msg.copy())
-        for msg in input_msg_list:
-            msg["content"] = self.findKeyParam(msg["content"])
-
+        # input_msg_list = [] 
+        # for msg in self.msg_list:
+        #     input_msg_list.append(msg.copy())
+        # for msg in input_msg_list:
+        #     msg["content"] = self.findKeyParam(msg["content"])
+        input_msg_list = self.getMsgs()
         # print("Chat=",input_msg_list)
 
         return chat.createChatCompletion(input_msg_list)
