@@ -1075,21 +1075,26 @@ class Manager:
         return self.getCurrTaskPrompts()
     
     def updateSteppedTrgBranch(self, info = None):
-        if self.curr_task.parent == None:
-            self.updateSteppedTree(info)
-        else:
-            branches = [ch.getName() for ch in self.curr_task.parent.getChilds() if ch != self.curr_task]
-            print('Update branch until:', branches)
-            index = 0
-            while(index < 100):
-                if index == 0 and info is not None:
-                    next = self.updateSteppedSelectedInternal(info)
-                else:
-                    next = self.updateSteppedSelectedInternal()
-                if next is None or next.getName() in branches or next.isRootParent():
-                    print("Done in",index,"iteration")
-                    break
-                index +=1
+        info = TaskDescription(prompt=self.curr_task.getLastMsgContent(),
+                                prompt_tag=self.curr_task.getLastMsgRole(),
+                                manual=True)
+        self.updateSteppedTree(info)
+
+        # if self.curr_task.parent == None:
+        #     self.updateSteppedTree(info)
+        # else:
+        #     branches = [ch.getName() for ch in self.curr_task.parent.getChilds() if ch != self.curr_task]
+        #     print('Update branch until:', branches)
+        #     index = 0
+        #     while(index < 100):
+        #         if index == 0 and info is not None:
+        #             next = self.updateSteppedSelectedInternal(info)
+        #         else:
+        #             next = self.updateSteppedSelectedInternal()
+        #         if next is None or next.getName() in branches or next.isRootParent():
+        #             print("Done in",index,"iteration")
+        #             break
+        #         index +=1
         return self.getCurrTaskPrompts() 
 
     
@@ -1370,7 +1375,14 @@ class Manager:
         return self.runIteration('')
 
     def updateSteppedSelected(self):
-        self.updateSteppedSelectedInternal()
+        res, val = self.curr_task.getParamStruct('input')
+        if res and val['input']:
+            info = TaskDescription(prompt=self.curr_task.getLastMsgContent(),
+                                prompt_tag=self.curr_task.getLastMsgRole(),
+                                manual=True)
+            self.updateSteppedSelectedInternal(info)
+        else:
+            self.updateSteppedSelectedInternal()
         return self.getCurrTaskPrompts()
 
     def processCommand(self, json_msg,  tasks_json):

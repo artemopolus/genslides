@@ -123,12 +123,14 @@ class ReceiveTask(TextTask):
             # print("parent frozen=",self.parent.is_freeze)
             pass
         if self.is_freeze:
+            print('Collect task is frozen')
             to_unfreeze = False
             if self.parent and not self.parent.is_freeze:
                 to_unfreeze = True
             elif not self.parent and self.is_freeze:
                 to_unfreeze = True
             if to_unfreeze:
+                print('Try unfreeze cz parent')
                 for tsk_info in self.by_ext_affected_list:
                     print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                     if not tsk_info.enabled:
@@ -138,6 +140,7 @@ class ReceiveTask(TextTask):
                 print("Task",self.getName(),"is freeze:",self.is_freeze)
 
         else:
+            print('Update input for Collect task')
             for tsk_info in self.by_ext_affected_list:
                 # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                 if not tsk_info.enabled:

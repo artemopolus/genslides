@@ -63,10 +63,12 @@ class ExtProjectTask(CollectTask):
                 self.intpar = task
                 self.intpar.parent = self.parent
                 self.intpar.caretaker = self
+                print('intpar=',self.intpar.getName())
                 
             res, param = task.getParamStruct('output')
             if res and param['output']:
                 self.intch = task
+                print('intch=',self.intch.getName())
 
        
 
