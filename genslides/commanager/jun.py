@@ -800,6 +800,7 @@ class Manager:
                 break
             return self.runIteration(prompt)
         elif creation_type == "Delete":
+        # TODO: после удаления возвращаться к тому же дереву
             task = self.curr_task
             info = TaskDescription(target=self.curr_task)
             cmd_delete = create.RemoveCommand(info)
@@ -1655,6 +1656,7 @@ class Manager:
         return self.copyTasksByInfoStop()
 
     def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = []):
+        # TODO: замораживать текущую задачу, чтобы оставить возможность дополнительного редактирования
         i = 0
         links_chain = []
         insert_tasks = []

@@ -772,6 +772,7 @@ class TextTask(BaseTask):
                 if parent_task is None:
                     break
                 res, parent_task, val = parent_task.getParamFromExtTask(param_name)
+                # TODO: учитывать приоритет опций?
                 if res:
                     return True, val
         # если ничего не нашли загружаем стандартное

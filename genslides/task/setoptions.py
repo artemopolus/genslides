@@ -95,6 +95,7 @@ class SetOptionsTask(WriteToFileTask):
             try:
                 in_params = json.loads(self.prompt)
                 if in_params != self.params:
+                    # TODO: переписать замену параметров на обновление текущих параметров
                     self.params = in_params
                     print("Params changed update all")
                     self.forceCleanChildsChat()

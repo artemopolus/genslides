@@ -223,6 +223,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             collect_btn = gr.Button(value='Collect')
                             shoot_btn = gr.Button(value='Shoot')
                             garland_btn = gr.Button(value='Garland')
+                            # TODO: добавить простую копию задачи
 
 
                     # with gr.Row():
