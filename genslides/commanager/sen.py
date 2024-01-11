@@ -135,6 +135,7 @@ class Projecter:
     def loadExtProject(self, filename, manager : Manager) -> bool:
         mypath = 'tools'
         if filename + '.7z' in [f for f in listdir(mypath) if isfile(join(mypath, f))]:
+            # TODO: Прям критическая проблема, которая может приводить к потере данных. Сделать проверку наличия папок с этим же наименованием, чтобы не было перезаписи
             ext_pr_name = 'pr' + str(len(self.ext_proj_names))
             trg = os.path.join(manager.getPath(),'ext', ext_pr_name) +'/'
             if Archivator.extractFiles(mypath, filename, trg):

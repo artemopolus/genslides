@@ -1075,6 +1075,30 @@ class Manager:
             task.fixQueueByChildList()
         return self.getCurrTaskPrompts()
     
+    def updateAndExecuteStep(self, msg):
+        self.curr_task.resetTreeQueue()
+        info = TaskDescription(prompt=msg,
+                                prompt_tag=self.curr_task.getLastMsgRole(),
+                                manual=True)
+        self.updateSteppedSelectedInternal(info)
+        return self.getCurrTaskPrompts()
+
+    def executeStep(self):
+        self.updateSteppedSelectedInternal()
+        return self.getCurrTaskPrompts() 
+    
+    def executeSteppedBranch(self, msg):
+        info = TaskDescription(prompt=msg,
+                                prompt_tag=self.curr_task.getLastMsgRole(),
+                                manual=True)
+        self.updateSteppedTree(info)
+        for task in self.task_list:
+            res, val = task.getParamStruct('output')
+            if res and val['output']:
+                self.curr_task = task
+                break
+        return self.getCurrTaskPrompts() 
+
     def updateSteppedTrgBranch(self, info = None):
         info = TaskDescription(prompt=self.curr_task.getLastMsgContent(),
                                 prompt_tag=self.curr_task.getLastMsgRole(),
@@ -1103,6 +1127,7 @@ class Manager:
         index = 0
         self.curr_task.resetTreeQueue()
         last = self.curr_task
+        processed_chain = [last.getName()]
         while(index < 1000):
             if index == 0 and info is not None:
                 next = self.updateSteppedSelectedInternal(info)
@@ -1117,9 +1142,11 @@ class Manager:
                     break
                 else:
                     print('After',last.getName(),'will be', next.getName())
+                    processed_chain.append(next.getName())
                     last = next
             index +=1
         print('Done: update tree step by step in', index)
+        print('Tree execution:','->'.join(processed_chain))
         return self.getCurrTaskPrompts() 
     
     
@@ -1350,7 +1377,9 @@ class Manager:
             if cur_val in values:
                 return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                          gr.Textbox(value=''))
-        return gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), gr.Textbox('')
+        cur_val = 'None'
+        return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
+                gr.Textbox(value=''))
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
         if mnl_value == "":

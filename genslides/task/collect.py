@@ -114,7 +114,9 @@ class ReceiveTask(TextTask):
                 print('No')
             return text
         for task in self.by_ext_affected_list:
+            print("Copy data from", task.parent.getName())
             text += task.prompt +"\n"
+        print('Result:', text)
         return text
 
     def stdProcessUnFreeze(self, input=None):
@@ -155,7 +157,8 @@ class ReceiveTask(TextTask):
             if input.id == tsk_info.id:
                 tsk_info.prompt = input.prompt
                 tsk_info.enabled = input.enabled
-                print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
+                print("Task[", tsk_info.id,"].enabled=",tsk_info.enabled)
+                print('New prompt:', tsk_info.prompt)
 
 
     def affectedTaskCallback(self, input : TaskDescription):

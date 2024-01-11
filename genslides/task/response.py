@@ -86,7 +86,10 @@ class ResponseTask(TextTask):
             pair = {}
             pair["role"] = chat.getAssistTag()
             pair["content"] = out
+            self.prompt = out
             self.msg_list.append(pair)
+        print('Msg list=',self.msg_list)
+        print('Prompt=',self.prompt)
 
 
     def update(self, input : TaskDescription = None):
