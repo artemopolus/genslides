@@ -162,3 +162,52 @@ class ReadFileParamTask(ReadFileTask):
             val = [{"role":self.getLastMsgRole(), "content": self.findKeyParam(self.getLastMsgContent())}]
             return True, val, self.parent
 
+    def updateIternal(self, input : TaskDescription = None):
+        # TODO: Это просто переопределение функции обновления для Response, она была дополнена свойством, что при указании, что читается диалог, всегда происходило чтение вне зависимости от совпадают ли родительские сообщения с сохраненными
+        # self.preUpdate(input=input)
+        res, stopped = self.getParam("stopped")
+        if res and stopped:
+            print("Stopped=", self.getName())
+            return "",self.prompt_tag,""
+        
+        if self.is_freeze and self.parent:
+            print("frozen=",self.getName())
+            if not self.parent.is_freeze:
+                self.is_freeze = False
+                tmp_msg_list = self.getRawParentMsgs()
+                # print(pprint.pformat(tmp_msg_list))
+                msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+                if len(msg_list_from_file):
+                    print("I loaded")
+                    self.msg_list = msg_list_from_file
+
+            else:
+                # super().update(input)
+                return "","user",""
+        
+       
+
+        print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
+        # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
+
+        if len(self.msg_list) == 0:
+            print('Empty msg list')
+            self.executeResponse()
+            self.saveJsonToFile(self.msg_list)
+        else:
+            sres, sparam = self.getParamStruct(self.getType())
+            exe_always = False
+            if sres and 'do_always' in sparam and sparam['do_always']:
+                exe_always = True
+
+            rres, pparam = self.getParamStruct('path_to_read')
+            if rres and "read_dial" in pparam and pparam["read_dial"]:
+                self.executeResponse()
+                self.saveJsonToFile(self.msg_list)
+            elif not self.checkParentMsgList(update=True, save_curr=False) or exe_always:
+                self.executeResponse()
+                self.saveJsonToFile(self.msg_list)
+            else:
+                print("Messages are same")
+                pass
+ 
