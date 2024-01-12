@@ -119,12 +119,14 @@ class ExtProjectTask(CollectTask):
             input.manual = True
             if input.stepped:
                 print('Stepped update')
-                self.intman.curr_task = self.intpar
-                self.intman.updateSteppedTree(input)
+                # self.intman.curr_task = self.intpar
+                # self.intman.updateSteppedTree(input)
+                self.updateExtProjectInternal(input.prompt)
                 self.actioner.callScript('update_input_step')
                 self.updateInOutExtProject()
             else:
-                self.intpar.update(input)
+                # self.intpar.update(input)
+                self.updateExtProjectInternal(input.prompt)
                 self.actioner.callScript('update_input_nostep')
                 self.updateInOutExtProject()
         else:
