@@ -1154,8 +1154,7 @@ class Manager:
         return self.curr_task.getMsgs()[-1]['content']
     
     def getCurTaskLstMsgRaw(self) -> str:
-        # TODO: Сделать отдельную функцию для получения последнего сообщения и переопределить его в SetOptions
-        return self.curr_task.getRawMsgs()[-1]['content']
+        return self.curr_task.getLastMsgContentRaw()
     
     
     def copyToClickBoardLstMsg(self):

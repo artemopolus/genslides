@@ -735,12 +735,6 @@ class BaseTask():
             # print("Setup queue:",self.queue)
             pass
 
-    def useLinksToTask(self):
-        input = TaskDescription(prompt=self.prompt, parent=self)
-        for task in self.affect_to_ext_list:
-            input.id = task.id
-            task.method(input)
-
 
     def resetTreeQueue(self):
         trgs = [self]
@@ -907,7 +901,10 @@ class BaseTask():
                         return self.getChildByName(info['name'])
                 if info["type"] == "link":
                     if self.onQueueCheck(info):
-                        input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self, enabled= not self.is_freeze)
+                        input = TaskDescription(
+                            prompt=self.findKeyParam(self.getLastMsgContent()), 
+                            id=info["id"], stepped=True, 
+                            parent=self, enabled= not self.is_freeze)
                         # info["method"](input)
                         for affected in self.affect_to_ext_list:
                             if affected.target.getName() == info['name']:
@@ -915,6 +912,13 @@ class BaseTask():
                         return self.getLinkedByName(info['name'])
         return None
     
+    def useLinksToTask(self):
+        input = TaskDescription(prompt=self.prompt, parent=self)
+        for task in self.affect_to_ext_list:
+            input.id = task.id
+            task.method(input)
+
+
     def isQueueComplete(self):
         if len(self.queue) > 0:
             return False
@@ -1078,3 +1082,5 @@ class BaseTask():
     def resaveWithID(self, id : int):
         pass
     
+    def getLastMsgContentRaw(self):
+        return "No any content"

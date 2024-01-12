@@ -211,6 +211,14 @@ class TextTask(BaseTask):
                     self.msg_list = trg
                 return False
         return True
+    
+    def getLastMsgContentRaw(self):
+    # TODO: Сделать отдельную функцию для получения последнего сообщения и переопределить его в SetOptions и ExtProject. В противном случае, при редактировании будут отображаться не те данные, которые были введены изначально. Дублирует по свойствам getLastMsgContent, но замена может повлиять на многие функции, поэтому оставляем изменение к следующеему этапу тестирования.
+        if len(self.msg_list) > 0:
+            return self.getRawMsgs()[-1]['content']
+        else:
+            return ""
+
 
     def getLastMsgContent(self):
         if len(self.msg_list) > 0:
@@ -230,7 +238,8 @@ class TextTask(BaseTask):
         
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
         # TODO: можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
-        val = [{"role":self.getLastMsgRole(), "content": self.findKeyParam(self.getLastMsgContent())}]
+        val = [{"role":self.getLastMsgRole(), 
+                "content": self.findKeyParam(self.getLastMsgContent())}]
         return True, val, self.parent
 
     def getMsgByIndex(self, i_trg):
