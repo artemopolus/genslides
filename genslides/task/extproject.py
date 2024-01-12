@@ -117,6 +117,7 @@ class ExtProjectTask(CollectTask):
         if input:
             input.prompt_tag = self.intpar.getLastMsgRole() #quick fix, avoiding to change internal role param
             input.manual = True
+            self.prompt = input.prompt
             if input.stepped:
                 print('Stepped update')
                 # self.intman.curr_task = self.intpar
@@ -154,6 +155,8 @@ class ExtProjectTask(CollectTask):
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
         return self.intch.getLastMsgAndParent()
 
+    def getLastMsgContentRaw(self):
+        return self.prompt
 
     def getLastMsgContent(self):
         return self.prompt
