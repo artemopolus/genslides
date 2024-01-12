@@ -69,6 +69,21 @@ class TextTask(BaseTask):
             return True
         return False
     
+    def resetLinkToTask(self, info : TaskDescription) -> None:
+        super().resetLinkToTask(info)
+        trg = None
+        for p in self.params:
+            if p['type'] == 'link' and p['name'] == info.target.getName():
+                print('Remove link to',info.target.getName())
+                trg = p
+                break
+        if trg is not None:
+            self.params.remove(trg)
+        self.syncParamToQueue()
+        self.saveAllParams()
+
+
+
     def fixQueueByChildList(self):
         super().fixQueueByChildList()
         q_names = [q['name'] for q in self.queue if 'name' in q]
@@ -86,9 +101,9 @@ class TextTask(BaseTask):
         q_names = [q["name"] for q in self.queue if 'name' in q]
         p_names = [p["name"] for p in self.params if "name" in p]
         c_names = [ch.getName() for ch in self.getChilds()]
-        # print("Queue:", q_names)
-        # print("Params:", p_names)
-        # print("Childs:", c_names)
+        print("Queue:", q_names)
+        print("Params:", p_names)
+        print("Childs:", c_names)
  
     def updateNameQueue(self, old_name : str, new_name : str):
         if old_name == new_name:
@@ -209,6 +224,8 @@ class TextTask(BaseTask):
                     if last and save_curr:
                         trg.append(last)
                     self.msg_list = trg
+                print(trg)
+                print(src)
                 return False
         return True
     
@@ -412,6 +429,7 @@ class TextTask(BaseTask):
             json.dump(resp_json_out, f, indent=1)
 
     def deleteJsonFile(self):
+        print('Remove file', self.path)
         os.remove(self.path)
 
         # path = self.path
@@ -564,8 +582,8 @@ class TextTask(BaseTask):
         # print("Msgs=",pprint.pformat(self.msg_list))
 
     def beforeRemove(self):
-        self.deleteJsonFile()
         super().beforeRemove()
+        self.deleteJsonFile()
 
     def whenParentRemoved(self):
         super().whenParentRemoved()

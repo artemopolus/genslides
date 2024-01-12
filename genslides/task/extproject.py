@@ -14,6 +14,7 @@ import shutil
 class ExtProjectTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="ExtProject") -> None:
         super().__init__(task_info, type)
+        self.is_freeze = False
 
     def afterFileLoading(self):
         print('Init external project task')

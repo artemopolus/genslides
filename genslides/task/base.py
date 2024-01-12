@@ -668,8 +668,9 @@ class BaseTask():
         return True
 
     def resetLinkToTask(self, info : TaskDescription) -> None:
+        print('Reset link to task by', self.getName())
+        print(self.queue)
         self.affect_to_ext_list.remove(info)
-        self.queue.remove(self.getLinkQueuePack(info))
 
     def getChilds(self):
         return self.childs.copy()
@@ -962,6 +963,8 @@ class BaseTask():
 
 
     def beforeRemove(self):
+        print('Before remove')
+        self.removeLinkToTask()
         if self.isRootParent():
             print('Task',self.getName(),'is Root')
             # Последняя задача для дерева
