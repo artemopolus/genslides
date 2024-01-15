@@ -134,12 +134,15 @@ class ReceiveTask(TextTask):
             if to_unfreeze:
                 # print('Try unfreeze cz parent')
                 for tsk_info in self.by_ext_affected_list:
-                    # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
+                    # print("Link input=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                     if not tsk_info.enabled:
                         return
                 # print("Unfreeze")
                 self.is_freeze = False
                 # print("Task",self.getName(),"is freeze:",self.is_freeze)
+            else:
+                # print('Parent is frozen=> can\'t update')
+                pass
 
         else:
             # print('Update input for Collect task')

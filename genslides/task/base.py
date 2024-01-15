@@ -568,7 +568,7 @@ class BaseTask():
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
         val = { "name": info.target.getName(), "id":info.id,"method":info.method, "type":"link","used":False}
         val.update(self.getDefCond())
-        print(val)
+        # print(val)
         return val
     
     def getJsonQueue(self, pack : dict) -> dict:
@@ -671,7 +671,7 @@ class BaseTask():
 
     def resetLinkToTask(self, info : TaskDescription) -> None:
         print('Reset link to task by', self.getName())
-        print(self.queue)
+        # print(self.queue)
         self.affect_to_ext_list.remove(info)
 
     def getChilds(self):
@@ -909,13 +909,16 @@ class BaseTask():
                             id=info["id"], stepped=True, 
                             parent=self, enabled= not self.is_freeze)
                         # info["method"](input)
+                        # print('Use link to', info['name'])
                         for affected in self.affect_to_ext_list:
                             if affected.target.getName() == info['name']:
+                                input.id = affected.id
                                 affected.method(input)
                         return self.getLinkedByName(info['name'])
         return None
     
     def useLinksToTask(self):
+        print('Use links',[t.getName() for t in self.getHoldGarlands()])
         input = TaskDescription(prompt=self.prompt, parent=self)
         for task in self.affect_to_ext_list:
             input.id = task.id

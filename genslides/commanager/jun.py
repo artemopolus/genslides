@@ -223,7 +223,7 @@ class Manager:
             self.tree_idx = 1
 
     def goToNextTree(self):
-        print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
+        # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
             for task in self.tree_arr:
                 if not task.isRootParent():
@@ -237,7 +237,7 @@ class Manager:
             self.curr_task = self.tree_arr[self.tree_idx]
         else:
             self.goToNextTreeFirstTime()
-        print('Current task is', self.curr_task.getName())
+        # print('Current task is', self.curr_task.getName())
         return self.getCurrTaskPrompts()
 
     def takeFewSteps(self, dir:str, times : int):
@@ -1060,9 +1060,11 @@ class Manager:
             if len(self.return_points) > 0:
                 self.curr_task = self.return_points.pop()
             elif self.curr_task.parent:
-                print("Done some")
+                # print("Done some")
+                pass
             else:
-                print("On start")
+                # print("On start")
+                pass
         # print("Next task is", next.getName())
         return next
     

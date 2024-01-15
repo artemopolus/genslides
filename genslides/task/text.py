@@ -561,7 +561,7 @@ class TextTask(BaseTask):
         # return self.msg_list[len(self.msg_list) - 1]["role"]
 
     def useLinksToTask(self):
-        print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
+        # print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
         if len(self.msg_list) == 0:
             return
         text = self.msg_list[len(self.msg_list) - 1]["content"]

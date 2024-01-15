@@ -7,15 +7,17 @@ class GroupCollectTask(CollectTask):
         super().__init__(task_info, type)
 
     def updateLinkedPrompts(self, input : TaskDescription):
-        print("========================================================================update linked prompts")
+        # print("========================================================================update linked prompts")
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
                 msgs = input.parent.getMsgs()
                 text = ""
                 for msg in msgs:
                     text += msg['content']
-                    print(msg)
+                    # print(msg)
                 tsk_info.prompt = text
                 tsk_info.enabled = input.enabled
-                print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
+                # if tsk_info.enabled:
+                    # print('Input group msgs:',tsk_info.prompt)
+                # print("Enabling=", tsk_info.id,"=",tsk_info.enabled)
 
