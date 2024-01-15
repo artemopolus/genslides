@@ -14,7 +14,7 @@ class ReadFileParamTask(ReadFileTask):
 
 
     def readContentInternal(self):
-        print('Read content from file by params')
+        # print('Read content from file by params')
         param_name = "read_folder"
         res, read_folder = self.getParam(param_name)
         
@@ -41,10 +41,10 @@ class ReadFileParamTask(ReadFileTask):
         param_name = "path_to_read"
         res, s_path = self.getParam(param_name)
         s_path = self.findKeyParam(s_path)
-        print('Target path:', s_path)
+        # print('Target path:', s_path)
         if not os.path.exists(s_path):
             pres, paths = Loader.stringToPathList(s_path)
-            print('Paths:', paths)
+            # print('Paths:', paths)
             if pres and len(paths) > 0:
                 text = ""
                 rres, pparam = self.getParamStruct(param_name)
@@ -63,10 +63,10 @@ class ReadFileParamTask(ReadFileTask):
                         self.msg_list = []
                 return False, "Can\'t read files using paths:" + s_path
         elif res:
-            print('Get param')
+            # print('Get param')
             rres, pparam = self.getParamStruct(param_name)
             if rres:
-                print('Found param struct')
+                # print('Found param struct')
                 if "role" in pparam:
                     self.prompt_tag = pparam["role"]
                 else:
@@ -90,7 +90,7 @@ class ReadFileParamTask(ReadFileTask):
                         except ValueError as e:
                             print("json error type=", type(e))
                             self.msg_list = []
-                        print(self.getName(),"read from[", s_path,"] dial with msg[",len(self.msg_list),'] out [',len(rq),']')
+                        # print(self.getName(),"read from[", s_path,"] dial with msg[",len(self.msg_list),'] out [',len(rq),']')
     
                     return False, ""
                 elif "read_part" in pparam and pparam["read_part"] and "start_part" in pparam and "max_part" in pparam:
@@ -187,7 +187,7 @@ class ReadFileParamTask(ReadFileTask):
         
        
 
-        print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
+        # print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
 
         if len(self.msg_list) == 0:
@@ -208,6 +208,6 @@ class ReadFileParamTask(ReadFileTask):
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:
-                print("Messages are same")
+                # print("Messages are same")
                 pass
  

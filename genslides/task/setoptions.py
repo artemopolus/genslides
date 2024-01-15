@@ -125,7 +125,7 @@ class SetOptionsTask(WriteToFileTask):
         return json.dumps(self.params, indent=1),"user",""
  
     def getParamFromExtTask(self, param_name):
-        print('Try to get param from',self.getName())
+        # print('Try to get param from',self.getName())
         for param in self.params:
             for k,p in param.items():
                 # print("k=",k,"p=",p)
@@ -135,7 +135,7 @@ class SetOptionsTask(WriteToFileTask):
         return False, self.parent, None
  
     def getParamStructFromExtTask(self, param_name):
-        print("Search for", param_name,"in", self.getName())
+        # print("Search for", param_name,"in", self.getName())
         # res, val = self.getParamStruct(param_name)
         # return res, self.parent, val 
         # print('Params=', self.params)

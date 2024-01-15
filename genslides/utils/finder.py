@@ -54,7 +54,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
             rep_text = rep_text.replace(res, str(tkns))
         elif arr[1] == 'branch_code':
             p_tasks = task.getAllParents()
-            print('Get branch code',[t.getName() for t in p_tasks])
+            # print('Get branch code',[t.getName() for t in p_tasks])
             code_s = ""
             if len(p_tasks) > 0:
                 trg = p_tasks[0]

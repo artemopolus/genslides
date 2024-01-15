@@ -230,6 +230,7 @@ class Projecter:
         return self.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
     
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
+        # TODO: Критическая проблема. Из-за вылетов программы может потеряться важный текст запроса, что может весьма расстроить, поэтому следует сохранять сообщение в проектный файл и передавать их пользователю по отдельному запросу через GUI
         return self.actioner.makeTaskAction(prompt, type1, creation_type, creation_tag, param , save_action)
         # return self.manager.getCurrTaskPrompts()
  

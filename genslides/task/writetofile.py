@@ -15,9 +15,9 @@ class WriteToFileTask(TextTask):
             self.executeResponse()
         else:
             self.msg_list = msg_list_from_file
-            print("Get list from file=", self.path)
-        print("name=", self.getName())
-        print("path=", self.path)
+            # print("Get list from file=", self.path)
+        # print("name=", self.getName())
+        # print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
@@ -42,10 +42,10 @@ class WriteToFileTask(TextTask):
             return
         if len(self.msg_list) < 3:
             return
-        print("Path=", self.getRichPrompt())
+        # print("Path=", self.getRichPrompt())
         # if os.path.isfile(self.getRichPrompt()):
         with open(self.getRichPrompt(), 'w',encoding='utf8') as f:
-            print("path_to_write =", self.getRichPrompt())
+            # print("path_to_write =", self.getRichPrompt())
             text = self.findKeyParam(self.msg_list[len(self.msg_list) - 3]["content"])
             # print("Try to save=", text)
             f.write(text)
@@ -59,7 +59,7 @@ class WriteToFileTask(TextTask):
         else:
             return
         if self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False or self.checkAnotherOptions():
-            print('Exe write file')
+            # print('Exe write file')
             self.msg_list = trg_list
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)

@@ -96,7 +96,7 @@ class TaskManager(metaclass=Singleton):
     
     def getLinks(self,mypath):
         # mypath = self.getPath()
-        print('Get links by path', mypath)
+        # print('Get links by path', mypath)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         out = []
         for filename in onlyfiles:
@@ -117,7 +117,7 @@ class TaskManager(metaclass=Singleton):
     def getTaskPrompts(self,mypath, trg_path = ""):
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         out = []
-        print('Get available tasks from',len(onlyfiles),'files')
+        # print('Get available tasks from',len(onlyfiles),'files')
         for filename in onlyfiles:
             path = join(mypath,filename)
             # print('Check path=',path)
@@ -138,7 +138,7 @@ class TaskManager(metaclass=Singleton):
                             parent_path = os.path.join(mypath , path_from_file + self.getTaskExtention())
                     # print('Check path:',parent_path,'=',trg_path)
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
-                        print("Get propmt from=",path)
+                        # print("Get propmt from=",path)
                         # if rq['type'].endswith("RichText") or rq['type'].endswith("Response"):
                         if len(rq['chat']) == 0:
                             elem = {'role': 'user','content': ''}
@@ -232,7 +232,7 @@ class BaseTask():
 
     def getBranchCodeTag(self) -> str:
         p_tasks = self.getAllParents()
-        print('Get branch code',[t.getName() for t in p_tasks])
+        # print('Get branch code',[t.getName() for t in p_tasks])
         code_s = ""
         if len(p_tasks) > 0:
             trg = p_tasks[0]
@@ -432,7 +432,7 @@ class BaseTask():
     # переменная copy_out запрашивае информацию о исходящих 
     # TODO: разделить между обычными задачами и задачами типа Прием обработку исходящих и входящих
     def getLinkCopyInfo(self, trg_links:list, copy_in = True, copy_out = True):
-        print('Get link copy info from',self.getName())
+        # print('Get link copy info from',self.getName())
         if len(self.getHoldGarlands()) and copy_out:
             for ll in self.getHoldGarlands():
                 res, val = ll.getTrgLinkInfo(self)
@@ -585,13 +585,15 @@ class BaseTask():
     
     def setParent(self, parent):
         if parent is None:
-            print('Remove parent')
+            # print('Remove parent')
+            pass
         else:
-            print('Set new parent', parent.getName())
+            # print('Set new parent', parent.getName())
+            pass
         self.parent = parent
 
     def addChild(self, child) -> bool:
-        print('Add child',child.getName())
+        # print('Add child',child.getName())
         if child not in self.childs:
             child.setParent(self)
             self.childs.append(child)
@@ -655,7 +657,7 @@ class BaseTask():
 
 
     def setLinkToTask(self, info : TaskDescription) -> bool:
-        print('Set link to', info.target.getName())
+        # print('Set link to', info.target.getName())
         self.affect_to_ext_list.append(info)
         info1 = self.getLinkQueuePack(info)
         self.onQueueReset(info1)
@@ -715,7 +717,7 @@ class BaseTask():
         self.stdProcessUnFreeze(input)
 
        
-        print("Update=",self.getName(), "|frozen=", self.is_freeze)
+        # print("Update=",self.getName(), "|frozen=", self.is_freeze)
         self.updateIternal(input)
 
         if input is None or input and not input.stepped:
@@ -759,7 +761,7 @@ class BaseTask():
     
     def onQueueReset(self, info):
         # print('Reset queue from', self.getName(),'=',info)
-        print('Reset queue from', self.getName())
+        # print('Reset queue from', self.getName())
         info["used"] = False
         info["cur"] = info["str"]
 
@@ -888,7 +890,7 @@ class BaseTask():
         # print([[q['name'], q['idx']] for q in self.queue])
 
     def findNextFromQueue(self, only_check = False):
-        print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
+        # print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
         self.sortQueue()
         if self.queue:
             for info1 in self.queue:
@@ -927,7 +929,7 @@ class BaseTask():
 
     def getNextFromQueue(self):
         res = self.findNextFromQueue()
-        print("Get next from",self.getName(),"queue:", res)
+        # print("Get next from",self.getName(),"queue:", res)
         if res:
             return res
         return self.getNextFromQueueRe()
@@ -936,7 +938,7 @@ class BaseTask():
         # return None
         
     def getNextFromQueueRe(self):
-        print("Get recursevly")
+        # print("Get recursevly")
         trg = self
         index = 0
         while(index < 1000):
@@ -946,7 +948,7 @@ class BaseTask():
                 trg = trg.parent
                 res = trg.findNextFromQueue()
                 if res:
-                    print('Reset from task=', res.getName())
+                    # print('Reset from task=', res.getName())
                     res.resetTreeQueue()
                     return res
             index +=1

@@ -17,7 +17,7 @@ class ExtProjectTask(CollectTask):
         self.is_freeze = False
 
     def afterFileLoading(self):
-        print('Init external project task')
+        # print('Init external project task')
         self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         res, param = self.getParamStruct('external')
         if not res:
@@ -42,12 +42,12 @@ class ExtProjectTask(CollectTask):
         self.actioner = Actioner.Actioner(self.intman)
         self.actioner.setPath(path)
         self.actioner.clearTmp()
-        print(10*"----------")
-        print('Load tasks from',path)
-        print(10*"----------")
+        # print(10*"----------")
+        # print('Load tasks from',path)
+        # print(10*"----------")
         self.intman.loadTasksList()
 
-        print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
+        # print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
 
         self.intpar = None
         self.intch = None
@@ -55,7 +55,7 @@ class ExtProjectTask(CollectTask):
 
         print(10*"----------")
         print('Execute', self.getName(),'from',self.intman.getPath())
-        print(10*"----------")
+        # print(10*"----------")
 
     def updateInOutExtProject(self):
          for task in self.intman.task_list:
@@ -64,12 +64,12 @@ class ExtProjectTask(CollectTask):
                 self.intpar = task
                 self.intpar.parent = self.parent
                 self.intpar.caretaker = self
-                print('intpar=',self.intpar.getName())
+                # print('intpar=',self.intpar.getName())
                 
             res, param = task.getParamStruct('output')
             if res and param['output']:
                 self.intch = task
-                print('intch=',self.intch.getName())
+                # print('intch=',self.intch.getName())
 
        
 
@@ -83,8 +83,8 @@ class ExtProjectTask(CollectTask):
 
     def updateExtProjectInternal(self, prompt):
         if self.intpar is not None:
-            print('Update external task')
-            print('With prompt=',prompt)
+            # print('Update external task')
+            # print('With prompt=',prompt)
             info = TaskDescription(prompt=prompt, prompt_tag=self.intpar.getLastMsgRole(), manual=True)
             self.intman.curr_task = self.intpar
             self.intman.updateSteppedTree(info)

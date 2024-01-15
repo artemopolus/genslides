@@ -18,8 +18,8 @@ class GoogleApiSearcher(WebSearcher):
             input = json.load(config)
             self.api_key = input['api_key']
             self.cse_key = input['cse_key']
-        print('api_key=' + str(self.api_key))
-        print('cse_key=' + str(self.cse_key))
+        # print('api_key=' + str(self.api_key))
+        # print('cse_key=' + str(self.cse_key))
         super().__init__()
 
     def getSearchs(self, request: str):

@@ -116,7 +116,7 @@ class RunScriptTask(ResponseTask):
         if not done:
             data += phrase_final
 
-        print('Execute result=', self.execute_success)
+        # print('Execute result=', self.execute_success)
 
         if len(data) > 0:
             self.msg_list.append({"role": "user", "content": data})

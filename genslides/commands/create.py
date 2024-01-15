@@ -6,7 +6,7 @@ class CreateCommand(SimpleCommand):
       super().__init__(description)
       self.task = None
    def execute(self):
-      print("execute: Create " + str(self.input.method))
+      # print("execute: Create " + str(self.input.method))
       self.task = self.input.method( self.input )
       return self.task, 'create'
    

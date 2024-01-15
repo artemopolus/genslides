@@ -23,8 +23,8 @@ class ResponseTask(TextTask):
             self.onEmptyMsgListAction()
         else:
             self.onExistedMsgListAction(msg_list_from_file)
-        print("name=", self.getName())
-        print("path=", self.path)
+        # print("name=", self.getName())
+        # print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
     def onEmptyMsgListAction(self):
@@ -51,7 +51,7 @@ class ResponseTask(TextTask):
                 self.updateParam("model", "gpt-3.5-turbo")
 
         self.msg_list = msg_list_from_file
-        print("Get list from file=", self.path)
+        # print("Get list from file=", self.path)
 
     def setChatPram(self, name):
             res, temperature =  self.reqhelper.getValue(self.getType(), name)
@@ -81,6 +81,7 @@ class ResponseTask(TextTask):
             chat = LLModel()
         res, out, out_params = self.executeResponseInternal(chat)
         self.updateParam2(out_params)
+        print('Request=',self.prompt)
         if res:
             # print("out=", out)
             pair = {}
@@ -88,8 +89,9 @@ class ResponseTask(TextTask):
             pair["content"] = out
             self.prompt = out
             self.msg_list.append(pair)
-        print('Msg list=',self.msg_list)
-        print('Prompt=',self.prompt)
+            print('Response=',out)
+        # print('Msg list=',self.msg_list)
+
 
 
     def update(self, input : TaskDescription = None):
@@ -125,7 +127,7 @@ class ResponseTask(TextTask):
         
        
 
-        print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
+        # print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
 
         if len(self.msg_list) == 0:
@@ -141,7 +143,7 @@ class ResponseTask(TextTask):
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:
-                print("Messages are same")
+                # print("Messages are same")
                 pass
         # super().update(input)
 

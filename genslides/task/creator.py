@@ -38,8 +38,8 @@ def checkTypeFromName(name : str, type :str) -> bool:
     return stype.endswith(type)
 
 def createTaskByType(type : str, info : TaskDescription):
-    print('Create task', type)
-    print('Start params=',info.params)
+    # print('Create task', type)
+    # print('Start params=',info.params)
     stype = ''.join([i for i in type if not i.isdigit()])
     info.type = stype
     info.filename = type

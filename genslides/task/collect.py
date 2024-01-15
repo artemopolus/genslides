@@ -19,7 +19,7 @@ class ReceiveTask(TextTask):
             self.hasNoMsgAction()
             # self.updateCollectedMsgList(tmp_msg_list)
         else:
-            print("Get list from file=", self.path)
+            # print("Get list from file=", self.path)
             self.haveMsgsAction(msg_list_from_file)
             # self.setMsgList(msg_list_from_file)
 
@@ -39,13 +39,13 @@ class ReceiveTask(TextTask):
 
 
     def freezeTask(self):
-        print("Freeze!")
+        # print("Freeze!")
         self.is_freeze = True
         for tsk_info in self.by_ext_affected_list:
             tsk_info.enabled = False
 
     def updateCollectedMsgList(self, trg_list : list):
-        print("update collected msg list")
+        # print("update collected msg list")
         last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
         trg_list.append(last)
         self.setMsgList( trg_list.copy())
@@ -60,7 +60,7 @@ class ReceiveTask(TextTask):
                 trg_list.append(cut)
                 self.setMsgList( trg_list)
                 self.saveJsonToFile(self.msg_list)
-                print("Freeze => parents msgs not equal target")
+                # print("Freeze => parents msgs not equal target")
                 self.freezeTask()
             return trg_list
 
@@ -78,7 +78,7 @@ class ReceiveTask(TextTask):
         if not self.is_freeze:
             self.updateCollectedMsgList(trg_list)
         super().update(input)
-        print("CollectTask=",self.getName()," frozen=", self.is_freeze)
+        # print("CollectTask=",self.getName()," frozen=", self.is_freeze)
         if len(self.msg_list) > 0:
             out = self.msg_list[len(self.msg_list) - 1]
             return out["content"], out["role"]
@@ -87,7 +87,7 @@ class ReceiveTask(TextTask):
 
     def createLinkToTask(self, task) -> TaskDescription:
         id = len(self.by_ext_affected_list)
-        print("Create link to ", task.getName(),"id=", id)
+        # print("Create link to ", task.getName(),"id=", id)
         out = TaskDescription(method=self.affectedTaskCallback, id=id, parent=task , target=self)
         self.by_ext_affected_list.append(out)
         
@@ -100,12 +100,12 @@ class ReceiveTask(TextTask):
         if res:
             names = param['tasks']
             checkers = [t.getName() for t in self.getAffectingOnTask()]
-            print('=================>>>>>>>>>>>>Check', names, '==',checkers)
-            print(set(names) ==set(checkers))
-            for name in names:
-                print('Check',name,':',name in checkers)
+            # print('=================>>>>>>>>>>>>Check', names, '==',checkers)
+            # print(set(names) ==set(checkers))
+            # for name in names:
+                # print('Check',name,':',name in checkers)
             if set(names).difference(set(checkers)) == set():
-                print('Yes')
+                # print('Yes')
                 for t in names:
                     for intask in self.by_ext_affected_list:
                         if intask.parent.getName() == t:
@@ -114,9 +114,9 @@ class ReceiveTask(TextTask):
                 print('No')
             return text
         for task in self.by_ext_affected_list:
-            print("Copy data from", task.parent.getName())
+            # print("Copy data from", task.parent.getName())
             text += task.prompt +"\n"
-        print('Result:', text)
+        # print('Result:', text)
         return text
 
     def stdProcessUnFreeze(self, input=None):
@@ -125,28 +125,28 @@ class ReceiveTask(TextTask):
             # print("parent frozen=",self.parent.is_freeze)
             pass
         if self.is_freeze:
-            print('Collect task is frozen')
+            # print('Collect task is frozen')
             to_unfreeze = False
             if self.parent and not self.parent.is_freeze:
                 to_unfreeze = True
             elif not self.parent and self.is_freeze:
                 to_unfreeze = True
             if to_unfreeze:
-                print('Try unfreeze cz parent')
+                # print('Try unfreeze cz parent')
                 for tsk_info in self.by_ext_affected_list:
-                    print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
+                    # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                     if not tsk_info.enabled:
                         return
                 # print("Unfreeze")
                 self.is_freeze = False
-                print("Task",self.getName(),"is freeze:",self.is_freeze)
+                # print("Task",self.getName(),"is freeze:",self.is_freeze)
 
         else:
-            print('Update input for Collect task')
+            # print('Update input for Collect task')
             for tsk_info in self.by_ext_affected_list:
                 # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                 if not tsk_info.enabled:
-                    print("Freeze from children")
+                    # print("Freeze from children")
                     self.freezeTask()
                     return
             # print("1 frozen=", self.is_freeze)
@@ -157,12 +157,12 @@ class ReceiveTask(TextTask):
             if input.id == tsk_info.id:
                 tsk_info.prompt = input.prompt
                 tsk_info.enabled = input.enabled
-                print("Task[", tsk_info.id,"].enabled=",tsk_info.enabled)
-                print('New prompt:', tsk_info.prompt)
+                # print("Task[", tsk_info.id,"].enabled=",tsk_info.enabled)
+                # print('New prompt:', tsk_info.prompt)
 
 
     def affectedTaskCallback(self, input : TaskDescription):
-        print("From ", input.parent.getName(), " to ", self.getName())
+        # print("From ", input.parent.getName(), " to ", self.getName())
         if input and input.stepped:
             found = False
             for cl in self.callback_link:

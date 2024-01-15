@@ -31,19 +31,19 @@ class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
         super().__init__(task_info, type)
 
-        print("Type=", self.getType())
+        # print("Type=", self.getType())
 
         self.path = self.getPath()
         self.copyParentMsg()
 
         self.params = task_info.params
 
-        print('Path to my file=', self.path)
+        # print('Path to my file=', self.path)
 
         self.caretaker = None
 
-        print('Input params',task_info.params)
-        print('Task params',self.params)
+        # print('Input params',task_info.params)
+        # print('Task params',self.params)
         self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})
     
     def addChild(self, child) -> bool:
@@ -101,9 +101,9 @@ class TextTask(BaseTask):
         q_names = [q["name"] for q in self.queue if 'name' in q]
         p_names = [p["name"] for p in self.params if "name" in p]
         c_names = [ch.getName() for ch in self.getChilds()]
-        print("Queue:", q_names)
-        print("Params:", p_names)
-        print("Childs:", c_names)
+        # print("Queue:", q_names)
+        # print("Params:", p_names)
+        # print("Childs:", c_names)
  
     def updateNameQueue(self, old_name : str, new_name : str):
         if old_name == new_name:
@@ -114,7 +114,7 @@ class TextTask(BaseTask):
         for param in self.params:
             if "type" in param and "name" in param and param["name"] == old_name:
                 trg = param
-        print("Delete param:",trg)
+        # print("Delete param:",trg)
         if trg:
             self.params.remove(trg)
             for info in self.queue:
@@ -140,18 +140,18 @@ class TextTask(BaseTask):
         return pack
     
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
-        print('Check param link queue pack')
+        # print('Check param link queue pack')
         for param in self.params:
             if "type" in param and param["type"] == "link" and "name" in param and param["name"] == info.target.getName():
                 out = param.copy()
                 return out
         pack = super().getLinkQueuePack(info)
-        print('Get default link queue pack',pack)
+        # print('Get default link queue pack',pack)
         self.params.append(self.getJsonQueue(pack))
         return pack
     
     def syncParamToQueue(self):
-        print('Sync', self.getName(), 'param to queue')
+        # print('Sync', self.getName(), 'param to queue')
         # print('Init param=', self.params)
         for param in self.params:
             if "type" in param:
@@ -181,7 +181,7 @@ class TextTask(BaseTask):
         # print('After sync param=', self.params)
     
     def syncQueueToParam(self):
-        print("Sync",self.getName(),"queue to param")
+        # print("Sync",self.getName(),"queue to param")
         # print(10*'===','Queue:', self.queue)
         for pack in self.queue:
             found = False
@@ -201,7 +201,7 @@ class TextTask(BaseTask):
         self.saveJsonToFile(self.msg_list)
 
     def onQueueReset(self, info):
-        print("Queue reset")
+        # print("Queue reset")
         super().onQueueReset(info)
         self.syncQueueToParam()
 
@@ -213,7 +213,7 @@ class TextTask(BaseTask):
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
         if self.parent:
-            print('Check msg list of',self.getName(),'with', self.parent.getName())
+            # print('Check msg list of',self.getName(),'with', self.parent.getName())
             trg = self.parent.msg_list.copy()
             src = self.msg_list.copy()
             last = None
@@ -224,8 +224,6 @@ class TextTask(BaseTask):
                     if last and save_curr:
                         trg.append(last)
                     self.msg_list = trg
-                print(trg)
-                print(src)
                 return False
         return True
     
@@ -374,7 +372,7 @@ class TextTask(BaseTask):
         wr.checkFolderPathAndCreate(mypath)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         self.setName( self.getType() + str(self.id))
-        print("Start Name =", self.name)
+        # print("Start Name =", self.name)
         name = self.name + self.manager.getTaskExtention()
         found = False
         n = self.name
@@ -384,7 +382,7 @@ class TextTask(BaseTask):
                 name = n + self.manager.getTaskExtention()
             else:
                 found = True
-                print("Res Name=", n)
+                # print("Res Name=", n)
                 self.setName(n)
         return os.path.join( mypath, name)
 
@@ -424,7 +422,7 @@ class TextTask(BaseTask):
     
     def saveJsonToFile(self, msg_list):
         resp_json_out = self.getJsonMsg(msg_list)
-        print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]")
+        # print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]")
         with open(self.path, 'w') as f:
             json.dump(resp_json_out, f, indent=1)
 
@@ -484,7 +482,7 @@ class TextTask(BaseTask):
         return False
     
     def getResponseFromFile(self, msg_list, remove_last=True):
-        print("Get response from file:")
+        # print("Get response from file:")
         mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         trg_file = self.filename + self.manager.getTaskExtention()
@@ -494,7 +492,7 @@ class TextTask(BaseTask):
             if file.startswith(self.getType()):
                 path = os.path.join(mypath, file)
                 try:
-                    print('Open file by path', path)
+                    # print('Open file by path', path)
                     with open(path, 'r') as f:
                         rq = json.load(f)
                     if 'chat' in rq:
@@ -508,14 +506,14 @@ class TextTask(BaseTask):
                                 if 'stopped' in param and param['stopped']:
                                     stopped = True
                         if self.checkLoadCondition(msg_trgs, msg_list) or stopped or self.is_freeze:
-                            print(10*"====", "\nLoaded from file:",path)
+                            # print(10*"====", "\nLoaded from file:",path)
                             self.path = path
                             self.setName(file.split('.')[0])
                             if 'params' in rq:
                                 self.params = self.resetResetableParams(rq['params'])
                             return rq['chat']
                         else:
-                            print(10*"====", "\nLoaded from file:",path)
+                            # print(10*"====", "\nLoaded from file:",path)
                             self.is_freeze = True
                             self.path = path
                             self.setName(file.split('.')[0])
@@ -621,11 +619,11 @@ class TextTask(BaseTask):
         # print("freeze=", self.is_freeze)
 
     def checkInput(self, input: TaskDescription = None):
-        print('Check input')
+        # print('Check input')
         if input:
             self.prompt = input.prompt
             self.prompt_tag = input.prompt_tag
-            print('Params:', input.params)
+            # print('Params:', input.params)
             for param in input.params:
                 if 'name' in param and 'value' in param and 'prompt' in param:
                     self.updateParam(param["name"], param["value"],param["prompt"])
@@ -713,13 +711,13 @@ class TextTask(BaseTask):
         return False, self.parent, None
      
     def updateParamStruct(self, param_name, key,val):
-        print('Update', param_name, key, 'with', val,'for', self.getName())
-        if isinstance(val,str):
-            print('get str')
-        elif isinstance(val,list):
-            print('get list')
-        else:
-            print('not str and not list')
+        # print('Update', param_name, key, 'with', val,'for', self.getName())
+        # if isinstance(val,str):
+        #     print('get str')
+        # elif isinstance(val,list):
+        #     print('get list')
+        # else:
+        #     print('not str and not list')
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 if key in param:
@@ -727,7 +725,7 @@ class TextTask(BaseTask):
                         param[key] = ast.literal_eval(val)
                     else:
                         param[key] = val
-        print('Res params=',self.params)
+        # print('Res params=',self.params)
         self.saveJsonToFile(self.msg_list)
 
     def getCurParamStructValue(self, param_name, key):

@@ -35,7 +35,7 @@ class RequestTask(TextTask):
             pair = {}
             pair["role"] = input.prompt_tag
             text = input.prompt
-            print('update req input')
+            # print('update req input')
             try:
                 j = json.loads(text)
                 text = json.dumps(j,indent=1)

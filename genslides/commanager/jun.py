@@ -188,8 +188,8 @@ class Manager:
         return self.proj_pref
 
     def loadTasksList(self):
-        print(10*"=======")
-        print('Load tasks from files')
+        # print(10*"=======")
+        # print('Load tasks from files')
         task_manager = TaskManager()
         links = task_manager.getLinks(self.getPath())
         self.createTask()
@@ -206,13 +206,13 @@ class Manager:
         for task in self.task_list:
                 task.completeTask()
 
-        for task in self.task_list:
-            print("Task name=", task.getName(), " affected")
-            for info in task.by_ext_affected_list:
-                print("by ",info.parent.getName())
-            print("influence")
-            for info in task.affect_to_ext_list:
-                print("to ",info.parent.getName())
+        # for task in self.task_list:
+        #     print("Task name=", task.getName(), " affected")
+        #     for info in task.by_ext_affected_list:
+        #         print("by ",info.parent.getName())
+        #     print("influence")
+        #     for info in task.affect_to_ext_list:
+        #         print("to ",info.parent.getName())
 
     def goToNextTreeFirstTime(self):
         for task in self.task_list:
@@ -345,19 +345,19 @@ class Manager:
         return text
 
     def createTask(self, prnt_task = None):
-        print(10*"=======")
+        # print(10*"=======")
         if prnt_task == None:
             parent_path = ""
         else:
             parent_path = prnt_task.path
             self.curr_task = prnt_task
             # print("task=", self.curr_task.path)
-            print("Parent task path=", parent_path)
+            # print("Parent task path=", parent_path)
         init_task_list = self.task_list.copy()
         task_manager = TaskManager()
         parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), parent_path)
 
-        print("prompt count=",len(parent_prompt_list))
+        # print("prompt count=",len(parent_prompt_list))
 
         for prompt in parent_prompt_list:
             self.curr_task = prnt_task
@@ -369,11 +369,11 @@ class Manager:
 
         trg_task_list = self.task_list.copy()
 
-        print("task count=",len(self.task_list),",exclude=",len(init_task_list))
+        # print("task count=",len(self.task_list),",exclude=",len(init_task_list))
         if len(parent_prompt_list):
             for task in trg_task_list:
                 if task not in init_task_list:
-                    print("+++",parent_path)
+                    # print("+++",parent_path)
                     self.createTask(task)
         
 
@@ -478,7 +478,7 @@ class Manager:
 
 
     def drawGraph(self, only_current= True):
-        print('Draw graph')
+        # print('Draw graph')
         if only_current:
             if self.curr_task.isRootParent():
                 trg_list = self.curr_task.getTree()
@@ -723,9 +723,9 @@ class Manager:
         out = ""
         log = "Nothing"
         img_path = "output/img.png"
-        print(10*"====")
-        print("Make action", creation_type)
-        print(10*"====")
+        # print(10*"====")
+        # print("Make action", creation_type)
+        # print(10*"====")
 
         if type is None or creation_type is None:
             print('Abort maske action')
@@ -824,7 +824,7 @@ class Manager:
         return self.createOrAddTask(prompt,type, creation_tag, parent,[])
         
     def createOrAddTask(self, prompt, type, tag, parent, params = []):
-        print('Create task')
+        # print('Create task')
         # print('Params=',params)
         info = TaskDescription(prompt=prompt, prompt_tag=tag, 
                                                              helper=self.helper, requester=self.requester, manager=self, 
@@ -845,12 +845,12 @@ class Manager:
                 print('Relink from', task_out.getName(),':')
                 trgs = task_out.getAffectingOnTask()
                 for trg in trgs:
-                    print("   - [Make link] from ", trg.getName(), " to ", task_in.getName())
+                    # print("   - [Make link] from ", trg.getName(), " to ", task_in.getName())
                     info = TaskDescription(target=task_in, parent=trg)
                     cmd = lnkcmd.LinkCommand(info)
                     self.cmd_list.append(cmd)
             else:
-                print("[Make link] from ", task_out.getName(), " to ", task_in.getName())
+                # print("[Make link] from ", task_out.getName(), " to ", task_in.getName())
                 info = TaskDescription(target=task_in, parent=task_out)
                 cmd = lnkcmd.LinkCommand(info)
                 self.cmd_list.append(cmd)
@@ -895,7 +895,7 @@ class Manager:
         
  
     def getTaskList(self):
-        print('Get tasks list')
+        # print('Get tasks list')
         out = []
         for task in self.task_list:
             out.append(task.getName())
@@ -926,7 +926,7 @@ class Manager:
             self.slct_task = task
  
     def runIteration(self, prompt = ''):
-        print("Run iteration")
+        # print("Run iteration")
 
         if self.need_human_response:
             self.need_human_response = False
@@ -1011,9 +1011,9 @@ class Manager:
         return self.runIteration("")
     
     def updateSteppedSelectedInternal(self, info : TaskDescription = None):
-        print(10*"----------")
-        print("STEP",8*">>>>>>>>>>>",self.curr_task.getName(),"||||||")
-        print(10*"----------")
+        # print(10*"----------")
+        # print("STEP",8*">>",self.curr_task.getName(),"||||||")
+        # print(10*"----------")
         if info:
             info.stepped = True
             self.curr_task.update(info)
@@ -1049,9 +1049,9 @@ class Manager:
 
         next = self.curr_task.getNextFromQueue()
         if next not in self.curr_task.getTree():
-            print('Go to the next tree')
+            # print('Go to the next tree')
             self.return_points.append(self.curr_task)
-        print(len(self.return_points))
+        # print(len(self.return_points))
         if next and self.curr_task != next:
             # if next.parent == None:
                 # next.resetTreeQueue()
@@ -1063,7 +1063,7 @@ class Manager:
                 print("Done some")
             else:
                 print("On start")
-        print("Next task is", next.getName())
+        # print("Next task is", next.getName())
         return next
     
     def resetCurTaskQueue(self):
@@ -1134,14 +1134,14 @@ class Manager:
             else:
                 next = self.updateSteppedSelectedInternal()
             if next is None:
-                print("Done in",index,"iteration")
+                # print("Done in",index,"iteration")
                 break
             else:
                 if last == next:
-                    print("Get repeat in",index,"iteration")
+                    # print("Get repeat in",index,"iteration")
                     break
                 else:
-                    print('After',last.getName(),'will be', next.getName())
+                    # print('After',last.getName(),'will be', next.getName())
                     processed_chain.append(next.getName())
                     last = next
             index +=1
@@ -1252,7 +1252,8 @@ class Manager:
         
         # print(r_msgs)
         value = finder.getBranchCodeTag(self.curr_task.getName())
-        print('BranchCode=', self.curr_task.findKeyParam(value))
+        # TODO: вывадить код ветки
+        # print('BranchCode=', self.curr_task.findKeyParam(value))
 
         graph = self.drawGraph()
 
@@ -1476,6 +1477,7 @@ class Manager:
             shutil.rmtree(self.getPath())
 
     def createExtProject(self, filename, prompt, parent) -> bool:
+        # TODO: Возможно, что следует просто отправлять сюда имя программы, которое потом будет использовать loadExtProject. Таким образом имя папок будет уникальным
         res, ext_pr_name = self.loadexttask(filename, self)
         if res:
             cur = self.curr_task
@@ -1836,7 +1838,7 @@ class Manager:
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
         if not self.info: 
             loaded = False
-            print('Try to load', path_to_projectfile)
+            # print('Try to load', path_to_projectfile)
             if os.path.exists(path_to_projectfile):
                 try:
                     with open(path_to_projectfile,'r') as f:
@@ -1870,7 +1872,7 @@ class Manager:
             self.saveInfo()
 
     def initInfo(self, method, task : BaseTask = None, path = 'saved', act_list = [], repeat = 3, limits = 1000):
-        print('Manager init info')
+        # print('Manager init info')
         self.loadexttask = method
         # TODO: А зачем мне вообще все задачи, а не только родительская?
         # self.task_list =  task.getAllParents() if task is not None else []
