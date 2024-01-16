@@ -14,7 +14,7 @@ def setTimeForSaving(time : str)->datetime:
 
 class SaveData:
     def __init__(self) -> None:
-        path_to_config = "config\\base.json"
+        path_to_config = join("config","base.json")
         self.loaded = False
         with open(path_to_config, 'r') as config:
             values = json.load(config)
@@ -22,8 +22,8 @@ class SaveData:
                 self.name = values["session_name"]
                 self.loaded = True
 
-        self.session_path = "saved\\session\\"
-        self.archive_path = "saved\\archive\\"
+        self.session_path = join("saved","session")
+        self.archive_path = join("saved","archive\\")
 
     def save(self, data):
         filename = self.session_path + self.name

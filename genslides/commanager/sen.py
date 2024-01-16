@@ -172,7 +172,7 @@ class Projecter:
         return comm
 
     def getCustomCmdList(self) -> list:
-        mypath = 'tools\\'
+        mypath = 'tools'
         return [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
     
     def getFullCmdList(self):
