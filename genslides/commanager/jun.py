@@ -1278,6 +1278,7 @@ class Manager:
             gr.Radio(value="SubTask"), 
             r_msgs,
             self.getCurrentExtTaskOptions(),
+            # TODO: Рисовать весь граф, но в упрощенном виде
             graph
             )
     
@@ -1572,6 +1573,7 @@ class Manager:
         tasks_chains = self.tc_tasks_chains
         branch = tasks_chains[i]
         task = branch['branch'][j]
+        # TODO: Заменить на особую функцию, которая используется только в случае копирования, чтобы переопределить ее для ExtProject. Для этой задачи при копировании важнее не входные переменные, а результирующее сообщение
         prompt=task.getLastMsgContent() 
         prompt_tag=task.getLastMsgRole()
         trg_type = task.getType()
