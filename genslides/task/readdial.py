@@ -19,7 +19,7 @@ class ReadDialTask(ReadFileTask):
 
 
     def executeResponse(self):
-        print("Exe response read dial=", self.getRichPrompt())
+        # print("Exe response read dial=", self.getRichPrompt())
         if os.path.isfile(self.getRichPrompt()):
             param_name = "path_to_read"
             self.updateParam(param_name,self.getRichPrompt())

@@ -1,12 +1,13 @@
 from transformers import GPT2Tokenizer
-import openai
-from openai import OpenAI
+# import openai
+# from openai import OpenAI
 import json
 import tiktoken
 import os
 import datetime
 
-from genslides.utils.openai import openaiGetChatCompletion, openaiGetSmplCompletion
+from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
+# from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
 
 
 
@@ -39,28 +40,43 @@ class LLModel():
                                 self.method = openaiGetSmplCompletion
                             else:
                                 self.method = openaiGetChatCompletion
+                            
                         self.vendor = name
                         self.model = model_name
-                        self.max_tokens = option["max_tokens"]
-                        self.input_price = option["input"]
-                        self.output_price = option["output"]
+                        # self.max_tokens = option["max_tokens"]
+                        # self.input_price = option["input"]
+                        # self.output_price = option["output"]
+                        # TODO: проверить, что ключ не сохраняется в файлах
+                        # TODO: выбирать случайный ключ для генерации запроса
                         self.api_key = values['api_key']
                         self.params['api_key'] = values['api_key']
                         self.active = values['active']
                         self.path_to_file = os.path.join('output', name+'.json')
-                        if 'max_tokens' not in self.params:
-                            self.params['max_tokens'] = option['max_tokens']
+                        # if 'max_tokens' not in self.params:
+                            # self.params['max_tokens'] = option['max_tokens']
+                        self.params = option
+                        self.params.update(params)
 
 
-    def createChatCompletion(self, messages) -> (bool, str):
+    def createChatCompletion(self, messages) -> (bool, str, dict):
         if not self.active:
             return False, ''
         messages = self.checkTokens(messages)
-        print('Input Chat=', [[msg['role'], len(msg['content'])] for msg in messages])
-        res, response, intok, outtok = self.method(messages, self.params)
-        self.addCounterToPromts(intok, self.input_price)
-        self.addCounterToPromts(outtok, self.output_price)
-        return res, response
+        # print('Input Chat=', [[msg['role'], len(msg['content'])] for msg in messages])
+        out = {
+            'type' : 'response',
+            'model': self.params['model']
+            }
+        res, response, p = self.method(messages, self.params)
+        # TODO: Добавить проверку на наналичие ключевых слов `intok`, `outtok`
+        intok = p['intok']
+        outtok = p['outtok']
+        out.update(p)
+
+        # print('Res param=',p)
+        self.addCounterToPromts(intok, self.params['input'])
+        self.addCounterToPromts(outtok, self.params['output'])
+        return res, response, out
 
 
     def addCounterToPromts(self, token_num = 1, price = 0.002):
@@ -102,7 +118,7 @@ class LLModel():
     
     def getPrice(self, text)-> float:
         tokens = self.getTokensCount(text)
-        price = self.input_price
+        price = self.params['input']
         return tokens, tokens * price/1000
 
     def getUserTag(self) -> str:
@@ -122,11 +138,11 @@ class LLModel():
         token_cnt = self.getTokensCount(text)
         # print("Get response[", token_cnt,"]=",msgs[-1]["content"])
 
-        if token_cnt > self.max_tokens:
+        if token_cnt > self.params['max_tokens']:
             # try divide last
             # it's too many of them!
             idx = 0
-            while (idx < 1000 and token_cnt > self.max_tokens):
+            while (idx < 1000 and token_cnt > self.params['max_tokens']):
                 msgs.pop(0)
                 text = ""
                 for msg in msgs:

@@ -14,9 +14,9 @@ import pprint
 class ReadFileTask(ResponseTask):
     def __init__(self, task_info: TaskDescription, type="ReadFile") -> None:
         super().__init__(task_info, type)
-        print(40*"====")
-        print("Hello i am read task=", self.getName())
-        print(40*"====")
+        # print(40*"====")
+        # print("Hello i am read task=", self.getName())
+        # print(40*"====")
         # param_name = "path_to_read"
         # if param_name in self.params:
         #     path = self.params[param_name]
@@ -42,11 +42,11 @@ class ReadFileTask(ResponseTask):
             self.updateParam(param_name, val)
 
         self.msg_list = msg_list_from_file
-        print("Get list from file=", self.path)
+        # print("Get list from file=", self.path)
 
 
     def getResponseFromFile(self, msg_list, remove_last = True):
-        print("_______________Get from read task")
+        # print("_______________Get from read task")
 
         mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
@@ -55,9 +55,9 @@ class ReadFileTask(ResponseTask):
         if trg_file in onlyfiles:
             file = trg_file
             if file.startswith(self.getType()):
-                path = mypath + file
+                path = os.path.join( mypath, file) 
                 try:
-                    print(path)
+                    # print(path)
                     with open(path, 'r') as f:
                         rq = json.load(f)
                     if 'chat' in rq:
@@ -72,7 +72,7 @@ class ReadFileTask(ResponseTask):
                             self.params = rq['params']
 
                         param_name = "path_to_read"
-                        print('Get params')
+                        # print('Get params')
                         s_path = None
                         for param in self.params:
                             if param_name in param:
@@ -102,7 +102,7 @@ class ReadFileTask(ResponseTask):
 
 
     def executeResponse(self):
-        print('Exe resp read')
+        # print('Exe resp read')
       #   str = "J:\WorkspaceFast\genslides\examples\05table_parts_slides1_req.txt"
         path = self.getRichPrompt()
         if os.path.isfile(path):

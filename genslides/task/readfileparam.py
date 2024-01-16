@@ -14,7 +14,7 @@ class ReadFileParamTask(ReadFileTask):
 
 
     def readContentInternal(self):
-        print('Read content from file by params')
+        # print('Read content from file by params')
         param_name = "read_folder"
         res, read_folder = self.getParam(param_name)
         
@@ -41,10 +41,10 @@ class ReadFileParamTask(ReadFileTask):
         param_name = "path_to_read"
         res, s_path = self.getParam(param_name)
         s_path = self.findKeyParam(s_path)
-        print('Target path:', s_path)
+        # print('Target path:', s_path)
         if not os.path.exists(s_path):
             pres, paths = Loader.stringToPathList(s_path)
-            print('Paths:', paths)
+            # print('Paths:', paths)
             if pres and len(paths) > 0:
                 text = ""
                 rres, pparam = self.getParamStruct(param_name)
@@ -63,10 +63,10 @@ class ReadFileParamTask(ReadFileTask):
                         self.msg_list = []
                 return False, "Can\'t read files using paths:" + s_path
         elif res:
-            print('Get param')
+            # print('Get param')
             rres, pparam = self.getParamStruct(param_name)
             if rres:
-                print('Found param struct')
+                # print('Found param struct')
                 if "role" in pparam:
                     self.prompt_tag = pparam["role"]
                 else:
@@ -90,7 +90,7 @@ class ReadFileParamTask(ReadFileTask):
                         except ValueError as e:
                             print("json error type=", type(e))
                             self.msg_list = []
-                        print(self.getName(),"read from[", s_path,"] dial with msg[",len(self.msg_list),'] out [',len(rq),']')
+                        # print(self.getName(),"read from[", s_path,"] dial with msg[",len(self.msg_list),'] out [',len(rq),']')
     
                     return False, ""
                 elif "read_part" in pparam and pparam["read_part"] and "start_part" in pparam and "max_part" in pparam:
@@ -162,3 +162,52 @@ class ReadFileParamTask(ReadFileTask):
             val = [{"role":self.getLastMsgRole(), "content": self.findKeyParam(self.getLastMsgContent())}]
             return True, val, self.parent
 
+    def updateIternal(self, input : TaskDescription = None):
+        # TODO: Это просто переопределение функции обновления для Response, она была дополнена свойством, что при указании, что читается диалог, всегда происходило чтение вне зависимости от совпадают ли родительские сообщения с сохраненными
+        # self.preUpdate(input=input)
+        res, stopped = self.getParam("stopped")
+        if res and stopped:
+            print("Stopped=", self.getName())
+            return "",self.prompt_tag,""
+        
+        if self.is_freeze and self.parent:
+            print("frozen=",self.getName())
+            if not self.parent.is_freeze:
+                self.is_freeze = False
+                tmp_msg_list = self.getRawParentMsgs()
+                # print(pprint.pformat(tmp_msg_list))
+                msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+                if len(msg_list_from_file):
+                    print("I loaded")
+                    self.msg_list = msg_list_from_file
+
+            else:
+                # super().update(input)
+                return "","user",""
+        
+       
+
+        # print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
+        # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
+
+        if len(self.msg_list) == 0:
+            print('Empty msg list')
+            self.executeResponse()
+            self.saveJsonToFile(self.msg_list)
+        else:
+            sres, sparam = self.getParamStruct(self.getType())
+            exe_always = False
+            if sres and 'do_always' in sparam and sparam['do_always']:
+                exe_always = True
+
+            rres, pparam = self.getParamStruct('path_to_read')
+            if rres and "read_dial" in pparam and pparam["read_dial"]:
+                self.executeResponse()
+                self.saveJsonToFile(self.msg_list)
+            elif not self.checkParentMsgList(update=True, save_curr=False) or exe_always:
+                self.executeResponse()
+                self.saveJsonToFile(self.msg_list)
+            else:
+                # print("Messages are same")
+                pass
+ 

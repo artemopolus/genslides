@@ -2,6 +2,7 @@ from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.writetofile import WriteToFileTask
 
 import json, regex
+import genslides.utils.finder as finder
 
 
 class SetOptionsTask(WriteToFileTask):
@@ -16,6 +17,9 @@ class SetOptionsTask(WriteToFileTask):
     
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
         return False, [], self.parent
+
+    def getLastMsgContentRaw(self):
+        return json.dumps(self.params, indent=1)
 
     def getLastMsgContent(self):
         return json.dumps(self.params, indent=1)
@@ -37,7 +41,7 @@ class SetOptionsTask(WriteToFileTask):
                     elif param['updateable'] == 'get':
                         src = param["src"].split(":")
                         src_task = self.getAncestorByName(src[0])
-                        if src[1] == self.getMsgTag():
+                        if src[1] == finder.getMsgTag():
                             if len(src) > 3:
                                 if src[2] == "json":
                                     pattern = regex.compile(r'\{(?:[^{}]|(?R))*\}')
@@ -94,6 +98,7 @@ class SetOptionsTask(WriteToFileTask):
             try:
                 in_params = json.loads(self.prompt)
                 if in_params != self.params:
+                    # TODO: переписать замену параметров на обновление текущих параметров
                     self.params = in_params
                     print("Params changed update all")
                     self.forceCleanChildsChat()
@@ -120,20 +125,20 @@ class SetOptionsTask(WriteToFileTask):
         return json.dumps(self.params, indent=1),"user",""
  
     def getParamFromExtTask(self, param_name):
-        print('Try to get param from',self.getName())
+        # print('Try to get param from',self.getName())
         for param in self.params:
             for k,p in param.items():
-                print("k=",k,"p=",p)
+                # print("k=",k,"p=",p)
                 if param_name == k:
                     return True,self.parent, p
 
         return False, self.parent, None
  
     def getParamStructFromExtTask(self, param_name):
-        print("Search for", param_name,"in", self.getName())
+        # print("Search for", param_name,"in", self.getName())
         # res, val = self.getParamStruct(param_name)
         # return res, self.parent, val 
-        print('Params=', self.params)
+        # print('Params=', self.params)
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 return True, self.parent, param

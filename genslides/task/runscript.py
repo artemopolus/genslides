@@ -11,82 +11,112 @@ import subprocess
 
 class RunScriptTask(ResponseTask):
     def __init__(self, task_info: TaskDescription, type="RunScript") -> None:
-        # self.path_to_script = "output\\scripts\\"
         super().__init__(task_info, type)
+        self.execute_success = False
 
     def executeResponse(self):
-        # path_tmp = self.path_to_script
+        print('[EXE] run script task')
         res, pparam = self.getParamStruct("script")
         if res:
             try:
-                path_tmp = self.findKeyParam(pparam["path_to_script"] )
+                path_trgs_tmp = pparam["path_to_trgs"]
+                if isinstance(path_trgs_tmp, str):
+                    path_tmp = self.findKeyParam(pparam["path_to_trgs"] )
+                else:
+                    path_tmp = path_trgs_tmp
                 path_to_python = pparam["path_to_python"]
                 need_to_remove = pparam["remove_script"]  
                 phrase_script = self.findKeyParam( pparam["init_phrase"] )
                 phrase_success = self.findKeyParam( pparam["on_success"] )
                 phrase_error = self.findKeyParam( pparam["on_error"] )
+                phrase_final = self.findKeyParam( pparam["on_final"] )
 
                 str_path_to_output_files = self.findKeyParam(pparam["output_files"])
+
+                targets_type = self.findKeyParam(pparam["targets_type"] )
+                exe_type = self.findKeyParam(pparam["exe_type"] )
+
+                if targets_type == 'args':
+                    print('Get args:', path_tmp)
+                    if isinstance(path_tmp, list):
+                        onlyfiles = path_tmp
+                    else:
+                        print('No args')
+                        return
+                else:
+                    if exe_type == 'py':
+                        if targets_type == 'folder':
+                            onlyfiles1 = [f for f in listdir(path_tmp) if isfile(join(path_tmp, f))]
+                        elif targets_type == 'files':
+                            if isinstance(path_tmp, list):
+                                onlyfiles1 = path_tmp
+                            elif isinstance(path_tmp, str):
+                                onlyfiles1 = path_tmp.split(',')
+                            else:
+                                print('Unknown files')
+                                return
+                        else:
+                            print('Unknown target types')
+                            return
+                        onlyfiles = []
+                        if os.path.exists(path_to_python):
+                            for file in onlyfiles1:
+                                if file.endswith(".py"):
+                                    # script_path = os.path.join(path_tmp, file)
+                                    script_path = file
+                                    onlyfiles.append([path_to_python, script_path])
+
+
             except Exception as e:
                 print("Error on script struct param=",e)
         else:
-            res, path_tmp = self.getParam("path_to_script")
-            if not res:
-                print("No path to script")
-                return
-            res, path_to_python = self.getParam("path_to_python")
-            if not res:
-                print("No path to python")
-                return
-            if not os.path.exists(path_tmp):
-                print("Path to script is not valid")
-                return
-            need_to_remove = False
-            res, need_to_remove_tmp = self.getParam("remove_script")
-            if res:
-                need_to_remove = need_to_remove_tmp
-            phrase_script = "I run script: "
-            phrase_success = "I have execution result: "
-            phrase_error = "I have error: "
-        onlyfiles = [f for f in listdir(path_tmp) if isfile(join(path_tmp, f))]
+            print('No params')
+            return    
         print("Trg files=", onlyfiles)
         data = ""
+        done = True
+        if len(onlyfiles) == 0:
+            done = False
         for file in onlyfiles:
-            if file.endswith(".py"):
-                script_path = path_tmp + file
-                
-                data += phrase_script + path_to_python + " " + script_path + "\n"
-                print("Run script", path_to_python," on path", script_path)
-                result = subprocess.run([path_to_python, script_path], capture_output=True, text=True)
-                if result.returncode:
-                    data += phrase_error + result.stderr + "\n"
-                else:
-                    data += phrase_success + result.stdout + "\n"
-
-                data += "\n\n\nHere below outputs of script:\n\n\n"
-
-                if str_path_to_output_files:
-                    tres, output_paths = Loader.stringToPathList(str_path_to_output_files)
-                    print('Path to output:', output_paths)
-                    if tres:
-                        for p in output_paths:
-                            # ppath=p.strip("\'")
-                            tres, text = ReadFileMan.readPartitial(p,400)
-                            data += text + "\n"
-                    else:
-                        data += "No files on path" + str_path_to_output_files
-
-
-
-                if need_to_remove:
-                    try:
-                        os.remove(script_path)
-                        print("Remove ", script_path)
-                    except:
-                        print("Can't remove ", script_path)
-                        pass
+            if phrase_script != 'None':
+                data += phrase_script + str(file) + "\n"
+            print("Run script", file)
+            result = subprocess.run(file, capture_output=True, text=True)
+            if result.returncode:
+                done = False
+                data += phrase_error + result.stderr + "\n"
             else:
-                print("File is not valid=", file)
+                data += phrase_success + result.stdout + "\n"
+
+
+            if str_path_to_output_files:
+                tres, output_paths = Loader.stringToPathList(str_path_to_output_files)
+                print('Path to output:', output_paths, tres)
+                if tres:
+                    data += "\n\n\nHere below outputs of script:\n\n\n"
+                    for p in output_paths:
+                        # ppath=p.strip("\'")
+                        tres, text = ReadFileMan.readPartitial(p,400)
+                        data += text + "\n"
+                else:
+                    pass
+                    # data += "No files on path" + str_path_to_output_files
+
+
+
+            if need_to_remove:
+                try:
+                    os.remove(script_path)
+                    print("Remove ", script_path)
+                except:
+                    print("Can't remove ", script_path)
+                    pass
+        self.execute_success = done
+
+        if not done:
+            data += phrase_final
+
+        # print('Execute result=', self.execute_success)
 
         if len(data) > 0:
             self.msg_list.append({"role": "user", "content": data})

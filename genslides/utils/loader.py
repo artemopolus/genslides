@@ -7,9 +7,9 @@ class Loader:
         out = []
         for ppath in output_paths:
             i = ppath.strip("\'")
-            print('from',ppath,'insert',i)
+            # print('from',ppath,'insert',i)
             out.append(i)
-        print('list path=',out)
+        # print('list path=',out)
         return out
     
     def stringToPathList(  text:str):
@@ -22,7 +22,7 @@ class Loader:
             # aps = "\\".join(aps)
             # print(aps)
             # path = aps
-            print('Check',path)
+            # print('Check',path)
             if not os.path.exists(path):
                 return False, pp
         return True, pp

@@ -12,7 +12,7 @@ class ReactTask(TextTask):
 
         if len(msg_list_from_file) > 0:
             self.msg_list = msg_list_from_file
-            print("Get list from file=", self.path)
+            # print("Get list from file=", self.path)
         self.saveJsonToFile(self.msg_list)
 
         self.is_freeze = True

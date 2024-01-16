@@ -23,8 +23,8 @@ class ResponseTask(TextTask):
             self.onEmptyMsgListAction()
         else:
             self.onExistedMsgListAction(msg_list_from_file)
-        print("name=", self.getName())
-        print("path=", self.path)
+        # print("name=", self.getName())
+        # print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
     def onEmptyMsgListAction(self):
@@ -51,7 +51,7 @@ class ResponseTask(TextTask):
                 self.updateParam("model", "gpt-3.5-turbo")
 
         self.msg_list = msg_list_from_file
-        print("Get list from file=", self.path)
+        # print("Get list from file=", self.path)
 
     def setChatPram(self, name):
             res, temperature =  self.reqhelper.getValue(self.getType(), name)
@@ -61,16 +61,15 @@ class ResponseTask(TextTask):
 
     def executeResponseInternal(self, chat : LLModel):
         # input_msg_list = self.msg_list.copy()
-        input_msg_list = [] 
-        for msg in self.msg_list:
-            input_msg_list.append(msg.copy())
-        for msg in input_msg_list:
-            msg["content"] = self.findKeyParam(msg["content"])
-
+        # input_msg_list = [] 
+        # for msg in self.msg_list:
+        #     input_msg_list.append(msg.copy())
+        # for msg in input_msg_list:
+        #     msg["content"] = self.findKeyParam(msg["content"])
+        input_msg_list = self.getMsgs()
         # print("Chat=",input_msg_list)
 
-        res, out = chat.createChatCompletion(input_msg_list)
-        return res, out
+        return chat.createChatCompletion(input_msg_list)
 
  
     def executeResponse(self):
@@ -80,13 +79,19 @@ class ResponseTask(TextTask):
             chat = LLModel(param)
         else:
             chat = LLModel()
-        res, out = self.executeResponseInternal(chat)
+        res, out, out_params = self.executeResponseInternal(chat)
+        self.updateParam2(out_params)
+        print('Request=',self.prompt)
         if res:
             # print("out=", out)
             pair = {}
             pair["role"] = chat.getAssistTag()
             pair["content"] = out
+            self.prompt = out
             self.msg_list.append(pair)
+            print('Response=',out)
+        # print('Msg list=',self.msg_list)
+
 
 
     def update(self, input : TaskDescription = None):
@@ -122,7 +127,7 @@ class ResponseTask(TextTask):
         
        
 
-        print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
+        # print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
 
         if len(self.msg_list) == 0:
@@ -138,7 +143,7 @@ class ResponseTask(TextTask):
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:
-                print("Messages are same")
+                # print("Messages are same")
                 pass
         # super().update(input)
 
@@ -157,3 +162,28 @@ class ResponseTask(TextTask):
                 return txt[:20]
             return txt
         return self.msg_list[-1]["content"]
+    
+    
+    def getTextInfo(self, param):
+        res, p = self.getParamStruct('response', only_current=True)
+        if res:
+            out = []
+            max_log = -1000
+            min_log = 0
+            for value in p['logprobs']:
+                log = value['logprob']
+                if log > param['notgood']:
+                    pair = [value['token'], 'good']
+                elif log > param['bad']:
+                    pair = [value['token'], 'notgood']
+                else:
+                    pair = [value['token'], 'bad']
+                out.append(pair)
+                max_log = max(max_log, log)
+                min_log = min(min_log, log)
+
+            text = 'Log vars from' + str( max_log) + 'to' + str(min_log)
+            return out, text
+        else:
+            return super().getTextInfo()
+
