@@ -161,3 +161,4 @@ tests/img/*
 projects/*
 text65.txt
 tools/*
+.DS_Store
