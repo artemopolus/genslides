@@ -26,6 +26,8 @@ class ExtProjectTask(CollectTask):
         else:
             if 'path' in param:
                 path = param['path']
+                path_lst = path.split('\\')
+                path = os.path.join(*path_lst)
             else:
                 path = os.path.join( self.manager.getPath(), 'ext', param['project']) 
                 param['path'] = path
@@ -38,6 +40,7 @@ class ExtProjectTask(CollectTask):
                 self.updateParam2(param)
 
             self.intman.setPath(path)
+        print('Ext Proj Path=',path)
         self.intman.initInfo(self.manager.loadexttask, task = None, path = path)
         self.actioner = Actioner.Actioner(self.intman)
         self.actioner.setPath(path)
@@ -47,7 +50,7 @@ class ExtProjectTask(CollectTask):
         # print(10*"----------")
         self.intman.loadTasksList()
 
-        # print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
+        print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
 
         self.intpar = None
         self.intch = None
