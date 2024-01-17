@@ -222,6 +222,26 @@ class Manager:
             self.curr_task = self.tree_arr[0]
             self.tree_idx = 1
 
+    def getTreeNamesForRadio(self):
+        names = []
+        for task in self.tree_arr:
+            names.append(task.getBranchSummary())
+        trg = self.curr_task.getBranchSummary()
+        return gr.Radio(choices=names, value=trg, interactive=True)
+    
+    def getCurrentTreeNameForTxt(self):
+        return gr.Textbox(value=self.curr_task.getBranchSummary(), interactive=True)
+    
+    def goToTreeByName(self, name):
+        for i in range(len(self.tree_arr)):
+            trg = self.tree_arr[i].getBranchSummary()
+            if trg == name:
+                self.curr_task = self.tree_arr[i]
+                self.tree_idx = i
+                break
+        return self.goToNextBranchEnd()
+
+
     def goToNextTree(self):
         # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
@@ -1279,7 +1299,9 @@ class Manager:
             r_msgs,
             self.getCurrentExtTaskOptions(),
             # TODO: Рисовать весь граф, но в упрощенном виде
-            graph
+            graph,
+            self.getTreeNamesForRadio(),
+            self.getCurrentTreeNameForTxt()
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):

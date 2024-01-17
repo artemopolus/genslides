@@ -736,9 +736,10 @@ class TextTask(BaseTask):
         return False, ''
 
     def setParamStruct(self, param):
+        self.updateParam2(param)
         # print('Init params=',self.params)
-        if 'type' in param:
-            self.params.append(param)
+        # if 'type' in param:
+            # self.params.append(param)
         self.saveJsonToFile(self.msg_list)
 
     def rmParamStruct(self, param):
@@ -827,4 +828,16 @@ class TextTask(BaseTask):
     def afterRestoration(self):
         self.saveJsonToFile(self.msg_list)
 
- 
+    def setBranchSummary(self, summary : str):
+        print('Set branch summary:', summary)
+        pars = self.getAllParents()
+        param = {'type':'summary','text': summary}
+        pars[0].setParamStruct(param)
+        
+
+    def getBranchSummary(self) -> str:
+        pars = self.getAllParents()
+        res, param = pars[0].getParamStruct('summary')
+        if res:
+            return param['text']
+        return pars[0].getName()
