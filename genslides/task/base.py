@@ -720,14 +720,19 @@ class BaseTask():
         # print("Update=",self.getName(), "|frozen=", self.is_freeze)
         self.updateIternal(input)
 
-        if input is None or input and not input.stepped:
+        if input is None:
             
             self.useLinksToTask()
 
             for child in self.childs:
                 child.update()
-        else:
+        elif input and input.stepped:
             self.setupQueue()
+        else:
+            self.is_freeze = True
+            self.useLinksToTask()
+            for child in self.childs:
+                child.update()
 
         return "","",""
     

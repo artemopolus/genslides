@@ -114,6 +114,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             parameters_manager = projecter
 
             with gr.Row() as r:
+                tree_names_radio = gr.Radio(label='Trees:')
+            with gr.Row() as r:
+                new_tree_name_txt = gr.Textbox(label='Current tree label:')
+
+            with gr.Row() as r:
                 # with gr.Column(min_width=150):
                     next_tree_btn = gr.Button(value='Next tree', min_width=150)
                     next_branch_btn = gr.Button(value='Next branch', min_width=150)
@@ -122,17 +127,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     go_parnt_btn = gr.Button(value='Go up')
                     go_child_btn = gr.Button(value='Go down')
                 # with gr.Column():
-            with gr.Row() as r:
-                tree_names_radio = gr.Radio()
-            with gr.Row() as r:
-                new_tree_name_txt = gr.Textbox()
 
-            with gr.Tab('Dial'):
-                dial_block = gr.Chatbot()
-            with gr.Tab('Img'):
-                graph_alone = gr.Image(
-                        width=500
-                    )
             with gr.Tab('Both'):
                 with gr.Row():
                     with gr.Column():
@@ -152,6 +147,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             # source="upload", type="pil", 
                             height=500)
                 # graph_img.style(height=500)
+            with gr.Tab('Dial'):
+                dial_block = gr.Chatbot()
+            with gr.Tab('Img'):
+                graph_alone = gr.Image(
+                        width=500
+                    )
 
             with gr.Row():
                 # with gr.Column():
@@ -191,7 +192,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
 
                    
-                    base_action_list.input(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck])
+                    base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck])
                     
                     with gr.Tab('Params'):
                         with gr.Row():

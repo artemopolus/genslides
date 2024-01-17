@@ -150,6 +150,7 @@ class Manager:
     def createTreeOnSelectedTasks(self, action_type : str, task_type : str):
         first = True
         for task in self.selected_tasks:
+            # TODO: Заменить на запрос к MakeAction
             if first:
                 parent = None
                 if action_type == 'SubTask':
