@@ -266,7 +266,8 @@ class Projecter:
     
     def goToNextTree(self):
         # TODO: сразу переходить к одному из конечных диалогов
-        return self.actioner.manager.goToNextTree()
+        self.actioner.manager.goToNextTree()
+        return self.goToNextBranchEnd()
     
     def goToNextChild(self):
         return self.actioner.manager.goToNextChild()

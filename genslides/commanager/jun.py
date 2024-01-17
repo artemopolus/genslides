@@ -1370,7 +1370,19 @@ class Manager:
             app.attributes('-topmost', True)
             filename = askdirectory() # show an "Open" dialog box and return the path to the selected file
             return gr.Dropdown(choices=[filename], value=filename, interactive=True), gr.Textbox(value=filename, interactive=True)
-
+        elif param_key == 'model':
+            res, data = self.curr_task.getParamStruct(param_name)
+            if res:
+                cur_val = data[param_key]
+                path_to_config = os.path.join('config','models.json')
+                values = []
+                with open(path_to_config, 'r') as config:
+                    models = json.load(config)
+                    for _, vals in models.items():
+                        values.extend([opt['name'] for opt in vals['prices']])
+                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=''))
+           
         task_man = TaskManager()
         res, data = self.curr_task.getParamStruct(param_name)
         if res and param_key in data:
