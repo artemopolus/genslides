@@ -222,6 +222,26 @@ class Manager:
             self.curr_task = self.tree_arr[0]
             self.tree_idx = 1
 
+    def getTreeNamesForRadio(self):
+        names = []
+        for task in self.tree_arr:
+            names.append(task.getBranchSummary())
+        trg = self.curr_task.getBranchSummary()
+        return gr.Radio(choices=names, value=trg, interactive=True)
+    
+    def getCurrentTreeNameForTxt(self):
+        return gr.Textbox(value=self.curr_task.getBranchSummary(), interactive=True)
+    
+    def goToTreeByName(self, name):
+        for i in range(len(self.tree_arr)):
+            trg = self.tree_arr[i].getBranchSummary()
+            if trg == name:
+                self.curr_task = self.tree_arr[i]
+                self.tree_idx = i
+                break
+        return self.goToNextBranchEnd()
+
+
     def goToNextTree(self):
         # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
@@ -1279,7 +1299,9 @@ class Manager:
             r_msgs,
             self.getCurrentExtTaskOptions(),
             # TODO: Рисовать весь граф, но в упрощенном виде
-            graph
+            graph,
+            self.getTreeNamesForRadio(),
+            self.getCurrentTreeNameForTxt()
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
@@ -1370,7 +1392,19 @@ class Manager:
             app.attributes('-topmost', True)
             filename = askdirectory() # show an "Open" dialog box and return the path to the selected file
             return gr.Dropdown(choices=[filename], value=filename, interactive=True), gr.Textbox(value=filename, interactive=True)
-
+        elif param_key == 'model':
+            res, data = self.curr_task.getParamStruct(param_name)
+            if res:
+                cur_val = data[param_key]
+                path_to_config = os.path.join('config','models.json')
+                values = []
+                with open(path_to_config, 'r') as config:
+                    models = json.load(config)
+                    for _, vals in models.items():
+                        values.extend([opt['name'] for opt in vals['prices']])
+                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=''))
+           
         task_man = TaskManager()
         res, data = self.curr_task.getParamStruct(param_name)
         if res and param_key in data:

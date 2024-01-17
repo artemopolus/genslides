@@ -266,7 +266,8 @@ class Projecter:
     
     def goToNextTree(self):
         # TODO: сразу переходить к одному из конечных диалогов
-        return self.actioner.manager.goToNextTree()
+        self.actioner.manager.goToNextTree()
+        return self.goToNextBranchEnd()
     
     def goToNextChild(self):
         return self.actioner.manager.goToNextChild()
@@ -477,3 +478,11 @@ class Projecter:
         # self.actioner.manager.copyTasksByInfo(tasks_chains=tasks_chains,edited_prompt='test', change_prompt=True, trg_type_t='', src_type_t='')
         self.actioner.manager.copyTasksByInfoStep()
         return self.actioner.manager.getCurrTaskPrompts()
+
+    def setTreeName(self, name : str):
+        self.actioner.manager.curr_task.setBranchSummary(name)
+        return self.actioner.manager.getCurrTaskPrompts()
+
+    def goToTreeByName(self, name):
+        return self.actioner.manager.goToTreeByName(name)
+

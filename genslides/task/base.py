@@ -1092,3 +1092,9 @@ class BaseTask():
     
     def getLastMsgContentRaw(self):
         return "No any content"
+    
+    def setBranchSummary(self, summary : str):
+        pass
+
+    def getBranchSummary(self) -> str:
+        return ''

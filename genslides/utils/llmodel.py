@@ -17,12 +17,12 @@ class LLModel():
         print('Start llmodel with params=', params)
         if params == None:
             params = {'type':'model','model':'gpt-3.5-turbo'}
-        path_to_config = 'config/models.json'
+        path_to_config = os.path.join('config','models.json')
 
         self.temperature = None
         self.active = False 
         self.path = path_to_config
-        self.path_to_file = "output/openai.json"
+        self.path_to_file = os.path.join("output","openai.json")
 
 
         model_name = params['model']
