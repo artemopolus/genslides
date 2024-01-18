@@ -616,6 +616,9 @@ class TextTask(BaseTask):
                 self.is_freeze = False
             else:
                 self.is_freeze = True
+        else:
+            if self.parent == None:
+                self.is_freeze = False
         # print("freeze=", self.is_freeze)
 
     def checkInput(self, input: TaskDescription = None):

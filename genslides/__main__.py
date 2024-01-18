@@ -215,7 +215,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
                         with gr.Row():
                             clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
-                            slct_action_list = gr.Radio(choices=["New","SubTask"], 
+                            slct_action_list = gr.Radio(choices=["New","SubTask","Insert"], 
                                                             label="Select actions", 
                                                             value="New"
                                                             )

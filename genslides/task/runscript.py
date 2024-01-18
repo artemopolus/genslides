@@ -28,6 +28,8 @@ class RunScriptTask(ResponseTask):
                 need_to_remove = pparam["remove_script"]  
                 phrase_script = self.findKeyParam( pparam["init_phrase"] )
                 phrase_success = self.findKeyParam( pparam["on_success"] )
+                if phrase_success == 'None':
+                    phrase_success = ''
                 phrase_error = self.findKeyParam( pparam["on_error"] )
                 phrase_final = self.findKeyParam( pparam["on_final"] )
 
@@ -37,7 +39,7 @@ class RunScriptTask(ResponseTask):
                 exe_type = self.findKeyParam(pparam["exe_type"] )
 
                 if targets_type == 'args':
-                    print('Get args:', path_tmp)
+                    # print('Get args:', path_tmp)
                     if isinstance(path_tmp, list):
                         onlyfiles = path_tmp
                     else:
@@ -80,6 +82,8 @@ class RunScriptTask(ResponseTask):
         for file in onlyfiles:
             if phrase_script != 'None':
                 data += phrase_script + str(file) + "\n"
+            file = self.findKeyParam(file)
+            # file = file.encode('unicode_escape').decode()
             print("Run script", file)
             result = subprocess.run(file, capture_output=True, text=True)
             if result.returncode:
@@ -119,6 +123,7 @@ class RunScriptTask(ResponseTask):
         # print('Execute result=', self.execute_success)
 
         if len(data) > 0:
+            print('Script output len=', len(data))
             self.msg_list.append({"role": "user", "content": data})
         else:
             print("No data is getted from")

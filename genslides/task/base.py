@@ -161,9 +161,9 @@ class TaskManager(metaclass=Singleton):
                         #         pair['content'] = elem['content']
                         #         out.append(pair)
             except json.decoder.JSONDecodeError as e:
-                print("Get json error on task prompts=", e)
+                print("Get json error on task prompts=", e,"using", path)
             except Exception as e:
-                print("Task prompts error=", type(e))
+                print("Task prompts error=", type(e),"using", path)
         return out
 
 

@@ -149,17 +149,21 @@ class Manager:
 
     def createTreeOnSelectedTasks(self, action_type : str, task_type : str):
         first = True
-        for task in self.selected_tasks:
+        trg = self.curr_task
+        task_list = self.selected_tasks.copy()
+        for task in task_list:
             # TODO: Заменить на запрос к MakeAction
-            if first:
-                parent = None
-                if action_type == 'SubTask':
-                    parent = self.curr_task
-                self.createOrAddTask("",task_type,"user",parent,[])
-                first = False
-            else:
-                parent = self.curr_task
-                self.createOrAddTask("",task_type,"user",parent,[])
+            self.curr_task = trg
+            self.makeTaskAction("",task_type, action_type, 'user')
+            # if first:
+            #     parent = None
+            #     if action_type == 'SubTask':
+            #         parent = self.curr_task
+            #     self.createOrAddTask("",task_type,"user",parent,[])
+            #     first = False
+            # else:
+            #     parent = self.curr_task
+            #     self.createOrAddTask("",task_type,"user",parent,[])
             self.makeLink(self.curr_task, task)
         self.clearSelectList()
         return self.getCurrTaskPrompts()
@@ -704,6 +708,7 @@ class Manager:
                 task1.update()
             else:
                 self.slct_task.update()
+            self.curr_task = self.slct_task
             print('Selected',self.slct_task.getName())
             print('Current', self.curr_task.getName())
 
@@ -745,7 +750,7 @@ class Manager:
         log = "Nothing"
         img_path = "output/img.png"
         # print(10*"====")
-        # print("Make action", creation_type)
+        print("Make action", creation_type)
         # print(10*"====")
 
         if type is None or creation_type is None:
@@ -866,12 +871,12 @@ class Manager:
                 print('Relink from', task_out.getName(),':')
                 trgs = task_out.getAffectingOnTask()
                 for trg in trgs:
-                    # print("   - [Make link] from ", trg.getName(), " to ", task_in.getName())
+                    print("   - [Make link] from ", trg.getName(), " to ", task_in.getName())
                     info = TaskDescription(target=task_in, parent=trg)
                     cmd = lnkcmd.LinkCommand(info)
                     self.cmd_list.append(cmd)
             else:
-                # print("[Make link] from ", task_out.getName(), " to ", task_in.getName())
+                print("[Make link] from ", task_out.getName(), " to ", task_in.getName())
                 info = TaskDescription(target=task_in, parent=task_out)
                 cmd = lnkcmd.LinkCommand(info)
                 self.cmd_list.append(cmd)
@@ -1372,7 +1377,8 @@ class Manager:
             app.withdraw() # we don't want a full GUI, so keep the root window from appearing
             app.attributes('-topmost', True)
             filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
-            return gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False), gr.Textbox()
+            return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
+                    gr.Textbox(str(filename)))
         elif param_name == 'script' and param_key == 'path_to_trgs':
             app = Tk()
             app.withdraw()  
@@ -1392,7 +1398,7 @@ class Manager:
             app.withdraw() # we don't want a full GUI, so keep the root window from appearing
             app.attributes('-topmost', True)
             filename = askdirectory() # show an "Open" dialog box and return the path to the selected file
-            return gr.Dropdown(choices=[filename], value=filename, interactive=True), gr.Textbox(value=filename, interactive=True)
+            return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
         elif param_key == 'model':
             res, data = self.curr_task.getParamStruct(param_name)
             if res:
