@@ -45,6 +45,8 @@ class TextTask(BaseTask):
         # print('Input params',task_info.params)
         # print('Task params',self.params)
         self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})
+        
+        self.stdProcessUnFreeze()
     
     def addChild(self, child) -> bool:
         if super().addChild(child):
@@ -423,8 +425,11 @@ class TextTask(BaseTask):
     def saveJsonToFile(self, msg_list):
         resp_json_out = self.getJsonMsg(msg_list)
         # print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]")
-        with open(self.path, 'w') as f:
-            json.dump(resp_json_out, f, indent=1)
+        try:
+            with open(self.path, 'w') as f:
+                json.dump(resp_json_out, f, indent=1)
+        except:
+            print('Can\'t save json file')
 
     def deleteJsonFile(self):
         print('Remove file', self.path)
@@ -605,6 +610,11 @@ class TextTask(BaseTask):
             self.saveJsonToFile(self.msg_list)
 
     def stdProcessUnFreeze(self, input=None):
+        res, pparam = self.getParamStruct('block')
+        if res and pparam['block']:
+            self.is_freeze = True
+            return
+
         if self.parent:
             self.is_freeze = self.parent.is_freeze
 

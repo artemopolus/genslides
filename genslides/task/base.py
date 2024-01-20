@@ -225,10 +225,12 @@ class BaseTask():
 
         if  self.parent:
             self.parent.addChild(self)
-            if self.parent.is_freeze:
-                self.is_freeze = True
+            # if self.parent.is_freeze:
+                # self.is_freeze = True
+        
         self.target = task_info.target
         self.filename = task_info.filename
+
 
     def getBranchCodeTag(self) -> str:
         p_tasks = self.getAllParents()
@@ -1031,7 +1033,8 @@ class BaseTask():
         while len(self.by_ext_affected_list) > 0:
             input = self.by_ext_affected_list.pop()
             input.parent.resetLinkToTask(input)
-        
+        for task in self.getHoldGarlands():
+            task.removeLinkToTask()
     
 
     def completeTask(self) -> bool:

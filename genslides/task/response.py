@@ -30,14 +30,17 @@ class ResponseTask(TextTask):
     def onEmptyMsgListAction(self):
         self.setChatPram("temperature")
         self.setChatPram("model")
+        # Если задача заморожена
         if self.is_freeze:
             res, param = self.getParamStruct('model')
+            # то сохраняем пустое сообщение
             if res:
                 chat = LLModel(param) 
                 self.msg_list.append({"role": chat.getAssistTag(), "content": ""})
             else:
                 self.msg_list.append({"role": "assistant", "content": ""})
         else:
+            # в противном случае выполняем запрос
             self.executeResponse()
 
     def onExistedMsgListAction(self, msg_list_from_file):
@@ -67,6 +70,7 @@ class ResponseTask(TextTask):
         # for msg in input_msg_list:
         #     msg["content"] = self.findKeyParam(msg["content"])
         input_msg_list = self.getMsgs()
+        print('Request=',input_msg_list)
         # print("Chat=",input_msg_list)
 
         return chat.createChatCompletion(input_msg_list)
@@ -81,7 +85,6 @@ class ResponseTask(TextTask):
             chat = LLModel()
         res, out, out_params = self.executeResponseInternal(chat)
         self.updateParam2(out_params)
-        print('Request=',self.prompt)
         if res:
             # print("out=", out)
             pair = {}
@@ -111,12 +114,15 @@ class ResponseTask(TextTask):
             return "",self.prompt_tag,""
         
         if self.is_freeze and self.parent:
-            print("frozen=",self.getName())
+            # print("frozen=",self.getName())
             if not self.parent.is_freeze:
                 self.is_freeze = False
                 tmp_msg_list = self.getRawParentMsgs()
                 # print(pprint.pformat(tmp_msg_list))
                 msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+                print('Parent:',len(tmp_msg_list))
+                print('Current:', len(msg_list_from_file))
+                print('Msg[',len(msg_list_from_file[-1]['content']) ,']:|',msg_list_from_file[-1]['content'],'|')
                 if len(msg_list_from_file):
                     print("I loaded")
                     self.msg_list = msg_list_from_file
@@ -130,21 +136,33 @@ class ResponseTask(TextTask):
         # print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
 
+        # Если список сообщений пустой, за-за чего?
         if len(self.msg_list) == 0:
             print('Empty msg list')
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
         else:
+            # Проверка настроек для конкретного типа задачи
             sres, sparam = self.getParamStruct(self.getType())
             exe_always = False
             if sres and 'do_always' in sparam and sparam['do_always']:
                 exe_always = True
+            # Проверка сообщений родителя
             if not self.checkParentMsgList(update=True, save_curr=False) or exe_always:
+                # Список сообщений родителя отличается
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:
+                # Список сообщений такой же
                 # print("Messages are same")
-                pass
+                msg = self.getLastMsgContentRaw()
+                # print('Response[',len(msg),']|',msg,'|')
+                # Если сообщение пустое, то делаем вывод, что задача была морожена
+                if len(msg) == 0:
+                    # Запрашиваем сообщение
+                    self.executeResponse()
+                    self.saveJsonToFile(self.msg_list)
+
         # super().update(input)
 
     def getMsgInfo(self):

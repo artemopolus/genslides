@@ -82,7 +82,13 @@ class RunScriptTask(ResponseTask):
         for file in onlyfiles:
             if phrase_script != 'None':
                 data += phrase_script + str(file) + "\n"
-            file = self.findKeyParam(file)
+            if isinstance(file, str):
+                file = self.findKeyParam(file)
+            elif isinstance(file, list):
+                n_file = []
+                for opt in file:
+                    n_file.append(self.findKeyParam(opt))
+                file = n_file
             # file = file.encode('unicode_escape').decode()
             print("Run script", file)
             result = subprocess.run(file, capture_output=True, text=True)

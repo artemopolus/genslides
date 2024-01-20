@@ -541,9 +541,9 @@ class Manager:
                 elif task ==self.slct_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
                 else:
-                    if self.getTaskParamRes(task, "stopped"):
+                    if self.getTaskParamRes(task, "block"):
                     # if task.getParam("stopped") == [True, True]:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="crimson")
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="gold2")
                     elif self.getTaskParamRes(task, "input"):
                     # elif task.getParam("input") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine")
@@ -674,15 +674,23 @@ class Manager:
             task1 = self.curr_task.parent
             task2 = self.curr_task
             if task1:
-                self.makeTaskActionBase(prompt, type, "RemoveParent", creation_tag)
+                # self.makeTaskActionBase(prompt, type, "RemoveParent", creation_tag)
                 self.curr_task = task1
                 self.makeTaskActionBase(prompt, type, "SubTask", creation_tag)
             else:
                 self.makeTaskActionBase(prompt, type, "New", creation_tag)
+            task_12 = self.curr_task
             self.slct_task = self.curr_task
             self.selected_tasks = [self.curr_task]
             self.curr_task = task2
-            self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
+            if task1 is not None:
+                task1.addChild(task_12)
+                task2.removeParent()
+                task_12.addChild(task2)
+                task1.saveAllParams()
+                task2.saveAllParams()
+                task_12.saveAllParams()
+            # self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
             try:
             # if task1 is not None:
                 print('Parents\nFirst', task1.parent.getName() if task1.parent is not None else 'None','=',task1.getName())
@@ -704,10 +712,10 @@ class Manager:
             except Exception as e:
                 print('Error:', e)
             # print(self.curr_task.queue)
-            if task1 is not None:
-                task1.update()
-            else:
-                self.slct_task.update()
+            # if task1 is not None:
+            #     task1.update()
+            # else:
+            #     self.slct_task.update()
             self.curr_task = self.slct_task
             print('Selected',self.slct_task.getName())
             print('Current', self.curr_task.getName())
@@ -715,16 +723,14 @@ class Manager:
         elif creation_type == "Remove":
             task1 = self.curr_task.parent
             task2 = self.curr_task
-            if task1 is None:
-                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
-            else:
-                task3_list = task2.getChilds()
-                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
-                self.slct_task = task1
-                for task in task3_list:
-                    self.curr_task = task
-                    self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
-
+            task3_list = task2.getChilds()
+            for task in task3_list:
+                task.removeParent()
+                if task1 is not None:
+                    task1.addChild(task)
+            self.curr_task = task2
+            self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+           
         elif creation_type == "ReqResp":
             if self.curr_task is not None:
                 self.makeTaskActionBase(prompt,"Request","SubTask","user")
@@ -750,7 +756,7 @@ class Manager:
         log = "Nothing"
         img_path = "output/img.png"
         # print(10*"====")
-        print("Make action", creation_type)
+        # print("Make action", creation_type)
         # print(10*"====")
 
         if type is None or creation_type is None:

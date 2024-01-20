@@ -2,7 +2,7 @@ import re
 import genslides.utils.loader as Loader
 
 def convertMdToScript(md_text):
-    print('convert md to script')
+    # print('convert md to script')
     code_pattern = r'```python\n(.*?)\n```'
     
     parts = re.split(code_pattern, md_text, flags=re.DOTALL)

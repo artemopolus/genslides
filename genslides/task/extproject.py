@@ -13,6 +13,9 @@ import shutil
 
 class ExtProjectTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="ExtProject") -> None:
+        self.intpar = None
+        self.intch = None
+        self.intman = None
         super().__init__(task_info, type)
         self.is_freeze = False
 
@@ -58,6 +61,8 @@ class ExtProjectTask(CollectTask):
         # print(10*"----------")
 
     def updateInOutExtProject(self):
+         if self.intman is None:
+             return
          for task in self.intman.task_list:
             res, param = task.getParamStruct('input')
             if res and param['input']:
@@ -113,7 +118,7 @@ class ExtProjectTask(CollectTask):
         pass
 
     def updateIternal(self, input : TaskDescription = None):
-        print('Update internal', self.getName())
+        # print('Update internal', self.getName())
         # self.haveMsgsAction(self.msg_list)
         if input:
             input.prompt_tag = self.intpar.getLastMsgRole() #quick fix, avoiding to change internal role param
@@ -132,7 +137,7 @@ class ExtProjectTask(CollectTask):
                 self.actioner.callScript('update_input_nostep')
                 self.updateInOutExtProject()
         else:
-            if not self.intpar.checkParentMsgList(update=False, remove=True):
+            if self.intpar is not None and not self.intpar.checkParentMsgList(update=False, remove=True):
                 print('Normal update', self.getName())
                 info = TaskDescription(prompt=self.prompt, prompt_tag=self.intpar.getLastMsgRole(), manual=True)
                 self.intpar.update(info)
@@ -149,11 +154,14 @@ class ExtProjectTask(CollectTask):
         # if res and 'path' in param:
         #     print('Remove', param['path'])
         #     shutil.rmtree(param['path'])
-        self.intman.beforeRemove(True)
-        del self.intman
+        if self.intman is not None:
+            self.intman.beforeRemove(True)
+            del self.intman
         super().beforeRemove()
 
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        if self.intch is None:
+            return super().getLastMsgAndParent()
         return self.intch.getLastMsgAndParent()
 
     def getLastMsgContentRaw(self):
@@ -164,6 +172,8 @@ class ExtProjectTask(CollectTask):
 
     def getBranchCode(self, second) -> str:
         code_s = ""
+        if self.intman is None:
+            print('No manager', self.getName())
         if second in self.intman.task_list and len(self.intpar.getChilds()) > 1:
             trg1 = second
             code_s += self.manager.getShortName(trg1.getType(), trg1.getName())

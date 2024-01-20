@@ -359,7 +359,11 @@ class Actioner():
             n.extend(tmp_man)
             name = '->'.join(n)
 
-        return gr.Dropdown(choices= saved_man, value=None, interactive=True), gr.Dropdown(choices= tmp_man, value=None, interactive=True), json.dumps(param, indent=1), gr.Text(value=name), self.manager.getCurrentExtTaskOptions()
+        return (gr.Dropdown(choices= saved_man, value=None, interactive=True), 
+                gr.Dropdown(choices= tmp_man, value=None, interactive=True), 
+                json.dumps(param, indent=1), 
+                gr.Text(value=name), 
+                self.manager.getCurrentExtTaskOptions())
 
     def setParamToManagerInfo(self, param : dict, manager : Manager):
         for key, value in param.keys():
