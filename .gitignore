@@ -159,3 +159,5 @@ saved/*
 output/*
 tests/img/*
 projects/*
+tools/*
+text65.txt
