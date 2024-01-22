@@ -23,6 +23,8 @@ class GoogleApiSearcher(WebSearcher):
         super().__init__()
 
     def getSearchs(self, request: str):
+        if len(request) == 0:
+            return []
         if request[0] =="\"" and request[-1] == "\"":
             request = request[1:-1]
         print('Web search=', request)
@@ -30,8 +32,8 @@ class GoogleApiSearcher(WebSearcher):
         result = resource.list(q=request, cx=self.cse_key).execute()
         out = []
         for item in result['items']:
-            print(item['title'], '='*10, item['link'])
-            print(item)
+            # print(item['title'], '='*10, item['link'])
+            # print(item)
             # out.append(item['link'] + ' title: ' + item['title'] + ' snippet:' + item['snippet'])
             out.append(item['link'] )
         return out

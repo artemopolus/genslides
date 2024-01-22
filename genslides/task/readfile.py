@@ -28,16 +28,33 @@ class ReadFileTask(ResponseTask):
         #                 self.msg_list[-1]["content"] = text
         self.saveJsonToFile(self.msg_list)
 
+    def onEmptyMsgListAction(self):
+        if self.is_freeze:
+            self.msg_list.append({"role": self.prompt_tag, "content": ""})
+        else:
+            self.executeResponse()
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        # print("t=",temperature)
+        param_name = "path_to_read"
+        res, val = self.getParam(param_name)
+        if res:
+            self.updateParam(param_name, val)
+
+        self.msg_list = msg_list_from_file
+        print("Get list from file=", self.path)
+
+
     def getResponseFromFile(self, msg_list, remove_last = True):
         print("_______________Get from read task")
 
-        mypath = "saved/"
+        mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        trg_file = self.filename + ".json"
+        trg_file = self.filename + self.manager.getTaskExtention()
         # for file in onlyfiles:
         if trg_file in onlyfiles:
             file = trg_file
-            if file.startswith(self.type):
+            if file.startswith(self.getType()):
                 path = mypath + file
                 try:
                     print(path)
@@ -50,7 +67,7 @@ class ReadFileTask(ResponseTask):
 
                         
                         self.path = path
-                        self.name = file.split('.')[0]
+                        self.setName( file.split('.')[0])
                         if 'params' in rq:
                             self.params = rq['params']
 
@@ -85,26 +102,22 @@ class ReadFileTask(ResponseTask):
 
 
     def executeResponse(self):
+        print('Exe resp read')
       #   str = "J:\WorkspaceFast\genslides\examples\05table_parts_slides1_req.txt"
-        if os.path.isfile(self.getRichPrompt()):
-
-
+        path = self.getRichPrompt()
+        if os.path.isfile(path):
             param_name = "path_to_read"
-            self.updateParam(param_name,self.getRichPrompt())
-            # found = False
-            # for param in self.params:
-            #     if param_name in param:
-            #         param[param_name] = self.getRichPrompt()
-            #         found = True
-            # if not found:
-            #     self.params.append({param_name: self.getRichPrompt()})
-
-
-
-            with open(self.getRichPrompt(), 'r') as f:
-                print("path_to_read =", self.getRichPrompt())
+            self.updateParam(param_name, path)
+            with open(path, 'r') as f:
+                print("path_to_read =", path)
                 text = f.read()
                 self.msg_list.append({
                     "role": self.prompt_tag,
                     "content": text
                 })
+    def forceCleanChat(self):
+        if len(self.msg_list) > 0:
+            self.msg_list = []
+
+
+

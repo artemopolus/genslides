@@ -53,6 +53,16 @@ class ChatGPT():
         self.path = path_to_config
         self.path_to_file = "output/openai.json"
 
+    def getModelList(self):
+        out = []
+        with open(self.path, 'r') as config:
+            values = json.load(config)
+            key = values['prices']
+            for price_info in key:
+                out.append(price_info["name"])
+        return out
+ 
+
     def getMaxTokensNum(self) -> int:
         return self.max_tokens
 
@@ -67,6 +77,12 @@ class ChatGPT():
             model_names.append(model.id)
         return model_names
     
+    def getTokensCountFromChat(self, msgs):
+        text = ""
+        for msg in msgs:
+            text += msg["content"]
+        return self.getTokensCount(text)
+  
     def getTokensCount(self, text) -> int:
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         token_cnt = len(tokenizer.encode(text))
@@ -112,6 +128,15 @@ class ChatGPT():
                 val.append({ "date" : cur_date, "sum" : sum_price})
                 json.dump(val,f,indent=1)
 
+    def getSpentToday(self):
+        with open(self.path_to_file, 'r') as f:
+            cur_date = str(datetime.date.today())
+            days = json.load(f)
+            for day in days:
+                if 'date' in day and day['date'] == cur_date and 'sum' in day:
+                    return day['sum']
+        return 0
+
         
 
     def createChatCompletion(self, messages, model="gpt-3.5-turbo"):
@@ -153,9 +178,13 @@ class ChatGPT():
             print('status==>', e.http_status)
             return False, ""
         except ServiceUnavailableError as e:
+            print('Service is unavailable=',e)
             return False, ""
         except TimeoutError as e:
             print('timeot error')
+            return False, ""
+        except Exception as e:
+            print('Unknown err=',e)
             return False, ""
 
 class SimpleChatGPT(ChatGPT):
@@ -192,6 +221,7 @@ class SimpleChatGPT(ChatGPT):
                 return True, out["content"]        
             return False, ""
     
+    
     def recvRespFromMsgList(self, msgs):
         text = ""
         for msg in msgs:
@@ -202,15 +232,21 @@ class SimpleChatGPT(ChatGPT):
         if token_cnt > self.max_tokens:
             # try divide last
             # it's too many of them!
-            pass
-        else:
-            self.addCounterToPromts(token_cnt,price=self.input_price)
-            res, out = self.createChatCompletion(messages=msgs)
+            idx = 0
+            while (idx < 1000 and token_cnt > self.max_tokens):
+                msgs.pop(0)
+                text = ""
+                for msg in msgs:
+                    text += msg["content"]
+                token_cnt = self.getTokensCount(text)
+                idx += 1
+        self.addCounterToPromts(token_cnt,price=self.input_price)
+        res, out = self.createChatCompletion(messages=msgs)
 
-            if res:
-                token_cnt = self.getTokensCount(out["content"])
-                self.addCounterToPromts(token_cnt, price= self.output_price)
-                return True, out["content"]        
+        if res:
+            token_cnt = self.getTokensCount(out["content"])
+            self.addCounterToPromts(token_cnt, price= self.output_price)
+            return True, out["content"]        
         return False, ""
 
     def getUserTag(self):

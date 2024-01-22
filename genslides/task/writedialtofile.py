@@ -18,10 +18,10 @@ class WriteDialToFileTask(WriteToFileTask):
         print("-----------------------------------------------------------------------------------Msg lst=", len(self.msg_list))
         if len(self.msg_list) < 3:
             return
-        print("Path=", self.getRichPrompt())
+        # print("Path=", self.getRichPrompt())
         # if os.path.isfile(self.getRichPrompt()):
         with open(self.getRichPrompt(), 'w',encoding='utf8') as f:
-            print("path_to_read =", self.getRichPrompt())
+            print(self.getName(), "read", self.getRichPrompt())
             # text = self.msg_list[len(self.msg_list) - 3]["content"]
             resp_json_out = self.msg_list.copy()
             resp_json_out.pop()

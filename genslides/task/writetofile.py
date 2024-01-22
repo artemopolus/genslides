@@ -1,5 +1,5 @@
 from genslides.task.text import TextTask
-from genslides.task.base import TaskDescription
+from genslides.task.base import TaskDescription, BaseTask
 
 
 import os
@@ -20,6 +20,9 @@ class WriteToFileTask(TextTask):
         print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
+    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        return False, [], self.parent
+    
     def getRichPrompt(self) -> str:
         if self.parent:
             return self.findKeyParam( self.msg_list[-1]["content"])
@@ -47,16 +50,32 @@ class WriteToFileTask(TextTask):
             # print("Try to save=", text)
             f.write(text)
 
+    def checkAnotherOptions(self) -> bool:
+        return False
+
     def updateIternal(self, input : TaskDescription = None):
         if self.parent:
             trg_list = self.parent.msg_list.copy()
         else:
-            trg_list = []
-        if self.msg_list != trg_list:
+            return
+        if self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False or self.checkAnotherOptions():
+            print('Exe write file')
             self.msg_list = trg_list
             self.executeResponse()
+            self.saveJsonToFile(self.msg_list)
+        else:
+            print('Doing nothing')
 
     def update(self, input : TaskDescription = None):
         super().update(input)
-        out = self.msg_list[len(self.msg_list) - 1]
-        return out["content"], out["role"], ""
+        if len(self.msg_list) > 0:
+            out = self.msg_list[len(self.msg_list) - 1]
+            return out["content"], out["role"], ""
+        return "None", "user", "None"
+    
+    def forceCleanChat(self):
+        if len(self.msg_list) > 0:
+            self.msg_list = []
+
+
+

@@ -16,14 +16,13 @@ class GroupTask(CollectTask):
 
     def getResponseFromFile(self, msg_list, remove_last = True):
         print("Get response from file:")
-
-        mypath = "saved/"
+        mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        trg_file = self.filename + ".json"
+        trg_file = self.filename + self.manager.getTaskExtention()
         # for file in onlyfiles:
         if trg_file in onlyfiles:
             file = trg_file
-            if file.startswith(self.type):
+            if file.startswith(self.getType()):
                 path = mypath + file
                 try:
                     print(path)
@@ -36,7 +35,7 @@ class GroupTask(CollectTask):
                         if True:
                             print(10*"====", "YEEEES")
                             self.path = path
-                            self.name = file.split('.')[0]
+                            self.setName(file.split('.')[0])
                             if 'params' in rq:
                                 self.params = rq['params']
                             print("My new name is ", self.name)
@@ -54,7 +53,7 @@ class GroupTask(CollectTask):
         return text
 
     def updateCollectedMsgList(self, trg_list : list):
-        print("update not frozen=", self.getName())
+        # print("update not frozen=", self.getName())
         # print(pprint.pformat(trg_list))
         if self.parent:
             trg_list = self.parent.msg_list.copy()

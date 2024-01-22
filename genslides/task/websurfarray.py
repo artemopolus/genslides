@@ -10,5 +10,6 @@ class WebSurfArrayTask(WebSurfTask):
 
 
     def getLinksData(self, link_list):
-        return json.dumps(link_list)
+        output = {"type":"iteration","data": link_list}
+        return json.dumps(output)
 

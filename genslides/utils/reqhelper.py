@@ -27,8 +27,8 @@ class RequestHelper:
     def getValue(self, type, flag):
         if type in self.dict:
             if flag in self.dict[type]:
-                return self.dict[type][flag]
-        return None
+                return True, self.dict[type][flag]
+        return False, None
 
 
     def getNames(self) -> str:

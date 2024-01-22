@@ -24,6 +24,12 @@ from genslides.task.writejsontofile import WriteJsonToFileTask
 
 from genslides.task.largedialresponse import LargeDialResponseTask
 
+from genslides.task.setoptions import SetOptionsTask
+from genslides.task.writetofileparam import WriteToFileParamTask
+from genslides.task.readfileparam import ReadFileParamTask
+
+from genslides.task.extproject import ExtProjectTask
+
 import genslides.commands.create as cr
 
 def checkTypeFromName(name : str, type :str) -> bool:
@@ -31,6 +37,7 @@ def checkTypeFromName(name : str, type :str) -> bool:
     return stype.endswith(type)
 
 def createTaskByType(type : str,info : TaskDescription):
+    print('Create task')
     # if type == "Presentation":
         # return PresentationTask(info)
     stype = ''.join([i for i in type if not i.isdigit()])
@@ -93,5 +100,34 @@ def createTaskByType(type : str,info : TaskDescription):
     if stype.endswith("WriteJsonToFile"):
         info.method = WriteJsonToFileTask
         return cr.CreateCommand(info)
+    if stype.endswith("SetOptions"):
+        info.method = SetOptionsTask
+        return cr.CreateCommand(info)
+    if stype.endswith("WriteToFileParam"):
+        info.method = WriteToFileParamTask
+        return cr.CreateCommand(info)
+    if stype.endswith("ReadFileParam"):
+        info.method = ReadFileParamTask
+        return cr.CreateCommand(info)
+    if stype.endswith("ExtProject"):
+        info.method = ExtProjectTask
+        return cr.CreateCommand(info)
     else:
     	return None
+    
+def getTasksDict() -> list:
+    out = []
+    out.append({"type":"Request","short":"Rq","creation":RequestTask})
+    out.append({"type":"Response","short":"Rs","creation":ResponseTask})
+    out.append({"type":"Collect","short":"Cl","creation":CollectTask})
+    out.append({"type":"ReadDial","short":"Rd","creation":ReadDialTask})
+    out.append({"type":"WriteDialToFile","short":"Wd","creation":WriteDialToFileTask})
+    out.append({"type":"ReadFile","short":"Rf","creation":ReadFileTask})
+    out.append({"type":"WriteToFile","short":"Wf","creation":WriteToFileTask})
+    out.append({"type":"WriteToFileParam","short":"Wp","creation":WriteToFileParamTask})
+    out.append({"type":"ReadFileParam","short":"Rp","creation":ReadFileParamTask})
+    out.append({"type":"WriteJsonToFile","short":"Wj","creation":WriteJsonToFileTask})
+    out.append({"type":"SetOptions","short":"So","creation":SetOptionsTask})
+    out.append({"type":"RunScript","short":"Rs","creation":RunScriptTask})
+    out.append({"type":"ExtProject","short":"Ep","creation":ExtProjectTask})
+    return out

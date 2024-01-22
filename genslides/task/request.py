@@ -1,6 +1,6 @@
 from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
-import pprint
+import pprint, json
 
 class RequestTask(TextTask):
     def __init__(self, task_info: TaskDescription, type = "Request") -> None:
@@ -34,7 +34,14 @@ class RequestTask(TextTask):
         else:
             pair = {}
             pair["role"] = input.prompt_tag
-            pair["content"] = input.prompt
+            text = input.prompt
+            print('update req input')
+            try:
+                j = json.loads(text)
+                text = json.dumps(j,indent=1)
+            except:
+                pass
+            pair["content"] = text
             trg_list.append(pair)
         if self.msg_list != trg_list:
             self.msg_list = trg_list
