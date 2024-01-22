@@ -69,9 +69,9 @@ class ResponseTask(TextTask):
         #     input_msg_list.append(msg.copy())
         # for msg in input_msg_list:
         #     msg["content"] = self.findKeyParam(msg["content"])
+
         input_msg_list = self.getMsgs()
-        print('Request=',input_msg_list)
-        # print("Chat=",input_msg_list)
+        # print('Request=',input_msg_list)
 
         return chat.createChatCompletion(input_msg_list)
 
@@ -120,9 +120,9 @@ class ResponseTask(TextTask):
                 tmp_msg_list = self.getRawParentMsgs()
                 # print(pprint.pformat(tmp_msg_list))
                 msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
-                print('Parent:',len(tmp_msg_list))
-                print('Current:', len(msg_list_from_file))
-                print('Msg[',len(msg_list_from_file[-1]['content']) ,']:|',msg_list_from_file[-1]['content'],'|')
+                # print('Parent:',len(tmp_msg_list))
+                # print('Current:', len(msg_list_from_file))
+                # print('Msg[',len(msg_list_from_file[-1]['content']) ,']:|',msg_list_from_file[-1]['content'],'|')
                 if len(msg_list_from_file):
                     print("I loaded")
                     self.msg_list = msg_list_from_file
@@ -138,7 +138,7 @@ class ResponseTask(TextTask):
 
         # Если список сообщений пустой, за-за чего?
         if len(self.msg_list) == 0:
-            print('Empty msg list')
+            print('Empty msg list', self.getName())
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
         else:
@@ -150,6 +150,7 @@ class ResponseTask(TextTask):
             # Проверка сообщений родителя
             if not self.checkParentMsgList(update=True, save_curr=False) or exe_always:
                 # Список сообщений родителя отличается
+                print('Parent msg differs', self.getName())
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:
@@ -160,6 +161,7 @@ class ResponseTask(TextTask):
                 # Если сообщение пустое, то делаем вывод, что задача была морожена
                 if len(msg) == 0:
                     # Запрашиваем сообщение
+                    print('Msg is empty', self.getName())
                     self.executeResponse()
                     self.saveJsonToFile(self.msg_list)
 

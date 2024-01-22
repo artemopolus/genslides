@@ -120,6 +120,11 @@ class ReceiveTask(TextTask):
         return text
 
     def stdProcessUnFreeze(self, input=None):
+        res, pparam = self.getParamStruct('block')
+        if res and pparam['block']:
+            self.is_freeze = True
+            return
+
         # print("1 frozen=", self.is_freeze)
         if self.parent:
             # print("parent frozen=",self.parent.is_freeze)
