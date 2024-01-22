@@ -412,7 +412,7 @@ class IterationEndTask(TextTask):
         return "IterEnd", "user", "IterEnd"
     
     def getNextFromQueue(self):
-        print("Get next from",self.getName(),"queue")
+        # print("Get next from",self.getName(),"queue")
         if self.is_freeze:
             res = self.getNextFromQueueRe()
             if res:

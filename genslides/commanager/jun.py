@@ -1,4 +1,3 @@
-from genslides.task.presentation import PresentationTask
 from genslides.task.base import TaskDescription
 from genslides.task.base import TaskManager
 from genslides.task.base import BaseTask
@@ -12,8 +11,13 @@ from genslides.utils.browser import WebBrowser
 from genslides.utils.savedata import SaveData
 
 import genslides.task.creator as cr
+import genslides.commands.edit as edit
+import genslides.commands.create as create
+import genslides.commands.parent as parcmd
+import genslides.commands.link as lnkcmd
 
 from genslides.utils.largetext import SimpleChatGPT
+import genslides.utils.writer as writer
 
 import os
 from os import listdir
@@ -32,13 +36,20 @@ import shutil
 
 import datetime
 
+import genslides.utils.finder as finder
+from tkinter import Tk     # from tkinter import Tk for Python 3.x
+from tkinter.filedialog import askopenfilename, askdirectory, askopenfilenames
+
+
+
 class Manager:
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher) -> None:
         self.helper = helper
         self.requester = requester
         self.searcher = searcher
         self.vars_param = ["stopped", "input", "output", "watched"]
-        self.path_to_file = "config/base.json"
+        # TODO: все связанное с этим файлом необходимо перенести в проектер
+        self.path_to_file = os.path.join("config","base.json")
         if os.path.exists(self.path_to_file):
             with open(self.path_to_file, 'r') as f:
                 params = json.load(f)
@@ -49,7 +60,16 @@ class Manager:
                 json.dump(params,f,indent=1)
         self.params = params
         self.onStart()
+        self.loadexttask = None
+        self.name = 'Base'
 
+    def setName(self, name : str):
+        self.name = name
+
+    def getName(self) -> str:
+        return self.name
+
+# TODO: сменить место хранения параметров менеджера
     def setParam(self, param_name, param_value):
         if param_name in self.params:
             print("Set ",param_name," to ",param_value)
@@ -88,6 +108,7 @@ class Manager:
         self.index = 0
         self.branch_idx = 0
         self.branch_lastpar = None
+        self.branch_code = ''
         self.tree_arr = []
         self.tree_idx = 0
 
@@ -97,10 +118,17 @@ class Manager:
         self.browser = WebBrowser()
 
         self.need_human_response = False
-        self.path = 'saved/'
+        # TODO: установить как значение по умолчанию
+        self.path = 'saved'
         self.proj_pref = ''
         self.return_points = []
         self.selected_tasks = []
+        self.info = None
+        self.tc_start = False
+        self.tc_stop = False
+
+    def getCurrentTask(self) -> BaseTask:
+        return self.curr_task
 
     def addTaskToSelectList(self, task :BaseTask):
         self.selected_tasks.append(task)
@@ -116,15 +144,26 @@ class Manager:
     def getSelectList(self) -> list:
         return [t.getName() for t in self.selected_tasks]
     
-    def createCollectTreeOnSelectedTasks(self):
+    def createCollectTreeOnSelectedTasks(self, action_type):
+        self.createTreeOnSelectedTasks(action_type,"Collect")
+
+    def createTreeOnSelectedTasks(self, action_type : str, task_type : str):
         first = True
-        for task in self.selected_tasks:
-            if first:
-                self.createOrAddTask("","Collect","user",None)
-                first = False
-            else:
-                parent = self.curr_task
-                self.createOrAddTask("","Collect","user",parent)
+        trg = self.curr_task
+        task_list = self.selected_tasks.copy()
+        for task in task_list:
+            # TODO: Заменить на запрос к MakeAction
+            self.curr_task = trg
+            self.makeTaskAction("",task_type, action_type, 'user')
+            # if first:
+            #     parent = None
+            #     if action_type == 'SubTask':
+            #         parent = self.curr_task
+            #     self.createOrAddTask("",task_type,"user",parent,[])
+            #     first = False
+            # else:
+            #     parent = self.curr_task
+            #     self.createOrAddTask("",task_type,"user",parent,[])
             self.makeLink(self.curr_task, task)
         self.clearSelectList()
         return self.getCurrTaskPrompts()
@@ -134,62 +173,10 @@ class Manager:
         return self.getCurrTaskPrompts()
     
     def moveTaskUP(self, task : BaseTask):
-        print('Move task', task.getName(),'UP')
-        task_B = task.parent
-        task_C = task
-        task_trgs = [task_B, task_C]
-        print('Start chain:',[t.getName() for t in task.getAllParents()])
-        if task_B is not None:
-            if task_B.parent is not None:
-                task_A = task_B.parent
-                task_trgs.append(task_A)
-            childs_C = task_C.getChilds()
-            childs_B = task_B.getChilds()
-            childs_B.remove(task_C)
-
-            task_B.removeAllChilds()
-            task_B.removeParent()
-            task_C.removeAllChilds()
-            task_C.removeParent()
-
-            print('Child C:',[t.getName() for t in childs_C])
-            print('child',task_B.getName(),'start:',[t.getName() for t in task_B.getChilds()],'of')
-            for child in childs_C:
-                task_B.addChild(child)
-            print('CHILDS RESULT:',[t.getName() for t in task_B.getChilds()])
-
-            childs_B.append(task_B)
-            task_trgs.extend(childs_B)
-            task_trgs.extend(childs_C)
-
-            print('Child B:',[t.getName() for t in childs_B])
-            print('child start:',[t.getName() for t in task_C.getChilds()])
-            for child in childs_B:
-                task_C.addChild(child)
-            print('CHILDS RESULT:',[t.getName() for t in task_C.getChilds()])
-
-            if task_A is not None:
-                task_A.addChild(task_C)
-                task_A.update()
-            else:
-                task_C.update()
-
-            for t in task_trgs:
-                t.saveAllParams()
-        else:
-            print('Nothing to switch')
-
-        
-        print('Task A:',[t.getName() for t in task_A.getAllParents()])
-        print('ChildA:',[t.getName() for t in task_A.getChilds()])
-        print('Task C:',[t.getName() for t in task_C.getAllParents()])
-        print('ChildC:',[t.getName() for t in task_C.getChilds()])
-        print('Task B:',[t.getName() for t in task_B.getAllParents()])
-        print('ChildB:',[t.getName() for t in task_B.getChilds()])
-
-        self.curr_task = task_C
-        return self.getCurrTaskPrompts()
-                        
+        info = TaskDescription(target=task)
+        cmd = edit.MoveUpTaskCommand(info)
+        self.cmd_list.append(cmd)
+        return self.runIteration('')
 
 
 
@@ -204,25 +191,15 @@ class Manager:
 
     def getProjPrefix(self) -> str:
         return self.proj_pref
-  
-
-    def appendExtendProjectTasks(self, path_to_project, name):
-        task_manager = TaskManager()
-        task_manager.setPath(path_to_project)
-        task_manager.setProjPrefix(name)
-        self.loadTasksList()
-
-
-
 
     def loadTasksList(self):
-        print(10*"=======")
-        print('Load tasks from files')
+        # print(10*"=======")
+        # print('Load tasks from files')
         task_manager = TaskManager()
         links = task_manager.getLinks(self.getPath())
         self.createTask()
 
-        print('Links', links)
+        # print('Links', links)
 
         for link in links:
             trgs = link['linked']
@@ -234,13 +211,13 @@ class Manager:
         for task in self.task_list:
                 task.completeTask()
 
-        for task in self.task_list:
-            print("Task name=", task.getName(), " affected")
-            for info in task.by_ext_affected_list:
-                print("by ",info.parent.getName())
-            print("influence")
-            for info in task.affect_to_ext_list:
-                print("to ",info.parent.getName())
+        # for task in self.task_list:
+        #     print("Task name=", task.getName(), " affected")
+        #     for info in task.by_ext_affected_list:
+        #         print("by ",info.parent.getName())
+        #     print("influence")
+        #     for info in task.affect_to_ext_list:
+        #         print("to ",info.parent.getName())
 
     def goToNextTreeFirstTime(self):
         for task in self.task_list:
@@ -250,8 +227,28 @@ class Manager:
             self.curr_task = self.tree_arr[0]
             self.tree_idx = 1
 
+    def getTreeNamesForRadio(self):
+        names = []
+        for task in self.tree_arr:
+            names.append(task.getBranchSummary())
+        trg = self.curr_task.getBranchSummary()
+        return gr.Radio(choices=names, value=trg, interactive=True)
+    
+    def getCurrentTreeNameForTxt(self):
+        return gr.Textbox(value=self.curr_task.getBranchSummary(), interactive=True)
+    
+    def goToTreeByName(self, name):
+        for i in range(len(self.tree_arr)):
+            trg = self.tree_arr[i].getBranchSummary()
+            if trg == name:
+                self.curr_task = self.tree_arr[i]
+                self.tree_idx = i
+                break
+        return self.goToNextBranchEnd()
+
+
     def goToNextTree(self):
-        print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
+        # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
             for task in self.tree_arr:
                 if not task.isRootParent():
@@ -265,16 +262,45 @@ class Manager:
             self.curr_task = self.tree_arr[self.tree_idx]
         else:
             self.goToNextTreeFirstTime()
-        print('Current task is', self.curr_task.getName())
+        # print('Current task is', self.curr_task.getName())
         return self.getCurrTaskPrompts()
-            
 
+    def takeFewSteps(self, dir:str, times : int):
+        for idx in range(times):
+            if dir == 'child':
+                self.goToNextChild()
+            elif dir == 'parent':
+                self.goToParent()
+
+    # Переключаться между наследованием со спуском вниз: от родителя к потомку. Потомков может быть несколько, поэтому существует неопределенность со следующим наследником.
+    # Текущий вариант не отслеживает начальную ветку
     def goToNextChild(self):
+        # Список направлений
+        prev = self.curr_task
         chs = self.curr_task.getChilds()
+        self.curr_task = None
+        # Если есть потомки
         if len(chs) > 0:
+            # Если потомков нескольно
             if len(chs) > 1:
                 self.branch_lastpar = self.curr_task
                 self.branch_idx = 0
+                # С использованием кода
+                # Запоминаем место ветвления
+                for ch in chs:
+                # Перебираем коды потомков
+                    ch_tag = ch.getBranchCodeTag()
+                    # Если код совпал с кодом в памяти
+                    print('Check', ch_tag,'with',self.branch_code)
+                    if ch_tag.startswith(self.branch_code):
+                        # Установить новую текущую
+                        self.curr_task = ch
+        else:
+            self.curr_task = prev
+
+        # Обычный вариант
+        if self.curr_task is None:
+            # Выбираем просто нулевую ветку
             self.curr_task = chs[0]
         return self.getCurrTaskPrompts()
     
@@ -291,6 +317,7 @@ class Manager:
                 endes.append(task)
         return endes
     
+    # Перебираем все возможные варианты листьев/почек деревьев
     def goToNextBranchEnd(self):
         if len(self.endes) == 0:
             self.endes = self.getSceletonBranchBuds(self.curr_task)
@@ -306,6 +333,8 @@ class Manager:
                 self.endes = endes
                 self.endes_idx = 0
         self.curr_task = self.endes[self.endes_idx]
+        self.branch_code = self.curr_task.getBranchCodeTag()
+        print('Get new branch code:', self.branch_code)
         return self.getCurrTaskPrompts()
 
     def goToNextBranch(self):
@@ -341,19 +370,19 @@ class Manager:
         return text
 
     def createTask(self, prnt_task = None):
-        print(10*"=======")
+        # print(10*"=======")
         if prnt_task == None:
             parent_path = ""
         else:
             parent_path = prnt_task.path
             self.curr_task = prnt_task
             # print("task=", self.curr_task.path)
-            print("Parent task path=", parent_path)
+            # print("Parent task path=", parent_path)
         init_task_list = self.task_list.copy()
         task_manager = TaskManager()
         parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), parent_path)
 
-        print("prompt count=",len(parent_prompt_list))
+        # print("prompt count=",len(parent_prompt_list))
 
         for prompt in parent_prompt_list:
             self.curr_task = prnt_task
@@ -365,11 +394,11 @@ class Manager:
 
         trg_task_list = self.task_list.copy()
 
-        print("task count=",len(self.task_list),",exclude=",len(init_task_list))
+        # print("task count=",len(self.task_list),",exclude=",len(init_task_list))
         if len(parent_prompt_list):
             for task in trg_task_list:
                 if task not in init_task_list:
-                    print("+++",parent_path)
+                    # print("+++",parent_path)
                     self.createTask(task)
         
 
@@ -474,7 +503,7 @@ class Manager:
 
 
     def drawGraph(self, only_current= True):
-        print('Draw graph')
+        # print('Draw graph')
         if only_current:
             if self.curr_task.isRootParent():
                 trg_list = self.curr_task.getTree()
@@ -485,14 +514,19 @@ class Manager:
             trg_list = self.task_list
         # print('Target tasks:',[t.getName() for t in trg_list])
         if len(trg_list) > 0:
-            f = graphviz.Digraph(comment='The Test Table')
+            f = graphviz.Digraph(comment='The Test Table',
+                                  graph_attr={'size':"7.75,10.25",'ratio':'fill'})
 
             # if self.curr_task:
             #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
             trgs_rsm = []
             for task in self.task_list:
                 if len(task.getAffectedTasks()) > 0:
-                    trg_list.append(task)
+                    trgs = task.getAffectedTasks()
+                    if trgs in trg_list:
+                        trg_list.append(task)
+
+            
 
             for task in trg_list:
                 if task in trgs_rsm:
@@ -507,23 +541,27 @@ class Manager:
                 elif task ==self.slct_task:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
                 else:
-                    if self.getTaskParamRes(task, "stopped"):
+                    if self.getTaskParamRes(task, "block"):
                     # if task.getParam("stopped") == [True, True]:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="crimson")
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="gold2")
                     elif self.getTaskParamRes(task, "input"):
                     # elif task.getParam("input") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine")
                     elif self.getTaskParamRes(task, "output"):
                     # elif task.getParam("output") == [True, True]:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
+                    elif self.getTaskParamRes(task, "check"):
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkorchid1")
                     elif task.is_freeze:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
+                    elif len(task.getAffectedTasks()) > 0:
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine4")
                     else:
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":
                             f.node( task.getIdStr(), task.getName(),style="filled",color="azure2")
                         else:
-                            f.node( task.getIdStr(), info)
+                            f.node( task.getIdStr(), task.getName())
 
 
                 # print("info=",task.getIdStr(),"   ", task.getName())
@@ -605,11 +643,7 @@ class Manager:
         if selected_action == "Edit":
             return self.makeTaskAction(prompt, "Request", selected_action, selected_tag)
         
-    def switchRole(self, role, prompt):
-        print('Set role[', role, ']for',self.curr_task.getName())
-        self.makeTaskAction(self.curr_task.getLastMsgContent(), "Request", "Edit", role)
-        return self.getCurrTaskPrompts(prompt)
-        
+       
         
     def makeResponseAction(self, selected_action):
         return self.makeTaskAction("", "Response",selected_action, "assistant")
@@ -640,44 +674,63 @@ class Manager:
             task1 = self.curr_task.parent
             task2 = self.curr_task
             if task1:
-                self.makeTaskActionBase(prompt, type, "RemoveParent", creation_tag)
+                # self.makeTaskActionBase(prompt, type, "RemoveParent", creation_tag)
                 self.curr_task = task1
                 self.makeTaskActionBase(prompt, type, "SubTask", creation_tag)
             else:
                 self.makeTaskActionBase(prompt, type, "New", creation_tag)
+            task_12 = self.curr_task
             self.slct_task = self.curr_task
+            self.selected_tasks = [self.curr_task]
             self.curr_task = task2
-            self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
-            print('Parents:\nFirst', task1.parent.getName(),'=',task1.getName())
-            print('Childs')
-            for ch in task1.getChilds():
-                print(ch.getName())
-            print(task1.queue)
-            print('Middle', self.slct_task.parent.getName(),'=',self.slct_task.getName())
-            print('Childs')
-            for ch in self.slct_task.getChilds():
-                print(ch.getName())
-            print(self.slct_task.queue)
-            print('Last', self.curr_task.parent.getName(),'=', self.curr_task.getName())
-            print('Childs')
-            for ch in self.curr_task.getChilds():
-                print(ch.getName())
-            print(self.curr_task.queue)
-            task1.update()
+            if task1 is not None:
+                task1.addChild(task_12)
+                task2.removeParent()
+                task_12.addChild(task2)
+                task1.saveAllParams()
+                task2.saveAllParams()
+                task_12.saveAllParams()
+            # self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
+            try:
+            # if task1 is not None:
+                print('Parents\nFirst', task1.parent.getName() if task1.parent is not None else 'None','=',task1.getName())
+                print('Childs')
+                for ch in task1.getChilds():
+                    print(ch.getName())
+            
+                # print(task1.queue)
+            # if self.slct_task is not None:
+                print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
+                print('Childs')
+                for ch in self.slct_task.getChilds():
+                    print(ch.getName())
+                # print(self.slct_task.queue)
+                print('Last', self.curr_task.parent.getName() if self.curr_task.parent is not None else 'None','=', self.curr_task.getName())
+                print('Childs')
+                for ch in self.curr_task.getChilds():
+                    print(ch.getName())
+            except Exception as e:
+                print('Error:', e)
+            # print(self.curr_task.queue)
+            # if task1 is not None:
+            #     task1.update()
+            # else:
+            #     self.slct_task.update()
+            self.curr_task = self.slct_task
+            print('Selected',self.slct_task.getName())
+            print('Current', self.curr_task.getName())
 
         elif creation_type == "Remove":
             task1 = self.curr_task.parent
             task2 = self.curr_task
-            if task1 is None:
-                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
-            else:
-                task3_list = task2.getChilds()
-                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
-                self.slct_task = task1
-                for task in task3_list:
-                    self.curr_task = task
-                    self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
-
+            task3_list = task2.getChilds()
+            for task in task3_list:
+                task.removeParent()
+                if task1 is not None:
+                    task1.addChild(task)
+            self.curr_task = task2
+            self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+           
         elif creation_type == "ReqResp":
             if self.curr_task is not None:
                 self.makeTaskActionBase(prompt,"Request","SubTask","user")
@@ -702,17 +755,19 @@ class Manager:
         out = ""
         log = "Nothing"
         img_path = "output/img.png"
-        print(10*"====")
-        print("Make action", creation_type)
-        print(10*"====")
+        # print(10*"====")
+        # print("Make action", creation_type)
+        # print(10*"====")
 
         if type is None or creation_type is None:
             print('Abort maske action')
             return self.getCurrTaskPrompts()
         if creation_type == "Edit":
-            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True)
-            self.curr_task.update(info)
-            return self.getCurrTaskPrompts()
+            info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
+            info.target = self.curr_task
+            cmd = edit.EditCommand(info)
+            self.cmd_list.append(cmd)
+            return self.runIteration()
         elif creation_type == "EditAndStep":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True, stepped=True)
             self.updateSteppedSelectedInternal(info)
@@ -751,53 +806,63 @@ class Manager:
             return self.runIteration(prompt)
         elif creation_type == "RemoveParent":
             if self.curr_task != self.slct_task and self.curr_task:
-                self.curr_task.removeParent()
-                self.curr_task.update()
+                info = TaskDescription(target=self.curr_task)
+                cmd = parcmd.RemoveParentCommand(info)
+                self.cmd_list.append(cmd)
             return self.runIteration(prompt)
         elif creation_type == "Parent":
-            if self.curr_task != self.slct_task and self.curr_task and self.slct_task:
-                print("Make ", self.slct_task.getName()," parent of ", self.curr_task.getName())
-                info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), parent=self.slct_task)
-                # info = TaskDescription(prompt=self.curr_task.getRichPrompt(),prompt_tag=self.curr_task.getTagPrompt(), parent=self.slct_task)
-                self.curr_task.update(info)
+            for t in self.selected_tasks:
+                print("Make ", t.getName()," parent of ", self.curr_task.getName())
+                info = TaskDescription( )
+                info.target = self.curr_task
+                info.parent = t 
+                cmd = parcmd.ParentCommand(info)
+                self.cmd_list.append(cmd)
+                break
             return self.runIteration(prompt)
         elif creation_type == "Unlink":
             if self.curr_task:
-                self.curr_task.removeLinkToTask()
+                info = TaskDescription(target=self.curr_task)
+                cmd = lnkcmd.UnLinkCommand(info)
+                self.cmd_list.append(cmd)
             return self.runIteration(prompt)
         elif creation_type == "Link":
-            if self.curr_task != self.slct_task:
-                self.makeLink(self.curr_task, self.slct_task)
+            for t in self.selected_tasks:
+                self.makeLink(self.curr_task, t)
+                break
             return self.runIteration(prompt)
         elif creation_type == "Delete":
+        # TODO: после удаления возвращаться к тому же дереву
             task = self.curr_task
-            task.beforeRemove()
-            self.task_list.remove(task)
+            info = TaskDescription(target=self.curr_task)
+            cmd_delete = create.RemoveCommand(info)
+            self.cmd_list.append(cmd_delete)
+            self.runIteration(prompt)
             if task in self.tree_arr:
                 self.tree_arr.remove(task)
             self.setNextTask("1")
             del task
-            return self.runIteration(prompt)
+            return self.getCurrTaskPrompts()
         elif creation_type == "New":
             parent = None
             if cr.checkTypeFromName(type, "Response"):
                 print('Can\'t create new Response')
-            # if type.startswith("Response"):
-                return out, log, img_path
+                return self.getCurrTaskPrompts()
         elif creation_type == "SubTask":
             parent = self.curr_task
         else:
-            return out, log, img_path
+            return self.getCurrTaskPrompts()
         
-        return self.createOrAddTask(prompt,type, creation_tag, parent)
+        return self.createOrAddTask(prompt,type, creation_tag, parent,[])
         
-    def createOrAddTask(self, prompt, type, tag, parent, params = None):
-        print('Create task')
+    def createOrAddTask(self, prompt, type, tag, parent, params = []):
+        # print('Create task')
+        # print('Params=',params)
         info = TaskDescription(prompt=prompt, prompt_tag=tag, 
                                                              helper=self.helper, requester=self.requester, manager=self, 
-                                                             parent=parent)
-        if params is not None:
-            info.params = params
+                                                             parent=parent, params=params)
+        # if params is not None:
+            # info.params = params
         curr_cmd = cr.createTaskByType(type, info)
 
         if not curr_cmd:
@@ -808,8 +873,20 @@ class Manager:
     
     def makeLink(self, task_in : BaseTask, task_out :BaseTask):
         if task_in != None and task_out != None:
-            print("Make link from ", task_out.getName(), " to ", task_in.getName())
-            task_in.createLinkToTask(task_out)
+            if task_out.getType() == 'Collect' and task_in.getType() == 'Collect':
+                print('Relink from', task_out.getName(),':')
+                trgs = task_out.getAffectingOnTask()
+                for trg in trgs:
+                    print("   - [Make link] from ", trg.getName(), " to ", task_in.getName())
+                    info = TaskDescription(target=task_in, parent=trg)
+                    cmd = lnkcmd.LinkCommand(info)
+                    self.cmd_list.append(cmd)
+            else:
+                print("[Make link] from ", task_out.getName(), " to ", task_in.getName())
+                info = TaskDescription(target=task_in, parent=task_out)
+                cmd = lnkcmd.LinkCommand(info)
+                self.cmd_list.append(cmd)
+        self.runIteration()
 
 
 
@@ -850,11 +927,16 @@ class Manager:
         
  
     def getTaskList(self):
-        print('Get tasks list')
+        # print('Get tasks list')
         out = []
         for task in self.task_list:
             out.append(task.getName())
         return out
+    
+    def getCurrTaskName(self):
+        if self.curr_task:
+            return self.curr_task.getName()
+        return "None"
     
     def setCurrentTaskByName(self, name):
         task = self.getTaskByName(name)
@@ -875,38 +957,12 @@ class Manager:
             print("Set current task=", task.getName())
             self.slct_task = task
  
-    def runIteration(self, prompt):
-        print("Run iteration")
-        img_path = "output/img.png"
-
-        if not os.path.exists(img_path):
-            img_path = "examples/test.png"
-
-        saver = SaveData()
-        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
-
+    def runIteration(self, prompt = ''):
+        # print("Run iteration")
 
         if self.need_human_response:
             self.need_human_response = False
-            # return "", "", img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
-            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
             return self.getCurrTaskPrompts()
-        # if len(self.task_list) > 0:
-        #     f = graphviz.Digraph(comment='The Test Table')
-            
-        #     for task in self.task_list:
-        #         if task == self.curr_task:
-        #             f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
-        #         else:
-        #             f.node( task.getIdStr(), task.getName())
-            
-        #     for task in self.task_list:
-        #         for child in task.childs:
-        #             f.edge(task.getIdStr(), child.getIdStr())
-        #     img_path = "output/img"
-        #     f.render(filename=img_path,view=False,format='png')
-        #     img_path += ".png"
-        #     del f
 
         self.index += 1
         log = 'id[' + str(self.index) + '] '
@@ -916,45 +972,40 @@ class Manager:
             log += 'Command executed: '
             log += str(cmd) + '\n'
             log += "Command to execute: " + str(len(self.cmd_list)) +"\n"
-            task = cmd.execute()
-            if (task != None):
+            task, action = cmd.execute()
+            if action == 'create' and task != None:
                 self.task_list.append(task)
                 if task.isRootParent():
                     self.tree_arr.append(task)
                 self.curr_task = task
-            log += task.task_creation_result
+            elif action == 'delete':
+                self.task_list.remove(task)
+                self.curr_task = self.task_list[0]
+            # log += task.task_creation_result
             out += str(task) + '\n'
             out += "Task description:\n"
-            out += task.task_description
-            img_path = self.drawGraph()
-            in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
+            # out += task.task_description
             return self.getCurrTaskPrompts()
-            #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
 
-        img_path = self.drawGraph()
-        index = 0
 
         all_task_expanded = False 
         if len(self.task_list) > 0:
             all_task_expanded = True
-        for task in self.task_list:
-            log += "["+ str(index) + "] "
-            index += 1
-            cmd = task.getCmd()
-            if (cmd != None):
-                log += "From task:" + str(task) + " "
-                log += "add command:" + str(cmd)
-                self.cmd_list.append(cmd)
-            # else:
-                # task.completeTask()
-                all_task_expanded = False
+        # for task in self.task_list:
+        #     log += "["+ str(index) + "] "
+        #     index += 1
+        #     cmd = task.getCmd()
+        #     if (cmd != None):
+        #         log += "From task:" + str(task) + " "
+        #         log += "add command:" + str(cmd)
+        #         self.cmd_list.append(cmd)
+        #         all_task_expanded = False
         all_task_completed = False
         if all_task_expanded:
             all_task_completed = True
             log += "All task expanded\n"
             print("Complete task list")
             for task in self.task_list:
-                # print("complete tasl=", task.getName())
                 if not task.completeTask():
                     all_task_completed = False
                 else:
@@ -969,51 +1020,18 @@ class Manager:
 
         if all_task_completed:
             log += "All task complete\n"
-            return self.getCurrTaskPrompts()
-            #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
-            # if self.curr_task:
-            #     self.curr_task.completeTask()
-
-        # for task in self.task_list[:]:
-        #     if task.isSolved():
-        #         self.task_list.remove(task)
-
         if len(self.task_list) == 0:
             if True:
                 log += "No any task"
-                return out, log, img_path, "", ""
-            log += "Start command\n"
-            curr_task = PresentationTask(TaskDescription(prompt=prompt, helper=self.helper, requester=self.requester))
-            self.task_list.append(curr_task)
-            out += "Task description:\n"
-            log += curr_task.task_creation_result
-            out += curr_task.task_description
-            self.curr_task = curr_task
-            return out, log, img_path
+                return self.getCurrTaskPrompts()
 
-           # curr_task = InformationTask( None, self.helper, self.requester, prompt)
-            # responses = []
-            # responses = chatgpttask.completeTask()
-            # log += "Search list:\n"
-            # for resp in responses:
-            #        log += resp + '\n'
-            # log += "Getted links:\n"
-            # links = []
-            # googletask = GoogleTask(searcher=self.searcher, reqhelper=self.helper, requester=self.requester, prompt=responses)
-            # links = googletask.completeTask()
-            # for link in links:
-            #        log += link + '\n'
-
-            # browsertask = BrowserTask(browser=self.browser, reqhelper=self.helper, requester=self.requester, prompt=links)
-            # text = browsertask.completeTask()
-            # print('text len=',len(text))
-            # summtask = SummaryTask(summator=self.summator,reqhelper=self.helper,requester=self.requester,prompt=text)
-            # summtask.completeTask()
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
-        in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
         return self.getCurrTaskPrompts()
-        #  return out, log, img_path, self.curr_task.msg_list[-1]["content"], self.curr_task.msg_list[-1]["role"]
+    
+    def updateCurrent(self):
+        self.curr_task.update()
+        return self.runIteration("")
     
     def update(self):
         print(10*"----------")
@@ -1025,9 +1043,9 @@ class Manager:
         return self.runIteration("")
     
     def updateSteppedSelectedInternal(self, info : TaskDescription = None):
-        print(10*"----------")
-        print("STEP",8*">>>>>>>>>>>",self.curr_task.getName(),"||||||")
-        print(10*"----------")
+        # print(10*"----------")
+        # print("STEP",8*">>",self.curr_task.getName(),"||||||")
+        # print(10*"----------")
         if info:
             info.stepped = True
             self.curr_task.update(info)
@@ -1044,7 +1062,7 @@ class Manager:
             #         print('Can\'t step on',self.curr_task.parent.getName())
             #         break
             #     idx += 1
-            print('Use old prompt:', self.curr_task.getLastMsgContent())
+            # print('Use old prompt:', self.curr_task.getLastMsgContent())
             self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
 
         res, w_param = self.curr_task.getParamStruct("watched")
@@ -1063,9 +1081,9 @@ class Manager:
 
         next = self.curr_task.getNextFromQueue()
         if next not in self.curr_task.getTree():
-            print('Go to the next tree')
+            # print('Go to the next tree')
             self.return_points.append(self.curr_task)
-        print(len(self.return_points))
+        # print(len(self.return_points))
         if next and self.curr_task != next:
             # if next.parent == None:
                 # next.resetTreeQueue()
@@ -1074,10 +1092,12 @@ class Manager:
             if len(self.return_points) > 0:
                 self.curr_task = self.return_points.pop()
             elif self.curr_task.parent:
-                print("Done some")
+                # print("Done some")
+                pass
             else:
-                print("On start")
-        print("Next task is", next.getName())
+                # print("On start")
+                pass
+        # print("Next task is", next.getName())
         return next
     
     def resetCurTaskQueue(self):
@@ -1089,22 +1109,51 @@ class Manager:
             task.fixQueueByChildList()
         return self.getCurrTaskPrompts()
     
+    def updateAndExecuteStep(self, msg):
+        self.curr_task.resetTreeQueue()
+        info = TaskDescription(prompt=msg,
+                                prompt_tag=self.curr_task.getLastMsgRole(),
+                                manual=True)
+        self.updateSteppedSelectedInternal(info)
+        return self.getCurrTaskPrompts()
+
+    def executeStep(self):
+        self.updateSteppedSelectedInternal()
+        return self.getCurrTaskPrompts() 
+    
+    def executeSteppedBranch(self, msg):
+        info = TaskDescription(prompt=msg,
+                                prompt_tag=self.curr_task.getLastMsgRole(),
+                                manual=True)
+        self.updateSteppedTree(info)
+        for task in self.task_list:
+            res, val = task.getParamStruct('output')
+            if res and val['output']:
+                self.curr_task = task
+                break
+        return self.getCurrTaskPrompts() 
+
     def updateSteppedTrgBranch(self, info = None):
-        if self.curr_task.parent == None:
-            self.updateSteppedTree(info)
-        else:
-            branches = [ch.getName() for ch in self.curr_task.parent.getChilds() if ch != self.curr_task]
-            print('Update branch until:', branches)
-            index = 0
-            while(index < 100):
-                if index == 0 and info is not None:
-                    next = self.updateSteppedSelectedInternal(info)
-                else:
-                    next = self.updateSteppedSelectedInternal()
-                if next is None or next.getName() in branches or next.isRootParent():
-                    print("Done in",index,"iteration")
-                    break
-                index +=1
+        info = TaskDescription(prompt=self.curr_task.getLastMsgContent(),
+                                prompt_tag=self.curr_task.getLastMsgRole(),
+                                manual=True)
+        self.updateSteppedTree(info)
+
+        # if self.curr_task.parent == None:
+        #     self.updateSteppedTree(info)
+        # else:
+        #     branches = [ch.getName() for ch in self.curr_task.parent.getChilds() if ch != self.curr_task]
+        #     print('Update branch until:', branches)
+        #     index = 0
+        #     while(index < 100):
+        #         if index == 0 and info is not None:
+        #             next = self.updateSteppedSelectedInternal(info)
+        #         else:
+        #             next = self.updateSteppedSelectedInternal()
+        #         if next is None or next.getName() in branches or next.isRootParent():
+        #             print("Done in",index,"iteration")
+        #             break
+        #         index +=1
         return self.getCurrTaskPrompts() 
 
     
@@ -1112,38 +1161,34 @@ class Manager:
         index = 0
         self.curr_task.resetTreeQueue()
         last = self.curr_task
+        processed_chain = [last.getName()]
         while(index < 1000):
             if index == 0 and info is not None:
                 next = self.updateSteppedSelectedInternal(info)
             else:
                 next = self.updateSteppedSelectedInternal()
             if next is None:
-                print("Done in",index,"iteration")
+                # print("Done in",index,"iteration")
                 break
             else:
                 if last == next:
-                    print("Get repeat in",index,"iteration")
+                    # print("Get repeat in",index,"iteration")
                     break
                 else:
-                    print('After',last.getName(),'will be', next.getName())
+                    # print('After',last.getName(),'will be', next.getName())
+                    processed_chain.append(next.getName())
                     last = next
             index +=1
         print('Done: update tree step by step in', index)
+        print('Tree execution:','->'.join(processed_chain))
         return self.getCurrTaskPrompts() 
     
-    def actionTypeChanging(self, action):
-        if action == 'New':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=False), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
-        elif action == 'SubTask':
-            return "", gr.Button(value='Request'), gr.Button(value='Response', interactive=True), gr.Button(value='Custom',interactive=True), gr.Radio(interactive=False)
-        elif action == 'Edit':
-            return self.getCurTaskLstMsgRaw(), gr.Button(value='Apply'), gr.Button(value='',interactive=False), gr.Button(value='',interactive=False), gr.Radio(interactive=True)
     
     def getCurTaskLstMsg(self) -> str:
         return self.curr_task.getMsgs()[-1]['content']
     
     def getCurTaskLstMsgRaw(self) -> str:
-        return self.curr_task.getRawMsgs()[-1]['content']
+        return self.curr_task.getLastMsgContentRaw()
     
     
     def copyToClickBoardLstMsg(self):
@@ -1166,6 +1211,36 @@ class Manager:
         text  = 'Tokens: ' + str(tokens) + ' price: ' + str(price)
         pyperclip.copy(text)
         pyperclip.paste()
+
+    def getCurrentExtTaskOptions(self):
+        p = []
+        names = finder.getExtTaskSpecialKeys()
+        for name in names:
+            res, val = self.curr_task.getParamStruct(name)
+            # print(name,'=',val)
+            if res and val[name]:
+                p.append(name)
+        return gr.CheckboxGroup(choices=names,value = p, interactive=True)
+    
+    def setCurrentExtTaskOptions(self, names : list):
+        full_names = finder.getExtTaskSpecialKeys()
+        for name in full_names:
+            if name not in names:
+                self.curr_task.updateParam2({'type': name, name : False})
+            else:
+                self.curr_task.updateParam2({'type': name, name : True})
+
+        self.curr_task.saveAllParams()
+        return self.getCurrentExtTaskOptions()
+    
+    def resetAllExtTaskOptions(self):
+        full_names = finder.getExtTaskSpecialKeys()
+        full_names.remove('input')
+        for task in self.task_list:
+            for name in full_names:
+                task.updateParam2({'type': name, name : False})
+            task.saveAllParams()
+        return self.getCurrentExtTaskOptions()
 
     
     def getCurrTaskPrompts(self, set_prompt = ""):
@@ -1210,10 +1285,36 @@ class Manager:
             #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
         
         # print(r_msgs)
-        value = '{' + self.curr_task.getName() + ':' + self.getBranchCodeTag() + '}'
-        print('BranchCode=', self.curr_task.findKeyParam(value))
+        value = finder.getBranchCodeTag(self.curr_task.getName())
+        # TODO: вывадить код ветки
+        # print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        return r_msgs, in_prompt ,self.drawGraph(), out_prompt, in_role, chck, self.curr_task.getName(), self.curr_task.getAllParams(), set_prompt, gr.Dropdown.update(choices= self.getTaskList()),gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), interactive=True), gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], value=self.curr_task.getName(), interactive=True), gr.Radio(value="SubTask")
+        graph = self.drawGraph()
+
+        return (
+            r_msgs, 
+            in_prompt ,
+            graph, 
+            out_prompt, 
+            in_role, 
+            chck, 
+            self.curr_task.getName(), 
+            self.curr_task.getAllParams(), 
+            set_prompt, 
+            gr.Dropdown.update(choices= self.getTaskList()),
+            gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), 
+                               interactive=True), 
+            gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], 
+                               value=self.curr_task.getName(), 
+                               interactive=True), 
+            gr.Radio(value="SubTask"), 
+            r_msgs,
+            self.getCurrentExtTaskOptions(),
+            # TODO: Рисовать весь граф, но в упрощенном виде
+            graph,
+            self.getTreeNamesForRadio(),
+            self.getCurrentTreeNameForTxt()
+            )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []
@@ -1230,33 +1331,28 @@ class Manager:
         return gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(task), interactive=True)
     
     def getFinderKeyString(self,task_name, fk_type, param_name, key_name):
-        if fk_type == 'msg':
-            value = '{' + task_name + ':msg_content}'
-        elif fk_type == 'json':
-            value = '{' + task_name + ':msg_content:json:}'
-        elif fk_type == 'tokens':
-            value = '{' + task_name + ':' + self.getTknTag() + '}'
-        elif fk_type == 'br_code':
-            value = '{' + task_name + ':' + self.getBranchCodeTag() + '}'
-        elif fk_type == 'param':
-            value = '{' + task_name + ':' + param_name + ':' + key_name + '}'
-        elif fk_type == 'man_path':
-            value = "{manager:path}"
+        value = finder.getKey(task_name, fk_type, param_name, key_name, self)
         pyperclip.copy(value)
         pyperclip.paste()
 
-    def getMsgTag(self)-> str:
-        return "msg_content"
+    def getPathToFolder(self):
+        app = Tk()
+        app.withdraw() 
+        app.attributes('-topmost', True)
+        filename = askdirectory() 
+        pyperclip.copy(filename)
+        pyperclip.paste()
+        return filename
     
-    def getTknTag(self)-> str:
-        return 'tokens_cnt'
-    
-    def getMngTag(self)-> str:
-        return 'manager'
-
-    def getBranchCodeTag(self) -> str:
-        return 'branch_code'
-    
+    def getPathToFile(self):
+        app = Tk()
+        app.withdraw() 
+        app.attributes('-topmost', True)
+        filename = askopenfilename() 
+        pyperclip.copy(filename)
+        pyperclip.paste()
+        return filename
+  
     def getShortName(self, n_type : str, n_name : str) -> str:
         tasks_dict  = cr.getTasksDict()
         for t in tasks_dict:
@@ -1281,35 +1377,92 @@ class Manager:
         return gr.Dropdown(choices=a, interactive=True)
     
     def getTaskKeyValue(self, param_name, param_key):
+        print('Get task key value:',param_name,'|', param_key)
+        if param_key == 'path_to_read':
+            app = Tk()
+            app.withdraw() # we don't want a full GUI, so keep the root window from appearing
+            app.attributes('-topmost', True)
+            filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+            return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
+                    gr.Textbox(str(filename)))
+        elif param_name == 'script' and param_key == 'path_to_trgs':
+            app = Tk()
+            app.withdraw()  
+            app.attributes('-topmost', True)
+            filename_src = list(askopenfilenames() )
+            res, data = self.curr_task.getParamStruct(param_name)
+            # data['targets_type'] = 'args'
+            filename = []
+            print('Get filenames for args:', filename)
+            for val in filename_src:
+                filename.append( data['path_to_python'] + ' ' + val)
+            return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
+                    gr.Textbox(str(filename)))
+
+        elif param_key == 'path_to_write':
+            app = Tk()
+            app.withdraw() # we don't want a full GUI, so keep the root window from appearing
+            app.attributes('-topmost', True)
+            filename = askdirectory() # show an "Open" dialog box and return the path to the selected file
+            return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
+        elif param_key == 'model':
+            res, data = self.curr_task.getParamStruct(param_name)
+            if res:
+                cur_val = data[param_key]
+                path_to_config = os.path.join('config','models.json')
+                values = []
+                with open(path_to_config, 'r') as config:
+                    models = json.load(config)
+                    for _, vals in models.items():
+                        values.extend([opt['name'] for opt in vals['prices']])
+                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=''))
+           
         task_man = TaskManager()
         res, data = self.curr_task.getParamStruct(param_name)
         if res and param_key in data:
             cur_val = data[param_key]
             values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
+            print('Update with',cur_val,'from', values)
             if cur_val in values:
-                return gr.Dropdown.update(choices=values, value=cur_val, interactive=True)
-        return gr.Dropdown.update(choices=[cur_val], value=cur_val, interactive=True)
+                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=''))
+        cur_val = 'None'
+        return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
+                gr.Textbox(value=''))
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
         if mnl_value == "":
-            self.curr_task.updateParamStruct(param_name, key, slt_value)
+            info = TaskDescription(target=self.curr_task, params={'name':param_name,'key':key,'select':slt_value})
         else:
-            self.curr_task.updateParamStruct(param_name, key, mnl_value)
-        return  self.getCurrTaskPrompts()
+            info = TaskDescription(target=self.curr_task, params={'name':param_name,'key':key,'select':mnl_value})
+        cmd = edit.EditParamCommand(info)
+        self.cmd_list.append(cmd)
+        return self.runIteration('')
 
     def getAppendableParam(self):
         task_man = TaskManager()
         return task_man.getParamOptBasedOptionsDict()
 
     def appendNewParamToTask(self, param_name):
+        print('Append new param to task')
         task_man = TaskManager()
         param = task_man.getParamBasedOptionsDict(param_name)
         if param is not None:
-            self.curr_task.setParamStruct(param)
-        return self.getCurrTaskPrompts()
+            info = TaskDescription(target=self.curr_task, params=param)
+            cmd = edit.AppendParamCommand(info)
+            self.cmd_list.append(cmd)
+        return self.runIteration('')
 
     def updateSteppedSelected(self):
-        self.updateSteppedSelectedInternal()
+        res, val = self.curr_task.getParamStruct('input')
+        if res and val['input']:
+            info = TaskDescription(prompt=self.curr_task.getLastMsgContent(),
+                                prompt_tag=self.curr_task.getLastMsgRole(),
+                                manual=True)
+            self.updateSteppedSelectedInternal(info)
+        else:
+            self.updateSteppedSelectedInternal()
         return self.getCurrTaskPrompts()
 
     def processCommand(self, json_msg,  tasks_json):
@@ -1360,34 +1513,446 @@ class Manager:
         return send_task_list_json
  
    
-    def beforeRemove(self, remove_folder = False):
+    def beforeRemove(self, remove_folder = False, remove_task = True):
         print('Clean files by manager')
-        for task in self.task_list:
-            task.beforeRemove()
-            self.task_list.remove(task)
-            del task
+        print('Tasks:', [t.getName() for t in self.task_list])
+        if remove_task:
+            for task in self.task_list:
+                task.beforeRemove()
+                self.task_list.remove(task)
+                del task
         if remove_folder:
             # os.path.split(self.getPath())
             # Path.rmdir(self.getPath())
             shutil.rmtree(self.getPath())
 
-    def makeActionParent(self):
-        return self.makeTaskAction("","","Parent","")
-    def makeActionUnParent(self):
-        return self.makeTaskAction("","","Unparent","")
-    def makeActionLink(self):
-        return self.makeTaskAction("","","Link","")
-    def makeActionUnLink(self):
-        return self.makeTaskAction("","","Unlink","")
+    def createExtProject(self, filename, prompt, parent) -> bool:
+        # TODO: Возможно, что следует просто отправлять сюда имя программы, которое потом будет использовать loadExtProject. Таким образом имя папок будет уникальным
+        res, ext_pr_name = self.loadexttask(filename, self)
+        if res:
+            cur = self.curr_task
+            self.createOrAddTask(prompt, 'ExtProject','user',parent,[{'type':'external','project':ext_pr_name,'filename':filename}])
+            if cur != self.curr_task and cur is not None:
+                print('Successfully add external task')
+                print('List of tasks:',[n.getName() for n in self.task_list])
+                return True
+        return False
+
+    def copyChildChainTask(self, change_prompt = False, edited_prompt = '',
+                           trg_type_t = '', src_type_t = '', 
+                           forced_parent = False
+                           ):
+        print('Copy child chain tasks')
+        tasks_chains = self.curr_task.getChildChainList()
+
+        return self.copyTasksChain(tasks_chains, change_prompt, edited_prompt, trg_type_t, src_type_t, forced_parent)
     
-    def deleteActionTask(self):
-        return self.makeTaskAction("","","Delete","")
-    def extractActionTask(self):
-        return self.makeTaskAction("","","Remove","")
-    def removeActionBranch(self):
-        return self.makeTaskAction("","","RemoveBranch","")
-    def removeActionTree(self):
-        return self.makeTaskAction("","","RemoveTree","")
-     
-    
-   
+    def copyTasksChain(self, tasks_chains, change_prompt = False, 
+                       edited_prompt = '',trg_type_t = '', src_type_t = '', 
+                       forced_parent = False):
+        print('Task chains:')
+        i = 0
+        for branch in tasks_chains:
+            print(i,[task.getName() for task in branch['branch']], branch['done'], branch['idx'],  branch['parent'].getName() if branch['parent'] else "None", branch['i_par'])
+            i+= 1
+        parent = None
+
+        link_array = []
+        start = None
+
+        for i in range(len(tasks_chains)):
+            branch = tasks_chains[i]
+            for j in range(len(branch['branch'])):
+                task = branch['branch'][j]
+                prompt=task.getLastMsgContent() 
+                prompt_tag=task.getLastMsgRole()
+                trg_type = task.getType()
+                if j == 0:
+                    if i != 0:
+                        parent = tasks_chains[branch['i_par']]['created'][-1]
+                    branch['created'] = []
+                    if i == 0:
+                        # Если есть промпт для замены вставляем его
+                        if forced_parent:
+                            parent = self.curr_task.parent
+                        if change_prompt:
+                            prompt = edited_prompt
+                        # if len(trg_type) > 0:
+                            # trg_type = trg_type
+                else:
+                    parent = self.curr_task
+                print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
+                # Меняем тип задачи
+                if trg_type == src_type_t:
+                    trg_type = trg_type_t
+                if trg_type == 'ExtProject':
+                    res, param = task.getParamStruct('external')
+                    if res:
+                        prompt = param['prompt']
+                        filename = param['filename']
+                        if not self.createExtProject(filename, prompt, parent):
+                            print('Can not create')
+                            return self.getCurrTaskPrompts()
+                    else:
+                        print('No options')
+                        return self.getCurrTaskPrompts()
+                else:
+                    self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
+
+                if i == 0 and j == 0:
+                    start = self.curr_task
+                if len(task.getHoldGarlands()) or len(task.getGarlandPart()):
+                    link_array.append({'task':self.curr_task,
+                                   'holders': task.getHoldGarlands(), 
+                                   'garlandparts': task.getGarlandPart()})
+
+                        
+                branch['created'].append(self.curr_task)
+        return link_array, start
+
+    def copyTaskByInfoInternal(self):
+        if self.tc_stop:
+            return False
+        i, j = self.tc_ij_list[self.tc_ij_list_idx]
+        change_prompt = self.tc_change_prompt
+        edited_prompt = self.tc_edited_prompt
+
+        tasks_chains = self.tc_tasks_chains
+        branch = tasks_chains[i]
+        task = branch['branch'][j]
+        # TODO: Заменить на особую функцию, которая используется только в случае копирования, чтобы переопределить ее для ExtProject. Для этой задачи при копировании важнее не входные переменные, а результирующее сообщение
+        prompt=task.getLastMsgContent() 
+        prompt_tag=task.getLastMsgRole()
+        trg_type = task.getType()
+        if j == 0:
+            if branch['i_par'] is not None:
+                parent = tasks_chains[branch['i_par']]['created'][-1]
+            else:
+                parent = branch['parent']
+                if change_prompt:
+                    prompt = edited_prompt
+            branch['created'] = []
+            branch['convert'] = []
+        else:
+            parent = self.curr_task
+        print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
+        # Меняем тип задачи
+        for switch in self.tc_switch_type:
+            if trg_type == switch['src']:
+                trg_type = switch['trg']
+        if trg_type == 'ExtProject':
+            res, param = task.getParamStruct('external')
+            if res:
+                prompt = param['prompt']
+                filename = param['filename']
+                if not self.createExtProject(filename, prompt, parent):
+                    print('Can not create')
+                    # return self.getCurrTaskPrompts()
+                    return False
+            else:
+                print('No options')
+                # return self.getCurrTaskPrompts()
+                return False
+        else:
+            self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
+
+
+        # for link in branch['links']:
+            # if link['out'] == task:
+                # link['res'] == self.curr_task 
+        branch['created'].append(self.curr_task)
+        branch['convert'].append({'from': task, 'to': self.curr_task})
+
+        self.tc_ij_list_idx +=1
+        if self.tc_ij_list_idx < len(self.tc_ij_list):
+            return True
+        else:
+            self.tc_stop = True
+            return False
+
+
+# TODO: при копировании учитывать только ветви с Response, чтобы не плодить ненужные копии
+    def getTasksChainsFromCurrTask(self, param):
+        tasks_chains = self.curr_task.getTasksFullLinks(param)
+        if 'chckresp' not in param:
+            return  tasks_chains
+        elif 'chckresp' in param and not param['chckresp']:
+            return  tasks_chains
+        buds = self.getSceletonBranchBuds(self.curr_task)
+
+        # учитываем линковку задач
+        tree = self.curr_task.getTree()
+        trees = [tree.copy()]
+        idx = 0
+        while(idx < 1000):
+            linked_tasks = []
+            for task in tree:
+                linked_tasks.extend( task.getHoldGarlands())
+            tree = []
+            if len(linked_tasks) == 0:
+                break
+            for task in linked_tasks:
+                tree.extend( task.getTree())
+                trees.append(task.getTree())
+            idx +=1
+
+        accepted = []
+        for bud in buds:
+            partasks = bud.getAllParents()
+            right = False
+            for task in partasks:
+                if task.getType() == 'Response':
+                    right = True
+                    break
+            if right:
+                accepted.extend(partasks)
+        print('Accepted:',[t.getName() for t in accepted])
+        res_tasks_chains = []
+        i = 0
+        for branch in tasks_chains:
+            print(i,
+                  [task.getName() for task in branch['branch']], 
+                  branch['done'], branch['idx'],  
+                  branch['parent'].getName() if branch['parent'] else "None", 
+                  branch['i_par'])
+
+
+            remove = False
+            for task in branch['branch']:
+                if task not in accepted:
+                    remove = True
+            if not remove:
+                print('Accept branch')
+                res_tasks_chains.append(branch)
+            else:
+                print('Deny branch')
+            i += 1
+        return res_tasks_chains
+
+
+    def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = []):
+        print('Copy tasks by info')
+        self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch)
+        self.copyTasksByInfoExe()
+        return self.copyTasksByInfoStop()
+
+    def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = []):
+        # TODO: замораживать текущую задачу, чтобы оставить возможность дополнительного редактирования
+        i = 0
+        links_chain = []
+        insert_tasks = []
+        for branch in tasks_chains:
+            print(i,
+                  [task.getName() for task in branch['branch']], 
+                  branch['done'], branch['idx'],  
+                  branch['parent'].getName() if branch['parent'] else "None", 
+                  branch['i_par'])
+
+            for link in branch['links']:
+                found = False
+                for sv in links_chain:
+                    if (sv['dir'] == 'in' or sv['dir'] == 'out') and (
+                        sv['in'] == link['in'] 
+                        and sv['out'] == link['out']):
+                        found = True
+                if 'insert' in link:
+                    insert_tasks.append(link)
+                if not found:
+                    links_chain.append(link)
+            i+= 1
+
+        self.tc_tasks_chains = tasks_chains
+        self.tc_links_chain = links_chain
+        self.tc_insert_tasks = insert_tasks
+        self.tc_ij_list = []
+        self.tc_ij_list_idx = 0
+        self.tc_change_prompt = change_prompt
+        self.tc_edited_prompt = edited_prompt
+        
+        self.tc_switch_type = switch
+
+        self.tc_start = True
+        self.tc_stop = False
+
+        for i in range(len(tasks_chains)):
+            for j in range(len(tasks_chains[i]['branch'])):
+                self.tc_ij_list.append([i,j])
+                
+    def copyTasksByInfoExe(self):
+        while self.copyTaskByInfoInternal():
+            pass
+
+    def copyTasksByInfoStep(self):
+        if self.tc_start:
+            if self.tc_stop:
+                self.copyTasksByInfoStop()
+            else:
+                self.copyTaskByInfoInternal()
+
+    def copyTasksByInfoStop(self):
+        for branch in self.tc_tasks_chains:
+            print('branch convert results:')
+            print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
+        print('Links list:')
+        print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
+
+        #TODO: протестировать вставку 
+        for link in self.tc_links_chain:
+            outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
+            if 'insert' in link and 'prompt' in link:
+                self.curr_task = link['in']
+                self.makeTaskActionPro(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'])
+                intask = self.slct_task
+            else:
+                intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
+            
+            self.makeLink( intask, outtask )
+
+        self.tc_start = False
+        self.tc_stop = False
+        return self.tc_tasks_chains
+
+    def getCopyedTask(self, tasks_chans, task):
+        for branch in tasks_chans:
+            for info in branch['convert']:
+                if info['from'] == task:
+                    return info['to']
+        return task
+
+
+    # копирует цепочку задач с использованием правил
+    # change_prompt = False, -- изменяет текстовое содержание родительской задачи цепи
+    # edited_prompt = '', -- текст, на который производится изменение
+    # trg_type = '', -- тип, на который меняется
+    # apply_link = False,  -- копировать также свзяи
+    # remove_old_link = False, -- удалять связи со старых задач
+    # copy -- копировать связи
+    # subtask -- создать ветвление от родительской задачи
+    def copyChildChains(self, change_prompt = False, edited_prompt = '',
+                        trg_type = '', src_type = '', 
+                        apply_link = False, remove_old_link = False, 
+                        copy = False, subtask = False):
+        print(10*"----------")
+        print('Copy child chains')
+        print(10*"----------")
+        link_array, start_node = self.copyChildChainTask(
+                                                        change_prompt=change_prompt, 
+                                                        edited_prompt= edited_prompt, 
+                                                        trg_type_t= trg_type, 
+                                                        src_type_t=src_type, 
+                                                        forced_parent=subtask
+                                                        )
+        print(link_array)
+        idx = 0
+        while(idx < 1000):
+            link_array_new = []
+            for link in link_array:
+                task = link['task']
+                holders = link['holders']
+                garlandparts = link['garlandparts']
+                print(task.getName())
+                print('holders', [t.getName() for t in holders])
+                print('garlandparts', [t.getName() for t in garlandparts])
+                if apply_link:                
+                    for holder in holders:
+                        if remove_old_link:
+                            self.curr_task = holder
+                            self.makeTaskActionBase("","","Unlink","")
+                            holder.removeLinkToTask()
+                            # self.manager.makeLink( task, holder)
+                        if copy:
+                            print('================================================Copy')
+                            self.curr_task = holder
+                            new_la, new_sn = self.copyChildChainTask(change_prompt=False, edited_prompt=task.getLastMsgContent(), forced_parent=True)
+                            # print(holder)
+                            # print(new_sn)
+                            for l in new_la:
+                                if new_sn == l['task']:
+                                    new_la.remove(l)
+                            link_array_new.extend( new_la )
+                            # print(link_array_new)
+                            self.makeLink( new_sn, task )
+
+                    for part in garlandparts:
+                        self.makeLink( task, part )
+                        
+            if len(link_array_new) == 0:
+                break
+            link_array = link_array_new
+            idx += 1
+
+        return self.getCurrTaskPrompts()
+ 
+
+    def saveInfo(self):
+
+        path_to_projectfile = os.path.join(self.getPath(),'project.json')
+        if not self.info: 
+            loaded = False
+            # print('Try to load', path_to_projectfile)
+            if os.path.exists(path_to_projectfile):
+                try:
+                    with open(path_to_projectfile,'r') as f:
+                        self.info = json.load(f)
+                        loaded = True
+                except:
+                    pass
+            if not loaded:
+                self.info = {'actions':[]}
+
+        writer.writeJsonToFile(path_to_projectfile, self.info, 'w',1)
+
+    def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}):
+        if self.info is None:
+            self.saveInfo()
+        id = len(self.info['actions'])
+        action = {'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type, 'param': param }
+
+        action['current'] = self.curr_task.getName() if self.curr_task else None
+        action['slct'] = self.slct_task.getName() if self.slct_task else None
+        action['selected'] = [t.getName() for t in self.selected_tasks]
+
+
+        self.info['actions'].append(action)
+        self.saveInfo()
+
+    def remLastActions(self):
+        if len(self.info['actions']) > 0:
+            cmd = self.info['actions'].pop()
+            print('Remove last cmd:', cmd)
+            self.saveInfo()
+
+    def initInfo(self, method, task : BaseTask = None, path = 'saved', act_list = [], repeat = 3, limits = 1000):
+        # print('Manager init info')
+        self.loadexttask = method
+        # TODO: А зачем мне вообще все задачи, а не только родительская?
+        # self.task_list =  task.getAllParents() if task is not None else []
+        self.curr_task = task
+        task_name = task.getName() if task is not None else 'Base'
+        self.setName(task_name)
+        if task is not None:
+            self.setPath(os.path.join(path,'tmp', self.getName()))
+        else:
+            self.setPath(path)
+        self.saveInfo()
+        if 'task' not in self.info:
+            self.info['task'] = task_name
+        if 'script' not in self.info:
+            self.info['script'] = {'managers':[]}
+        if 'repeat' not in self.info:
+            self.info['repeat'] = repeat
+        if task is not None and len(act_list) > 0:
+            self.info['actions'] = act_list
+            self.info['limits'] = limits
+        self.info['done'] = False
+        self.info['idx'] = 0
+        # Начальные данные для вызова скриптов, если их нет
+        if 'state' not in self.info:
+            self.info['ext_states'] = ['init_created']
+        if 'type' not in self.info:
+            self.info['type'] = 'simple'
+
+        self.saveInfo()
+        # print(self.info)
+
+

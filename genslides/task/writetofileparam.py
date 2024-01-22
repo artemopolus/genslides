@@ -1,5 +1,6 @@
 from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.writetofile import WriteToFileTask
+import genslides.utils.writer as writer
 
 import os
 import json
@@ -39,7 +40,9 @@ class WriteToFileParamTask(WriteToFileTask):
             return
         self.writepath = path
         ctrl = 'w'
-        text = self.msg_list[len(self.msg_list) - 1]["content"]
+        text = self.findKeyParam( self.getLastMsgContent() )
+        task_msgs = self.getMsgs()
+        text = task_msgs[-1]['content'] if len(task_msgs) > 0 else ''
         if res:
             res, pparam = self.getParamStruct(param_name)
             if res:
@@ -62,16 +65,9 @@ class WriteToFileParamTask(WriteToFileTask):
         else:
             print("No struct param=",self.getName())
 
-        if not os.path.exists(path):
-            lst_path = os.path.split(path)
-            if not os.path.exists( lst_path[0]):
-                Path(lst_path[0]).mkdir(parents=True, exist_ok=True)
-            
-        with open(path, ctrl, encoding='utf8') as f:
-            print(self.getName(),"write =", path)
-            # print("Try to save=", text)
-            f.write(text)
-
+        # print(self.getName(),"write =", path)
+        writer.writeToFile(path, text, ctrl)
+       
     def update(self, input : TaskDescription = None):
         super().update(input)
         return self.writepath, "user", ""

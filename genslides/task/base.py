@@ -1,7 +1,7 @@
 import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 
-from genslides.commands.create import CreateCommand
+# import genslides.commands.create as create
 from genslides.helpers.singleton import Singleton
 
 import os
@@ -10,21 +10,17 @@ from os.path import isfile, join
 
 import json
 
-from genslides.utils.largetext import SimpleChatGPT
+
 
 class TaskManager(metaclass=Singleton):
     def __init__(self) -> None:
         self.task_id = 0
         self.task_list = []
         self.model_list = []
-        chat = SimpleChatGPT()
-        self.model_list = chat.getModelNames()
-        self.cur_task_path = "saved/"
-        self.proj_pref = ""
-        self.cur_proj_name = ""
+        self.setDefaultProj()
 
     def getListBasedOptionsDict(self, param):
-        with open('config\\options.json') as f:
+        with open(os.path.join('config','options.json')) as f:
             opt_params = json.load(f)
         if 'type' in param:
             for p in opt_params:
@@ -33,18 +29,20 @@ class TaskManager(metaclass=Singleton):
         return []
 
     def getParamOptBasedOptionsDict(self):
-        with open('config\\options.json') as f:
+        with open(os.path.join('config','options.json')) as f:
             opt_params = json.load(f)
         return [p['type'] for p in opt_params]
  
 
     def getParamBasedOptionsDict(self, param_name):
-        with open('config\\options.json') as f:
+        with open(os.path.join('config','options.json')) as f:
             opt_params = json.load(f)
         for p in opt_params:
             if p['type'] == param_name:
                 for k, v in p.items():
-                    if isinstance(v,list):
+                    if k == 'path_to_trgs' and param_name == 'script':
+                        p[k] = v
+                    elif isinstance(v,list):
                         if len(v) > 0:
                             p[k] = v[0]
                         else:
@@ -98,7 +96,7 @@ class TaskManager(metaclass=Singleton):
     
     def getLinks(self,mypath):
         # mypath = self.getPath()
-        print('Get links by path', mypath)
+        # print('Get links by path', mypath)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         out = []
         for filename in onlyfiles:
@@ -119,7 +117,7 @@ class TaskManager(metaclass=Singleton):
     def getTaskPrompts(self,mypath, trg_path = ""):
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         out = []
-        print('Get available tasks from',len(onlyfiles),'files')
+        # print('Get available tasks from',len(onlyfiles),'files')
         for filename in onlyfiles:
             path = join(mypath,filename)
             # print('Check path=',path)
@@ -137,10 +135,10 @@ class TaskManager(metaclass=Singleton):
                     else:
                         # path_from_file = path_from_file.split('/')[-1]
                         if path_from_file != "":
-                            parent_path = mypath + path_from_file + self.getTaskExtention()
+                            parent_path = os.path.join(mypath , path_from_file + self.getTaskExtention())
                     # print('Check path:',parent_path,'=',trg_path)
                     if parent_path == trg_path and 'chat' in rq and 'type' in rq:
-                        print("Get propmt from=",path)
+                        # print("Get propmt from=",path)
                         # if rq['type'].endswith("RichText") or rq['type'].endswith("Response"):
                         if len(rq['chat']) == 0:
                             elem = {'role': 'user','content': ''}
@@ -163,9 +161,9 @@ class TaskManager(metaclass=Singleton):
                         #         pair['content'] = elem['content']
                         #         out.append(pair)
             except json.decoder.JSONDecodeError as e:
-                print("Get json error on task prompts=", e)
+                print("Get json error on task prompts=", e,"using", path)
             except Exception as e:
-                print("Task prompts error=", type(e))
+                print("Task prompts error=", type(e),"using", path)
         return out
 
 
@@ -227,12 +225,33 @@ class BaseTask():
 
         if  self.parent:
             self.parent.addChild(self)
-            if self.parent.is_freeze:
-                self.is_freeze = True
+            # if self.parent.is_freeze:
+                # self.is_freeze = True
+        
         self.target = task_info.target
         self.filename = task_info.filename
 
+
+    def getBranchCodeTag(self) -> str:
+        p_tasks = self.getAllParents()
+        # print('Get branch code',[t.getName() for t in p_tasks])
+        code_s = ""
+        if len(p_tasks) > 0:
+            trg = p_tasks[0]
+            code_s = self.manager.getShortName(trg.getType(), trg.getName())
+            for i in range(len(p_tasks)-1):
+                code_s += p_tasks[i].getBranchCode( p_tasks[i+1])
+        return code_s
+
+
+    def getManager(self):
+        return self.manager
     
+    def setManager(self, manager):
+        self.manager = manager
+
+    def getParent(self):
+        return self.parent
     
     def freezeTask(self):
         self.is_freeze = True
@@ -304,7 +323,7 @@ class BaseTask():
         out = par.getAllChildChains()
         return out
 
-    def getAllParents(self) -> list:
+    def getAllParents(self):
         par = self
         index = 0
         out = [self]
@@ -376,6 +395,101 @@ class BaseTask():
                     branch_list[i]['parent'] = trg
                     branch_list[i]['i_par'] = j
             print(i_out)
+            branch_list[j]['idx'] = i_out
+        return branch_list
+    
+    def getLinkedTaskFromBranches(self, branches):
+        linked_task = []
+        for branch in branches:
+            for link in branch['links']:
+                if link['dir'] == 'in':
+                    linked_task.extend([link['in']])
+        return linked_task
+
+    def getTasksFullLinks(self, pparam):
+        branches = self.getChildAndLinks(self, pparam)
+        if not pparam['link']:
+            return branches
+        idx = 0
+        linked_task = self.getLinkedTaskFromBranches(branches)
+        while(idx < 1000):
+            tmp = []
+            for task in linked_task:
+                new_b = self.getChildAndLinks(task, pparam)
+                branches.extend(new_b)
+                tmp.extend(new_b)
+            linked_task = self.getLinkedTaskFromBranches(tmp)
+            idx += 1
+        return branches
+    
+    # Возвращает можно ли вообще копировать наследников ветки 
+    def isLinkForCopy(self):
+        return True
+    
+    def getTrgLinkInfo(self, trg):
+        return False, {'out': trg, 'in': self, 'dir': 'in'}
+
+    # Копирует информацию о связях между задачами в переменную trg_links, 
+    # переменная copy_in запрашивает информацию о входящих
+    # переменная copy_out запрашивае информацию о исходящих 
+    # TODO: разделить между обычными задачами и задачами типа Прием обработку исходящих и входящих
+    def getLinkCopyInfo(self, trg_links:list, copy_in = True, copy_out = True):
+        # print('Get link copy info from',self.getName())
+        if len(self.getHoldGarlands()) and copy_out:
+            for ll in self.getHoldGarlands():
+                res, val = ll.getTrgLinkInfo(self)
+                if res:
+                    print('Append',val)
+                    trg_links.append(val)
+        if len(self.getGarlandPart()) and copy_in:
+            for ll in self.getGarlandPart():
+                trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
+
+    def getChildAndLinks(self, task, pparam):
+        index = 0
+        branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
+        while(index < 1000):
+            childs_to_add = []
+            for branch in branch_list:
+                trg = branch['branch'][-1]
+                j = 0
+                while (j < 1000 and not branch['done']):
+                    childs = trg.getChilds()
+                    trg.getLinkCopyInfo(branch['links'], pparam['in'], pparam['out'])
+                    # if len(trg.getHoldGarlands()) and pparam['out']:
+                    #     for ll in trg.getHoldGarlands():
+                    #         branch['links'].append( {'out': trg, 'in': ll, 'dir': 'in'})
+                    # if len(trg.getGarlandPart()) and pparam['in']:
+                    #     for ll in trg.getGarlandPart():
+                    #         branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
+                    print('links=',branch['links'])
+                    if len(childs) == 1:
+                        branch['branch'].append(childs[0])
+                        trg = childs[0]
+                    elif len(childs) > 1:
+                        childs_to_add.extend(childs)
+                        branch['done'] = True
+                        break
+                    else:
+                        branch['done'] = True
+                        break
+                    j += 1
+            if len(childs_to_add) == 0:
+                break
+            for child in childs_to_add:
+                branch_list.append({'branch':[child],'done':False,'parent':None,'i_par':None,'idx':[],'links':[]})
+
+            index += 1
+        
+        for j in range(len(branch_list)):
+            trg = branch_list[j]['branch'][-1]
+            childs = trg.getChilds()
+            i_out = []
+            for i in range(len(branch_list)):
+                if branch_list[i]['branch'][0] in childs:
+                    i_out.append(i)
+                    branch_list[i]['parent'] = trg
+                    branch_list[i]['i_par'] = j
             branch_list[j]['idx'] = i_out
         return branch_list
 
@@ -456,7 +570,7 @@ class BaseTask():
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
         val = { "name": info.target.getName(), "id":info.id,"method":info.method, "type":"link","used":False}
         val.update(self.getDefCond())
-        print(val)
+        # print(val)
         return val
     
     def getJsonQueue(self, pack : dict) -> dict:
@@ -473,13 +587,15 @@ class BaseTask():
     
     def setParent(self, parent):
         if parent is None:
-            print('Remove parent')
+            # print('Remove parent')
+            pass
         else:
-            print('Set new parent', parent.getName())
+            # print('Set new parent', parent.getName())
+            pass
         self.parent = parent
 
     def addChild(self, child) -> bool:
-        print('Add child',child.getName())
+        # print('Add child',child.getName())
         if child not in self.childs:
             child.setParent(self)
             self.childs.append(child)
@@ -543,7 +659,7 @@ class BaseTask():
 
 
     def setLinkToTask(self, info : TaskDescription) -> bool:
-        print('Set link to', info.target.getName())
+        # print('Set link to', info.target.getName())
         self.affect_to_ext_list.append(info)
         info1 = self.getLinkQueuePack(info)
         self.onQueueReset(info1)
@@ -556,16 +672,18 @@ class BaseTask():
         return True
 
     def resetLinkToTask(self, info : TaskDescription) -> None:
+        print('Reset link to task by', self.getName())
+        # print(self.queue)
         self.affect_to_ext_list.remove(info)
-        self.queue.remove(self.getLinkQueuePack(info))
 
     def getChilds(self):
         return self.childs.copy()
 
-   
+    # Возвращает пару символов для точек ветвления
     def getBranchCode(self, second) -> str:
         code_s = ""
         if len(self.getChilds()) > 1:
+            # Если ветвится в точке с потомком записи в файл, то это ветвление игнорируется
             if second.getType() == 'WriteToFileParam':
                 return code_s
             # else:
@@ -575,12 +693,18 @@ class BaseTask():
             code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
         return code_s
 
-    def getCmd(self):
-        if len(self.crtasklist) > 0:
-            task = self.crtasklist.pop()
-            print('Register command:' + str(task.method))
-            return CreateCommand( task)
-        return None
+    # TODO: возвращать список задач для создания, а не просто копирования. Например,
+    # если задача содержит список, то создать дочерние задачи по списку
+    # Это может быть востребовано для перебора файлов в папке
+    # Перебор результатов поиска в Гугл или Яндексе
+    # Список действий, перечисленных ГПТ
+
+    # def getCmd(self):
+    #     if len(self.crtasklist) > 0:
+    #         task = self.crtasklist.pop()
+    #         print('Register command:' + str(task.method))
+    #         return create.CreateCommand( task)
+    #     return None
     
     def stdProcessUnFreeze(self, input=None):
             if self.parent:
@@ -595,17 +719,22 @@ class BaseTask():
         self.stdProcessUnFreeze(input)
 
        
-        print("Update=",self.getName(), "|frozen=", self.is_freeze)
+        # print("Update=",self.getName(), "|frozen=", self.is_freeze)
         self.updateIternal(input)
 
-        if input is None or input and not input.stepped:
+        if input is None:
             
             self.useLinksToTask()
 
             for child in self.childs:
                 child.update()
-        else:
+        elif input and input.stepped:
             self.setupQueue()
+        else:
+            self.is_freeze = True
+            self.useLinksToTask()
+            for child in self.childs:
+                child.update()
 
         return "","",""
     
@@ -615,12 +744,6 @@ class BaseTask():
         else:
             # print("Setup queue:",self.queue)
             pass
-
-    def useLinksToTask(self):
-        input = TaskDescription(prompt=self.prompt, parent=self)
-        for task in self.affect_to_ext_list:
-            input.id = task.id
-            task.method(input)
 
 
     def resetTreeQueue(self):
@@ -645,7 +768,7 @@ class BaseTask():
     
     def onQueueReset(self, info):
         # print('Reset queue from', self.getName(),'=',info)
-        print('Reset queue from', self.getName())
+        # print('Reset queue from', self.getName())
         info["used"] = False
         info["cur"] = info["str"]
 
@@ -774,7 +897,7 @@ class BaseTask():
         # print([[q['name'], q['idx']] for q in self.queue])
 
     def findNextFromQueue(self, only_check = False):
-        print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
+        # print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
         self.sortQueue()
         if self.queue:
             for info1 in self.queue:
@@ -788,14 +911,27 @@ class BaseTask():
                         return self.getChildByName(info['name'])
                 if info["type"] == "link":
                     if self.onQueueCheck(info):
-                        input = TaskDescription(prompt=self.prompt, id=info["id"], stepped=True, parent=self, enabled= not self.is_freeze)
+                        input = TaskDescription(
+                            prompt=self.findKeyParam(self.getLastMsgContent()), 
+                            id=info["id"], stepped=True, 
+                            parent=self, enabled= not self.is_freeze)
                         # info["method"](input)
+                        # print('Use link to', info['name'])
                         for affected in self.affect_to_ext_list:
                             if affected.target.getName() == info['name']:
+                                input.id = affected.id
                                 affected.method(input)
                         return self.getLinkedByName(info['name'])
         return None
     
+    def useLinksToTask(self):
+        print('Use links',[t.getName() for t in self.getHoldGarlands()])
+        input = TaskDescription(prompt=self.prompt, parent=self)
+        for task in self.affect_to_ext_list:
+            input.id = task.id
+            task.method(input)
+
+
     def isQueueComplete(self):
         if len(self.queue) > 0:
             return False
@@ -803,7 +939,7 @@ class BaseTask():
 
     def getNextFromQueue(self):
         res = self.findNextFromQueue()
-        print("Get next from",self.getName(),"queue:", res)
+        # print("Get next from",self.getName(),"queue:", res)
         if res:
             return res
         return self.getNextFromQueueRe()
@@ -812,7 +948,7 @@ class BaseTask():
         # return None
         
     def getNextFromQueueRe(self):
-        print("Get recursevly")
+        # print("Get recursevly")
         trg = self
         index = 0
         while(index < 1000):
@@ -822,7 +958,7 @@ class BaseTask():
                 trg = trg.parent
                 res = trg.findNextFromQueue()
                 if res:
-                    print('Reset from task=', res.getName())
+                    # print('Reset from task=', res.getName())
                     res.resetTreeQueue()
                     return res
             index +=1
@@ -839,10 +975,15 @@ class BaseTask():
 
 
     def beforeRemove(self):
+        print('Before remove')
+        self.removeLinkToTask()
         if self.isRootParent():
-            pass #TODO: remove manager
+            print('Task',self.getName(),'is Root')
+            # Последняя задача для дерева
+            pass #Только проектер решает об удалении менеджера
         else:
             self.parent.removeChild(self)
+        print('Task',self.getName(),'have',len(self.childs),'childs')
         for child in self.childs:
             child.whenParentRemoved()
 
@@ -892,7 +1033,8 @@ class BaseTask():
         while len(self.by_ext_affected_list) > 0:
             input = self.by_ext_affected_list.pop()
             input.parent.resetLinkToTask(input)
-        
+        for task in self.getHoldGarlands():
+            task.removeLinkToTask()
     
 
     def completeTask(self) -> bool:
@@ -910,7 +1052,11 @@ class BaseTask():
     
     def getParamList(self):
         return None
+    
     def updateParamStruct(self, param_name, key,val):
+        pass
+    
+    def updateParam2(self, param_vals : dict):
         pass
 
     def getParamStruct(self, param_name):
@@ -942,5 +1088,21 @@ class BaseTask():
         for pack in self.affect_to_ext_list:
             out.append(pack.target)
         return out
- 
+
+    def checkTask(self):
+        return True
     
+    def getTextInfo(self, param):
+        return [],'Not Response Task'
+    
+    def resaveWithID(self, id : int):
+        pass
+    
+    def getLastMsgContentRaw(self):
+        return "No any content"
+    
+    def setBranchSummary(self, summary : str):
+        pass
+
+    def getBranchSummary(self) -> str:
+        return ''

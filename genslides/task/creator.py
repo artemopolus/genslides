@@ -1,10 +1,9 @@
-from genslides.task.presentation import PresentationTask
 from genslides.task.base import BaseTask
 from genslides.task.base import TaskDescription
 from genslides.task.richtext import RichTextTask
 from genslides.task.request import RequestTask
 from genslides.task.response import ResponseTask
-from genslides.task.collect import CollectTask
+from genslides.task.collect import CollectTask, GarlandTask, ReceiveTask
 from genslides.task.group import GroupTask
 from genslides.task.readfile import ReadFileTask
 from genslides.task.writetofile import WriteToFileTask
@@ -28,7 +27,9 @@ from genslides.task.setoptions import SetOptionsTask
 from genslides.task.writetofileparam import WriteToFileParamTask
 from genslides.task.readfileparam import ReadFileParamTask
 
-from genslides.task.extproject import ExtProjectTask
+# from genslides.task.extproject import ExtProjectTask
+import genslides.task.extproject as ExtProjectTask
+from genslides.task.groupcollect import GroupCollectTask
 
 import genslides.commands.create as cr
 
@@ -36,10 +37,9 @@ def checkTypeFromName(name : str, type :str) -> bool:
     stype = ''.join([i for i in name if not i.isdigit()])
     return stype.endswith(type)
 
-def createTaskByType(type : str,info : TaskDescription):
-    print('Create task')
-    # if type == "Presentation":
-        # return PresentationTask(info)
+def createTaskByType(type : str, info : TaskDescription):
+    # print('Create task', type)
+    # print('Start params=',info.params)
     stype = ''.join([i for i in type if not i.isdigit()])
     info.type = stype
     info.filename = type
@@ -61,8 +61,17 @@ def createTaskByType(type : str,info : TaskDescription):
     if stype.endswith("Group"):
         info.method = GroupTask
         return cr.CreateCommand(info)
+    if stype.endswith("GroupCollect"):
+        info.method = GroupCollectTask
+        return cr.CreateCommand(info)
+    if stype.endswith("Receive"):
+        info.method = ReceiveTask
+        return cr.CreateCommand(info)
     if stype.endswith("Collect"):
         info.method = CollectTask
+        return cr.CreateCommand(info)
+    if stype.endswith("Garland"):
+        info.method = GarlandTask
         return cr.CreateCommand(info)
     if stype.endswith("ReadFile"):
         info.method = ReadFileTask
@@ -110,7 +119,7 @@ def createTaskByType(type : str,info : TaskDescription):
         info.method = ReadFileParamTask
         return cr.CreateCommand(info)
     if stype.endswith("ExtProject"):
-        info.method = ExtProjectTask
+        info.method = ExtProjectTask.ExtProjectTask
         return cr.CreateCommand(info)
     else:
     	return None
@@ -119,7 +128,10 @@ def getTasksDict() -> list:
     out = []
     out.append({"type":"Request","short":"Rq","creation":RequestTask})
     out.append({"type":"Response","short":"Rs","creation":ResponseTask})
+    out.append({"type":"Receive","short":"Cl","creation":ReceiveTask})
     out.append({"type":"Collect","short":"Cl","creation":CollectTask})
+    out.append({"type":"Garland","short":"Gr","creation":GarlandTask})
+    out.append({"type":"GroupCollect","short":"Gc","creation":GroupCollectTask})
     out.append({"type":"ReadDial","short":"Rd","creation":ReadDialTask})
     out.append({"type":"WriteDialToFile","short":"Wd","creation":WriteDialToFileTask})
     out.append({"type":"ReadFile","short":"Rf","creation":ReadFileTask})

@@ -3,11 +3,18 @@ import os
 from os import listdir
 from os.path import isfile, join
 import datetime
+import time
+
+def getTimeForSaving() -> str:
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def setTimeForSaving(time : str)->datetime:
+    return datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
 
 
 class SaveData:
     def __init__(self) -> None:
-        path_to_config = "config\\base.json"
+        path_to_config = join("config","base.json")
         self.loaded = False
         with open(path_to_config, 'r') as config:
             values = json.load(config)
@@ -15,8 +22,8 @@ class SaveData:
                 self.name = values["session_name"]
                 self.loaded = True
 
-        self.session_path = "saved\\session\\"
-        self.archive_path = "saved\\archive\\"
+        self.session_path = join("saved","session")
+        self.archive_path = join("saved","archive\\")
 
     def save(self, data):
         filename = self.session_path + self.name
