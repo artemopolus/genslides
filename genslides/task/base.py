@@ -432,14 +432,14 @@ class BaseTask():
     # Копирует информацию о связях между задачами в переменную trg_links, 
     # переменная copy_in запрашивает информацию о входящих
     # переменная copy_out запрашивае информацию о исходящих 
-    # TODO: разделить между обычными задачами и задачами типа Прием обработку исходящих и входящих
     def getLinkCopyInfo(self, trg_links:list, copy_in = True, copy_out = True):
+    # TODO: разделить между обычными задачами и задачами типа Прием обработку исходящих и входящих
         # print('Get link copy info from',self.getName())
         if len(self.getHoldGarlands()) and copy_out:
             for ll in self.getHoldGarlands():
                 res, val = ll.getTrgLinkInfo(self)
                 if res:
-                    print('Append',val)
+                    print('Append:',val['out'].getName(),'->', val['in'].getName())
                     trg_links.append(val)
         if len(self.getGarlandPart()) and copy_in:
             for ll in self.getGarlandPart():
@@ -454,6 +454,7 @@ class BaseTask():
                 trg = branch['branch'][-1]
                 j = 0
                 while (j < 1000 and not branch['done']):
+                    print('Task', trg.getName())
                     childs = trg.getChilds()
                     trg.getLinkCopyInfo(branch['links'], pparam['in'], pparam['out'])
                     # if len(trg.getHoldGarlands()) and pparam['out']:
@@ -462,7 +463,9 @@ class BaseTask():
                     # if len(trg.getGarlandPart()) and pparam['in']:
                     #     for ll in trg.getGarlandPart():
                     #         branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
-                    print('links=',branch['links'])
+                    # print('Links:')
+                    # for ll in branch['links']:
+                    #     print(ll['out'].getName(),'->', ll['in'].getName())
                     if len(childs) == 1:
                         branch['branch'].append(childs[0])
                         trg = childs[0]
@@ -477,12 +480,14 @@ class BaseTask():
             if len(childs_to_add) == 0:
                 break
             for child in childs_to_add:
+                print('Add child', child.getName())
                 branch_list.append({'branch':[child],'done':False,'parent':None,'i_par':None,'idx':[],'links':[]})
 
             index += 1
         
         for j in range(len(branch_list)):
             trg = branch_list[j]['branch'][-1]
+            print('Apply branch:',[t.getName() for t in branch_list[j]['branch']])
             childs = trg.getChilds()
             i_out = []
             for i in range(len(branch_list)):

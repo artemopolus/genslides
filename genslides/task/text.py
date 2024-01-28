@@ -254,6 +254,9 @@ class TextTask(BaseTask):
         self.msg_list = self.getRawParentMsgs()
         
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+        res, pparam = self.getParamStruct('hidden')
+        if res and pparam['hidden']:
+            return False, [], self.parent
         # TODO: можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         val = [{"role":self.getLastMsgRole(), 
                 "content": self.findKeyParam(self.getLastMsgContent())}]

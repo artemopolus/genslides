@@ -58,7 +58,7 @@ class ResponseTask(TextTask):
 
     def setChatPram(self, name):
             res, temperature =  self.reqhelper.getValue(self.getType(), name)
-            print("t=",temperature)
+            # print("t=",temperature)
             if res:
                 self.updateParam(name, temperature)
 
@@ -92,7 +92,8 @@ class ResponseTask(TextTask):
             pair["content"] = out
             self.prompt = out
             self.msg_list.append(pair)
-            print('Response=',out)
+            print('Update response for', self.getName())
+            # print('Response=',out)
         # print('Msg list=',self.msg_list)
 
 

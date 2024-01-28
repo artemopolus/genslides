@@ -131,6 +131,8 @@ class Manager:
         return self.curr_task
 
     def addTaskToSelectList(self, task :BaseTask):
+        # TODO: Разрешить мультивыбор когда-нибудь
+        self.selected_tasks.pop()
         self.selected_tasks.append(task)
 
     def clearSelectList(self):
@@ -834,13 +836,21 @@ class Manager:
         elif creation_type == "Delete":
         # TODO: после удаления возвращаться к тому же дереву
             task = self.curr_task
+            next_task_after = task.getParent()
+            if next_task_after is None:
+                for ch in task.getChilds():
+                    next_task_after = ch
+                    break
             info = TaskDescription(target=self.curr_task)
             cmd_delete = create.RemoveCommand(info)
             self.cmd_list.append(cmd_delete)
             self.runIteration(prompt)
             if task in self.tree_arr:
                 self.tree_arr.remove(task)
-            self.setNextTask("1")
+            if next_task_after is None:
+                self.setNextTask("1")
+            else:
+                self.curr_task = next_task_after
             del task
             return self.getCurrTaskPrompts()
         elif creation_type == "New":
@@ -1656,6 +1666,9 @@ class Manager:
         else:
             self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
 
+        # TODO: замораживать текущую задачу, чтобы оставить возможность дополнительного редактирования
+        if j == 0:
+            self.curr_task.freezeTask()
 
         # for link in branch['links']:
             # if link['out'] == task:
@@ -1737,7 +1750,6 @@ class Manager:
         return self.copyTasksByInfoStop()
 
     def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = []):
-        # TODO: замораживать текущую задачу, чтобы оставить возможность дополнительного редактирования
         i = 0
         links_chain = []
         insert_tasks = []
@@ -1925,7 +1937,6 @@ class Manager:
     def initInfo(self, method, task : BaseTask = None, path = 'saved', act_list = [], repeat = 3, limits = 1000):
         # print('Manager init info')
         self.loadexttask = method
-        # TODO: А зачем мне вообще все задачи, а не только родительская?
         # self.task_list =  task.getAllParents() if task is not None else []
         self.curr_task = task
         task_name = task.getName() if task is not None else 'Base'

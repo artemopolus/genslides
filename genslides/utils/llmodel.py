@@ -14,7 +14,7 @@ from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompl
 
 class LLModel():
     def __init__(self, params = None) -> None:
-        print('Start llmodel with params=', params)
+        # print('Start llmodel with params=', params)
         if params == None:
             params = {'type':'model','model':'gpt-3.5-turbo'}
         path_to_config = os.path.join('config','models.json')

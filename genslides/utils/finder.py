@@ -47,7 +47,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                 else:
                     print("No json in", task.getName())
             else:
-                print("Replace", res, "from",task.getName())
+                # print("Replace", res, "from",task.getName())
                 rep_text = rep_text.replace(res, str(param))
         elif arr[1] == getTknTag():
             tkns, price = task.getCountPrice()

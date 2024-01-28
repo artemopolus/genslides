@@ -135,7 +135,6 @@ class Projecter:
     def loadExtProject(self, filename, manager : Manager) -> bool:
         mypath = 'tools'
         if filename + '.7z' in [f for f in listdir(mypath) if isfile(join(mypath, f))]:
-            # TODO: Прям критическая проблема, которая может приводить к потере данных. Сделать проверку наличия папок с этим же наименованием, чтобы не было перезаписи
             idx = 0
             while (idx < 1000):
                 ext_pr_name = 'pr' + str(idx)
@@ -220,6 +219,7 @@ class Projecter:
             if 'resp2req' in checks:
                 param['switch'].append({'src':'Response','trg':'Request'})
             if 'coll2req' in checks:
+            # TODO: Если надо заменить задачу типа Collect, то меняем все типы задач Receive/Collect/GroupCollect
                 param['switch'].append({'src':'Collect','trg':'Request'})
         print('Action param=', param)
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
@@ -263,6 +263,9 @@ class Projecter:
     
     def goToNextBranch(self):
         return self.actioner.manager.goToNextBranch()
+    
+    def createNewTree(self):
+        return self.actioner.makeTaskAction("","SetOption","New","user",[])
     
     def goToNextTree(self):
         # TODO: сразу переходить к одному из конечных диалогов
@@ -486,3 +489,43 @@ class Projecter:
     def goToTreeByName(self, name):
         return self.actioner.manager.goToTreeByName(name)
 
+
+    def sortKey(self, trg):
+        return trg['idx']
+
+    def update(self):
+        man = self.actioner.manager
+        task_tmp = []
+        trg_task = man.tree_arr[man.tree_idx]
+        for task in man.tree_arr:
+            res, pparam = task.getParamStruct('tree_step')
+            if res:
+                idx = pparam['idx']
+            else:
+                idx = 0
+                man.curr_task = task
+                man.appendNewParamToTask('tree_step')    
+            task_tmp.append({'task':task,'idx':idx})
+        task_tmp.sort(key=self.sortKey)
+
+        man.tree_arr = []
+        i = 0
+        for task in task_tmp:
+            man.tree_arr.append(task['task'])
+            if trg_task == task['task']:
+                man.tree_idx = i
+            i += 1
+
+        
+        
+        for task in man.tree_arr:
+            man.curr_task = task
+            man.updateSteppedTree()
+
+        # out = man.update()
+        cnt = 0
+        for task in man.task_list:
+            if task.is_freeze:
+                cnt += 1
+        print('Frozen tasks cnt:', cnt)
+        return man.getCurrTaskPrompts()
