@@ -616,8 +616,8 @@ class TextTask(BaseTask):
         return self.prompt_tag
         # return self.msg_list[len(self.msg_list) - 1]["role"]
 
-    def useLinksToTask(self):
-        # print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
+    def useLinksToTask(self, stepped = False):
+        print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
         if len(self.msg_list) == 0:
             return
         text = self.msg_list[len(self.msg_list) - 1]["content"]
@@ -627,6 +627,7 @@ class TextTask(BaseTask):
             input.prompt = text
             input.enabled = not self.is_freeze
             input.parent = self
+            input.stepped = stepped
             task.method(input)
 
     def affectedTaskCallback(self, input: TaskDescription):
@@ -782,13 +783,19 @@ class TextTask(BaseTask):
         #     print('get list')
         # else:
         #     print('not str and not list')
-        for param in self.params:
-            if "type" in param and param["type"] == param_name:
-                if key in param:
-                    if isinstance(val, str) and isinstance(param[key], list):
-                        param[key] = ast.literal_eval(val)
-                    else:
-                        param[key] = val
+        if param_name.startswith('child'):
+            name = param_name.split(':')[1]
+            for param in self.params:
+                if "type" in param and param["type"] == 'child' and param['name'] == name:
+                    param[key] = val
+        else:
+            for param in self.params:
+                if "type" in param and param["type"] == param_name:
+                    if key in param:
+                        if isinstance(val, str) and isinstance(param[key], list):
+                            param[key] = ast.literal_eval(val)
+                        else:
+                            param[key] = val
         # print('Res params=',self.params)
         self.saveJsonToFile(self.msg_list)
 
@@ -815,7 +822,7 @@ class TextTask(BaseTask):
  
 
     def getParamStruct(self, param_name, only_current = False):
-        print('Get in param', param_name, 'struct')
+        # print('Get in param', param_name, 'struct')
         forbidden_names = finder.getExtTaskSpecialKeys()
         if param_name not in forbidden_names and not only_current:
             parent_task = self.parent

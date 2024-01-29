@@ -1388,7 +1388,11 @@ class Manager:
             task_man = TaskManager()
             a = task_man.getListBasedOptionsDict(data)
         print('Get named task keys', a)
-        return gr.Dropdown(choices=a, interactive=True)
+        if len(a):
+            val = a[0]
+        else:
+            val = None
+        return gr.Dropdown(choices=a, value=val, interactive=True)
     
     def getTaskKeyValue(self, param_name, param_key):
         print('Get task key value:',param_name,'|', param_key)
@@ -1437,7 +1441,7 @@ class Manager:
         print('Get param',param_name,' struct', res, data)
         if res and param_key in data:
             cur_val = data[param_key]
-            if param_name.startswith('child') or param_name == 'tree_step':
+            if param_key == 'idx' and param_name.startswith('child') or param_name == 'tree_step':
                 values = range(10)
                 if cur_val not in values:
                     values.append(cur_val)
@@ -1976,5 +1980,28 @@ class Manager:
 
         self.saveInfo()
         # print(self.info)
+    def sortKey(self, task):
+        res, pparam = task.getParamStruct('tree_step')
+        if res:
+            idx = pparam['idx']
+        else:
+            idx = 0
+        return idx
+
+
+    def sortTreeOrder(self):
+        trg_task = self.tree_arr[self.tree_idx]
+        for task in self.tree_arr:
+            res, pparam = task.getParamStruct('tree_step')
+            if not res:
+                self.appendNewParamToTask('tree_step')    
+        self.tree_arr.sort(key=self.sortKey)
+
+        i = 0
+        for task in self.tree_arr:
+            if trg_task == task:
+                self.tree_idx = i
+            i += 1
+            task.setTreeQueue()
 
 

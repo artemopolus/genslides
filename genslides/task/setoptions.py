@@ -27,8 +27,8 @@ class SetOptionsTask(WriteToFileTask):
     def executeResponse(self):
         try:
             self.params = json.loads(self.prompt)
-        except:
-            print("Can't load parameters")
+        except Exception as e:
+            print("Can\'t load parameters for",self.getName(),':',e)
 
     def updateAncestorParamStructValue(self):
         for param in self.params:

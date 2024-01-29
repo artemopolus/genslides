@@ -243,10 +243,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             copy_chain_btn = gr.Button(value='Copy ch step')
                             update_task_btn = gr.Button(value="Update")
                             updatecur_task_btn = gr.Button(value='Update current')
-                            update_step_btn = gr.Button(value="Update step")
-                            reset_step_btn = gr.Button(value="Reset step")
                     with gr.Tab('Steps'):
                         with gr.Row():
+                            update_step_btn = gr.Button(value="Update step")
+                            reset_step_btn = gr.Button(value="Reset step")
                             res_step_btn = gr.Button(value='Reset Q')
                             step_task_btn = gr.Button(value="Step Q")
                             edit_step_task_btn = gr.Button(value='Edit&Step Q')
@@ -318,13 +318,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
                         task_list = gr.Dropdown(choices=manager.getTaskList())
                         sel_task_btn = gr.Button(value="Select")
+                        project_clear = gr.Button(value="clear tasks")
+                        fix_task_btn = gr.Button(value = 'Fix Q Tasks')
  
             with gr.Row() as r:
                 project_name = gr.Textbox(value = project_manipulator.current_project_name, label="Project name")
                 project_save = gr.Button(value="save")
                 projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
-                project_clear = gr.Button(value="clear")
                 gr.Button('append').click(fn=project_manipulator.appendProjectTasks,inputs=[projects_list])
 
             param_info = gr.Textbox(label="Params", lines=4)
@@ -368,7 +369,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
 
             with gr.Row() as r:
                 run_iter_btn = gr.Button(value="Step run")
-                fix_task_btn = gr.Button(value = 'Fix Tasks')
                 with gr.Column():
                     l_set_btn = gr.Button("Up")
                     h_set_btn = gr.Button("Down")

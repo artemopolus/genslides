@@ -730,18 +730,19 @@ class BaseTask():
         self.stdProcessUnFreeze(input)
 
        
-        # print("Update=",self.getName(), "|frozen=", self.is_freeze)
+        print("Update=",self.getName(), "|frozen=", self.is_freeze)
         self.updateIternal(input)
 
         if input is None:
-            
+            print('No input')
             self.useLinksToTask()
-
             for child in self.childs:
                 child.update()
         elif input and input.stepped:
-            self.useLinksToTask()
+            print('Input stepped')
+            self.useLinksToTask(stepped=True)
         else:
+            print('Input no stepped')
             self.is_freeze = True
             self.useLinksToTask()
             for child in self.childs:
@@ -956,7 +957,7 @@ class BaseTask():
                 #         return self.getLinkedByName(info['name'])
         return None
     
-    def useLinksToTask(self):
+    def useLinksToTask(self, stepped = False):
         print('Use links',[t.getName() for t in self.getHoldGarlands()])
         input = TaskDescription(prompt=self.prompt, parent=self)
         for task in self.affect_to_ext_list:

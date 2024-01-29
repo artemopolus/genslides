@@ -39,6 +39,7 @@ class EditParamCommand(SimpleCommand):
     def execute(self) -> None:
         task = self.input.target
         p = self.input.params
+        print('Exe edit param cmd:', p)
         res, val = task.getCurParamStructValue(p['name'], p['key'])
         task.updateParamStruct(p['name'], p['key'], p['select'])
         if res:

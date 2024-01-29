@@ -269,7 +269,7 @@ class Projecter:
         return self.actioner.makeTaskAction("","SetOption","New","user",[])
     
     def goToNextTree(self):
-        # TODO: сразу переходить к одному из конечных диалогов
+        self.actioner.manager.sortTreeOrder()
         self.actioner.manager.goToNextTree()
         return self.goToNextBranchEnd()
     
@@ -491,29 +491,9 @@ class Projecter:
         return self.actioner.manager.goToTreeByName(name)
 
 
-    def sortKey(self, task):
-        res, pparam = task.getParamStruct('tree_step')
-        if res:
-            idx = pparam['idx']
-        else:
-            idx = 0
-        return idx
-
     def updateInit(self):
         man = self.actioner.manager
-        trg_task = man.tree_arr[man.tree_idx]
-        for task in man.tree_arr:
-            res, pparam = task.getParamStruct('tree_step')
-            if not res:
-                man.appendNewParamToTask('tree_step')    
-        man.tree_arr.sort(key=self.sortKey)
-
-        i = 0
-        for task in man.tree_arr:
-            if trg_task == task:
-                man.tree_idx = i
-            i += 1
-            task.setTreeQueue()
+        man.sortTreeOrder()
         self.update_state = 'start tree'
         self.update_tree_idx = 0
 
