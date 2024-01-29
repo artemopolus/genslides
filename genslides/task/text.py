@@ -49,6 +49,7 @@ class TextTask(BaseTask):
         self.stdProcessUnFreeze()
     
     def addChild(self, child) -> bool:
+        # print('Add child', child.getName())
         if super().addChild(child):
             self.syncQueueToParam()
             self.printQueueInit()
@@ -56,7 +57,26 @@ class TextTask(BaseTask):
             return True
         return False
     
+    def getPrio(self):
+        if self.parent is None:
+            return super().getPrio()
+        pparam = self.parent.getAllParams()
+        for p in pparam:
+            if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
+                return p['idx']
+        return super().getPrio()
+    
+    def setPrio(self, idx : int):
+        if self.parent is None:
+            return super().setPrio()
+        for p in self.parent.params:
+            if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
+                p['idx'] = idx
+        return super().setPrio()
+
+    
     def removeChild(self,child) -> bool:
+        print('Remove child', child.getName())
         if super().removeChild(child):
             self.syncQueueToParam()
             trg =  None
@@ -87,12 +107,19 @@ class TextTask(BaseTask):
 
 
     def fixQueueByChildList(self):
+        print('Fix queue by child list')
         super().fixQueueByChildList()
         q_names = [q['name'] for q in self.queue if 'name' in q]
         to_del = []
+        used_names = []
         for param in self.params:
             if 'type' in param and param['type'] == 'child' and 'name' in param:
-                if param['name'] not in q_names:
+                name = param['name']
+                if name in used_names:
+                    to_del.append(param)
+                else:
+                    used_names.append(name)
+                if name not in q_names:
                     to_del.append(param)
         for p in to_del:
             self.params.remove(p)
@@ -108,22 +135,33 @@ class TextTask(BaseTask):
         # print("Childs:", c_names)
  
     def updateNameQueue(self, old_name : str, new_name : str):
+        # print('Update',old_name,'queue to', new_name)
         if old_name == new_name:
             return
         trg = None
         # print("queue:", self.queue)
         # print("params:", self.params)
+        found = False
         for param in self.params:
-            if "type" in param and "name" in param and param["name"] == old_name:
-                trg = param
+            if "type" in param and "name" in param and param["name"] == new_name:
+                found = True
+        if not found:
+            for param in self.params:
+                  if "type" in param and "name" in param and param["name"] == old_name:
+                       param["name"] = new_name
+        else:
+            for param in self.params:
+                  if "type" in param and "name" in param and param["name"] == old_name:
+                      trg = param
+ 
         # print("Delete param:",trg)
         if trg:
             self.params.remove(trg)
-            for info in self.queue:
-                if info["name"] == old_name:
-                    trg = info
-        if trg:
-            self.queue.remove(trg)
+        #     for info in self.queue:
+        #         if info["name"] == old_name:
+        #             trg = info
+        # if trg:
+        #     self.queue.remove(trg)
         self.syncParamToQueue()
         # print("queue:", self.queue)
         # print("params:", self.params)
@@ -138,7 +176,8 @@ class TextTask(BaseTask):
                 return out
         pack = super().getChildQueuePack(child)
         # print("pack:",pack)
-        self.params.append(self.getJsonQueue(pack))
+        # print('Append to', self.getName(),'pack', child.getName())
+        # self.params.append(self.getJsonQueue(pack))
         return pack
     
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
@@ -153,8 +192,9 @@ class TextTask(BaseTask):
         return pack
     
     def syncParamToQueue(self):
-        # print('Sync', self.getName(), 'param to queue')
-        # print('Init param=', self.params)
+        # if self.getName() == 'SetOptions41':
+        #     print('Sync', self.getName(), 'param to queue')
+        #     print('Init param=', self.params)
         for param in self.params:
             if "type" in param:
                 if param['type'] == 'child' or param['type'] == 'link':
@@ -183,8 +223,6 @@ class TextTask(BaseTask):
         # print('After sync param=', self.params)
     
     def syncQueueToParam(self):
-        # print("Sync",self.getName(),"queue to param")
-        # print(10*'===','Queue:', self.queue)
         for pack in self.queue:
             found = False
             for param in self.params:
@@ -199,15 +237,21 @@ class TextTask(BaseTask):
                     found = True
                     break
             if not found:
+                # print('Append to', self.getName(),'pack',pack["name"])
                 self.params.append(self.getJsonQueue(pack))
+        # if self.getName() == 'SetOptions41':
+        #     print("Sync",self.getName(),"queue to param")
+        #     print('Param', self.params)
+        #     print('Queue:', self.queue)
         self.saveJsonToFile(self.msg_list)
 
     def onQueueReset(self, info):
         # print("Queue reset")
         super().onQueueReset(info)
-        self.syncQueueToParam()
+        # self.syncQueueToParam()
 
     def onQueueCheck(self, param) -> bool:
+        # print('On queue check')
         if super().onQueueCheck(param):
             self.syncQueueToParam()
             return True
@@ -407,6 +451,10 @@ class TextTask(BaseTask):
 
 
     def getJsonMsg(self, msg_list):
+        pout = self.params.copy()
+        for p in pout:
+            if 'type' in p and p['type'] == 'model' and 'api_key' in p:
+                del p['api_key']
         resp_json_out = {
             'chat': msg_list,
             'type': self.getType(),
@@ -767,7 +815,7 @@ class TextTask(BaseTask):
  
 
     def getParamStruct(self, param_name, only_current = False):
-        # print('Get in param', param_name, 'struct')
+        print('Get in param', param_name, 'struct')
         forbidden_names = finder.getExtTaskSpecialKeys()
         if param_name not in forbidden_names and not only_current:
             parent_task = self.parent
@@ -779,6 +827,11 @@ class TextTask(BaseTask):
                 if res:
                     return True, val
         # print('Search in self params')
+        if param_name.startswith('child'):
+            name = param_name.split(':')[1]
+            for param in self.params:
+                if "type" in param and param["type"] == 'child' and param['name'] == name:
+                    return True, param
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 return True, param
@@ -839,7 +892,8 @@ class TextTask(BaseTask):
          return finder.findByKey(text, manager, base )
 
     def getAllParams(self):
-        return json.dumps(self.params, indent=1)
+        pparams = self.params.copy()
+        return pparams
     
     def afterRestoration(self):
         self.saveJsonToFile(self.msg_list)

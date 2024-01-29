@@ -244,6 +244,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             update_task_btn = gr.Button(value="Update")
                             updatecur_task_btn = gr.Button(value='Update current')
                             update_step_btn = gr.Button(value="Update step")
+                            reset_step_btn = gr.Button(value="Reset step")
                     with gr.Tab('Steps'):
                         with gr.Row():
                             res_step_btn = gr.Button(value='Reset Q')
@@ -409,7 +410,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                parents_list, base_action_list, dial_block, 
                                exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt
                                ]
-            tree_names_radio.change(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
+            tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
             setname_prman_text.click(fn=projecter.backToStartTask, outputs=std_output_list)
             roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
@@ -461,7 +462,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
             updatecur_task_btn.click(fn=manager.updateCurrent, outputs=std_output_list)
+
             update_step_btn.click(fn=projecter.update, outputs=std_output_list)
+            reset_step_btn.click(fn=projecter.resetUpdate, outputs= std_output_list)
+
             edit_step_task_btn.click(fn=manager.updateAndExecuteStep, inputs=step_branch_txt, outputs=std_output_list)
             step_task_btn.click(fn=manager.executeStep,outputs=std_output_list, api_name="step_task_btn")
             step_branch_btn.click(fn=manager.executeSteppedBranch, inputs=step_branch_txt, outputs=std_output_list)

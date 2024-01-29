@@ -189,8 +189,9 @@ class ReceiveTask(TextTask):
         out = super().affectedTaskCallback(input)
         self.stdProcessUnFreeze()
         if input and input.stepped:
-            info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
-            self.update(info)
+            pass
+            # info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
+            # self.update(info)
         else:
             self.update()
     

@@ -88,7 +88,7 @@ class Manager:
         out = self.getParam(param_name + " lst")
         if not out:
             out = []
-        return gr.Dropdown.update( choices= out, interactive=True)
+        return gr.Dropdown( choices= out, interactive=True)
 
     
     def getParamsLst(self):
@@ -240,6 +240,7 @@ class Manager:
         return gr.Textbox(value=self.curr_task.getBranchSummary(), interactive=True)
     
     def goToTreeByName(self, name):
+        print('Go to tree by name', name)
         for i in range(len(self.tree_arr)):
             trg = self.tree_arr[i].getBranchSummary()
             if trg == name:
@@ -321,6 +322,7 @@ class Manager:
     
     # Перебираем все возможные варианты листьев/почек деревьев
     def goToNextBranchEnd(self):
+        print('Go to next branch end')
         if len(self.endes) == 0:
             self.endes = self.getSceletonBranchBuds(self.curr_task)
             self.endes_idx = 0
@@ -406,7 +408,7 @@ class Manager:
 
     def setNextTask(self, input):
         saver = SaveData()
-        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+        chck = gr.CheckboxGroup(choices=saver.getMessages())
 
         try:
             inc = int(input)
@@ -657,7 +659,7 @@ class Manager:
         elif creation_type in self.getSecdCommandList():
             return self.makeTaskActionPro(prompt, type, creation_type, creation_tag)
         saver = SaveData()
-        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+        chck = gr.CheckboxGroup(choices=saver.getMessages())
         return "", "" ,self.drawGraph(),"" , "user", chck
     
  
@@ -1054,7 +1056,7 @@ class Manager:
     
     def updateSteppedSelectedInternal(self, info : TaskDescription = None):
         # print(10*"----------")
-        # print("STEP",8*">>",self.curr_task.getName(),"||||||")
+        # print("STEP",4*">>",self.curr_task.getName(),"||||||")
         # print(10*"----------")
         if info:
             info.stepped = True
@@ -1073,7 +1075,9 @@ class Manager:
             #         break
             #     idx += 1
             # print('Use old prompt:', self.curr_task.getLastMsgContent())
-            self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), stepped=True))
+            self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), 
+                                                  prompt_tag=self.curr_task.getLastMsgRole(), 
+                                                  stepped=True))
 
         res, w_param = self.curr_task.getParamStruct("watched")
         if res:
@@ -1262,7 +1266,7 @@ class Manager:
             if len(msgs) > 1:
                 out_prompt2 = msgs[-2]["content"]
         saver = SaveData()
-        chck = gr.CheckboxGroup.update(choices=saver.getMessages())
+        chck = gr.CheckboxGroup(choices=saver.getMessages())
         in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
         self.curr_task.printQueueInit()
         #quick fix
@@ -1309,12 +1313,12 @@ class Manager:
             in_role, 
             chck, 
             self.curr_task.getName(), 
-            self.curr_task.getAllParams(), 
+            json.dumps(self.curr_task.getAllParams(), indent=1), 
             set_prompt, 
-            gr.Dropdown.update(choices= self.getTaskList()),
-            gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(self.curr_task), 
+            gr.Dropdown(choices= self.getTaskList()),
+            gr.Dropdown(choices=self.getByTaskNameParamListInternal(self.curr_task), 
                                interactive=True), 
-            gr.Dropdown.update(choices=[t.getName() for t in self.curr_task.getAllParents()], 
+            gr.Dropdown(choices=[t.getName() for t in self.curr_task.getAllParents()], 
                                value=self.curr_task.getName(), 
                                interactive=True), 
             gr.Radio(value="SubTask"), 
@@ -1328,17 +1332,17 @@ class Manager:
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []
-        for p in task.params:
+        for p in task.getAllParams():
             if 'type' in p:
                 if p['type'] == 'child' and 'name' in p:
-                    out.append(p['type'] + '(' + p['name'] + ')')
+                    out.append(p['type'] + ':' + p['name'])
                 else:
                     out.append(p['type'])
         return out
     
     def getByTaskNameParamList(self, task_name):
         task = self.getTaskByName(task_name)
-        return gr.Dropdown.update(choices=self.getByTaskNameParamListInternal(task), interactive=True)
+        return gr.Dropdown(choices=self.getByTaskNameParamListInternal(task), interactive=True)
     
     def getFinderKeyString(self,task_name, fk_type, param_name, key_name):
         value = finder.getKey(task_name, fk_type, param_name, key_name, self)
@@ -1430,9 +1434,15 @@ class Manager:
            
         task_man = TaskManager()
         res, data = self.curr_task.getParamStruct(param_name)
+        print('Get param',param_name,' struct', res, data)
         if res and param_key in data:
             cur_val = data[param_key]
-            values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
+            if param_name.startswith('child') or param_name == 'tree_step':
+                values = range(10)
+                if cur_val not in values:
+                    values.append(cur_val)
+            else:
+                values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
             print('Update with',cur_val,'from', values)
             if cur_val in values:
                 return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
@@ -1608,7 +1618,8 @@ class Manager:
                         return self.getCurrTaskPrompts()
                 else:
                     self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
-
+                prio = task.getPrio()
+                self.curr_task.setPrio(prio)
                 if i == 0 and j == 0:
                     start = self.curr_task
                 if len(task.getHoldGarlands()) or len(task.getGarlandPart()):

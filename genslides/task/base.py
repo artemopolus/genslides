@@ -610,6 +610,11 @@ class BaseTask():
             return True
         return False
     
+    def getPrio(self):
+        return 0
+    
+    def setPrio(self, idx : int):
+        pass
     
     def getChildByName(self, child_name):
         for ch in self.getChilds():
@@ -654,6 +659,7 @@ class BaseTask():
         for trg in self.queue:
             if 'idx' not in trg:
                 trg['idx'] = 0
+
 
 
     def getHoldGarlands(self):
@@ -734,7 +740,7 @@ class BaseTask():
             for child in self.childs:
                 child.update()
         elif input and input.stepped:
-            self.setupQueue()
+            self.useLinksToTask()
         else:
             self.is_freeze = True
             self.useLinksToTask()
@@ -763,6 +769,18 @@ class BaseTask():
             trgs = n_trgs
             index += 1
 
+    def setTreeQueue(self):
+        trgs = [self]
+        index = 0
+        while(index < 1000):
+            n_trgs = []
+            for trg in trgs:
+                trg.setQueue()
+                for ch in trg.childs:
+                    n_trgs.append(ch)
+            trgs = n_trgs
+            index += 1
+
     def updateNameQueue(self, old_name : str, new_name : str):
         pass
 
@@ -776,6 +794,15 @@ class BaseTask():
         # print('Reset queue from', self.getName())
         info["used"] = False
         info["cur"] = info["str"]
+
+    def setQueue(self):
+        if self.queue:
+            for info in self.queue:
+                self.onQueueSet(info)
+
+
+    def onQueueSet(self, info):
+        info["used"] = True
 
     def printQueueInit(self):
         pass
@@ -914,19 +941,19 @@ class BaseTask():
                     # print("info:", info)
                     if self.onQueueCheck(info):
                         return self.getChildByName(info['name'])
-                if info["type"] == "link":
-                    if self.onQueueCheck(info):
-                        input = TaskDescription(
-                            prompt=self.findKeyParam(self.getLastMsgContent()), 
-                            id=info["id"], stepped=True, 
-                            parent=self, enabled= not self.is_freeze)
-                        # info["method"](input)
-                        # print('Use link to', info['name'])
-                        for affected in self.affect_to_ext_list:
-                            if affected.target.getName() == info['name']:
-                                input.id = affected.id
-                                affected.method(input)
-                        return self.getLinkedByName(info['name'])
+                # if info["type"] == "link":
+                #     if self.onQueueCheck(info):
+                #         input = TaskDescription(
+                #             prompt=self.findKeyParam(self.getLastMsgContent()), 
+                #             id=info["id"], stepped=True, 
+                #             parent=self, enabled= not self.is_freeze)
+                #         # info["method"](input)
+                #         # print('Use link to', info['name'])
+                #         for affected in self.affect_to_ext_list:
+                #             if affected.target.getName() == info['name']:
+                #                 input.id = affected.id
+                #                 affected.method(input)
+                #         return self.getLinkedByName(info['name'])
         return None
     
     def useLinksToTask(self):
