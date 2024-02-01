@@ -39,7 +39,7 @@ class ReceiveTask(TextTask):
 
 
     def freezeTask(self):
-        # print("Freeze!")
+        # print('[=]',self.getName(),"is freeze!")
         self.is_freeze = True
         for tsk_info in self.by_ext_affected_list:
             tsk_info.enabled = False
@@ -120,17 +120,18 @@ class ReceiveTask(TextTask):
         return text
 
     def stdProcessUnFreeze(self, input=None):
+        
         res, pparam = self.getParamStruct('block')
         if res and pparam['block']:
             self.is_freeze = True
             return
 
         # print("1 frozen=", self.is_freeze)
+        # print(self.getName(),' task is frozen:', self.is_freeze)
         if self.parent:
-            # print("parent frozen=",self.parent.is_freeze)
+            # print(self.getName(),"parent frozen=",self.parent.is_freeze)
             pass
         if self.is_freeze:
-            # print('Collect task is frozen')
             to_unfreeze = False
             if self.parent and not self.parent.is_freeze:
                 to_unfreeze = True
@@ -139,7 +140,7 @@ class ReceiveTask(TextTask):
             if to_unfreeze:
                 # print('Try unfreeze cz parent')
                 for tsk_info in self.by_ext_affected_list:
-                    # print("Link input=", tsk_info.parent.getName(),"=",tsk_info.enabled)
+                    # print("\t\tLink input=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                     if not tsk_info.enabled:
                         return
                 # print("Unfreeze")
@@ -154,10 +155,14 @@ class ReceiveTask(TextTask):
             for tsk_info in self.by_ext_affected_list:
                 # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                 if not tsk_info.enabled:
-                    # print("Freeze from children")
+                    print("Freeze from children")
                     self.freezeTask()
                     return
             # print("1 frozen=", self.is_freeze)
+                
+    def printLinkState(self):
+        pass
+        # print('Link[',self.getName(),'] state:',[(tsk_info.parent.getName(),tsk_info.enabled) for tsk_info in self.by_ext_affected_list])
 
 
     def updateLinkedPrompts(self, input : TaskDescription):
@@ -188,12 +193,12 @@ class ReceiveTask(TextTask):
 
         out = super().affectedTaskCallback(input)
         self.stdProcessUnFreeze()
-        if input and input.stepped:
-            pass
-            # info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
-            # self.update(info)
-        else:
-            self.update()
+        # if input and input.stepped:
+        #     pass
+        #     # info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
+        #     # self.update(info)
+        # else:
+        #     self.update()
     
     
     def findNextFromQueue(self):

@@ -71,6 +71,7 @@ class ResponseTask(TextTask):
         #     msg["content"] = self.findKeyParam(msg["content"])
 
         input_msg_list = self.getMsgs()
+        input_msg_list.pop()
         # print('Request=',input_msg_list)
 
         return chat.createChatCompletion(input_msg_list)
@@ -162,7 +163,9 @@ class ResponseTask(TextTask):
                 # Если сообщение пустое, то делаем вывод, что задача была морожена
                 if len(msg) == 0:
                     # Запрашиваем сообщение
-                    print('Msg is empty', self.getName())
+                    print('Last msg is empty', self.getName())
+                    # Если сообщение пустое, то убираем его
+                    self.msg_list.pop()
                     self.executeResponse()
                     self.saveJsonToFile(self.msg_list)
 

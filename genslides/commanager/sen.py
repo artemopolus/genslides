@@ -266,7 +266,7 @@ class Projecter:
         return self.actioner.manager.goToNextBranch()
     
     def createNewTree(self):
-        return self.actioner.makeTaskAction("","SetOption","New","user",[])
+        return self.makeTaskAction("","SetOptions","New","user",[])
     
     def goToNextTree(self):
         self.actioner.manager.sortTreeOrder()
@@ -505,27 +505,34 @@ class Projecter:
             self.update_state = 'next tree'
         elif self.root_task_tree == next:
             self.update_state = 'next tree'
+            # print('Complete tree', self.root_task_tree.getName())
         else:
             self.update_state = 'step'
             self.update_processed_chain.append(next.getName())
 
+        if len(next.getChilds()) == 0:
+            print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
+
     def resetUpdate(self):
         self.update_state = 'init'
         man = self.actioner.manager
+        man.curr_task = man.tree_arr[0]
+        for task in man.tree_arr:
+            task.resetTreeQueue()
         return man.getCurrTaskPrompts()
 
        
     def update(self):
         man = self.actioner.manager
-        print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
+        # print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
         if self.update_state == 'init':
             self.updateInit()
         elif self.update_state == 'start tree':
             task = man.tree_arr[self.update_tree_idx]
-            print('Start tree', task.getName(),'[',self.update_tree_idx,']')
+            # print('Start tree', task.getName(),'[',self.update_tree_idx,']')
             self.root_task_tree = task
             man.curr_task = task
-            man.curr_task.resetTreeQueue()
+            # man.curr_task.resetTreeQueue()
             self.update_processed_chain = [self.root_task_tree.getName()]
             self.updateStepInternal()
         elif self.update_state == 'step':
@@ -546,3 +553,44 @@ class Projecter:
         # print('Frozen tasks cnt:', cnt)
         out = man.getCurrTaskPrompts()
         return out
+
+    def updateAll(self):
+        man = self.actioner.manager
+        start_task = man.curr_task
+        self.resetUpdate()
+        idx = 0
+        while(idx < 1000):
+            self.update()
+            if self.update_state == 'done':
+                break
+            idx += 1
+
+        cnt = 0
+        for task in man.task_list:
+            if task.is_freeze:
+                cnt += 1
+        print('Frozen tasks cnt:', cnt)
+        man.curr_task = start_task
+        out = man.getCurrTaskPrompts()
+        return out
+    
+    def updateAllUntillCurrTask(self):
+        man = self.actioner.manager
+        start_task = man.curr_task
+        self.resetUpdate()
+        idx = 0
+        while(idx < 1000):
+            self.update()
+            if self.update_state == 'done' or man.curr_task == start_task:
+                break
+            idx += 1
+
+        cnt = 0
+        for task in man.task_list:
+            if task.is_freeze:
+                cnt += 1
+        print('Frozen tasks cnt:', cnt)
+        # man.curr_task = start_task
+        out = man.getCurrTaskPrompts()
+        return out
+ 

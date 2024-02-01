@@ -245,7 +245,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             updatecur_task_btn = gr.Button(value='Update current')
                     with gr.Tab('Steps'):
                         with gr.Row():
-                            update_step_btn = gr.Button(value="Update step")
+                            update_step_btn = gr.Button(value="One step")
+                            updateall_step_btn = gr.Button(value="Update all step")
+                            upd2cur_step_btn = gr.Button(value='Update to cur')
                             reset_step_btn = gr.Button(value="Reset step")
                             res_step_btn = gr.Button(value='Reset Q')
                             step_task_btn = gr.Button(value="Step Q")
@@ -464,6 +466,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             updatecur_task_btn.click(fn=manager.updateCurrent, outputs=std_output_list)
 
             update_step_btn.click(fn=projecter.update, outputs=std_output_list)
+            updateall_step_btn.click(fn=projecter.updateAll, outputs=std_output_list)
+            upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, outputs=std_output_list)
             reset_step_btn.click(fn=projecter.resetUpdate, outputs= std_output_list)
 
             edit_step_task_btn.click(fn=manager.updateAndExecuteStep, inputs=step_branch_txt, outputs=std_output_list)

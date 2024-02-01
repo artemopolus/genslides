@@ -132,7 +132,8 @@ class Manager:
 
     def addTaskToSelectList(self, task :BaseTask):
         # TODO: Разрешить мультивыбор когда-нибудь
-        self.selected_tasks.pop()
+        if len(self.selected_tasks):
+            self.selected_tasks.pop()
         self.selected_tasks.append(task)
 
     def clearSelectList(self):
@@ -1469,7 +1470,7 @@ class Manager:
         return task_man.getParamOptBasedOptionsDict()
 
     def appendNewParamToTask(self, param_name):
-        print('Append new param to task')
+        print('Append new param',param_name,'to task', self.curr_task.getName())
         task_man = TaskManager()
         param = task_man.getParamBasedOptionsDict(param_name)
         if param is not None:
@@ -1591,6 +1592,9 @@ class Manager:
                 prompt=task.getLastMsgContent() 
                 prompt_tag=task.getLastMsgRole()
                 trg_type = task.getType()
+                param_task = task.copyAllParams(True)
+                print('Copy',task.getName())
+                print('Param:', param_task)
                 if j == 0:
                     if i != 0:
                         parent = tasks_chains[branch['i_par']]['created'][-1]
@@ -1621,9 +1625,7 @@ class Manager:
                         print('No options')
                         return self.getCurrTaskPrompts()
                 else:
-                    self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
-                prio = task.getPrio()
-                self.curr_task.setPrio(prio)
+                    self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
                 if i == 0 and j == 0:
                     start = self.curr_task
                 if len(task.getHoldGarlands()) or len(task.getGarlandPart()):
@@ -1649,6 +1651,7 @@ class Manager:
         prompt=task.getLastMsgContent() 
         prompt_tag=task.getLastMsgRole()
         trg_type = task.getType()
+        param_task = task.copyAllParams(True)
         if j == 0:
             if branch['i_par'] is not None:
                 parent = tasks_chains[branch['i_par']]['created'][-1]
@@ -1679,7 +1682,9 @@ class Manager:
                 # return self.getCurrTaskPrompts()
                 return False
         else:
-            self.createOrAddTask(prompt, trg_type, prompt_tag, parent, [])
+            self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
+        prio = task.getPrio()
+        self.curr_task.setPrio(prio)
 
         # TODO: замораживать текущую задачу, чтобы оставить возможность дополнительного редактирования
         if j == 0:
@@ -1994,6 +1999,7 @@ class Manager:
         for task in self.tree_arr:
             res, pparam = task.getParamStruct('tree_step')
             if not res:
+                self.curr_task = task
                 self.appendNewParamToTask('tree_step')    
         self.tree_arr.sort(key=self.sortKey)
 

@@ -36,6 +36,8 @@ class TextTask(BaseTask):
         self.path = self.getPath()
         self.copyParentMsg()
 
+        # print('Get params to', self.getName(),':\n', task_info.params)
+
         self.params = task_info.params
 
         # print('Path to my file=', self.path)
@@ -72,7 +74,7 @@ class TextTask(BaseTask):
         for p in self.parent.params:
             if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
                 p['idx'] = idx
-        return super().setPrio()
+        return super().setPrio(idx)
 
     
     def removeChild(self,child) -> bool:
@@ -266,6 +268,10 @@ class TextTask(BaseTask):
             if len(src) > 0 and remove:
                 last = src.pop()
             if trg != src:
+                diff = [t for t in trg if t not in src]
+                dif2 = [t for t in src if t not in trg]
+                # print('Diff:', diff)
+                # print('Diff:', dif2)
                 if update:
                     if last and save_curr:
                         trg.append(last)
@@ -617,7 +623,7 @@ class TextTask(BaseTask):
         # return self.msg_list[len(self.msg_list) - 1]["role"]
 
     def useLinksToTask(self, stepped = False):
-        print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
+        # print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
         if len(self.msg_list) == 0:
             return
         text = self.msg_list[len(self.msg_list) - 1]["content"]
@@ -628,6 +634,7 @@ class TextTask(BaseTask):
             input.enabled = not self.is_freeze
             input.parent = self
             input.stepped = stepped
+            # print(self.getName(),'[ frozen=', self.is_freeze,'] linked to')
             task.method(input)
 
     def affectedTaskCallback(self, input: TaskDescription):
@@ -897,6 +904,32 @@ class TextTask(BaseTask):
          manager = self.manager
          base = self
          return finder.findByKey(text, manager, base )
+    
+    def copyAllParams(self, copy_info = False):
+        pparams = self.getAllParams()
+        to_del = []
+        for p in pparams:
+            if 'type' in p and p['type'] == 'task_creation':
+                to_del.append(p)
+            if 'type' in p and p['type'] == 'child':
+                to_del.append(p)
+            if 'type' in p and p['type'] == 'link':
+                to_del.append(p)
+        for p in to_del:
+            pparams.remove(p)
+
+        if copy_info:
+            found = False
+            for p in pparams:
+                if 'type' in p and p['type'] == 'copied':
+                    found = True
+                    p['cp_path'].append(self.getName())
+                    break
+            if not found:
+                pparams.append({'type':'copied','cp_path':[self.getName()]})
+
+        return pparams
+        
 
     def getAllParams(self):
         pparams = self.params.copy()

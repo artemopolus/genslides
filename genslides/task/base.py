@@ -730,7 +730,7 @@ class BaseTask():
         self.stdProcessUnFreeze(input)
 
        
-        print("Update=",self.getName(), "|frozen=", self.is_freeze)
+        # print("Update=",self.getName(), "|frozen=", self.is_freeze)
         self.updateIternal(input)
 
         if input is None:
@@ -739,7 +739,7 @@ class BaseTask():
             for child in self.childs:
                 child.update()
         elif input and input.stepped:
-            print('Input stepped')
+            # print('Input stepped')
             self.useLinksToTask(stepped=True)
         else:
             print('Input no stepped')
@@ -1094,6 +1094,9 @@ class BaseTask():
 
     def getParamStruct(self, param_name):
         return False, None
+    
+    def copyAllParams(self, copy_info = False):
+        return {}
     
     def getAllParams(self):
         return ""

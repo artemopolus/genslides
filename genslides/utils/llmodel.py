@@ -68,14 +68,15 @@ class LLModel():
             'model': self.params['model']
             }
         res, response, p = self.method(messages, self.params)
-        # TODO: Добавить проверку на наналичие ключевых слов `intok`, `outtok`
-        intok = p['intok']
-        outtok = p['outtok']
-        out.update(p)
+        if res:
+            # TODO: Добавить проверку на наналичие ключевых слов `intok`, `outtok`
+            intok = p['intok']
+            outtok = p['outtok']
+            out.update(p)
 
-        # print('Res param=',p)
-        self.addCounterToPromts(intok, self.params['input'])
-        self.addCounterToPromts(outtok, self.params['output'])
+            # print('Res param=',p)
+            self.addCounterToPromts(intok, self.params['input'])
+            self.addCounterToPromts(outtok, self.params['output'])
         return res, response, out
 
 
