@@ -51,10 +51,14 @@ class TextTask(BaseTask):
         self.stdProcessUnFreeze()
     
     def addChild(self, child) -> bool:
-        # print('Add child', child.getName())
+        # if self.getName() == 'Response250':
+        #     print('---')
+        #     print('Add child', child.getName(),'to',self.getName())
+        #     self.printQueueInit()
+        #     print('---')
         if super().addChild(child):
             self.syncQueueToParam()
-            self.printQueueInit()
+            # self.printQueueInit()
             self.saveJsonToFile(self.msg_list)
             return True
         return False
@@ -88,7 +92,7 @@ class TextTask(BaseTask):
             print("Remove from param", trg)
             if trg is not None and trg in self.params:
                 self.params.remove(trg)
-            self.printQueueInit()
+            # self.printQueueInit()
             self.saveJsonToFile(self.msg_list)
             return True
         return False
@@ -132,12 +136,13 @@ class TextTask(BaseTask):
         q_names = [q["name"] for q in self.queue if 'name' in q]
         p_names = [p["name"] for p in self.params if "name" in p]
         c_names = [ch.getName() for ch in self.getChilds()]
-        # print("Queue:", q_names)
-        # print("Params:", p_names)
-        # print("Childs:", c_names)
+        print("Queue:", q_names)
+        print("Params:", p_names)
+        print("Childs:", c_names)
  
     def updateNameQueue(self, old_name : str, new_name : str):
-        # print('Update',old_name,'queue to', new_name)
+        # if self.getName() == 'Response250':
+        #     print(self.getName(), 'update queue name:',old_name,'=>', new_name)
         if old_name == new_name:
             return
         trg = None
@@ -167,7 +172,7 @@ class TextTask(BaseTask):
         self.syncParamToQueue()
         # print("queue:", self.queue)
         # print("params:", self.params)
-        self.printQueueInit()
+        # self.printQueueInit()
        
         self.saveJsonToFile(self.msg_list)
 
@@ -701,8 +706,9 @@ class TextTask(BaseTask):
                     self.updateParam(param["name"], param["value"],param["prompt"])
             
             if input.parent:
-                self.parent = input.parent
-                self.parent.addChild(self)
+                # self.parent = input.parent
+                # self.parent.addChild(self)
+                self.setParent(input.parent)
                 print("New parent=", self.parent)
 
             self.saveJsonToFile(self.msg_list)

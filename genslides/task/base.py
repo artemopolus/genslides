@@ -65,7 +65,13 @@ class TaskManager(metaclass=Singleton):
 
     def getId(self, task) -> int:
         id = self.task_id
-        self.task_id += 1
+        name = task.getType() + str(id)
+        mypath = 'saved'
+        onlyfiles = [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
+        while name in onlyfiles:
+            id += 1
+            name = task.getType() + str(id)
+        self.task_id = id + 1
         if task not in self.task_list:
             self.task_list.append(task)
         return id
@@ -213,7 +219,6 @@ class BaseTask():
         self.name =  ""
         self.pref = self.manager.getProjPrefix()
         self.parent = None
-        self.setParent(task_info.parent)
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
         self.queue = []
@@ -223,8 +228,7 @@ class BaseTask():
         self.task_description = "Task type = " + self.type + "\nRequest:\n" + request
         self.task_creation_result = "Results of task creation:\n"
 
-        if  self.parent:
-            self.parent.addChild(self)
+        self.setParent(task_info.parent)
             # if self.parent.is_freeze:
                 # self.is_freeze = True
         
@@ -281,6 +285,8 @@ class BaseTask():
     
     def setName(self, name : str):
         name = self.pref + name
+        if name == self.name:
+            return
         old_name = self.name
         self.name = name
         # print("My new name is", self.name,", was", old_name)
@@ -593,16 +599,19 @@ class BaseTask():
     def setParent(self, parent):
         if parent is None:
             # print('Remove parent')
-            pass
+            self.parent = None
+            return
         else:
-            # print('Set new parent', parent.getName())
+            # print('Set',self.getName(),'parent', parent.getName())
             pass
-        self.parent = parent
+        parent.addChild(self)
+        # self.parent = parent
 
     def addChild(self, child) -> bool:
         # print('Add child',child.getName())
         if child not in self.childs:
-            child.setParent(self)
+            # child.setParent(self)
+            child.parent = self
             self.childs.append(child)
             info = self.getChildQueuePack(child)
             self.onQueueReset(info)
@@ -1021,7 +1030,8 @@ class BaseTask():
             child.whenParentRemoved()
 
     def whenParentRemoved(self):
-        self.setParent(None)
+        # self.setParent(None)
+        self.removeParent()
 
     def removeParent(self):
          if self.parent:

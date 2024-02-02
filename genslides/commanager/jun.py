@@ -1269,7 +1269,7 @@ class Manager:
         saver = SaveData()
         chck = gr.CheckboxGroup(choices=saver.getMessages())
         in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
-        self.curr_task.printQueueInit()
+        # self.curr_task.printQueueInit()
         #quick fix
         r_msgs = []
         first = ""
