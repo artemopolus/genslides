@@ -63,10 +63,14 @@ class TaskManager(metaclass=Singleton):
 
         
 
-    def getId(self, task) -> int:
+    def getId(self, task, manager = None) -> int:
         id = self.task_id
         name = task.getType() + str(id)
-        mypath = 'saved'
+        # Учитывать информацию от менеджера, управляющего задачей: использовать его конкретный путь, а не стандартный
+        if manager is not None:
+            mypath = manager.getPath()
+        else:
+            mypath = 'saved'
         onlyfiles = [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
         while name in onlyfiles:
             id += 1
@@ -215,7 +219,7 @@ class BaseTask():
         
         self.method = task_info.method
         task_manager = TaskManager()
-        self.id = task_manager.getId(self)
+        self.id = task_manager.getId(self, self.manager)
         self.name =  ""
         self.pref = self.manager.getProjPrefix()
         self.parent = None
@@ -345,8 +349,9 @@ class BaseTask():
                             out = p
                             found = True
                             break
-                    if not found:
-                        raise Exception('Parent task not connected with target')
+                    # TODO: Ошибка возникает при удалении набора задач, связанных друг с другом. Для исправлении ошибки надо создать отдельную функцию удаления пакетов задач
+                    # if not found:
+                    #     raise Exception('Parent',par.parent.getName(),'task not connected with target', par.getName())
                 else:
                     p = [par.parent]
                     p.extend(out)

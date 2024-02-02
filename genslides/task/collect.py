@@ -215,7 +215,7 @@ class ReceiveTask(TextTask):
 
     def removeLinkToTask(self):
         self.prompt = ""
-        self.update()
+        # self.update()
         self.freezeTask()
         super().removeLinkToTask()
         self.saveJsonToFile(self.msg_list)

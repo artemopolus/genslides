@@ -981,11 +981,13 @@ class Manager:
         log = 'id[' + str(self.index) + '] '
         out = "Report:\n"
         if len(self.cmd_list) > 0:
+            # TODO: вывести код выполнения команд в отдельную функцию. Чтобы можно было обращаться без вывода данных в интерфейс 
             cmd = self.cmd_list.pop(0)
             log += 'Command executed: '
             log += str(cmd) + '\n'
             log += "Command to execute: " + str(len(self.cmd_list)) +"\n"
             task, action = cmd.execute()
+            # print('[=]',action)
             if action == 'create' and task != None:
                 self.task_list.append(task)
                 if task.isRootParent():
