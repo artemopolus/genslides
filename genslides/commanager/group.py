@@ -50,6 +50,7 @@ class Actioner():
         return manager
     
     def addPrivateManagerForTaskByName(self, man) ->Manager.Manager:
+        print('Add priv manager for info', man)
         # Проверяем создавались ли раньше менеджеры
         for manager in self.tmp_managers:
             if man['task'] == manager.getName():
@@ -65,7 +66,14 @@ class Actioner():
             # manager.curr_task = task
         return manager
     
-
+    def addSavedScriptToCurTask(self, name: str):
+        pack = self.manager.info['script']
+        for man in pack['managers']:
+            if name == man['task']:
+                man['task'] = self.manager.curr_task.getName()
+                return self.addPrivateManagerForTaskByName(man)
+        return None
+ 
     def addSavedScript(self, name: str):
         pack = self.manager.info['script']
         for man in pack['managers']:
@@ -174,6 +182,7 @@ class Actioner():
         out.append({"action":"GoToNextChild","param":{}})
         out.append({"action":"GoToParent","param":{}})
         out.append({"action":"InitSavdManager","param":{'task':'task_name'}})
+        out.append({"action":"InitSavdManagerToCur","param":{'task':'task_name'}})
         out.append({"action":"EditPrivManager","param":{}})
         out.append({"action":"ExecuteManager","param":{}})
         out.append({"action":"InitPrivManager","param":{}})
@@ -221,6 +230,10 @@ class Actioner():
             self.manager.goToNextChild()
         elif creation_type == "GoToParent":
             self.manager.goToParent()
+        elif creation_type == "InitSavdManagerToCur":
+            man = self.addSavedScriptToCurTask(param['task'])
+            if man is not None:
+                self.manager = man
         elif creation_type == "InitSavdManager":
             man = self.addSavedScript(param['task'])
             if man is not None:

@@ -721,7 +721,8 @@ class Manager:
             #     task1.update()
             # else:
             #     self.slct_task.update()
-            self.curr_task = self.slct_task
+            # self.curr_task = self.slct_task
+            self.curr_task = task2
             print('Selected',self.slct_task.getName())
             print('Current', self.curr_task.getName())
 

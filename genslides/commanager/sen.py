@@ -312,6 +312,11 @@ class Projecter:
         self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3})
         return self.actioner.getTmpManagerInfo()
     
+    def initSavdManagerToCur(self,name):
+        self.makeTaskAction("","","InitSavdManagerToCur","", {'task': name})
+        return self.actioner.getTmpManagerInfo()
+ 
+    
     def loadPrivManager(self, name):
         self.makeTaskAction("","","InitSavdManager","", {'task': name})
         return self.actioner.getTmpManagerInfo()
