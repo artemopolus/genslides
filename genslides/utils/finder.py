@@ -46,6 +46,19 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                     rep_text = rep_text.replace(res, str(rep))
                 else:
                     print("No json in", task.getName())
+            elif len(arr) > 3 and arr[2] == 'json_list':
+                bres, j = Loader.Loader.loadJsonFromText(param)
+                if bres:
+                    rep = j[arr[3]]
+                    if isinstance(rep, list):
+                        text  = ''
+                        for p in range(len(rep)):
+                            text += str(p+1) + '. ' + str(rep[p]) + '\n'
+                        rep_text = rep_text.replace(res, text)
+                    else:
+                        rep_text = rep_text.replace(res, str(rep))
+                else:
+                    print("No json in", task.getName())
             else:
                 # print("Replace", res, "from",task.getName())
                 rep_text = rep_text.replace(res, str(param))
@@ -114,8 +127,8 @@ def findByKey(text, manager , base ):
 def getKey(task_name, fk_type, param_name, key_name, manager) -> str:
     if fk_type == 'msg':
         value = task_name + ':msg_content'
-    elif fk_type == 'json':
-        value = task_name + ':msg_content:json:'
+    elif fk_type.startswith('json'):
+        value = task_name + ':msg_content:'+ fk_type + ':'
     elif fk_type == 'tokens':
         value = task_name + ':' + getTknTag()
     elif fk_type == 'br_code':
@@ -132,7 +145,7 @@ def getKey(task_name, fk_type, param_name, key_name, manager) -> str:
     return value
 
 def getKayArray():
-    return ['msg','json','param','tokens','man_path','man_curr','br_code','code']
+    return ['msg','json','json_list','param','tokens','man_path','man_curr','br_code','code']
 
 def getExtTaskSpecialKeys():
     return ['input', 'output', 'stopped', 'check']
