@@ -194,8 +194,18 @@ class Projecter:
             self.makeTaskAction('', custom_action, selected_action, '')
         return self.manager.getCurrTaskPrompts()
     
-    def makeResponseAction(self, selected_action):
-        return self.makeTaskAction("", "Response",selected_action, "assistant")
+    def makeResponseAction(self, prompt, selected_action, selected_tag):
+        if selected_action == 'Edit':
+            prs = prompt.split('[[---]]')
+            if len(prs) < 2:
+                return self.actioner.manager.getCurrTaskPrompts()
+            else:
+                last = prs.pop()
+                for text in prs:
+                    self.makeTaskAction(text, "Request", "Insert", selected_tag,[])
+                return self.makeTaskAction(last, "Request", "Edit", selected_tag, [])
+        else:
+            return self.makeTaskAction("", "Response",selected_action, "assistant")
     
     def getParamListForEdit(self):
         return ['resp2req','coll2req','in','out','link','step','change','chckresp']
@@ -373,7 +383,7 @@ class Projecter:
             _,role,_ = self.actioner.manager.curr_task.getMsgInfo()
             return (self.actioner.manager.getCurTaskLstMsgRaw(), 
                     gr.Button(value='Apply'), 
-                    gr.Button(value='',interactive=False), 
+                    gr.Button(value='Divide',interactive=True), 
                     gr.Button(value='',interactive=False), 
                     gr.Radio(interactive=True,value=role),
                     gr.CheckboxGroup(choices=self.getParamListForEdit(), interactive=True)
