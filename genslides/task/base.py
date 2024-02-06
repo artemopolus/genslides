@@ -748,7 +748,7 @@ class BaseTask():
         self.updateIternal(input)
 
         if input is None:
-            print('No input')
+            # print('No input')
             self.useLinksToTask()
             for child in self.childs:
                 child.update()
