@@ -125,8 +125,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     next_branch_btn = gr.Button(value='Next branch', min_width=150)
                     next_brend_bt = gr.Button(value='Next final', min_width=150)
                 # with gr.Column():
+            with gr.Row() as r:
                     go_parnt_btn = gr.Button(value='Go up')
                     go_child_btn = gr.Button(value='Go down')
+                    go_lnkback_btn = gr.Button(value='Go bcklnk')
                 # with gr.Column():
 
             with gr.Tab('Both'):
@@ -453,7 +455,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             new_tree_btn.click(fn=projecter.createNewTree, outputs=std_output_list)
             next_tree_btn.click(fn=projecter.goToNextTree, outputs=std_output_list)
             go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
-            go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)            
+            go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
+            go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=std_output_list)          
 
             sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
 

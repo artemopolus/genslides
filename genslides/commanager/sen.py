@@ -283,6 +283,14 @@ class Projecter:
         self.actioner.manager.goToNextTree()
         return self.goToNextBranchEnd()
     
+    def goBackByLink(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        trgs = task.getGarlandPart()
+        if len(trgs) > 0:
+            man.curr_task = trgs[0]
+        return man.getCurrTaskPrompts()
+    
     def goToNextChild(self):
         return self.actioner.manager.goToNextChild()
         # return self.makeTaskAction("","","GoToNextChild","")
