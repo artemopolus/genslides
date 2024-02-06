@@ -269,6 +269,21 @@ class Projecter:
     def moveCurrentTaskUP(self):
         return self.makeTaskAction("","","MoveCurrTaskUP","")
     
+    def uniteTask(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        par = task.getParent()
+        if par is not None:
+            man.curr_task = par
+            text = par.getLastMsgContentRaw()
+            self.makeTaskAction("","","Remove","")
+            text += task.getLastMsgContentRaw()
+            man.curr_task = task
+            selected_tag = task.getLastMsgRole()
+            self.makeTaskAction(text, "Request", "Edit", selected_tag, [])
+        return man.getCurrTaskPrompts()
+
+    
     def goToNextBranchEnd(self):
         return self.actioner.manager.goToNextBranchEnd()
     
