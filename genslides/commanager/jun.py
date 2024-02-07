@@ -1387,15 +1387,15 @@ class Manager:
 
     def getNamedTaskKeys(self, task : BaseTask, param_name : str):
         res, data = task.getParamStruct(param_name)
-        a = []
+        a = ['None']
         if res:
             task_man = TaskManager()
-            a = task_man.getListBasedOptionsDict(data)
+            a.extend(task_man.getListBasedOptionsDict(data))
         print('Get named task keys', a)
-        if len(a):
-            val = a[0]
-        else:
-            val = None
+        # if len(a):
+        #     val = a[0]
+        # else:
+        val = None
         return gr.Dropdown(choices=a, value=val, interactive=True)
     
     def getTaskKeyValue(self, param_name, param_key):

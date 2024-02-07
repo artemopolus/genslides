@@ -208,7 +208,7 @@ class Projecter:
             return self.makeTaskAction("", "Response",selected_action, "assistant")
     
     def getParamListForEdit(self):
-        return ['resp2req','coll2req','in','out','link','step','change','chckresp']
+        return ['resp2req','coll2req','read2req','in','out','link','step','change','chckresp']
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')
@@ -232,6 +232,8 @@ class Projecter:
             if 'coll2req' in checks:
             # TODO: Если надо заменить задачу типа Collect, то меняем все типы задач Receive/Collect/GroupCollect
                 param['switch'].append({'src':'Collect','trg':'Request'})
+            if 'read2req' in checks:
+                param['switch'].append({'src':'ReadFileParam','trg':'Request'})
         print('Action param=', param)
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 
