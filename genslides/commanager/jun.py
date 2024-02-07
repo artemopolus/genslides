@@ -695,6 +695,10 @@ class Manager:
                 task1.saveAllParams()
                 task2.saveAllParams()
                 task_12.saveAllParams()
+            else:
+                task_12.addChild(task2)
+                task2.saveAllParams()
+                task_12.saveAllParams()
             # self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
             try:
             # if task1 is not None:
@@ -715,7 +719,7 @@ class Manager:
                 for ch in self.curr_task.getChilds():
                     print(ch.getName())
             except Exception as e:
-                print('Error:', e)
+                print('Error', creation_type,':', e)
             # print(self.curr_task.queue)
             # if task1 is not None:
             #     task1.update()
@@ -1309,6 +1313,12 @@ class Manager:
 
         graph = self.drawGraph()
 
+        res_params = self.curr_task.getAllParams()
+
+        for param in res_params:
+            if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
+                del param['logprobs']
+
         return (
             r_msgs, 
             in_prompt ,
@@ -1317,7 +1327,7 @@ class Manager:
             in_role, 
             chck, 
             self.curr_task.getName(), 
-            json.dumps(self.curr_task.getAllParams(), indent=1), 
+            json.dumps(res_params, indent=1), 
             set_prompt, 
             gr.Dropdown(choices= self.getTaskList()),
             gr.Dropdown(choices=self.getByTaskNameParamListInternal(self.curr_task), 
