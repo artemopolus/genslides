@@ -607,9 +607,13 @@ class BaseTask():
             self.parent = None
             return
         else:
-            # print('Set',self.getName(),'parent', parent.getName())
             pass
+            # print('Set',self.getName(),'parent', parent.getName())
+        if self.parent:
+            self.parent.removeChild(self)
+
         parent.addChild(self)
+        self.freezeTask()
         # self.parent = parent
 
     def addChild(self, child) -> bool:

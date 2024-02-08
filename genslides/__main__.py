@@ -149,6 +149,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             # interactive=True, 
                             # source="upload", type="pil", 
                             height=500)
+                        end_names_radio = gr.Radio(label='Buds:')
+                        end_name_text = gr.Textbox(label='Current bud:')
                 # graph_img.style(height=500)
             with gr.Tab('Dial'):
                 dial_block = gr.Chatbot()
@@ -417,10 +419,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                prompt_tag_list, checkbox, name_info, 
                                param_info, prompt, task_list, param_type, 
                                parents_list, base_action_list, dial_block, 
-                               exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt
+                               exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt,
+                               end_names_radio, end_name_text
                                ]
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
+            end_names_radio.input(fn=projecter.setCurrTaskByBranchEndName, inputs=[end_names_radio], outputs=std_output_list)
+            end_name_text.submit(fn=projecter.setBranchEndName, inputs=[end_name_text], outputs=std_output_list)
             setname_prman_text.click(fn=projecter.backToStartTask, outputs=std_output_list)
             roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 

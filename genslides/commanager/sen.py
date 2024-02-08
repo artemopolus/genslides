@@ -633,4 +633,11 @@ class Projecter:
         # man.curr_task = start_task
         out = man.getCurrTaskPrompts()
         return out
- 
+    
+    def setBranchEndName(self, summary):
+        return self.actioner.manager.setBranchEndName(summary)
+
+    
+    def setCurrTaskByBranchEndName(self, name):
+        return self.actioner.manager.setCurrTaskByBranchEndName( name)
+    

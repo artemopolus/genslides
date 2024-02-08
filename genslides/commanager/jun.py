@@ -167,7 +167,10 @@ class Manager:
             # else:
             #     parent = self.curr_task
             #     self.createOrAddTask("",task_type,"user",parent,[])
-            self.makeLink(self.curr_task, task)
+            if action_type == 'Insert':
+                self.makeLink(self.curr_task.parent, task)
+            else:
+                self.makeLink(self.curr_task, task)
         self.clearSelectList()
         return self.getCurrTaskPrompts()
     
@@ -321,9 +324,8 @@ class Manager:
                 endes.append(task)
         return endes
     
-    # Перебираем все возможные варианты листьев/почек деревьев
-    def goToNextBranchEnd(self):
-        print('Go to next branch end')
+    def iterateOnBranchEnd(self):
+        # Перебираем все возможные варианты листьев/почек деревьев
         if len(self.endes) == 0:
             self.endes = self.getSceletonBranchBuds(self.curr_task)
             self.endes_idx = 0
@@ -338,9 +340,48 @@ class Manager:
                 self.endes = endes
                 self.endes_idx = 0
         self.curr_task = self.endes[self.endes_idx]
+
+    def goToNextBranchEnd(self):
+        print('Go to next branch end')
+        self.iterateOnBranchEnd()
         self.branch_code = self.curr_task.getBranchCodeTag()
         print('Get new branch code:', self.branch_code)
         return self.getCurrTaskPrompts()
+    
+    def getBranchEndList(self):
+        leaves_list = []
+        for leave in self.endes:
+            res, param = leave.getParamStruct('summary')
+            if res:
+                leaves_list.append( param['text'])
+            leaves_list.append( leave.getName() )
+        return leaves_list
+    
+    def getBranchEndName(self):
+        leave = self.endes[self.endes_idx]
+        res, param = leave.getParamStruct('summary')
+        if res:
+            return param['text']
+        return leave.getName() 
+    
+    def setBranchEndName(self, summary):
+        leave = self.endes[self.endes_idx]
+        param = {'type':'summary','text': summary}
+        leave.setParamStruct(param)
+        return self.getCurrTaskPrompts()
+ 
+
+    
+    def setCurrTaskByBranchEndName(self, name):
+        i_max = len(self.endes)
+        i = 0
+        while i < i_max:
+            self.iterateOnBranchEnd()
+            if self.getBranchEndName() == name:
+                break
+            i += 1
+        return self.getCurrTaskPrompts()
+        
 
     def goToNextBranch(self):
         trg = self.curr_task
@@ -1341,7 +1382,9 @@ class Manager:
             # TODO: Рисовать весь граф, но в упрощенном виде
             graph,
             self.getTreeNamesForRadio(),
-            self.getCurrentTreeNameForTxt()
+            self.getCurrentTreeNameForTxt(),
+            self.getBranchEndList(),
+            self.getBranchEndName()
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
