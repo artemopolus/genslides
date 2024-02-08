@@ -351,22 +351,24 @@ class Manager:
     def getBranchEndList(self):
         leaves_list = []
         for leave in self.endes:
-            res, param = leave.getParamStruct('summary')
+            res, param = leave.getParamStruct('bud')
             if res:
                 leaves_list.append( param['text'])
             leaves_list.append( leave.getName() )
         return leaves_list
     
     def getBranchEndName(self):
+        if len(self.endes) == 0:
+            return ''
         leave = self.endes[self.endes_idx]
-        res, param = leave.getParamStruct('summary')
+        res, param = leave.getParamStruct('bud')
         if res:
             return param['text']
         return leave.getName() 
     
     def setBranchEndName(self, summary):
         leave = self.endes[self.endes_idx]
-        param = {'type':'summary','text': summary}
+        param = {'type':'bud','text': summary}
         leave.setParamStruct(param)
         return self.getCurrTaskPrompts()
  
