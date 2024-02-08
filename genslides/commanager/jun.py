@@ -350,12 +350,18 @@ class Manager:
     
     def getBranchEndList(self):
         leaves_list = []
+        trg = ''
         for leave in self.endes:
             res, param = leave.getParamStruct('bud')
             if res:
-                leaves_list.append( param['text'])
-            leaves_list.append( leave.getName() )
-        return leaves_list
+                name = param['text']
+            else:
+                name = leave.getName()
+            leaves_list.append( name )
+            if leave == self.endes[self.endes_idx]:
+                trg = name
+            
+        return gr.Radio(choices=leaves_list, value=trg, interactive=True)
     
     def getBranchEndName(self):
         if len(self.endes) == 0:

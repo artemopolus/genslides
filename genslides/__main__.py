@@ -144,13 +144,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 gr.Button("Cp file path").click(fn=manager.getPathToFile)
                     # sec_msg.style(height=500)
                     with gr.Column():
+                        end_names_radio = gr.Radio(label='Buds:')
+                        end_name_text = gr.Textbox(label='Current bud:')
                         graph_img = gr.Image(
                             # tool="sketch", 
                             # interactive=True, 
                             # source="upload", type="pil", 
                             height=500)
-                        end_names_radio = gr.Radio(label='Buds:')
-                        end_name_text = gr.Textbox(label='Current bud:')
                 # graph_img.style(height=500)
             with gr.Tab('Dial'):
                 dial_block = gr.Chatbot()
