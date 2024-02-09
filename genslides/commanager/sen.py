@@ -232,6 +232,7 @@ class Projecter:
             if 'coll2req' in checks:
             # TODO: Если надо заменить задачу типа Collect, то меняем все типы задач Receive/Collect/GroupCollect
                 param['switch'].append({'src':'Collect','trg':'Request'})
+                param['switch'].append({'src':'Garland','trg':'Request'})
             if 'read2req' in checks:
                 param['switch'].append({'src':'ReadFileParam','trg':'Request'})
         print('Action param=', param)

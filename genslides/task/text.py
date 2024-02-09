@@ -385,16 +385,17 @@ class TextTask(BaseTask):
             self.msg_list.append(last)
 
     def getCountPrice(self):
-        text = ""
-        for msg in self.getMsgs():
-            text += msg["content"]
+        # text = ""
+        # for msg in self.getMsgs():
+        #     text += msg["content"]
 
         res, param = self.getParamStruct('model')
         if res:
             chat = LLModel(param)
         else:
             chat = LLModel()
-        return chat.getPrice(text)
+        # return chat.getPrice(text)
+        return chat.getPriceFromMsgs(self.getMsgs())
     
     def getUsedTasks(self) -> list:
         msgs = self.getMsgs()

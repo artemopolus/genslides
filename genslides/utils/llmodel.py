@@ -6,7 +6,7 @@ import tiktoken
 import os
 import datetime
 
-from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
+from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
 
 
@@ -116,6 +116,14 @@ class LLModel():
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         token_cnt = len(tokenizer.encode(text))
         return token_cnt
+    
+    def getPriceFromMsgs(self, msgs):
+        tokens = 0
+        if self.vendor == 'openai':
+            tokens = openai_num_tokens_from_messages(msgs, self.model)
+        price = self.params['input']
+        return tokens, tokens * price/1000
+
     
     def getPrice(self, text)-> float:
         tokens = self.getTokensCount(text)
