@@ -921,6 +921,8 @@ class TextTask(BaseTask):
                 to_del.append(p)
             if 'type' in p and p['type'] == 'link':
                 to_del.append(p)
+            if 'type' in p and p['type'] == 'bud':
+                to_del.append(p)
         for p in to_del:
             pparams.remove(p)
 
