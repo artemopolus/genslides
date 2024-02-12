@@ -152,11 +152,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                 # graph_img.style(height=500)
             with gr.Tab('Dial'):
                 with gr.Row():
-                    with gr.Column(scale=3):
-                        dial_block = gr.Chatbot(height=500)
-                    with gr.Column(scale=1):
+                    # with gr.Column(scale=1):
                         end_names_radio = gr.Radio(label='Buds:')
+                with gr.Row():
                         end_name_text = gr.Textbox(label='Current bud:')
+                with gr.Row():
+                    # with gr.Column(scale=3):
+                        dial_block = gr.Chatbot(height=500)
             with gr.Tab('Img'):
                 with gr.Row():
                     with gr.Column():
