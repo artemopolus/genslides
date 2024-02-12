@@ -36,6 +36,15 @@ class ReceiveTask(TextTask):
     def haveMsgsAction(self, msgs):
         self.setMsgList(msgs)
 
+    def checkInput(self, input: TaskDescription = None):
+        super().checkInput(input)
+        if input:
+            if self.parent:
+                trg_list = self.checkParentsMsg()
+            else:
+                trg_list = []
+            self.updateCollectedMsgList(trg_list)
+           
 
 
     def freezeTask(self):
