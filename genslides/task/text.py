@@ -383,6 +383,7 @@ class TextTask(BaseTask):
             last = self.msg_list[-1]
             self.msg_list = []
             self.msg_list.append(last)
+        self.freezeTask()
 
     def getCountPrice(self):
         # text = ""

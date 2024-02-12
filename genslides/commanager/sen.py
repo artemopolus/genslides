@@ -642,3 +642,7 @@ class Projecter:
     def setCurrTaskByBranchEndName(self, name):
         return self.actioner.manager.setCurrTaskByBranchEndName( name)
     
+    def cleanCurrTask(self):
+        man = self.actioner.manager
+        man.curr_task.forceCleanChat()
+        return man.getCurrTaskPrompts()
