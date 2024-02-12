@@ -151,16 +151,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Dial'):
-                dial_block = gr.Chatbot()
+                with gr.Row():
+                    with gr.Column(scale=3):
+                        dial_block = gr.Chatbot(height=500)
+                    with gr.Column(scale=1):
+                        end_names_radio = gr.Radio(label='Buds:')
+                        end_name_text = gr.Textbox(label='Current bud:')
             with gr.Tab('Img'):
                 with gr.Row():
                     with gr.Column():
                         graph_alone = gr.Image(
                             width=500
                         )
-                    with gr.Column():
-                        end_names_radio = gr.Radio(label='Buds:')
-                        end_name_text = gr.Textbox(label='Current bud:')
             with gr.Row():
                 # with gr.Column():
                     with gr.Tab('Prompt'):
@@ -423,7 +425,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                param_info, prompt, task_list, param_type, 
                                parents_list, base_action_list, dial_block, 
                                exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt,
-                               end_names_radio, end_name_text
+                               end_names_radio, end_name_text, extcopy_chck
                                ]
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)

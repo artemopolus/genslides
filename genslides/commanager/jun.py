@@ -716,9 +716,14 @@ class Manager:
     def makeTaskActionPro(self, prompt, type, creation_type, creation_tag):
         if creation_type == "RemoveBranch":
             tasks = self.curr_task.getChainBeforeBranching()
+            trg = None
+            if len(tasks) > 0:
+                trg = tasks[0].getParent()
             for task in tasks:
                 self.curr_task = task
                 self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+            if trg is not None:
+                self.curr_task = trg
         elif creation_type == "RemoveTree":
             tasks = self.curr_task.getTree()
             for task in tasks:
@@ -1392,7 +1397,8 @@ class Manager:
             self.getTreeNamesForRadio(),
             self.getCurrentTreeNameForTxt(),
             self.getBranchEndList(),
-            self.getBranchEndName()
+            self.getBranchEndName(),
+            gr.CheckboxGroup(value=[])
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
