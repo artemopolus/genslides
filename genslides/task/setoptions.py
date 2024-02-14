@@ -153,7 +153,7 @@ class SetOptionsTask(WriteToFileTask):
 class GeneratorTask(SetOptionsTask):
     def __init__(self, task_info: TaskDescription, type="Generator") -> None:
         super().__init__(task_info, type)
-        self.setParamStruct({'type':'generator','target':'[[parent:msg_content]]','struct':'json','tag':'array','cmd_id':0,'cmd_type':'prompt'})
+        self.setParamStruct({'type':'generator','target':'[[parent:msg_content]]','struct':'json','tag':'array','cmd_id':0,'cmd_type':'prompt','iteration':[]})
     
     def getExeCommands(self):
         res, pparam = self.getParamStruct('manager', True)
@@ -164,13 +164,22 @@ class GeneratorTask(SetOptionsTask):
                 if gparam['struct'] == 'json':
                     text = self.findKeyParam(gparam['target'])
                     iter_list = json.loads(text)
-                    if gparam['tag'] in iter_list and isinstance(iter_list[gparam['tag']],list):
+                    tag = gparam['tag']
+                    if tag in iter_list and isinstance(iter_list[tag],list):
                         iterators = iter_list[gparam['tag']]
-                        for i in iterators:
-                            acts = pparam['info']['actions'].copy()
-                            for act in acts:
-                                if act['id'] == gparam['cmd_id']:
-                                    act.update({gparam['cmd_type']:i})
-                            res_acts.append(copy.deepcopy(acts))
-                        return True, pparam['info'], res_acts
+                    else:
+                        return super().getExeCommands()
+                else:
+                    return super().getExeCommands()
+                if gparam['iteration'] != iterators:
+                    self.updateParamStruct('generator','iteration', iterators)
+                else:
+                    return super().getExeCommands()
+                for i in iterators:
+                    acts = pparam['info']['actions'].copy()
+                    for act in acts:
+                        if act['id'] == gparam['cmd_id']:
+                            act.update({gparam['cmd_type']:i})
+                    res_acts.append(copy.deepcopy(acts))
+                return True, pparam['info'], res_acts
         return super().getExeCommands()

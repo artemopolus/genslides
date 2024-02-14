@@ -55,3 +55,12 @@ def find_keys(trg_keys, text, out ):
             out = text
         return out, found
     return out, False
+
+def id_generator(dict_var):
+    for k, v in dict_var.items():
+        if k == "id":
+            yield v
+        elif isinstance(v, dict):
+            for id_val in id_generator(v):
+                yield id_val
+
