@@ -15,7 +15,7 @@ class SetOptionsTask(WriteToFileTask):
     def isInputTask(self):
         return False
     
-    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+    def getLastMsgAndParent(self):
         return False, [], self.parent
 
     def getLastMsgContentRaw(self):
@@ -150,3 +150,27 @@ class SetOptionsTask(WriteToFileTask):
         return self.getName()
  
 
+class GeneratorTask(SetOptionsTask):
+    def __init__(self, task_info: TaskDescription, type="Generator") -> None:
+        super().__init__(task_info, type)
+        self.setParamStruct({'type':'generator','target':'[[parent:msg_content]]','struct':'json','tag':'array','cmd_id':0,'cmd_type':'prompt'})
+    
+    def getExeCommands(self):
+        res, pparam = self.getParamStruct('manager', True)
+        if res:
+            gres, gparam = self.getParamStruct('generator', True)
+            if gres:
+                res_acts = []
+                if gparam['struct'] == 'json':
+                    text = self.findKeyParam(gparam['target'])
+                    iter_list = json.loads(text)
+                    if gparam['tag'] in iter_list and isinstance(iter_list[gparam['tag']],list):
+                        iterators = iter_list[gparam['tag']]
+                        for i in iterators:
+                            acts = pparam['actions'].copy()
+                            for act in acts:
+                                if act['id'] == gparam['cmd_id']:
+                                    act[gparam['cmd_type']] = i
+                            res_acts.append(act)
+                        return True, pparam, res_acts
+        return super().getExeCommands()

@@ -23,7 +23,7 @@ from genslides.task.writejsontofile import WriteJsonToFileTask
 
 from genslides.task.largedialresponse import LargeDialResponseTask
 
-from genslides.task.setoptions import SetOptionsTask
+import genslides.task.setoptions as so
 from genslides.task.writetofileparam import WriteToFileParamTask
 from genslides.task.readfileparam import ReadFileParamTask
 
@@ -110,7 +110,10 @@ def createTaskByType(type : str, info : TaskDescription):
         info.method = WriteJsonToFileTask
         return cr.CreateCommand(info)
     if stype.endswith("SetOptions"):
-        info.method = SetOptionsTask
+        info.method = so.SetOptionsTask
+        return cr.CreateCommand(info)
+    if stype.endswith("Generator"):
+        info.method = so.GeneratorTask
         return cr.CreateCommand(info)
     if stype.endswith("WriteToFileParam"):
         info.method = WriteToFileParamTask

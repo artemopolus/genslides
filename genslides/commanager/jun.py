@@ -351,15 +351,31 @@ class Manager:
     def getBranchEndList(self):
         leaves_list = []
         trg = ''
-        for leave in self.endes:
+        # for leave in self.endes:
+        found = False
+        if len(self.endes):
+            pars = self.endes[self.endes_idx].getAllParents()
+            if self.curr_task in pars:
+                found = True
+
+        for idx in range(len(self.endes)):
+            leave = self.endes[idx]
             res, param = leave.getParamStruct('bud')
             if res:
                 name = param['text']
             else:
                 name = leave.getName()
             leaves_list.append( name )
-            if leave == self.endes[self.endes_idx]:
-                trg = name
+
+
+            if not found:
+                pars = leave.getAllParents()
+                if self.curr_task in pars:
+                    self.endes_idx = idx
+                    trg = name
+            else:
+                if self.endes_idx == idx:
+                    trg = name
             
         return gr.Radio(choices=leaves_list, value=trg, interactive=True)
     
@@ -412,6 +428,7 @@ class Manager:
             else:
                 trg = trg.parent
             idx += 1
+        self.branch_code = self.curr_task.getBranchCodeTag()
         return self.getCurrTaskPrompts()
 
 
@@ -688,7 +705,7 @@ class Manager:
     def getMainCommandList(self):
         return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep","EditAndStepTree"]
     def getSecdCommandList(self):
-        return ["MoveUp","RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp"]
+        return ["MoveUp","RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp","Divide"]
     
     def makeRequestAction(self, prompt, selected_action, selected_tag):
         print('Make',selected_action,'Request')
@@ -803,7 +820,17 @@ class Manager:
             self.makeTaskActionBase(prompt,"Response","SubTask","assistant")
         elif creation_type == "MoveUp":
             return self.moveCurrentTaskUP()
-            
+        elif creation_type == "Divide":
+            text = self.curr_task.getLastMsgContent()
+            tag = self.curr_task.getLastMsgRole()
+            prs = text.split('[[---]]')
+            if len(prs) < 2:
+                return self.getCurrTaskPrompts()
+            else:
+                last = prs.pop()
+                for text in prs:
+                    self.makeTaskAction(text, "Request", "Insert", tag)
+                return self.makeTaskAction(last, "Request", "Edit", tag)
         return self.getCurrTaskPrompts()
 
     def updateTaskParam(self, param):
@@ -1003,6 +1030,7 @@ class Manager:
         out = []
         for task in self.task_list:
             out.append(task.getName())
+        out.sort()
         return out
     
     def getCurrTaskName(self):

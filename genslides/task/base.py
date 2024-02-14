@@ -1161,3 +1161,6 @@ class BaseTask():
 
     def getBranchSummary(self) -> str:
         return ''
+    
+    def getExeCommands(self):
+        return False, {}, []

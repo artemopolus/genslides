@@ -2,6 +2,7 @@ from openai import OpenAI
 
 import tiktoken
 
+# [[---]]
 
 def openaiGetSmplCompletion(messages, params) ->(bool, str, int, int):
     print('OpenAI get Completion')
@@ -23,6 +24,7 @@ def openaiGetSmplCompletion(messages, params) ->(bool, str, int, int):
     except Exception as e:
         print('Open Ai api error=',e) 
         return False, '', 0, 0
+# [[---]]
 
 def openaiGetChatCompletion(msgs, params):
     print('OpenAI get Chat Completion')
@@ -90,10 +92,11 @@ def openaiGetChatCompletion(msgs, params):
     except Exception as e:
         print('Open Ai api error=', e) 
         return False, '', {}
+# [[---]]
     
 def openai_num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
     return num_tokens_from_messages(messages, model)
-
+# [[---]]
 def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
     """Return the number of tokens used by a list of messages."""
     try:

@@ -224,6 +224,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
                             select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
+                            relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
                         with gr.Row():
                             clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
                             slct_action_list = gr.Radio(choices=["New","SubTask","Insert"], 
@@ -285,6 +286,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     exe_act_btn = gr.Button(value='Exe action')
                                     stop_prman_btn = gr.Button(value='Stop man')
                                     rset_prman_btn = gr.Button(value='Rset man')
+                                    save2curtask_btn = gr.Button(value='Save')
                                 with gr.Row():
                                     clr_prman_btn = gr.Button('Clear vals')
                                     params_prman = gr.Textbox(label="Params", lines=4)
@@ -316,6 +318,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_man_list)
                     stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_man_list)
                     rset_prman_btn.click(fn=manipulate_manager.rmvePrivManager, outputs=std_output_man_list)  
+                    save2curtask_btn.click(fn=manipulate_manager.savePrivManToTask, outputs=std_output_man_list)
                     updt_prman_btn.click(fn=manipulate_manager.getPrivManager, outputs=std_output_man_list)                  
                     exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_man_list)
                     exe_act_smpl_btn.click(fn=manipulate_manager.exeSmplScript, outputs=std_output_man_list)
@@ -334,7 +337,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         parents_list.select(fn=manager.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
                         trg_params_list.select(fn=manager.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
                         gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
-                        task_list = gr.Dropdown(choices=manager.getTaskList())
+                        task_list = gr.Dropdown(choices=manager.getTaskList(), label='Available tasks')
                         sel_task_btn = gr.Button(value="Select")
                         project_clear = gr.Button(value="clear tasks")
                         fix_task_btn = gr.Button(value = 'Fix Q Tasks')
@@ -429,6 +432,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt,
                                end_names_radio, end_name_text, extcopy_chck
                                ]
+            relink_sel2cur_btn.click(fn=projecter.relinkToCurrTaskByName, inputs=[selected_tasks_list], outputs=std_output_list)
+
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
             end_names_radio.input(fn=projecter.setCurrTaskByBranchEndName, inputs=[end_names_radio], outputs=std_output_list)

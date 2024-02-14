@@ -19,6 +19,7 @@ class Actioner():
         self.loadExtProject = manager.loadexttask
         # TODO: установить как значение по умолчанию
         self.path = 'saved'
+        self.update_state = 'init'
 
     def setPath(self, path: str):
         self.path = path
@@ -48,6 +49,9 @@ class Actioner():
         manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         manager.initInfo(self.loadExtProject, task, self.getPath(), man['actions'], man['repeat'] )
         return manager
+    
+    def resetCurrentPrivateManager(self, task: BaseTask, man):
+        self.manager.initInfo(self.loadExtProject, task, self.getPath(), man['actions'], man['repeat'] )
     
     def addPrivateManagerForTaskByName(self, man) ->Manager.Manager:
         print('Add priv manager for info', man)
@@ -192,7 +196,7 @@ class Actioner():
         return out
  
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
-        if save_action and creation_type != "StopPrivManager":
+        if save_action and creation_type != "StopPrivManager" and creation_type != "SavePrivManToTask":
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
@@ -246,6 +250,9 @@ class Actioner():
             man = self.addEmptyScript(param)
             if man is not None:
                 self.manager = man
+        elif creation_type == "SavePrivManToTask":
+            print(self.manager.info)
+            self.manager.curr_task.setParamStruct({'type':'manager', 'info': self.manager.info})
         elif creation_type == "StopPrivManager":
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
@@ -256,7 +263,10 @@ class Actioner():
                 self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         elif creation_type == "RmvePrivManager":
             if self.manager == self.std_manager:
-                return self.manager.getCurrTaskPrompts()
+                if len(self.tmp_managers):
+                    self.manager = self.tmp_managers[-1]
+                else:
+                    return self.manager.getCurrTaskPrompts()
             trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
             if save_action:
                 self.manager.remLastActions()
@@ -290,6 +300,20 @@ class Actioner():
             self.manager.setCurrentExtTaskOptions(param['names'])
         elif creation_type == "ResetAllExtTaskOptions":
             self.manager.resetAllExtTaskOptions()
+        elif creation_type == "RelinkToCurrTask":
+            task = self.std_manager.getTaskByName(param['name'])
+            start = self.manager.curr_task
+            if task is not None or task == start:
+                typename = task.getType()
+                task.removeLinkToTask()
+                if typename == 'Collect' or typename == 'GroupCollect' or 'Garland':
+                    intask = task
+                    outtask = start
+                else:
+                    intask = start
+                    outtask = task
+                self.manager.makeLink(intask, outtask)
+            self.manager.curr_task = start
         return self.manager.getCurrTaskPrompts()
 
     def fromActionToScript(self, trg: Manager, src : Manager):
@@ -421,4 +445,118 @@ class Actioner():
             # print('Cant exe script', e)
 
 
+    def updateInit(self):
+        man = self.manager
+        man.sortTreeOrder()
+        self.update_state = 'start tree'
+        self.update_tree_idx = 0
 
+    def updateStepInternal(self):
+        man = self.manager
+        start = self.manager.curr_task
+        res, iparam, actions = self.manager.curr_task.getExeCommands()
+        if res:
+            t_manager = self.createPrivateManagerForTask(start, iparam)
+            self.tmp_managers.append(t_manager)
+            self.manager = t_manager
+            for act in actions:
+                iparam['actions'] = act
+                self.resetCurrentPrivateManager(start, iparam)
+                self.exeCurManagerSmpl()
+            self.manager = self.std_manager
+
+        next = man.updateSteppedSelectedInternal()
+
+        if next is None:
+            self.update_state = 'next tree'
+        elif self.root_task_tree == next:
+            self.update_state = 'next tree'
+            # print('Complete tree', self.root_task_tree.getName())
+        else:
+            self.update_state = 'step'
+            self.update_processed_chain.append(next.getName())
+
+        if len(next.getChilds()) == 0:
+            print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
+
+    def resetUpdate(self):
+        self.update_state = 'init'
+        man = self.manager
+        man.curr_task = man.tree_arr[0]
+        for task in man.tree_arr:
+            task.resetTreeQueue()
+        return man.getCurrTaskPrompts()
+
+       
+    def update(self):
+        man = self.manager
+        # print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
+        if self.update_state == 'init':
+            self.updateInit()
+        elif self.update_state == 'start tree':
+            task = man.tree_arr[self.update_tree_idx]
+            # print('Start tree', task.getName(),'[',self.update_tree_idx,']')
+            self.root_task_tree = task
+            man.curr_task = task
+            # man.curr_task.resetTreeQueue()
+            self.update_processed_chain = [self.root_task_tree.getName()]
+            self.updateStepInternal()
+        elif self.update_state == 'step':
+            self.updateStepInternal()
+                # self.root_task_tree = next
+        elif self.update_state == 'next tree':
+            if self.update_tree_idx + 1 < len(man.tree_arr):
+                self.update_tree_idx += 1
+                self.update_state = 'start tree'
+            else:
+                self.update_state = 'done'
+                self.update_tree_idx = 0
+
+        # cnt = 0
+        # for task in man.task_list:
+        #     if task.is_freeze:
+        #         cnt += 1
+        # print('Frozen tasks cnt:', cnt)
+        out = man.getCurrTaskPrompts()
+        return out
+
+    def updateAll(self):
+        man = self.manager
+        start_task = man.curr_task
+        self.resetUpdate()
+        idx = 0
+        while(idx < 1000):
+            self.update()
+            if self.update_state == 'done':
+                break
+            idx += 1
+
+        cnt = 0
+        for task in man.task_list:
+            if task.is_freeze:
+                cnt += 1
+        print('Frozen tasks cnt:', cnt)
+        man.curr_task = start_task
+        out = man.getCurrTaskPrompts()
+        return out
+
+    def updateAllUntillCurrTask(self):
+        man = self.manager
+        start_task = man.curr_task
+        self.resetUpdate()
+        idx = 0
+        while(idx < 1000):
+            self.update()
+            if self.update_state == 'done' or man.curr_task == start_task:
+                break
+            idx += 1
+
+        cnt = 0
+        for task in man.task_list:
+            if task.is_freeze:
+                cnt += 1
+        print('Frozen tasks cnt:', cnt)
+        # man.curr_task = start_task
+        out = man.getCurrTaskPrompts()
+        return out
+ 
