@@ -3,7 +3,7 @@ from genslides.task.writetofile import WriteToFileTask
 
 import json, regex
 import genslides.utils.finder as finder
-
+import copy
 
 class SetOptionsTask(WriteToFileTask):
     def __init__(self, task_info: TaskDescription, type="SetOptions") -> None:
@@ -167,10 +167,10 @@ class GeneratorTask(SetOptionsTask):
                     if gparam['tag'] in iter_list and isinstance(iter_list[gparam['tag']],list):
                         iterators = iter_list[gparam['tag']]
                         for i in iterators:
-                            acts = pparam['actions'].copy()
+                            acts = pparam['info']['actions'].copy()
                             for act in acts:
                                 if act['id'] == gparam['cmd_id']:
-                                    act[gparam['cmd_type']] = i
-                            res_acts.append(act)
-                        return True, pparam, res_acts
+                                    act.update({gparam['cmd_type']:i})
+                            res_acts.append(copy.deepcopy(acts))
+                        return True, pparam['info'], res_acts
         return super().getExeCommands()

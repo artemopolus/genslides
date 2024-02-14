@@ -142,7 +142,8 @@ def getTasksDict() -> list:
     out.append({"type":"WriteToFileParam","short":"Wp","creation":WriteToFileParamTask})
     out.append({"type":"ReadFileParam","short":"Rp","creation":ReadFileParamTask})
     out.append({"type":"WriteJsonToFile","short":"Wj","creation":WriteJsonToFileTask})
-    out.append({"type":"SetOptions","short":"So","creation":SetOptionsTask})
+    out.append({"type":"SetOptions","short":"So","creation":so.SetOptionsTask})
+    out.append({"type":"Generator","short":"Ge","creation":so.GeneratorTask})
     out.append({"type":"RunScript","short":"Rs","creation":RunScriptTask})
     out.append({"type":"ExtProject","short":"Ep","creation":ExtProjectTask})
     return out

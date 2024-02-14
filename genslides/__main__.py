@@ -185,6 +185,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     custom_btn = gr.Button(value='Custom')
                                 
                                 extcopy_chck = gr.CheckboxGroup()
+                        roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
 
                         analysis_text = gr.Highlightedtext(label="Diff",
                                     combine_adjacent=True,
@@ -200,7 +201,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             analysis_log = gr.Textbox()
                             gr.Button('Get').click(fn=projecter.getTextInfo, inputs=[notgood, bad], outputs=[analysis_text, analysis_log])
                         
-                        roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
 
                    
                     base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck])
