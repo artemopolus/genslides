@@ -72,7 +72,16 @@ def searchJsonTemplate(json_input, lookup_key):
     elif isinstance(json_input, list):
         for item in json_input:
             yield from searchJsonTemplate(item, lookup_key)
-
+def getJsonByKey(json_input, lookup_key):
+    out = []
+    for i in searchJsonTemplate(json_input, lookup_key[0]):
+        found = True
+        for key in lookup_key:
+            if key not in i:
+                found = False
+        if found:
+            out.append(i)
+    return out
 
 print('test')
 tmpl = [{'hello':0, 'bye':'test'},{'hello':1, 'bye':'test'},{'hello':2, 'bye':'test'}]
@@ -106,10 +115,15 @@ trg = {
                         ]
                 }
             ],
-            'some':{'hello':9, 'bye':'test'}
+            'some4':{'hello':9, 'bye':'test'}
         }
         ],
     'done':tmpl,
-    'some':{'hello':7, 'bye':'test'}
+    'some2':{'hello':7, 'sun':'test'}
         }
 print_gen(trg)
+
+print('===============================')
+
+print(getJsonByKey(trg, ['hello','bye']))
+print(getJsonByKey(trg, ['hello']))

@@ -64,3 +64,28 @@ def id_generator(dict_var):
             for id_val in id_generator(v):
                 yield id_val
 
+def searchJsonTemplate(json_input, lookup_key):
+    if isinstance(json_input, dict):
+        for k, v in json_input.items():
+            if k == lookup_key:
+                yield json_input
+            else:
+                yield from searchJsonTemplate(v, lookup_key)
+    elif isinstance(json_input, list):
+        for item in json_input:
+            yield from searchJsonTemplate(item, lookup_key)
+
+def getJsonByKey(json_input, lookup_key : list):
+    if len(lookup_key) == 0:
+        return []
+    out = []
+    for i in searchJsonTemplate(json_input, lookup_key[0]):
+        found = True
+        for key in lookup_key:
+            if key not in i:
+                found = False
+        if found:
+            out.append(i)
+    return out
+
+
