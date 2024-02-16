@@ -163,3 +163,4 @@ tools/*
 text65.txt
 tools/*
 .DS_Store
+tests/llm/test.txt
