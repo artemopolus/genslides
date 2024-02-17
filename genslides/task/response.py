@@ -17,6 +17,7 @@ class ResponseTask(TextTask):
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
 
 
+        self.freezeTask()
         
 
         if len(msg_list_from_file) == 0:
@@ -26,6 +27,7 @@ class ResponseTask(TextTask):
         # print("name=", self.getName())
         # print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
+
 
     def onEmptyMsgListAction(self):
         self.setChatPram("temperature")

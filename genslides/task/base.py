@@ -124,11 +124,25 @@ class TaskManager(metaclass=Singleton):
                 pass
         return out
 
-    def getTaskPrompts(self,mypath, trg_path = ""):
+    def getTaskPrompts(self,mypath, trg_path = "", ignore_safe = False):
+        # print('Find child for', trg_path)
+        pr_ch = []
+        if trg_path != "":
+            with open(trg_path, 'r') as f:
+                pr_fl = json.load(f)
+                if 'params' in pr_fl:
+                    for param in pr_fl['params']:
+                        if 'type' in param and param['type'] == 'child' and 'name' in param:
+                            pr_ch.append(param['name'] + self.getTaskExtention())
+            # print('Childs:', pr_ch)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        for child in pr_ch:
+            onlyfiles.insert(0, onlyfiles.pop(onlyfiles.index(child)))
         out = []
+        idx = 0
         # print('Get available tasks from',len(onlyfiles),'files')
         for filename in onlyfiles:
+            idx += 1
             path = join(mypath,filename)
             # print('Check path=',path)
             try:
@@ -174,6 +188,9 @@ class TaskManager(metaclass=Singleton):
                 print("Get json error on task prompts=", e,"using", path)
             except Exception as e:
                 print("Task prompts error=", type(e),"using", path)
+            if  ignore_safe and trg_path != "" and len(out) == len(pr_ch):
+                break
+        print('Target files count:',len(pr_ch),'from',len(onlyfiles),'for', trg_path,'in', idx, 'iter')
         return out
 
 

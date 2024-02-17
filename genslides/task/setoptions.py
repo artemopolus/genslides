@@ -175,6 +175,7 @@ class GeneratorTask(SetOptionsTask):
                     self.updateParamStruct('generator','iteration', iterators)
                 else:
                     return super().getExeCommands()
+                # TODO: выполнить только те команды, которых не было ранее
                 for i in iterators:
                     acts = pparam['info']['actions'].copy()
                     for act in acts:
