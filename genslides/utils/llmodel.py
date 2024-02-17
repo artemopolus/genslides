@@ -7,9 +7,18 @@ import os
 import datetime
 
 from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages
+from genslides.utils.myollama import ollamaGetChatCompletion
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
 
-
+model_to_method = {
+    "openai":{
+        'default':openaiGetChatCompletion,
+        'gpt-3.5-turbo-instruct':openaiGetSmplCompletion
+    },
+    "ollama":{
+        'default':ollamaGetChatCompletion
+    }
+}
 
 
 class LLModel():
@@ -35,12 +44,17 @@ class LLModel():
             for name, values in models.items():
                 for option in values['prices']:
                     if option['name'] == model_name:
-                        if name == 'openai':
-                            if model_name == 'gpt-3.5-turbo-instruct':
-                                self.method = openaiGetSmplCompletion
-                            else:
-                                self.method = openaiGetChatCompletion
-                            
+                        # if name == 'openai':
+                        #     if model_name == 'gpt-3.5-turbo-instruct':
+                        #         self.method = openaiGetSmplCompletion
+                        #     else:
+                        #         self.method = openaiGetChatCompletion
+ 
+                        if model_name in model_to_method[name]:
+                            self.method = model_to_method[name][model_name]
+                        else:
+                            self.method = model_to_method[name]['default']
+                           
                         self.vendor = name
                         self.model = model_name
                         # self.max_tokens = option["max_tokens"]
@@ -68,8 +82,7 @@ class LLModel():
             'model': self.params['model']
             }
         res, response, p = self.method(messages, self.params)
-        if res:
-            # TODO: Добавить проверку на наналичие ключевых слов `intok`, `outtok`
+        if res and 'intok' in p and 'outtok' in p:
             intok = p['intok']
             outtok = p['outtok']
             out.update(p)
