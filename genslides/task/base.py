@@ -137,7 +137,8 @@ class TaskManager(metaclass=Singleton):
             # print('Childs:', pr_ch)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for child in pr_ch:
-            onlyfiles.insert(0, onlyfiles.pop(onlyfiles.index(child)))
+            if child in onlyfiles:
+                onlyfiles.insert(0, onlyfiles.pop(onlyfiles.index(child)))
         out = []
         idx = 0
         # print('Get available tasks from',len(onlyfiles),'files')
