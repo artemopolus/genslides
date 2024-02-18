@@ -200,6 +200,7 @@ class Projecter:
             return self.makeTaskAction("", "Response",selected_action, "assistant")
     
     def getParamListForEdit(self):
+        # TODO: добавить простую копию задачи
         return ['resp2req','coll2req','read2req','in','out','link','step','change','chckresp']
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):

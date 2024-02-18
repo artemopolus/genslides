@@ -126,6 +126,7 @@ class Manager:
         self.info = None
         self.tc_start = False
         self.tc_stop = False
+        self.multiselect_tasks = []
 
     def getCurrentTask(self) -> BaseTask:
         return self.curr_task
@@ -581,6 +582,7 @@ class Manager:
             else:
                 trg_list = self.curr_task.getAllParents()
                 trg_list.extend(self.curr_task.getAllChildChains()[1:])
+                trg_list.extend(self.multiselect_tasks)
         else:
             trg_list = self.task_list
         # print('Target tasks:',[t.getName() for t in trg_list])
@@ -609,8 +611,15 @@ class Manager:
                     f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
                     # f.node ("Current",task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
                     # f.edge (task.getIdStr(), "Current", color = "skyblue", arrowhead = "dot")
-                elif task ==self.slct_task:
-                    f.node( task.getIdStr(), task.getName(),style="filled",color="darksalmon")
+                # TODO: проверять только в этих задачах
+                elif task in self.multiselect_tasks:
+                    color = "lightsalmon3"
+                    shape = "ellipse" #rectangle,hexagon
+                    if task == self.curr_task:
+                        color = "lightsalmon1"
+                    if task.getLastMsgRole() == 'assistant':
+                        shape = 'hexagon'
+                    f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
                 else:
                     if self.getTaskParamRes(task, "block"):
                     # if task.getParam("stopped") == [True, True]:
@@ -1754,7 +1763,10 @@ class Manager:
             if branch['i_par'] is not None:
                 parent = tasks_chains[branch['i_par']]['created'][-1]
             else:
+                # Самый первый элемент дерева, устнаавливаем родительский элемент
+                # TODO: устанавливаем произвольного родителя если указано
                 parent = branch['parent']
+                # если нужно меняем промпт
                 if change_prompt:
                     prompt = edited_prompt
             branch['created'] = []

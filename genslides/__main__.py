@@ -234,15 +234,15 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             collect_btn = gr.Button(value='Collect')
                             shoot_btn = gr.Button(value='Shoot')
                             garland_btn = gr.Button(value='Garland')
-                            # TODO: добавить простую копию задачи
 
-
+                    # TODO: мультивыбор
                     # with gr.Row():
                     # with gr.Accordion():
                     with gr.Tab('Cmds'):
                         with gr.Row():
 
                             moveup_btn = gr.Button(value='MoveUP')
+                            # TODO: Parent, Link перенести в область select
                             parent_btn = gr.Button(value='Parent')
                             unparent_btn = gr.Button(value='Unparent')
                             link_btn = gr.Button(value='Link')

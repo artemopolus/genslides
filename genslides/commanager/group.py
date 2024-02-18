@@ -559,4 +559,5 @@ class Actioner():
         # man.curr_task = start_task
         out = man.getCurrTaskPrompts()
         return out
- 
+
+#TODO: Select group task 
