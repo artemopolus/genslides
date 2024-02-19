@@ -561,3 +561,54 @@ class Actioner():
         return out
 
 #TODO: Select group task 
+    def getRelatedTasks(self, task :BaseTask, lnk_in = True, lnk_out= True):
+        if lnk_in:
+            trg_tasks = task.getAllParents()
+        else:
+            trg_tasks = []
+        if lnk_out:
+            childs = task.getAllChildChains()
+        else:
+            childs = []
+        related_in = []
+        if lnk_in:
+            for t in trg_tasks:
+                related_in.extend( t.getGarlandPart())
+        related_out = []
+        if lnk_out:
+            for t in childs:
+                related_out.extend(t.getHoldGarlands())
+        if lnk_out:
+            if task in trg_tasks:
+                trg_tasks.remove(task)
+            trg_tasks.extend(childs)
+        return trg_tasks, related_in, related_out
+    
+    def getRelationTasksChain(self):
+        man = self.manager
+        chain, preds, posts = self.getRelatedTasks(man.curr_task)
+        idx = 0
+        while (idx < 1000):
+            n_preds = []
+            for pred in preds:
+                n_chain, a, b = self.getRelatedTasks(pred, True, False)
+                n_preds.extend(a)
+                chain.extend(n_chain)
+            n_posts = []
+            for post in posts:
+                n_chain, a, b = self.getRelatedTasks(post, False, True)
+                n_posts.extend(b)
+                chain.extend(n_chain)
+
+            posts = n_posts
+            preds = n_preds
+            
+            if len(preds) == 0 and len(posts) == 0:
+                break
+
+            idx += 1
+        
+        man.multiselect_tasks = chain
+
+        return man.getCurrTaskPrompts()
+

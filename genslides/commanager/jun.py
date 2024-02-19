@@ -199,12 +199,12 @@ class Manager:
     def getProjPrefix(self) -> str:
         return self.proj_pref
 
-    def loadTasksList(self):
+    def loadTasksList(self, safe = False):
         # print(10*"=======")
-        # print('Load tasks from files')
+        print('Fast load of tasks' if safe else 'Load task from files')
         task_manager = TaskManager()
         links = task_manager.getLinks(self.getPath())
-        self.createTask()
+        self.createTask(prnt_task=None, safe=safe)
 
         # print('Links', links)
 
@@ -441,7 +441,7 @@ class Manager:
             text += f.read()
         return text
 
-    def createTask(self, prnt_task = None):
+    def createTask(self, prnt_task = None, safe = False):
         # print(10*"=======")
         if prnt_task == None:
             parent_path = ""
@@ -452,7 +452,7 @@ class Manager:
             # print("Parent task path=", parent_path)
         init_task_list = self.task_list.copy()
         task_manager = TaskManager()
-        parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), parent_path)
+        parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), parent_path, ignore_safe=safe)
 
         # print("prompt count=",len(parent_prompt_list))
 
@@ -471,7 +471,7 @@ class Manager:
             for task in trg_task_list:
                 if task not in init_task_list:
                     # print("+++",parent_path)
-                    self.createTask(task)
+                    self.createTask(task, safe)
         
 
     def setNextTask(self, input):
@@ -582,7 +582,9 @@ class Manager:
             else:
                 trg_list = self.curr_task.getAllParents()
                 trg_list.extend(self.curr_task.getAllChildChains()[1:])
-                trg_list.extend(self.multiselect_tasks)
+                for t in self.multiselect_tasks:
+                    if t not in trg_list:
+                        trg_list.append(t)
         else:
             trg_list = self.task_list
         # print('Target tasks:',[t.getName() for t in trg_list])
@@ -617,7 +619,9 @@ class Manager:
                     shape = "ellipse" #rectangle,hexagon
                     if task == self.curr_task:
                         color = "lightsalmon1"
-                    if task.getLastMsgRole() == 'assistant':
+                    elif len(task.getHoldGarlands()) > 0:
+                        color = 'crimson'
+                    if task.getType() == 'Response':
                         shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
                 else:

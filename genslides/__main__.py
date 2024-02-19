@@ -130,6 +130,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     go_child_btn = gr.Button(value='Go down')
                     go_lnkback_btn = gr.Button(value='Go bcklnk')
                 # with gr.Column():
+                    
+            with gr.Accordion(label='Buds', open=False):
+                with gr.Row():
+                        end_names_radio = gr.Radio(label='Buds:')
+                with gr.Row():
+                        end_name_text = gr.Textbox(label='Current bud:')
 
             with gr.Tab('Both'):
                 with gr.Row():
@@ -151,11 +157,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Dial'):
-                with gr.Row():
-                    # with gr.Column(scale=1):
-                        end_names_radio = gr.Radio(label='Buds:')
-                with gr.Row():
-                        end_name_text = gr.Textbox(label='Current bud:')
                 with gr.Row():
                     # with gr.Column(scale=3):
                         dial_block = gr.Chatbot(height=500)
@@ -236,6 +237,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             garland_btn = gr.Button(value='Garland')
 
                     # TODO: мультивыбор
+                    with gr.Tab('MultiSelect'):
+                        relatedtask_btn = gr.Button('Relationship chain')
+                        relattaskcln_btn = gr.Button('Clear Rel Chain')
                     # with gr.Row():
                     # with gr.Accordion():
                     with gr.Tab('Cmds'):
@@ -347,6 +351,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                 project_save = gr.Button(value="save")
                 projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
+                project_reload = gr.Button(value='reload')
                 gr.Button('append').click(fn=project_manipulator.appendProjectTasks,inputs=[projects_list])
 
             param_info = gr.Textbox(label="Params", lines=4)
@@ -433,7 +438,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                end_names_radio, end_name_text, extcopy_chck
                                ]
             relink_sel2cur_btn.click(fn=projecter.relinkToCurrTaskByName, inputs=[selected_tasks_list], outputs=std_output_list)
-
+            relatedtask_btn.click(fn=projecter.selectRelatedChain, outputs=std_output_list)
+            relattaskcln_btn.click(fn=projecter.deselectRealtedChain, outputs=std_output_list)
+            
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
             end_names_radio.input(fn=projecter.setCurrTaskByBranchEndName, inputs=[end_names_radio], outputs=std_output_list)
@@ -484,6 +491,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
             project_clear.click(fn=projecter.clear)
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
+            project_reload.click(fn=projecter.reload)
 
             res_step_btn.click(fn=manager.resetCurTaskQueue,outputs=std_output_list)
             fix_task_btn.click(fn=manager.fixTasks, outputs=std_output_list)

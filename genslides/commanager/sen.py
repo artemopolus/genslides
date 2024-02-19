@@ -37,7 +37,8 @@ class Projecter:
         self.savedpath = task_man.getPath()
         self.manager = manager
         self.manager.initInfo(self.loadExtProject)
-        self.manager.loadTasksList()
+        # TODO: сделать по умолчанию быструю загрузку
+        self.manager.loadTasksList(True)
 
         self.actioner = Actioner(manager)
         # saver = SaveData()
@@ -78,6 +79,13 @@ class Projecter:
         self.clearFiles()
         self.manager.onStart() 
         self.manager.initInfo(self.loadExtProject)
+
+    def reload(self):
+        self.manager.onStart() 
+        self.manager.initInfo(self.loadExtProject)
+        self.manager.loadTasksList(False)
+
+
 
     def getEvaluetionResults(self, input):
         print("In:", input)
@@ -291,8 +299,8 @@ class Projecter:
     
     def goToNextTree(self):
         self.actioner.manager.sortTreeOrder()
-        self.actioner.manager.goToNextTree()
-        return self.goToNextBranchEnd()
+        return self.actioner.manager.goToNextTree()
+        # return self.goToNextBranchEnd()
     
     def goBackByLink(self):
         man = self.actioner.manager
@@ -555,4 +563,11 @@ class Projecter:
 
     def relinkToCurrTaskByName(self, name):
         return self.makeTaskAction('','','RelinkToCurrTask','', {'name':name})
+    
+    def selectRelatedChain(self):
+        return self.actioner.getRelationTasksChain()
+    
+    def deselectRealtedChain(self):
+        self.actioner.manager.multiselect_tasks = []
+        return self.actioner.manager.getCurrTaskPrompts()
  
