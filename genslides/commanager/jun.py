@@ -252,7 +252,8 @@ class Manager:
                 self.curr_task = self.tree_arr[i]
                 self.tree_idx = i
                 break
-        return self.goToNextBranchEnd()
+        return self.getCurrTaskPrompts()
+        # return self.goToNextBranchEnd()
 
 
     def goToNextTree(self):
@@ -350,6 +351,11 @@ class Manager:
         return self.getCurrTaskPrompts()
     
     def getBranchEndList(self):
+        task = self.curr_task
+        self.iterateOnBranchEnd()
+        self.curr_task = task
+
+
         leaves_list = []
         trg = ''
         # for leave in self.endes:
@@ -358,7 +364,6 @@ class Manager:
             pars = self.endes[self.endes_idx].getAllParents()
             if self.curr_task in pars:
                 found = True
-
         for idx in range(len(self.endes)):
             leave = self.endes[idx]
             res, param = leave.getParamStruct('bud')
@@ -610,42 +615,45 @@ class Manager:
                     else:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkmagenta")
                 elif task == self.curr_task:
-                    f.node( task.getIdStr(), task.getName(),style="filled",color="skyblue")
-                    # f.node ("Current",task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
-                    # f.edge (task.getIdStr(), "Current", color = "skyblue", arrowhead = "dot")
-                # TODO: проверять только в этих задачах
+                    color = "skyblue"
+                    shape = "ellipse" #rectangle,hexagon
+                    if len(task.getHoldGarlands()) > 0:
+                        color = 'skyblue4'
+                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 elif task in self.multiselect_tasks:
                     color = "lightsalmon3"
                     shape = "ellipse" #rectangle,hexagon
                     if task == self.curr_task:
                         color = "lightsalmon1"
-                    elif len(task.getHoldGarlands()) > 0:
+                    if len(task.getHoldGarlands()) > 0:
                         color = 'crimson'
                     if task.getType() == 'Response':
                         shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
                 else:
+                    color = 'ghostwhite'
+                    shape = "ellipse" #rectangle,hexagon
                     if self.getTaskParamRes(task, "block"):
-                    # if task.getParam("stopped") == [True, True]:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="gold2")
+                        color="gold2"
                     elif self.getTaskParamRes(task, "input"):
-                    # elif task.getParam("input") == [True, True]:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine")
+                        color="aquamarine"
                     elif self.getTaskParamRes(task, "output"):
-                    # elif task.getParam("output") == [True, True]:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkgoldenrod1")
+                        color="darkgoldenrod1"
                     elif self.getTaskParamRes(task, "check"):
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkorchid1")
+                        color="darkorchid1"
                     elif task.is_freeze:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="cornflowerblue")
+                        color="cornflowerblue"
+                        if len(task.getAffectedTasks()) > 0:
+                            color = 'teal'
                     elif len(task.getAffectedTasks()) > 0:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="aquamarine4")
+                        color="aquamarine3"
                     else:
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":
-                            f.node( task.getIdStr(), task.getName(),style="filled",color="azure2")
-                        else:
-                            f.node( task.getIdStr(), task.getName())
+                            color="azure2"
+                    if task.getType() == 'Response':
+                        shape = 'hexagon'
+                    f.node( task.getIdStr(), task.getName(),style="filled",color=color, shape = shape)
 
 
                 # print("info=",task.getIdStr(),"   ", task.getName())

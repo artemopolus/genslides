@@ -220,36 +220,34 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
                                 param_apnd = gr.Button('Append new')
                            
-                # with gr.Column():
                     with gr.Tab('Select'):
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
                             select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
                             relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
-                        with gr.Row():
                             clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
+                        with gr.Row():
+                            parent_btn = gr.Button(value='Parent')
+                            link_btn = gr.Button(value='Link')
+                        with gr.Row():
                             slct_action_list = gr.Radio(choices=["New","SubTask","Insert"], 
                                                             label="Select actions", 
                                                             value="New"
                                                             )
+                        with gr.Row():
                             collect_btn = gr.Button(value='Collect')
                             shoot_btn = gr.Button(value='Shoot')
                             garland_btn = gr.Button(value='Garland')
 
-                    # TODO: мультивыбор
                     with gr.Tab('MultiSelect'):
-                        relatedtask_btn = gr.Button('Relationship chain')
-                        relattaskcln_btn = gr.Button('Clear Rel Chain')
-                    # with gr.Row():
-                    # with gr.Accordion():
+                        with gr.Row():
+                            relatedtask_btn = gr.Button('Relationship chain')
+                            relattaskcln_btn = gr.Button('Clear Rel Chain')
                     with gr.Tab('Cmds'):
                         with gr.Row():
 
                             moveup_btn = gr.Button(value='MoveUP')
-                            # TODO: Parent, Link перенести в область select
-                            parent_btn = gr.Button(value='Parent')
                             unparent_btn = gr.Button(value='Unparent')
-                            link_btn = gr.Button(value='Link')
                             unlink_btn = gr.Button(value='Unlink')
                             delete_btn = gr.Button(value='Delete')
                             extract_btn = gr.Button(value='Extract')
