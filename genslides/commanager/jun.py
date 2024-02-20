@@ -1369,6 +1369,8 @@ class Manager:
 
     
     def getCurrTaskPrompts(self, set_prompt = ""):
+        if self.curr_task is None:
+            return
         msgs = self.curr_task.getMsgs()
         out_prompt = ""
         out_prompt2 = ""

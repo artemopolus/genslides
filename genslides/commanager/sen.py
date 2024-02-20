@@ -102,7 +102,7 @@ class Projecter:
         print('Load files to',self.savedpath)
         Archivator.extractFiles(self.mypath, filename, self.savedpath)
         self.manager.onStart() 
-        self.manager.loadTasksList()
+        self.manager.loadTasksList(True)
         self.current_project_name = filename
         self.manager.setParam("current_project_name",self.current_project_name)
         self.updateSessionName()
@@ -544,6 +544,10 @@ class Projecter:
         
     def updateAll(self):
         return self.actioner.updateAll()
+    
+    def updateCurrentTree(self):
+        return self.actioner.updateCurrentTree()
+
    
     def updateAllUntillCurrTask(self):
         return self.actioner.updateAllUntillCurrTask()

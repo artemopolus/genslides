@@ -486,7 +486,7 @@ class Actioner():
         for task in man.tree_arr:
             task.resetTreeQueue()
         return man.getCurrTaskPrompts()
-
+    
        
     def update(self):
         man = self.manager
@@ -495,7 +495,7 @@ class Actioner():
             self.updateInit()
         elif self.update_state == 'start tree':
             task = man.tree_arr[self.update_tree_idx]
-            # print('Start tree', task.getName(),'[',self.update_tree_idx,']')
+            print('Start tree', task.getName(),'[',self.update_tree_idx,']')
             self.root_task_tree = task
             man.curr_task = task
             # man.curr_task.resetTreeQueue()
@@ -519,6 +519,24 @@ class Actioner():
         # print('Frozen tasks cnt:', cnt)
         out = man.getCurrTaskPrompts()
         return out
+
+    def updateCurrentTree(self):
+        man = self.manager
+        man.tree_arr[ man.tree_idx ].resetTreeQueue()
+        self.update_state = 'start tree'
+        self.update_tree_idx = man.tree_idx
+
+        start_task = man.curr_task
+        # self.resetUpdate()
+        idx = 0
+        while(idx < 1000):
+            self.update()
+            if self.update_state == 'next tree':
+                break
+            idx += 1
+
+        man.curr_task = start_task
+        return man.getCurrTaskPrompts()
 
     def updateAll(self):
         man = self.manager
