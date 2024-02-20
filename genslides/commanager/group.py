@@ -475,6 +475,7 @@ class Actioner():
         start = self.manager.curr_task
         res, iparam = self.manager.curr_task.getExeCommands()
         if res:
+            print('Execute actions')
             if self.manager is self.std_manager:
                 t_manager = self.createPrivateManagerForTask(start, iparam)
                 self.tmp_managers.append(t_manager)
@@ -482,9 +483,11 @@ class Actioner():
             self.resetCurrentPrivateManager(start, iparam)
             self.exeCurManagerSmpl()
             # ничего не меняем
+            self.manager.curr_task = start
             return
         else:
             if self.manager is not self.std_manager:
+                print('End execution')
                 self.manager = self.std_manager
              
 

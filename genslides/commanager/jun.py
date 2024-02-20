@@ -1516,7 +1516,10 @@ class Manager:
         a = ['None']
         if res:
             task_man = TaskManager()
-            a.extend(task_man.getListBasedOptionsDict(data))
+            def_vals =task_man.getListBasedOptionsDict(data) 
+            if len(def_vals) == 0:
+                def_vals = [k for k, v in data.items()]
+            a.extend(def_vals)
         print('Get named task keys', a)
         # if len(a):
         #     val = a[0]
@@ -1578,9 +1581,15 @@ class Manager:
             else:
                 values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
             print('Update with',cur_val,'from', values)
-            if cur_val in values:
-                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+            if len(values):
+                if cur_val in values:
+                    return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                          gr.Textbox(value=''))
+            else:
+                    # str_cur_val = str(cur_val)
+                    str_cur_val = json.dumps(cur_val, indent=1)
+                    return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=str_cur_val))
         cur_val = 'None'
         return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
                 gr.Textbox(value=''))
@@ -2091,6 +2100,8 @@ class Manager:
         self.loadexttask = method
         # self.task_list =  task.getAllParents() if task is not None else []
         self.curr_task = task
+        if task is not None:
+            self.task_list = [task]
         task_name = task.getName() if task is not None else 'Base'
         self.setName(task_name)
         if task is not None:
@@ -2127,6 +2138,8 @@ class Manager:
 
 
     def sortTreeOrder(self):
+        if self.tree_idx >= len(self.tree_arr):
+            self.tree_idx = 0
         trg_task = self.tree_arr[self.tree_idx]
         for task in self.tree_arr:
             res, pparam = task.getParamStruct('tree_step')

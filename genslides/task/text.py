@@ -808,7 +808,19 @@ class TextTask(BaseTask):
                 if "type" in param and param["type"] == param_name:
                     if key in param:
                         if isinstance(val, str) and isinstance(param[key], list):
-                            param[key] = ast.literal_eval(val)
+                            success = True
+                            try:
+                                value = ast.literal_eval(val)
+                                success = True
+                            except:
+                                success = False
+                            try:
+                                value = json.loads(val)
+                                success = True
+                            except:
+                                success = False
+                            if success:
+                                param[key] = value
                         else:
                             param[key] = val
         # print('Res params=',self.params)

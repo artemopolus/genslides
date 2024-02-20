@@ -171,6 +171,7 @@ class GeneratorTask(SetOptionsTask):
         if res:
             gres, gparam = self.getParamStruct('generator', True)
             if gres:
+                print('All data ready for create exe')
                 if gparam['struct'] == 'json':
                     text = self.findKeyParam(gparam['target'])
                     iter_list = json.loads(text)
@@ -182,9 +183,10 @@ class GeneratorTask(SetOptionsTask):
                 else:
                     return super().getExeCommands()
                 if gparam['iteration'] != iterators:
+                    diff_iter = [a for a in iterators if a not in gparam['iteration']]
                     self.updateParamStruct('generator','iteration', iterators)
                     res_acts = []
-                    diff_iter = [a for a in iterators if a not in gparam['iteration']]
+                    print('Add actions', diff_iter)
                     for i in diff_iter:
                         acts = pparam['info']['actions'].copy()
                         for act in acts:
@@ -197,7 +199,7 @@ class GeneratorTask(SetOptionsTask):
                     outparam = pparam['info']
                     for act in gparam['iter2act']:
                         if act['done'] is False:
-                            act['done'] == True
+                            act['done'] = True
                             outparam['actions'] = act['actions']
                             self.updateParamStruct('generator','iter2act', gparam['iter2act'])
                             return True, outparam

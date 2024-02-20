@@ -211,13 +211,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             with gr.Column():
                                 param_type = gr.Dropdown(choices=[],label="Params")
                                 param_key = gr.Dropdown(choices=[],label="Key")
-                                param_type.select(fn=manager.getTaskKeys, inputs=param_type, outputs=param_key)
+                                param_type.select(fn=projecter.getTaskKeys, inputs=param_type, outputs=param_key)
                                 param_slcval = gr.Dropdown(choices=[],label="Value")
                                 param_mnlval = gr.Textbox(label='value',info='manual',lines=4)
-                                param_key.select(fn=manager.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
+                                param_key.select(fn=projecter.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
                             with gr.Column():
                                 param_edit = gr.Button("Edit param")
-                                param_opt = gr.Dropdown(choices=manager.getAppendableParam(),label='Params to append')
+                                param_opt = gr.Dropdown(choices=projecter.getAppendableParam(),label='Params to append')
                                 param_apnd = gr.Button('Append new')
                            
                     with gr.Tab('Select'):
@@ -289,15 +289,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
                                     get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
                                     updt_prman_btn = gr.Button(value='Updt man list')
+                                    load_tempman_btn = gr.Button(value='Load tmp man')
                                 with gr.Row():
                                     init_prman_btn = gr.Button(value='Init empty')
                                     exe_act2cur_btn = gr.Button(value='Init saved to currtask')
                                     exe_act_btn = gr.Button(value='Exe action')
                                     stop_prman_btn = gr.Button(value='Stop man')
                                     rset_prman_btn = gr.Button(value='Rset man')
-                                    save2curtask_btn = gr.Button(value='Save')
+                                    save2curtask_btn = gr.Button(value='Save manager to task')
                                 with gr.Row():
                                     clr_prman_btn = gr.Button('Clear vals')
+                                with gr.Row():
                                     params_prman = gr.Textbox(label="Params", lines=4)
                                 with gr.Row():
                                     edit_param_prman = gr.Button(value='Edit param managers')
@@ -324,7 +326,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr]
 
                     edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
-                    init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_output_man_list)
                     stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_man_list)
                     rset_prman_btn.click(fn=manipulate_manager.rmvePrivManager, outputs=std_output_man_list)  
                     save2curtask_btn.click(fn=manipulate_manager.savePrivManToTask, outputs=std_output_man_list)
@@ -442,6 +443,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt,
                                end_names_radio, end_name_text, extcopy_chck
                                ]
+            
+            std_full = std_output_list.copy()
+            std_full.extend(std_output_man_list)
+            init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
+            load_tempman_btn.click(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
+
             relink_sel2cur_btn.click(fn=projecter.relinkToCurrTaskByName, inputs=[selected_tasks_list], outputs=std_output_list)
             relatedtask_btn.click(fn=projecter.selectRelatedChain, outputs=std_output_list)
             relattaskcln_btn.click(fn=projecter.deselectRealtedChain, outputs=std_output_list)

@@ -378,6 +378,7 @@ class Projecter:
     
 
     def initPrivManager(self):
+        print("Init empty private manager")
         man = self.actioner.manager
         tags = []
         for task in man.multiselect_tasks:
@@ -385,7 +386,17 @@ class Projecter:
             if code not in tags:
                 tags.append(code)
         self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3, 'br_codes':tags})
-        return self.actioner.getTmpManagerInfo()
+        out = self.actioner.manager.getCurrTaskPrompts()
+        out += self.actioner.getTmpManagerInfo()
+        return out
+    
+    def loadTmpManager(self, name):
+        for man in self.actioner.tmp_managers:
+            if man.getName() == name:
+                self.actioner.manager = man
+        out = self.actioner.manager.getCurrTaskPrompts()
+        out += self.actioner.getTmpManagerInfo()
+        return out
     
     def initSavdManagerToCur(self,name):
         self.makeTaskAction("","","InitSavdManagerToCur","", {'task': name})
@@ -651,3 +662,13 @@ class Projecter:
             if task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
         return man.getCurrTaskPrompts()
+    
+
+    def getTaskKeys(self, param_name):
+        return self.actioner.manager.getTaskKeys(param_name)
+
+    def getTaskKeyValue(self, param_name, param_key):
+        return self.actioner.manager.getTaskKeyValue(param_name, param_key)
+    
+    def getAppendableParam(self):
+        return self.actioner.manager.getAppendableParam()
