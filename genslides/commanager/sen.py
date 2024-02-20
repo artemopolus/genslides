@@ -255,11 +255,43 @@ class Projecter:
  
 
     def makeActionParent(self):
-        return self.makeTaskAction("","","Parent","")
+        man = self.actioner.manager
+        if len(man.selected_tasks) == 0:
+            return man.getCurrTaskPrompts()
+        else:
+            param = {'select': man.selected_tasks[0].getName()}
+        return self.makeTaskAction("","","Parent","", param)
+    
+    def makeActionChild(self):
+        man = self.actioner.manager
+        if len(man.selected_tasks) == 0:
+            return man.getCurrTaskPrompts()
+        else:
+            param = {'curr': man.selected_tasks[0].getName()}
+        return self.makeTaskAction("","","Parent","", param)
+    
+
     def makeActionUnParent(self):
         return self.makeTaskAction("","","Unparent","")
+    
+
     def makeActionLink(self):
-        return self.makeTaskAction("","","Link","")
+        man = self.actioner.manager
+        if len(man.selected_tasks) == 0:
+            return man.getCurrTaskPrompts()
+        else:
+            param = {'select': man.selected_tasks[0].getName()}
+        return self.makeTaskAction("","","Link","", param)
+ 
+    def makeActionRevertLink(self):
+        man = self.actioner.manager
+        if len(man.selected_tasks) == 0:
+            return man.getCurrTaskPrompts()
+        else:
+            param = {'curr': man.selected_tasks[0].getName()}
+        return self.makeTaskAction("","","Link","", param)
+    
+
     def makeActionUnLink(self):
         return self.makeTaskAction("","","Unlink","")
     def deleteActionTask(self):

@@ -229,6 +229,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         with gr.Row():
                             parent_btn = gr.Button(value='Parent')
                             link_btn = gr.Button(value='Link')
+                            child_btn = gr.Button(value='Child')
+                            revlink_btn = gr.Button(value='Revert Link')
                         with gr.Row():
                             slct_action_list = gr.Radio(choices=["New","SubTask","Insert"], 
                                                             label="Select actions", 
@@ -458,8 +460,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
             unite_btn.click(fn=manipulate_manager.uniteTask, outputs=std_output_list)
             parent_btn.click(fn=manipulate_manager.makeActionParent, outputs=std_output_list)
-            unparent_btn.click(fn=manipulate_manager.makeActionUnParent, outputs=std_output_list)
+            child_btn.click(fn=manipulate_manager.makeActionChild, outputs=std_output_list)
             link_btn.click(fn=manipulate_manager.makeActionLink, outputs=std_output_list)
+            revlink_btn.click(fn=manipulate_manager.makeActionRevertLink, outputs=std_output_list)
+            unparent_btn.click(fn=manipulate_manager.makeActionUnParent, outputs=std_output_list)
             unlink_btn.click(fn=manipulate_manager.makeActionUnLink, outputs=std_output_list)
             delete_btn.click(fn=manipulate_manager.deleteActionTask, outputs=std_output_list)
             extract_btn.click(fn=manipulate_manager.extractActionTask, outputs=std_output_list)

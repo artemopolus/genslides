@@ -283,6 +283,13 @@ class Actioner():
         elif creation_type == "SubExtProject":
             self.manager.createExtProject(type1, prompt, self.manager.curr_task)
         elif creation_type in self.manager.getMainCommandList() or creation_type in self.manager.vars_param:
+            if 'curr' in param:
+                self.manager.selected_tasks = []
+                self.manager.selected_tasks.append(self.manager.curr_task)
+                self.manager.curr_task = self.manager.getTaskByName(param['curr'])
+            if 'select' in param:
+                self.manager.selected_tasks = []
+                self.manager.selected_tasks.append(self.manager.getTaskByName(param['select']))
             return self.manager.makeTaskActionBase(prompt, type1, creation_type, creation_tag)
         elif creation_type in self.manager.getSecdCommandList():
             return self.manager.makeTaskActionPro(prompt, type1, creation_type, creation_tag)
