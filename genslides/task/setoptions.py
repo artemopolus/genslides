@@ -184,7 +184,8 @@ class GeneratorTask(SetOptionsTask):
                 if gparam['iteration'] != iterators:
                     self.updateParamStruct('generator','iteration', iterators)
                     res_acts = []
-                    for i in iterators:
+                    diff_iter = [a for a in iterators if a not in gparam['iteration']]
+                    for i in diff_iter:
                         acts = pparam['info']['actions'].copy()
                         for act in acts:
                             if act['id'] == gparam['cmd_id']:
