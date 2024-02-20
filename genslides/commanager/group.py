@@ -47,11 +47,19 @@ class Actioner():
             if task.getName() == manager.getName():
                 return None
         manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
-        manager.initInfo(self.loadExtProject, task, self.getPath(), man['actions'], man['repeat'] )
+        manager.initInfo(
+                         method =self.loadExtProject, 
+                         task = task,
+                         path = self.getPath(), 
+                         act_list= man['actions'],
+                         repeat = man['repeat'] 
+                         )
         if 'br_codes' in man and len(man['br_codes']) > 0:
             for code in man['br_codes']:
                 tasks = self.std_manager.getTaskByBranchCode(code)
                 manager.addTasks(tasks)
+            manager.info['br_codes'] = man['br_codes']
+            manager.saveInfo()
         return manager
     
     def resetCurrentPrivateManager(self, task: BaseTask, man):

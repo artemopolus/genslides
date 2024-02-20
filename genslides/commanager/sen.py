@@ -378,7 +378,13 @@ class Projecter:
     
 
     def initPrivManager(self):
-        self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3})
+        man = self.actioner.manager
+        tags = []
+        for task in man.multiselect_tasks:
+            code = task.getBranchCodeTag()
+            if code not in tags:
+                tags.append(code)
+        self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3, 'br_codes':tags})
         return self.actioner.getTmpManagerInfo()
     
     def initSavdManagerToCur(self,name):
@@ -606,4 +612,42 @@ class Projecter:
     def deselectRealtedChain(self):
         self.actioner.manager.multiselect_tasks = []
         return self.actioner.manager.getCurrTaskPrompts()
- 
+    
+    def appendTaskToChain(self):
+        man = self.actioner.manager
+        if man.curr_task not in man.multiselect_tasks:
+            man.multiselect_tasks.append(man.curr_task)
+        return man.getCurrTaskPrompts()
+    
+    def appendTreeToChain(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getTree()
+        for task in tasks:
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return man.getCurrTaskPrompts()
+    
+    def appendBranchPartToChain(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getAllChildChains()
+        for task in tasks:
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        tasks = man.curr_task.getAllParents()
+        while(len(tasks)):
+            task = tasks.pop(-1)
+            if len(task.getChilds()) > 1 or task.isRootParent():
+                return man.getCurrTaskPrompts()
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return man.getCurrTaskPrompts()
+
+    def appendBranchtoChain(self):
+        man = self.actioner.manager
+        buds = man.curr_task.getAllBuds()
+        bud = buds.pop()
+        tasks = bud.getAllParents()
+        for task in tasks:
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return man.getCurrTaskPrompts()

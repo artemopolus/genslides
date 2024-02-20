@@ -163,7 +163,6 @@ class GeneratorTask(SetOptionsTask):
                              'cmd_id':0,
                              'cmd_type':'prompt',
                              'iteration':[],
-                             'br_codes': [],
                              'iter2act':[]
                              })
     
@@ -199,8 +198,6 @@ class GeneratorTask(SetOptionsTask):
                         if act['done'] is False:
                             act['done'] == True
                             outparam['actions'] = act['actions']
-                            if len(gparam['br_codes']) > 0:
-                                outparam['br_codes'] = gparam['br_codes']
                             self.updateParamStruct('generator','iter2act', gparam['iter2act'])
                             return True, outparam
         return super().getExeCommands()

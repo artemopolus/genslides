@@ -244,7 +244,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     with gr.Tab('MultiSelect'):
                         with gr.Row():
                             relatedtask_btn = gr.Button('Relationship chain')
-                            relattaskcln_btn = gr.Button('Clear Rel Chain')
+                            addtask2reltask_btn = gr.Button('Add task')
+                            addpart2reltask_btn = gr.Button('Add brpart')
+                            addbrch2reltask_btn = gr.Button('Add branch')
+                            addtree2reltask_btn = gr.Button('Add tree')
+                            relattaskcln_btn = gr.Button('Clear')
                     with gr.Tab('Cmds'):
                         with gr.Row():
 
@@ -441,6 +445,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             relink_sel2cur_btn.click(fn=projecter.relinkToCurrTaskByName, inputs=[selected_tasks_list], outputs=std_output_list)
             relatedtask_btn.click(fn=projecter.selectRelatedChain, outputs=std_output_list)
             relattaskcln_btn.click(fn=projecter.deselectRealtedChain, outputs=std_output_list)
+            addtask2reltask_btn.click(fn=projecter.appendTaskToChain, outputs=std_output_list)
+            addpart2reltask_btn.click(fn=projecter.appendBranchPartToChain, outputs=std_output_list)
+            addbrch2reltask_btn.click(fn=projecter.appendBranchtoChain, outputs=std_output_list)
+            addtree2reltask_btn.click(fn=projecter.appendTreeToChain, outputs=std_output_list)
             
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
