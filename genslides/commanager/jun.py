@@ -596,6 +596,14 @@ class Manager:
         if len(trg_list) > 0:
             f = graphviz.Digraph(comment='The Test Table',
                                   graph_attr={'size':"7.75,10.25",'ratio':'fill'})
+            
+            # Скрываем задачи не этого менеджера
+            rm_tasks = []
+            for task in trg_list:
+                if task not in self.task_list:
+                    rm_tasks.append(task)
+            for task in rm_tasks:
+                trg_list.remove(task)
 
             # if self.curr_task:
             #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
@@ -2133,5 +2141,20 @@ class Manager:
                 self.tree_idx = i
             i += 1
             task.setTreeQueue()
+
+    def addTasks(self, tasks):
+        for task in tasks:
+            if task not in self.task_list:
+                self.task_list.append(task)
+        return
+    
+    def getTaskByBranchCode(self, code: str):
+        if code == "":
+            return []
+        out = []
+        for task in self.task_list:
+            if task.getBranchCodeTag() == code:
+                out.append(task)
+        return out
 
 

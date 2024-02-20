@@ -48,6 +48,10 @@ class Actioner():
                 return None
         manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         manager.initInfo(self.loadExtProject, task, self.getPath(), man['actions'], man['repeat'] )
+        if 'br_codes' in man and len(man['br_codes']) > 0:
+            for code in man['br_codes']:
+                tasks = self.std_manager.getTaskByBranchCode(code)
+                manager.addTasks(tasks)
         return manager
     
     def resetCurrentPrivateManager(self, task: BaseTask, man):
@@ -454,16 +458,20 @@ class Actioner():
     def updateStepInternal(self):
         man = self.manager
         start = self.manager.curr_task
-        res, iparam, actions = self.manager.curr_task.getExeCommands()
+        res, iparam = self.manager.curr_task.getExeCommands()
         if res:
-            t_manager = self.createPrivateManagerForTask(start, iparam)
-            self.tmp_managers.append(t_manager)
-            self.manager = t_manager
-            for act in actions:
-                iparam['actions'] = act
-                self.resetCurrentPrivateManager(start, iparam)
-                self.exeCurManagerSmpl()
-            self.manager = self.std_manager
+            if self.manager is self.std_manager:
+                t_manager = self.createPrivateManagerForTask(start, iparam)
+                self.tmp_managers.append(t_manager)
+                self.manager = t_manager
+            self.resetCurrentPrivateManager(start, iparam)
+            self.exeCurManagerSmpl()
+            # ничего не меняем
+            return
+        else:
+            if self.manager is not self.std_manager:
+                self.manager = self.std_manager
+             
 
         next = man.updateSteppedSelectedInternal()
 

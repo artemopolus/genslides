@@ -153,14 +153,25 @@ class SetOptionsTask(WriteToFileTask):
 class GeneratorTask(SetOptionsTask):
     def __init__(self, task_info: TaskDescription, type="Generator") -> None:
         super().__init__(task_info, type)
-        self.setParamStruct({'type':'generator','target':'[[parent:msg_content]]','struct':'json','tag':'array','cmd_id':0,'cmd_type':'prompt','iteration':[]})
+        gres, gparam = self.getParamStruct('generator', True)
+        if not gres:
+            self.setParamStruct({
+                             'type':'generator',
+                             'target':'[[parent:msg_content]]',
+                             'struct':'json',
+                             'tag':'array',
+                             'cmd_id':0,
+                             'cmd_type':'prompt',
+                             'iteration':[],
+                             'br_codes': [],
+                             'iter2act':[]
+                             })
     
     def getExeCommands(self):
         res, pparam = self.getParamStruct('manager', True)
         if res:
             gres, gparam = self.getParamStruct('generator', True)
             if gres:
-                res_acts = []
                 if gparam['struct'] == 'json':
                     text = self.findKeyParam(gparam['target'])
                     iter_list = json.loads(text)
@@ -173,14 +184,23 @@ class GeneratorTask(SetOptionsTask):
                     return super().getExeCommands()
                 if gparam['iteration'] != iterators:
                     self.updateParamStruct('generator','iteration', iterators)
-                else:
-                    return super().getExeCommands()
+                    res_acts = []
+                    for i in iterators:
+                        acts = pparam['info']['actions'].copy()
+                        for act in acts:
+                            if act['id'] == gparam['cmd_id']:
+                                act.update({gparam['cmd_type']:i})
+                        res_acts.append({'var':i,'actions': copy.deepcopy(acts),'done': False})
+                    self.updateParamStruct('generator','iter2act', res_acts)
                 # TODO: выполнить только те команды, которых не было ранее
-                for i in iterators:
-                    acts = pparam['info']['actions'].copy()
-                    for act in acts:
-                        if act['id'] == gparam['cmd_id']:
-                            act.update({gparam['cmd_type']:i})
-                    res_acts.append(copy.deepcopy(acts))
-                return True, pparam['info'], res_acts
+                if len(gparam['iter2act']) > 0:
+                    outparam = pparam['info']
+                    for act in gparam['iter2act']:
+                        if act['done'] is False:
+                            act['done'] == True
+                            outparam['actions'] = act['actions']
+                            if len(gparam['br_codes']) > 0:
+                                outparam['br_codes'] = gparam['br_codes']
+                            self.updateParamStruct('generator','iter2act', gparam['iter2act'])
+                            return True, outparam
         return super().getExeCommands()

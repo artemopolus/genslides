@@ -123,7 +123,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     new_tree_btn = gr.Button(value='Create tree', min_width=150)
                     next_tree_btn = gr.Button(value='Next tree', min_width=150)
                     next_branch_btn = gr.Button(value='Next branch', min_width=150)
-                    next_brend_bt = gr.Button(value='Next final', min_width=150)
+                    next_brend_bt = gr.Button(value='Next bud', min_width=150)
                 # with gr.Column():
             with gr.Row() as r:
                     go_parnt_btn = gr.Button(value='Go up')
@@ -260,11 +260,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             clean_task_btn = gr.Button(value='Clean')
                     with gr.Tab('Steps'):
                         with gr.Row():
-                            update_step_btn = gr.Button(value="One step")
-                            updateall_step_btn = gr.Button(value="Update all step")
-                            upd2cur_step_btn = gr.Button(value='Update to cur')
-                            updbrnc_step_btn = gr.Button(value='Update branch')
-                            reset_step_btn = gr.Button(value="Reset step")
+                            updateall_step_btn = gr.Button(value="Update all trees(UAT)")
+                            update_step_btn = gr.Button(value="UAT one step")
+                            upd2cur_step_btn = gr.Button(value='UAT to cur')
+                            updbrnc_step_btn = gr.Button(value='Update tree')
+                            reset_step_btn = gr.Button(value="Reset steps")
                         with gr.Accordion(label='Old',open=False):
                             res_step_btn = gr.Button(value='Reset Q')
                             step_task_btn = gr.Button(value="Step Q")

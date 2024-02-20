@@ -546,6 +546,14 @@ class BaseTask():
             index += 1
         return out
     
+    def getAllBuds(self):
+        childs = self.getAllChildChains()
+        out = []
+        for task in childs:
+            if len(task.getChilds()) == 0:
+                out.append(task)
+        return out
+    
     def getChainBeforeBranching(self):
         out = self.getAllChildChains()
         par = self
@@ -1181,4 +1189,4 @@ class BaseTask():
         return ''
     
     def getExeCommands(self):
-        return False, {}, []
+        return False, {}
