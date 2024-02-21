@@ -172,11 +172,16 @@ class GeneratorTask(SetOptionsTask):
             gres, gparam = self.getParamStruct('generator', True)
             if gres:
                 print('All data ready for create exe')
+                iterators = []
                 if gparam['struct'] == 'json':
                     text = self.findKeyParam(gparam['target'])
                     iter_list = json.loads(text)
                     tag = gparam['tag']
-                    if tag in iter_list and isinstance(iter_list[tag],list):
+                    if isinstance(iter_list, list):
+                        for iter in iter_list:
+                            if tag in iter:
+                                iterators.append(iter[tag])
+                    elif isinstance(iter_list, dict) and tag in iter_list and isinstance(iter_list[tag],list):
                         iterators = iter_list[gparam['tag']]
                     else:
                         return super().getExeCommands()
