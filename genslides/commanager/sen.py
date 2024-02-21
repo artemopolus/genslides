@@ -426,7 +426,7 @@ class Projecter:
         # Закомментированной командой производится запись команды в список команд менеджера
         # self.makeTaskAction("","","ExecuteManager","")
         # Для исполнения команд нужна отдельная команда, чтобы не переводить это все в цикл
-        self.actioner.exeCurManager()
+        self.actioner.exeActions()
         # Альтернатива
         # self.makeTaskAction("","","ExecuteManager","",{},save_action=False)
         return self.actioner.getTmpManagerInfo()
@@ -663,6 +663,14 @@ class Projecter:
                 man.multiselect_tasks.append(task)
         return man.getCurrTaskPrompts()
     
+    def appendChildsToChain(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getAllChildChains()
+        for task in tasks:
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return man.getCurrTaskPrompts()
+ 
 
     def getTaskKeys(self, param_name):
         return self.actioner.manager.getTaskKeys(param_name)

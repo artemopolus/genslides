@@ -159,12 +159,12 @@ class Actioner():
         idx = 0
         # print(self.manager.info['repeat'])
         while(idx < self.manager.info['repeat']):
-            self.exeCurManager()
+            self.exeActions()
             if self.manager.info['done']:
                 break
 
 
-    def exeCurManager(self):
+    def exeActions(self):
         if self.manager is not self.std_manager:
             return self.exeComList(self.manager.info['actions'])
         return False
@@ -257,7 +257,7 @@ class Actioner():
         elif creation_type == "EditPrivManager":
             self.setParamToManagerInfo(param, self.manager)
         elif creation_type == "ExecuteManager":
-            self.exeCurManager()
+            self.exeActions()
         elif creation_type == "InitPrivManager":
             man = self.addEmptyScript(param)
             if man is not None:

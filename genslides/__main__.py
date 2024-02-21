@@ -247,6 +247,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             addtask2reltask_btn = gr.Button('Add task')
                             addpart2reltask_btn = gr.Button('Add brpart')
                             addbrch2reltask_btn = gr.Button('Add branch')
+                            addchds2reltask_btn = gr.Button('Add childs')
                             addtree2reltask_btn = gr.Button('Add tree')
                             relattaskcln_btn = gr.Button('Clear')
                     with gr.Tab('Cmds'):
@@ -284,19 +285,22 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             with gr.Column():
                                 with gr.Row():
                                     name_prman = gr.Text(value='None', label = 'Manager')
-                                    exttaskopt_chgr = gr.CheckboxGroup()
-                                with gr.Row():
-                                    get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
-                                    get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
-                                    updt_prman_btn = gr.Button(value='Updt man list')
-                                    load_tempman_btn = gr.Button(value='Load tmp man')
                                 with gr.Row():
                                     init_prman_btn = gr.Button(value='Init empty')
-                                    exe_act2cur_btn = gr.Button(value='Init saved to currtask')
-                                    exe_act_btn = gr.Button(value='Exe action')
-                                    stop_prman_btn = gr.Button(value='Stop man')
-                                    rset_prman_btn = gr.Button(value='Rset man')
-                                    save2curtask_btn = gr.Button(value='Save manager to task')
+                                    rset_prman_btn = gr.Button(value='Only RM man')
+                                    stop_prman_btn = gr.Button(value='RM&Save man')
+                                    save2curtask_btn = gr.Button(value='Save man2task')
+                                with gr.Row():
+                                    get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
+                                with gr.Row():
+                                    load_tempman_btn = gr.Button(value='Set tmp man')
+                                    updt_prman_btn = gr.Button(value='Updt man list')
+                                with gr.Row():
+                                    get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
+                                with gr.Row():
+                                    load_prman_btn = gr.Button(value='Load to trgtask')
+                                    exe_act2cur_btn = gr.Button(value='Load to curtask')
+                                    exe_act_btn = gr.Button(value='Exe man action')
                                 with gr.Row():
                                     clr_prman_btn = gr.Button('Clear vals')
                                 with gr.Row():
@@ -304,10 +308,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 with gr.Row():
                                     edit_param_prman = gr.Button(value='Edit param managers')
                                 with gr.Row():
-                                    load_prman_btn = gr.Button(value='Load manager')
-                                    exe_act_smpl_btn = gr.Button(value='Exe action smpl')
                                     setname_prman_text = gr.Button('Back')
                                     setname_prman_btn = gr.Button('Set name')
+                                    exttaskopt_chgr = gr.CheckboxGroup()
                         # with gr.Tab("Actions"):
                             with gr.Column():
                                 actions_list = gr.CheckboxGroup()
@@ -331,7 +334,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     save2curtask_btn.click(fn=manipulate_manager.savePrivManToTask, outputs=std_output_man_list)
                     updt_prman_btn.click(fn=manipulate_manager.getPrivManager, outputs=std_output_man_list)                  
                     exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_man_list)
-                    exe_act_smpl_btn.click(fn=manipulate_manager.exeSmplScript, outputs=std_output_man_list)
                     exe_act2cur_btn.click(fn=manipulate_manager.initSavdManagerToCur, inputs=get_savdman_btn, outputs=std_output_man_list)
                     load_prman_btn.click(fn=manipulate_manager.loadPrivManager, inputs=get_savdman_btn, outputs = std_output_man_list)
                     setname_prman_btn.click(fn=manipulate_manager.setCurrAsManagerStartTask, outputs=std_output_man_list)
@@ -456,6 +458,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             addpart2reltask_btn.click(fn=projecter.appendBranchPartToChain, outputs=std_output_list)
             addbrch2reltask_btn.click(fn=projecter.appendBranchtoChain, outputs=std_output_list)
             addtree2reltask_btn.click(fn=projecter.appendTreeToChain, outputs=std_output_list)
+            addchds2reltask_btn.click(fn=projecter.appendChildsToChain, outputs=std_output_list)
             
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
