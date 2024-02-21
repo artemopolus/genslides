@@ -1190,3 +1190,6 @@ class BaseTask():
     
     def getExeCommands(self):
         return False, {}
+    
+    def setManagerParamToTask(self, param):
+        pass

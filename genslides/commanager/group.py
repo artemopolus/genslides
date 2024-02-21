@@ -263,8 +263,8 @@ class Actioner():
             if man is not None:
                 self.manager = man
         elif creation_type == "SavePrivManToTask":
-            print(self.manager.info)
-            self.manager.curr_task.setParamStruct({'type':'manager', 'info': self.manager.info})
+            # print(self.manager.info)
+            self.manager.curr_task.setManagerParamToTask({'type':'manager', 'info': self.manager.info})
         elif creation_type == "StopPrivManager":
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
