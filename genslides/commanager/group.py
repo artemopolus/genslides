@@ -41,7 +41,7 @@ class Actioner():
 
     def createPrivateManagerForTask(self, task: BaseTask, man)-> Manager.Manager:
         print(10*"----------")
-        print('Create private manager based on', task.getName())
+        print('Create private manager based on', task.getName(), '\nInfo:\n', man)
         print(10*"----------")
         for manager in self.tmp_managers:
             if task.getName() == manager.getName():
@@ -54,17 +54,25 @@ class Actioner():
                          act_list= man['actions'],
                          repeat = man['repeat'] 
                          )
-        if 'task_names' in man and len(man['task_names']) > 0:
-            for code in man['task_names']:
-                task = self.std_manager.getTaskByName(code)
-                manager.task_list.append(task)
-            manager.info['task_names'] = man['task_names']
-            manager.saveInfo()
+        self.addTasksByInfo(manager, man)
         return manager
     
     def resetCurrentPrivateManager(self, task: BaseTask, man):
-        self.manager.initInfo(self.loadExtProject, task, self.getPath(), man['actions'], man['repeat'] )
-    
+        self.manager.curr_task = task
+        self.manager.info['actions'] = man['actions']
+        # self.manager.initInfo(self.loadExtProject, task, self.getPath(), man['actions'], man['repeat'] )
+        # self.addTasksByInfo(self.manager,man)
+
+    def addTasksByInfo(self,manager, man):
+        if 'task_names' in man and len(man['task_names']) > 0:
+            for code in man['task_names']:
+                task = self.std_manager.getTaskByName(code)
+                manager.addTask(task)
+            manager.info['task_names'] = man['task_names']
+            print('List for', manager.getName(),':',[t.getName() for t in manager.task_list])
+            manager.saveInfo()
+
+
     def addPrivateManagerForTaskByName(self, man) ->Manager.Manager:
         print('Add priv manager for info', man)
         # Проверяем создавались ли раньше менеджеры
@@ -153,6 +161,7 @@ class Actioner():
         param = pack['param']
         tag = pack['tag']
         action = pack['action']
+        print('Task info', pack)
         self.makeTaskAction(prompt, act_type, action, tag, param, save_action=False)
 
     def exeCurManagerSmpl(self):
@@ -366,7 +375,7 @@ class Actioner():
             print('Copy task',[task.getName() for task in man.task_list])
             for task in man.task_list:
                 if task not in next_man.task_list:
-                    next_man.task_list.append(task)
+                    next_man.addTask(task)
                     task.setManager(next_man)
             man.beforeRemove(remove_folder=True, remove_task=False)
             # сохранить все действия в скрипт
@@ -399,6 +408,7 @@ class Actioner():
         self.manager = next_man
 
     def getTmpManagerInfo(self):
+        print('Get temporary manager',self.manager.getName(),'info')
         saved_man = [t['task'] for t in self.manager.info['script']['managers']]
         saved_man.append('None')
         param = self.manager.info.copy()
@@ -508,6 +518,8 @@ class Actioner():
     def resetUpdate(self):
         self.update_state = 'init'
         man = self.manager
+        if len(man.tree_arr) == 0:
+            man.updateTreeArr()
         man.curr_task = man.tree_arr[0]
         for task in man.tree_arr:
             task.resetTreeQueue()

@@ -226,10 +226,14 @@ class Manager:
         #     for info in task.affect_to_ext_list:
         #         print("to ",info.parent.getName())
 
-    def goToNextTreeFirstTime(self):
+    def updateTreeArr(self):
+        self.tree_arr = []
         for task in self.task_list:
             if task.isRootParent():
                 self.tree_arr.append(task)
+
+    def goToNextTreeFirstTime(self):
+        self.updateTreeArr()
         if len(self.tree_arr) > 0:
             self.curr_task = self.tree_arr[0]
             self.tree_idx = 1
@@ -322,8 +326,14 @@ class Manager:
         tree = trg_task.getTree()
         endes = []
         for task in tree:
-            if len(task.getChilds()) == 0:
-                endes.append(task)
+            if task in self.task_list:
+                childs = task.getChilds()
+                cnt= 0
+                for child in childs:
+                    if child in self.task_list:
+                        cnt += 1
+                if cnt == 0:
+                    endes.append(task)
         return endes
     
     def iterateOnBranchEnd(self):
@@ -351,6 +361,7 @@ class Manager:
         return self.getCurrTaskPrompts()
     
     def getBranchEndList(self):
+        print('Get branch end list', self.getName())
         task = self.curr_task
         self.iterateOnBranchEnd()
         self.curr_task = task
@@ -403,6 +414,7 @@ class Manager:
 
     
     def setCurrTaskByBranchEndName(self, name):
+        print('Set current task by branch end name', name)
         i_max = len(self.endes)
         i = 0
         while i < i_max:
@@ -1105,9 +1117,7 @@ class Manager:
             task, action = cmd.execute()
             # print('[=]',action)
             if action == 'create' and task != None:
-                self.task_list.append(task)
-                if task.isRootParent():
-                    self.tree_arr.append(task)
+                self.addTask(task)
                 self.curr_task = task
             elif action == 'delete':
                 self.task_list.remove(task)
@@ -1217,7 +1227,7 @@ class Manager:
             # print('Go to the next tree')
             self.return_points.append(self.curr_task)
         # print(len(self.return_points))
-        if next and self.curr_task != next:
+        if next and self.curr_task != next and next in self.task_list:
             # if next.parent == None:
                 # next.resetTreeQueue()
             self.curr_task = next
@@ -2126,7 +2136,8 @@ class Manager:
         if 'type' not in self.info:
             self.info['type'] = 'simple'
 
-        self.saveInfo()
+        self.saveInfo() 
+
         # print(self.info)
     def sortKey(self, task):
         res, pparam = task.getParamStruct('tree_step')
@@ -2139,6 +2150,7 @@ class Manager:
 
     def sortTreeOrder(self):
         if self.tree_idx >= len(self.tree_arr):
+            self.updateTreeArr()
             self.tree_idx = 0
         trg_task = self.tree_arr[self.tree_idx]
         for task in self.tree_arr:
@@ -2155,10 +2167,14 @@ class Manager:
             i += 1
             task.setTreeQueue()
 
-    def addTasks(self, tasks):
+    def addTask(self, task :BaseTask):
+        print('Add task', task.getName())
+        if task not in self.task_list:
+            self.task_list.append(task)
+
+    def addTasks(self, tasks: list):
         for task in tasks:
-            if task not in self.task_list:
-                self.task_list.append(task)
+            self.addTask(task)
         return
     
     def getTaskByBranchCode(self, code: str):

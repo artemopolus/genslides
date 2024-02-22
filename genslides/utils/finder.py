@@ -1,5 +1,6 @@
 import re
 import genslides.utils.loader as Loader
+import json
 
 def convertMdToScript(md_text):
     # print('convert md to script')
@@ -43,7 +44,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                 bres, j = Loader.Loader.loadJsonFromText(param)
                 if bres:
                     rep = j[arr[3]]
-                    rep_text = rep_text.replace(res, str(rep))
+                    rep_text = rep_text.replace(res, json.dumps(rep))
                 else:
                     print("No json in", task.getName())
             elif len(arr) > 3 and arr[2] == 'json_list':

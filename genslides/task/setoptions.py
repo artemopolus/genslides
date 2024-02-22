@@ -182,6 +182,7 @@ class GeneratorTask(SetOptionsTask):
                 if len(gparam['iter2act']) > 0:
                     outparam = pparam['info']
                     for act in gparam['iter2act']:
+                        print('Get act', act['var'],'=',act['done'])
                         if act['done'] is False:
                             act['done'] = True
                             outparam['actions'] = act['actions']
@@ -192,15 +193,26 @@ class GeneratorTask(SetOptionsTask):
     def getIterators(self, gparam):
         iterators = []
         if gparam['struct'] == 'json':
+            # TODO: Что-то нужно сделать с ошибкой, что json приходит с одинарынми каавычками
+            # text = self.findKeyParam(gparam['target']).replace("\'","\"")
             text = self.findKeyParam(gparam['target'])
-            iter_list = json.loads(text)
-            tag = gparam['tag']
-            if isinstance(iter_list, list):
-                for iter in iter_list:
-                    if tag in iter:
-                        iterators.append(iter[tag])
-            elif isinstance(iter_list, dict) and tag in iter_list and isinstance(iter_list[tag],list):
-                iterators = iter_list[tag]
+            try:
+                iter_list = json.loads(text)
+                tag = gparam['tag']
+                if isinstance(iter_list, list):
+                    print('Get list')
+                    for iter in iter_list:
+                        if tag in iter:
+                            iterators.append(iter[tag])
+                elif isinstance(iter_list, dict) and tag in iter_list and isinstance(iter_list[tag],list):
+                    print('Get dict')
+                    iterators = iter_list[tag]
+                else:
+                    print('unknown obj:', iter_list)
+                    pass
+            except Exception as e:
+                print('Try load json from', text)
+                print('error:', e)
         return iterators
 
     def setManagerParamToTask(self, param):
@@ -210,14 +222,15 @@ class GeneratorTask(SetOptionsTask):
         gres, gparam = self.getParamStruct('generator', True)
         if gres:
             iterators = self.getIterators(gparam)
-            self.updateIteration2action(iterators)
+            res_acts = self.updateIteration2action(iterators)
             self.updateParamStruct('generator','iteration', iterators)
+            self.updateParamStruct('generator','iter2act', res_acts)
                
     def updateIteration2action(self, iterators):
         gres, gparam = self.getParamStruct('generator', True)
         pres, pparam = self.getParamStruct('manager', True)
         if not gres and not pres:
-            return
+            return []
         if len(gparam['iter2act']) > 0:
             cur_iter = []
             for iter in gparam['iter2act']:
@@ -230,10 +243,22 @@ class GeneratorTask(SetOptionsTask):
             for i in diff_iter:
                 acts = pparam['info']['actions'].copy()
                 for act in acts:
-                    if act['id'] == gparam['cmd_id']:
+                    if str(act['id']) == str(gparam['cmd_id']):
+                        print('Check',act['id'],'with', gparam['cmd_id'], 'to apply', gparam['cmd_type'], 'with ', i)
                         act.update({gparam['cmd_type']:i})
-                res_acts.append({'var':i,'actions': copy.deepcopy(acts),'done': False})
-            self.updateParamStruct('generator','iter2act', res_acts)
+                res_acts.append({'var':i,'done': False,'actions': copy.deepcopy(acts)})
+            return res_acts
+        return []
+
+    def updateParamStruct(self, param_name, key, val):
+        out = super().updateParamStruct(param_name, key, val)
+        if param_name == 'generator' and key != 'iter2act':
+            gres, gparam = self.getParamStruct('generator', True)
+            if gres:
+                iterators = self.getIterators(gparam)
+                res_acts = self.updateIteration2action(iterators)
+                self.updateParamStruct('generator','iter2act', res_acts)
+        return out
 
 
 
