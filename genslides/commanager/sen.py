@@ -35,12 +35,10 @@ class Projecter:
         self.mypath = mypath
         task_man = TaskManager()
         self.savedpath = task_man.getPath()
-        self.manager = manager
-        self.manager.initInfo(self.loadExtProject)
-        # TODO: сделать по умолчанию быструю загрузку
-        self.manager.loadTasksList(True)
 
-        self.actioner = Actioner(manager)
+        self.actioner = None
+
+        self.resetManager(manager)
         # saver = SaveData()
         # saver.removeFiles()
         self.current_project_name = self.manager.getParam("current_project_name")
@@ -48,6 +46,19 @@ class Projecter:
             self.current_project_name = 'Unnamed'
         self.updateSessionName()
         self.actioner.clearTmp()
+
+    def resetManager(self, manager, fast = True, load = True):
+        self.manager = manager
+        self.manager.initInfo(self.loadExtProject)
+        if load:
+            self.manager.loadTasksList(fast)
+        
+        if self.actioner is None:
+            self.actioner = Actioner(manager)
+        else:
+            self.actioner.reset()
+
+
 
 # сохранение сессионных имен необходимо связать только с проектером сеном, а не с менеджером
     def updateSessionName(self):
@@ -77,13 +88,10 @@ class Projecter:
                 shutil.rmtree(f_path)
     def clear(self):
         self.clearFiles()
-        self.manager.onStart() 
-        self.manager.initInfo(self.loadExtProject)
+        self.resetManager(self.manager, fast=False, load=False)
 
     def reload(self):
-        self.manager.onStart() 
-        self.manager.initInfo(self.loadExtProject)
-        self.manager.loadTasksList(False)
+        self.resetManager(self.manager, fast=False, load=True)
 
 
 
@@ -101,8 +109,7 @@ class Projecter:
         self.clearFiles()
         print('Load files to',self.savedpath)
         Archivator.extractFiles(self.mypath, filename, self.savedpath)
-        self.manager.onStart() 
-        self.manager.loadTasksList(True)
+        self.resetManager(self.manager)
         self.current_project_name = filename
         self.manager.setParam("current_project_name",self.current_project_name)
         self.updateSessionName()

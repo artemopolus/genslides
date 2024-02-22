@@ -21,6 +21,11 @@ class Actioner():
         self.path = 'saved'
         self.update_state = 'init'
 
+    def reset(self):
+        self.manager = self.std_manager
+        self.tmp_managers = []
+        self.clearTmp()
+
     def setPath(self, path: str):
         self.path = path
 
