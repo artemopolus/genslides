@@ -382,10 +382,9 @@ class Projecter:
         man = self.actioner.manager
         tags = []
         for task in man.multiselect_tasks:
-            code = task.getBranchCodeTag()
-            if code not in tags:
-                tags.append(code)
-        self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3, 'br_codes':tags})
+            code = task.getName()
+            tags.append(code)
+        self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3, 'task_names':tags})
         out = self.actioner.manager.getCurrTaskPrompts()
         out += self.actioner.getTmpManagerInfo()
         return out

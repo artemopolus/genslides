@@ -54,11 +54,11 @@ class Actioner():
                          act_list= man['actions'],
                          repeat = man['repeat'] 
                          )
-        if 'br_codes' in man and len(man['br_codes']) > 0:
-            for code in man['br_codes']:
-                tasks = self.std_manager.getTaskByBranchCode(code)
-                manager.addTasks(tasks)
-            manager.info['br_codes'] = man['br_codes']
+        if 'task_names' in man and len(man['task_names']) > 0:
+            for code in man['task_names']:
+                task = self.std_manager.getTaskByName(code)
+                manager.task_list.append(task)
+            manager.info['task_names'] = man['task_names']
             manager.saveInfo()
         return manager
     
