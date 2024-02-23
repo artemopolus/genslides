@@ -351,7 +351,8 @@ class Manager:
             else:
                 self.endes = endes
                 self.endes_idx = 0
-        self.curr_task = self.endes[self.endes_idx]
+        if len(self.endes) > self.endes_idx:
+            self.curr_task = self.endes[self.endes_idx]
 
     def goToNextBranchEnd(self):
         print('Go to next branch end')
