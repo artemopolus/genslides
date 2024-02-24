@@ -46,7 +46,7 @@ class ResponseTask(TextTask):
             self.executeResponse()
 
     def onExistedMsgListAction(self, msg_list_from_file):
-        # print("t=",temperature)
+        # print('On existed msg list action')
         res, val = self.getParam("model")
         if not res:
             res, model_name =  self.reqhelper.getValue(self.getType(), "model")
@@ -56,6 +56,8 @@ class ResponseTask(TextTask):
                 self.updateParam("model", "gpt-3.5-turbo")
 
         self.msg_list = msg_list_from_file
+        if self.checkParentMsgList(update=True, save_curr=False):
+            self.stdProcessUnFreeze()
         # print("Get list from file=", self.path)
 
     def setChatPram(self, name):

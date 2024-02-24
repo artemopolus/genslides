@@ -22,6 +22,8 @@ import json
 import os
 import genslides.utils.finder as finder
 
+# [[---]]
+
 class Seafoam(Base):
     def __init__(
         self,
@@ -96,6 +98,7 @@ def moveDown( img, H_pos):
 
 
 
+# [[---]]
 def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) -> None:
 
     seafoam = Seafoam()
@@ -534,6 +537,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
             action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
 
+# [[---]]
         elif manager.getParam("mode") == "user":
             gr.themes.Base(text_size=sizes.text_lg)
             input_txt = []
@@ -705,6 +709,7 @@ def mliner_body(manager : Actioner.Manager, projecter : Projecter):
     mliner.close()
 
 
+# [[---]]
 
 def main() -> None:
     prompt = "Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
