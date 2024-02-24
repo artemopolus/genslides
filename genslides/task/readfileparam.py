@@ -13,6 +13,8 @@ class ReadFileParamTask(ReadFileTask):
     def __init__(self, task_info: TaskDescription, type="ReadFileParam") -> None:
         super().__init__(task_info, type)
 
+    def onEmptyMsgListAction(self):
+        pass
 
     def readContentInternal(self):
         print(self.getName(), 'Read content from file by params')
@@ -67,15 +69,26 @@ class ReadFileParamTask(ReadFileTask):
             # print('Get param')
             rres, pparam = self.getParamStruct(param_name)
             if rres:
-
-                sha256_hash = hashlib.sha256()
                 try:
-                    with open(filename,"rb") as f:
+                    readable_hash = ''
+                    with open(s_path,"rb") as f:
                         btext = f.read() # read entire file as bytes
                         readable_hash = hashlib.sha256(btext).hexdigest()
+                    hparamname = self.getType() + '_result'
+                    hres, hparam = self.getParamStruct(param_name=hparamname, only_current=True)
+                    if hres:
+                        if 'hash' in hparam and hparam['hash'] == readable_hash:
+                            print('Hash is same')
+                        else:
+                            self.freezeTask()
+                        self.updateParamStruct(hparamname,'hash', readable_hash)
+                    else:
+                        self.setParamStruct({'type':hparamname,'hash':readable_hash})
                 except Exception as e:
                     print('Error while getting hash',e)
                     return False, ""
+                
+                # TODO: если хэш совпадат, то ничего не делать
 
                 # print('Found param struct')
                 if "role" in pparam:
@@ -106,12 +119,10 @@ class ReadFileParamTask(ReadFileTask):
                     pres, text = ReadFileMan.readPartitial(s_path,int(pparam["max_part"]))
                     if pres:
                         return pres,text
-                       
-
-        if res and os.path.isfile(s_path):
-            with open(s_path, 'r', encoding='utf-8') as f:
-                text = f.read()
-                return True, text
+                else:
+                    with open(s_path, 'r', encoding='utf-8') as f:
+                        text = f.read()
+                    return True, text
         return False, "No file found"
 
 
