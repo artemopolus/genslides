@@ -7,6 +7,7 @@ from os import listdir
 from os.path import isfile, join
 
 from genslides.utils.readfileman import ReadFileMan
+import hashlib
 
 class ReadFileParamTask(ReadFileTask):
     def __init__(self, task_info: TaskDescription, type="ReadFileParam") -> None:
@@ -66,6 +67,16 @@ class ReadFileParamTask(ReadFileTask):
             # print('Get param')
             rres, pparam = self.getParamStruct(param_name)
             if rres:
+
+                sha256_hash = hashlib.sha256()
+                try:
+                    with open(filename,"rb") as f:
+                        btext = f.read() # read entire file as bytes
+                        readable_hash = hashlib.sha256(btext).hexdigest()
+                except Exception as e:
+                    print('Error while getting hash',e)
+                    return False, ""
+
                 # print('Found param struct')
                 if "role" in pparam:
                     self.prompt_tag = pparam["role"]
@@ -84,37 +95,18 @@ class ReadFileParamTask(ReadFileTask):
                                     self.msg_list = rq[pparam['del_msgs'] :]
                                 else:
                                     self.msg_list = rq
-                                # print("Input msgs:", self.msg_list)
                             else:
                                 self.msg_list = rq
                         except ValueError as e:
                             print("json error type=", type(e))
                             self.msg_list = []
-                        # print(self.getName(),"read from[", s_path,"] dial with msg[",len(self.msg_list),'] out [',len(rq),']')
     
                     return False, ""
                 elif "read_part" in pparam and pparam["read_part"] and "start_part" in pparam and "max_part" in pparam:
                     pres, text = ReadFileMan.readPartitial(s_path,int(pparam["max_part"]))
                     if pres:
                         return pres,text
-                    # if os.path.isfile(s_path):
-                    #     with open(s_path, 'r',encoding='utf-8') as f:
-                    #         text = f.read()
-                    #     start = int(pparam["max_part"])
-                    #     stop = start + int(pparam["max_part"])
-                    #     if len(text) > stop*8:
-                    #         med = int((len(text) - stop)/2)
-                    #         return True, "This is parts of file:\n\n" + text[start:stop] + "...\n\n..." + text[med:med + stop]  + "...\n\n..." + text[len(text) - stop :]
-                    #     if len(text) > stop*4:
-                    #         return True, "This is parts of file:\n\n" + text[start:stop] + "...\n\n..." + text[len(text) - stop :]
-                    #     if len(text) > stop:
-                    #         return True, "This is part of file:\n\n" + text[start:stop]
-                    #     if 'delete' in pparam and pparam['delete']:
-                    #         os.remove(s_path)
-                    #         print('File bt path',s_path,'is removed')
-
-                    #     return True, text
-                        
+                       
 
         if res and os.path.isfile(s_path):
             with open(s_path, 'r', encoding='utf-8') as f:
@@ -184,25 +176,5 @@ class ReadFileParamTask(ReadFileTask):
                 # super().update(input)
                 return "","user",""
 
-        if len(self.msg_list) == 0:
-            print('Empty msg list')
-            self.executeResponse()
-            self.saveJsonToFile(self.msg_list)
-        else:
-            print('Not empty msg list')
-            sres, sparam = self.getParamStruct(self.getType())
-            exe_always = False
-            if sres and 'do_always' in sparam and sparam['do_always']:
-                exe_always = True
-
-            rres, pparam = self.getParamStruct('path_to_read')
-            if rres and "read_dial" in pparam and pparam["read_dial"]:
-                self.executeResponse()
-                self.saveJsonToFile(self.msg_list)
-            elif not self.checkParentMsgList(update=True, save_curr=False) or exe_always:
-                self.executeResponse()
-                self.saveJsonToFile(self.msg_list)
-            else:
-                print("Messages are same")
-                pass
- 
+        self.executeResponse()
+        self.saveJsonToFile(self.msg_list)
