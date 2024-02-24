@@ -47,8 +47,9 @@ class Projecter:
         self.updateSessionName()
         self.actioner.clearTmp()
 
-    def resetManager(self, manager, fast = True, load = True):
+    def resetManager(self, manager : Manager, fast = True, load = True):
         self.manager = manager
+        self.manager.onStart()
         self.manager.initInfo(self.loadExtProject)
         if load:
             self.manager.loadTasksList(fast)

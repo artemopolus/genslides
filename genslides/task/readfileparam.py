@@ -14,7 +14,7 @@ class ReadFileParamTask(ReadFileTask):
 
 
     def readContentInternal(self):
-        # print('Read content from file by params')
+        print(self.getName(), 'Read content from file by params')
         param_name = "read_folder"
         res, read_folder = self.getParam(param_name)
         
@@ -164,7 +164,6 @@ class ReadFileParamTask(ReadFileTask):
 
     def updateIternal(self, input : TaskDescription = None):
         # TODO: Это просто переопределение функции обновления для Response, она была дополнена свойством, что при указании, что читается диалог, всегда происходило чтение вне зависимости от совпадают ли родительские сообщения с сохраненными
-        # self.preUpdate(input=input)
         res, stopped = self.getParam("stopped")
         if res and stopped:
             print("Stopped=", self.getName())
@@ -184,17 +183,13 @@ class ReadFileParamTask(ReadFileTask):
             else:
                 # super().update(input)
                 return "","user",""
-        
-       
-
-        # print("Update response task=", self.getName(),"[", len(self.msg_list),"]")
-        # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
 
         if len(self.msg_list) == 0:
             print('Empty msg list')
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
         else:
+            print('Not empty msg list')
             sres, sparam = self.getParamStruct(self.getType())
             exe_always = False
             if sres and 'do_always' in sparam and sparam['do_always']:
@@ -208,6 +203,6 @@ class ReadFileParamTask(ReadFileTask):
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:
-                # print("Messages are same")
+                print("Messages are same")
                 pass
  

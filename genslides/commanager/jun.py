@@ -362,7 +362,7 @@ class Manager:
         return self.getCurrTaskPrompts()
     
     def getBranchEndList(self):
-        print('Get branch end list', self.getName())
+        # print('Get branch end list', self.getName())
         task = self.curr_task
         self.iterateOnBranchEnd()
         self.curr_task = task
@@ -1231,7 +1231,11 @@ class Manager:
         if next and self.curr_task != next and next in self.task_list:
             # if next.parent == None:
                 # next.resetTreeQueue()
-            self.curr_task = next
+            bres, bparam = next.getParamStruct('block')
+            if bres and bparam['block']:
+                pass
+            else:
+                self.curr_task = next
         else:
             if len(self.return_points) > 0:
                 self.curr_task = self.return_points.pop()
@@ -2169,7 +2173,7 @@ class Manager:
             task.setTreeQueue()
 
     def addTask(self, task :BaseTask):
-        print('Add task', task.getName())
+        # print('Add task', task.getName())
         if task not in self.task_list:
             self.task_list.append(task)
 

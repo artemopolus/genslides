@@ -216,7 +216,7 @@ class GeneratorTask(SetOptionsTask):
         return iterators
 
     def setManagerParamToTask(self, param):
-        if 'type' not in param or param['type'] is not 'manager':
+        if 'type' not in param or param['type'] != 'manager':
             return
         self.setParamStruct(param)
         gres, gparam = self.getParamStruct('generator', True)
