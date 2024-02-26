@@ -627,6 +627,16 @@ class Projecter:
     def selectRelatedChain(self):
         return self.actioner.getRelationTasksChain()
     
+    def selectNearestTasks(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getHoldGarlands()
+        tasks.extend(man.curr_task.getGarlandPart())
+        for task in tasks:
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return man.getCurrTaskPrompts()
+       
+    
     def deselectRealtedChain(self):
         self.actioner.manager.multiselect_tasks = []
         return self.actioner.manager.getCurrTaskPrompts()

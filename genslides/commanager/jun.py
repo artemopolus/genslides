@@ -143,7 +143,8 @@ class Manager:
 
     def addCurrTaskToSelectList(self):
         self.addTaskToSelectList(self.curr_task)
-        return ','.join( self.getSelectList())
+
+        return (','.join( self.getSelectList()), self.curr_task.getLastMsgContent())
 
     def getSelectList(self) -> list:
         return [t.getName() for t in self.selected_tasks]

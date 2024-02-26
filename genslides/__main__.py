@@ -226,7 +226,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     with gr.Tab('Select'):
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
-                            select_to_list_btn = gr.Button(value='Select').click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list])
+                            select_to_list_btn = gr.Button(value='Select')
                             relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
                             clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
                         with gr.Row():
@@ -243,10 +243,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             collect_btn = gr.Button(value='Collect')
                             shoot_btn = gr.Button(value='Shoot')
                             garland_btn = gr.Button(value='Garland')
-
+                        with gr.Row():
+                            selected_prompt = gr.Textbox(value='',lines=4, label='Selected prompt')
+                        select_to_list_btn.click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
                     with gr.Tab('MultiSelect'):
                         with gr.Row():
                             relatedtask_btn = gr.Button('Relationship chain')
+                            nearesttask_btn = gr.Button('Nearest tasks')
+                        with gr.Row():
                             addtask2reltask_btn = gr.Button('Add task')
                             addpart2reltask_btn = gr.Button('Add brpart')
                             addbrch2reltask_btn = gr.Button('Add branch')
@@ -456,6 +460,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
 
             relink_sel2cur_btn.click(fn=projecter.relinkToCurrTaskByName, inputs=[selected_tasks_list], outputs=std_output_list)
             relatedtask_btn.click(fn=projecter.selectRelatedChain, outputs=std_output_list)
+            nearesttask_btn.click(fn=projecter.selectNearestTasks, outputs=std_output_list)
+
             relattaskcln_btn.click(fn=projecter.deselectRealtedChain, outputs=std_output_list)
             addtask2reltask_btn.click(fn=projecter.appendTaskToChain, outputs=std_output_list)
             addpart2reltask_btn.click(fn=projecter.appendBranchPartToChain, outputs=std_output_list)

@@ -336,16 +336,30 @@ class Actioner():
         elif creation_type == "RelinkToCurrTask":
             task = self.std_manager.getTaskByName(param['name'])
             start = self.manager.curr_task
+            print('selected:',task.getName())
+            print('current:', start.getName())
             if task is not None or task == start:
                 typename = task.getType()
-                task.removeLinkToTask()
-                if typename == 'Collect' or typename == 'GroupCollect' or 'Garland':
-                    intask = task
-                    outtask = start
+                if typename == 'Collect' or typename == 'GroupCollect' or typename == 'Garland':
+                    typename = start.getType()
+                    if typename == 'Collect' or typename == 'GroupCollect' or typename == 'Garland':
+                        intask = task
+                        outtask = start
+                        task.removeLinkToTask()
+                        self.manager.makeLink(intask, outtask)
                 else:
-                    intask = start
-                    outtask = task
-                self.manager.makeLink(intask, outtask)
+                    typename = start.getType()
+                    if typename == 'Collect' or typename == 'GroupCollect' or typename == 'Garland':
+                        return self.manager.getCurrTaskPrompts()
+                    # В противном случае ищем связанные объекты
+                    garls = task.getHoldGarlands()
+                    if len(garls) == 0:
+                        return self.manager.getCurrTaskPrompts()
+                    task.removeLinkToTask()
+                    for garl in garls:
+                        intask = garl
+                        outtask = start
+                        self.manager.makeLink(intask, outtask)
             self.manager.curr_task = start
         return self.manager.getCurrTaskPrompts()
 
