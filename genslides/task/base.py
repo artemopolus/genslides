@@ -1196,3 +1196,14 @@ class BaseTask():
     
     def setManagerParamToTask(self, param):
         pass
+
+    def extractTask(self):
+        task1 = self.parent
+        task2 = self
+        task3_list = task2.getChilds()
+        for task in task3_list:
+            task.removeParent()
+            if task1 is not None:
+                task1.addChild(task)
+
+

@@ -414,6 +414,10 @@ class Actioner():
                 del_tasks.remove(task)
             print('Task to delete:',[t.getName() for t in del_tasks])
             print('Retarget task:',[t.getName() for t in notdel_tasks])
+            # Вытаскиваем задачи из цепей
+            for task in del_tasks:
+                task.extractTask()
+            # Удаляем задачи полностью
             for task in del_tasks:
                     task.beforeRemove()
                     man.task_list.remove(task)

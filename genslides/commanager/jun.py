@@ -852,13 +852,8 @@ class Manager:
             print('Current', self.curr_task.getName())
 
         elif creation_type == "Remove":
-            task1 = self.curr_task.parent
             task2 = self.curr_task
-            task3_list = task2.getChilds()
-            for task in task3_list:
-                task.removeParent()
-                if task1 is not None:
-                    task1.addChild(task)
+            self.curr_task.extractTask()
             self.curr_task = task2
             self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
            
