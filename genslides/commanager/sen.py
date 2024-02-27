@@ -427,11 +427,19 @@ class Projecter:
    
     def stopPrivManager(self):
         self.makeTaskAction("","","StopPrivManager","")
-        return self.actioner.getTmpManagerInfo()
+        #TODO: Нужно разобраться почему так происходит и убрать этот костыль
+        self.actioner.manager.fixTasks()
+        out = self.actioner.manager.getCurrTaskPrompts()
+        out += self.actioner.getTmpManagerInfo()
+        return out
   
     def rmvePrivManager(self):
         self.makeTaskAction("","","RmvePrivManager","")
-        return self.actioner.getTmpManagerInfo()
+        #TODO: Нужно разобраться почему так происходит и убрать этот костыль
+        self.actioner.manager.fixTasks()
+        out = self.actioner.manager.getCurrTaskPrompts()
+        out += self.actioner.getTmpManagerInfo()
+        return out
     
     def getPrivManager(self):
         return self.actioner.getTmpManagerInfo()

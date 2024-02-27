@@ -415,13 +415,34 @@ class Actioner():
             print('Task to delete:',[t.getName() for t in del_tasks])
             print('Retarget task:',[t.getName() for t in notdel_tasks])
             # Вытаскиваем задачи из цепей
+            buds = []
             for task in del_tasks:
-                task.extractTask()
+                childs = task.getChilds()
+                count = 0
+                for c in childs:
+                    if c in del_tasks:
+                        count +=1
+                if count == 0:
+                    buds.append(task)
+            for bud in buds:
+                b_idx = 0
+                trg = bud
+                while (b_idx < 1000):
+                    if trg not in del_tasks:
+                        break
+                    elif trg.getParent() == None:
+                        break
+                    else:
+                        trg.extractTask()
+                        trg = trg.getParent()
+                    b_idx +=1
             # Удаляем задачи полностью
             for task in del_tasks:
-                    task.beforeRemove()
-                    man.task_list.remove(task)
-                    del task
+                man.curr_task = task
+                man.makeTaskActionBase('', '', "Delete", '')
+                    # task.beforeRemove()
+                    # man.task_list.remove(task)
+                    # del task
 
             man.beforeRemove(remove_folder=True, remove_task=False)
             self.tmp_managers.remove(man)

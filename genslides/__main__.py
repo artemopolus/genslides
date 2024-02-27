@@ -336,8 +336,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr]
 
                     edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
-                    stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_output_man_list)
-                    rset_prman_btn.click(fn=manipulate_manager.rmvePrivManager, outputs=std_output_man_list)  
                     save2curtask_btn.click(fn=manipulate_manager.savePrivManToTask, outputs=std_output_man_list)
                     updt_prman_btn.click(fn=manipulate_manager.getPrivManager, outputs=std_output_man_list)                  
                     exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_output_man_list)
@@ -457,6 +455,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             std_full.extend(std_output_man_list)
             init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
             load_tempman_btn.click(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
+
+            stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_full)
+            rset_prman_btn.click(fn=manipulate_manager.rmvePrivManager, outputs=std_full)  
+
 
             relink_sel2cur_btn.click(fn=projecter.relinkToCurrTaskByName, inputs=[selected_tasks_list], outputs=std_output_list)
             relatedtask_btn.click(fn=projecter.selectRelatedChain, outputs=std_output_list)

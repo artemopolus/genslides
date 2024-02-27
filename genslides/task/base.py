@@ -1204,6 +1204,7 @@ class BaseTask():
         for task in task3_list:
             task.removeParent()
             if task1 is not None:
+                task1.removeChild(self)
                 task1.addChild(task)
 
 
