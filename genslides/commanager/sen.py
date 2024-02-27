@@ -335,10 +335,17 @@ class Projecter:
         return self.actioner.manager.goToNextBranch()
     
     def createNewTree(self):
-        return self.makeTaskAction("","SetOptions","New","user",[])
+        self.makeTaskAction("","SetOptions","New","user",[])
+        self.actioner.manager.updateTreeArr()
+        return self.actioner.manager.getCurrTaskPrompts()
     
     def goToNextTree(self):
-        self.actioner.manager.sortTreeOrder()
+        if self.actioner.manager != self.actioner.std_manager:
+            self.actioner.manager.updateTreeArr(check_list=True)
+        if self.actioner.manager != self.actioner.std_manager:
+            self.actioner.manager.sortTreeOrder(check_list=True)
+        else:
+            self.actioner.manager.sortTreeOrder()
         return self.actioner.manager.goToNextTree()
         # return self.goToNextBranchEnd()
     

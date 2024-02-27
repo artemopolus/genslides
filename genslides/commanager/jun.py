@@ -227,11 +227,18 @@ class Manager:
         #     for info in task.affect_to_ext_list:
         #         print("to ",info.parent.getName())
 
-    def updateTreeArr(self):
+    def updateTreeArr(self, check_list = False):
+        print('Update tree array with check state:', check_list)
         self.tree_arr = []
         for task in self.task_list:
-            if task.isRootParent():
-                self.tree_arr.append(task)
+            if check_list:
+                par = task.parent
+                if par is None or par not in self.task_list:
+                    self.tree_arr.append(task)
+            else:
+                if task.isRootParent():
+                    self.tree_arr.append(task)
+        
 
     def goToNextTreeFirstTime(self):
         self.updateTreeArr()
@@ -264,18 +271,18 @@ class Manager:
     def goToNextTree(self):
         # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
-            for task in self.tree_arr:
-                if not task.isRootParent():
-                    self.goToNextTreeFirstTime()
-                    return self.getCurrTaskPrompts()
+            # for task in self.tree_arr:
+            #     if not task.isRootParent():
+            #         self.goToNextTreeFirstTime()
+            #         return self.getCurrTaskPrompts()
                 
             if self.tree_idx + 1 < len(self.tree_arr):
                 self.tree_idx += 1
             else:
                 self.tree_idx = 0
             self.curr_task = self.tree_arr[self.tree_idx]
-        else:
-            self.goToNextTreeFirstTime()
+        # else:
+        #     self.goToNextTreeFirstTime()
         # print('Current task is', self.curr_task.getName())
         return self.getCurrTaskPrompts()
 
@@ -2154,9 +2161,9 @@ class Manager:
         return idx
 
 
-    def sortTreeOrder(self):
+    def sortTreeOrder(self, check_list = False):
         if self.tree_idx >= len(self.tree_arr):
-            self.updateTreeArr()
+            self.updateTreeArr(check_list=check_list)
             self.tree_idx = 0
         trg_task = self.tree_arr[self.tree_idx]
         for task in self.tree_arr:
