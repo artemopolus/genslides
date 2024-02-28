@@ -188,6 +188,9 @@ class GeneratorTask(SetOptionsTask):
                             outparam['actions'] = act['actions']
                             self.updateParamStruct('generator','iter2act', gparam['iter2act'])
                             return True, outparam
+                else:
+                    res_acts = self.updateIteration2action(iterators)
+                    self.updateParamStruct('generator','iter2act', res_acts)
         return super().getExeCommands()
     
     def getIterators(self, gparam):
