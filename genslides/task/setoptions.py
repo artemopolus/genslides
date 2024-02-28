@@ -157,7 +157,7 @@ class GeneratorTask(SetOptionsTask):
         if not gres:
             self.setParamStruct({
                              'type':'generator',
-                             'target':'[[parent:msg_content]]',
+                             'target':'[[parent:msg_content:json:answer]]',
                              'struct':'json',
                              'tag':'array',
                              'cmd_id':0,
@@ -241,7 +241,7 @@ class GeneratorTask(SetOptionsTask):
             diff_iter = [a for a in iterators if a not in cur_iter]
         else:
             diff_iter = iterators
-        if len(diff_iter) > 0:
+        if len(diff_iter) > 0 and pres:
             res_acts = gparam['iter2act']
             for i in diff_iter:
                 acts = pparam['info']['actions'].copy()
