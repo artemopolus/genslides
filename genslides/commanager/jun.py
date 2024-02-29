@@ -1593,7 +1593,7 @@ class Manager:
         if res and param_key in data:
             cur_val = data[param_key]
             if param_key == 'idx' and param_name.startswith('child') or param_name == 'tree_step':
-                values = range(10)
+                values = range(50)
                 if cur_val not in values:
                     values.append(cur_val)
             else:

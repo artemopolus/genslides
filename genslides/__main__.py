@@ -309,6 +309,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     exe_act2cur_btn = gr.Button(value='Load to curtask')
                                     exe_act_btn = gr.Button(value='Exe man action')
                                 with gr.Row():
+                                    actpack_name_txt = gr.Textbox(value='',label='Act pack name', lines=1)
+                                    actpack_save_btn = gr.Button(value='Save actpack')
+                                with gr.Row():
+                                    actpack_saved_lst = gr.Dropdown(label='Saved actpacks')
+                                    actpack_load_btn = gr.Button(value='Load actpack2man')
+                                    actpack_save_btn.click(fn=projecter.saveActPack, inputs=[actpack_name_txt], outputs=actpack_saved_lst)
+                                with gr.Row():
                                     clr_prman_btn = gr.Button('Clear vals')
                                 with gr.Row():
                                     params_prman = gr.Textbox(label="Params", lines=4)
@@ -321,6 +328,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         # with gr.Tab("Actions"):
                             with gr.Column():
                                 actions_list = gr.CheckboxGroup()
+                                actpack_load_btn.click(fn=projecter.loadActPack, inputs=[actpack_saved_lst], outputs=[actions_list])
                                 with gr.Row():
                                     gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
                                     gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)

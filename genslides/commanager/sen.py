@@ -712,3 +712,36 @@ class Projecter:
     
     def getAppendableParam(self):
         return self.actioner.manager.getAppendableParam()
+    
+    def saveActPack(self, name):
+        actor = self.actioner
+        if actor.std_manager == actor.manager or 'actions' not in actor.manager.info:
+            return
+        if name == '':
+            return
+        path = os.path.join('actpacks',name + '.json')
+        with open(path, 'w') as f:
+            text = actor.manager.info['actions']
+            print('ActPack:', text)
+            json.dump(text, f, indent=1)
+        return self.getActPacks()
+
+        
+    def getActPacks(self):
+        mypath = 'actpacks'
+        onlyfiles = [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
+        return gr.Dropdown(choices=onlyfiles)
+    
+    def loadActPack(self, name):
+        actor = self.actioner
+        if actor.std_manager == actor.manager or 'actions' not in actor.manager.info:
+            return
+        if name == '':
+            return
+        mypath = 'actpacks'
+        onlyfiles = [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
+        if name in onlyfiles:
+            path = os.path.join(mypath,name + '.json')
+            with open(path, 'r') as f:
+                actor.manager.info['actions'] = json.load(f)
+        return self.getActionsList()

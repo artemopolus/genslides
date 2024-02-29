@@ -162,5 +162,6 @@ projects/*
 tools/*
 text65.txt
 tools/*
+actpacks/*
 .DS_Store
 tests/llm/test.txt
