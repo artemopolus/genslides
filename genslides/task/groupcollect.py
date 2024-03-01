@@ -2,6 +2,8 @@ from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
 from genslides.task.collect import CollectTask
 
+import json
+
 class GroupCollectTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="GroupCollect") -> None:
         super().__init__(task_info, type)
@@ -9,7 +11,10 @@ class GroupCollectTask(CollectTask):
         if not gres:
             self.setParamStruct({
                              'type':'collecting',
-                             'revert' : False
+                             'revert' : False,
+                             'tojson': False,
+                             'base_json_tag': 'answer'
+                             'list_tag':['point']
             })
  
     def update(self, input: TaskDescription = None):
@@ -23,7 +28,18 @@ class GroupCollectTask(CollectTask):
             if input.id == tsk_info.id:
                 msgs = input.parent.getMsgs()
                 text = ""
-                if gres and 'revert' in gparam and gparam['revert']:
+                if gres and 'tojson' in gparam and gparam['tojson']:
+                    points = []
+                    if gres and 'revert' in gparam and gparam['revert']:
+                        for msg in reversed(msgs):
+                            points.append({gparam['list_tag'][0]: msg['content']})
+                    else:
+                        for msg in msgs:
+                            points.append({gparam['list_tag'][0]: msg['content']})
+
+                    text = json.dumps({gparam['base_json_tag']: points}, indent=1)
+
+                elif gres and 'revert' in gparam and gparam['revert']:
                     for msg in reversed(msgs):
                         text += msg['content']
                 else:
