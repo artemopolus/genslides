@@ -823,6 +823,9 @@ class TextTask(BaseTask):
                                 param[key] = value
                         else:
                             param[key] = val
+                    else:
+                        param[key] = val
+
         # print('Res params=',self.params)
         self.saveJsonToFile(self.msg_list)
 
@@ -839,6 +842,16 @@ class TextTask(BaseTask):
         # if 'type' in param:
             # self.params.append(param)
         self.saveJsonToFile(self.msg_list)
+
+    def rmParamStructByName(self, param_name):
+        trg = None
+        for param in self.params:
+            if 'type' in param and param['type'] == param_name:
+                trg = param
+        if trg != None:
+            print('Remove', trg)
+            self.params.remove(trg)
+            self.saveJsonToFile(self.msg_list)
 
     def rmParamStruct(self, param):
         try:

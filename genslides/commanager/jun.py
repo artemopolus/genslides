@@ -1634,7 +1634,13 @@ class Manager:
             cmd = edit.AppendParamCommand(info)
             self.cmd_list.append(cmd)
         return self.runIteration('')
-
+    
+    def removeParamFromTask(self, param_name):
+        info = TaskDescription(target=self.curr_task, params={'name':param_name})
+        cmd = edit.RemoveParamCommand(info)
+        self.cmd_list.append(cmd)
+        return self.runIteration('')
+ 
     def updateSteppedSelected(self):
         res, val = self.curr_task.getParamStruct('input')
         if res and val['input']:

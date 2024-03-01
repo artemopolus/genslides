@@ -375,9 +375,16 @@ class Projecter:
     def appendNewParamToTask(self, param_name):
         return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
     
+    def removeParamFromTask(self, param_name):
+        return self.makeTaskAction('','','RemoveTaskParam','', {'name':param_name})
+    
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
         print('Set task key value:','|'.join([param_name,key,str(slt_value),str(mnl_value)]))
         return self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
+    
+    def addTaskNewKeyValue(self, param_name, key, value):
+        print('Set task key value:','|'.join([param_name,key,str(value)]))
+        return self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':value,'manual':''})
     
     def getMainCommandList(self):
         return self.manager.getMainCommandList()

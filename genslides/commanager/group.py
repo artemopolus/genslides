@@ -327,6 +327,8 @@ class Actioner():
             return self.manager.copyChildChains(change_prompt = True,edited_prompt=prompt, apply_link= True, copy=True)
         elif creation_type == "AppendNewParam":
             return self.manager.appendNewParamToTask(param['name'])
+        elif creation_type == "RemoveTaskParam":
+            return self.manager.removeParamFromTask(param['name'])
         elif creation_type == "SetParamValue":
             return self.manager.setTaskKeyValue(param['name'], param['key'], param['select'], param['manual'])
         elif creation_type == "SetCurrentExtTaskOptions":

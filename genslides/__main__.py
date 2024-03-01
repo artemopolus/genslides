@@ -212,17 +212,29 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     with gr.Tab('Params'):
                         with gr.Row():
                             with gr.Column():
-                                param_type = gr.Dropdown(choices=[],label="Params")
+                                with gr.Row():
+                                    with gr.Column(scale=4):
+                                        param_type = gr.Dropdown(choices=[],label="Params")
+                                    with gr.Column(scale=1):
+                                        param_rmve = gr.Button('Remove')
+                                with gr.Row():
+                                    with gr.Column(scale=4):
+                                        param_opt = gr.Dropdown(choices=projecter.getAppendableParam(),label='Params to append')
+                                    with gr.Column(scale=1):
+                                        param_apnd = gr.Button('Append new')
+                                param_info = gr.Textbox(label="Params", lines=4)
+                            with gr.Column():
                                 param_key = gr.Dropdown(choices=[],label="Key")
                                 param_type.select(fn=projecter.getTaskKeys, inputs=param_type, outputs=param_key)
                                 param_slcval = gr.Dropdown(choices=[],label="Value")
                                 param_mnlval = gr.Textbox(label='value',info='manual',lines=4)
-                                param_key.select(fn=projecter.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
-                            with gr.Column():
                                 param_edit = gr.Button("Edit param")
-                                param_opt = gr.Dropdown(choices=projecter.getAppendableParam(),label='Params to append')
-                                param_apnd = gr.Button('Append new')
-                           
+
+                                addkey_key_txt = gr.Textbox(label='New key to add')
+                                addkey_val_txt = gr.Textbox(label='New key value')
+                                addkey_apd_btn = gr.Button('Add new key, value')
+                                param_key.select(fn=projecter.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
+                          
                     with gr.Tab('Select'):
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
@@ -375,7 +387,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                 project_reload = gr.Button(value='reload')
                 gr.Button('append').click(fn=project_manipulator.appendProjectTasks,inputs=[projects_list])
 
-            param_info = gr.Textbox(label="Params", lines=4)
             param_updt = gr.Button(value="Edit param")
 
 
@@ -510,7 +521,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             clean_task_btn.click(fn=manipulate_manager.cleanCurrTask, outputs=std_output_list)
  
             param_apnd.click(fn=parameters_manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
+            param_rmve.click(fn=parameters_manager.removeParamFromTask, inputs=[param_type], outputs=std_output_list)
             param_edit.click(fn=parameters_manager.setTaskKeyValue, inputs=[param_type, param_key, param_slcval, param_mnlval], outputs=std_output_list)
+            addkey_apd_btn.click(fn=parameters_manager.addTaskNewKeyValue, inputs=[param_type, addkey_key_txt, addkey_val_txt], outputs=std_output_list)
 
 
             extpr_new.click(fn=projecter.newExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
