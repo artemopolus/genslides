@@ -59,10 +59,10 @@ class EditParamCommand(SimpleCommand):
         p = self.input.params
         res, val = task.getCurParamStructValue(p['name'], p['key'])
         value = p['select']
-        if value.isdigit():
+        if isinstance(value, str) and value.isdigit():
             print(value,'is int')
             value = int(value)
-        elif value.replace('.', '', 1).isdigit():
+        elif isinstance(value, str) and value.replace('.', '', 1).isdigit():
             print(value,'is float')
             value = float(value)
         print('Update', p['key'],'for',p['name'],'with', value)

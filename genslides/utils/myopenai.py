@@ -37,7 +37,7 @@ def openaiGetChatCompletion(msgs, params):
         logprobs = params['logprobs'] if 'logprobs' in params else False
         top_logprobs = params['top_logprobs'] if 'top_logprobs' in params else 0
         if 'logprobs' in params and params['logprobs'] and 'temperature' in params:
-            print('Get with logprobs and temperature')
+            print('Get with logprobs and temperature', params['temperature'])
             completion = client.chat.completions.create(
                 model = params['model'],
                 messages=msgs,

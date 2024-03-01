@@ -222,7 +222,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                         param_opt = gr.Dropdown(choices=projecter.getAppendableParam(),label='Params to append')
                                     with gr.Column(scale=1):
                                         param_apnd = gr.Button('Append new')
-                                param_info = gr.Textbox(label="Params", lines=4)
+                                param_info = gr.Textbox(label="Params", lines=10, max_lines=20)
                             with gr.Column():
                                 param_key = gr.Dropdown(choices=[],label="Key")
                                 param_type.select(fn=projecter.getTaskKeys, inputs=param_type, outputs=param_key)
@@ -330,7 +330,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 with gr.Row():
                                     clr_prman_btn = gr.Button('Clear vals')
                                 with gr.Row():
-                                    params_prman = gr.Textbox(label="Params", lines=4)
+                                    params_prman = gr.Textbox(label="Params", lines=4, max_lines=20)
                                 with gr.Row():
                                     edit_param_prman = gr.Button(value='Edit param managers')
                                 with gr.Row():
