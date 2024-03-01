@@ -13,7 +13,7 @@ class GroupCollectTask(CollectTask):
                              'type':'collecting',
                              'revert' : False,
                              'tojson': False,
-                             'base_json_tag': 'answer'
+                             'base_json_tag': 'answer',
                              'list_tag':['point']
             })
  
