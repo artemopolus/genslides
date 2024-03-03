@@ -106,23 +106,42 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
 def findByKey(text, manager , base ):
         #  results = re.findall(r'\{.*?\}', text)
          results = re.findall(r"\[\[.*?\]\]", text)
+         n_res = []
+         for res in results:
+             arr = res[2:-2].split(":")
+             tmp_ress = []
+             try:
+                for res1 in arr:
+                    if res1.startswith('parent') and len(res1) > 6:
+                        vals = res1.split('_')
+                        if len(vals) == 2 and vals[1].isdigit():
+                            for idx in range(int(vals[1])):
+                                tmp_ress.append('parent')
+                        else:
+                            tmp_ress.append(res1)
+                    else:
+                        tmp_ress.append(res1)
+             except Exception as e:
+                print('error check array:', e)
+             n_arr = '[[' + ':'.join(tmp_ress) + ']]' 
+             text = text.replace(res, n_arr)
+             if res != n_arr:
+                n_res.append(n_arr)
+             else:
+                n_res.append(res)
+
+         results = n_res
+
+
+
+
         #  print("Find keys=", text)
         #  print("Results=", results)
-         tmp_ress = []
-         try:
-            for res in results:
-                if res.startswith('parent') and len(res) > 6 and res[6:-1].isdigit():
-                    for idx in range(int(res[5:-1])):
-                        tmp_ress.append('parent')
-                else:
-                    tmp_ress.append(res)
-         except Exception as e:
-             print('error check array:', e)
-         results = tmp_ress
          rep_text = text
          for res in results:
              arr = res[2:-2].split(":")
-            #  print("Keys:", arr)
+
+                         #  print("Keys:", arr)
              if len(arr) > 1:
                  task = None
                  if arr[0] == 'manager':
