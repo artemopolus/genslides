@@ -42,24 +42,39 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
             param = task.getLastMsgContent()
             if len(arr) > 3 and arr[2] == 'json':
                 bres, j = Loader.Loader.loadJsonFromText(param)
-                if bres:
+                try:
                     rep = j[arr[3]]
-                    rep_text = rep_text.replace(res, json.dumps(rep))
-                else:
-                    print("No json in", task.getName())
+                    if len(arr) > 4 and isinstance(rep, list) and arr[4].isdigit() and int(arr[4]) < len(rep):
+                            trg_idx = int(arr[4])
+                            if len(arr) > 5 and arr[5] in rep[trg_idx]:
+                                rep_text = rep_text.replace(res, str(rep[trg_idx][arr[5]]))
+                            else:
+                                rep_text = rep_text.replace(res, str(rep[trg_idx]))
+                    else:
+                        rep_text = rep_text.replace(res, json.dumps(rep))
+
+                except Exception as e:
+                    print("Error find json in", task.getName(),':',e)
             elif len(arr) > 3 and arr[2] == 'json_list':
                 bres, j = Loader.Loader.loadJsonFromText(param)
-                if bres:
+                try:
                     rep = j[arr[3]]
                     if isinstance(rep, list):
                         text  = ''
                         for p in range(len(rep)):
-                            text += str(p+1) + '. ' + str(rep[p]) + '\n'
+                            if isinstance(p, dict):
+                                if len(arr) > 4 and arr[4] in p:
+                                    text_p = p[arr[4]]
+                                else:
+                                    text_p = json.dumps(p[arr[4]])
+                            else:
+                                text_p = rep[p]
+                            text += str(p+1) + '. ' + str(text_p) + '\n'
                         rep_text = rep_text.replace(res, text)
                     else:
                         rep_text = rep_text.replace(res, str(rep))
-                else:
-                    print("No json in", task.getName())
+                except Exception as e:
+                    print("Erorr find json list in", task.getName(),':',e)
             else:
                 # print("Replace", res, "from",task.getName())
                 rep_text = rep_text.replace(res, str(param))
@@ -93,6 +108,17 @@ def findByKey(text, manager , base ):
          results = re.findall(r"\[\[.*?\]\]", text)
         #  print("Find keys=", text)
         #  print("Results=", results)
+         tmp_ress = []
+         try:
+            for res in results:
+                if res.startswith('parent') and len(res) > 6 and res[6:-1].isdigit():
+                    for idx in range(int(res[5:-1])):
+                        tmp_ress.append('parent')
+                else:
+                    tmp_ress.append(res)
+         except Exception as e:
+             print('error check array:', e)
+         results = tmp_ress
          rep_text = text
          for res in results:
              arr = res[2:-2].split(":")

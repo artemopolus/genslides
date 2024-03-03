@@ -163,6 +163,7 @@ class GeneratorTask(SetOptionsTask):
                              'cmd_id':0,
                              'cmd_type':'prompt',
                              'iteration':[],
+                             'ignore_iter':[0],
                              'iter2act':[]
                              })
     
@@ -243,13 +244,16 @@ class GeneratorTask(SetOptionsTask):
             diff_iter = iterators
         if len(diff_iter) > 0 and pres:
             res_acts = gparam['iter2act']
-            for i in diff_iter:
+            idx = 0
+            for iter in diff_iter:
                 acts = pparam['info']['actions'].copy()
                 for act in acts:
                     if str(act['id']) == str(gparam['cmd_id']):
-                        print('Check',act['id'],'with', gparam['cmd_id'], 'to apply', gparam['cmd_type'], 'with ', i)
-                        act.update({gparam['cmd_type']:i})
-                res_acts.append({'var':i,'done': False,'actions': copy.deepcopy(acts)})
+                        print('Check',act['id'],'with', gparam['cmd_id'], 'to apply', gparam['cmd_type'], 'with ', iter)
+                        act.update({gparam['cmd_type']:iter})
+                done = True if idx in gparam['ignore_iter'] else False
+                res_acts.append({'var':iter,'done': done,'actions': copy.deepcopy(acts)})
+                idx +=1
             return res_acts
         return []
 
