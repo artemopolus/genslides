@@ -32,8 +32,8 @@ def getBranchCodeTag(name: str) -> str:
     return '[[' + name + ':' + 'branch_code' + ']]'
 
 def getFromTask(arr : list, res : str, rep_text, task, manager):
-        if len(arr) > 5:
-            if 'type' == arr[1]:
+        print('Get from task', task.getName())
+        if len(arr) > 5 and 'type' == arr[1]:
                 bres, pparam = task.getParamStruct(arr[2])
                 if bres and arr[3] in pparam and pparam[arr[3]] == arr[4] and arr[5] in pparam:
                     rep = pparam[arr[5]]
@@ -43,13 +43,14 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
             if len(arr) > 3 and arr[2] == 'json':
                 bres, j = Loader.Loader.loadJsonFromText(param)
                 try:
+                    # print('try find json', j)
                     rep = j[arr[3]]
                     if len(arr) > 4 and isinstance(rep, list) and arr[4].isdigit() and int(arr[4]) < len(rep):
-                            trg_idx = int(arr[4])
-                            if len(arr) > 5 and arr[5] in rep[trg_idx]:
-                                rep_text = rep_text.replace(res, str(rep[trg_idx][arr[5]]))
-                            else:
-                                rep_text = rep_text.replace(res, str(rep[trg_idx]))
+                        trg_idx = int(arr[4])
+                        if len(arr) > 5 and arr[5] in rep[trg_idx]:
+                            rep_text = rep_text.replace(res, str(rep[trg_idx][arr[5]]))
+                        else:
+                            rep_text = rep_text.replace(res, str(rep[trg_idx]))
                     else:
                         rep_text = rep_text.replace(res, json.dumps(rep))
 
