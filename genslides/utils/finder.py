@@ -94,11 +94,14 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
             rep_text = rep_text.replace(res, code_s)
         elif arr[1] == 'code':
             rep_text = convertMdToScript(md_text=task.getLastMsgContent())
-        else:
-            p_exist, param = task.getParam(arr[1])
-            if p_exist:
-                # print("Replace ", res, " with ", param)
-                rep_text = rep_text.replace(res, str(param))
+        elif arr[1] == 'param' and len(arr) > 3:
+            pres, pparam = task.getParamStruct(arr[2])
+            if pres and arr[3] in pparam:
+                value = pparam[arr[3]]
+                if isinstance(value, str):
+                    rep_text = rep_text.replace(res, pparam[arr[3]])
+                else:
+                    rep_text = rep_text.replace(res, str(pparam[arr[3]]))
             else:
                 # print("No param")
                 pass
