@@ -458,7 +458,9 @@ class Projecter:
         self.actioner.exeActions()
         # Альтернатива
         # self.makeTaskAction("","","ExecuteManager","",{},save_action=False)
-        return self.actioner.getTmpManagerInfo()
+        out = self.actioner.manager.getCurrTaskPrompts()
+        out += self.actioner.getTmpManagerInfo()
+        return out
     
     def exeSmplScript(self):
         self.actioner.exeCurManagerSmpl()
@@ -735,9 +737,13 @@ class Projecter:
 
         
     def getActPacks(self):
+        return gr.Dropdown(choices=self.getActPacksList())
+    
+    def getActPacksList(self) -> list:
         mypath = 'actpacks'
         onlyfiles = [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
-        return gr.Dropdown(choices=onlyfiles)
+        return onlyfiles
+
     
     def loadActPack(self, name):
         actor = self.actioner
