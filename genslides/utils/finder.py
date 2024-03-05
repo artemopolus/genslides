@@ -43,7 +43,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
             if len(arr) == 3 and arr[2] == 'json':
                 bres, j = Loader.Loader.loadJsonFromText(param)
                 if bres:
-                    rep_text = rep_text.replace(res, json.dumps(j))
+                    rep_text = rep_text.replace(res, json.dumps(j, indent=1))
             elif len(arr) > 3 and arr[2] == 'json':
                 bres, j = Loader.Loader.loadJsonFromText(param)
                 try:
