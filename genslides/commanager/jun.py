@@ -755,7 +755,7 @@ class Manager:
     def getMainCommandList(self):
         return ["New", "SubTask","Edit","Delete", "Select", "Link", "Unlink", "Parent", "RemoveParent","EditAndStep","EditAndStepTree"]
     def getSecdCommandList(self):
-        return ["MoveUp","RemoveBranch", "RemoveTree", "Insert","Remove","ReqResp","Divide"]
+        return ["MoveUp","RemoveBranch", "RemoveTree","RemoveTaskList","Insert","Remove","ReqResp","Divide"]
     
     def makeRequestAction(self, prompt, selected_action, selected_tag):
         print('Make',selected_action,'Request')
@@ -791,6 +791,10 @@ class Manager:
                 self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
             if trg is not None:
                 self.curr_task = trg
+        elif creation_type == "RemoveTaskList":
+            self.removeTaskList(self.multiselect_tasks)
+            if self.curr_task == None:
+                self.curr_task = self.task_list[0]
         elif creation_type == "RemoveTree":
             tasks = self.curr_task.getTree()
             for task in tasks:
@@ -2200,4 +2204,9 @@ class Manager:
                 out.append(task)
         return out
 
-
+    def removeTaskList(self, del_tasks):
+        self.curr_task.extractTaskList(del_tasks)
+        for task in del_tasks:
+            self.curr_task = task
+            self.makeTaskActionBase('', '', "Delete", '')
+ 

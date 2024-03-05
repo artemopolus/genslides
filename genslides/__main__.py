@@ -268,7 +268,15 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             addbrch2reltask_btn = gr.Button('Add branch')
                             addchds2reltask_btn = gr.Button('Add childs')
                             addtree2reltask_btn = gr.Button('Add tree')
-                            relattaskcln_btn = gr.Button('Clear')
+                        with gr.Row():
+                            rmvtask2reltask_btn = gr.Button('Rmv task')
+                            rmvpart2reltask_btn = gr.Button('Rmv brpart')
+                            rmvbrch2reltask_btn = gr.Button('Rmv branch')
+                            rmvchds2reltask_btn = gr.Button('Rmv childs')
+                            rmvtree2reltask_btn = gr.Button('Rmv tree')
+                            relattaskcln_btn = gr.Button('Clear all')
+                        with gr.Row():
+                            delete_reltasks_btn = gr.Button('Delete selected')
                     with gr.Tab('Cmds'):
                         with gr.Row():
 
@@ -490,6 +498,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             addbrch2reltask_btn.click(fn=projecter.appendBranchtoChain, outputs=std_output_list)
             addtree2reltask_btn.click(fn=projecter.appendTreeToChain, outputs=std_output_list)
             addchds2reltask_btn.click(fn=projecter.appendChildsToChain, outputs=std_output_list)
+
+            rmvtask2reltask_btn.click(fn=projecter.removeTaskFromChain, outputs=std_output_list)
+            rmvpart2reltask_btn.click(fn=projecter.removeBranchPartFromChain, outputs=std_output_list)
+            rmvbrch2reltask_btn.click(fn=projecter.removeBranchFromChain, outputs=std_output_list)
+            rmvtree2reltask_btn.click(fn=projecter.removeTreeFromChain, outputs=std_output_list)
+            rmvchds2reltask_btn.click(fn=projecter.removeChildsFromChain, outputs=std_output_list)
+            delete_reltasks_btn.click(fn=projecter.removeMultiSelect, outputs=std_output_list)
             
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)

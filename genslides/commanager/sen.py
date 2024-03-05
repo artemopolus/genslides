@@ -306,6 +306,8 @@ class Projecter:
         return self.makeTaskAction("","","Delete","")
     def extractActionTask(self):
         return self.makeTaskAction("","","Remove","")
+    
+
     def removeActionBranch(self):
         return self.makeTaskAction("","","RemoveBranch","")
     def removeActionTree(self):
@@ -671,6 +673,12 @@ class Projecter:
             man.multiselect_tasks.append(man.curr_task)
         return man.getCurrTaskPrompts()
     
+    def removeTaskFromChain(self):
+        man = self.actioner.manager
+        if man.curr_task in man.multiselect_tasks:
+            man.multiselect_tasks.remove(man.curr_task)
+        return man.getCurrTaskPrompts()
+    
     def appendTreeToChain(self):
         man = self.actioner.manager
         tasks = man.curr_task.getTree()
@@ -679,6 +687,14 @@ class Projecter:
                 man.multiselect_tasks.append(task)
         return man.getCurrTaskPrompts()
     
+    def removeTreeFromChain(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getTree()
+        for task in tasks:
+            if task in man.multiselect_tasks:
+                man.multiselect_tasks.remove(task)
+        return man.getCurrTaskPrompts()
+   
     def appendBranchPartToChain(self):
         man = self.actioner.manager
         tasks = man.curr_task.getAllChildChains()
@@ -694,6 +710,22 @@ class Projecter:
                 man.multiselect_tasks.append(task)
         return man.getCurrTaskPrompts()
 
+    def removeBranchPartFromChain(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getAllChildChains()
+        for task in tasks:
+            if task in man.multiselect_tasks:
+                man.multiselect_tasks.remove(task)
+        tasks = man.curr_task.getAllParents()
+        while(len(tasks)):
+            task = tasks.pop(-1)
+            if len(task.getChilds()) > 1 or task.isRootParent():
+                return man.getCurrTaskPrompts()
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.remove(task)
+        return man.getCurrTaskPrompts()
+
+
     def appendBranchtoChain(self):
         man = self.actioner.manager
         buds = man.curr_task.getAllBuds()
@@ -703,7 +735,17 @@ class Projecter:
             if task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
         return man.getCurrTaskPrompts()
-    
+ 
+    def removeBranchFromChain(self):
+        man = self.actioner.manager
+        buds = man.curr_task.getAllBuds()
+        bud = buds.pop()
+        tasks = bud.getAllParents()
+        for task in tasks:
+            if task in man.multiselect_tasks:
+                man.multiselect_tasks.remove(task)
+        return man.getCurrTaskPrompts()
+   
     def appendChildsToChain(self):
         man = self.actioner.manager
         tasks = man.curr_task.getAllChildChains()
@@ -712,6 +754,16 @@ class Projecter:
                 man.multiselect_tasks.append(task)
         return man.getCurrTaskPrompts()
  
+    def removeChildsFromChain(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getAllChildChains()
+        for task in tasks:
+            if task in man.multiselect_tasks:
+                man.multiselect_tasks.remove(task)
+        return man.getCurrTaskPrompts()
+
+    def removeMultiSelect(self):
+        return self.makeTaskAction("","","RemoveTaskList","")
 
     def getTaskKeys(self, param_name):
         return self.actioner.manager.getTaskKeys(param_name)
