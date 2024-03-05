@@ -134,3 +134,27 @@ class RunScriptTask(ResponseTask):
         else:
             print("No data is getted from")
         
+    def updateIternal(self, input : TaskDescription = None):
+        # TODO: Это просто переопределение функции обновления для Response, она была дополнена свойством, что при указании, что читается диалог, всегда происходило чтение вне зависимости от совпадают ли родительские сообщения с сохраненными
+        res, stopped = self.getParam("stopped")
+        if res and stopped:
+            print("Stopped=", self.getName())
+            return "",self.prompt_tag,""
+        
+        if self.is_freeze and self.parent:
+            print("frozen=",self.getName())
+            if not self.parent.is_freeze:
+                self.is_freeze = False
+                tmp_msg_list = self.getRawParentMsgs()
+                # print(pprint.pformat(tmp_msg_list))
+                msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+                if len(msg_list_from_file):
+                    print("I loaded")
+                    self.msg_list = msg_list_from_file
+
+            else:
+                # super().update(input)
+                return "","user",""
+
+        self.executeResponse()
+        self.saveJsonToFile(self.msg_list)

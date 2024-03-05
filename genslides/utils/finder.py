@@ -40,7 +40,11 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                     rep_text = rep_text.replace(res, str(rep))
         elif arr[1] == getMsgTag():
             param = task.getLastMsgContent()
-            if len(arr) > 3 and arr[2] == 'json':
+            if len(arr) == 3 and arr[2] == 'json':
+                bres, j = Loader.Loader.loadJsonFromText(param)
+                if bres:
+                    rep_text = rep_text.replace(res, json.dumps(j))
+            elif len(arr) > 3 and arr[2] == 'json':
                 bres, j = Loader.Loader.loadJsonFromText(param)
                 try:
                     # print('try find json', j)
