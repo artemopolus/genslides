@@ -300,15 +300,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             update_task_btn = gr.Button(value="Update")
                             updatecur_task_btn = gr.Button(value='Update current')
                             clean_task_btn = gr.Button(value='Clean')
-                    with gr.Tab('Steps'):
-                        with gr.Accordion(label='Old',open=False):
-                            res_step_btn = gr.Button(value='Reset Q')
-                            step_task_btn = gr.Button(value="Step Q")
-                            edit_step_task_btn = gr.Button(value='Edit&Step Q')
-                            step_branch_btn = gr.Button(value='Branch Q')
-                        step_branch_txt = gr.Textbox(lines = 4, label='Prompt for Branch Q',value='')
-                        # TODO: добавить инструмент изменения порядка выполнения наследников и линкованных 
-
                     with gr.Tab('Manager'):
                         with gr.Row():
                             with gr.Column():
@@ -564,7 +555,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
             project_reload.click(fn=projecter.reload)
 
-            res_step_btn.click(fn=manager.resetCurTaskQueue,outputs=std_output_list)
             fix_task_btn.click(fn=manager.fixTasks, outputs=std_output_list)
 
             run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
@@ -577,9 +567,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             updbrnc_step_btn.click(fn=projecter.updateCurrentTree, outputs=std_output_list)
             reset_step_btn.click(fn=projecter.resetUpdate, outputs= std_output_list)
 
-            edit_step_task_btn.click(fn=manager.updateAndExecuteStep, inputs=step_branch_txt, outputs=std_output_list)
-            step_task_btn.click(fn=manager.executeStep,outputs=std_output_list, api_name="step_task_btn")
-            step_branch_btn.click(fn=manager.executeSteppedBranch, inputs=step_branch_txt, outputs=std_output_list)
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
             prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
             action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
