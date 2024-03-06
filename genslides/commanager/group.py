@@ -72,7 +72,8 @@ class Actioner():
         if 'task_names' in man and len(man['task_names']) > 0:
             for code in man['task_names']:
                 task = self.std_manager.getTaskByName(code)
-                manager.addTask(task)
+                if task is not None:
+                    manager.addTask(task)
             manager.info['task_names'] = man['task_names']
             print('List for', manager.getName(),':',[t.getName() for t in manager.task_list])
             manager.saveInfo()
