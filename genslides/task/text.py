@@ -685,8 +685,9 @@ class TextTask(BaseTask):
             self.is_freeze = self.parent.is_freeze
 
         res, is_input = self.getParam("input")
-        # if input:
-        #     print("input manual=",input.manual)
+        # TODO: Инпут изначально планировался как средство остановки обновления до ожидания действий пользователя, теперь его "заменяет" блокировка, может быть он теперь и не нужен?
+        res = False
+
         if res and is_input:
             if input and input.manual:
                 self.is_freeze = False
@@ -695,7 +696,6 @@ class TextTask(BaseTask):
         else:
             if self.parent == None:
                 self.is_freeze = False
-        # print("freeze=", self.is_freeze)
 
     def checkInput(self, input: TaskDescription = None):
         # print('Check input')
