@@ -442,11 +442,11 @@ class Manager:
                 return self.getCurrTaskPrompts()
             if len(trg.parent.getChilds()) > 1:
                 if self.branch_lastpar is not None and trg.parent == self.branch_lastpar:
-                    self.curr_task = trg.parent.childs[self.branch_idx]
                     if self.branch_idx + 1 < len(trg.parent.getChilds()):
                         self.branch_idx += 1
                     else:
                         self.branch_idx = 0
+                    self.curr_task = trg.parent.childs[self.branch_idx]
                 else:
                     self.branch_lastpar = trg.parent
                     self.curr_task = trg.parent.childs[0]

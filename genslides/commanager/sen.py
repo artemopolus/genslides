@@ -721,7 +721,7 @@ class Projecter:
             task = tasks.pop(-1)
             if len(task.getChilds()) > 1 or task.isRootParent():
                 return man.getCurrTaskPrompts()
-            if task not in man.multiselect_tasks:
+            if task in man.multiselect_tasks:
                 man.multiselect_tasks.remove(task)
         return man.getCurrTaskPrompts()
 
