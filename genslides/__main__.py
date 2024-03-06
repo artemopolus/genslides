@@ -125,12 +125,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                 # with gr.Column(min_width=150):
                     new_tree_btn = gr.Button(value='Create tree', min_width=150)
                     next_tree_btn = gr.Button(value='Next tree', min_width=150)
-                    next_branch_btn = gr.Button(value='Next branch', min_width=150)
-                    next_brend_bt = gr.Button(value='Next bud', min_width=150)
                 # with gr.Column():
-            with gr.Row() as r:
-                    go_parnt_btn = gr.Button(value='Go up')
-                    go_child_btn = gr.Button(value='Go down')
+            # with gr.Row() as r:
                     go_lnkback_btn = gr.Button(value='Go bcklnk')
                 # with gr.Column():
                     
@@ -140,10 +136,22 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                 with gr.Row():
                         end_name_text = gr.Textbox(label='Current bud:')
 
-            with gr.Tab('Both'):
+            with gr.Tab('Workspace'):
                 with gr.Row():
                     with gr.Column():
-                        sec_msg = gr.Chatbot(height=500)
+                        graph_img = gr.Image(
+                            # tool="sketch", 
+                            # interactive=True, 
+                            # source="upload", type="pil", 
+                            height=500)
+                    with gr.Column():
+                        with gr.Row():
+                            next_branch_btn = gr.Button(value='Next branch', min_width=150)
+                            next_brend_bt = gr.Button(value='Next bud', min_width=150)
+                            go_parnt_btn = gr.Button(value='Go up')
+                            go_child_btn = gr.Button(value='Go down')
+                        with gr.Row():
+                            sec_msg = gr.Chatbot(height=500)
                         with gr.Accordion('Tools', open=False):
                             with gr.Row():
                                 gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
@@ -152,23 +160,23 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 gr.Button("Cp fldr path").click(fn=manager.getPathToFolder)
                                 gr.Button("Cp file path").click(fn=manager.getPathToFile)
                     # sec_msg.style(height=500)
-                    with gr.Column():
-                        graph_img = gr.Image(
-                            # tool="sketch", 
-                            # interactive=True, 
-                            # source="upload", type="pil", 
-                            height=500)
                 # graph_img.style(height=500)
-            with gr.Tab('Dial'):
+            with gr.Tab('Step navigation'):
                 with gr.Row():
-                    # with gr.Column(scale=3):
-                        dial_block = gr.Chatbot(height=500)
-            with gr.Tab('Img'):
-                with gr.Row():
-                    with gr.Column():
+                    with gr.Column(scale=1):
                         graph_alone = gr.Image(
                             width=500
                         )
+                    with gr.Column(scale=1):
+                        with gr.Row():
+                            updateall_step_btn = gr.Button(value="Update all trees(UAT)")
+                            update_step_btn = gr.Button(value="UAT one step")
+                            upd2cur_step_btn = gr.Button(value='UAT to cur')
+                            updbrnc_step_btn = gr.Button(value='Update tree')
+                            reset_step_btn = gr.Button(value="Reset steps")
+                        with gr.Row():
+                            dial_block = gr.Chatbot(height=500)
+
             with gr.Row():
                 # with gr.Column():
                     with gr.Tab('Prompt'):
@@ -293,12 +301,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             updatecur_task_btn = gr.Button(value='Update current')
                             clean_task_btn = gr.Button(value='Clean')
                     with gr.Tab('Steps'):
-                        with gr.Row():
-                            updateall_step_btn = gr.Button(value="Update all trees(UAT)")
-                            update_step_btn = gr.Button(value="UAT one step")
-                            upd2cur_step_btn = gr.Button(value='UAT to cur')
-                            updbrnc_step_btn = gr.Button(value='Update tree')
-                            reset_step_btn = gr.Button(value="Reset steps")
                         with gr.Accordion(label='Old',open=False):
                             res_step_btn = gr.Button(value='Reset Q')
                             step_task_btn = gr.Button(value="Step Q")
