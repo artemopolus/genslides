@@ -35,10 +35,10 @@ def main():
     target_text_file = sys.argv[1]
     json_instructions_file = sys.argv[2]
     
-    with open(target_text_file, 'r') as file:
+    with open(target_text_file, 'r', encoding='utf-8') as file:
         target_text = file.read()
         
-    with open(json_instructions_file, 'r') as file:
+    with open(json_instructions_file, 'r', encoding='utf-8') as file:
         json_instructions = file.read()
     
     # Insert text based on JSON instructions
