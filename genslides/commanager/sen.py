@@ -38,6 +38,8 @@ class Projecter:
 
         self.actioner = None
 
+        self.tmp_actioner = None
+
         self.resetManager(manager)
         # saver = SaveData()
         # saver.removeFiles()
@@ -205,6 +207,8 @@ class Projecter:
                 return self.makeTaskAction(prompt, custom_action, "NewExtProject", "")
             elif selected_action == "SubTask":
                 return self.makeTaskAction(prompt, custom_action, "SubExtProject", "")
+            elif selected_action == "Insert":
+                return self.makeTaskAction(prompt, custom_action, "InsExtProject", "")
         elif custom_action == 'Garland':
             self.makeTaskAction('', custom_action, selected_action, '')
         return self.manager.getCurrTaskPrompts()
@@ -424,6 +428,24 @@ class Projecter:
         out = self.actioner.manager.getCurrTaskPrompts()
         out += self.actioner.getTmpManagerInfo()
         return out
+    
+    def switchToExtTaskManager(self):
+        man = self.actioner.manager
+        if man.curr_task.getType() == 'ExtProject' and self.tmp_actioner == None:
+            self.tmp_actioner = self.actioner
+            print('Switch on actioner of', man.curr_task.getName())
+            self.actioner = man.curr_task.getActioner()
+        out = self.actioner.manager.getCurrTaskPrompts()
+        out += self.actioner.getTmpManagerInfo()
+        return out
+    
+    def backToDefaultActioner(self):
+        if self.tmp_actioner != None:
+            self.actioner = self.tmp_actioner
+        out = self.actioner.manager.getCurrTaskPrompts()
+        out += self.actioner.getTmpManagerInfo()
+        return out
+ 
     
     def initSavdManagerToCur(self,name):
         self.makeTaskAction("","","InitSavdManagerToCur","", {'task': name})

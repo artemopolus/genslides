@@ -318,6 +318,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     load_tempman_btn = gr.Button(value='Set tmp man')
                                     updt_prman_btn = gr.Button(value='Updt man list')
                                 with gr.Row():
+                                    load_extproj_act_btn = gr.Button('Set Act ExtProject')
+                                    reset_initact_btn = gr.Button('Set def act')
+                                with gr.Row():
                                     get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
                                 with gr.Row():
                                     load_prman_btn = gr.Button(value='Load to trgtask')
@@ -476,6 +479,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             std_full.extend(std_output_man_list)
             init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
             load_tempman_btn.click(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
+            load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)
+            reset_initact_btn.click(fn=manipulate_manager.backToDefaultActioner, outputs=std_full)
             
             exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_full)
 

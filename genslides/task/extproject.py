@@ -60,6 +60,9 @@ class ExtProjectTask(CollectTask):
         print('Execute', self.getName(),'from',self.intman.getPath())
         # print(10*"----------")
 
+    def getActioner(self) -> Actioner.Actioner:
+        return self.actioner
+
     def updateInOutExtProject(self):
          if self.intman is None:
              return

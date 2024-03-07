@@ -307,6 +307,14 @@ class Actioner():
             self.manager.createExtProject(type1, prompt, None)
         elif creation_type == "SubExtProject":
             self.manager.createExtProject(type1, prompt, self.manager.curr_task)
+        elif creation_type == "InsExtProject":
+            if self.manager.curr_task != None and self.manager.curr_task.parent != None:
+                trg = self.manager.curr_task
+                par = self.manager.curr_task.parent
+                if self.manager.createExtProject(type1, prompt, par):
+                    param = {'select': self.manager.curr_task.getName()}
+                    self.manager.curr_task = trg
+                    self.makeTaskAction("","","Parent","", param=param, save_action=False)
         elif creation_type in self.manager.getMainCommandList() or creation_type in self.manager.vars_param:
             if 'curr' in param:
                 self.manager.selected_tasks = []
