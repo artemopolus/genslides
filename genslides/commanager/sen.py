@@ -414,9 +414,13 @@ class Projecter:
         return out
     
     def loadTmpManager(self, name):
-        for man in self.actioner.tmp_managers:
-            if man.getName() == name:
-                self.actioner.manager = man
+        if self.actioner.std_manager.getName() == name:
+            self.actioner.manager = self.actioner.std_manager
+        else:
+            for man in self.actioner.tmp_managers:
+                if man.getName() == name:
+                    self.actioner.manager = man
+                    break
         out = self.actioner.manager.getCurrTaskPrompts()
         out += self.actioner.getTmpManagerInfo()
         return out

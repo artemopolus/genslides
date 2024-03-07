@@ -283,7 +283,9 @@ class Actioner():
         elif creation_type == "StopPrivManager":
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
-            trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
+            # trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
+            # TODO: Сделать функцию для перехода от одного времен. менеджера к другому времен. мен. Или же при создании менеджера указывать исходного менеджера для исключения ошибок. Текущая предусматривает переход только к исходному
+            trg = self.std_manager
             self.removeTmpManager(self.manager, trg, copy=True)
             print('New manager is', self.manager.getName())
             if save_action:
@@ -384,6 +386,8 @@ class Actioner():
         trg.saveInfo()
 
     def removeTmpManager(self, man : Manager, next_man: Manager, copy = True):
+        if man is next_man:
+            return
         # проверяем целевой
         if next_man is None:
             return
@@ -445,6 +449,8 @@ class Actioner():
         del param['idx']
         del param['done']
         tmp_man = [t.getName() for t in self.tmp_managers]
+        tmp_man.append(self.std_manager.getName())
+        tmp_man.append('None')
         if len(tmp_man) == 0:
             name = self.manager.getName()
         else:

@@ -139,11 +139,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             with gr.Tab('Workspace'):
                 with gr.Row():
                     with gr.Column():
-                        graph_img = gr.Image(
+                        with gr.Row():
+                            graph_img = gr.Image(
                             # tool="sketch", 
                             # interactive=True, 
                             # source="upload", type="pil", 
                             height=500)
+                        with gr.Row():
+                            name_info = gr.Text(value="None", label="Task")
                     with gr.Column():
                         with gr.Row():
                             next_branch_btn = gr.Button(value='Next branch', min_width=150)
@@ -182,7 +185,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     with gr.Tab('Prompt'):
                         with gr.Row():
                             with gr.Column(scale=1,min_width=150):
-                                name_info = gr.Text(value="None", label="Task")
                                 base_action_list = gr.Radio(choices=["New","SubTask","Insert","Edit"], 
                                                             label="Select actions", 
                                                             value="New"
