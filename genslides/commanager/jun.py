@@ -63,6 +63,8 @@ class Manager:
         self.loadexttask = None
         self.name = 'Base'
 
+        self.no_output = False
+
     def setName(self, name : str):
         self.name = name
 
@@ -615,7 +617,7 @@ class Manager:
                         trg_list.append(t)
         else:
             trg_list = self.task_list
-        print('Target tasks:',[t.getName() for t in trg_list])
+        # print('Target tasks:',[t.getName() for t in trg_list])
         if len(trg_list) > 0:
             f = graphviz.Digraph(comment='The Test Table',
                                   graph_attr={'size':"7.75,10.25",'ratio':'fill'})
@@ -1401,6 +1403,8 @@ class Manager:
 
     
     def getCurrTaskPrompts(self, set_prompt = ""):
+        if self.no_output:
+            return
         if self.curr_task is None:
             return
         msgs = self.curr_task.getMsgs()

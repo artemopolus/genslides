@@ -103,7 +103,7 @@ class SetOptionsTask(WriteToFileTask):
                     print("Params changed update all")
                     self.forceCleanChildsChat()
             except Exception as e:
-                print("Can't load parameters from",self.prompt,"due",e)
+                print("Can't load parameters from",self.getName(),"due",e)
 
             for param in input.params:
                 if 'name' in param and 'value' in param and 'prompt' in param:

@@ -54,7 +54,9 @@ class Projecter:
         self.manager.onStart()
         self.manager.initInfo(self.loadExtProject)
         if load:
+            self.manager.no_output = True
             self.manager.loadTasksList(fast)
+            self.manager.no_output = False
         
         if self.actioner is None:
             self.actioner = Actioner(manager)
@@ -672,7 +674,10 @@ class Projecter:
         return self.actioner.update()
         
     def updateAll(self):
-        return self.actioner.updateAll()
+        self.actioner.manager.no_output = True
+        self.actioner.updateAll()
+        self.actioner.manager.no_output = False
+        return self.actioner.manager.getCurrTaskPrompts()
     
     def updateCurrentTree(self):
         return self.actioner.updateCurrentTree()

@@ -32,7 +32,7 @@ def getBranchCodeTag(name: str) -> str:
     return '[[' + name + ':' + 'branch_code' + ']]'
 
 def getFromTask(arr : list, res : str, rep_text, task, manager):
-        print('Get from task', task.getName())
+        # print('Get from task', task.getName())
         if len(arr) > 5 and 'type' == arr[1]:
                 bres, pparam = task.getParamStruct(arr[2])
                 if bres and arr[3] in pparam and pparam[arr[3]] == arr[4] and arr[5] in pparam:
