@@ -370,7 +370,24 @@ class Projecter:
     def goToParent(self):
         return self.actioner.manager.goToParent()
         # return self.makeTaskAction("","","GoToParent","")
-   
+    
+    def moveToNextChild(self):
+        self.actioner.manager.goToNextChild()
+        return self.actioner.manager.getCurrTaskPrompts()
+    
+    def moveToParent(self):
+        self.actioner.manager.curr_task.resetQueue()
+        self.actioner.manager.goToParent()
+        return self.actioner.manager.getCurrTaskPrompts()
+    
+    def moveToNextBranch(self):
+        man = self.actioner.manager
+        man.goToNextBranch()
+        if man.curr_task.parent != None:
+            trg = man.curr_task.parent
+            man.curr_task = trg
+        return man.getCurrTaskPrompts()
+
     def switchRole(self, role, prompt):
         task = self.actioner.manager.curr_task
         print('Set role[', role, ']for',task.getName())
@@ -433,8 +450,11 @@ class Projecter:
         man = self.actioner.manager
         if man.curr_task.getType() == 'ExtProject' and self.tmp_actioner == None:
             self.tmp_actioner = self.actioner
-            print('Switch on actioner of', man.curr_task.getName())
             self.actioner = man.curr_task.getActioner()
+            print('Switch on actioner of', man.curr_task.getName())
+            print('Path:', self.actioner.getPath())
+            print('Man:', self.actioner.manager.getName())
+            print('Tasks:',[t.getName() for t in self.actioner.manager.task_list])
         out = self.actioner.manager.getCurrTaskPrompts()
         out += self.actioner.getTmpManagerInfo()
         return out
@@ -442,6 +462,7 @@ class Projecter:
     def backToDefaultActioner(self):
         if self.tmp_actioner != None:
             self.actioner = self.tmp_actioner
+            self.tmp_actioner = None
         out = self.actioner.manager.getCurrTaskPrompts()
         out += self.actioner.getTmpManagerInfo()
         return out

@@ -61,6 +61,10 @@ class ExtProjectTask(CollectTask):
         # print(10*"----------")
 
     def getActioner(self):
+        self.intman.updateTreeArr()
+        task = self.intpar
+        if task != None and task not in self.intman.tree_arr:
+            self.intman.tree_arr.append(task)
         return self.actioner
 
     def updateInOutExtProject(self):

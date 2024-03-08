@@ -177,6 +177,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             upd2cur_step_btn = gr.Button(value='UAT to cur')
                             updbrnc_step_btn = gr.Button(value='Update tree')
                             reset_step_btn = gr.Button(value="Reset steps")
+                            
+                            move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
+                            move2parnt_btn = gr.Button(value='Move up')
+                            move2child_btn = gr.Button(value='Move down')
                         with gr.Row():
                             dial_block = gr.Chatbot(height=500)
 
@@ -544,6 +548,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
 
             extpr_new.click(fn=projecter.newExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
             extpr_append.click(fn=projecter.appendExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
+
+
+            move2child_btn.click(fn=projecter.moveToNextChild, outputs=std_output_list)
+            move2parnt_btn.click(fn=projecter.moveToParent, outputs=std_output_list)
+            move2brnch_btn.click(fn=projecter.moveToNextBranch, outputs=std_output_list)
 
             next_brend_bt.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
             next_branch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)

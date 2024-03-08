@@ -351,7 +351,7 @@ class BaseTask():
         out = par.getAllChildChains()
         return out
 
-    def getAllParents(self):
+    def getAllParents(self, max_index = -1):
         par = self
         index = 0
         out = [self]
@@ -383,6 +383,8 @@ class BaseTask():
                     out = p
                 break
             index += 1
+            if max_index != -1 and index > max_index:
+                break
         # print('Parent list:', [t.getName() for t in out])
         return out
 
@@ -528,7 +530,7 @@ class BaseTask():
         return branch_list
 
 
-    def getAllChildChains(self):
+    def getAllChildChains(self, max_index = -1):
         index = 0
         out = [self]
         trgs = [self]
@@ -544,6 +546,8 @@ class BaseTask():
                 break
             trgs = n_trgs
             index += 1
+            if max_index != -1 and index > max_index:
+                break
         return out
     
     def getAllBuds(self):

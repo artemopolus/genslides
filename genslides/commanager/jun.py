@@ -600,20 +600,22 @@ class Manager:
         return img_path
 
 
-    def drawGraph(self, only_current= True):
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img"):
         # print('Draw graph')
         if only_current:
             if self.curr_task.isRootParent():
                 trg_list = self.curr_task.getTree()
             else:
-                trg_list = self.curr_task.getAllParents()
-                trg_list.extend(self.curr_task.getAllChildChains()[1:])
+                trg_list = self.curr_task.getAllParents(max_index = max_index)
+                for task in self.curr_task.getAllChildChains(max_index=max_index):
+                    if task not in trg_list:
+                        trg_list.append(task)
                 for t in self.multiselect_tasks:
                     if t not in trg_list:
                         trg_list.append(t)
         else:
             trg_list = self.task_list
-        # print('Target tasks:',[t.getName() for t in trg_list])
+        print('Target tasks:',[t.getName() for t in trg_list])
         if len(trg_list) > 0:
             f = graphviz.Digraph(comment='The Test Table',
                                   graph_attr={'size':"7.75,10.25",'ratio':'fill'})
@@ -699,7 +701,7 @@ class Manager:
                     # print("by ",info.parent.getName())
                     f.edge(info.parent.getIdStr(), task.getIdStr(), color = "darkorchid3", style="dashed")
 
-            img_path = "output/img"
+            img_path = path
             f.render(filename=img_path,view=False,format='png')
             img_path += ".png"
             return img_path
@@ -1448,6 +1450,8 @@ class Manager:
 
         graph = self.drawGraph()
 
+        graph2 = self.drawGraph(max_index= 4, path = "output/img2")
+
         res_params = self.curr_task.getAllParams()
 
         for param in res_params:
@@ -1474,7 +1478,7 @@ class Manager:
             r_msgs,
             self.getCurrentExtTaskOptions(),
             # TODO: Рисовать весь граф, но в упрощенном виде
-            graph,
+            graph2,
             self.getTreeNamesForRadio(),
             self.getCurrentTreeNameForTxt(),
             self.getBranchEndList(),
