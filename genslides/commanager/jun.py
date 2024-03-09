@@ -65,6 +65,12 @@ class Manager:
 
         self.no_output = False
 
+    def disableOutput(self):
+        self.no_output = False
+
+    def enableOutput(self):
+        self.no_output = True
+
     def setName(self, name : str):
         self.name = name
 
@@ -1831,8 +1837,11 @@ class Manager:
                 parent = tasks_chains[branch['i_par']]['created'][-1]
             else:
                 # Самый первый элемент дерева, устнаавливаем родительский элемент
-                # TODO: устанавливаем произвольного родителя если указано
-                parent = branch['parent']
+                # устанавливаем произвольного родителя если указано
+                if self.tc_new_parent == None:
+                    parent = branch['parent']
+                else:
+                    parent = self.tc_new_parent
                 # если нужно меняем промпт
                 if change_prompt:
                     prompt = edited_prompt
@@ -1843,7 +1852,7 @@ class Manager:
         print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
         # Меняем тип задачи
         for switch in self.tc_switch_type:
-            if trg_type == switch['src']:
+            if trg_type == switch['src'] and task not in self.tc_ignore_conv:
                 trg_type = switch['trg']
         if trg_type == 'ExtProject':
             res, param = task.getParamStruct('external')
@@ -1940,13 +1949,13 @@ class Manager:
         return res_tasks_chains
 
 
-    def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = []):
+    def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = [], new_parent = None, ignore_conv = []):
         print('Copy tasks by info')
-        self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch)
+        self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch, new_parent, ignore_conv)
         self.copyTasksByInfoExe()
         return self.copyTasksByInfoStop()
 
-    def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = []):
+    def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = [], new_parent = None, ignore_conv = []):
         i = 0
         links_chain = []
         insert_tasks = []
@@ -1982,6 +1991,9 @@ class Manager:
 
         self.tc_start = True
         self.tc_stop = False
+
+        self.tc_new_parent = new_parent
+        self.tc_ignore_conv = ignore_conv
 
         for i in range(len(tasks_chains)):
             for j in range(len(tasks_chains[i]['branch'])):

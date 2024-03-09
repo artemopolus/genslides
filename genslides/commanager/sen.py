@@ -54,9 +54,9 @@ class Projecter:
         self.manager.onStart()
         self.manager.initInfo(self.loadExtProject)
         if load:
-            self.manager.no_output = True
+            self.manager.enableOutput()
             self.manager.loadTasksList(fast)
-            self.manager.no_output = False
+            self.manager.disableOutput()
         
         if self.actioner is None:
             self.actioner = Actioner(manager)
@@ -170,10 +170,12 @@ class Projecter:
     
     def save(self, name):
         self.current_project_name = name
-        self.manager.setParam("current_project_name",self.current_project_name)
+        self.actioner.std_manager.setParam("current_project_name",self.current_project_name)
 
         # Archivator.saveOnlyFiles(self.savedpath, self.mypath, name)
-        Archivator.saveAll(self.savedpath, self.mypath, name)
+        print('Save man', self.actioner.manager.getName(),'(Temp)' if self.actioner.manager != self.actioner.std_manager else '(Main)')
+        path = self.actioner.manager.getPath()
+        Archivator.saveAll(path, self.mypath, name)
 
         return gr.Dropdown( choices= self.loadList(), interactive=True)
 
@@ -223,7 +225,7 @@ class Projecter:
     
     def getParamListForEdit(self):
         # TODO: добавить простую копию задачи
-        return ['resp2req','coll2req','read2req','in','out','link','step','change','chckresp']
+        return ['resp2req','coll2req','read2req','in','out','link','step','change','chckresp','sel2par','ignrlist']
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')
@@ -247,6 +249,7 @@ class Projecter:
             if 'coll2req' in checks:
             # TODO: Если надо заменить задачу типа Collect, то меняем все типы задач Receive/Collect/GroupCollect
                 param['switch'].append({'src':'Collect','trg':'Request'})
+                param['switch'].append({'src':'GroupCollect','trg':'Request'})
                 param['switch'].append({'src':'Garland','trg':'Request'})
             if 'read2req' in checks:
                 param['switch'].append({'src':'ReadFileParam','trg':'Request'})
@@ -674,9 +677,9 @@ class Projecter:
         return self.actioner.update()
         
     def updateAll(self):
-        self.actioner.manager.no_output = True
+        self.actioner.manager.enableOutput()
         self.actioner.updateAll()
-        self.actioner.manager.no_output = False
+        self.actioner.manager.disableOutput()
         return self.actioner.manager.getCurrTaskPrompts()
     
     def updateCurrentTree(self):

@@ -229,19 +229,29 @@ class Actioner():
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif 'extedit' in param and param['extedit']:
             # tasks_chains = self.manager.curr_task.getTasksFullLinks(param)
+            trg_parent = None
+            ignore_conv = []
+            if 'sel2par' in param and param['sel2par'] and len(self.manager.selected_tasks) == 1:
+                trg_parent = self.manager.selected_tasks[0]
+            if 'ignrlist' in param and param['ignrlist'] and len(self.manager.multiselect_tasks) > 0:
+                ignore_conv = self.manager.multiselect_tasks.copy()
             tasks_chains = self.manager.getTasksChainsFromCurrTask(param)
             if param['step']:
                 self.manager.copyTasksByInfoStart(
                                         tasks_chains=tasks_chains,
                                          edited_prompt=prompt, 
                                          change_prompt=param['change'], 
-                                         switch=param['switch']
+                                         switch=param['switch'],
+                                         new_parent=trg_parent,
+                                         ignore_conv=ignore_conv
                 )
             else:
                 self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
                                          edited_prompt=prompt, 
                                          change_prompt=param['change'],
-                                         switch=param['switch']
+                                         switch=param['switch'],
+                                         new_parent=trg_parent,
+                                         ignore_conv=ignore_conv
                                          )
             
 
