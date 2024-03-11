@@ -58,14 +58,17 @@ class Projecter:
     def loadManagerFromBrowser(self):
         man_path = Loader.Loader.getDirPathFromSystem()
         self.actioner.std_manager.setPath(man_path)
-        return self.loadManager()
+        self.resetManager(manager = self.actioner.std_manager, path = man_path)
+        if len(self.actioner.std_manager.task_list) == 0:
+            return self.createNewTree()
+        return self.actioner.manager.getCurrTaskPrompts()
 
-    def resetManager(self, manager : Manager, fast = True, load = True):
+    def resetManager(self, manager : Manager, fast = True, load = True, path = 'saved'):
         if self.actioner is None:
             self.actioner = Actioner(manager)
         else:
             self.actioner.reset()
-
+        self.actioner.setPath(path)
         self.manager = self.actioner.std_manager
         self.manager.onStart()
         self.manager.initInfo(self.loadExtProject, path = self.actioner.getPath())

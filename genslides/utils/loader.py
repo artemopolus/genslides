@@ -65,7 +65,7 @@ class Loader:
         print('Can\'t find json object in txt')
         return False, None
     
-    def getFilePathFromSystem(self) -> str:
+    def getFilePathFromSystem() -> str:
         app = Tk()
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
@@ -74,7 +74,7 @@ class Loader:
         filename = PurePosixPath(path)
         return filename
     
-    def getDirPathFromSystem(self) -> str:
+    def getDirPathFromSystem() -> str:
         app = Tk()
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
@@ -83,7 +83,7 @@ class Loader:
         filename = PurePosixPath(path)
         return filename
     
-    def getUniPath(self, path : str) -> str:
+    def getUniPath(path : str) -> str:
         out = Path(path)
         if platform == 'win32':
             out = PureWindowsPath(out)

@@ -106,7 +106,7 @@ class Manager:
                 out.append(param)
         return out
 
-    def onStart(self):
+    def onStart(self, path = 'saved'):
         self.task_list = []
         self.task_index = 0
         self.curr_task = None
@@ -127,7 +127,7 @@ class Manager:
 
         self.need_human_response = False
         # TODO: установить как значение по умолчанию
-        self.path = 'saved'
+        self.path = path
         self.proj_pref = ''
         self.return_points = []
         self.selected_tasks = []

@@ -125,7 +125,7 @@ class TaskManager(metaclass=Singleton):
         return out
 
     def getTaskPrompts(self,mypath, trg_path = "", ignore_safe = False):
-        # print('Find child for', trg_path)
+        # print('Get task prompts in folder', mypath, 'with path', trg_path, 'ignore_safe=', ignore_safe)
         pr_ch = []
         if trg_path != "":
             with open(trg_path, 'r') as f:
