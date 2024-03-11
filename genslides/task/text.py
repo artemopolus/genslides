@@ -431,6 +431,7 @@ class TextTask(BaseTask):
 
     def getPath(self) -> str:
         mypath = self.manager.getPath()
+        mypath = Loader.getUniPath(mypath)
         wr.checkFolderPathAndCreate(mypath)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         self.setName( self.getType() + str(self.id))

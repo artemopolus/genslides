@@ -125,11 +125,14 @@ class Projecter:
         if filename == "":
             return ""
         self.clearFiles()
-        print('Load files to',self.savedpath)
-        Archivator.extractFiles(self.mypath, filename, self.savedpath)
-        self.resetManager(self.manager)
+        path = self.actioner.manager.getPath()
+        path = Loader.Loader.getUniPath(path)
+        print('Load files to',path)
+        project_path = Loader.Loader.getUniPath(self.mypath)
+        Archivator.extractFiles(project_path, filename, path)
+        self.resetManager(self.actioner.manager, path=self.actioner.getPath())
         self.current_project_name = filename
-        self.manager.setParam("current_project_name",self.current_project_name)
+        self.actioner.manager.setParam("current_project_name",self.current_project_name)
         self.updateSessionName()
         return filename
     

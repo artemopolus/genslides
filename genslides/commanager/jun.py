@@ -127,7 +127,6 @@ class Manager:
         self.browser = WebBrowser()
 
         self.need_human_response = False
-        # TODO: установить как значение по умолчанию
         self.path = path
         self.proj_pref = ''
         self.return_points = []
@@ -213,7 +212,7 @@ class Manager:
         # print(10*"=======")
         print('Fast load of tasks' if safe else 'Load task from files')
         task_manager = TaskManager()
-        links = task_manager.getLinks(self.getPath())
+        links = task_manager.getLinks(Loader.Loader.getUniPath(self.getPath()))
         self.createTask(prnt_task=None, safe=safe)
 
         # print('Links', links)
