@@ -1,5 +1,6 @@
 import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
+import genslides.utils.loader as Loader
 
 # import genslides.commands.create as create
 from genslides.helpers.singleton import Singleton
@@ -125,9 +126,11 @@ class TaskManager(metaclass=Singleton):
         return out
 
     def getTaskPrompts(self,mypath, trg_path = "", ignore_safe = False):
+        mypath = Loader.Loader.getUniPath(mypath)
         # print('Get task prompts in folder', mypath, 'with path', trg_path, 'ignore_safe=', ignore_safe)
         pr_ch = []
         if trg_path != "":
+            trg_path = Loader.Loader.getUniPath(trg_path)
             with open(trg_path, 'r') as f:
                 pr_fl = json.load(f)
                 if 'params' in pr_fl:

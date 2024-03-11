@@ -65,27 +65,51 @@ class Loader:
         print('Can\'t find json object in txt')
         return False, None
     
-    def getFilePathFromSystem() -> str:
+    def getFilePathFromSystem(manager_path = '') -> str:
         app = Tk()
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
-        filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
-        path = Path(filename)
+        filepath = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+        path = Path(filepath)
         filename = PurePosixPath(path)
+        if manager_path != '':
+            filename = Loader.checkManagerTag(path, manager_path)
         return filename
     
-    def getDirPathFromSystem() -> str:
+    def checkManagerTag(path, manager_path):
+        try:
+            mpath = Path(manager_path).parent
+            rel_path = path.relative_to(mpath)
+            str_rel_path = str(PurePosixPath(rel_path))
+            filename = '[[manager:path:fld]]/'+ str_rel_path
+        except Exception as e:
+            print('Manager folder is not relative:',e)
+            filename = PurePosixPath(path)
+        return filename
+
+    
+    def getDirPathFromSystem(manager_path = '') -> str:
         app = Tk()
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
-        filename = askdirectory() # show an "Open" dialog box and return the path to the selected file
-        path = Path(filename)
+        dirpath = askdirectory() # show an "Open" dialog box and return the path to the selected file
+        path = Path(dirpath)
         filename = PurePosixPath(path)
+        if manager_path != '':
+            filename = Loader.checkManagerTag(path, manager_path)
         return filename
     
-    def getUniPath(path : str) -> str:
+    def getFolderPath(path : str) -> str:
+        out = Path(path).parent
+        if platform == 'win32':
+            out = PurePosixPath(out)
+        return str(out)
+    
+    def getUniPath(path: str) -> str:
         out = Path(path)
         if platform == 'win32':
             out = PureWindowsPath(out)
-        return out
+        return str(out)
+        
+
 

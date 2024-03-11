@@ -18,6 +18,7 @@ import genslides.commands.link as lnkcmd
 
 from genslides.utils.largetext import SimpleChatGPT
 import genslides.utils.writer as writer
+import genslides.utils.loader as Loader
 
 import os
 from os import listdir
@@ -1566,10 +1567,7 @@ class Manager:
     def getTaskKeyValue(self, param_name, param_key):
         print('Get task key value:',param_name,'|', param_key)
         if param_key == 'path_to_read':
-            app = Tk()
-            app.withdraw() # we don't want a full GUI, so keep the root window from appearing
-            app.attributes('-topmost', True)
-            filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+            filename = Loader.Loader.getFilePathFromSystem(manager_path=self.getPath())
             return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
                     gr.Textbox(str(filename)))
         elif param_name == 'script' and param_key == 'path_to_trgs':

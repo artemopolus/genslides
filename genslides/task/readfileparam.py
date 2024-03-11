@@ -44,7 +44,8 @@ class ReadFileParamTask(ReadFileTask):
         param_name = "path_to_read"
         res, s_path = self.getParam(param_name)
         s_path = self.findKeyParam(s_path)
-        # print('Target path:', s_path)
+        s_path = Loader.getUniPath(s_path)
+        print('Target path to read:', s_path)
         if not os.path.exists(s_path):
             pres, paths = Loader.stringToPathList(s_path)
             # print('Paths:', paths)
@@ -88,9 +89,6 @@ class ReadFileParamTask(ReadFileTask):
                     print('Error while getting hash',e)
                     return False, ""
                 
-                # TODO: если хэш совпадат, то ничего не делать
-
-                # print('Found param struct')
                 if "role" in pparam:
                     self.prompt_tag = pparam["role"]
                 else:

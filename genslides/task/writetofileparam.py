@@ -1,6 +1,7 @@
 from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.writetofile import WriteToFileTask
 import genslides.utils.writer as writer
+from genslides.utils.loader import Loader
 
 import os
 import json
@@ -35,6 +36,7 @@ class WriteToFileParamTask(WriteToFileTask):
         param_name = "path_to_write"
         res, path = self.getParam(param_name)
         path = self.findKeyParam(path)
+        path = Loader.getUniPath(path)
 
         if self.is_freeze or len(self.msg_list) == 0 or res == False:
             return
