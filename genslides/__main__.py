@@ -115,6 +115,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             userinput_manager = projecter
             manipulate_manager = projecter
             parameters_manager = projecter
+            with gr.Row():
+                project_manLoad = gr.Button(value='Default task loading')
+                project_manBrow = gr.Button(value='Select task location')
 
             with gr.Row() as r:
                 tree_names_radio = gr.Radio(label='Trees:')
@@ -570,6 +573,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             project_clear.click(fn=projecter.clear)
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
             project_reload.click(fn=projecter.reload)
+            project_manLoad.click(fn=projecter.loadManager, outputs=std_output_list)
+            project_manBrow.click(fn=projecter.loadManagerFromBrowser, outputs=std_output_list)
 
             fix_task_btn.click(fn=manager.fixTasks, outputs=std_output_list)
 

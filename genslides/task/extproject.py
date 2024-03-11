@@ -48,9 +48,9 @@ class ExtProjectTask(CollectTask):
         # print(10*"----------")
         # print('Load tasks from',path)
         # print(10*"----------")
-        self.intman.enableOutput()
+        self.intman.disableOutput2()
         self.intman.loadTasksList()
-        self.intman.disableOutput()
+        self.intman.enableOutput2()
 
         # print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
 

@@ -65,10 +65,10 @@ class Manager:
 
         self.no_output = False
 
-    def disableOutput(self):
+    def enableOutput2(self):
         self.no_output = False
 
-    def enableOutput(self):
+    def disableOutput2(self):
         self.no_output = True
 
     def setName(self, name : str):

@@ -7,6 +7,7 @@ from genslides.commanager.group import Actioner
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
+import genslides.utils.loader as Loader
 
 from os import listdir
 from os.path import isfile, join
@@ -40,7 +41,7 @@ class Projecter:
 
         self.tmp_actioner = None
 
-        self.resetManager(manager)
+        self.resetManager(manager, load=False)
         # saver = SaveData()
         # saver.removeFiles()
         self.current_project_name = self.manager.getParam("current_project_name")
@@ -49,21 +50,30 @@ class Projecter:
         self.updateSessionName()
         self.actioner.clearTmp()
 
+    def loadManager(self):
+        if len(self.actioner.std_manager.task_list) == 0:
+            self.resetManager(self.actioner.std_manager)
+        return self.actioner.manager.getCurrTaskPrompts()
+    
+    def loadManagerFromBrowser(self):
+        man_path = Loader.Loader.getDirPathFromSystem()
+        self.actioner.std_manager.setPath(man_path)
+        return self.loadManager()
+
     def resetManager(self, manager : Manager, fast = True, load = True):
-        self.manager = manager
-        self.manager.onStart()
-        self.manager.initInfo(self.loadExtProject)
-        if load:
-            self.manager.enableOutput()
-            self.manager.loadTasksList(fast)
-            self.manager.disableOutput()
-        
         if self.actioner is None:
             self.actioner = Actioner(manager)
         else:
             self.actioner.reset()
 
-
+        self.manager = self.actioner.std_manager
+        self.manager.onStart()
+        self.manager.initInfo(self.loadExtProject, path = self.actioner.getPath())
+        if load:
+            self.manager.disableOutput2()
+            self.manager.loadTasksList(fast)
+            self.manager.enableOutput2()
+ 
 
 # сохранение сессионных имен необходимо связать только с проектером сеном, а не с менеджером
     def updateSessionName(self):
@@ -122,7 +132,7 @@ class Projecter:
     
     def appendProjectTasks(self, filename):
         tmp_manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
-        tmp_path = os.path.join('saved','tmp', filename)
+        tmp_path = os.path.join(self.actioner.getPath(),'tmp', filename)
         print('Open file',filename,'from',self.mypath,'to',tmp_path)
         tmp_manager.initInfo(method = self.actioner.loadExtProject, task=None, path = tmp_path  )
         Archivator.extractFiles(self.mypath, filename, tmp_manager.getPath())
@@ -677,9 +687,9 @@ class Projecter:
         return self.actioner.update()
         
     def updateAll(self):
-        self.actioner.manager.enableOutput()
+        self.actioner.manager.disableOutput2()
         self.actioner.updateAll()
-        self.actioner.manager.disableOutput()
+        self.actioner.manager.enableOutput2()
         return self.actioner.manager.getCurrTaskPrompts()
     
     def updateCurrentTree(self):
