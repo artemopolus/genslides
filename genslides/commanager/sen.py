@@ -53,6 +53,7 @@ class Projecter:
     def loadManager(self):
         if len(self.actioner.std_manager.task_list) == 0:
             self.resetManager(self.actioner.std_manager)
+            return self.createNewTree()
         return self.actioner.manager.getCurrTaskPrompts()
     
     def loadManagerFromBrowser(self):
