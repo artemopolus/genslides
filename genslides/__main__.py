@@ -317,7 +317,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 with gr.Row():
                                     init_prman_btn = gr.Button(value='Init empty')
                                     rset_prman_btn = gr.Button(value='Only RM man')
-                                    stop_prman_btn = gr.Button(value='RM&Save man')
+                                    stop_prman_btn = gr.Button(value='RM man&Save tasks')
                                     save2curtask_btn = gr.Button(value='Save man2task')
                                 with gr.Row():
                                     get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
@@ -332,7 +332,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 with gr.Row():
                                     load_prman_btn = gr.Button(value='Load to trgtask')
                                     exe_act2cur_btn = gr.Button(value='Load to curtask')
-                                    exe_act_btn = gr.Button(value='Exe man action')
                                 with gr.Row():
                                     actpack_name_txt = gr.Textbox(value='',label='Act pack name', lines=1)
                                     actpack_save_btn = gr.Button(value='Save actpack')
@@ -352,13 +351,15 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     exttaskopt_chgr = gr.CheckboxGroup()
                         # with gr.Tab("Actions"):
                             with gr.Column():
-                                actions_list = gr.CheckboxGroup()
+                                actions_list = gr.CheckboxGroup(label='Action list')
                                 actpack_load_btn.click(fn=projecter.loadActPack, inputs=[actpack_saved_lst], outputs=[actions_list])
                                 with gr.Row():
                                     gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
                                     gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)
                                     gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
                                     gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
+                                with gr.Row():
+                                    exe_act_btn = gr.Button(value='Execute action')
                                 actions_info_txt = gr.Textbox(lines=4)
                                 actions_list_toadd = gr.Dropdown(choices=projecter.getAvailableActionsList())
                                 action_param = gr.Textbox(lines = 4, interactive=True)
