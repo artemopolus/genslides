@@ -67,11 +67,11 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                     if isinstance(rep, list):
                         text  = ''
                         for p in range(len(rep)):
-                            if isinstance(p, dict):
-                                if len(arr) > 4 and arr[4] in p:
-                                    text_p = p[arr[4]]
+                            if isinstance(rep[p], dict):
+                                if len(arr) > 4 and arr[4] in rep[p]:
+                                    text_p = rep[p][arr[4]]
                                 else:
-                                    text_p = json.dumps(p[arr[4]])
+                                    text_p = json.dumps(rep[p])
                             else:
                                 text_p = rep[p]
                             text += str(p+1) + '. ' + str(text_p) + '\n'
