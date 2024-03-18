@@ -533,7 +533,7 @@ class BaseTask():
         return branch_list
 
 
-    def getAllChildChains(self, max_index = -1):
+    def getAllChildChains(self, max_index = -1, max_childs = -1):
         index = 0
         out = [self]
         trgs = [self]
@@ -541,10 +541,20 @@ class BaseTask():
             n_trgs = []
             found = False
             for trg in trgs:
-                for ch in trg.childs:
-                    found = True
-                    n_trgs.append(ch)
-                    out.append(ch)
+                if max_childs > 0:
+                    childs_cnt = 0
+                    for ch in trg.childs:
+                        found = True
+                        n_trgs.append(ch)
+                        out.append(ch)
+                        childs_cnt += 1
+                        if childs_cnt >= max_childs:
+                            break
+                else:
+                    for ch in trg.childs:
+                        found = True
+                        n_trgs.append(ch)
+                        out.append(ch)
             if not found:
                 break
             trgs = n_trgs
@@ -1238,6 +1248,6 @@ class BaseTask():
                 b_idx +=1
 
 
-
-
+    def readyToGenerate(self) -> bool:
+        return False
 

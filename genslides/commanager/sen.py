@@ -192,7 +192,9 @@ class Projecter:
         # Archivator.saveOnlyFiles(self.savedpath, self.mypath, name)
         print('Save man', self.actioner.manager.getName(),'(Temp)' if self.actioner.manager != self.actioner.std_manager else '(Main)')
         path = self.actioner.manager.getPath()
-        Archivator.saveAll(path, self.mypath, name)
+        path = Loader.Loader.getUniPath(path)
+        trg_path = Loader.Loader.getUniPath(self.mypath)
+        Archivator.saveAll(path, trg_path, name)
 
         return gr.Dropdown( choices= self.loadList(), interactive=True)
 

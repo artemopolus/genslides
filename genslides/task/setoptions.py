@@ -204,12 +204,12 @@ class GeneratorTask(SetOptionsTask):
                 iter_list = json.loads(text)
                 tag = gparam['tag']
                 if isinstance(iter_list, list):
-                    print('Get list')
+                    # print('Get list')
                     for iter in iter_list:
                         if tag in iter:
                             iterators.append(iter[tag])
                 elif isinstance(iter_list, dict) and tag in iter_list and isinstance(iter_list[tag],list):
-                    print('Get dict')
+                    # print('Get dict')
                     iterators = iter_list[tag]
                 else:
                     print('unknown obj:', iter_list)
@@ -266,6 +266,21 @@ class GeneratorTask(SetOptionsTask):
                 res_acts = self.updateIteration2action(iterators)
                 self.updateParamStruct('generator','iter2act', res_acts)
         return out
+
+
+    def readyToGenerate(self) -> bool:
+        gres, gparam = self.getParamStruct('generator', True)
+        pres, pparam = self.getParamStruct('manager', True)
+        if gres and pres and 'iter2act' in gparam and len(gparam['iter2act']) > 0:
+            iterators = self.getIterators(gparam)
+            cur_iter = []
+            for iter in gparam['iter2act']:
+                if iter['done'] is False:
+                    cur_iter.append(iter['var'])
+            # diff_iter = [a for a in iterators if a not in cur_iter]
+            if len(cur_iter) > 0:
+                return True
+        return super().readyToGenerate()
 
 
 

@@ -615,7 +615,7 @@ class Manager:
                 trg_list = self.curr_task.getTree()
             else:
                 trg_list = self.curr_task.getAllParents(max_index = max_index)
-                for task in self.curr_task.getAllChildChains(max_index=max_index):
+                for task in self.curr_task.getAllChildChains(max_index=max_index, max_childs=3):
                     if task not in trg_list:
                         trg_list.append(task)
                 for t in self.multiselect_tasks:
@@ -653,6 +653,10 @@ class Manager:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="blueviolet")
                     else:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkmagenta")
+                elif task.readyToGenerate():
+                    color = 'darkmagenta'
+                    shape = "ellipse" #rectangle,hexagon
+                    f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
                 elif task == self.curr_task:
                     color = "skyblue"
                     shape = "ellipse" #rectangle,hexagon
@@ -1138,8 +1142,10 @@ class Manager:
                 self.addTask(task)
                 self.curr_task = task
             elif action == 'delete':
-                self.task_list.remove(task)
-                self.curr_task = self.task_list[0]
+                if task in self.task_list:
+                    self.task_list.remove(task)
+                if self.curr_task == None:
+                    self.curr_task = self.task_list[0]
             # log += task.task_creation_result
             out += str(task) + '\n'
             out += "Task description:\n"
@@ -1458,9 +1464,9 @@ class Manager:
         # TODO: вывадить код ветки
         # print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        graph = self.drawGraph()
+        graph = self.drawGraph(max_index=4)
 
-        graph2 = self.drawGraph(max_index= 4, path = "output/img2")
+        graph2 = self.drawGraph(max_index= 2, path = "output/img2")
 
         res_params = self.curr_task.getAllParams()
 

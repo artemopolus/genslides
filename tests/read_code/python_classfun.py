@@ -3,7 +3,7 @@ import sys
 
 def main(file_path):
     # Read the content of the file
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         test_code = file.read()
 
     # Parse the code into an AST
