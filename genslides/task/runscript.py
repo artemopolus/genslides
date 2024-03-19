@@ -83,7 +83,19 @@ class RunScriptTask(ResponseTask):
             if phrase_script != 'None':
                 data += phrase_script + str(file) + "\n"
             if isinstance(file, str):
-                file = self.findKeyParam(file)
+                pfile = self.findKeyParam(file)
+                if pfile[0] == "\"" and pfile[-1] == "\"":
+                    pfile = pfile[1:-1]
+                print('path',pfile)
+                options = pfile.split(" ")
+                n_options = []
+                for option in options:
+                    apath = Loader.getUniPath(option)
+                    if os.path.exists(apath):
+                        n_options.append(apath)
+                    else:
+                        n_options.append(option)
+                file = ' '.join(n_options)
             elif isinstance(file, list):
                 n_file = []
                 for opt in file:

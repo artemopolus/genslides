@@ -702,7 +702,10 @@ class Projecter:
         return self.actioner.manager.getCurrTaskPrompts()
     
     def updateCurrentTree(self):
-        return self.actioner.updateCurrentTree()
+        self.actioner.manager.disableOutput2()
+        self.actioner.updateCurrentTree()
+        self.actioner.manager.enableOutput2()
+        return self.actioner.manager.getCurrTaskPrompts()
 
    
     def updateAllUntillCurrTask(self):
