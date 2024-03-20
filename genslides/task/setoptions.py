@@ -204,9 +204,11 @@ class GeneratorTask(SetOptionsTask):
                 iter_list = json.loads(text)
                 tag = gparam['tag']
                 if isinstance(iter_list, list):
-                    # print('Get list')
+                    # print('Get list', iter_list)
                     for iter in iter_list:
-                        if tag in iter:
+                        if isinstance(iter, str):
+                            iterators.append(iter)
+                        elif isinstance(iter, dict) and tag in iter:
                             iterators.append(iter[tag])
                 elif isinstance(iter_list, dict) and tag in iter_list and isinstance(iter_list[tag],list):
                     # print('Get dict')
