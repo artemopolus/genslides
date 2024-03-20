@@ -147,7 +147,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             # tool="sketch", 
                             # interactive=True, 
                             # source="upload", type="pil", 
-                            height=500)
+                            height=700)
                         with gr.Row():
                             name_info = gr.Text(value="None", label="Task")
                     with gr.Column():
@@ -157,7 +157,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             go_parnt_btn = gr.Button(value='Go up')
                             go_child_btn = gr.Button(value='Go down')
                         with gr.Row():
-                            sec_msg = gr.Chatbot(height=500)
+                            sec_msg = gr.Chatbot(height=700)
                         with gr.Accordion('Tools', open=False):
                             with gr.Row():
                                 gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
@@ -291,6 +291,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             rmvbrch2reltask_btn = gr.Button('Rmv branch')
                             rmvchds2reltask_btn = gr.Button('Rmv childs')
                             rmvtree2reltask_btn = gr.Button('Rmv tree')
+                        with gr.Row():
                             relattaskcln_btn = gr.Button('Clear all')
                         with gr.Row():
                             delete_reltasks_btn = gr.Button('Delete selected')

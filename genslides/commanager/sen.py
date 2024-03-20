@@ -709,7 +709,10 @@ class Projecter:
 
    
     def updateAllUntillCurrTask(self):
-        return self.actioner.updateAllUntillCurrTask()
+        self.actioner.manager.disableOutput2()
+        self.actioner.updateAllUntillCurrTask()
+        self.actioner.manager.enableOutput2()
+        return self.actioner.manager.getCurrTaskPrompts()
    
     def setBranchEndName(self, summary):
         return self.actioner.manager.setBranchEndName(summary)
