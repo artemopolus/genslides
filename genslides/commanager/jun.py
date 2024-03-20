@@ -842,21 +842,21 @@ class Manager:
             try:
             # if task1 is not None:
                 print('Parents\nFirst', task1.parent.getName() if task1.parent is not None else 'None','=',task1.getName())
-                print('Childs')
-                for ch in task1.getChilds():
-                    print(ch.getName())
+                # print('Childs')
+                # for ch in task1.getChilds():
+                #     print(ch.getName())
             
                 # print(task1.queue)
             # if self.slct_task is not None:
                 print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
-                print('Childs')
-                for ch in self.slct_task.getChilds():
-                    print(ch.getName())
+                # print('Childs')
+                # for ch in self.slct_task.getChilds():
+                #     print(ch.getName())
                 # print(self.slct_task.queue)
                 print('Last', self.curr_task.parent.getName() if self.curr_task.parent is not None else 'None','=', self.curr_task.getName())
-                print('Childs')
-                for ch in self.curr_task.getChilds():
-                    print(ch.getName())
+                # print('Childs')
+                # for ch in self.curr_task.getChilds():
+                #     print(ch.getName())
             except Exception as e:
                 print('Error', creation_type,':', e)
             # print(self.curr_task.queue)
@@ -1464,7 +1464,7 @@ class Manager:
         # TODO: вывадить код ветки
         # print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        graph = self.drawGraph(max_index=4)
+        graph = self.drawGraph()
 
         graph2 = self.drawGraph(max_index= 2, path = "output/img2")
 
@@ -1963,10 +1963,10 @@ class Manager:
         links_chain = []
         insert_tasks = []
         for branch in tasks_chains:
-            print(i,
+            print(i,'|',
                   [task.getName() for task in branch['branch']], 
-                  branch['done'], branch['idx'],  
-                  branch['parent'].getName() if branch['parent'] else "None", 
+                  branch['done'],'idx=', branch['idx'],'par=' , 
+                  branch['parent'].getName() if branch['parent'] else "None", 'idx_par=',
                   branch['i_par'])
 
             for link in branch['links']:
@@ -2015,7 +2015,7 @@ class Manager:
 
     def copyTasksByInfoStop(self):
         for branch in self.tc_tasks_chains:
-            print('branch convert results:')
+            print('branch convert results:[[from, to]]')
             print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
         print('Links list:')
         print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])

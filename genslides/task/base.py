@@ -448,8 +448,9 @@ class BaseTask():
         linked_task = self.getLinkedTaskFromBranches(branches)
         while(idx < 1000):
             tmp = []
+            start_idx = len(branches)
             for task in linked_task:
-                new_b = self.getChildAndLinks(task, pparam)
+                new_b = self.getChildAndLinks(task, pparam, start_j=start_idx)
                 branches.extend(new_b)
                 tmp.extend(new_b)
             linked_task = self.getLinkedTaskFromBranches(tmp)
@@ -479,7 +480,8 @@ class BaseTask():
             for ll in self.getGarlandPart():
                 trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
 
-    def getChildAndLinks(self, task, pparam):
+    def getChildAndLinks(self, task, pparam, start_j = 0):
+        print('Get child and links for', task.getName())
         index = 0
         branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
         while(index < 1000):
@@ -488,7 +490,7 @@ class BaseTask():
                 trg = branch['branch'][-1]
                 j = 0
                 while (j < 1000 and not branch['done']):
-                    print('Task', trg.getName())
+                    # print('Task', trg.getName())
                     childs = trg.getChilds()
                     trg.getLinkCopyInfo(branch['links'], pparam['in'], pparam['out'])
                     # if len(trg.getHoldGarlands()) and pparam['out']:
@@ -528,7 +530,7 @@ class BaseTask():
                 if branch_list[i]['branch'][0] in childs:
                     i_out.append(i)
                     branch_list[i]['parent'] = trg
-                    branch_list[i]['i_par'] = j
+                    branch_list[i]['i_par'] = start_j + j
             branch_list[j]['idx'] = i_out
         return branch_list
 

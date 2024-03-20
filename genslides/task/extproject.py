@@ -112,13 +112,14 @@ class ExtProjectTask(CollectTask):
 
     def haveMsgsAction(self, msgs):
         # trg_list = self.getRawParentMsgs()
-        trg_list = self.intch.getMsgs()
-        if trg_list == msgs:
-            self.setMsgList(msgs)
-        else:
-            self.updateExtProjectInternal(self.prompt)
-            self.actioner.callScript('init_loaded_change')
-            self.updateInOutExtProject()
+        if self.intch:
+            trg_list = self.intch.getMsgs()
+            if trg_list == msgs:
+                self.setMsgList(msgs)
+            else:
+                self.updateExtProjectInternal(self.prompt)
+                self.actioner.callScript('init_loaded_change')
+                self.updateInOutExtProject()
     
     def checkParentsMsg(self):
         return []
@@ -177,7 +178,9 @@ class ExtProjectTask(CollectTask):
         return self.prompt
 
     def getLastMsgContent(self):
-        return self.prompt
+        if self.intch is None:
+            return self.prompt
+        return self.intch.getLastMsgContent()
 
     def getBranchCode(self, second) -> str:
         code_s = ""
