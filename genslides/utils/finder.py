@@ -36,48 +36,48 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
         if len(arr) > 5 and 'type' == arr[1]:
                 bres, pparam = task.getParamStruct(arr[2])
                 if bres and arr[3] in pparam and pparam[arr[3]] == arr[4] and arr[5] in pparam:
-                    rep = pparam[arr[5]]
-                    rep_text = rep_text.replace(res, str(rep))
+                    jtrg_val = pparam[arr[5]]
+                    rep_text = rep_text.replace(res, str(jtrg_val))
         elif arr[1] == getMsgTag():
             param = task.getLastMsgContent()
             if len(arr) == 3 and arr[2] == 'json':
-                bres, j = Loader.Loader.loadJsonFromText(param)
+                bres, jjson = Loader.Loader.loadJsonFromText(param)
                 if bres:
-                    rep_text = rep_text.replace(res, json.dumps(j, indent=1))
+                    rep_text = rep_text.replace(res, json.dumps(jjson, indent=1))
             elif len(arr) > 3 and arr[2] == 'json':
-                bres, j = Loader.Loader.loadJsonFromText(param)
+                bres, jjson = Loader.Loader.loadJsonFromText(param)
                 try:
                     # print('try find json', j)
-                    rep = j[arr[3]]
-                    if len(arr) > 4 and isinstance(rep, list) and arr[4].isdigit() and int(arr[4]) < len(rep):
+                    jtrg_val = jjson[arr[3]]
+                    if len(arr) > 4 and isinstance(jtrg_val, list) and arr[4].isdigit() and int(arr[4]) < len(jtrg_val):
                         trg_idx = int(arr[4])
-                        if len(arr) > 5 and arr[5] in rep[trg_idx]:
-                            rep_text = rep_text.replace(res, str(rep[trg_idx][arr[5]]))
+                        if len(arr) > 5 and arr[5] in jtrg_val[trg_idx]:
+                            rep_text = rep_text.replace(res, str(jtrg_val[trg_idx][arr[5]]))
                         else:
-                            rep_text = rep_text.replace(res, str(rep[trg_idx]))
+                            rep_text = rep_text.replace(res, str(jtrg_val[trg_idx]))
                     else:
-                        rep_text = rep_text.replace(res, json.dumps(rep))
+                        rep_text = rep_text.replace(res, json.dumps(jtrg_val))
 
                 except Exception as e:
-                    print("Error find json in", task.getName(),':',e)
+                    print("Error:", e,"\nFind json in", task.getName(),':\nTrg json:',param, '\nRes json:',jjson)
             elif len(arr) > 3 and arr[2] == 'json_list':
-                bres, j = Loader.Loader.loadJsonFromText(param)
+                bres, jjson = Loader.Loader.loadJsonFromText(param)
                 try:
-                    rep = j[arr[3]]
-                    if isinstance(rep, list):
+                    jtrg_val = jjson[arr[3]]
+                    if isinstance(jtrg_val, list):
                         text  = ''
-                        for p in range(len(rep)):
-                            if isinstance(rep[p], dict):
-                                if len(arr) > 4 and arr[4] in rep[p]:
-                                    text_p = rep[p][arr[4]]
+                        for p in range(len(jtrg_val)):
+                            if isinstance(jtrg_val[p], dict):
+                                if len(arr) > 4 and arr[4] in jtrg_val[p]:
+                                    text_p = jtrg_val[p][arr[4]]
                                 else:
-                                    text_p = json.dumps(rep[p])
+                                    text_p = json.dumps(jtrg_val[p])
                             else:
-                                text_p = rep[p]
+                                text_p = jtrg_val[p]
                             text += str(p+1) + '. ' + str(text_p) + '\n'
                         rep_text = rep_text.replace(res, text)
                     else:
-                        rep_text = rep_text.replace(res, str(rep))
+                        rep_text = rep_text.replace(res, str(jtrg_val))
                 except Exception as e:
                     print("Erorr find json list in", task.getName(),':',e)
             else:
