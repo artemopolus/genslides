@@ -153,8 +153,13 @@ def findByKey(text, manager , base ):
              if len(arr) > 1:
                  task = None
                  if arr[0] == 'manager':
-                    if len(arr) > 2 and arr[1] == 'path' and arr[2] == 'fld':
-                        trg_text = Loader.Loader.getFolderPath(path=manager.getPath())
+                    if len(arr) > 2 and arr[1] == 'path':
+                        if arr[2] == 'fld':
+                            trg_text = Loader.Loader.getFolderPath(path=manager.getPath())
+                        elif arr[2] == 'spc':
+                            trg_text = Loader.Loader.getFolderPath(path=manager.getPath(), to_par_fld = False)
+                        else:
+                            trg_text = res
                         rep_text = rep_text.replace(res, trg_text)
                     elif arr[1] == 'path':
                         trg_text = manager.getPath()

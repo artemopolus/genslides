@@ -7,9 +7,11 @@ import genslides.commanager.group as Actioner
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
+import genslides.utils.loader as Loader
 
 import os
 import shutil
+import pathlib
 
 class ExtProjectTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="ExtProject") -> None:
@@ -29,10 +31,16 @@ class ExtProjectTask(CollectTask):
         else:
             if 'path' in param:
                 path = param['path']
+                path = self.findKeyParam(path)
+                path = Loader.Loader.getUniPath(path)
             else:
-                path = os.path.join( self.manager.getPath(), 'ext', param['project']) 
+                path = pathlib.Path(self.manager.getPath()) / 'ext' /param['project']
+                path = Loader.Loader.checkManagerTag(path, self.manager.getPath(), to_par_fld=False) 
+                # path = os.path.join( self.manager.getPath(), 'ext', param['project']) 
+
                 param['path'] = path
                 self.updateParam2(param)
+                path = Loader.Loader.getUniPath(self.findKeyParam(path))
 
             if 'prompt' in param:
                 self.prompt = param['prompt']

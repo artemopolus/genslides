@@ -211,6 +211,7 @@ class Manager:
     def loadTasksList(self, safe = False):
         # print(10*"=======")
         print('Fast load of tasks' if safe else 'Load task from files')
+        print('Manager path=', self.getPath())
         task_manager = TaskManager()
         links = task_manager.getLinks(Loader.Loader.getUniPath(self.getPath()))
         self.createTask(prnt_task=None, safe=safe)

@@ -76,15 +76,20 @@ class Loader:
             filename = Loader.checkManagerTag(path, manager_path)
         return filename
     
-    def checkManagerTag(path, manager_path):
+    def checkManagerTag(path, manager_path, to_par_fld = True):
         try:
-            mpath = Path(manager_path).parent
+            mpath = Path(manager_path)
+            tag = 'spc'
+            if to_par_fld:
+                tag = 'fld'
+                mpath = mpath.parent
             rel_path = path.relative_to(mpath)
             str_rel_path = str(PurePosixPath(rel_path))
-            filename = '[[manager:path:fld]]/'+ str_rel_path
+            filename = '[[manager:path:'+ tag +']]/'+ str_rel_path
         except Exception as e:
             print('Manager folder is not relative:',e)
             filename = PurePosixPath(path)
+            return path
         return filename
 
     
@@ -99,8 +104,10 @@ class Loader:
             filename = Loader.checkManagerTag(path, manager_path)
         return filename
     
-    def getFolderPath(path : str) -> str:
-        out = Path(path).parent
+    def getFolderPath(path : str, to_par_fld = True) -> str:
+        out = Path(path)
+        if to_par_fld:
+            out = out.parent
         if platform == 'win32':
             out = PurePosixPath(out)
         return str(out)
