@@ -441,6 +441,47 @@ class Manager:
                 break
             i += 1
         return self.getCurrTaskPrompts()
+    
+
+    def updateEditToCopyBranch(self, start_task : BaseTask):
+        idx = 0
+        trg = start_task
+        fork = None
+        fork_root = start_task
+        src_tasks = start_task.getAllChildChains()
+        while(idx < 1000):
+            par = trg.getParent()
+            if par == None:
+                return
+            if len(par.getChilds()) > 1:
+                fork = par
+                fork_root = trg
+                break
+            else:
+                trg = par
+            idx +=1
+
+        if fork != None:
+            print('Fork for branches is',fork.getName())
+            for child in fork.getChilds():
+                if child != fork_root:
+                    trg_tasks = child.getAllChildChains()
+                    for task in trg_tasks:
+                        print('Check in', task.getName())
+                        pres, pparam = task.getParamStruct('copied', True)
+                        if pres:
+                            names = pparam['cp_path']
+                            found = False
+                            for name in names:
+                                for s_task in src_tasks:
+                                    if name in s_task.getName():
+                                        print('Find in',names,'target',s_task.getName())
+                                        task.update(TaskDescription( prompt=s_task.getLastMsgContent(), 
+                                                  prompt_tag=s_task.getLastMsgRole()
+                                                  ))
+                                        found = True
+                                if found:
+                                    break
         
 
     def goToNextBranch(self):

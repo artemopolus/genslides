@@ -56,7 +56,10 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                         else:
                             rep_text = rep_text.replace(res, str(jtrg_val[trg_idx]))
                     else:
-                        rep_text = rep_text.replace(res, json.dumps(jtrg_val))
+                        if isinstance(jtrg_val, str):
+                            rep_text = rep_text.replace(res, jtrg_val)
+                        else:
+                            rep_text = rep_text.replace(res, json.dumps(jtrg_val))
 
                 except Exception as e:
                     print("Error:", e,"\nFind json in", task.getName(),':\nTrg json:',param, '\nRes json:',jjson)
@@ -163,7 +166,8 @@ def findByKey(text, manager , base ):
                         rep_text = rep_text.replace(res, trg_text)
                     elif arr[1] == 'path':
                         trg_text = manager.getPath()
-                        rep_text = rep_text.replace(res, trg_text)
+                        trg_text = Loader.Loader.getUniPath(trg_text)
+                        rep_text = rep_text.replace(res, str(trg_text))
                     elif arr[1] == 'current':
                         task = manager.getCurrentTask()
                         arr.pop(0)

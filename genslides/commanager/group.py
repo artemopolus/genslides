@@ -228,6 +228,10 @@ class Actioner():
         if type1 == "Garland":
             return self.manager.createCollectTreeOnSelectedTasks(creation_type)
         elif 'extedit' in param and param['extedit']:
+            if 'upd_cp' in param and param['upd_cp']:
+                self.manager.updateEditToCopyBranch(self.manager.curr_task)
+                return self.manager.getCurrTaskPrompts()
+
             # tasks_chains = self.manager.curr_task.getTasksFullLinks(param)
             trg_parent = None
             ignore_conv = []
