@@ -158,7 +158,7 @@ class Manager:
         return [t.getName() for t in self.selected_tasks]
     
     def createCollectTreeOnSelectedTasks(self, action_type):
-        self.createTreeOnSelectedTasks(action_type,"Collect")
+        return self.createTreeOnSelectedTasks(action_type,"Collect")
 
     def createTreeOnSelectedTasks(self, action_type : str, task_type : str):
         first = True

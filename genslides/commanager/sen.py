@@ -223,6 +223,7 @@ class Projecter:
 
 
     def makeCustomAction(self, prompt, selected_action, custom_action):
+        print('Make custom action:', selected_action, custom_action, 'with prompt:\n', prompt)
         if custom_action in self.getStdCmdList():
             return self.makeTaskAction(prompt, custom_action, selected_action, "assistant")
         elif custom_action in self.getCustomCmdList():

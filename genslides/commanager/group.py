@@ -226,7 +226,7 @@ class Actioner():
         if save_action and creation_type != "StopPrivManager" and creation_type != "SavePrivManToTask":
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         if type1 == "Garland":
-            return self.manager.createCollectTreeOnSelectedTasks(creation_type)
+            return self.manager.createTreeOnSelectedTasks(creation_type,'Garland')
         elif 'extedit' in param and param['extedit']:
             if 'upd_cp' in param and param['upd_cp']:
                 self.manager.updateEditToCopyBranch(self.manager.curr_task)
