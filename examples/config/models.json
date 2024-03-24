@@ -1,0 +1,89 @@
+{
+"openai":
+{
+ "api_key": "insert-api-key",
+ "counter": 0.0,
+ "active": true,
+ "prices": [
+  {
+   "name": "gpt-3.5-turbo",
+   "input": 0.001,
+   "output": 0.002,
+   "max_tokens": 4096,
+   "logprobs": true,
+   "top_logprobs": 2
+  },
+  {
+   "name": "gpt-3.5-turbo-16k",
+   "input": 0.003,
+   "output": 0.004,
+   "max_tokens": 128000
+  },
+  {
+   "name": "gpt-3.5-turbo-0125",
+   "input": 0.0005,
+   "output": 0.0015,
+   "max_tokens": 16385
+  },
+  {
+   "name": "text-davinci-003",
+   "input": 0.015,
+   "output": 0.02,
+   "max_tokens": 4097
+  },
+  {
+   "name": "gpt-4",
+   "input": 0.03,
+   "output": 0.06,
+   "max_tokens": 8192,
+   "logprobs": true,
+   "top_logprobs": 2
+  },
+  {
+   "name": "gpt-4-1106-preview",
+   "input": 0.01,
+   "output": 0.03,
+   "max_tokens": 8192,
+   "logprobs": true,
+   "top_logprobs": 2
+  },
+  {
+   "name": "gpt-4-0125-preview",
+   "input": 0.01,
+   "output": 0.03,
+   "max_tokens": 128000,
+   "logprobs": true,
+   "top_logprobs": 2
+  } 
+]
+},
+"ollama":
+{
+ "api_key": "none",
+ "counter": 0.0,
+ "active": true,
+ "prices": [
+  {
+   "name": "mixtral",
+   "input": 0.001,
+   "output": 0.001,
+   "max_tokens": 4096
+  }
+ ]
+},
+"llamacpp":
+{
+ "api_key": "none",
+ "counter": 0.0,
+ "active": true,
+ "prices": [
+  {
+   "name": "dolphin",
+   "input": 0.001,
+   "output": 0.001,
+   "max_tokens": 16385
+  }
+ ]
+}
+
+}
