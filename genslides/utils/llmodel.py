@@ -8,6 +8,7 @@ import datetime
 
 from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages
 from genslides.utils.myollama import ollamaGetChatCompletion
+from genslides.utils.myllamacpp import llamacppGetChatCompletion
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
 
 model_to_method = {
@@ -17,6 +18,9 @@ model_to_method = {
     },
     "ollama":{
         'default':ollamaGetChatCompletion
+    },
+    "llamacpp":{
+        'default':llamacppGetChatCompletion
     }
 }
 
