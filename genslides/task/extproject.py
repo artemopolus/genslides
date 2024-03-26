@@ -16,7 +16,8 @@ import pathlib
 class ExtProjectTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="ExtProject") -> None:
         self.intpar = None
-        self.intch = None
+        self.intch = []
+        self.intch_trg = None
         self.intman = None
         super().__init__(task_info, type)
         self.is_freeze = False
@@ -63,7 +64,7 @@ class ExtProjectTask(CollectTask):
         # print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
 
         self.intpar = None
-        self.intch = None
+        self.intch = []
         self.updateInOutExtProject()
 
         print(10*"----------")
@@ -90,9 +91,16 @@ class ExtProjectTask(CollectTask):
                 
             res, param = task.getParamStruct('output')
             if res and param['output']:
-                self.intch = task
-                # print('intch=',self.intch.getName())
+                idx = len(self.intch)
+                if 'idx' in param:
+                    idx = param['idx']
+                self.addInternalChild(task, idx)
 
+    def addInternalChild(self, task : BaseTask, idx : int):
+        self.intch.append({'idx':idx, 'trg': task})
+        if self.intch_trg == None:
+            self.intch_trg = task
+ 
        
 
     def isTaskInternal(self, task :BaseTask):
@@ -111,17 +119,17 @@ class ExtProjectTask(CollectTask):
             self.intman.curr_task = self.intpar
             self.intman.updateSteppedTree(info)
             # self.intman.curr_task.update(info)
-            if self.intch is not None:
+            if len(self.intch):
                 # res_list = self.getRawParentMsgs()
-                res_list = self.intch.getMsgs()
+                res_list = self.intch_trg.getMsgs()
                 self.setMsgList(res_list)
         self.updateParamStruct('external', 'prompt', prompt)
         self.saveJsonToFile(self.msg_list)
 
     def haveMsgsAction(self, msgs):
         # trg_list = self.getRawParentMsgs()
-        if self.intch:
-            trg_list = self.intch.getMsgs()
+        if len(self.intch):
+            trg_list = self.intch_trg.getMsgs()
             if trg_list == msgs:
                 self.setMsgList(msgs)
             else:
@@ -163,7 +171,8 @@ class ExtProjectTask(CollectTask):
                 self.updateInOutExtProject()
             else:
                 return
-        self.setMsgList(self.intch.getMsgs())
+        if len(self.intch):
+            self.setMsgList(self.intch_trg.getMsgs())
         self.saveJsonToFile(self.msg_list)
 
     def beforeRemove(self):
@@ -178,17 +187,17 @@ class ExtProjectTask(CollectTask):
         super().beforeRemove()
 
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
-        if self.intch is None:
+        if len(self.intch)==0:
             return super().getLastMsgAndParent()
-        return self.intch.getLastMsgAndParent()
+        return self.intch_trg.getLastMsgAndParent()
 
     def getLastMsgContentRaw(self):
         return self.prompt
 
     def getLastMsgContent(self):
-        if self.intch is None:
+        if len(self.intch)==0:
             return self.prompt
-        return self.intch.getLastMsgContent()
+        return self.intch_trg.getLastMsgContent()
 
     def getBranchCode(self, second) -> str:
         code_s = ""
@@ -207,3 +216,33 @@ class ExtProjectTask(CollectTask):
     def afterRestoration(self):
         self.afterFileLoading()
         return super().afterRestoration()
+    
+    def setActiveBranch(self, task ):
+        for param in self.params:
+            if 'type' in param and param['type'] == 'child' and param['name'] == task.getName():
+                idx = param['idx']
+                for int_child in self.intch:
+                    if int_child['idx'] == idx:
+                        self.intch_trg = int_child['trg']
+                        return
+
+    def getExeCommands(self):
+        mres, mparam = self.getParamStruct('manager', True)
+        gres, gparam = self.getParamStruct('generator', True)
+        if mres and gres:
+            acts = mparam['info']['actions'].copy()
+            for int_child in self.intch:
+                found = False
+                for param in self.params:
+                    if 'type' in param and param['type'] == 'child' and param['name']:
+                        if int_child['idx'] == param['idx']:
+                            found = True
+                if not found:
+                    for act in acts:
+                        if str(act['id']) == str(gparam['cmd_id']):
+                            res, val, _ = int_child.getLastMsgAndParent()
+                            if res:
+                                act.update({gparam['cmd_type']:val})
+                    return True, acts
+ 
+ 

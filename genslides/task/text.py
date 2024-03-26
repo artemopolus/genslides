@@ -336,6 +336,8 @@ class TextTask(BaseTask):
         # TODO: можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         val = [{"role":self.getLastMsgRole(), 
                 "content": self.findKeyParam(self.getLastMsgContent())}]
+        if self.parent != None:
+            self.parent.setActiveBranch(self)
         return True, val, self.parent
 
     def getMsgByIndex(self, i_trg):
