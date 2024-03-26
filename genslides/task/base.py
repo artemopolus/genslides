@@ -1258,4 +1258,7 @@ class BaseTask():
 
     def readyToGenerate(self) -> bool:
         return False
+    
+    def setActiveBranch(self, task ):
+        pass
 
