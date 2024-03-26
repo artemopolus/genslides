@@ -30,7 +30,8 @@ import genslides.utils.finder as finder
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
         self.msg_list = []
-        self.params = task_info.params
+        self.params = []
+        self.setParamIternal(task_info.params)
         super().__init__(task_info, type)
 
         # print("Type=", self.getType())
@@ -50,18 +51,19 @@ class TextTask(BaseTask):
         self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})       
         self.stdProcessUnFreeze()
 
+    def setParamIternal(self, inparams):
+        for p in inparams:
+            if 'type' in p and isinstance(p, dict):
+                self.updateParam2(p)
+        self.loadInitParam()
+        self.saveAllParams()
+
     def loadInitParam(self):
         init_params = self.reqhelper.getParams(self.getType())
         for param in init_params:
             if 'type' in param:
-                found = False
-                for p in self.params:
-                    if 'type' and p['type'] == param['type']:
-                        found = True
-                        break
-                if not found:
-                    self.setParamStruct(param)
-    
+                self.updateParam2(param)
+   
     def addChild(self, child) -> bool:
         # if self.getName() == 'Response250':
         #     print('---')
@@ -603,7 +605,7 @@ class TextTask(BaseTask):
                             self.path = path
                             self.setName(file.split('.')[0])
                             if 'params' in rq:
-                                self.params = self.resetResetableParams(rq['params'])
+                                self.setParamIternal( self.resetResetableParams(rq['params']))
                             return rq['chat']
                         else:
                             # print(10*"====", "\nLoaded from file:",path)
@@ -611,7 +613,7 @@ class TextTask(BaseTask):
                             self.path = path
                             self.setName(file.split('.')[0])
                             if 'params' in rq:
-                                self.params = self.resetResetableParams(rq['params'])
+                                self.setParamIternal( self.resetResetableParams(rq['params']))
                             return rq['chat']
                             # print('No right data in file')
                     else:
@@ -922,9 +924,9 @@ class TextTask(BaseTask):
     def setParam(self, param):
         print("Set param:", param)
         if isinstance(param, str):
-            self.params = json.loads(param)
+            self.setParamIternal( json.loads(param))
         elif isinstance(param, list):
-            self.params = param
+            self.setParamIternal( param )
         else:
             return
         self.syncParamToQueue()

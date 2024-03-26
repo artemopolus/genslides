@@ -69,7 +69,7 @@ class ReadFileTask(ResponseTask):
                         self.path = path
                         self.setName( file.split('.')[0])
                         if 'params' in rq:
-                            self.params = rq['params']
+                            self.setParamIternal(rq['params'])
 
                         param_name = "path_to_read"
                         # print('Get params')

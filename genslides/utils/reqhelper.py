@@ -36,7 +36,7 @@ class RequestHelper:
     
     def getParams(self, type: str) -> list[bool, dict]:
         res, value = self.getValue(type, 'params')
-        if res and isinstance(value, dict):
+        if res and isinstance(value, list):
             return res, value
         return False, None
 

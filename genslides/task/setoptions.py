@@ -26,7 +26,7 @@ class SetOptionsTask(WriteToFileTask):
     
     def executeResponse(self):
         try:
-            self.params = json.loads(self.prompt)
+            self.setParamIternal(json.loads(self.prompt))
         except Exception as e:
             print("Can\'t load parameters for",self.getName(),':',e)
 
@@ -99,7 +99,7 @@ class SetOptionsTask(WriteToFileTask):
                 in_params = json.loads(self.prompt)
                 if in_params != self.params:
                     # TODO: переписать замену параметров на обновление текущих параметров
-                    self.params = in_params
+                    self.setParamIternal(in_params)
                     print("Params changed update all")
                     self.forceCleanChildsChat()
             except Exception as e:
