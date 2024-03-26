@@ -78,8 +78,12 @@ class LLModel():
 
     def createChatCompletion(self, messages) -> (bool, str, dict):
         if not self.active:
-            return False, ''
-        messages = self.checkTokens(messages)
+            return False, '', {}
+        token_cnt, _  = self.getPriceFromMsgs(messages)
+        # print("Get response[", token_cnt,"]=",msgs[-1]["content"])
+
+        if token_cnt > self.params['max_tokens']:
+            return False, '', {}
         # print('Input Chat=', [[msg['role'], len(msg['content'])] for msg in messages])
         out = {
             'type' : 'response',
@@ -158,10 +162,7 @@ class LLModel():
 
     def checkTokens(self, in_msgs: list):
         msgs = in_msgs.copy()
-        text = ''
-        for msg in msgs:
-            text += msg["content"]
-        token_cnt = self.getTokensCount(text)
+        token_cnt, _  = self.getPriceFromMsgs(msgs)
         # print("Get response[", token_cnt,"]=",msgs[-1]["content"])
 
         if token_cnt > self.params['max_tokens']:

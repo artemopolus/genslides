@@ -396,10 +396,10 @@ class Manager:
         for idx in range(len(self.endes)):
             leave = self.endes[idx]
             res, param = leave.getParamStruct('bud')
+            name = leave.getName()
             if res:
-                name = param['text']
-            else:
-                name = leave.getName()
+                name += ':' + leave.findKeyParam (param['text'])
+            
             leaves_list.append( name )
 
 
@@ -419,19 +419,20 @@ class Manager:
             return ''
         leave = self.endes[self.endes_idx]
         res, param = leave.getParamStruct('bud')
+        name = leave.getName()
         if res:
-            return param['text']
-        return leave.getName() 
+            name += ':' + leave.findKeyParam( param['text'])
+        return name 
     
     def setBranchEndName(self, summary):
         leave = self.endes[self.endes_idx]
-        param = {'type':'bud','text': summary}
+        param = {'type':'bud','text': summary,'branch':leave.getBranchCodeTag()}
         leave.setParamStruct(param)
         return self.getCurrTaskPrompts()
  
 
     
-    def setCurrTaskByBranchEndName(self, name):
+    def setCurrTaskByBranchEndName(self, name : str):
         print('Set current task by branch end name', name)
         i_max = len(self.endes)
         i = 0
@@ -654,7 +655,7 @@ class Manager:
         # print('Draw graph')
         if only_current:
             if self.curr_task.isRootParent():
-                trg_list = self.curr_task.getTree()
+                trg_list = self.curr_task.getTree(max_childs=10)
             else:
                 trg_list = self.curr_task.getAllParents(max_index = max_index)
                 for task in self.curr_task.getAllChildChains(max_index=max_index, max_childs=3):
@@ -747,7 +748,12 @@ class Manager:
                 if task.getType() == "IterationEnd":
                     if task.iter_start:
                         f.edge(task.getIdStr(), task.iter_start.getIdStr())
+                draw_child_cnt = 0
                 for child in task.childs:
+                    if child not in trg_list:
+                        draw_child_cnt += 1
+                        if draw_child_cnt > 9:
+                            break
                     f.edge(task.getIdStr(), child.getIdStr())
                     # print("edge=", task.getIdStr(), "====>",child.getIdStr())
 

@@ -891,3 +891,10 @@ class Projecter:
             with open(path, 'r') as f:
                 actor.manager.info['actions'] = json.load(f)
         return self.getActionsList()
+    
+    def cleanLastMessage(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        if task.getType() == 'Response':
+            task.forceCleanChat()
+            task.freezeTask()

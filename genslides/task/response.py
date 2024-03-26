@@ -98,6 +98,9 @@ class ResponseTask(TextTask):
             self.prompt = out
             self.msg_list.append(pair)
             print('Update response for', self.getName())
+        else:
+            self.freezeTask()
+            self.msg_list.append({"role": "assistant", "content": ""})
             # print('Response=',out)
         # print('Msg list=',self.msg_list)
 

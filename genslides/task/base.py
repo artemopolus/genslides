@@ -349,9 +349,9 @@ class BaseTask():
             index += 1
         return par
 
-    def getTree(self):
+    def getTree(self, max_childs = -1):
         par = self.getRootParent()
-        out = par.getAllChildChains()
+        out = par.getAllChildChains(max_childs=max_childs)
         return out
 
     def getAllParents(self, max_index = -1):

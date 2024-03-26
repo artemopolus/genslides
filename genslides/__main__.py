@@ -297,7 +297,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             delete_reltasks_btn = gr.Button('Delete selected')
                     with gr.Tab('Cmds'):
                         with gr.Row():
-
                             moveup_btn = gr.Button(value='MoveUP')
                             unparent_btn = gr.Button(value='Unparent')
                             unlink_btn = gr.Button(value='Unlink')
@@ -310,6 +309,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             update_task_btn = gr.Button(value="Update")
                             updatecur_task_btn = gr.Button(value='Update current')
                             clean_task_btn = gr.Button(value='Clean')
+                        with gr.Row():
+                            gr.Button(value='Clean Response').click(fn=projecter.cleanLastMessage)
                     with gr.Tab('Manager'):
                         with gr.Row():
                             with gr.Column():

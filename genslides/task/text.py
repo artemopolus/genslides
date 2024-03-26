@@ -29,6 +29,8 @@ import genslides.utils.finder as finder
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
+        self.msg_list = []
+        self.params = task_info.params
         super().__init__(task_info, type)
 
         # print("Type=", self.getType())
@@ -38,7 +40,6 @@ class TextTask(BaseTask):
 
         # print('Get params to', self.getName(),':\n', task_info.params)
 
-        self.params = task_info.params
 
         # print('Path to my file=', self.path)
 
@@ -59,6 +60,15 @@ class TextTask(BaseTask):
         if super().addChild(child):
             self.syncQueueToParam()
             # self.printQueueInit()
+            res, pparam = self.getParamStruct('bud', only_current=True)
+            if res:
+                child_tasks = child.getAllChildChains()
+                for task in child_tasks:
+                    if len(task.getChilds()) == 0:
+                        tparam = {'type':'bud','text': pparam['text'],'branch':task.getBranchCodeTag()}
+                        task.setParamStruct(tparam)
+                self.rmParamStructByName('bud')
+
             self.saveJsonToFile(self.msg_list)
             return True
         return False
@@ -844,7 +854,8 @@ class TextTask(BaseTask):
         # print('Init params=',self.params)
         # if 'type' in param:
             # self.params.append(param)
-        self.saveJsonToFile(self.msg_list)
+        if self.msg_list:
+            self.saveJsonToFile(self.msg_list)
 
     def rmParamStructByName(self, param_name):
         trg = None
@@ -951,8 +962,8 @@ class TextTask(BaseTask):
                 to_del.append(p)
             if 'type' in p and p['type'] == 'link':
                 to_del.append(p)
-            if 'type' in p and p['type'] == 'bud':
-                to_del.append(p)
+            # if 'type' in p and p['type'] == 'bud':
+            #     to_del.append(p)
         for p in to_del:
             pparams.remove(p)
 
