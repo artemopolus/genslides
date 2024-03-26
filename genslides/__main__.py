@@ -610,7 +610,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     task = manager.getTaskByName(name)
                     txt = task.getInfo(short=False)
                     print("Get task=",task.getName())
-                    if task.getType() == "SetOptions":
+                    if task.checkType("SetOptions"):
                         list_options = manager.getFromSetOptions(task)
                         print("List=",list_options)
                         name_task = gr.Textbox(value=task.getName(), label="Task", interactive=False)

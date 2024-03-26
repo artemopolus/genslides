@@ -47,9 +47,20 @@ class TextTask(BaseTask):
 
         # print('Input params',task_info.params)
         # print('Task params',self.params)
-        self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})
-        
+        self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})       
         self.stdProcessUnFreeze()
+
+    def loadInitParam(self):
+        init_params = self.reqhelper.getParams(self.getType())
+        for param in init_params:
+            if 'type' in param:
+                found = False
+                for p in self.params:
+                    if 'type' and p['type'] == param['type']:
+                        found = True
+                        break
+                if not found:
+                    self.setParamStruct(param)
     
     def addChild(self, child) -> bool:
         # if self.getName() == 'Response250':
@@ -737,13 +748,13 @@ class TextTask(BaseTask):
             if par == None:
                 break
             # print("type=",par.getType())
-            if par.getType() == "Iteration":
+            if par.checkType("Iteration"):
                 pname = par.getName().replace("Iteration","It")
                 res, i = par.getParam("index")
                 print("it_res_i",res,i)
                 if res:
                     names += pname + "_" + i + "_"
-            elif par.getType() == "IterationEnd":
+            elif par.checkType("IterationEnd"):
                 if par.iter_start:
                     trg = par.iter_start.parent
             else:

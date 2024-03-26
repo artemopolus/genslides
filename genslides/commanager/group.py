@@ -366,17 +366,14 @@ class Actioner():
             print('selected:',task.getName())
             print('current:', start.getName())
             if task is not None or task == start:
-                typename = task.getType()
-                if typename == 'Collect' or typename == 'GroupCollect' or typename == 'Garland':
-                    typename = start.getType()
-                    if typename == 'Collect' or typename == 'GroupCollect' or typename == 'Garland':
+                if task.checkType('Collect') or task.checkType('GroupCollect') or task.checkType('Garland'):
+                    if start.checkType('Collect') or start.checkType('GroupCollect') or start.checkType('Garland'):
                         intask = task
                         outtask = start
                         task.removeLinkToTask()
                         self.manager.makeLink(intask, outtask)
                 else:
-                    typename = start.getType()
-                    if typename == 'Collect' or typename == 'GroupCollect' or typename == 'Garland':
+                    if start.checkType('Collect') or start.checkType('GroupCollect') or start.checkType('Garland'):
                         return self.manager.getCurrTaskPrompts()
                     # В противном случае ищем связанные объекты
                     garls = task.getHoldGarlands()
