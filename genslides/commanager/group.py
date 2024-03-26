@@ -535,15 +535,16 @@ class Actioner():
     def updateStepInternal(self):
         man = self.manager
         start = self.manager.curr_task
-        res, iparam = self.manager.curr_task.getExeCommands()
+        res, act_param = self.manager.curr_task.getExeCommands()
         if res:
             print('Execute actions')
             if self.manager is self.std_manager:
-                t_manager = self.createPrivateManagerForTask(start, iparam)
+                t_manager = self.createPrivateManagerForTask(start, act_param)
                 self.tmp_managers.append(t_manager)
                 self.manager = t_manager
-            self.resetCurrentPrivateManager(start, iparam)
+            self.resetCurrentPrivateManager(start, act_param)
             self.exeCurManagerSmpl()
+            self.manager.curr_task.confirmExeCommands(act_param)
             # ничего не меняем
             self.manager.curr_task = start
             return

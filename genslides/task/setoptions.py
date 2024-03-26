@@ -185,14 +185,23 @@ class GeneratorTask(SetOptionsTask):
                     for act in gparam['iter2act']:
                         print('Get act', act['var'],'=',act['done'])
                         if act['done'] is False:
-                            act['done'] = True
                             outparam['actions'] = act['actions']
-                            self.updateParamStruct('generator','iter2act', gparam['iter2act'])
                             return True, outparam
                 else:
                     res_acts = self.updateIteration2action(iterators)
                     self.updateParamStruct('generator','iter2act', res_acts)
         return super().getExeCommands()
+    
+    def confirmExeCommands(self, outparam):
+        if 'actions' not in outparam:
+            return
+        gres, gparam = self.getParamStruct('generator', True)
+        if gres and 'iter2act' in gparam and len(gparam['iter2act']) > 0:
+            for act in gparam['iter2act']:
+                if outparam['actions'] == act['actions']:
+                    act['done'] = True
+                    self.updateParamStruct('generator','iter2act', gparam['iter2act'])
+                    return
     
     def getIterators(self, gparam):
         iterators = []
