@@ -1,5 +1,5 @@
 import os
-
+import json
 
 class ReadFileMan():
     def readWithHeader(s_path:str, header: str):
@@ -8,7 +8,13 @@ class ReadFileMan():
         text += ReadFileMan.readStandart(s_path)
         text += 10*"=" + '\n'
         return text
-
+    
+    def readJson(s_path: str):
+        text = {}
+        with open(s_path,'r',encoding='utf-8') as f:
+            text = json.load(f)
+        return text
+    
     def readStandart(s_path: str):
         with open(s_path, 'r',encoding='utf-8') as f:
             text = f.read()

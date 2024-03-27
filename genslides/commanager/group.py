@@ -62,6 +62,19 @@ class Actioner():
         self.addTasksByInfo(manager, man)
         return manager
     
+    def addTmpManager(self, path : str, start_task : BaseTask = None, trg_files = []):
+        manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        manager.initInfo(
+                         method =self.loadExtProject, 
+                         task = start_task,
+                         path = path 
+                         )
+        manager.disableOutput2()
+        manager.loadTasksList(trg_files=trg_files)
+        manager.enableOutput2()
+        self.tmp_managers.append(manager)
+        
+   
     def resetCurrentPrivateManager(self, task: BaseTask, man):
         self.manager.curr_task = task
         self.manager.info['actions'] = man['actions']

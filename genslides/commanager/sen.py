@@ -16,11 +16,9 @@ from os.path import isfile, join
 import os
 import json
 import gradio as gr
-import graphviz
-import pprint
-import py7zr
 import datetime
-import shutil
+
+import genslides.utils.filemanager as fm
 
 
 class Projecter:
@@ -99,12 +97,8 @@ class Projecter:
     
     def clearFiles(self):
         mypath = self.savedpath
-        for f in listdir(mypath):
-            f_path = join(mypath, f)
-            if isfile(f_path):
-                os.remove(f_path)
-            else:
-                shutil.rmtree(f_path)
+        fm.deleteFiles(mypath)
+
     def clear(self):
         self.clearFiles()
         self.resetManager(self.manager, fast=False, load=False)

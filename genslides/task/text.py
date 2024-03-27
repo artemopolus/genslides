@@ -31,8 +31,9 @@ class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
         self.msg_list = []
         self.params = []
-        self.setParamIternal(task_info.params)
+        self.caretaker = None
         super().__init__(task_info, type)
+        self.setParamIternal(task_info.params)
 
         # print("Type=", self.getType())
 
@@ -44,7 +45,6 @@ class TextTask(BaseTask):
 
         # print('Path to my file=', self.path)
 
-        self.caretaker = None
 
         # print('Input params',task_info.params)
         # print('Task params',self.params)
@@ -59,10 +59,11 @@ class TextTask(BaseTask):
         self.saveAllParams()
 
     def loadInitParam(self):
-        init_params = self.reqhelper.getParams(self.getType())
-        for param in init_params:
-            if 'type' in param:
-                self.updateParam2(param)
+        res, init_params = self.reqhelper.getParams(self.getType())
+        if res:
+            for param in init_params:
+                if 'type' in param:
+                    self.updateParam2(param)
    
     def addChild(self, child) -> bool:
         # if self.getName() == 'Response250':
