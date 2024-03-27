@@ -8,6 +8,7 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.loader as Loader
+import genslides.utils.readfileman as Reader
 
 import os
 import shutil
@@ -22,7 +23,7 @@ class ExtProjectTask(CollectTask):
         super().__init__(task_info, type)
         self.is_freeze = False
 
-    def afterFileLoading(self):
+    def afterFileLoading(self, trg_files = []):
         # print('Init external project task')
         self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         res, param = self.getParamStruct('external')
@@ -58,7 +59,7 @@ class ExtProjectTask(CollectTask):
         # print('Load tasks from',path)
         # print(10*"----------")
         self.intman.disableOutput2()
-        self.intman.loadTasksList()
+        self.intman.loadTasksList(trg_files=trg_files)
         self.intman.enableOutput2()
 
         # print(self.getName(),'internal task list', [t.getName() for t in self.intman.task_list])
@@ -247,3 +248,34 @@ class ExtProjectTask(CollectTask):
         return super().getExeCommands()
  
  
+class SearcherTask(ExtProjectTask):
+    def __init__(self, task_info: TaskDescription, type="Searcher") -> None:
+        super().__init__(task_info, type)
+
+    def afterFileLoading(self, trg_files=[]):
+        mpath = pathlib.Path(self.manager.getPath())
+        projects = list(mpath.glob('project*'))
+        print('Found projects:',projects)
+        tags = self.prompt.split(',')
+        print('Search for tags', tags)
+        filenames = []
+        for project in projects:
+            info = Reader.ReadFileMan.readJson(project)
+            folder = project.parent
+            print('Folder',folder)
+            if 'trees' in info:
+                for tree in info['trees']:
+                    if 'buds' in tree:
+                        for bud in tree['buds']:
+                            name = bud['task']
+                            if 'summary' in bud:
+                                # Очень простой поиск
+                                for tag in tags:
+                                    idx = bud['summary'].find(tag)
+                                    if idx != -1:
+                                        filenames.append(name)
+            # Создать менеджера для каждого проекта
+            # Сначала стандратный
+            # Потом временные
+
+        return super().afterFileLoading(trg_files)

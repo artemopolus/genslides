@@ -105,10 +105,13 @@ class TaskManager(metaclass=Singleton):
             os.makedirs(self.cur_task_path)
         return self.cur_task_path
     
-    def getLinks(self,mypath):
+    def getLinks(self, mypath, trg_files = []):
         # mypath = self.getPath()
         # print('Get links by path', mypath)
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        if len(trg_files):
+            onlyfiles = trg_files
+        else:
+            onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         out = []
         for filename in onlyfiles:
             path = join(mypath,filename)
@@ -125,7 +128,7 @@ class TaskManager(metaclass=Singleton):
                 pass
         return out
 
-    def getTaskPrompts(self,mypath, trg_path = "", ignore_safe = False):
+    def getTaskPrompts(self,mypath, trg_path = "", ignore_safe = False, trg_tasks = []):
         mypath = Loader.Loader.getUniPath(mypath)
         # print('Get task prompts in folder', mypath, 'with path', trg_path, 'ignore_safe=', ignore_safe)
         pr_ch = []
@@ -138,7 +141,10 @@ class TaskManager(metaclass=Singleton):
                         if 'type' in param and param['type'] == 'child' and 'name' in param:
                             pr_ch.append(param['name'] + self.getTaskExtention())
             # print('Childs:', pr_ch)
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        if len(trg_tasks):
+            onlyfiles = trg_tasks
+        else:
+            onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for child in pr_ch:
             if child in onlyfiles:
                 onlyfiles.insert(0, onlyfiles.pop(onlyfiles.index(child)))

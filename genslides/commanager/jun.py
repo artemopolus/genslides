@@ -208,13 +208,13 @@ class Manager:
     def getProjPrefix(self) -> str:
         return self.proj_pref
 
-    def loadTasksList(self, safe = False):
+    def loadTasksList(self, safe = False, trg_files = []):
         # print(10*"=======")
         print('Fast load of tasks' if safe else 'Load task from files')
         print('Manager path=', self.getPath())
         task_manager = TaskManager()
-        links = task_manager.getLinks(Loader.Loader.getUniPath(self.getPath()))
-        self.createTask(prnt_task=None, safe=safe)
+        links = task_manager.getLinks(Loader.Loader.getUniPath(self.getPath()), trg_files=trg_files)
+        self.createTask(prnt_task=None, safe=safe, trg_tasks=trg_files)
 
         # print('Links', links)
 
@@ -518,7 +518,7 @@ class Manager:
             text += f.read()
         return text
 
-    def createTask(self, prnt_task = None, safe = False):
+    def createTask(self, prnt_task = None, safe = False, trg_tasks = []):
         # print(10*"=======")
         if prnt_task == None:
             parent_path = ""
@@ -529,7 +529,7 @@ class Manager:
             # print("Parent task path=", parent_path)
         init_task_list = self.task_list.copy()
         task_manager = TaskManager()
-        parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), parent_path, ignore_safe=safe)
+        parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), trg_path= parent_path, ignore_safe=safe, trg_tasks=trg_tasks)
 
         # print("prompt count=",len(parent_prompt_list))
 
@@ -548,7 +548,7 @@ class Manager:
             for task in trg_task_list:
                 if task not in init_task_list:
                     # print("+++",parent_path)
-                    self.createTask(task, safe)
+                    self.createTask(task, safe=safe, trg_tasks=trg_tasks)
         
 
     def setNextTask(self, input):
@@ -1593,7 +1593,14 @@ class Manager:
             if t['type']== n_type:
                 return n_name.replace(n_type, t['short'])
         return n_name
-   
+    
+    def getShortName(self, short_name : str, n_name : str) -> str:
+        tasks_dict  = cr.getTasksDict()
+        for t in tasks_dict:
+            if t['short']== short_name:
+                return n_name.replace(short_name, t['type'])
+        return n_name
+  
     def getTaskKeys(self, param_name):
         return self.getNamedTaskKeys(self.curr_task, param_name)
 
@@ -2158,6 +2165,26 @@ class Manager:
 
     def saveInfo(self):
 
+        tree_info = []
+        for task in self.tree_arr:
+
+            task_buds = self.getSceletonBranchBuds(task)
+            info_buds = []
+            for task in task_buds:
+
+                info_bud = {'task':task.getName(),'summary':'','message':'','branch':task.getBranchCodeTag()}
+                bres, bparam = task.getParamStruct('bud')
+                if bres:
+                    info_bud['summary'] = task.findKeyParam(bparam['text'])
+                mres, mval, _ = task.getLastMsgAndParent()
+                if mres:
+                    info_bud['message'] = mval
+                info_buds.append(info_bud)
+                
+            tree_info.append({'root':task.getName(),'summary':task.getBranchSummary(),'buds':info_buds})
+
+        
+
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
         if not self.info: 
             loaded = False
@@ -2171,7 +2198,7 @@ class Manager:
                     pass
             if not loaded:
                 self.info = {'actions':[]}
-
+        self.info['trees'] = tree_info
         writer.writeJsonToFile(path_to_projectfile, self.info, 'w',1)
 
     def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}):
