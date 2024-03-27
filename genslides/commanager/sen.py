@@ -473,7 +473,7 @@ class Projecter:
     
     def switchToExtTaskManager(self):
         man = self.actioner.manager
-        if man.curr_task.checkType('ExtProject') and self.tmp_actioner == None:
+        if man.curr_task.getType() == 'ExtProject' and self.tmp_actioner == None:
             self.tmp_actioner = self.actioner
             self.actioner = man.curr_task.getActioner()
             print('Switch on actioner of', man.curr_task.getName())
@@ -895,6 +895,6 @@ class Projecter:
     def cleanLastMessage(self):
         man = self.actioner.manager
         task = man.curr_task
-        if task.checkType( 'Response'):
+        if task.getType() == 'Response':
             task.forceCleanChat()
             task.freezeTask()

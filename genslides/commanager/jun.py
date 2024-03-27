@@ -713,7 +713,7 @@ class Manager:
                         color = "lightsalmon1"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'crimson'
-                    if task.checkType('Response'):
+                    if task.getType() == 'Response':
                         shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
                 else:
@@ -737,7 +737,7 @@ class Manager:
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":
                             color="azure2"
-                    if task.checkType('Response'):
+                    if task.getType() == 'Response':
                         shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled",color=color, shape = shape)
 
@@ -745,7 +745,7 @@ class Manager:
                 # print("info=",task.getIdStr(),"   ", task.getName())
             
             for task in trg_list:
-                if task.checkType('IterationEnd'):
+                if task.getType() == "IterationEnd":
                     if task.iter_start:
                         f.edge(task.getIdStr(), task.iter_start.getIdStr())
                 draw_child_cnt = 0
@@ -1083,7 +1083,7 @@ class Manager:
     
     def makeLink(self, task_in : BaseTask, task_out :BaseTask):
         if task_in != None and task_out != None:
-            if task_out.checkType('Collect') and task_in.checkType('Collect'):
+            if task_out.getType() == 'Collect' and task_in.getType() == 'Collect':
                 print('Relink from', task_out.getName(),':')
                 trgs = task_out.getAffectingOnTask()
                 for trg in trgs:
@@ -1109,7 +1109,7 @@ class Manager:
     def updateSetOption(self, task_name, param_name, key, value):
         print("Update set options")
         task = self.getTaskByName(task_name)
-        if task.checkType("SetOptions"):
+        if task.getType() == "SetOptions":
             task.updateParamStruct(param_name, key, value)
             return value
         return None
@@ -1971,7 +1971,7 @@ class Manager:
             partasks = bud.getAllParents()
             right = False
             for task in partasks:
-                if task.checkType('Response'):
+                if task.getType() == 'Response':
                     right = True
                     break
             if right:

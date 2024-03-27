@@ -332,9 +332,6 @@ class BaseTask():
     def getType(self) -> str:
         return self.type
 
-    def checkType(self, trg: str) -> bool:
-        return self.type.endswith(trg)
-
     def isInputTask(self):
         return True
     
@@ -366,7 +363,7 @@ class BaseTask():
                 if par not in par.parent.getChilds(): #ExtProject issue
                     found = False
                     for child in par.parent.getChilds():
-                        if child.checkType( 'ExtProject') and child.isTaskInternal(par):
+                        if child.getType() == 'ExtProject' and child.isTaskInternal(par):
                             p = [par.parent, child]
                             out.pop(0)
                             p.extend(out)
@@ -761,7 +758,7 @@ class BaseTask():
         code_s = ""
         if len(self.getChilds()) > 1:
             # Если ветвится в точке с потомком записи в файл, то это ветвление игнорируется
-            if second.checkType( 'WriteToFileParam'):
+            if second.getType() == 'WriteToFileParam':
                 return code_s
             # else:
             trg1 = self
