@@ -37,7 +37,7 @@ class GroupTask(CollectTask):
                             self.path = path
                             self.setName(file.split('.')[0])
                             if 'params' in rq:
-                                self.setParamIternal(rq['params'])
+                                self.params = rq['params']
                             print("My new name is ", self.name)
                             return rq['chat']
                 except json.JSONDecodeError:
