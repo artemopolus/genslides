@@ -193,6 +193,7 @@ class GeneratorTask(SetOptionsTask):
         return super().getExeCommands()
     
     def confirmExeCommands(self, outparam):
+        print('Confirm exe command', outparam)
         if 'actions' not in outparam:
             return
         gres, gparam = self.getParamStruct('generator', True)

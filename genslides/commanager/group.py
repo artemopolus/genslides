@@ -544,7 +544,7 @@ class Actioner():
                 self.manager = t_manager
             self.resetCurrentPrivateManager(start, act_param)
             self.exeCurManagerSmpl()
-            self.manager.curr_task.confirmExeCommands(act_param)
+            start.confirmExeCommands(act_param)
             # ничего не меняем
             self.manager.curr_task = start
             return
