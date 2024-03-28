@@ -122,14 +122,16 @@ class Projecter:
 
 
 
-    def load(self, filename):
-        if filename == "":
-            return ""
+    def load(self):
         self.clearFiles()
         path = self.actioner.manager.getPath()
         path = Loader.Loader.getUniPath(path)
         print('Load files to',path)
         project_path = Loader.Loader.getUniPath(self.mypath)
+        ppath = Loader.Loader.getFilePathFromSystemRaw()
+        project_path = Loader.Loader.getUniPath(ppath.parent)
+        filename = str(ppath.stem)
+
         Archivator.extractFiles(project_path, filename, path)
         self.resetManager(self.actioner.manager, path=self.actioner.getPath())
         self.current_project_name = filename
@@ -137,12 +139,15 @@ class Projecter:
         self.updateSessionName()
         return filename
     
-    def appendProjectTasks(self, filename):
+    def appendProjectTasks(self):
+        ppath = Loader.Loader.getFilePathFromSystemRaw()
+        project_path = Loader.Loader.getUniPath(ppath.parent)
+        filename = str(ppath.stem)
         tmp_manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         tmp_path = os.path.join(self.actioner.getPath(),'tmp', filename)
-        print('Open file',filename,'from',self.mypath,'to',tmp_path)
+        print('Open file',filename,'from',project_path,'to',tmp_path)
         tmp_manager.initInfo(method = self.actioner.loadExtProject, task=None, path = tmp_path  )
-        Archivator.extractFiles(self.mypath, filename, tmp_manager.getPath())
+        Archivator.extractFiles(project_path, filename, tmp_manager.getPath())
         self.actioner.tmp_managers.append(tmp_manager)
         tmp_manager.loadTasksList()
         # Переименовываем задачи, если нужно
@@ -193,7 +198,7 @@ class Projecter:
         print('Save man', self.actioner.manager.getName(),'(Temp)' if self.actioner.manager != self.actioner.std_manager else '(Main)')
         path = self.actioner.manager.getPath()
         path = Loader.Loader.getUniPath(path)
-        trg_path = Loader.Loader.getUniPath(self.mypath)
+        trg_path = Loader.Loader.getUniPath(Loader.Loader.getDirPathFromSystemRaw())
         Archivator.saveAll(path, trg_path, name)
 
         return gr.Dropdown( choices= self.loadList(), interactive=True)

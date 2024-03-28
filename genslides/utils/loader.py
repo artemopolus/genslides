@@ -65,16 +65,47 @@ class Loader:
         print('Can\'t find json object in txt')
         return False, None
     
+    def convertFilePathToTag(path, manager_path):
+        filename = PurePosixPath(path)
+        mfilename = Loader.checkManagerTag(path, manager_path, False)
+        if filename == mfilename:
+            return Loader.checkManagerTag(path, manager_path)
+        return filename
+    
+    def getFilePathArrayFromSysten(manager_path = '') ->list[str]:
+        app = Tk()
+        app.withdraw()  
+        app.attributes('-topmost', True)
+        filename_src = list( askopenfilenames() )
+        if manager_path != '':
+            out = []
+            for path in filename_src:
+                out.append(Loader.convertFilePathToTag(path, manager_path))
+        return filename_src
+ 
+    def getFilePathFromSystemRaw() -> Path:
+        app = Tk()
+        app.withdraw() # we don't want a full GUI, so keep the root window from appearing
+        app.attributes('-topmost', True)
+        filepath = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+        return Path(filepath)
+  
+    def getDirPathFromSystemRaw() -> Path:
+        app = Tk()
+        app.withdraw() # we don't want a full GUI, so keep the root window from appearing
+        app.attributes('-topmost', True)
+        dirpath = askdirectory() # show an "Open" dialog box and return the path to the selected file
+        return Path(dirpath)
+
     def getFilePathFromSystem(manager_path = '') -> str:
         app = Tk()
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
         filepath = askopenfilename() # show an "Open" dialog box and return the path to the selected file
         path = Path(filepath)
-        filename = PurePosixPath(path)
         if manager_path != '':
-            filename = Loader.checkManagerTag(path, manager_path)
-        return filename
+            return Loader.convertFilePathToTag(path, manager_path)
+        return str(PurePosixPath(path))
     
     def checkManagerTag(path, manager_path, to_par_fld = True):
         try:
@@ -82,7 +113,7 @@ class Loader:
             tag = 'spc'
             if to_par_fld:
                 tag = 'fld'
-                mpath = mpath.parent
+                mpath = mpath.parent.parent
             rel_path = path.relative_to(mpath)
             str_rel_path = str(PurePosixPath(rel_path))
             filename = '[[manager:path:'+ tag +']]/'+ str_rel_path
@@ -101,13 +132,15 @@ class Loader:
         path = Path(dirpath)
         filename = PurePosixPath(path)
         if manager_path != '':
-            filename = Loader.checkManagerTag(path, manager_path)
-        return filename
+            mfilename = Loader.checkManagerTag(path, manager_path, False)
+            if filename == mfilename:
+                return Loader.checkManagerTag(path, manager_path)
+        return str(filename)
     
     def getFolderPath(path : str, to_par_fld = True) -> str:
         out = Path(path)
         if to_par_fld:
-            out = out.parent
+            out = out.parent.parent
         if platform == 'win32':
             out = PurePosixPath(out)
         return str(out)

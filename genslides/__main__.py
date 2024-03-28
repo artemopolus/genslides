@@ -397,10 +397,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             with gr.Row() as r:
                 project_name = gr.Textbox(value = project_manipulator.current_project_name, label="Project name")
                 project_save = gr.Button(value="save")
-                projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
+                # projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
                 project_load = gr.Button(value = "load")
                 project_reload = gr.Button(value='reload')
-                gr.Button('append').click(fn=project_manipulator.appendProjectTasks,inputs=[projects_list])
+                gr.Button('append').click(fn=project_manipulator.appendProjectTasks)
 
             param_updt = gr.Button(value="Edit param")
 
@@ -572,9 +572,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
 
 
-            project_save.click(fn=projecter.save, inputs=[project_name], outputs=[projects_list])
+            project_save.click(fn=projecter.save, inputs=[project_name] )
             project_clear.click(fn=projecter.clear)
-            project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
+            project_load.click(fn=projecter.load, outputs=[project_name])
             project_reload.click(fn=projecter.reload)
             project_manLoad.click(fn=projecter.loadManager, outputs=std_output_list)
             project_manBrow.click(fn=projecter.loadManagerFromBrowser, outputs=std_output_list)
