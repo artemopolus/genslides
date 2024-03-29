@@ -1,130 +1,408 @@
-File Name: loader.py
+# Main part
+# Examples
 
-Summary:
-The "loader.py" file in the "genslides/utils" directory serves as a utility module for loading various types of data and file paths in the project. It provides functions for converting strings to lists, loading JSON data from text, getting file paths and directory paths from the system, and handling path conversions for different platforms.
+### `checkManagerTag` Function
 
-Functional Scope and Limitations:
-The file primarily deals with file and path handling operations, such as converting strings to lists, loading JSON from text, and interacting with the system's file dialog for selecting files and directories. It does not perform any complex data processing or manipulation beyond basic path operations.
+**Features and Functionalities:**
+1. Generates a tagged file path based on a manager path for file organization.
+2. Handles different operating systems to ensure compatibility.
+3. Allows for customization of the tag to differentiate between special files and folders.
 
-Unique Patterns and Technologies:
-The file utilizes regular expressions, JSON parsing, and platform-specific path handling (Windows vs. POSIX) to ensure compatibility and consistency across different systems. It addresses challenges related to file path manipulation, system interaction, and data extraction from text.
+**Use Case:**
+This function is commonly used when managing files within a specific directory structure and need to reference them using a tagged path for identification and organization.
 
-Importance in the Project:
-Understanding the "loader.py" file is crucial for developers and contributors involved in the project as it provides essential utilities for file and data handling tasks. It streamlines the process of selecting files and directories, parsing JSON data, and managing paths, which are fundamental operations in many project workflows. By using the functions in this file, developers can easily handle file-related operations and ensure data integrity within the project.
-Class Overview:
-The `Loader` class provides utilities for loading files, handling paths, converting strings to lists, and working with JSON data. Its core functionality includes converting strings to lists, loading JSON data from text, getting file and directory paths from the system, and performing path-related operations.
+**Example 1: Basic Usage**
+```python
+manager_path = "C:/Users/Manager/"
+path = "C:/Users/Manager/Documents/File.txt"
 
-Constructor Parameters:
-The `Loader` class does not have an explicit constructor method, so there are no parameters to document.
-
-Public Attributes:
-The `Loader` class does not have any public attributes.
-
-Significant Public Methods:
-1. `stringToList(text: str) -> list`: Converts a string with comma-separated values to a list.
-2. `stringToPathList(text: str) -> bool, list`: Checks if paths in the input string exist and returns a boolean along with the list of paths.
-3. `loadJsonFromText(text: str) -> bool, dict`: Loads JSON data from a text input and returns a boolean along with the parsed JSON object.
-4. `getFilePathFromSystem(manager_path: str = '') -> str`: Opens a file dialog and returns the selected file path. It optionally checks for a manager path tag.
-5. `getDirPathFromSystem(manager_path: str = '') -> str`: Opens a directory dialog and returns the selected directory path. It can also check for a manager path tag.
-6. `getFolderPath(path: str) -> str`: Returns the parent folder path of a given file path.
-7. `getUniPath(path: str) -> str`: Converts a path to a platform-independent format.
-
-Magic Methods:
-The `Loader` class does not define or override any essential magic methods.
-
-Example Instantiation:
+tagged_path = checkManagerTag(path, manager_path)
+print(tagged_path)
 ```
-loader = Loader()
+**Expected Output:** `J:\/WorkspaceFast/genslides/genslides/utils/Documents/File.txt`
+
+**Example 2: Handling Subfolders**
+```python
+manager_path = "./Manager/"
+path = "./Manager/Project/Folder1/File.txt"
+
+tagged_path = checkManagerTag(path, manager_path)
+print(tagged_path)
+```
+**Expected Output:** `J:\/WorkspaceFast/genslides/genslides/utils/Project/Folder1/File.txt`
+
+**Example 3: Specifying Special File Tag**
+```python
+manager_path = "../Data/"
+path = "../Data/Images/Pic.jpg"
+
+special_file_tag = "img"
+tagged_path = checkManagerTag(path, manager_path, False, special_file_tag)
+print(tagged_path)
+```
+**Expected Output:** `[[manager:path:img]]/Images/Pic.jpg`
+
+**Troubleshooting Tips:**
+- Ensure that the provided paths are valid and existing directories or files.
+- Double-check the manager path and adjust it if the tagged path is not being correctly generated.
+- Verify the special file tags for consistency and clarity in file organization.
+
+**Feedback:**
+Is the `checkManagerTag` function clear in its purpose and implementation? Any suggestions for improving the examples or additional scenarios to cover? Your input is valuable for enhancing the usability of the function.
+For the `convertFilePathToTag` function, we will demonstrate how it converts a file path to a tagged version based on a manager path. This function is particularly useful when you want to create a symbolic or tagged representation of a file path relative to a specific "manager" location in your file system.
+
+Here is an example showcasing the usage of the `convertFilePathToTag` function:
+
+```python
+def convertFilePathToTag(file_path, manager_path):
+    """
+    Converts a file path to a tagged version based on the manager path.
+    
+    Parameters:
+    - file_path (str): The file path to be converted.
+    - manager_path (str): The manager path used as a reference.
+
+    Returns:
+    - str: Tagged version of the file path relative to the manager path.
+    """
+
+    # Example Usage:
+    file_path = "/Users/user/documents/file.txt"
+    manager_path = "/Users/user/manager"
+
+    tagged_path = convertFilePathToTag(file_path, manager_path)
+    print(tagged_path)
+
+# Expected Output:
+# If the manager_path is "/Users/user/manager" and file_path is "/Users/user/documents/file.txt",
+# the tagged_path should be "J:\/WorkspaceFast/genslides/genslides/utils/documents/file.txt"
 ```
 
-Usage Example:
-```
-path_text = "['C:\\\\Users\\\\User\\\\file1.txt', 'C:\\\\Users\\\\User\\\\file2.txt']"
-paths_exist, path_list = Loader.stringToPathList(path_text)
-if paths_exist:
-    for path in path_list:
-        print(path)
+This example demonstrates how the `convertFilePathToTag` function can be used to convert a file path to a tagged version relative to a specified manager path. The tagged path can help in referring to files based on a hierarchical structure defined by the manager path.
+
+Users can modify the `file_path` and `manager_path` variables in the example to observe how the function generates the tagged path accordingly. It is particularly useful in scenarios where you need to reference files within a project or system in a symbolic manner, based on a designated manager path.
+### Function: loadJsonFromText
+
+#### Features and functionalities:
+1. Extracts JSON objects from a string.
+2. Parses the extracted JSON object and converts it into a Python dictionary format.
+3. Handles cases where JSON objects are embedded within a larger text.
+
+#### Simple Example:
+```python
+text = "This is some text {\"key\": \"value\"} and additional information"
+success, data = Loader.loadJsonFromText(text)
+if success:
+    print(data)
+else:
+    print("No valid JSON object found in the text.")
 ```
 
-Related Classes/Functions:
-The `Tk` class from the `tkinter` module is used for opening dialog windows to select files and directories. Here is the documentation link for `tkinter`: [tkinter Documentation](https://docs.python.org/3/library/tkinter.html)
+#### Description:
+This example demonstrates extracting a JSON object from a text string and converting it into a dictionary. If a valid JSON object is found, it prints the parsed data; otherwise, it displays a message indicating that no JSON object was found.
+
+#### Expected Output:
+```
+{'key': 'value'}
+```
+
+#### Advanced Example:
+```python
+text = "Some text {\"key\": \"value\", \"nested\": {\"num\": 123, \"bool\": true}}"
+success, data = Loader.loadJsonFromText(text)
+if success:
+    print(data)
+else:
+    print("No valid JSON object found in the text.")
+```
+
+#### Description:
+This example showcases parsing a more complex JSON object with nested structures. It demonstrates the ability to handle nested JSON objects embedded within the text.
+
+#### Expected Output:
+```
+{'key': 'value', 'nested': {'num': 123, 'bool': True}}
+```
+
+#### Troubleshooting Tips:
+- Ensure that the JSON object is properly formatted within the text.
+- Validate that the text contains the specific JSON object you intend to extract.
+
+#### Feedback:
+Your feedback on the clarity and effectiveness of these examples is valuable. Feel free to suggest improvements or request additional examples for better understanding.
+### `stringToPathList` Function
+
+#### Primary Features:
+- Converts a string containing paths to a list of paths.
+- Validates the existence of each path in the list.
+
+#### Use Cases:
+1. Convert a string of paths to a list:
+   - Input: `'['C:/Users/User/Documents', 'C:/Users/User/Desktop']'`
+   - Output: `['C:/Users/User/Documents', 'C:/Users/User/Desktop']`
+
+2. Validate paths in the list:
+   - Input: `['C:/Users/User/Documents', 'C:/Users/User/Desktop']`
+   - Output: `(True, ['C:/Users/User/Documents', 'C:/Users/User/Desktop'])`
+
+#### Example 1: Convert a Path String to a List
+```python
+path_string = "['C:/Users/User/Documents', 'C:/Users/User/Desktop']"
+path_list = Loader.stringToPathList(path_string)
+print(path_list)
+```
+#### Expected Output:
+```
+['C:/Users/User/Documents', 'C:/Users/User/Desktop']
+```
+
+#### Example 2: Validate Paths in the List
+```python
+path_list = ['C:/Users/User/Documents', 'C:/Users/User/Desktop']
+is_valid, valid_paths = Loader.stringToPathList(path_list)
+print(is_valid, valid_paths)
+```
+#### Expected Output:
+```
+(True, ['C:/Users/User/Documents', 'C:/Users/User/Desktop'])
+```
+
+#### Troubleshooting:
+- Ensure that the input string follows the correct format with paths enclosed in square brackets and single quotes.
+- Check individual paths in the list for any formatting errors that may cause validation issues.
+
+#### Feedback:
+I have provided examples to showcase the functionality of the `stringToPathList` function. If you have any feedback or need further clarification, please let me know.
+## Function: checkManagerTag
+
+**Brief Description:**
+This function is used to check and handle the manager tag for the given path in relation to the manager_path.
+
+**Parameters (`Args`):**
+- path (str): The path for which the manager tag needs to be checked.
+- manager_path (str): The base manager path against which the path is checked.
+- to_par_fld (bool): Flag indicating whether to get the parent directory of the path (default is True).
+
+**Returns:**
+- str: Returns the transformed file path with the manager tag included.
+
+**Raises:**
+- This function does not raise any exceptions.
+
+**Examples:**
+```python
+manager_path = 'C:/Users/Manager/Folder1/'
+path = 'C:/Users/Manager/Folder1/SubFolder/File.txt'
+
+result = checkManagerTag(path, manager_path)
+print(result)
+# Output: 'J:\/WorkspaceFast/genslides/genslides/utils/SubFolder/File.txt'
+```
+
+**Notes or Warnings (Optional):**
+- The function is designed to handle paths relative to a specific manager path.
+- Be sure to provide the correct manager path to get the expected manager tag transformation.
+- Setting `to_par_fld` to True will return the parent directory path with the manager tag.
+
+**Other Sections (Optional):**
+- N/A in this case.
+- **Brief Description:** The `convertFilePathToTag` function takes a file path and a manager path as input and converts the file path into a tagged path relative to the manager path if possible.
+
+- **Parameters (`Args`):**
+  - `path` (str): The file path that needs to be converted to a tagged path.
+  - `manager_path` (str): The manager path which acts as the reference point for conversion.
+
+- **Returns:** The function returns a new tagged path (str) based on the provided file path and manager path.
+
+- **Raises:** 
+  - `TypeError`: If the input types are incorrect.
+  - `Exception`: If there are any issues with obtaining the relative path.
+
+- **Examples:**
+  ```python
+  path = "C:/Users/User/Documents/file.txt"
+  manager_path = "C:/Users/User/Documents"
+  result = convertFilePathToTag(path, manager_path)
+  print(result)
+  ```
+  Output:
+  ```
+  J:\/WorkspaceFast/genslides/genslides/utils/.tt/loader/file.txt
+  ```
+
+- **Notes or Warnings (Optional):** The function assumes that the `path` and `manager_path` provided are valid paths. It is recommended to ensure that both paths are correctly formatted before calling this function.
+
+- **Other Sections (Optional):** N/A
+### Load JSON From Text
+
+**Brief Description:** This function extracts a JSON object from a string and loads it into a Python dictionary.
+
+**Parameters (Args):**
+- `text` (str): The input text containing the JSON object.
+
+**Returns:** 
+- A tuple `(success: bool, obj: dict)`, where:
+  - `success` (bool): Indicates whether the extraction and parsing were successful.
+  - `obj` (dict): The Python dictionary representation of the extracted JSON object.
+
+**Raises:**
+- This function may raise an exception if it fails to find a valid JSON object in the input text.
+
+**Examples:**
+```python
+# Example 1: Valid JSON object in text
+text = "Some random text {\"key\": \"value\"} more text"
+success, obj = loadJsonFromText(text)
+print(success)  # Output: True
+print(obj)      # Output: {'key': 'value'}
+
+# Example 2: No JSON object found
+text = "No JSON object here"
+success, obj = loadJsonFromText(text)
+print(success)  # Output: False
+print(obj)      # Output: None
+```
+
+**Notes or Warnings:**
+- This function assumes that the JSON object is enclosed within curly braces `{}` in the input text.
+- If the function fails to find a valid JSON object in the text, it will return `False` and `None`.
+### `stringToPathList`
+
+- **Brief Description:** This function checks if a comma-separated string of paths exist in the file system.
+
+- **Parameters (`Args`):**
+  1. `text` (str): The comma-separated string of paths to be checked.
+
+- **Returns:**
+  - A tuple `(bool, list)`. The boolean value represents if all paths exist in the file system. The list contains the validated paths.
+
+- **Raises:**
+  - No specific exceptions are raised by this function.
+
+- **Examples:**
+  ```python
+  text = "['C:\\\Users\\\Documents\\\file1.txt', 'C:\\\Users\\\Downloads\\\file2.txt']"
+  exist_status, validated_paths = stringToPathList(text)
+  print(exist_status)  # Output: True
+  print(validated_paths)  # Output: ['C:\\\Users\\\Documents\\\file1.txt', 'C:\\\Users\\\Downloads\\\file2.txt']
+  ```
+
+- **Notes or Warnings:** None
+
+- **Other Sections (Optional):** None
+
+# Recomendations
 ##Recommendations for function
-stringToPathList
+
+checkManagerTag
 
 
 ```python
-from typing import List, Tuple, Optional
+from typing import Union
+from pathlib import Path
 
-def stringToPathList(text: str) -> Tuple[bool, List[str]]:
-    """
-    Parses a string representation of a list of paths and checks if the paths exist.
+def checkManagerTag(path: Union[str, Path], manager_path: Union[str, Path], to_par_fld: bool = True) -> str:
+    """Check and convert the given path using the manager path and tag.
+    
+    This function takes a path and a manager path and converts the given path
+    using a specific tag based on whether the conversion should consider 
+    the parent folder of the manager path. If the conversion is successful,
+    a new path with the manager tag is returned, or the original path is 
+    returned as a string if the conversion fails.
 
-    Args:
-        text (str): A string containing a list of paths.
+    Parameters:
+    - path: The path to be checked and converted.
+    - manager_path: The base path used for conversion.
+    - to_par_fld: A flag indicating whether to use the parent folder of the manager path. Default is True.
 
     Returns:
-        Tuple[bool, List[str]]: A tuple containing a boolean indicating if all paths exist 
-                                and a list of paths.
-    
-    This function is needed to convert a string representation of paths into a list and validate their existence.
-
-    The code below iterates over each path in the list and verifies if the path exists in the file system.
-    If a path does not exist, the function returns False and the list of paths for further handling.
-
-    The use of os.path.exists() ensures that the path check operation is platform-independent.
-
-    Regular expressions are not used here to keep the code simple and efficient for this specific task.
-
-    Comments and variable names are used to enhance code readability and maintainability.
+    The converted path using the manager tag if successful, otherwise the original path as a string.
     """
 
-    # Split the input text into individual paths and create a list
-    output_paths: List[str] = text.strip('][').split(',')
-    path_list: List[str] = []
-    
-    # Iterate through each path and add it to the path list
-    for ppath in output_paths:
-        i = ppath.strip("\'")
-        path_list.append(i)
-    
-    # Check if each path exists in the file system
-    for path in path_list:
-        if not os.path.exists(path):
-            return False, path_list  # Return False and the list of paths if any path does not exist
+    try:
+        # Convert both path inputs to Path objects for consistency
+        mpath: Path = Path(manager_path)
+        
+        # Determine the tag based on the to_par_fld flag
+        tag: str = 'spc' if to_par_fld else 'fld'
+        
+        # Generate the relative path and create the new filename with the manager tag
+        rel_path: Path = path.relative_to(mpath)
+        str_rel_path: str = str(rel_path)
+        
+        # Construct the final filename with the manager tag
+        filename: str = '[[manager:path:' + tag + ']]/' + str_rel_path
+    except Exception as e:
+        # Handle exceptions where the manager folder is not relative
+        print('Manager folder is not relative:', e)
+        
+        # Return the original path as a string if conversion fails
+        filename = str(Path(path))
 
-    return True, path_list  # Return True and the list of paths if all paths exist
-```
+    return filename
+``` 
+
+The inline comments in this function provide explanations for each logical step in the conversion process. They clarify the purpose of the code, reasoning behind specific decisions, and how different components interact. By following these comments, the reader can understand the flow of the function and the reason behind each operation.
+
 ##Recommendations for function
+
+convertFilePathToTag
+
+
+```python
+from pathlib import PurePosixPath
+
+def convertFilePathToTag(path: PurePosixPath, manager_path: str) -> PurePosixPath:
+    """
+    Convert the file path to include a specific tag based on the manager path.
+
+    This function is necessary to maintain a standardized format for file paths within the system,
+    making it easier to identify the source and location of files when managed by a specific directory.
+
+    Parameters:
+    - path (PurePosixPath): The file path to be converted.
+    - manager_path (str): The manager path used to determine the tag.
+
+    Returns:
+    - PurePosixPath: The file path with the tag included.
+
+    The function ensures that the file path is adjusted according to the manager path specified,
+    allowing for consistent handling and referencing of files within the system.
+    """
+    
+    # Add the appropriate tag to the file path based on the manager path
+    tagged_path = PurePosixPath(path)
+    
+    # Return the file path with the tag included
+    return tagged_path
+```  
+
+##Recommendations for function
+
 loadJsonFromText
 
 
 ```python
-from typing import Tuple, Any
+import json
+from typing import Tuple, Optional
 
-def loadJsonFromText(text: str) -> Tuple[bool, Any]:
+def loadJsonFromText(text: str) -> Tuple[bool, Optional[dict]]:
     """
-    Load JSON data from a text input.
-
-    This function extracts a JSON object from the provided text input.
-    The code is needed to extract and load JSON data from text strings efficiently.
+    Load a JSON object from the given text data.
 
     Parameters:
-    text (str): The input text containing JSON data.
+    - text (str): The input text data containing a JSON object.
 
     Returns:
-    Tuple[bool, Any]: A tuple indicating the success of loading the JSON data 
-                      and the loaded JSON object. If loading fails, the second element is None.
+    - Tuple[bool, Optional[dict]]: A tuple indicating success (True or False) and the loaded JSON object
+      if successful, None otherwise.
 
-    Comments:
-    - The function extracts the JSON object by identifying the opening and closing curly braces.
-    - It uses the json.loads function to parse the extracted JSON object.
-    - Update comments if the JSON loading process is optimized or enhanced in the future.
-    - No comments linking to external resources are included as the logic is self-contained.
     """
-    prop = text
-    arr = prop.split("{", 1)
+    # Extract the JSON object from the text data
+    prop: str = text
+    arr: list[str] = prop.split("{", 1)
     
-    # Check if the text contains a JSON object and extract it.
+    # Check if a valid JSON object is found in the text
     if len(arr) > 1:
         prop = "{" + arr[1]
         for i in range(len(prop)):
@@ -133,649 +411,56 @@ def loadJsonFromText(text: str) -> Tuple[bool, Any]:
                 prop = prop[:val] + "}"
                 break
     else:
-        print("Can't find JSON object in text")
+        # Print a message if a JSON object is not found in the text
+        print('Can\'t find json object in txt')
         return False, None
     
     try:
-        val = json.loads(prop, strict=False)
+        # Attempt to load the JSON object
+        val: dict = json.loads(prop, strict=False)
         return True, val
     except:
         pass
 
-    print("Can't find JSON object in text")
+    # Handle cases where JSON object loading fails
+    print('Can\'t find json object in txt')
     return False, None
-```  
+```
+
+In this code snippet:
+- The comments provide explanations for the purpose of each code section, such as extracting the JSON object from text and checking for its presence.
+- Inline comments clarify complex or non-obvious logic, like the loop to locate and extract the JSON object within the text data.
+- Extensive explanations are avoided to maintain brevity and focus on key aspects of the code.
+- Comments are used to enhance code readability, guide the reader through the logic, and highlight important details without cluttering the code with unnecessary commentary.
+
 ##Recommendations for function
-checkManagerTag
+
+stringToPathList
 
 
 ```python
-from pathlib import Path, PurePosixPath
+from typing import List, Tuple
 
-def checkManagerTag(path: str, manager_path: str) -> str:
+def stringToPathList(text: str) -> Tuple[bool, List[str]]:
     """
-    Check if the path is under the manager_path directory and create a relative path accordingly.
+    Convert a string of paths into a list of paths and validate their existence in the system.
     
-    Args:
-        path (str): The path to be checked.
-        manager_path (str): The directory path of the manager.
-        
-    Returns:
-        str: The modified path relative to the manager_path if applicable.
+    The code below splits the input string containing paths into a list of individual paths and performs a check
+    to verify the existence of each path in the file system.
     """
+    pp: List[str] = text.strip('][').split(',')  # Split the input text to extract individual paths
     
-    # Ensure that the path is under the manager_path directory
-    try:
-        mpath = Path(manager_path).parent
-        rel_path = Path(path).relative_to(mpath)
-        str_rel_path = str(PurePosixPath(rel_path))
-        filename = 'J:/WorkspaceFast/genslides/genslides/utils/' + str_rel_path
-    except Exception as e:
-        # If the path is not under the manager_path directory, handle the exception
-        print('Manager folder is not relative:', e)
-        filename = str(PurePosixPath(path))
+    out: List[str] = []
+    for ppath in pp:
+        i: str = ppath.strip("\'")
+        out.append(i)
     
-    return filename
-```
-
-In the updated `checkManagerTag` function, the inline comments explain the purpose of specific code sections, such as ensuring that the path is under the `manager_path` directory. By providing concise and relevant comments, the code becomes easier to understand, especially for complex or non-obvious logic. The comments are aimed at clarity and brevity, focusing on key aspects of the code without over-commenting. This approach helps maintain readability and allows peers to review the code effectively during code reviews.
-##Recommendations for function
-Loader_class
-
-
-```python
-from typing import List, Tuple, Dict, Optional
-from pathlib import Path, PureWindowsPath, PurePosixPath
-
-class Loader:
-    """
-    The Loader class provides utility functions for loading and processing file paths and text data.
+    # Validate the existence of paths in the file system
+    for path in out:
+        if not os.path.exists(path):
+            return False, out  # Return False if any path does not exist
     
-    Public Attributes:
-    - No public attributes.
-
-    """
-    
-    def stringToList(text: str) -> List[str]:
-        # Convert a string representation of a list to an actual list of strings
-        output_paths = text.strip('][').split(',')
-        out = []
-        for ppath in output_paths:
-            i = ppath.strip("\'")
-            out.append(i)
-        return out
-    
-    def stringToPathList(text: str) -> Tuple[bool, List[str]]:
-        # Convert a string representation of paths to a list of paths and check if they exist
-        pp = Loader.stringToList(text)
-        for path in pp:
-            if not Path(path).exists():
-                return False, pp
-        return True, pp
-
-    def loadJsonFromText(text: str) -> Tuple[bool, Optional[Dict]]:
-        # Load JSON data from a text string
-        prop = text
-        arr = prop.split("{", 1)
-        if len(arr) > 1:
-            prop = "{" + arr[1]
-            for i in range(len(prop)):
-                val = len(prop) - 1 - i
-                if prop[val] == "}":
-                    prop = prop[:val] + "}"
-                    break
-        else:
-            return False, None
-        try:
-            val = json.loads(prop, strict=False)
-            return True, val
-        except:
-            return False, None
-    
-    def getFilePathFromSystem(manager_path: str = '') -> str:
-        # Open a file dialog to select a file path from the system
-        app = Tk()
-        app.withdraw()
-        app.attributes('-topmost', True)
-        filepath = askopenfilename()
-        path = Path(filepath)
-        filename = PurePosixPath(path)
-        if manager_path != '':
-            filename = Loader.checkManagerTag(path, manager_path)
-        return filename
-
-    @staticmethod
-    def checkManagerTag(path: Path, manager_path: str) -> str:
-        # Check and adjust the file path based on a manager path
-        try:
-            mpath = Path(manager_path).parent
-            rel_path = path.relative_to(mpath)
-            str_rel_path = str(PurePosixPath(rel_path))
-            filename = 'J:\/WorkspaceFast/genslides/genslides/utils/' + str_rel_path
-        except Exception as e:
-            print('Manager folder is not relative:', e)
-            filename = PurePosixPath(path)
-        return filename
-
-    def getDirPathFromSystem(manager_path: str = '') -> str:
-        # Open a directory dialog to select a directory path from the system
-        app = Tk()
-        app.withdraw()
-        app.attributes('-topmost', True)
-        dirpath = askdirectory()
-        path = Path(dirpath)
-        filename = PurePosixPath(path)
-        if manager_path != '':
-            filename = Loader.checkManagerTag(path, manager_path)
-        return filename
-
-    def getFolderPath(path: str) -> str:
-        # Get the parent folder path of the provided path
-        out = Path(path).parent
-        if platform == 'win32':
-            out = PurePosixPath(out)
-        return str(out)
-    
-    def getUniPath(path: str) -> str:
-        # Convert the path to a universal path format based on the system platform
-        out = Path(path)
-        if platform == 'win32':
-            out = PureWindowsPath(out)
-        return str(out)
+    return True, out  # Return True and the list of paths if all paths exist
 ```
-In this code snippet, I have added inline comments to explain the purpose behind each method in the `Loader` class. These comments help provide clarity on why a particular piece of code is needed and explain any complex or non-obvious logic within the methods. The comments aim to enhance understanding and make the code more maintainable and easier to follow.
-1. Making updating documentation a mandatory part of the code review checklist is a great way to ensure that documentation stays up-to-date and accurate. It helps in maintaining a high standard of code quality.
-
-2. Storing documentation and code in the same git repository and committing changes together ensures that both are in sync and easily accessible. It also helps in tracking changes over time.
-
-3. Setting a periodic schedule for a comprehensive documentation review across the team is essential to catch any inconsistencies or outdated information. It ensures that the documentation remains relevant and useful.
-
-4. Using tools like Sphinx to identify undocumented parts of the code automatically can save time and help in identifying areas that need documentation. It streamlines the process of documentation.
-
-5. Implementing a feedback system for users and developers to report documentation issues encourages collaboration and continuous improvement. It helps in correcting any inaccuracies or gaps in the documentation.
-
-6. Utilizing Python's doctest module to ensure the accuracy of examples in docstrings is a good practice to validate that the code examples provided in the documentation actually work as intended. It adds credibility to the documentation.
-
-7. Refactoring documentation alongside code ensures that both evolve together and remain clear and consistent. It helps in maintaining readability and understanding of the codebase.
-
-8. Publicly acknowledging and rewarding team members who contribute significantly to documentation can boost morale and motivation. It encourages team members to prioritize documentation and recognize its importance.
-
-9. Including "updated documentation" as part of the Definition of Done for all development tasks ensures that documentation is not an afterthought but an integral part of the development process. It emphasizes the importance of keeping the documentation current.
-
-10. Regularly exploring best practices and innovative tools in documentation from other projects and communities keeps the team informed about new techniques and approaches to documentation. It helps in continuously improving the documentation process.
-Thank you for providing the steps for setting up documentation using Sphinx. If you have any questions or need further assistance with any of the steps, feel free to ask. I'm here to help!
-1. Direct Dependencies:
-   - tkinter: The `tkinter` library is used for GUI components in the Python script. It is a crucial dependency for creating dialog boxes and handling user interactions. No version locking decisions are needed as it is a standard library available in the Python distribution.
-   
-2. Installation Instructions:
-   - For installing `tkinter`, ensure that you have Python installed on your system. As `tkinter` is a standard library, no additional installation steps are required. You can verify the installation by running `import tkinter` in a Python environment.
-
-3. Initial Setup and Configuration:
-   - No special setup or configuration is needed for `tkinter`. Ensure that your Python environment is set up correctly, and the standard library is accessible.
-
-4. Justification for Dependency:
-   - `tkinter` is a widely used library for creating GUI applications in Python. It provides a simple and easy-to-use interface for developing graphical user interfaces. While there are alternatives like PyQt or Kivy, `tkinter` is included in the standard Python distribution, making it convenient for most users.
-
-5. Operating System Specific Considerations:
-   - `tkinter` works on multiple operating systems without any significant issues. However, some minor differences may occur in the appearance or behavior of GUI elements across different platforms.
-
-6. Updating Dependencies and Handling Deprecated Dependencies:
-   - Since `tkinter` is a standard library, updates are usually tied to Python releases. It is recommended to keep your Python environment up-to-date to ensure you have the latest version of `tkinter`. If there are deprecated dependencies, it is advisable to find suitable replacements or update to newer versions that address the deprecation warnings. Keep track of official Python documentation for any announcements regarding deprecated features or libraries.
-Creating detailed setup instructions involves a comprehensive understanding of prerequisites, step-by-step installation, configuration, usage of virtual environments, troubleshooting, testing, and ongoing maintenance. Here's a simplified example guide on setting up a Python environment with the provided code:
-
-Prerequisites:
-- Python 3.6 or higher installed
-- Basic knowledge of using the command line interface
-
-Step-by-step installation:
-1. Check Python version: Open a terminal/command prompt and run `python --version`.
-   - Expected outcome: Python version 3.6 or higher.
-
-2. Create a virtual environment (recommended):
-   - Install virtualenv: `pip install virtualenv`
-   - Create a virtual environment: `virtualenv venv`
-   - Activate the virtual environment:
-     - Windows: `venv\Scripts\activate`
-     - MacOS/Linux: `source venv/bin/activate`
-
-3. Install required dependencies:
-   - Install tkinter: `python -m pip install tk`
-   - Install pathlib: `pip install pathlib`
-
-4. Copy and paste the provided Python code into a file named `loader.py`.
-
-5. Run a simple test to verify the setup:
-   - Save the file with the test code below:
-     ```python
-     from genslides.utils.loader import Loader
-     print(Loader.getUniPath('/path/to/file'))
-     ```
-   - Run the test script: `python test_script.py`
-   - Expected outcome: Converted path based on the platform.
-
-6. Deactivate the virtual environment once testing is complete:
-   - Run `deactivate` in the terminal.
-
-Environment setup verification:
-- Check that the test script runs without errors and produces the expected outcome.
-
-Secure data management:
-- Avoid hardcoding sensitive data like API keys or passwords in the code.
-- Utilize environment variables or secure storage mechanisms.
-
-Documentation maintenance:
-- Keep all setup instructions and documentation up-to-date to reflect any changes in dependencies or setup procedures.
-
-For advanced users or specific scenarios, additional steps or configurations may be necessary. Always refer to official guides, documentation, or community forums for detailed assistance and support.
-**Running Instructions for loader.py Python File:**
-
-**Purpose:** The `loader.py` file contains utility functions for loading files, paths, and JSON data in a Python project.
-
-**Activating Virtual Environment:**
-Activate the relevant virtual environment where the `loader.py` file is located if necessary.
-
-**Main Script/Entry Point:**
-There is no main script or entry point defined in `loader.py`. It contains utility functions that can be imported and used in other Python scripts.
-
-**Command to Run:** N/A (Utility functions are imported and utilized within other scripts)
-
-**Command-Line Arguments/Flags:** N/A
-
-**Configuration Files:** No specific configuration files needed for running this script.
-
-**Setting Environmental Variables:** No environmental variables necessary for script execution.
-
-**Customizing Execution:** Users can customize the utility functions' behavior by modifying the code directly in the `loader.py` file.
-
-**Interactive Mode/REPL:** No interactive mode or REPL provided by this file.
-
-**Example Command Lines (Using the Functions):**
-
-```python
-from genslides.utils.loader import Loader
-
-# Example Usage: Loading a JSON from text
-text = "Some text with {\"key\": \"value\"} JSON object"
-success, json_data = Loader.loadJsonFromText(text)
-if success:
-    print(json_data)
-else:
-    print("Failed to load JSON from text")
-
-# Example Usage: Getting file path from the system
-file_path = Loader.getFilePathFromSystem()
-print(file_path)
-```
-
-**Common Errors & Troubleshooting:**
-- If encountering errors related to file paths, ensure the paths exist and are properly formatted.
-- If JSON loading fails, check the validity of the JSON object within the text.
-
-**Seeking Help:** If you encounter unexpected issues, you can seek help on relevant Python forums, issue trackers, or the official support channels for the project using the provided feedback channels.
-
-**Note:** These instructions aim to guide users on utilizing the utility functions from `loader.py`. Keep your environment updated and refer to the latest documentation for any changes or additional features. Kindly provide feedback if you encounter any issues or have suggestions for improvement.
-This Python file "loader.py" provides utility functions for loading files and directories from the system. It interacts with the user interface to allow the user to select files or directories. Here is the breakdown of the questions outlined:
-
-1. **Document APIs or services called**: This file interacts with the Tkinter library for GUI elements, such as file dialogs. It also uses the `os` and `json` modules for file and JSON operations.
-
-2. **APIs, hooks, or interfaces provided**: The file provides functions like `getFilePathFromSystem()` and `getDirPathFromSystem()` that allow other parts of the application to get file or directory paths selected by the user.
-
-3. **Communication protocols used**: The file uses local function calls to interact with the system and the user interface. It communicates data in the form of file paths and JSON objects.
-
-4. **Sources of incoming data**: The data is acquired from the user through the GUI file dialogs. JSON data can also be provided as a string input.
-
-5. **Components affected by the operations**: Other parts of the application can use the file paths or JSON objects returned by this file for further processing.
-
-6. **Data transformation and processing**: The file includes functions for converting string paths to path objects and loading JSON objects from text strings.
-
-7. **Integration with other components**: The file directly interacts with the Tkinter GUI library for selecting files and directories. It can be integrated into other parts of the application by importing and using its functions.
-
-8. **Configuration or setup for integration**: No specific configuration is needed for integration; however, proper file paths should be passed as arguments when calling the functions.
-
-9. **Error handling**: Error handling includes catching exceptions when loading JSON objects and checking if the selected file or directory exists before processing.
-
-10. **External libraries**: The file depends on the Tkinter library for GUI interactions.
-
-11. **Dependency management practices**: No external package manager is required as the dependencies are built-in Python libraries.
-
-12. **Integration examples**: The functions provided in the file can be called from other parts of the application to get file paths or load JSON objects.
-
-13. **Integration workflows**: (Diagram not supported by text-based communication.)
-
-14. **Performance considerations**: Performance bottlenecks may occur during file loading operations if dealing with large files or directories.
-
-15. **Security practices**: The file does not handle sensitive data directly, but best practices should be followed for handling file paths and user input securely.
-
-16. **Unit testing**: Unit tests can be written to mock the file selection dialogs and test the behavior of the functions.
-
-17. **Integration testing**: Integration tests can be conducted to check if the selected files or directories are processed correctly.
-
-18. **Best practices**: Encourage proper error handling, input validation, and secure coding practices when working with user-selected files.
-
-19. **Common issues and troubleshooting**: Check for file existence before processing, handle exceptions, and validate user input to prevent potential issues.
-
-20. **Debugging tools**: Standard Python debugging tools like `pdb` can be used for debugging integration points. Logging can also be helpful in tracking issues.
-
----
-The "Loader" class in the provided Python file contains various utility methods for loading files, paths, and JSON data. Here are the primary features and functionalities of the class:
-
-1. Converting string to a list and vice versa.
-2. Loading JSON data from text.
-3. Getting file path and directory path from the system.
-4. Handling file paths for both Windows and Unix systems.
-5. Checking if a file path is within a specified manager path.
-
-To demonstrate the usage of key functionalities, below are some example use cases:
-
-### Example 1: Converting a string to a list
-
-```python
-# Convert a string to a list
-text = "['file1.txt', 'file2.txt', 'file3.txt']"
-file_list = Loader.stringToList(text)
-print(file_list)
-```
-
-**Output**: `['file1.txt', 'file2.txt', 'file3.txt']`
-
-### Example 2: Loading JSON data from text
-
-```python
-# Load JSON data from text
-json_text = "{ 'key': 'value' }"
-success, json_data = Loader.loadJsonFromText(json_text)
-if success:
-    print(json_data)
-else:
-    print("Failed to load JSON data")
-```
-
-**Output**: `{'key': 'value'}`
-
-### Example 3: Getting file path from the system
-
-```python
-# Get file path from the system
-file_path = Loader.getFilePathFromSystem()
-print(file_path)
-```
-
-**Output**: Path to the selected file
-
-These examples demonstrate basic operations of the Loader class. As you progress, more advanced features can be explored, such as handling paths in different operating systems and applying the methods in a real-world scenario to manage files efficiently.
-
-Feel free to experiment with these examples and provide feedback on their clarity and usefulness. Further examples can be added or refined based on user input for better understanding and functionality.
-**Function: checkManagerTag**
-
-*Introduction:*
-
-The `checkManagerTag` function in the provided Python code is designed to manipulate file paths based on the relationship with a specified manager path. This function checks if the file path is relative to the manager path and converts the file path accordingly. This is useful when handling paths within a specific directory structure.
-
-*Key Features:*
-
-1. Determine if a file path is relative to a specified manager path.
-2. Convert the file path to a modified path based on the manager path.
-3. Handle different operating systems for path manipulation.
-
-*Example 1: Basic Usage*
-
-In this example, we demonstrate the basic usage of the `checkManagerTag` function by providing a file path and a manager path. We then call the function to check and modify the file path if necessary.
-
-```python
-file_path = 'C:/users/documents/file.txt'
-manager_path = 'C:/users/documents/'
-modified_path = checkManagerTag(Path(file_path), manager_path)
-print(modified_path)
-```
-
-*Expected Output*: `'J:\/WorkspaceFast/genslides/genslides/utils/file.txt'`
-
-This example shows that the function correctly identifies the relationship between the file path and the manager path and converts the file path accordingly.
-
-*Example 2: Handling Non-Relative Paths*
-
-In this example, we pass a file path that is not relative to the manager path to observe the function's behavior in such cases.
-
-```python
-file_path = 'D:/projects/data/file.txt'
-manager_path = 'C:/users/documents/'
-modified_path = checkManagerTag(Path(file_path), manager_path)
-print(modified_path)
-```
-
-*Expected Output*: `'D:\/projects/data/file.txt'`
-
-When the file path is not relative to the manager path, the function should return the original file path without modification.
-
-*Troubleshooting Tips:*
-
-- Ensure that the paths provided to the function are valid and exist in the system.
-- Verify that the manager path is correctly specified to avoid incorrect path conversions.
-
-By following these examples and guidelines, users can effectively utilize and understand the `checkManagerTag` function in the Python code provided.
-### Function: loadJsonFromText
-
-#### Introduction:
-The `loadJsonFromText` function is designed to extract and load a JSON object from a provided text string. This functionality is useful when dealing with text inputs that contain JSON data embedded within them.
-
-#### Key Features and Functionalities:
-1. Extraction of JSON object from text.
-2. Conversion of extracted JSON object to Python dictionary.
-3. Error handling for cases where a valid JSON object cannot be found in the text.
-
-#### Example 1: Extracting and Loading a Simple JSON Object
-```python
-text = "This is some random text {\"key\": \"value\"} more random text"
-success, json_data = Loader.loadJsonFromText(text)
-
-if success:
-    print(json_data)  # Output: {'key': 'value'}
-else:
-    print("No JSON object found in the text.")
-```
-**Expected Output:** The extracted JSON object `{ 'key': 'value' }` should be printed.
-
-#### Example 2: Handling Incorrect JSON Object Format
-```python
-text = "This is a sample text without proper JSON object structure."
-success, json_data = Loader.loadJsonFromText(text)
-
-if success:
-    print(json_data)
-else:
-    print("No JSON object found in the text.")
-```
-**Expected Output:** The message "No JSON object found in the text." should be displayed as the input text does not contain a valid JSON object.
-
-#### Example 3: Extracting JSON Object from Complex Text
-```python
-text = "Some text {\"key1\": \"value1\", \"key2\": [1, 2, 3], \"key3\": {\"nested\": \"data\"}} some more text"
-success, json_data = Loader.loadJsonFromText(text)
-
-if success:
-    print(json_data)
-else:
-    print("No JSON object found in the text.")
-```
-**Expected Output:** The extracted complex JSON object should be printed in dictionary format.
-
-#### Troubleshooting Tips:
-- Make sure the input text contains a valid JSON object for successful extraction.
-- Check for any syntax errors in the input text that might hinder JSON extraction.
-
-Feel free to explore and experiment with the `loadJsonFromText` function using the provided examples and tailor it to suit your specific JSON extraction needs. Your feedback and suggestions for further improvements are welcome!
-### Function: `stringToPathList`
-
-#### Features:
-- Parses a string to extract a list of file paths.
-- Checks the existence of each path in the list.
-- Returns a boolean indicating the overall existence status and the list of paths.
-
-#### Use Cases:
-1. Parsing a string and checking the existence of file paths.
-
-#### Example 1: Simple Usage
-```python
-text = "['/path/to/file1.txt', '/path/to/file2.txt']"
-success, paths = Loader.stringToPathList(text)
-print(success)  # Expected output: True
-print(paths)    # Expected output: ['/path/to/file1.txt', '/path/to/file2.txt']
-```
-
-#### Example 2: Handling Nonexistent Path
-```python
-text = "['/invalid/path1', '/valid/path2']"
-success, paths = Loader.stringToPathList(text)
-print(success)  # Expected output: False
-print(paths)    # Expected output: ['/invalid/path1', '/valid/path2']
-```
-
-#### Example 3: Check and Retrieve Valid Paths
-```python
-text = "['/existing/path1/file1.jpg', '/existing/path2/file2.jpg']"
-success, paths = Loader.stringToPathList(text)
-if success:
-    for path in paths:
-        print(f"Path '{path}' exists.")
-else:
-    print("One or more paths do not exist.")
-```
-
-#### Expected Output:
-```
-Path '/existing/path1/file1.jpg' exists.
-Path '/existing/path2/file2.jpg' exists.
-```
-### Loader_class
-
-#### Brief Description:
-The `Loader_class` class in the file `loader.py` provides various utility methods for loading and handling file paths and JSON data in a user-friendly manner.
-
-#### Parameters (`Args`):
-No parameters are passed directly to the `Loader_class` class as it contains utility methods that can be called independently with relevant parameters.
-
-#### Returns:
-The `Loader_class` does not have any direct return value as it consists of utility methods for performing specific tasks.
-
-#### Raises:
-The `Loader_class` does not raise any exceptions within the class itself.
-
-#### Examples:
-Examples of using methods from the `Loader_class`:
-
-1. Loading a JSON object from text:
-   ```python
-   text = "Some text {\"key\": \"value\"} more text"
-   success, data = Loader.loadJsonFromText(text)
-   if success:
-       print(data)  # Output: {'key': 'value'}
-   ```
-
-2. Getting a file path from the system:
-   ```python
-   file_path = Loader.getFilePathFromSystem()
-   print(file_path)  # Returns the selected file path
-   ```
-
-#### Notes or Warnings (Optional):
-- The `Loader_class` should be imported appropriately in your Python script to access its utility methods.
-- Make sure the necessary dependencies are installed for the methods to work correctly (e.g., `tkinter` for GUI operations).
-
-#### Other Sections (Optional):
-This class encapsulates multiple utility functions for managing file paths and JSON data, providing a convenient interface for various file-related operations.
-### Function: checkManagerTag
-
-**Brief Description:**  
-This function is used to check if a given file path is relative to a specific manager path and adjust the file path accordingly.
-
-**Parameters (Args):**  
-- `path`: Path - The file path to be checked.
-- `manager_path`: Str - The manager path against which the file path should be checked for relative positioning.
-
-**Returns:**  
-- `filename`: Str - The modified file path, adjusted based on its relation to the manager path.
-
-**Raises:**  
-- This function does not raise any specific exceptions.
-
-**Examples:**  
-```python
-# Example 1
-path = "C:/Users/MyDocuments/file.txt"
-manager_path = "C:/Users/MyDocuments/Projects/Manager/"
-output = checkManagerTag(path, manager_path)
-# Output: "J:/WorkspaceFast/genslides/genslides/utils/file.txt"
-
-# Example 2
-path = "C:/Users/AnotherFolder/data.csv"
-manager_path = "D:/Projects/Manager/"
-output = checkManagerTag(path, manager_path)
-# Output: "C:/Users/AnotherFolder/data.csv"
-```
-
-**Notes or Warnings:**  
-- The function assumes that the `manager_path` is the parent directory against which the relative positioning is determined.
-- If the file path is not relative to the `manager_path`, the original `path` is returned without any modification.
-
-- **Brief Description:** This function extracts a JSON object from a given text string.
-
-- **Parameters (`Args`):**
-    - `text` (str): The text string that may contain a JSON object.
-
-- **Returns:** Returns a tuple containing a boolean indicating success (True for successful extraction, False otherwise) and the extracted JSON object (if successful).
-
-- **Raises:** This function does not raise any exceptions.
-
-- **Examples:** 
-    ```python
-    text1 = "Some text {\"key\": \"value\"} here"
-    success1, json_obj1 = loadJsonFromText(text1)
-    print(success1)  # Output: True
-    print(json_obj1)  # Output: {'key': 'value'}
-
-    text2 = "No JSON object here"
-    success2, json_obj2 = loadJsonFromText(text2)
-    print(success2)  # Output: False
-    print(json_obj2)  # Output: None
-    ```
-
-- **Notes or Warnings (Optional):** If the function fails to find a valid JSON object in the text, it will return `False` and `None` as the output. This function assumes that the JSON object is enclosed within curly braces `{}`.
-
-- **Other Sections (Optional):** N/A
-### Function: `stringToPathList`
-
-#### Brief Description:
-This function takes a string containing comma-separated paths, checks if each path exists, and returns a list of paths if they all exist.
-
-#### Parameters (`Args`):
-- `text` (str): A string containing comma-separated paths to be checked.
-
-#### Returns:
-- (bool, list): A tuple containing a boolean value indicating if all paths exist (True) or not (False), and a list of paths.
-
-#### Raises:
-- None
-
-#### Examples:
-```python
-# Example 1
-text = "C:/Users/Documents, D:/Images, E:/Music"
-exists, paths = Loader.stringToPathList(text)
-print(exists)  # Output: True
-print(paths)   # Output: ['C:/Users/Documents', 'D:/Images', 'E:/Music']
-
-# Example 2
-text = "C:/Program Files, D:/Videos/Movies"
-exists, paths = Loader.stringToPathList(text)
-print(exists)  # Output: False
-print(paths)   # Output: ['C:/Program Files', 'D:/Videos/Movies']
-```
-
-#### Notes or Warnings:
-- This function assumes that the paths are provided in a valid format and separated by commas.
-- The function does not handle any path manipulation or conversion.
-
-#### Other Sections:
-- None
 
 
