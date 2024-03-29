@@ -244,5 +244,6 @@ class ExtProjectTask(CollectTask):
                             if res:
                                 act.update({gparam['cmd_type']:val})
                     return True, acts
+        return super().getExeCommands()
  
  
