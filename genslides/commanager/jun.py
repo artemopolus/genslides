@@ -19,6 +19,8 @@ import genslides.commands.link as lnkcmd
 from genslides.utils.largetext import SimpleChatGPT
 import genslides.utils.writer as writer
 import genslides.utils.loader as Loader
+import genslides.utils.searcher as Sr
+import genslides.utils.readfileman as Reader
 
 import os
 from os import listdir
@@ -34,7 +36,7 @@ import pprint
 import pyperclip
 import shutil
 
-
+import re
 import datetime
 
 import genslides.utils.finder as finder
@@ -42,6 +44,7 @@ from tkinter import Tk     # from tkinter import Tk for Python 3.x
 from tkinter.filedialog import askopenfilename, askdirectory, askopenfilenames
 
 
+import pathlib
 
 class Manager:
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher) -> None:
@@ -1594,12 +1597,12 @@ class Manager:
                 return n_name.replace(n_type, t['short'])
         return n_name
     
-    def getShortName(self, short_name : str, n_name : str) -> str:
+    def getAndCheckLongName(self, short_name : str) -> list[bool,str]:
         tasks_dict  = cr.getTasksDict()
         for t in tasks_dict:
             if t['short']== short_name:
-                return n_name.replace(short_name, t['type'])
-        return n_name
+                return True, t['type']
+        return False, ''
   
     def getTaskKeys(self, param_name):
         return self.getNamedTaskKeys(self.curr_task, param_name)
@@ -2164,26 +2167,10 @@ class Manager:
  
 
     def saveInfo(self):
-
         tree_info = []
         for task in self.tree_arr:
-
             task_buds = self.getSceletonBranchBuds(task)
-            info_buds = []
-            for task in task_buds:
-
-                info_bud = {'task':task.getName(),'summary':'','message':'','branch':task.getBranchCodeTag()}
-                bres, bparam = task.getParamStruct('bud')
-                if bres:
-                    info_bud['summary'] = task.findKeyParam(bparam['text'])
-                mres, mval, _ = task.getLastMsgAndParent()
-                if mres:
-                    info_bud['message'] = mval
-                info_buds.append(info_bud)
-                
-            tree_info.append({'root':task.getName(),'summary':task.getBranchSummary(),'buds':info_buds})
-
-        
+            tree_info.append(Sr.ProjectSearcher.getInfoForSearch(task_buds))
 
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
         if not self.info: 
@@ -2198,8 +2185,8 @@ class Manager:
                     pass
             if not loaded:
                 self.info = {'actions':[]}
-        self.info['trees'] = tree_info
-        writer.writeJsonToFile(path_to_projectfile, self.info, 'w',1)
+        Sr.ProjectSearcher.saveSearchInfo(tree_info, self.info)
+        writer.writeJsonToFile(path_to_projectfile, self.info, 'w', 1)
 
     def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}):
         if self.info is None:
@@ -2301,10 +2288,60 @@ class Manager:
             if task.getBranchCodeTag() == code:
                 out.append(task)
         return out
+    
+    def getChainTaskFileByBranchCode(self, code : str) -> list:
+        parts = re.findall(r"[0-9]+|[A-Z][a-z]*", code)
+        idx = 0
+        tasknames = []
+        while idx < len(parts):
+            short = parts[idx]
+            res, val = self.getAndCheckLongName(short)
+            if res:
+                name = val + parts[idx + 1]
+                if name not in tasknames:
+                    tasknames.append(name)
+            idx += 2
+        return tasknames
 
     def removeTaskList(self, del_tasks):
         self.curr_task.extractTaskList(del_tasks)
         for task in del_tasks:
             self.curr_task = task
             self.makeTaskActionBase('', '', "Delete", '')
+
+
+    def getTaskFileNamesByBranchCode(self, code : str):
+        man = self
+        path = pathlib.Path( man.getPath())
+        tasknames = man.getChainTaskFileByBranchCode(code)
+        print(tasknames)
+        fname = tasknames[0] +'.json'
+        idx = 0
+        allchaintasknames = [tasknames[0]]
+        while( idx < 1000):
+            fpath = path / fname
+            info = Reader.ReadFileMan.readJson(Loader.Loader.getUniPath(fpath))
+            if 'params' in info:
+                childs_names = []
+                found = False
+                tname = ''
+                for param in info['params']:
+                    if 'type' in param and param['type'] == 'child':
+                        childs_names.append(param['name'])
+                        if param['name'] in tasknames:
+                            found = True
+                            tname = param['name']
+
+                print(fname,'childs:', len(childs_names))
+                if len(childs_names) == 1:
+                    fname = childs_names[0] + '.json'
+                    allchaintasknames.append(childs_names[0])
+                elif found:
+                    fname = tname + '.json'                 
+                    allchaintasknames.append(tname)   
+                else:
+                    print('Get chain in',idx,'iteration')
+                    break
+            idx += 1
+        return allchaintasknames
  

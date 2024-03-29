@@ -9,6 +9,7 @@ from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.loader as Loader
 import genslides.utils.readfileman as Reader
+import genslides.utils.searcher as Searcher
 
 import os
 import shutil
@@ -258,22 +259,10 @@ class SearcherTask(ExtProjectTask):
         print('Found projects:',projects)
         tags = self.prompt.split(',')
         print('Search for tags', tags)
-        filenames = []
+        branch_codes = []
         for project in projects:
-            info = Reader.ReadFileMan.readJson(project)
-            folder = project.parent
-            print('Folder',folder)
-            if 'trees' in info:
-                for tree in info['trees']:
-                    if 'buds' in tree:
-                        for bud in tree['buds']:
-                            name = bud['task']
-                            if 'summary' in bud:
-                                # Очень простой поиск
-                                for tag in tags:
-                                    idx = bud['summary'].find(tag)
-                                    if idx != -1:
-                                        filenames.append(name)
+            info = Searcher.ProjectSearcher.searchInFolder(project, tags)
+            branch_codes.extend(info)
             # Создать менеджера для каждого проекта
             # Сначала стандратный
             # Потом временные

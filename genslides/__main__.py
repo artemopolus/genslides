@@ -165,6 +165,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
                                 gr.Button("Cp fldr path").click(fn=manager.getPathToFolder)
                                 gr.Button("Cp file path").click(fn=manager.getPathToFile)
+                                gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):

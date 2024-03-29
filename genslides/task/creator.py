@@ -131,7 +131,7 @@ def getTasksDict() -> list:
     out = []
     out.append({"type":"Request","short":"Rq","creation":RequestTask})
     out.append({"type":"Response","short":"Rs","creation":ResponseTask})
-    out.append({"type":"Receive","short":"Cl","creation":ReceiveTask})
+    out.append({"type":"Receive","short":"Rc","creation":ReceiveTask})
     out.append({"type":"Collect","short":"Cl","creation":CollectTask})
     out.append({"type":"Garland","short":"Gr","creation":GarlandTask})
     out.append({"type":"GroupCollect","short":"Gc","creation":GroupCollectTask})

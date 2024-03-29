@@ -19,7 +19,7 @@ import gradio as gr
 import datetime
 
 import genslides.utils.filemanager as fm
-
+import pyperclip
 
 class Projecter:
     def __init__(self, manager : Manager = None, path = 'saved') -> None:
@@ -897,3 +897,15 @@ class Projecter:
         if task.checkType( 'Response'):
             task.forceCleanChat()
             task.freezeTask()
+
+    def getCurrentTaskBranchCodeTag(self):
+        man = self.actioner.manager
+        code = man.curr_task.getBranchCodeTag()
+        out = []
+        out.append(code)
+        allchaintasknames = man.getTaskFileNamesByBranchCode(code)
+        print(allchaintasknames)
+        out.append(str(allchaintasknames))
+        pyperclip.copy('\n'.join(out))
+        pyperclip.paste()
+

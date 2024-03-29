@@ -1,7 +1,9 @@
 from googleapiclient.discovery import build
 
 import json
-
+import pathlib
+import genslides.task.base as btask
+import genslides.utils.readfileman as reader
 
 class WebSearcher:
     def __init__(self) -> None:
@@ -37,3 +39,44 @@ class GoogleApiSearcher(WebSearcher):
             # out.append(item['link'] + ' title: ' + item['title'] + ' snippet:' + item['snippet'])
             out.append(item['link'] )
         return out
+    
+
+class ProjectSearcher():
+    def __init__(self) -> None:
+        pass
+
+    def getInfoForSearch( task_buds : list[btask.BaseTask]) -> dict:
+        info_buds = []
+        for task in task_buds:
+
+            info_bud = {'task':task.getName(),'summary':'','message':'','branch':task.getBranchCodeTag()}
+            bres, bparam = task.getParamStruct('bud')
+            if bres:
+                info_bud['summary'] = task.findKeyParam(bparam['text'])
+            mres, mval, _ = task.getLastMsgAndParent()
+            if mres:
+                info_bud['message'] = mval
+            info_buds.append(info_bud)
+
+        return {'root':task.getName(),'summary':task.getBranchSummary(),'buds':info_buds}
+    
+    def saveSearchInfo( trees_info : list, target : dict ):
+        target['trees'] = trees_info
+
+    def searchInFolder( path : str, tags : list[str]):
+        out_infos = []
+        info = reader.ReadFileMan.readJson(path)
+        if 'trees' in info:
+            for tree in info['trees']:
+                if 'buds' in tree:
+                    for bud in tree['buds']:
+                        name = bud['task']
+                        code = bud['branch']
+                        if 'summary' in bud:
+                            # Очень простой поиск
+                            for tag in tags:
+                                idx = bud['summary'].find(tag)
+                                if idx != -1:
+                                    out_infos.append(code)
+        return out_infos
+
