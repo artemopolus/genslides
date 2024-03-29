@@ -658,6 +658,7 @@ class Actioner():
             if task.is_freeze:
                 cnt += 1
         print('Frozen tasks cnt:', cnt)
+        man.saveInfo()
         man.curr_task = start_task
         out = man.getCurrTaskPrompts()
         return out

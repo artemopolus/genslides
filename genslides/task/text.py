@@ -69,8 +69,8 @@ class TextTask(BaseTask):
         #     self.printQueueInit()
         #     print('---')
         if super().addChild(child):
+            print('Add child', child.getName(),'to',self.getName())
             self.syncQueueToParam()
-            # self.printQueueInit()
             res, pparam = self.getParamStruct('bud', only_current=True)
             if res:
                 child_tasks = child.getAllChildChains()
@@ -79,6 +79,7 @@ class TextTask(BaseTask):
                         tparam = {'type':'bud','text': pparam['text'],'branch':task.getBranchCodeTag()}
                         task.setParamStruct(tparam)
                 self.rmParamStructByName('bud')
+            self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
 
             self.saveJsonToFile(self.msg_list)
             return True
@@ -768,9 +769,7 @@ class TextTask(BaseTask):
     def update(self, input: TaskDescription = None):
         self.checkInput(input)
         out = super().update(input)
-
-
-
+        self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
         return out
 
     def getInfo(self, short=True) -> str:

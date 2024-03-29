@@ -240,7 +240,7 @@ class Manager:
         #         print("to ",info.parent.getName())
 
     def updateTreeArr(self, check_list = False):
-        print('Update tree array with check state:', check_list)
+        # print('Update tree array with check state:', check_list)
         self.tree_arr = []
         for task in self.task_list:
             if check_list:
@@ -2167,7 +2167,9 @@ class Manager:
  
 
     def saveInfo(self):
+        print('Save info', self.getName())
         tree_info = []
+        self.updateTreeArr()
         for task in self.tree_arr:
             task_buds = self.getSceletonBranchBuds(task)
             tree_info.append(Sr.ProjectSearcher.getInfoForSearch(task_buds))

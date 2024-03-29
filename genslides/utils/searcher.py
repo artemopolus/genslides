@@ -46,6 +46,7 @@ class ProjectSearcher():
         pass
 
     def getInfoForSearch( task_buds : list[btask.BaseTask]) -> dict:
+        # print('Get info for buds', [t.getName() for t in task_buds])
         info_buds = []
         for task in task_buds:
 
