@@ -10,6 +10,7 @@ from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.loader as Loader
 import genslides.utils.readfileman as Reader
 import genslides.utils.searcher as Searcher
+import genslides.utils.filemanager as Fm
 
 import os
 import shutil
@@ -261,8 +262,16 @@ class SearcherTask(ExtProjectTask):
         print('Search for tags', tags)
         branch_codes = []
         for project in projects:
-            info = Searcher.ProjectSearcher.searchInFolder(project, tags)
-            branch_codes.extend(info)
+            infos = Searcher.ProjectSearcher.searchInFolder(project, tags)
+            branch_codes.extend(infos)
+            for info in infos:
+                tnames = self.actioner.manager.getRelatedTaskChains(info['name'], project)
+                path = pathlib.Path(self.actioner.getPath()) / 'tmp' / info['name']
+                Fm.copyFiles(project, Loader.Loader.getUniPath(path),[t + '.json' for t in tnames])
+                manager = self.actioner.addTmpManager(Loader.Loader.getUniPath(path))
+                task = manager.getTaskByName(info['name'])
+                self.intch.append(task)
+
             # Создать менеджера для каждого проекта
             # Сначала стандратный
             # Потом временные

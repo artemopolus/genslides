@@ -78,6 +78,6 @@ class ProjectSearcher():
                             for tag in tags:
                                 idx = bud['summary'].find(tag)
                                 if idx != -1:
-                                    out_infos.append(code)
+                                    out_infos.append({"name": name, "code":code})
         return out_infos
 
