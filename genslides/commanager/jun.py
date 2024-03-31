@@ -1220,7 +1220,7 @@ class Manager:
         if all_task_expanded:
             all_task_completed = True
             log += "All task expanded\n"
-            print("Complete task list")
+            # print("Complete task list")
             for task in self.task_list:
                 if not task.completeTask():
                     all_task_completed = False
@@ -2187,7 +2187,8 @@ class Manager:
                     pass
             if not loaded:
                 self.info = {'actions':[]}
-        Sr.ProjectSearcher.saveSearchInfo(tree_info, self.info)
+        if len(self.tree_arr) > 0:
+            Sr.ProjectSearcher.saveSearchInfo(tree_info, self.info)
         writer.writeJsonToFile(path_to_projectfile, self.info, 'w', 1)
 
     def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}):
@@ -2312,9 +2313,9 @@ class Manager:
             self.makeTaskActionBase('', '', "Delete", '')
 
 
-    def getTaskFileNamesByBranchCode(self, code : str):
+    def getTaskFileNamesByBranchCode(self, code : str, name :str, projpath : str):
         man = self
-        path = pathlib.Path( man.getPath())
+        path = pathlib.Path( projpath )
         tasknames = man.getChainTaskFileByBranchCode(code)
         print(tasknames)
         fname = tasknames[0] +'.json'
@@ -2335,7 +2336,10 @@ class Manager:
                             tname = param['name']
 
                 print(fname,'childs:', len(childs_names))
-                if len(childs_names) == 1:
+                if name in childs_names:
+                    allchaintasknames.append(name)
+                    break
+                elif len(childs_names) == 1:
                     fname = childs_names[0] + '.json'
                     allchaintasknames.append(childs_names[0])
                 elif found:
@@ -2346,4 +2350,62 @@ class Manager:
                     break
             idx += 1
         return allchaintasknames
+    
+    def getTaskFileNamesByBudName(self, budname : str, path : str) -> list[str]:
+        info= self.getFileContentByTaskName(budname, path)
+        code = ''
+        if 'params' in info:
+            found = False
+            for param in info['params']:
+                if param['type'] == 'branch':
+                    found = True
+                    code = param['code']
+            if not found:
+                return []
+        else:
+            return []
+        return self.getTaskFileNamesByBranchCode(code, budname, path)
+
+    def isRelationTaskName(self, name : str):
+        if name.startswith('GroupCollect'):
+            return True
+        if name.startswith('Collect'):
+            return True
+        if name.startswith('Garland'):
+            return True
+        return False
+
+    def getRelatedTaskChains(self, starttaskname : str, project_path : str) -> list[str]:
+        taskchain = self.getTaskFileNamesByBudName(starttaskname, project_path)
+        reltasknames = []
+        for tname in taskchain:
+            if self.isRelationTaskName(tname):
+                reltasknames.append(tname)
+        idx = 0
+        while idx < 1000:
+            nreltasknames = []
+            for rname in reltasknames:
+                    info = self.getFileContentByTaskName(rname, project_path)
+                    if 'linked' in info and len(info['linked']) > 0:
+                        for link in info['linked']:
+                            linkchain = self.getTaskFileNamesByBudName(link, project_path)
+                            for lname in linkchain:
+                                if self.isRelationTaskName(lname):
+                                    nreltasknames.append(lname)
+                            taskchain.extend(linkchain)
+            if len(nreltasknames) > 0:
+                reltasknames = nreltasknames
+            else:
+                return taskchain
+            idx += 1
+        return []
+
+
+    def getFileContentByTaskName(self, name : str, path : str) -> dict:
+        fpath = pathlib.Path(path) / (name + '.json')
+        info =  Reader.ReadFileMan.readJson(Loader.Loader.getUniPath(fpath))
+        if isinstance(info, dict):
+            return info
+        return {}
  
+

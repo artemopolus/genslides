@@ -69,7 +69,7 @@ class TextTask(BaseTask):
         #     self.printQueueInit()
         #     print('---')
         if super().addChild(child):
-            print('Add child', child.getName(),'to',self.getName())
+            # print('Add child', child.getName(),'to',self.getName())
             self.syncQueueToParam()
             res, pparam = self.getParamStruct('bud', only_current=True)
             if res:

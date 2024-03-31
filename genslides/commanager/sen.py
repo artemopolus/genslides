@@ -731,7 +731,12 @@ class Projecter:
         return self.makeTaskAction('','','RelinkToCurrTask','', {'name':name})
     
     def selectRelatedChain(self):
-        return self.actioner.getRelationTasksChain()
+        man = self.actioner.manager
+        taskchainnames = man.getRelatedTaskChains(man.curr_task.getName(), man.getPath())
+        for name in taskchainnames:
+            man.multiselect_tasks.append(man.getTaskByName(name))
+        # return self.actioner.getRelationTasksChain()
+        return man.getCurrTaskPrompts()
     
     def selectNearestTasks(self):
         man = self.actioner.manager
@@ -903,7 +908,7 @@ class Projecter:
         code = man.curr_task.getBranchCodeTag()
         out = []
         out.append(code)
-        allchaintasknames = man.getTaskFileNamesByBranchCode(code)
+        allchaintasknames = man.getTaskFileNamesByBranchCode(code, man.curr_task.getName())
         print(allchaintasknames)
         out.append(str(allchaintasknames))
         pyperclip.copy('\n'.join(out))
