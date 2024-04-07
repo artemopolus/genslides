@@ -735,4 +735,9 @@ class Actioner():
 
         return man.getCurrTaskPrompts()
 
-
+    def setName(self, name : str):
+        idx = 0
+        self.std_manager.setName('_'.join(name,'base'))
+        for man in self.tmp_managers:
+            man.setName( '_'.join(name, str(idx)) )
+            idx += 1

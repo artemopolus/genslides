@@ -255,25 +255,55 @@ class SearcherTask(ExtProjectTask):
         super().__init__(task_info, type)
 
     def afterFileLoading(self, trg_files=[]):
-        mpath = pathlib.Path(self.manager.getPath())
-        projects = list(mpath.glob('project*'))
-        print('Found projects:',projects)
-        tags = self.prompt.split(',')
-        print('Search for tags', tags)
-        branch_codes = []
-        for project in projects:
-            infos = Searcher.ProjectSearcher.searchInFolder(project, tags)
-            branch_codes.extend(infos)
-            for info in infos:
-                tnames = self.actioner.manager.getRelatedTaskChains(info['name'], project)
-                path = pathlib.Path(self.actioner.getPath()) / 'tmp' / info['name']
-                Fm.copyFiles(project, Loader.Loader.getUniPath(path),[t + '.json' for t in tnames])
-                manager = self.actioner.addTmpManager(Loader.Loader.getUniPath(path))
-                task = manager.getTaskByName(info['name'])
-                self.intch.append(task)
+        # Создать менеджера и акционера
+        spath = pathlib.Path( self.manager.getPath() )
+        spath = spath / 'ext' / self.getName()
+        mpath = Loader.Loader.getUniPath(spath)
+        self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        self.intman.initInfo(self.manager.loadexttask, task = None, path = mpath)
+        self.actioner = Actioner.Actioner(self.intman)
+        self.actioner.setPath(mpath)
 
-            # Создать менеджера для каждого проекта
-            # Сначала стандратный
-            # Потом временные
+        tags = self.prompt.split(',')
+        projects_out = Searcher.ProjectSearcher.searchByTags(self.manager.getPath(), tags)
+        folder_tmp  = 'tmp'
+        idx = 0
+        for project in projects_out:
+            project_path = project['path']
+            results = project['results']
+
+            folder_trg = 'pr' + str(idx)
+            path = pathlib.Path(self.actioner.getPath()) / folder_tmp / folder_trg
+
+            for info in results:
+                tnames = self.manager.getRelatedTaskChains(info['name'], project_path)
+                Fm.copyFiles(project_path, Loader.Loader.getUniPath(path),[t + '.json' for t in tnames])
+            if idx == 0:
+                self.intman.disableOutput2()
+                self.intman.loadTasksList()
+                self.intman.enableOutput2()
+                manager = self.intman
+            else:
+                manager = self.actioner.addTmpManager(Loader.Loader.getUniPath(path))
+            for info in results:
+                task = manager.getTaskByName(info['name'])
+                self.intch.append({'idx':idx, 'trg': task, 'root':task.getRootParent(), 'manager': manager})
+
+            idx += 1
 
         return super().afterFileLoading(trg_files)
+    
+    def setActiveBranch(self, task ):
+        for param in self.params:
+            if 'type' in param and param['type'] == 'child' and param['name'] == task.getName():
+                idx = param['idx']
+                for int_child in self.intch:
+                    if int_child['idx'] == idx:
+                        self.intpar = int_child['root']
+                        self.intch_trg = int_child['trg']
+                        self.actioner.manager = int_child['manager']
+                        self.intpar.setParent(self.parent)
+                        return
+
+    def updateInOutExtProject(self):
+        pass

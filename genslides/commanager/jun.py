@@ -77,8 +77,12 @@ class Manager:
 
     def setName(self, name : str):
         self.name = name
+        if self.info != None:
+            self.info['name'] = name
 
     def getName(self) -> str:
+        if self.info and 'name' in self.info:
+            return self.info['name']
         return self.name
 
 # TODO: сменить место хранения параметров менеджера

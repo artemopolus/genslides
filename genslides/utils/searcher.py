@@ -64,6 +64,18 @@ class ProjectSearcher():
     def saveSearchInfo( trees_info : list, target : dict ):
         target['trees'] = trees_info
 
+    def searchByTags( manager_path : str, tags : list[str]):
+        mpath = pathlib.Path(manager_path)
+        projects = list(mpath.glob('project*'))
+        print('Found projects:',projects)
+        print('Search for tags', tags)
+        projects_out = []
+        for project_path in projects:
+            results = ProjectSearcher.searchInFolder(project_path, tags)
+            projects_out.append({'path':project_path, 'results':results})
+        return projects_out
+ 
+
     def searchInFolder( path : str, tags : list[str]):
         out_infos = []
         info = reader.ReadFileMan.readJson(path)

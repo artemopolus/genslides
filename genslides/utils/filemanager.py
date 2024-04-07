@@ -18,6 +18,7 @@ def copyFiles(src_folder, trg_folder, trg_files = []):
         files = trg_files
     else:
         files = listdir(src_folder)
+    createFolder(trg_folder)
     for file in files:
         path = join(src_folder, file)
         if isfile(path):
