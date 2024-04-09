@@ -48,6 +48,7 @@ class TextTask(BaseTask):
         # print('Input params',task_info.params)
         # print('Task params',self.params)
         self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})       
+        self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
         self.stdProcessUnFreeze()
 
     def loadInitParam(self):
@@ -593,7 +594,7 @@ class TextTask(BaseTask):
                         rq = json.load(f)
                     if 'chat' in rq:
                         msg_trgs = rq['chat'].copy()
-                        if remove_last:
+                        if remove_last and len(msg_trgs):
                             msg_trgs.pop()
                         stopped = False
                         if 'params' in rq:
@@ -769,7 +770,8 @@ class TextTask(BaseTask):
     def update(self, input: TaskDescription = None):
         self.checkInput(input)
         out = super().update(input)
-        self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
+        # self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
+        self.updateParamStruct(param_name='branch', key='code', val=self.getBranchCodeTag())
         return out
 
     def getInfo(self, short=True) -> str:

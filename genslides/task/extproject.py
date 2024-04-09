@@ -22,6 +22,7 @@ class ExtProjectTask(CollectTask):
         self.intch = []
         self.intch_trg = None
         self.intman = None
+        self.actioner = None
         super().__init__(task_info, type)
         self.is_freeze = False
 
@@ -111,7 +112,8 @@ class ExtProjectTask(CollectTask):
 
     def hasNoMsgAction(self):
         self.updateExtProjectInternal(self.prompt)
-        self.actioner.callScript('init_created')
+        if self.actioner != None:
+            self.actioner.callScript('init_created')
         self.updateInOutExtProject()
 
     def updateExtProjectInternal(self, prompt):
@@ -253,8 +255,21 @@ class ExtProjectTask(CollectTask):
 class SearcherTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="Searcher") -> None:
         super().__init__(task_info, type)
-
-    def afterFileLoading(self, trg_files=[]):
+        sres, sparam = self.getParamStruct('search', True)
+        if not sres:
+            self.setParamStruct({
+                             'type':'search',
+                             'search':'manual',
+                             'tags':'',
+                             'targets':[]
+                            })
+            
+    def createInternalActioner(self):
+        print('Create internal managers')
+        sres, sparam = self.getParamStruct('search', True)
+        if not sres:
+            self.freezeTask()
+            return
         # Создать менеджера и акционера
         spath = pathlib.Path( self.manager.getPath() )
         spath = spath / 'ext' / self.getName()
@@ -263,35 +278,63 @@ class SearcherTask(ExtProjectTask):
         self.intman.initInfo(self.manager.loadexttask, task = None, path = mpath)
         self.actioner = Actioner.Actioner(self.intman)
         self.actioner.setPath(mpath)
-
-        tags = self.prompt.split(',')
-        projects_out = Searcher.ProjectSearcher.searchByTags(self.manager.getPath(), tags)
         folder_tmp  = 'tmp'
+        projects_out = []
+        if len(sparam['targets']) == 0:
+            sparam['path'] = self.manager.getPath()
+            projects_out_tmp = Searcher.ProjectSearcher.searchByParams(sparam)
+            idx = 0
+            for project in projects_out_tmp:
+                res, path = Fm.createUniqueDir(self.actioner.getPath(), folder_tmp, 'pr')
+                if res:
+                    if idx == 0:
+                        trg_path = self.intman.getPath()
+                    else:
+                        Fm.createFolder(path)
+                        trg_path = str(path)
+                    project['trg_path'] = trg_path
+                    projects_out.append(project)
+                idx +=1
+            self.updateParamStruct(param_name='search', key='targets', val= projects_out)
+        else:
+            projects_out = sparam['targets']
         idx = 0
+        copy_files = False
+        if len(Fm.getFilesInFolder(self.intman.getPath())) < 2:
+            copy_files = True
         for project in projects_out:
-            project_path = project['path']
+            project_path = Loader.Loader.getUniPath(project['src_path'])
+            project_name = pathlib.Path(project['src_path']).stem
             results = project['results']
-
-            folder_trg = 'pr' + str(idx)
-            path = pathlib.Path(self.actioner.getPath()) / folder_tmp / folder_trg
-
+            path = project['trg_path']
+            trg_path = Loader.Loader.getUniPath(path)
             for info in results:
-                tnames = self.manager.getRelatedTaskChains(info['name'], project_path)
-                Fm.copyFiles(project_path, Loader.Loader.getUniPath(path),[t + '.json' for t in tnames])
+                if copy_files:
+                    tnames = self.manager.getRelatedTaskChains(info['name'], project_path)
+                    Fm.copyFiles(project_path, trg_path,[t + '.json' for t in tnames])
+
             if idx == 0:
                 self.intman.disableOutput2()
                 self.intman.loadTasksList()
                 self.intman.enableOutput2()
                 manager = self.intman
             else:
-                manager = self.actioner.addTmpManager(Loader.Loader.getUniPath(path))
+                manager = self.actioner.addTmpManager(trg_path)
+                manager.setName(project_name)
             for info in results:
                 task = manager.getTaskByName(info['name'])
-                self.intch.append({'idx':idx, 'trg': task, 'root':task.getRootParent(), 'manager': manager})
+                internal_child = {'idx':idx, 'trg': task, 'root':task.getRootParent(), 'manager': manager}
+                self.intch.append(internal_child)
+                if self.intch_trg == None:
+                    self.intch_trg = task
 
             idx += 1
 
-        return super().afterFileLoading(trg_files)
+
+ 
+    def afterFileLoading(self, trg_files=[]):
+        self.createInternalActioner()
+        # return super().afterFileLoading(trg_files)
     
     def setActiveBranch(self, task ):
         for param in self.params:
@@ -302,8 +345,12 @@ class SearcherTask(ExtProjectTask):
                         self.intpar = int_child['root']
                         self.intch_trg = int_child['trg']
                         self.actioner.manager = int_child['manager']
-                        self.intpar.setParent(self.parent)
+                        self.intpar = self.parent
                         return
 
     def updateInOutExtProject(self):
         pass
+
+    def updateIternal(self, input: TaskDescription = None):
+        if self.actioner == None:
+            self.createInternalActioner()

@@ -28,7 +28,7 @@ from genslides.task.writetofileparam import WriteToFileParamTask
 from genslides.task.readfileparam import ReadFileParamTask
 
 # from genslides.task.extproject import ExtProjectTask
-import genslides.task.extproject as ExtProjectTask
+import genslides.task.extproject as ep
 from genslides.task.groupcollect import GroupCollectTask
 
 import genslides.commands.create as cr
@@ -122,8 +122,11 @@ def createTaskByType(type : str, info : TaskDescription):
         info.method = ReadFileParamTask
         return cr.CreateCommand(info)
     if stype.endswith("ExtProject"):
-        info.method = ExtProjectTask.ExtProjectTask
+        info.method = ep.ExtProjectTask
         return cr.CreateCommand(info)
+    if stype.endswith("Searcher"):
+        info.method = ep.SearcherTask
+        return cr.CreateCommand(info)    
     else:
     	return None
     
@@ -145,5 +148,6 @@ def getTasksDict() -> list:
     out.append({"type":"SetOptions","short":"So","creation":so.SetOptionsTask})
     out.append({"type":"Generator","short":"Ge","creation":so.GeneratorTask})
     out.append({"type":"RunScript","short":"Rs","creation":RunScriptTask})
-    out.append({"type":"ExtProject","short":"Ep","creation":ExtProjectTask})
+    out.append({"type":"ExtProject","short":"Ep","creation":ep.ExtProjectTask})
+    out.append({"type":"Searcher","short":"Se","creation":ep.SearcherTask})
     return out

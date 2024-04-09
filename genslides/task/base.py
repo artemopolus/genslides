@@ -1268,3 +1268,5 @@ class BaseTask():
     def setActiveBranch(self, task ):
         pass
 
+    def getActioner(self):
+        return None

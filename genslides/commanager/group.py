@@ -626,6 +626,8 @@ class Actioner():
 
     def updateCurrentTree(self):
         man = self.manager
+        if len(man.tree_arr) <= man.tree_idx:
+            man.updateTreeArr()
         man.tree_arr[ man.tree_idx ].resetTreeQueue()
         self.update_state = 'start tree'
         self.update_tree_idx = man.tree_idx

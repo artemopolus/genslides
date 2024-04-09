@@ -8,6 +8,7 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.loader as Loader
+import genslides.utils.filemanager as FileManager
 
 from os import listdir
 from os.path import isfile, join
@@ -20,6 +21,7 @@ import datetime
 
 import genslides.utils.filemanager as fm
 import pyperclip
+import pathlib
 
 class Projecter:
     def __init__(self, manager : Manager = None, path = 'saved') -> None:
@@ -171,16 +173,13 @@ class Projecter:
     def loadExtProject(self, filename, manager : Manager) -> bool:
         mypath = 'tools'
         if filename + '.7z' in [f for f in listdir(mypath) if isfile(join(mypath, f))]:
-            idx = 0
-            while (idx < 1000):
-                ext_pr_name = 'pr' + str(idx)
-                trg = os.path.join(manager.getPath(),'ext', ext_pr_name) +'/'
-                if not os.path.exists(trg):
-                    if Archivator.extractFiles(mypath, filename, trg):
-                        self.ext_proj_names.append(ext_pr_name)
-                        print('Append project',filename,'task to', trg)
-                        return True, ext_pr_name
-                idx += 1
+            res, trg = FileManager.createUniqueDir(manager.getPath(), 'ext','pr')
+            if res:
+                if Archivator.extractFiles(mypath, filename, Loader.Loader.getUniPath( trg)):
+                    ext_pr_name = trg.stem
+                    self.ext_proj_names.append(ext_pr_name)
+                    print('Append project',filename,'task to', trg)
+                    return True, ext_pr_name
         return False, ''
     
     
@@ -472,9 +471,10 @@ class Projecter:
     
     def switchToExtTaskManager(self):
         man = self.actioner.manager
-        if man.curr_task.checkType('ExtProject') and self.tmp_actioner == None:
+        task_actioner = man.curr_task.getActioner()
+        if task_actioner != None and self.tmp_actioner == None:
             self.tmp_actioner = self.actioner
-            self.actioner = man.curr_task.getActioner()
+            self.actioner = task_actioner
             print('Switch on actioner of', man.curr_task.getName())
             print('Path:', self.actioner.getPath())
             print('Man:', self.actioner.manager.getName())

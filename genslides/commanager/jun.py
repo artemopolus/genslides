@@ -2321,7 +2321,7 @@ class Manager:
         man = self
         path = pathlib.Path( projpath )
         tasknames = man.getChainTaskFileByBranchCode(code)
-        print(tasknames)
+        print('Get task file names by branch code [',code,']:', tasknames)
         fname = tasknames[0] +'.json'
         idx = 0
         allchaintasknames = [tasknames[0]]
@@ -2339,7 +2339,7 @@ class Manager:
                             found = True
                             tname = param['name']
 
-                print(fname,'childs:', len(childs_names))
+                # print(fname,'childs:', len(childs_names))
                 if name in childs_names:
                     allchaintasknames.append(name)
                     break
@@ -2356,6 +2356,7 @@ class Manager:
         return allchaintasknames
     
     def getTaskFileNamesByBudName(self, budname : str, path : str) -> list[str]:
+        print('Target bud', budname, 'by path', path)
         info= self.getFileContentByTaskName(budname, path)
         code = ''
         if 'params' in info:

@@ -2,8 +2,9 @@ from googleapiclient.discovery import build
 
 import json
 import pathlib
-import genslides.task.base as btask
-import genslides.utils.readfileman as reader
+import genslides.task.base as Bt
+import genslides.utils.readfileman as Rd
+import genslides.utils.loader as Ld
 
 class WebSearcher:
     def __init__(self) -> None:
@@ -45,7 +46,7 @@ class ProjectSearcher():
     def __init__(self) -> None:
         pass
 
-    def getInfoForSearch( task_buds : list[btask.BaseTask]) -> dict:
+    def getInfoForSearch( task_buds : list[Bt.BaseTask]) -> dict:
         # print('Get info for buds', [t.getName() for t in task_buds])
         info_buds = []
         for task in task_buds:
@@ -64,6 +65,34 @@ class ProjectSearcher():
     def saveSearchInfo( trees_info : list, target : dict ):
         target['trees'] = trees_info
 
+    def searchByParams(params : dict):
+        if 'type' in params and params['type'] == 'search':
+            if params['search'] == 'tags':
+                return ProjectSearcher.searchByTags(params['path'], params['tags'].split(','))
+            elif params['search'] == 'manual':
+                out = []
+                idx = 0
+                while idx < 30:
+                    project_file = Ld.Loader.getFilePathFromSystemRaw()
+                    print('Get manual input', project_file)
+                    if project_file.name == 'project.json':
+                        out_infos = []
+                        proj_info = Rd.ReadFileMan.readJson(Ld.Loader.getUniPath(project_file))
+                        if 'trees' in proj_info:
+                            for tree in proj_info['trees']:
+                                if 'buds' in tree:
+                                    for bud in tree['buds']:
+                                        name = bud['task']
+                                        code = bud['branch']
+                                        out_infos.append({"name": name, "code":code})
+                        out.append({'src_path':Ld.Loader.getUniPath(project_file.parent), 'results':out_infos})
+                    else:
+                        break
+                    idx += 1
+                print('Added',len(out), 'project' if len(out) == 1 else 'projects')
+                return out
+        return []
+
     def searchByTags( manager_path : str, tags : list[str]):
         mpath = pathlib.Path(manager_path)
         projects = list(mpath.glob('project*'))
@@ -78,9 +107,9 @@ class ProjectSearcher():
 
     def searchInFolder( path : str, tags : list[str]):
         out_infos = []
-        info = reader.ReadFileMan.readJson(path)
-        if 'trees' in info:
-            for tree in info['trees']:
+        proj_info = Rd.ReadFileMan.readJson(path)
+        if 'trees' in proj_info:
+            for tree in proj_info['trees']:
                 if 'buds' in tree:
                     for bud in tree['buds']:
                         name = bud['task']
