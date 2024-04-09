@@ -312,6 +312,32 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             clean_task_btn = gr.Button(value='Clean')
                         with gr.Row():
                             gr.Button(value='Clean Response').click(fn=projecter.cleanLastMessage)
+                    with gr.Tab('Arrange'):
+                        with gr.Row():
+                            with gr.Column():
+                                branches_data = gr.Highlightedtext(label="Branches",
+                                        combine_adjacent=True,
+                                        # show_legend=True,
+                                        color_map={
+                                            "common": "gray", 
+                                            "target": "green"
+                                            })
+                            with gr.Column():
+                                    gr.Button(value='Update').click(fn= projecter.getBranchList, outputs=[branches_data])
+                                    gr.Button(value='MoveUpPrio').click(fn=projecter.moveBranchIdxUp, outputs=[branches_data])
+                            with gr.Column():
+                                trees_data = gr.Highlightedtext(label="Trees",
+                                        combine_adjacent=True,
+                                        # show_legend=True,
+                                        color_map={
+                                            "common": "gray", 
+                                            "target": "green"
+                                            })
+                            with gr.Column():
+                                gr.Button(value='Update').click(fn= projecter.getTreesList, outputs=[trees_data])
+                                gr.Button(value='Up').click(fn=projecter.moveUpTree, outputs=[trees_data])
+                                gr.Button(value='Dw').click(fn=projecter.moveDwTree, outputs=[trees_data])
+                            
                     with gr.Tab('Manager'):
                         with gr.Row():
                             with gr.Column():

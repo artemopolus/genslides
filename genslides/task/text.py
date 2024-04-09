@@ -98,9 +98,10 @@ class TextTask(BaseTask):
     def setPrio(self, idx : int):
         if self.parent is None:
             return super().setPrio()
-        for p in self.parent.params:
+        for p in self.getParent().params:
             if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
                 p['idx'] = idx
+        self.getParent().saveAllParams()
         return super().setPrio(idx)
 
     
@@ -199,12 +200,12 @@ class TextTask(BaseTask):
        
         self.saveJsonToFile(self.msg_list)
 
-    def getChildQueuePack(self, child) -> dict:
+    def getChildQueuePack(self, child, idx) -> dict:
         for param in self.params:
             if "type" in param and param["type"] == "child" and "name" in param and param["name"] == child.getName():
                 out = param.copy()
                 return out
-        pack = super().getChildQueuePack(child)
+        pack = super().getChildQueuePack(child, idx)
         # print("pack:",pack)
         # print('Append to', self.getName(),'pack', child.getName())
         # self.params.append(self.getJsonQueue(pack))

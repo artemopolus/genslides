@@ -629,12 +629,12 @@ class BaseTask():
                 return False
         return True
 
-    def getDefCond(self) -> dict:
-        return {"cond" : "None", "cur": "None", "trg": "used", "str": "None","idx":0}
+    def getDefCond(self, idx : int) -> dict:
+        return {"cond" : "None", "cur": "None", "trg": "used", "str": "None","idx":idx}
 
-    def getChildQueuePack(self, child) ->dict:
+    def getChildQueuePack(self, child, idx:int = 0) ->dict:
         val = {  "type":"child", "used":False ,"name": child.getName()}
-        val.update(self.getDefCond())
+        val.update(self.getDefCond(idx))
         return val
 
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
@@ -675,8 +675,9 @@ class BaseTask():
         if child not in self.childs:
             # child.setParent(self)
             child.parent = self
+            idx = len(self.childs)
             self.childs.append(child)
-            info = self.getChildQueuePack(child)
+            info = self.getChildQueuePack(child, idx = idx)
             self.onQueueReset(info)
             self.queue.append(info)
             return True
@@ -759,8 +760,20 @@ class BaseTask():
         # print(self.queue)
         self.affect_to_ext_list.remove(info)
 
+    def getChildsRaw(self):
+        return self.childs
+    
     def getChilds(self):
         return self.childs.copy()
+    
+    
+    def getKeyByBranching(self, task):
+        return task.getPrio()
+    
+    def sortChilds(self):
+        self.childs.sort(key=self.getKeyByBranching)
+
+
 
     # Возвращает пару символов для точек ветвления
     def getBranchCode(self, second) -> str:

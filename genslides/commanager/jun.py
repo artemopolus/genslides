@@ -2256,7 +2256,7 @@ class Manager:
         else:
             idx = 0
         return idx
-
+    
 
     def sortTreeOrder(self, check_list = False):
         if self.tree_idx >= len(self.tree_arr):

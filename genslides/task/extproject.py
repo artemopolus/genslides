@@ -280,6 +280,7 @@ class SearcherTask(ExtProjectTask):
         self.actioner.setPath(mpath)
         folder_tmp  = 'tmp'
         projects_out = []
+        res_childs_idx = 0
         if len(sparam['targets']) == 0:
             sparam['path'] = self.manager.getPath()
             projects_out_tmp = Searcher.ProjectSearcher.searchByParams(sparam)
@@ -293,6 +294,10 @@ class SearcherTask(ExtProjectTask):
                         Fm.createFolder(path)
                         trg_path = str(path)
                     project['trg_path'] = trg_path
+                    results = project['results']
+                    for result in results:
+                        result['idx'] = res_childs_idx
+                        res_childs_idx += 1
                     projects_out.append(project)
                 idx +=1
             self.updateParamStruct(param_name='search', key='targets', val= projects_out)
@@ -308,9 +313,9 @@ class SearcherTask(ExtProjectTask):
             results = project['results']
             path = project['trg_path']
             trg_path = Loader.Loader.getUniPath(path)
-            for info in results:
+            for result in results:
                 if copy_files:
-                    tnames = self.manager.getRelatedTaskChains(info['name'], project_path)
+                    tnames = self.manager.getRelatedTaskChains(result['name'], project_path)
                     Fm.copyFiles(project_path, trg_path,[t + '.json' for t in tnames])
 
             if idx == 0:
@@ -321,9 +326,9 @@ class SearcherTask(ExtProjectTask):
             else:
                 manager = self.actioner.addTmpManager(trg_path)
                 manager.setName(project_name)
-            for info in results:
-                task = manager.getTaskByName(info['name'])
-                internal_child = {'idx':idx, 'trg': task, 'root':task.getRootParent(), 'manager': manager}
+            for result in results:
+                task = manager.getTaskByName(result['name'])
+                internal_child = {'idx':result['idx'], 'trg': task, 'root':task.getRootParent(), 'manager': manager}
                 self.intch.append(internal_child)
                 if self.intch_trg == None:
                     self.intch_trg = task
@@ -340,6 +345,7 @@ class SearcherTask(ExtProjectTask):
         for param in self.params:
             if 'type' in param and param['type'] == 'child' and param['name'] == task.getName():
                 idx = param['idx']
+                print('For task', task.getName(),':', idx)
                 for int_child in self.intch:
                     if int_child['idx'] == idx:
                         self.intpar = int_child['root']

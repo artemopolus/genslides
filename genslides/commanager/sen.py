@@ -914,3 +914,80 @@ class Projecter:
         pyperclip.copy('\n'.join(out))
         pyperclip.paste()
 
+    def getBranchList(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        out = []
+        if task.getParent() == None:
+            return out
+        if len(task.getParent().getChilds()) < 2:
+            return out
+        task.getParent().sortChilds()
+        for child in task.getParent().getChilds():
+            name = str(child.getPrio()) + ':' + child.getName() + '\n'
+            if task == child:
+                out.append([name,'target'])
+            else:
+                out.append([name,'common'])
+        return out
+    
+
+    def moveBranchIdxUp(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        if len(task.getParent().getChilds()) < 2:
+            return self.getBranchList()
+        idx = task.getPrio()
+        if idx == 0:
+            j = 1
+            for child in task.getParent().getChilds():
+                if task != child:
+                    child.setPrio(j)
+                    j += 1
+        else:
+            task.getParent().getChilds()[idx - 1].setPrio(idx)
+            task.setPrio(idx -1)
+        return self.getBranchList()
+    
+    def moveUpTree(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        cur_tree = task.getRootParent()
+        sres, sparam = cur_tree.getParamStruct('tree_step', True)
+        if sres:
+            idx = sparam['idx']
+            if idx != 0:
+                idx -= 1
+            cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
+        return self.getTreesList()
+ 
+    def moveDwTree(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        cur_tree = task.getRootParent()
+        sres, sparam = cur_tree.getParamStruct('tree_step', True)
+        if sres:
+            idx = sparam['idx']
+            if idx != 0:
+                idx += 1
+            cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
+        return self.getTreesList()
+ 
+    def getTreesList(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        out = []
+        cur_tree = task.getRootParent()
+        man.sortTreeOrder()
+        for tree in man.tree_arr:
+            sres, sparam = tree.getParamStruct('tree_step', True)
+            name = tree.getBranchSummary()
+            if sres:
+                name +='[' + str( sparam['idx'] ) +']'
+            name += '\n'
+            if cur_tree == tree:
+                out.append([name,'target'])
+            else:
+                out.append([name,'common'])
+        return out
+ 
