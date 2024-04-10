@@ -480,18 +480,19 @@ class Actioner():
         # del param['task']
         del param['idx']
         del param['done']
-        tmp_man = [t.getName() for t in self.tmp_managers]
+        tmp_mannames = [t.getName() for t in self.tmp_managers]
+        tmp_man = tmp_mannames
         tmp_man.append(self.std_manager.getName())
-        tmp_man.append('None')
         if len(tmp_man) == 0:
             name = self.manager.getName()
         else:
-            n = [self.std_manager.getName()]
-            n.extend(tmp_man)
-            name = '->'.join(n)
+            if self.manager == self.std_manager:
+                name = self.manager.getName() + ' [' +'|'.join(tmp_mannames) + ']'
+            else:
+                name = self.std_manager.getName() + '->' + self.manager.getName()
 
         return (gr.Dropdown(choices= saved_man, value=None, interactive=True), 
-                gr.Dropdown(choices= tmp_man, value=None, interactive=True), 
+                gr.Radio(choices= tmp_man, value=self.manager.getName(), interactive=True), 
                 json.dumps(param, indent=1), 
                 gr.Text(value=name), 
                 self.manager.getCurrentExtTaskOptions())

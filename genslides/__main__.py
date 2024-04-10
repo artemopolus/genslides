@@ -240,7 +240,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                         param_opt = gr.Dropdown(choices=projecter.getAppendableParam(),label='Params to append')
                                     with gr.Column(scale=1):
                                         param_apnd = gr.Button('Append new')
-                                param_info = gr.Textbox(label="Params", lines=10, max_lines=20)
+                                # param_info = gr.Textbox(label="Params", lines=10, max_lines=20)
+                                param_info = gr.JSON(label="Params")
                             with gr.Column():
                                 param_key = gr.Dropdown(choices=[],label="Key")
                                 param_type.select(fn=projecter.getTaskKeys, inputs=param_type, outputs=param_key)
@@ -349,7 +350,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     stop_prman_btn = gr.Button(value='RM man&Save tasks')
                                     save2curtask_btn = gr.Button(value='Save man2task')
                                 with gr.Row():
-                                    get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
+                                    # get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
+                                    get_tempman = gr.Radio(label='Temp managers')
                                 with gr.Row():
                                     load_tempman_btn = gr.Button(value='Set tmp man')
                                     updt_prman_btn = gr.Button(value='Updt man list')
@@ -515,7 +517,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
             init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
-            load_tempman_btn.click(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
+            get_tempman.change(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
             load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)
             reset_initact_btn.click(fn=manipulate_manager.backToDefaultActioner, outputs=std_full)
             
