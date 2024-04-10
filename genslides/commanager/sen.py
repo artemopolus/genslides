@@ -399,7 +399,7 @@ class Projecter:
         return self.actioner.manager.getCurrTaskPrompts()
     
     def moveToParent(self):
-        self.actioner.manager.curr_task.resetQueue()
+        # self.actioner.manager.curr_task.resetQueue()
         self.actioner.manager.goToParent()
         return self.actioner.manager.getCurrTaskPrompts()
     
