@@ -639,7 +639,7 @@ class BaseTask():
 
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
         val = { "name": info.target.getName(), "id":info.id,"method":info.method, "type":"link","used":False}
-        val.update(self.getDefCond())
+        val.update(self.getDefCond(idx=0))
         # print(val)
         return val
     
