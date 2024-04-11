@@ -2444,15 +2444,13 @@ class Manager:
         task.getParent().sortChilds()
         for child in task.getParent().getChilds():
             res, val_src, _ = child.getLastMsgAndParent()
-            val = val_src[0]['content']
-            # name = child.getName() + '\n' + val[0]['content'] + '\n'
-            out += '## ' + child.getName() + '\n'
-            if task == child:
-                out += '\n```\n' + val + '\n```\n'
-            #     out.append([name,'target'])
-            else:
-                out += val + '\n'
-            #     out.append([name,'common'])
+            if res:
+                val = val_src[0]['content']
+                out += '## ' + child.getName() + '\n'
+                if task == child:
+                    out += '\n---\n' + val + '\n\n---\n\n'
+                else:
+                    out += val + '\n'
         return out
   
     def getTreesList(self):
