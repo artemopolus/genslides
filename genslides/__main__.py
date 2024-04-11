@@ -324,8 +324,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                             "target": "green"
                                             })
                             with gr.Column():
-                                    gr.Button(value='Update').click(fn= projecter.getBranchList, outputs=[branches_data])
-                                    gr.Button(value='MoveUpPrio').click(fn=projecter.moveBranchIdxUp, outputs=[branches_data])
+                                    # gr.Button(value='Update').click(fn= projecter.getBranchList, outputs=[branches_data])
+                                    moveupprio_btn = gr.Button(value='MoveUpPrio')
+                                    movedwprio_btn = gr.Button(value='MoveDwPrio')
                             with gr.Column():
                                 trees_data = gr.Highlightedtext(label="Trees",
                                         combine_adjacent=True,
@@ -335,9 +336,20 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                             "target": "green"
                                             })
                             with gr.Column():
-                                gr.Button(value='Update').click(fn= projecter.getTreesList, outputs=[trees_data])
-                                gr.Button(value='Up').click(fn=projecter.moveUpTree, outputs=[trees_data])
-                                gr.Button(value='Dw').click(fn=projecter.moveDwTree, outputs=[trees_data])
+                                # gr.Button(value='Update').click(fn= projecter.getTreesList, outputs=[trees_data])
+                                moveuptree_btn = gr.Button(value='Up')
+                                movedwtree_btn = gr.Button(value='Dw')
+                        with gr.Row():
+                            # branch_msgs = gr.Highlightedtext(label="Trees",
+                            #             combine_adjacent=True,
+                            #             show_legend=True,
+                            #             color_map={
+                            #                 "common": "gray", 
+                            #                 "target": "green"
+                            #                 })
+                            branch_msgs = gr.Markdown()
+                            # gr.Button('Update').click(fn=projecter.getBranchMessages, outputs=[branch_msgs])
+
                             
                     with gr.Tab('Manager'):
                         with gr.Row():
@@ -511,9 +523,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                param_info, prompt, task_list, param_type, 
                                parents_list, base_action_list, dial_block, 
                                exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt,
-                               end_names_radio, end_name_text, extcopy_chck
+                               end_names_radio, end_name_text, extcopy_chck,
+                               branches_data, trees_data, branch_msgs
                                ]
-            
+            moveupprio_btn.click(fn=projecter.moveBranchIdxUp, outputs=std_output_list )
+            movedwprio_btn.click(fn=projecter.moveBranchIdxDw, outputs=std_output_list )
+            moveuptree_btn.click(fn=projecter.moveUpTree, outputs=std_output_list )
+            movedwtree_btn.click(fn=projecter.moveDwTree, outputs=std_output_list )
+ 
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
             init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)

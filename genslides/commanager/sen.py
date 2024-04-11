@@ -914,29 +914,16 @@ class Projecter:
         pyperclip.copy('\n'.join(out))
         pyperclip.paste()
 
-    def getBranchList(self):
-        man = self.actioner.manager
-        task = man.curr_task
-        out = []
-        if task.getParent() == None:
-            return out
-        if len(task.getParent().getChilds()) < 2:
-            return out
-        task.getParent().sortChilds()
-        for child in task.getParent().getChilds():
-            name = str(child.getPrio()) + ':' + child.getName() + '\n'
-            if task == child:
-                out.append([name,'target'])
-            else:
-                out.append([name,'common'])
-        return out
-    
+   
+   
 
     def moveBranchIdxUp(self):
         man = self.actioner.manager
         task = man.curr_task
+        if task.getParent() == None:
+            return man.getCurrTaskPrompts()
         if len(task.getParent().getChilds()) < 2:
-            return self.getBranchList()
+            return man.getCurrTaskPrompts()
         idx = task.getPrio()
         if idx == 0:
             j = 1
@@ -947,7 +934,22 @@ class Projecter:
         else:
             task.getParent().getChilds()[idx - 1].setPrio(idx)
             task.setPrio(idx -1)
-        return self.getBranchList()
+        return man.getCurrTaskPrompts()
+    
+    def moveBranchIdxDw(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        if task.getParent() == None:
+            return man.getCurrTaskPrompts()
+        if len(task.getParent().getChilds()) < 2:
+            return man.getCurrTaskPrompts()
+        idx = task.getPrio()
+        length = len(task.getParent().getChilds())
+
+        if idx < length - 1:
+            task.getParent().getChilds()[idx + 1].setPrio(idx)
+            task.setPrio(idx + 1)
+        return man.getCurrTaskPrompts()
     
     def moveUpTree(self):
         man = self.actioner.manager
@@ -959,7 +961,7 @@ class Projecter:
             if idx != 0:
                 idx -= 1
             cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
-        return self.getTreesList()
+        return man.getCurrTaskPrompts()
  
     def moveDwTree(self):
         man = self.actioner.manager
@@ -971,23 +973,6 @@ class Projecter:
             if idx != 0:
                 idx += 1
             cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
-        return self.getTreesList()
+        return man.getCurrTaskPrompts()
  
-    def getTreesList(self):
-        man = self.actioner.manager
-        task = man.curr_task
-        out = []
-        cur_tree = task.getRootParent()
-        man.sortTreeOrder()
-        for tree in man.tree_arr:
-            sres, sparam = tree.getParamStruct('tree_step', True)
-            name = tree.getBranchSummary()
-            if sres:
-                name +='[' + str( sparam['idx'] ) +']'
-            name += '\n'
-            if cur_tree == tree:
-                out.append([name,'target'])
-            else:
-                out.append([name,'common'])
-        return out
- 
+

@@ -1555,7 +1555,10 @@ class Manager:
             self.getCurrentTreeNameForTxt(),
             self.getBranchEndList(),
             self.getBranchEndName(),
-            gr.CheckboxGroup(value=[])
+            gr.CheckboxGroup(value=[]),
+            self.getBranchList(),
+            self.getTreesList(),
+            self.getBranchMessages()
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
@@ -1935,8 +1938,9 @@ class Manager:
                 return False
         else:
             self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
-        prio = task.getPrio()
-        self.curr_task.setPrio(prio)
+        if j != 0:
+            prio = task.getPrio()
+            self.curr_task.setPrio(prio)
 
         # TODO: замораживать текущую задачу, чтобы оставить возможность дополнительного редактирования
         if j == 0:
@@ -2414,4 +2418,58 @@ class Manager:
             return info
         return {}
  
+    def getBranchList(self):
+        man = self
+        task = man.curr_task
+        out = []
+        if task.getParent() == None:
+            return out
+        if len(task.getParent().getChilds()) < 2:
+            return out
+        task.getParent().sortChilds()
+        for child in task.getParent().getChilds():
+            name = str(child.getPrio()) + ':' + child.getName() + '\n'
+            if task == child:
+                out.append([name,'target'])
+            else:
+                out.append([name,'common'])
+        return out
 
+    def getBranchMessages(self):
+        man = self
+        task = man.curr_task
+        out = ''
+        if task.getParent() == None:
+            return out
+        task.getParent().sortChilds()
+        for child in task.getParent().getChilds():
+            res, val_src, _ = child.getLastMsgAndParent()
+            val = val_src[0]['content']
+            # name = child.getName() + '\n' + val[0]['content'] + '\n'
+            out += '## ' + child.getName() + '\n'
+            if task == child:
+                out += '\n```\n' + val + '\n```\n'
+            #     out.append([name,'target'])
+            else:
+                out += val + '\n'
+            #     out.append([name,'common'])
+        return out
+  
+    def getTreesList(self):
+        man = self
+        task = man.curr_task
+        out = []
+        cur_tree = task.getRootParent()
+        man.sortTreeOrder()
+        for tree in man.tree_arr:
+            sres, sparam = tree.getParamStruct('tree_step', True)
+            name = tree.getBranchSummary()
+            if sres:
+                name +='[' + str( sparam['idx'] ) +']'
+            name += '\n'
+            if cur_tree == tree:
+                out.append([name,'target'])
+            else:
+                out.append([name,'common'])
+        return out
+ 
