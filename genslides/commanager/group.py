@@ -744,3 +744,18 @@ class Actioner():
         for man in self.tmp_managers:
             man.setName( '_'.join(name, str(idx)) )
             idx += 1
+
+    def updateUIelements(self, prompt = ''):
+        # print('std',self.std_manager)
+        # print('tmp',self.tmp_managers)
+        # print('man',self.manager)
+        if self.std_manager == self.manager:
+            return self.manager.getCurrTaskPrompts(set_prompt=prompt, hide_tasks=False)
+        else:
+            return self.manager.getCurrTaskPrompts(set_prompt=prompt)
+    
+    def updateTaskManagerUI(self):
+        out = self.manager.getCurrTaskPrompts()
+        out += self.getTmpManagerInfo()
+        return out
+ 

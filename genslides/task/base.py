@@ -448,8 +448,20 @@ class BaseTask():
                 if link['dir'] == 'in':
                     linked_task.extend([link['in']])
         return linked_task
+    
+    def printBranchesInfo(self, tasks_chains):
+        i = 0
+        for branch in tasks_chains:
+            print(i,'|',
+                  [task.getName() for task in branch['branch']], 
+                  branch['done'],'idx=', branch['idx'],'par=' , 
+                  branch['parent'].getName() if branch['parent'] else "None", 'idx_par=',
+                  branch['i_par'])
+            i += 1
+
 
     def getTasksFullLinks(self, pparam):
+        print('Get child and links for target branch',self.getName())
         branches = self.getChildAndLinks(self, pparam)
         if not pparam['link']:
             return branches
@@ -459,8 +471,31 @@ class BaseTask():
             tmp = []
             start_idx = len(branches)
             for task in linked_task:
+                print('Get childs and links for linked branch', task.getName())
                 new_b = self.getChildAndLinks(task, pparam, start_j=start_idx)
-                branches.extend(new_b)
+                self.printBranchesInfo(branches)
+                print('Add by links')
+                self.printBranchesInfo(new_b)
+                if 'av_cp' in pparam and pparam['av_cp']:
+                    add_branch = []
+                    for branch_info in new_b:
+                        found = False
+                        lnk_tasks = [task for task in branch_info['branch']]
+                        for curbra_info in branches:
+                            trg_tasks = [task  for task in curbra_info['branch']]
+                            for task in lnk_tasks:
+                                if task in trg_tasks:
+                                    found = True
+                                    break 
+                            if found:
+                                break
+                        if not found:
+                            add_branch.append(branch_info)
+                        else:
+                            print('Found double:',[t.getName() for t in branch_info['branch']])
+                    branches.extend(add_branch)
+                else:
+                    branches.extend(new_b)
                 tmp.extend(new_b)
             linked_task = self.getLinkedTaskFromBranches(tmp)
             idx += 1

@@ -658,7 +658,7 @@ class Manager:
         return img_path
 
 
-    def drawGraph(self, only_current= True, max_index = -1, path = "output/img"):
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True):
         # print('Draw graph')
         if only_current:
             if self.curr_task.isRootParent():
@@ -679,12 +679,14 @@ class Manager:
                                   graph_attr={'size':"7.75,10.25",'ratio':'fill'})
             
             # Скрываем задачи не этого менеджера
-            rm_tasks = []
-            for task in trg_list:
-                if task not in self.task_list:
-                    rm_tasks.append(task)
-            for task in rm_tasks:
-                trg_list.remove(task)
+            if hide_tasks:
+                # print('Hide tasks')
+                rm_tasks = []
+                for task in trg_list:
+                    if task not in self.task_list:
+                        rm_tasks.append(task)
+                for task in rm_tasks:
+                    trg_list.remove(task)
 
             # if self.curr_task:
             #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
@@ -1469,7 +1471,7 @@ class Manager:
         return self.getCurrentExtTaskOptions()
 
     
-    def getCurrTaskPrompts(self, set_prompt = ""):
+    def getCurrTaskPrompts(self, set_prompt = "", hide_tasks = True):
         if self.no_output:
             return
         if self.curr_task is None:
@@ -1519,9 +1521,9 @@ class Manager:
         # TODO: вывадить код ветки
         # print('BranchCode=', self.curr_task.findKeyParam(value))
 
-        graph = self.drawGraph()
+        graph = self.drawGraph(hide_tasks=hide_tasks)
 
-        graph2 = self.drawGraph(max_index= 2, path = "output/img2")
+        graph2 = self.drawGraph(max_index= 2, path = "output/img2", hide_tasks=hide_tasks)
 
         res_params = self.curr_task.getAllParams()
 
@@ -1918,7 +1920,7 @@ class Manager:
             branch['convert'] = []
         else:
             parent = self.curr_task
-        print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
+        # print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
         # Меняем тип задачи
         for switch in self.tc_switch_type:
             if trg_type == switch['src'] and task not in self.tc_ignore_conv:
@@ -2267,6 +2269,9 @@ class Manager:
         if self.tree_idx >= len(self.tree_arr):
             self.updateTreeArr(check_list=check_list)
             self.tree_idx = 0
+
+        if len(self.tree_arr) == 0:
+            return
         trg_task = self.tree_arr[self.tree_idx]
         for task in self.tree_arr:
             res, pparam = task.getParamStruct('tree_step')
@@ -2446,10 +2451,17 @@ class Manager:
             res, val_src, _ = child.getLastMsgAndParent()
             if res:
                 val = val_src[0]['content']
-                out += '## ' + child.getName() + '\n'
                 if task == child:
-                    out += '\n---\n' + val + '\n\n---\n\n'
+                    out += '\n\n---\n\n'
+                    out += '\n' + 5*'\\ --- \/ \\ --- \/ \\ --- \/' + ' \n'
+                    out += '## ' + child.getName() + '\n'
+                    # out += '\n\n---\n\n'
+                    out += val 
+                    # out += '\n\n---\n\n'
+                    out += '\n' + 5*'\/ --- \\ \/ --- \\ \/ --- \\' + '\n'
+                    out += '\n\n---\n\n'
                 else:
+                    out += '## ' + child.getName() + '\n'
                     out += val + '\n'
         return out
   

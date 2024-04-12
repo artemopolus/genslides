@@ -54,7 +54,7 @@ class Projecter:
         self.resetManager(self.actioner.std_manager)
         if len(self.actioner.std_manager.task_list) == 0:
             return self.createNewTree()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def loadManagerFromBrowser(self):
         man_path = Loader.Loader.getDirPathFromSystem()
@@ -62,7 +62,7 @@ class Projecter:
         self.resetManager(manager = self.actioner.std_manager, path = man_path)
         if len(self.actioner.std_manager.task_list) == 0:
             return self.createNewTree()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
     def resetManager(self, manager : Manager, fast = True, load = True, path = 'saved'):
         if self.actioner is None:
@@ -233,7 +233,7 @@ class Projecter:
                 return self.makeTaskAction(prompt, custom_action, "InsExtProject", "")
         elif custom_action == 'Garland':
             self.makeTaskAction('', custom_action, selected_action, '')
-        return self.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def makeResponseAction(self, prompt, selected_action, selected_tag):
         if selected_action == 'Edit':
@@ -243,7 +243,7 @@ class Projecter:
     
     def getParamListForEdit(self):
         # TODO: добавить простую копию задачи
-        return ['change','resp2req','coll2req','read2req','in','out','link','step','chckresp','sel2par','ignrlist','upd_cp']
+        return ['change','resp2req','coll2req','read2req','in','out','link','av_cp','step','chckresp','sel2par','ignrlist','upd_cp']
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')
@@ -292,7 +292,7 @@ class Projecter:
     def makeActionParent(self):
         man = self.actioner.manager
         if len(man.selected_tasks) == 0:
-            return man.getCurrTaskPrompts()
+            return self.actioner.updateUIelements()
         else:
             param = {'select': man.selected_tasks[0].getName()}
         return self.makeTaskAction("","","Parent","", param)
@@ -300,7 +300,7 @@ class Projecter:
     def makeActionChild(self):
         man = self.actioner.manager
         if len(man.selected_tasks) == 0:
-            return man.getCurrTaskPrompts()
+            return self.actioner.updateUIelements()
         else:
             param = {'curr': man.selected_tasks[0].getName()}
         return self.makeTaskAction("","","Parent","", param)
@@ -313,7 +313,7 @@ class Projecter:
     def makeActionLink(self):
         man = self.actioner.manager
         if len(man.selected_tasks) == 0:
-            return man.getCurrTaskPrompts()
+            return self.actioner.updateUIelements()
         else:
             param = {'select': man.selected_tasks[0].getName()}
         return self.makeTaskAction("","","Link","", param)
@@ -354,29 +354,29 @@ class Projecter:
             man.curr_task = task
             selected_tag = task.getLastMsgRole()
             self.makeTaskAction(text, "Request", "Edit", selected_tag, [])
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
     
     def goToNextBranchEnd(self):
-        return self.actioner.manager.goToNextBranchEnd()
+        self.actioner.manager.goToNextBranchEnd()
+        return self.actioner.updateUIelements()
     
     def goToNextBranch(self):
-        return self.actioner.manager.goToNextBranch()
+        self.actioner.manager.goToNextBranch()
+        return self.actioner.updateUIelements()
     
     def createNewTree(self):
         self.makeTaskAction("","SetOptions","New","user",[])
         self.actioner.manager.updateTreeArr()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def goToNextTree(self):
-        if self.actioner.manager != self.actioner.std_manager:
-            self.actioner.manager.updateTreeArr(check_list=True)
         if self.actioner.manager != self.actioner.std_manager:
             self.actioner.manager.sortTreeOrder(check_list=True)
         else:
             self.actioner.manager.sortTreeOrder()
-        return self.actioner.manager.goToNextTree()
-        # return self.goToNextBranchEnd()
+        self.actioner.manager.goToNextTree()
+        return self.actioner.updateUIelements()
     
     def goBackByLink(self):
         man = self.actioner.manager
@@ -384,24 +384,26 @@ class Projecter:
         trgs = task.getGarlandPart()
         if len(trgs) > 0:
             man.curr_task = trgs[0]
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def goToNextChild(self):
-        return self.actioner.manager.goToNextChild()
+        self.actioner.manager.goToNextChild()
+        return self.actioner.updateUIelements()
         # return self.makeTaskAction("","","GoToNextChild","")
 
     def goToParent(self):
-        return self.actioner.manager.goToParent()
+        self.actioner.manager.goToParent()
+        return self.actioner.updateUIelements()
         # return self.makeTaskAction("","","GoToParent","")
     
     def moveToNextChild(self):
         self.actioner.manager.goToNextChild()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def moveToParent(self):
         # self.actioner.manager.curr_task.resetQueue()
         self.actioner.manager.goToParent()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def moveToNextBranch(self):
         man = self.actioner.manager
@@ -409,13 +411,13 @@ class Projecter:
         if man.curr_task.parent != None:
             trg = man.curr_task.parent
             man.curr_task = trg
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
     def switchRole(self, role, prompt):
         task = self.actioner.manager.curr_task
         print('Set role[', role, ']for',task.getName())
         self.makeTaskAction(task.getLastMsgContent(), "Request", "Edit", role)
-        return self.actioner.manager.getCurrTaskPrompts(prompt)
+        return self.actioner.updateUIelements(prompt=prompt)
   
  
     def appendNewParamToTask(self, param_name):
@@ -453,9 +455,7 @@ class Projecter:
             code = task.getName()
             tags.append(code)
         self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3, 'task_names':tags})
-        out = self.actioner.manager.getCurrTaskPrompts()
-        out += self.actioner.getTmpManagerInfo()
-        return out
+        return self.actioner.updateTaskManagerUI()
     
     def loadTmpManager(self, name):
         if self.actioner.std_manager.getName() == name:
@@ -465,9 +465,7 @@ class Projecter:
                 if man.getName() == name:
                     self.actioner.manager = man
                     break
-        out = self.actioner.manager.getCurrTaskPrompts()
-        out += self.actioner.getTmpManagerInfo()
-        return out
+        return self.actioner.updateTaskManagerUI()
     
     def switchToExtTaskManager(self):
         man = self.actioner.manager
@@ -479,17 +477,13 @@ class Projecter:
             print('Path:', self.actioner.getPath())
             print('Man:', self.actioner.manager.getName())
             print('Tasks:',[t.getName() for t in self.actioner.manager.task_list])
-        out = self.actioner.manager.getCurrTaskPrompts()
-        out += self.actioner.getTmpManagerInfo()
-        return out
+        return self.actioner.updateTaskManagerUI()
     
     def backToDefaultActioner(self):
         if self.tmp_actioner != None:
             self.actioner = self.tmp_actioner
             self.tmp_actioner = None
-        out = self.actioner.manager.getCurrTaskPrompts()
-        out += self.actioner.getTmpManagerInfo()
-        return out
+        return self.actioner.updateTaskManagerUI()
  
     
     def initSavdManagerToCur(self,name):
@@ -509,17 +503,13 @@ class Projecter:
         self.makeTaskAction("","","StopPrivManager","")
         #TODO: Нужно разобраться почему так происходит и убрать этот костыль
         self.actioner.manager.fixTasks()
-        out = self.actioner.manager.getCurrTaskPrompts()
-        out += self.actioner.getTmpManagerInfo()
-        return out
+        return self.actioner.updateTaskManagerUI()
   
     def rmvePrivManager(self):
         self.makeTaskAction("","","RmvePrivManager","")
         #TODO: Нужно разобраться почему так происходит и убрать этот костыль
         self.actioner.manager.fixTasks()
-        out = self.actioner.manager.getCurrTaskPrompts()
-        out += self.actioner.getTmpManagerInfo()
-        return out
+        return self.actioner.updateTaskManagerUI()
     
     def getPrivManager(self):
         return self.actioner.getTmpManagerInfo()
@@ -531,9 +521,7 @@ class Projecter:
         self.actioner.exeActions()
         # Альтернатива
         # self.makeTaskAction("","","ExecuteManager","",{},save_action=False)
-        out = self.actioner.manager.getCurrTaskPrompts()
-        out += self.actioner.getTmpManagerInfo()
-        return out
+        return self.actioner.updateTaskManagerUI()
     
     def exeSmplScript(self):
         self.actioner.exeCurManagerSmpl()
@@ -652,7 +640,7 @@ class Projecter:
         manager = self.actioner.manager
         task = manager.getTaskByName(manager.getName())
         manager.curr_task = task
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
     def setCurrentExtTaskOptions(self, names : list):
         self.makeTaskAction("","","SetCurrentExtTaskOptions","", {'names': names})
@@ -680,14 +668,15 @@ class Projecter:
         # tasks_chains = self.actioner.manager.curr_task.getTasksFullLinks({'in':True, 'out':True,'link':True})
         # self.actioner.manager.copyTasksByInfo(tasks_chains=tasks_chains,edited_prompt='test', change_prompt=True, trg_type_t='', src_type_t='')
         self.actioner.manager.copyTasksByInfoStep()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
     def setTreeName(self, name : str):
         self.actioner.manager.curr_task.setBranchSummary(name)
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
     def goToTreeByName(self, name):
-        return self.actioner.manager.goToTreeByName(name)
+        self.actioner.manager.goToTreeByName(name)
+        return self.actioner.updateUIelements()
 
     def resetUpdate(self):
         return self.actioner.resetUpdate()
@@ -699,32 +688,34 @@ class Projecter:
         self.actioner.manager.disableOutput2()
         self.actioner.updateAll()
         self.actioner.manager.enableOutput2()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def updateCurrentTree(self):
         self.actioner.manager.disableOutput2()
         self.actioner.updateCurrentTree()
         self.actioner.manager.enableOutput2()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
    
     def updateAllUntillCurrTask(self):
         self.actioner.manager.disableOutput2()
         self.actioner.updateAllUntillCurrTask()
         self.actioner.manager.enableOutput2()
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
    
     def setBranchEndName(self, summary):
-        return self.actioner.manager.setBranchEndName(summary)
+        self.actioner.manager.setBranchEndName(summary)
+        return self.actioner.updateUIelements()
 
     
     def setCurrTaskByBranchEndName(self, name):
-        return self.actioner.manager.setCurrTaskByBranchEndName( name)
+        self.actioner.manager.setCurrTaskByBranchEndName( name)
+        return self.actioner.updateUIelements()
     
     def cleanCurrTask(self):
         man = self.actioner.manager
         man.curr_task.forceCleanChat()
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
 
     def relinkToCurrTaskByName(self, name):
@@ -736,7 +727,7 @@ class Projecter:
         for name in taskchainnames:
             man.multiselect_tasks.append(man.getTaskByName(name))
         # return self.actioner.getRelationTasksChain()
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def selectNearestTasks(self):
         man = self.actioner.manager
@@ -745,24 +736,24 @@ class Projecter:
         for task in tasks:
             if task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
        
     
     def deselectRealtedChain(self):
         self.actioner.manager.multiselect_tasks = []
-        return self.actioner.manager.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def appendTaskToChain(self):
         man = self.actioner.manager
         if man.curr_task not in man.multiselect_tasks:
             man.multiselect_tasks.append(man.curr_task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def removeTaskFromChain(self):
         man = self.actioner.manager
         if man.curr_task in man.multiselect_tasks:
             man.multiselect_tasks.remove(man.curr_task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def appendTreeToChain(self):
         man = self.actioner.manager
@@ -770,7 +761,7 @@ class Projecter:
         for task in tasks:
             if task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def removeTreeFromChain(self):
         man = self.actioner.manager
@@ -778,7 +769,7 @@ class Projecter:
         for task in tasks:
             if task in man.multiselect_tasks:
                 man.multiselect_tasks.remove(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
    
     def appendBranchPartToChain(self):
         man = self.actioner.manager
@@ -790,10 +781,10 @@ class Projecter:
         while(len(tasks)):
             task = tasks.pop(-1)
             if len(task.getChilds()) > 1 or task.isRootParent():
-                return man.getCurrTaskPrompts()
+                return self.actioner.updateUIelements()
             if task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
     def removeBranchPartFromChain(self):
         man = self.actioner.manager
@@ -808,7 +799,7 @@ class Projecter:
                 return man.getCurrTaskPrompts()
             if task in man.multiselect_tasks:
                 man.multiselect_tasks.remove(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
 
     def appendBranchtoChain(self):
@@ -819,7 +810,7 @@ class Projecter:
         for task in tasks:
             if task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
  
     def removeBranchFromChain(self):
         man = self.actioner.manager
@@ -829,7 +820,7 @@ class Projecter:
         for task in tasks:
             if task in man.multiselect_tasks:
                 man.multiselect_tasks.remove(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
    
     def appendChildsToChain(self):
         man = self.actioner.manager
@@ -837,7 +828,7 @@ class Projecter:
         for task in tasks:
             if task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
  
     def removeChildsFromChain(self):
         man = self.actioner.manager
@@ -845,7 +836,7 @@ class Projecter:
         for task in tasks:
             if task in man.multiselect_tasks:
                 man.multiselect_tasks.remove(task)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
 
     def removeMultiSelect(self):
         return self.makeTaskAction("","","RemoveTaskList","")
@@ -921,9 +912,9 @@ class Projecter:
         man = self.actioner.manager
         task = man.curr_task
         if task.getParent() == None:
-            return man.getCurrTaskPrompts()
+            return self.actioner.updateUIelements()
         if len(task.getParent().getChilds()) < 2:
-            return man.getCurrTaskPrompts()
+            return self.actioner.updateUIelements()
         idx = task.getPrio()
         if idx == 0:
             j = 1
@@ -934,22 +925,22 @@ class Projecter:
         else:
             task.getParent().getChilds()[idx - 1].setPrio(idx)
             task.setPrio(idx -1)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def moveBranchIdxDw(self):
         man = self.actioner.manager
         task = man.curr_task
         if task.getParent() == None:
-            return man.getCurrTaskPrompts()
+            return self.actioner.updateUIelements()
         if len(task.getParent().getChilds()) < 2:
-            return man.getCurrTaskPrompts()
+            return self.actioner.updateUIelements()
         idx = task.getPrio()
         length = len(task.getParent().getChilds())
 
         if idx < length - 1:
             task.getParent().getChilds()[idx + 1].setPrio(idx)
             task.setPrio(idx + 1)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
     
     def moveUpTree(self):
         man = self.actioner.manager
@@ -961,7 +952,7 @@ class Projecter:
             if idx != 0:
                 idx -= 1
             cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
  
     def moveDwTree(self):
         man = self.actioner.manager
@@ -973,6 +964,7 @@ class Projecter:
             if idx != 0:
                 idx += 1
             cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
-        return man.getCurrTaskPrompts()
+        return self.actioner.updateUIelements()
+
  
 
