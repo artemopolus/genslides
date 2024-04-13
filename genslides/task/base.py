@@ -469,8 +469,8 @@ class BaseTask():
         linked_task = self.getLinkedTaskFromBranches(branches)
         while(idx < 1000):
             tmp = []
-            start_idx = len(branches)
             for task in linked_task:
+                start_idx = len(branches)
                 print('Get childs and links for linked branch', task.getName())
                 new_b = self.getChildAndLinks(task, pparam, start_j=start_idx)
                 self.printBranchesInfo(branches)
@@ -494,9 +494,10 @@ class BaseTask():
                         else:
                             print('Found double:',[t.getName() for t in branch_info['branch']])
                     branches.extend(add_branch)
+                    tmp.extend(add_branch)
                 else:
                     branches.extend(new_b)
-                tmp.extend(new_b)
+                    tmp.extend(new_b)
             linked_task = self.getLinkedTaskFromBranches(tmp)
             idx += 1
         return branches
@@ -525,7 +526,7 @@ class BaseTask():
                 trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
 
     def getChildAndLinks(self, task, pparam, start_j = 0):
-        print('Get child and links for', task.getName())
+        print('Get child and links for', task.getName(),'[',start_j,']')
         index = 0
         branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
         while(index < 1000):
