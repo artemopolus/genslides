@@ -250,9 +250,16 @@ class Actioner():
             ignore_conv = []
             if 'sel2par' in param and param['sel2par'] and len(self.manager.selected_tasks) == 1:
                 trg_parent = self.manager.selected_tasks[0]
-            if 'ignrlist' in param and param['ignrlist'] and len(self.manager.multiselect_tasks) > 0:
-                ignore_conv = self.manager.multiselect_tasks.copy()
             tasks_chains = self.manager.getTasksChainsFromCurrTask(param)
+            if len(self.manager.multiselect_tasks) > 0:
+                if 'ignrlist' in param and param['ignrlist']:
+                    ignore_conv = self.manager.multiselect_tasks.copy()
+                elif 'wishlist' in param and param['wishlist']:
+                    for chain in tasks_chains:
+                        for task in chain['branch']:
+                            if task not in self.manager.multiselect_tasks and task not in ignore_conv:
+                                ignore_conv.append(task)
+            print('Ignore list:', [t.getName() for t in ignore_conv])
             if param['step']:
                 self.manager.copyTasksByInfoStart(
                                         tasks_chains=tasks_chains,
