@@ -270,6 +270,7 @@ class GarlandTask(CollectTask):
         return False
 
     def getTrgLinkInfo(self, trg):
+        # TODO: Перенести в параметры
         return True, {'out': trg, 'in': self, 'dir':'out',
                                    'insert':True,
                                    'type': self.getType(),

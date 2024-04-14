@@ -852,6 +852,7 @@ class Manager:
     
  
     def makeTaskActionPro(self, prompt, type, creation_type, creation_tag):
+        #  TODO: добавить конвертацию используя type
         if creation_type == "RemoveBranch":
             tasks = self.curr_task.getChainBeforeBranching()
             trg = None
@@ -1962,8 +1963,8 @@ class Manager:
             return False
 
 
-# TODO: при копировании учитывать только ветви с Response, чтобы не плодить ненужные копии
     def getTasksChainsFromCurrTask(self, param):
+        # TODO: при копировании учитывать только ветви с Response, чтобы не плодить ненужные копии
         tasks_chains = self.curr_task.getTasksFullLinks(param)
         if 'chckresp' not in param:
             return  tasks_chains

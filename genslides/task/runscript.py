@@ -103,6 +103,7 @@ class RunScriptTask(ResponseTask):
                 file = n_file
             # file = file.encode('unicode_escape').decode()
             print("Run script", file)
+            # TODO: Указать конкретную папку работы https://stackoverflow.com/questions/1685157/how-can-i-specify-working-directory-for-a-subprocess
             result = subprocess.run(file, capture_output=True, text=True)
             if result.returncode:
                 done = False

@@ -100,7 +100,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                     code_s += p_tasks[i].getBranchCode( p_tasks[i+1])
             rep_text = rep_text.replace(res, code_s)
         elif arr[1] == 'code':
-            rep_text = convertMdToScript(md_text=task.getLastMsgContent())
+            script_text = convertMdToScript(md_text=task.getLastMsgContent())
+            rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'param' and len(arr) > 3:
             pres, pparam = task.getParamStruct(arr[2])
             if pres and arr[3] in pparam:

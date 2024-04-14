@@ -49,6 +49,7 @@ class TextTask(BaseTask):
         # print('Task params',self.params)
         self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})       
         self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
+        # TODO: Добавить загрузку начальных параметров
         self.stdProcessUnFreeze()
 
     def loadInitParam(self):
