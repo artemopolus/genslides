@@ -837,6 +837,30 @@ class Projecter:
             if task in man.multiselect_tasks:
                 man.multiselect_tasks.remove(task)
         return self.actioner.updateUIelements()
+    
+    def selectRowTasks(self, child_idx):
+        man = self.actioner.manager
+        tasks = man.curr_task.getAllChildChains(max_index=child_idx)
+        for task in tasks:
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return self.actioner.updateUIelements()
+
+    def getParamFromMultiSelected(self, key):
+        man = self.actioner.manager
+        param = None
+        for task in man.multiselect_tasks:
+            res, t_param = task.getParamStruct(param_name=key)
+            if param == None:
+                param = t_param
+            else:
+                if res and t_param == param:
+                    pass
+                else:
+                    print('Param', task.getName(),'is diff')
+        if param == None:
+            return {}
+        return param
 
     def removeMultiSelect(self):
         return self.makeTaskAction("","","RemoveTaskList","")
