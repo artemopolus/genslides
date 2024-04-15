@@ -1093,7 +1093,9 @@ class Manager:
     
     def makeLink(self, task_in : BaseTask, task_out :BaseTask):
         if task_in != None and task_out != None:
-            if task_out.checkType('Collect') and task_in.checkType('Collect'):
+            if (
+                task_out.isReceiver() and task_in.isReceiver()
+                ):
                 print('Relink from', task_out.getName(),':')
                 trgs = task_out.getAffectingOnTask()
                 for trg in trgs:

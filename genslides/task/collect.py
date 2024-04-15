@@ -26,6 +26,10 @@ class ReceiveTask(TextTask):
 
         self.callback_link = []
 
+    
+    def isReceiver(self) ->bool:
+        return True
+
     def afterFileLoading(self):
         pass
 

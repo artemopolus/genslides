@@ -892,6 +892,8 @@ class TextTask(BaseTask):
  
 
     def getParamStruct(self, param_name, only_current = False):
+        if not isinstance(param_name, str):
+            return False, None
         # print('Get in param', param_name, 'struct')
         forbidden_names = finder.getExtTaskSpecialKeys()
         if param_name not in forbidden_names and not only_current:

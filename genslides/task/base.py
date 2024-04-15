@@ -340,6 +340,9 @@ class BaseTask():
 
     def checkType(self, trg: str) -> bool:
         return self.type.endswith(trg)
+    
+    def isReceiver(self) ->bool:
+        return False
 
     def isInputTask(self):
         return True
@@ -362,6 +365,16 @@ class BaseTask():
         par = self.getRootParent()
         out = par.getAllChildChains(max_childs=max_childs)
         return out
+    
+    def getClosestBranching(self):
+        tasks = self.getAllParents()
+        idx = 0
+        while(len(tasks)):
+            task = tasks.pop(-1)
+            if len(task.getChilds()) > 1 or task.isRootParent():
+                return task, idx
+            idx += 1
+        return self, idx
 
     def getAllParents(self, max_index = -1):
         par = self
@@ -579,6 +592,24 @@ class BaseTask():
             branch_list[j]['idx'] = i_out
         return branch_list
 
+    def getChildSameRange(self, trg_idx):
+        index = 0
+        trgs = [self]
+        while(index < 1000):
+            n_trgs = []
+            found = False
+            for trg in trgs:
+                   for ch in trg.childs:
+                        found = True
+                        n_trgs.append(ch)
+            if not found:
+                break
+            trgs = n_trgs
+            index += 1
+            if index == trg_idx:
+                return n_trgs
+        return []
+ 
 
     def getAllChildChains(self, max_index = -1, max_childs = -1):
         index = 0

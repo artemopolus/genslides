@@ -294,12 +294,37 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             rmvchds2reltask_btn = gr.Button('Rmv childs')
                             rmvtree2reltask_btn = gr.Button('Rmv tree')
                         with gr.Row():
+                            addrow2reltask_btn = gr.Button('Select row')
+                            addcurrtaskrow2reltask_btn = gr.Button('Select row by range')
+                            addcurrtaskrow2reltask_sld = gr.Slider(minimum=0, maximum=20,step=1,value=1,label='range to row')
+
+                        with gr.Row():
                             relattaskcln_btn = gr.Button('Clear all')
                         with gr.Row():
-                            delete_reltasks_btn = gr.Button('Delete selected')
+                            with gr.Column():
+                                getparamamulti_btn = gr.Button('Get params from multi')
+                                parammultikey_dd = gr.Dropdown(choices=projecter.getAppendableParam(),label='Param keys')
+                                parammulti_json = gr.JSON(label='Parameters')
+                                parammulti_paramkey_rad = gr.Radio(label='Key to edit')
+                                parammulti_paramval_txt = gr.Textbox(label='Value to set')
+                                gr.Button(value='Set param to multi task').click(fn=projecter.setValueToMultiSelect,
+                                                                                 inputs=[parammultikey_dd, parammulti_paramkey_rad,parammulti_paramval_txt])
+                                parammultilog_txt = gr.Textbox(label='log')
+                                parammulti_paramkey_rad.input(fn=projecter.getValueFromJSONMultiSelect, 
+                                                              inputs=[parammulti_json, parammulti_paramkey_rad], 
+                                                              outputs=parammulti_paramval_txt)                  
+                                getparamamulti_btn.click(fn=projecter.getParamFromMultiSelected, 
+                                                         inputs=parammultikey_dd, 
+                                                         outputs=[parammulti_json, parammulti_paramkey_rad, parammultilog_txt])
+                            with gr.Column():
+                                delete_reltasks_btn = gr.Button('Delete multiselected')
+                                garlandmulti_btn = gr.Button('Garland from multi')
+                                collectmulti_btn = gr.Button('Collect from multi')
                     with gr.Tab('Cmds'):
                         with gr.Row():
                             moveup_btn = gr.Button(value='MoveUP')
+                            switchup_btn = gr.Button(value='SwitchUP')
+                            reparup_btn = gr.Button(value='ReparentUP')
                             unparent_btn = gr.Button(value='Unparent')
                             unlink_btn = gr.Button(value='Unlink')
                             delete_btn = gr.Button(value='Delete')
@@ -554,6 +579,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             addbrch2reltask_btn.click(fn=projecter.appendBranchtoChain, outputs=std_output_list)
             addtree2reltask_btn.click(fn=projecter.appendTreeToChain, outputs=std_output_list)
             addchds2reltask_btn.click(fn=projecter.appendChildsToChain, outputs=std_output_list)
+            addrow2reltask_btn.click(fn=projecter.selectRowTasks, outputs=std_output_list)
+            addcurrtaskrow2reltask_btn.click(fn=projecter.selectTaskRowFromCurrent, inputs=[addcurrtaskrow2reltask_sld], outputs=std_output_list)
 
             rmvtask2reltask_btn.click(fn=projecter.removeTaskFromChain, outputs=std_output_list)
             rmvpart2reltask_btn.click(fn=projecter.removeBranchPartFromChain, outputs=std_output_list)
@@ -576,8 +603,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             collect_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
             shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
             garland_btn.click(fn=userinput_manager.createGarlandOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
+            
+            garlandmulti_btn.click(fn=projecter.createGarlandFromMultiSelect, outputs=std_output_list)
+            collectmulti_btn.click(fn=projecter.createCollectFromMultiSelect, outputs=std_output_list)
 
             moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
+            switchup_btn.click(fn=manipulate_manager.swicthCurTaskUP, outputs=std_output_list)
+            reparup_btn.click(fn=manipulate_manager.reparentCurTaskChildsUP, outputs=std_output_list)
             unite_btn.click(fn=manipulate_manager.uniteTask, outputs=std_output_list)
             parent_btn.click(fn=manipulate_manager.makeActionParent, outputs=std_output_list)
             child_btn.click(fn=manipulate_manager.makeActionChild, outputs=std_output_list)

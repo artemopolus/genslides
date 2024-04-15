@@ -297,6 +297,35 @@ class Projecter:
             param = {'select': man.selected_tasks[0].getName()}
         return self.makeTaskAction("","","Parent","", param)
     
+    def reparentCurTaskChildsUP(self):
+        man = self.actioner.manager
+        new_parent = man.curr_task.getParent()
+        if new_parent != None:
+            man.addTaskToSelectList(new_parent)
+            for child in man.curr_task.getChilds():
+                man.curr_task = child
+                self.makeActionParent()
+            man.curr_task = new_parent
+        return self.actioner.updateUIelements()
+
+    def swicthCurTaskUP(self):
+        man = self.actioner.manager
+        task_B = man.curr_task.getParent()
+        if task_B != None:
+            task_A = task_B.getParent()
+            task_C = man.curr_task
+            if task_C != None:
+                man.addTaskToSelectList(task_A)
+                man.curr_task = task_C
+                self.makeActionParent()
+                man.addTaskToSelectList(task_C)
+                man.curr_task =task_B 
+                self.makeActionParent()
+                man.curr_task = task_C
+        return self.actioner.updateUIelements()
+
+
+    
     def makeActionChild(self):
         man = self.actioner.manager
         if len(man.selected_tasks) == 0:
@@ -838,17 +867,28 @@ class Projecter:
                 man.multiselect_tasks.remove(task)
         return self.actioner.updateUIelements()
     
-    def selectRowTasks(self, child_idx):
+    def selectRowTasks(self):
         man = self.actioner.manager
-        tasks = man.curr_task.getAllChildChains(max_index=child_idx)
+        trg, child_idx = man.curr_task.getClosestBranching()
+        tasks = trg.getChildSameRange(trg_idx=child_idx)
+        for task in tasks:
+            if task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return self.actioner.updateUIelements()
+    
+    def selectTaskRowFromCurrent(self, child_idx):
+        man = self.actioner.manager
+        tasks = man.curr_task.getChildSameRange(trg_idx=child_idx)
         for task in tasks:
             if task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
         return self.actioner.updateUIelements()
 
+
     def getParamFromMultiSelected(self, key):
         man = self.actioner.manager
         param = None
+        difftasknames = []
         for task in man.multiselect_tasks:
             res, t_param = task.getParamStruct(param_name=key)
             if param == None:
@@ -858,9 +898,51 @@ class Projecter:
                     pass
                 else:
                     print('Param', task.getName(),'is diff')
+                    difftasknames.append(task.getName())
         if param == None:
-            return {}
-        return param
+            return {}, gr.Radio(choices=[]),'No param'
+        
+        return param, gr.Radio(choices=list(param.keys())), 'Diff tasks:\n' + ','.join(difftasknames)
+    
+    def getValueFromJSONMultiSelect(self, param, key):
+        if key in param:
+            return param[key]
+        return ''
+    
+    def setValueToMultiSelect(self, param, key, value):
+        man = self.actioner.manager
+        start = man.curr_task
+        for task in man.multiselect_tasks:
+            man.curr_task = task
+            self.setTaskKeyValue(param_name=param, key=key, slt_value='', mnl_value=value)
+        man.curr_task = start
+
+    def createGarlandFromMultiSelect(self):
+        man = self.actioner.manager
+        start = man.curr_task
+        trg = start
+        for task in man.multiselect_tasks:
+            man.addTaskToSelectList(task)
+            man.curr_task = trg
+            self.createGarlandOnSelectedTasks('Insert')
+            trg = man.curr_task
+        man.curr_task = start
+        return self.actioner.updateUIelements()
+
+    def createCollectFromMultiSelect(self):
+        man = self.actioner.manager
+        start = man.curr_task
+        trg = start
+        for task in man.multiselect_tasks:
+            man.addTaskToSelectList(task)
+            man.curr_task = trg
+            self.createCollectTreeOnSelectedTasks('SubTask')
+            trg = man.curr_task
+        man.curr_task = start
+        return self.actioner.updateUIelements()
+
+
+
 
     def removeMultiSelect(self):
         return self.makeTaskAction("","","RemoveTaskList","")
