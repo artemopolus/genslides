@@ -1073,4 +1073,6 @@ class Projecter:
         return self.actioner.updateUIelements()
 
  
+    def addCurrTaskToSelectList(self):
+        return self.actioner.manager.addCurrTaskToSelectList()
 

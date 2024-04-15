@@ -276,7 +276,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             garland_btn = gr.Button(value='Garland')
                         with gr.Row():
                             selected_prompt = gr.Textbox(value='',lines=4, label='Selected prompt')
-                        select_to_list_btn.click(fn=manager.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
+                        select_to_list_btn.click(fn=projecter.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
                     with gr.Tab('MultiSelect'):
                         with gr.Row():
                             relatedtask_btn = gr.Button('Relationship chain')

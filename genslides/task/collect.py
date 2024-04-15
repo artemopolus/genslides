@@ -218,10 +218,10 @@ class ReceiveTask(TextTask):
         res = super().findNextFromQueue()
         if res:
             return res
-        for cl in self.callback_link:
-            if cl["used"] == False:
-                cl["used"] = True
-                return cl["pt"].findNextFromQueue()
+        # for cl in self.callback_link:
+        #     if cl["used"] == False:
+        #         cl["used"] = True
+        #         return cl["pt"].findNextFromQueue()
         return None
 
 

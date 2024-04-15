@@ -1091,7 +1091,7 @@ class BaseTask():
                 else:
                     info = info1
                 if info["type"] == "child":
-                    # print("info:", info)
+                    # print("info:", info['name'])
                     if self.onQueueCheck(info):
                         return self.getChildByName(info['name'])
                 # if info["type"] == "link":
@@ -1107,6 +1107,7 @@ class BaseTask():
                 #                 input.id = affected.id
                 #                 affected.method(input)
                 #         return self.getLinkedByName(info['name'])
+        # print('Find none from queue')
         return None
     
     def useLinksToTask(self, stepped = False):
@@ -1127,26 +1128,29 @@ class BaseTask():
         # print("Get next from",self.getName(),"queue:", res)
         if res:
             return res
-        return self.getNextFromQueueRe()
+        res = self.getNextFromQueueRe()
+        return res
         # if self.isQueueComplete():
         #     return self.getNextFromQueueRe()
         # return None
         
     def getNextFromQueueRe(self):
-        # print("Get recursevly")
+        # print("Get next recursevly", self.getName())
         trg = self
         index = 0
         while(index < 1000):
             if trg.isRootParent() or trg.caretaker is not None:
+                # print('Out reason: root')
                 return trg
             else:
-                trg = trg.parent
+                trg = trg.getParent()
                 res = trg.findNextFromQueue()
                 if res:
                     # print('Reset from task=', res.getName())
                     res.resetTreeQueue()
                     return res
             index +=1
+        # print('Out index:', index)
         return None   
     
     def getMsgInfo(self):

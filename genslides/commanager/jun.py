@@ -1528,7 +1528,7 @@ class Manager:
 
         graph2 = self.drawGraph(max_index= 2, path = "output/img2", hide_tasks=hide_tasks)
 
-        res_params = self.curr_task.getAllParams()
+        res_params = {'params':self.curr_task.getAllParams(), 'queue':self.curr_task.queue}
 
         for param in res_params:
             if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
