@@ -152,6 +152,8 @@ class ReceiveTask(TextTask):
                 to_unfreeze = True
             if to_unfreeze:
                 # print('Try unfreeze cz parent')
+                if len(self.by_ext_affected_list) == 0:
+                    return
                 for tsk_info in self.by_ext_affected_list:
                     # print("\t\tLink input=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                     if not tsk_info.enabled:

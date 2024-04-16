@@ -132,6 +132,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             # with gr.Row() as r:
                     go_lnkback_btn = gr.Button(value='Go bcklnk')
                 # with gr.Column():
+            with gr.Row():
+                status_txt = gr.Textbox(label='Status')
                     
             with gr.Accordion(label='Buds', open=False):
                 with gr.Row():
@@ -549,7 +551,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                parents_list, base_action_list, dial_block, 
                                exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt,
                                end_names_radio, end_name_text, extcopy_chck,
-                               branches_data, trees_data, branch_msgs
+                               branches_data, trees_data, branch_msgs,
+                               status_txt
                                ]
             moveupprio_btn.click(fn=projecter.moveBranchIdxUp, outputs=std_output_list )
             movedwprio_btn.click(fn=projecter.moveBranchIdxDw, outputs=std_output_list )

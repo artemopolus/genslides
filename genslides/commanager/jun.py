@@ -1534,6 +1534,13 @@ class Manager:
             if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
                 del param['logprobs']
 
+        cnt = 0
+        for task in self.task_list:
+            if task.is_freeze:
+                cnt += 1
+        status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(self.task_list))
+ 
+
         return (
             r_msgs, 
             in_prompt ,
@@ -1563,7 +1570,8 @@ class Manager:
             gr.CheckboxGroup(value=[]),
             self.getBranchList(),
             self.getTreesList(),
-            self.getBranchMessages()
+            self.getBranchMessages(),
+            status_msg
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
