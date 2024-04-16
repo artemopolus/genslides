@@ -53,16 +53,17 @@ class Loader:
                     prop = prop[:val] + "}"
                     break
         else:
-            print('Can\'t find json object in txt')
+            print('Can\'t find json object in txt', arr)
             return False, None
         # print(prop)
         try:
             val = json.loads(prop, strict=False)
             return True, val
-        except:
+        except Exception as e:
+            print('Raise err:', e,'\nInput:\n', prop)
             pass
 
-        print('Can\'t find json object in txt')
+        # print('Can\'t find json object in txt', arr)
         return False, None
     
     def convertFilePathToTag(path, manager_path):
