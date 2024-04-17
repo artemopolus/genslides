@@ -462,6 +462,14 @@ class BaseTask():
                     linked_task.extend([link['in']])
         return linked_task
     
+    def printOneBranchInfo(self, branch):
+             print('|',
+                  [task.getName() for task in branch['branch']], 
+                  branch['done'],'idx=', branch['idx'],'par=' , 
+                  branch['parent'].getName() if branch['parent'] else "None", 'idx_par=',
+                  branch['i_par'],
+                  'links=',[[t['in'].getName(),t['out'].getName()] for t in branch['links']])
+    
     def printBranchesInfo(self, tasks_chains):
         i = 0
         for branch in tasks_chains:
@@ -469,7 +477,8 @@ class BaseTask():
                   [task.getName() for task in branch['branch']], 
                   branch['done'],'idx=', branch['idx'],'par=' , 
                   branch['parent'].getName() if branch['parent'] else "None", 'idx_par=',
-                  branch['i_par'])
+                  branch['i_par'],
+                  'links=',[[t['in'].getName(),t['out'].getName()] for t in branch['links']])
             i += 1
 
 
@@ -493,19 +502,27 @@ class BaseTask():
                     add_branch = []
                     for branch_info in new_b:
                         found = False
+                        found_branch = None
                         lnk_tasks = [task for task in branch_info['branch']]
                         for curbra_info in branches:
                             trg_tasks = [task  for task in curbra_info['branch']]
                             for task in lnk_tasks:
                                 if task in trg_tasks:
                                     found = True
+                                    found_branch = curbra_info
                                     break 
                             if found:
                                 break
                         if not found:
                             add_branch.append(branch_info)
                         else:
-                            print('Found double:',[t.getName() for t in branch_info['branch']])
+                            print('Found double')
+                            self.printOneBranchInfo(found_branch)
+                            self.printOneBranchInfo(branch_info)
+                            if len(found_branch['branch']) < len (branch_info['branch']):
+                                for j,branch in enumerate(branches):
+                                    if branch == found_branch:
+                                        branches[j] = branch_info
                     branches.extend(add_branch)
                     tmp.extend(add_branch)
                 else:

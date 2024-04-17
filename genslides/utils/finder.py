@@ -62,7 +62,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                             rep_text = rep_text.replace(res, json.dumps(jtrg_val))
 
                 except Exception as e:
-                    print("Error:", e,"\nFind json in", task.getName(),':\nTrg json:',param, '\nRes json:',jjson)
+                    # print("Error:", e,"\nFind json in", task.getName(),':\nTrg json:',param, '\nRes json:',jjson)
+                    pass
             elif len(arr) > 3 and arr[2] == 'json_list':
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 try:
