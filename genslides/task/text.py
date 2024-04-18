@@ -344,6 +344,19 @@ class TextTask(BaseTask):
             self.parent.setActiveBranch(self)
         return True, val, self.parent
 
+    def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
+        content = self.getName() + ' ' + 'parent_' + str(idx) + '\n'
+        content += 'in:' + ','.join([t.getName() for t in self.getGarlandPart()]) + '\n'
+        content += 'out:' + ','.join([t.getName() for t in self.getHoldGarlands()]) + '\n'
+        content += '\n\n---\n\n'
+        content += self.getLastMsgContent()
+        content +='\n'
+        val = [{"role":self.getLastMsgRole(), 
+                "content": content}]
+        if self.parent != None:
+            self.parent.setActiveBranch(self)
+        return True, val, self.parent
+
     def getMsgByIndex(self, i_trg):
         task = self
         index = 0
@@ -383,10 +396,31 @@ class TextTask(BaseTask):
             index += 1
 
         return out
+
+
+    def getRawMsgsInfo(self, except_task = []):
+        task = self
+        index = 0
+        out = []
+        while(index < 1000):
+            res, msg, par = task.getLastMsgAndParentRaw(index)
+            if res and task.getName() not in except_task:
+                # print(task.getName(),"give", len(msg), "msg")
+                msg.extend(out)
+                out = msg
+            if par is None:
+                break
+            else:
+                task = par
+            index += 1
+
+        return out
+
    
     def getRawMsgs(self):
         return self.msg_list.copy()
     
+   
     def getRawParentMsgs(self):
         if self.parent is None:
             return []

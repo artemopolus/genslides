@@ -185,11 +185,28 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             reset_step_btn = gr.Button(value="Reset steps")
                             
                             move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
-                            move2parnt_btn = gr.Button(value='Move up')
-                            move2child_btn = gr.Button(value='Move down')
+                            move2parnt_btn = gr.Button(value='Go up')
+                            move2child_btn = gr.Button(value='Go down')
                         with gr.Row():
                             dial_block = gr.Chatbot(height=500)
-
+            with gr.Tab('Raw view'):
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        raw_graph = gr.Image(
+                            width=500
+                        )
+                    with gr.Column(scale=1):
+                        with gr.Row():
+                            raw_next_brnch_btn = gr.Button(value='Next branch', min_width=150)
+                            raw_next_brend_btn = gr.Button(value='Next bud', min_width=150)
+                            raw_move_parnt_btn = gr.Button(value='Go up')
+                            raw_move_child_btn = gr.Button(value='Go down')
+                        with gr.Row():
+                            raw_dial = gr.Chatbot(height=500)
+                        with gr.Row():
+                            task_list = gr.Dropdown(choices=manager.getTaskList(), label='Available tasks')
+                            sel_task_btn = gr.Button(value="Select")
+ 
             with gr.Row():
                 # with gr.Column():
                     with gr.Tab('Prompt'):
@@ -457,8 +474,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         parents_list.select(fn=manager.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
                         trg_params_list.select(fn=manager.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
                         gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
-                        task_list = gr.Dropdown(choices=manager.getTaskList(), label='Available tasks')
-                        sel_task_btn = gr.Button(value="Select")
                         project_clear = gr.Button(value="clear tasks")
                         fix_task_btn = gr.Button(value = 'Fix Q Tasks')
  
@@ -552,7 +567,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt,
                                end_names_radio, end_name_text, extcopy_chck,
                                branches_data, trees_data, branch_msgs,
-                               status_txt
+                               status_txt,
+                               raw_dial, raw_graph
                                ]
             moveupprio_btn.click(fn=projecter.moveBranchIdxUp, outputs=std_output_list )
             movedwprio_btn.click(fn=projecter.moveBranchIdxDw, outputs=std_output_list )
@@ -641,13 +657,20 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             move2parnt_btn.click(fn=projecter.moveToParent, outputs=std_output_list)
             move2brnch_btn.click(fn=projecter.moveToNextBranch, outputs=std_output_list)
 
-            next_brend_bt.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
             next_branch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
+            next_brend_bt.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
+            go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
+            go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
+
+            raw_next_brnch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
+            raw_next_brend_btn.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
+            raw_move_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
+            raw_move_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
+
+           
 
             new_tree_btn.click(fn=projecter.createNewTree, outputs=std_output_list)
             next_tree_btn.click(fn=projecter.goToNextTree, outputs=std_output_list)
-            go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
-            go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
             go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=std_output_list)          
 
             sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )

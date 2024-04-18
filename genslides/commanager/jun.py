@@ -1487,24 +1487,7 @@ class Manager:
             task.saveAllParams()
         return self.getCurrentExtTaskOptions()
 
-    
-    def getCurrTaskPrompts(self, set_prompt = "", hide_tasks = True):
-        if self.no_output:
-            return
-        if self.curr_task is None:
-            return
-        msgs = self.curr_task.getMsgs()
-        out_prompt = ""
-        out_prompt2 = ""
-        if msgs:
-            out_prompt = msgs[-1]["content"]
-            if len(msgs) > 1:
-                out_prompt2 = msgs[-2]["content"]
-        saver = SaveData()
-        chck = gr.CheckboxGroup(choices=saver.getMessages())
-        in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
-        # self.curr_task.printQueueInit()
-        #quick fix
+    def convertMsgsToChat(self, msgs):
         r_msgs = []
         first = ""
         sec = ""
@@ -1525,24 +1508,37 @@ class Manager:
                     first = msg['content']
         if first != "":
             r_msgs.append([first, sec])
+        return r_msgs
 
-            # r_msgs.append((msg['role'], msg['content']))
-            # r_msgs.append([ msg['content'],msg['role']])
-            # if msg['role'] == 'assistant':
-            #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',msg['role']))
-            # else:
-            #     r_msgs.append(( 'From ' + msg['role'] +':\n\n' + msg['content'] + '\n',None))
-        
-        # print(r_msgs)
-        value = finder.getBranchCodeTag(self.curr_task.getName())
-        # TODO: вывадить код ветки
-        # print('BranchCode=', self.curr_task.findKeyParam(value))
+   
+    def getCurrTaskPrompts(self, set_prompt = "", hide_tasks = True):
+        if self.no_output:
+            return
+        if self.curr_task is None:
+            return
+        msgs = self.curr_task.getMsgs()
+        out_prompt = ""
+        out_prompt2 = ""
+        if msgs:
+            out_prompt = msgs[-1]["content"]
+            if len(msgs) > 1:
+                out_prompt2 = msgs[-2]["content"]
+        saver = SaveData()
+        chck = gr.CheckboxGroup(choices=saver.getMessages())
+        in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
+
+        r_msgs = self.convertMsgsToChat(msgs=msgs)
+
+        # value = finder.getBranchCodeTag(self.curr_task.getName())
 
         graph = self.drawGraph(hide_tasks=hide_tasks)
 
         graph2 = self.drawGraph(max_index= 2, path = "output/img2", hide_tasks=hide_tasks)
 
         res_params = {'params':self.curr_task.getAllParams(), 'queue':self.curr_task.queue}
+        
+        rawinfo_msgs = self.convertMsgsToChat(self.curr_task.getRawMsgsInfo())
+        rawgraph = graph
 
         for param in res_params:
             if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
@@ -1585,7 +1581,9 @@ class Manager:
             self.getBranchList(),
             self.getTreesList(),
             self.getBranchMessages(),
-            status_msg
+            status_msg,
+            rawinfo_msgs,
+            rawgraph
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
