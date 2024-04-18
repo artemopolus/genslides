@@ -1076,3 +1076,15 @@ class Projecter:
     def addCurrTaskToSelectList(self):
         return self.actioner.manager.addCurrTaskToSelectList()
 
+    def getRelationBack(self, range):
+        man = self.actioner.manager
+        taskchainnames = man.getRelatedTaskChains(man.curr_task.getName(), man.getPath(), max_idx=range)
+        for name in taskchainnames:
+            man.multiselect_tasks.append(man.getTaskByName(name))
+        return self.actioner.updateUIelements()
+
+    def getRalationForward(self, range):
+        man = self.actioner.manager
+        man.getForwardRelatedTaskChain(man.curr_task, range)
+        return self.actioner.updateUIelements()
+

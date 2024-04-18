@@ -298,14 +298,20 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         select_to_list_btn.click(fn=projecter.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
                     with gr.Tab('MultiSelect'):
                         with gr.Row():
-                            relatedtask_btn = gr.Button('Relationship chain')
-                            nearesttask_btn = gr.Button('Nearest tasks')
-                        with gr.Row():
                             addtask2reltask_btn = gr.Button('Add task')
                             addpart2reltask_btn = gr.Button('Add brpart')
                             addbrch2reltask_btn = gr.Button('Add branch')
                             addchds2reltask_btn = gr.Button('Add childs')
                             addtree2reltask_btn = gr.Button('Add tree')
+                        with gr.Row():
+                            relatedtask_btn = gr.Button('Relationship chain')
+                            nearesttask_btn = gr.Button('Nearest tasks')
+                        with gr.Row():
+                            relatedfwrdchain_btn = gr.Button('Forward relation')
+                            relatedfwrdchain_sld = gr.Slider(minimum=0, maximum=20,step=1,value=1,label='Range')
+                        with gr.Row():
+                            relatedbackchain_btn = gr.Button('Back relation')
+                            relatedbackchain_sld = gr.Slider(minimum=0, maximum=20,step=1,value=1,label='Range')
                         with gr.Row():
                             rmvtask2reltask_btn = gr.Button('Rmv task')
                             rmvpart2reltask_btn = gr.Button('Rmv brpart')
@@ -516,7 +522,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             next_task_val = gr.Textbox(value="1",label='Iteration next value')
             prev_task_val = gr.Textbox(value="-1", label='Iteration prev value')
 
-            base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil",height=800)
+            # base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil",height=800)
+            base_img = gr.Image()
             # base_img.style(height=800)
 
             gr.Button(value='Draw tree').click(fn=manager.drawSceletonBranches, outputs=[base_img])
@@ -591,6 +598,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             relink_sel2cur_btn.click(fn=projecter.relinkToCurrTaskByName, inputs=[selected_tasks_list], outputs=std_output_list)
             relatedtask_btn.click(fn=projecter.selectRelatedChain, outputs=std_output_list)
             nearesttask_btn.click(fn=projecter.selectNearestTasks, outputs=std_output_list)
+
+            relatedfwrdchain_btn.click(fn=projecter.getRalationForward, inputs=relatedfwrdchain_sld, outputs=std_output_list)
+            relatedbackchain_btn.click(fn=projecter.getRelationBack, inputs=relatedbackchain_sld, outputs=std_output_list)
 
             relattaskcln_btn.click(fn=projecter.deselectRealtedChain, outputs=std_output_list)
             addtask2reltask_btn.click(fn=projecter.appendTaskToChain, outputs=std_output_list)

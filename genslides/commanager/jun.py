@@ -2416,14 +2416,14 @@ class Manager:
             return True
         return False
 
-    def getRelatedTaskChains(self, starttaskname : str, project_path : str) -> list[str]:
+    def getRelatedTaskChains(self, starttaskname : str, project_path : str, max_idx = 1000) -> list[str]:
         taskchain = self.getTaskFileNamesByBudName(starttaskname, project_path)
         reltasknames = []
         for tname in taskchain:
             if self.isRelationTaskName(tname):
                 reltasknames.append(tname)
         idx = 0
-        while idx < 1000:
+        while idx < max_idx:
             nreltasknames = []
             for rname in reltasknames:
                     info = self.getFileContentByTaskName(rname, project_path)
@@ -2439,7 +2439,27 @@ class Manager:
             else:
                 return taskchain
             idx += 1
-        return []
+        return taskchain
+
+    def getForwardRelatedTaskChain(self, trg_task : BaseTask, max_idx : int):
+        childs = trg_task.getAllChildChains()
+        out_tasks = childs
+        idx = 0
+        while idx < max_idx:
+            new_childs = []
+            for child in childs:
+                for linked in child.getHoldGarlands():
+                    linked_childs = linked.getAllChildChains()
+                    new_childs.extend(linked_childs)
+                    out_tasks.extend(linked_childs)
+            if len(new_childs) == 0:
+                break
+            else:
+                childs = new_childs
+            idx += 1
+        for task in out_tasks:
+            if task not in self.multiselect_tasks:
+                self.multiselect_tasks.append
 
 
     def getFileContentByTaskName(self, name : str, path : str) -> dict:
