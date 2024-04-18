@@ -287,20 +287,12 @@ class Manager:
     def goToNextTree(self):
         # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
-            # for task in self.tree_arr:
-            #     if not task.isRootParent():
-            #         self.goToNextTreeFirstTime()
-            #         return self.getCurrTaskPrompts()
-                
             if self.tree_idx + 1 < len(self.tree_arr):
                 self.tree_idx += 1
             else:
                 self.tree_idx = 0
             self.curr_task = self.tree_arr[self.tree_idx]
-        # else:
-        #     self.goToNextTreeFirstTime()
-        # print('Current task is', self.curr_task.getName())
-        return self.getCurrTaskPrompts()
+        # return self.getCurrTaskPrompts()
 
     def takeFewSteps(self, dir:str, times : int):
         for idx in range(times):
@@ -419,7 +411,7 @@ class Manager:
                 if self.endes_idx == idx:
                     trg = name
             
-        return gr.Radio(choices=leaves_list, value=trg, interactive=True)
+        return gr.Radio(choices=leaves_list, interactive=True)
     
     def getBranchEndName(self):
         if len(self.endes) == 0:
@@ -2439,6 +2431,7 @@ class Manager:
             else:
                 return taskchain
             idx += 1
+        print('Done in', idx,'range:',[t for t in taskchain])
         return taskchain
 
     def getForwardRelatedTaskChain(self, trg_task : BaseTask, max_idx : int):
@@ -2457,9 +2450,10 @@ class Manager:
             else:
                 childs = new_childs
             idx += 1
+        print('Done in', idx,'range:',[t.getName() for t in out_tasks])
         for task in out_tasks:
             if task not in self.multiselect_tasks:
-                self.multiselect_tasks.append
+                self.multiselect_tasks.append(task)
 
 
     def getFileContentByTaskName(self, name : str, path : str) -> dict:
