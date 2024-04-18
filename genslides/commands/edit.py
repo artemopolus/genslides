@@ -131,9 +131,11 @@ class MoveUpTaskCommand(SimpleCommand):
 
             if task_A is not None:
                 task_A.addChild(task_C)
-                task_A.update()
+                task_A.freezeTask()
+                # task_A.update()
             else:
-                task_C.update()
+                task_C.freezeTask()
+                # task_C.update()
 
             for t in task_trgs:
                 t.saveAllParams()

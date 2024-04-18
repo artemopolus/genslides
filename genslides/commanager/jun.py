@@ -513,7 +513,21 @@ class Manager:
             else:
                 trg = trg.parent
             idx += 1
+        print('Find branching on',idx,'step')
         self.branch_code = self.curr_task.getBranchCodeTag()
+        j = 0
+        trg = self.curr_task
+        while j < idx:
+            found = False
+            for child in trg.getChilds():
+                if self.branch_code == child.getBranchCodeTag():
+                    trg = child
+                    found = True
+                    break
+            if not found:
+                break
+            j += 1
+        self.curr_task = trg
         return self.getCurrTaskPrompts()
 
 
@@ -1923,7 +1937,10 @@ class Manager:
                 if self.tc_new_parent == None:
                     parent = branch['parent']
                 else:
-                    parent = self.tc_new_parent
+                    if i == 0:
+                        parent = self.tc_new_parent
+                    else:
+                        parent = branch['parent']
                 # если нужно меняем промпт
                 if change_prompt:
                     prompt = edited_prompt

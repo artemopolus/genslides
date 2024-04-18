@@ -542,8 +542,16 @@ class BaseTask():
     # Копирует информацию о связях между задачами в переменную trg_links, 
     # переменная copy_in запрашивает информацию о входящих
     # переменная copy_out запрашивае информацию о исходящих 
-    def getLinkCopyInfo(self, trg_links:list, copy_in = True, copy_out = True):
-    # TODO: разделить между обычными задачами и задачами типа Прием обработку исходящих и входящих
+    def getLinkCopyInfo(self, trg_links:list, param):
+        res, bparam = self.getParamStruct('autocopy')
+        if res:
+            if bparam['blck_cp']:
+                return
+            else:
+                copy_in = bparam['cp_in']
+                copy_out = bparam['cp_out']
+        copy_in = param['in']
+        copy_out = param['out']
         # print('Get link copy info from',self.getName())
         if len(self.getHoldGarlands()) and copy_out:
             for ll in self.getHoldGarlands():
@@ -567,16 +575,7 @@ class BaseTask():
                 while (j < 1000 and not branch['done']):
                     # print('Task', trg.getName())
                     childs = trg.getChilds()
-                    trg.getLinkCopyInfo(branch['links'], pparam['in'], pparam['out'])
-                    # if len(trg.getHoldGarlands()) and pparam['out']:
-                    #     for ll in trg.getHoldGarlands():
-                    #         branch['links'].append( {'out': trg, 'in': ll, 'dir': 'in'})
-                    # if len(trg.getGarlandPart()) and pparam['in']:
-                    #     for ll in trg.getGarlandPart():
-                    #         branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
-                    # print('Links:')
-                    # for ll in branch['links']:
-                    #     print(ll['out'].getName(),'->', ll['in'].getName())
+                    trg.getLinkCopyInfo(branch['links'], pparam)
                     if len(childs) == 1:
                         branch['branch'].append(childs[0])
                         trg = childs[0]
@@ -591,14 +590,14 @@ class BaseTask():
             if len(childs_to_add) == 0:
                 break
             for child in childs_to_add:
-                print('Add child', child.getName())
+                # print('Add child', child.getName())
                 branch_list.append({'branch':[child],'done':False,'parent':None,'i_par':None,'idx':[],'links':[]})
 
             index += 1
         
         for j in range(len(branch_list)):
             trg = branch_list[j]['branch'][-1]
-            print('Apply branch:',[t.getName() for t in branch_list[j]['branch']])
+            # print('Apply branch:',[t.getName() for t in branch_list[j]['branch']])
             childs = trg.getChilds()
             i_out = []
             for i in range(len(branch_list)):
@@ -787,7 +786,7 @@ class BaseTask():
     def fixQueueByChildList(self):
         print('Fix queue of', self.getName(),'by childs and links list')
         to_del = []
-        for child in self.childs:
+        for i, child in enumerate(self.childs):
             found = False
             for q in self.queue:
                 if q['name'] == child.getName() and q['type'] == 'child':
@@ -796,7 +795,7 @@ class BaseTask():
                     else:
                         found = True
             if not found:
-                info = self.getChildQueuePack(child)
+                info = self.getChildQueuePack(child,idx=i)
                 self.onQueueReset(info)
                 self.queue.append(info)
         for q in self.queue:
