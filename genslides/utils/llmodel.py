@@ -6,7 +6,7 @@ import tiktoken
 import os
 import datetime
 
-from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages
+from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages, openai_decode_token, openai_get_tokens_from_message
 from genslides.utils.myollama import ollamaGetChatCompletion
 from genslides.utils.myllamacpp import llamacppGetChatCompletion
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
@@ -177,4 +177,10 @@ class LLModel():
                 token_cnt = self.getTokensCount(text)
                 idx += 1
         return msgs
+    
+    def getTokensFromMessage(self,message):
+        return openai_get_tokens_from_message(message=message, model=self.params['model'])
+    
+    def decodeToken(self,token):
+        return openai_decode_token(token=token, model=self.params['model'])
     
