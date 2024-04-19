@@ -140,6 +140,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         end_names_radio = gr.Radio(label='Buds:')
                 with gr.Row():
                         end_name_text = gr.Textbox(label='Current bud:')
+            with gr.Row():
+                next_branch_btn = gr.Button(value='Next branch', min_width=150)
+                next_brend_bt = gr.Button(value='Next bud', min_width=150)
+                go_parnt_btn = gr.Button(value='Go up')
+                go_child_btn = gr.Button(value='Go down')
 
             with gr.Tab('Workspace'):
                 with gr.Row():
@@ -153,11 +158,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         with gr.Row():
                             name_info = gr.Text(value="None", label="Task")
                     with gr.Column():
-                        with gr.Row():
-                            next_branch_btn = gr.Button(value='Next branch', min_width=150)
-                            next_brend_bt = gr.Button(value='Next bud', min_width=150)
-                            go_parnt_btn = gr.Button(value='Go up')
-                            go_child_btn = gr.Button(value='Go down')
                         with gr.Row():
                             sec_msg = gr.Chatbot(height=700)
                         with gr.Accordion('Tools', open=False):

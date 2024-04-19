@@ -308,22 +308,39 @@ class Manager:
         prev = self.curr_task
         chs = self.curr_task.getChilds()
         self.curr_task = None
+
         # Если есть потомки
         if len(chs) > 0:
             # Если потомков нескольно
             if len(chs) > 1:
-                self.branch_lastpar = self.curr_task
+                self.branch_lastpar = prev
                 self.branch_idx = 0
                 # С использованием кода
                 # Запоминаем место ветвления
-                for ch in chs:
-                # Перебираем коды потомков
-                    ch_tag = ch.getBranchCodeTag()
-                    # Если код совпал с кодом в памяти
-                    print('Check', ch_tag,'with',self.branch_code)
-                    if ch_tag.startswith(self.branch_code):
-                        # Установить новую текущую
-                        self.curr_task = ch
+                if prev in self.multiselect_tasks:
+                    found_childs = []
+                    found_task = None
+                    for ch in chs:
+                        if ch in self.multiselect_tasks:
+                            found_task = ch
+                            found_childs.append(ch)
+                    if len(found_childs) == 1:
+                        self.curr_task = found_task
+                    elif len(found_childs) == 0:
+                        pass
+                    else:
+                        chs = found_childs
+
+                if self.curr_task == None:
+                    for ch in chs:
+                        # Перебираем коды потомков
+                        ch_tag = ch.getBranchCodeTag()
+                        # Если код совпал с кодом в памяти
+                        print('Check', ch_tag,'with',self.branch_code)
+                        if ch_tag.startswith(self.branch_code):
+                            # Установить новую текущую
+                            self.curr_task = ch
+                            break
         else:
             self.curr_task = prev
 
@@ -664,7 +681,7 @@ class Manager:
         return img_path
 
 
-    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True):
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False):
         # print('Draw graph')
         if only_current:
             if self.curr_task.isRootParent():
@@ -674,9 +691,10 @@ class Manager:
                 for task in self.curr_task.getAllChildChains(max_index=max_index, max_childs=3):
                     if task not in trg_list:
                         trg_list.append(task)
-                for t in self.multiselect_tasks:
-                    if t not in trg_list:
-                        trg_list.append(t)
+                if add_multiselect:
+                    for t in self.multiselect_tasks:
+                        if t not in trg_list:
+                            trg_list.append(t)
         else:
             trg_list = self.task_list
         # print('Target tasks:',[t.getName() for t in trg_list])
@@ -767,14 +785,17 @@ class Manager:
                 for child in task.childs:
                     if child not in trg_list:
                         draw_child_cnt += 1
-                        if draw_child_cnt > 9:
-                            break
-                    f.edge(task.getIdStr(), child.getIdStr())
+                        if draw_child_cnt < 4:
+                            f.edge(task.getIdStr(), child.getIdStr())
+                    else:
+                        f.edge(task.getIdStr(), child.getIdStr())
                     # print("edge=", task.getIdStr(), "====>",child.getIdStr())
 
-                for info in task.by_ext_affected_list:
-                    # print("by ",info.parent.getName())
-                    f.edge(info.parent.getIdStr(), task.getIdStr(), color = "darkorchid3", style="dashed")
+                for info in task.getGarlandPart():
+                    f.edge(info.getIdStr(), task.getIdStr(), color = "darkorchid3", style="dashed")
+                for info in task.getHoldGarlands():
+                    f.edge(task.getIdStr(), info.getIdStr(), color = "darkorchid3", style="dashed")
+               
 
             img_path = path
             f.render(filename=img_path,view=False,format='png')
