@@ -1302,7 +1302,7 @@ class BaseTask():
         return True
     
     def getTextInfo(self, param):
-        return [],'Not Response Task'
+        return [],'Not Response Task', []
     
     def resaveWithID(self, id : int):
         pass

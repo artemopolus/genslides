@@ -197,12 +197,19 @@ class ResponseTask(TextTask):
     
     def getTextInfo(self, param):
         res, p = self.getParamStruct('response', only_current=True)
-        if res:
+        if res and 'logprobs' in p:
             out = []
             max_log = -1000
             min_log = 0
+
+            prob_vector = []
+
             for value in p['logprobs']:
                 log = value['logprob']
+                if log > -20:
+                    prob_vector.append(log)
+                else:
+                    prob_vector.append(-20)
                 if log > param['notgood']:
                     pair = [value['token'], 'good']
                 elif log > param['bad']:
@@ -214,7 +221,7 @@ class ResponseTask(TextTask):
                 min_log = min(min_log, log)
 
             text = 'Log vars from' + str( max_log) + 'to' + str(min_log)
-            return out, text
+            return out, text, prob_vector
         else:
             return super().getTextInfo()
 

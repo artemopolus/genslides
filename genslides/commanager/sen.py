@@ -22,6 +22,7 @@ import datetime
 import genslides.utils.filemanager as fm
 import pyperclip
 import pathlib
+import matplotlib.pyplot as plt
 
 class Projecter:
     def __init__(self, manager : Manager = None, path = 'saved') -> None:
@@ -591,8 +592,20 @@ class Projecter:
                     )
     def getTextInfo(self, notgood, bad):
         param = {'notgood': notgood, 'bad':bad}
-        return self.actioner.manager.curr_task.getTextInfo(param)
-        
+        pairs, log, vector = self.actioner.manager.curr_task.getTextInfo(param)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot(vector, label='Prob')
+        ax.plot([0,len(vector)], [notgood, notgood], label='notgood',color = 'yellow')
+        ax.plot([0,len(vector)], [bad, bad], label='bad',color = 'red')
+
+        plt.xlabel('Index of token')
+        plt.ylabel('Probability')
+        plt.title('Comparison of Vectors')
+        plt.legend()
+        return pairs, log, fig
+
+
 
     def getActionsList(self) -> list:
         actions = self.actioner.manager.info['actions']

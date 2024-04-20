@@ -232,21 +232,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 extcopy_chck = gr.CheckboxGroup()
                         roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
 
-                        analysis_text = gr.Highlightedtext(label="Diff",
-                                    combine_adjacent=True,
-                                    show_legend=True,
-                                    color_map={
-                                        "bad": "red", 
-                                        "good": "green",
-                                        "notgood":"yellow"
-                                        })
-                        with gr.Row():
-                            notgood = gr.Number(value=-0.1, label='Notgood')
-                            bad = gr.Number(value=-5, label='bad')
-                            analysis_log = gr.Textbox()
-                            gr.Button('Get').click(fn=projecter.getTextInfo, inputs=[notgood, bad], outputs=[analysis_text, analysis_log])
                         
-
                    
                     base_action_list.change(fn=projecter.actionTypeChanging, inputs=base_action_list, outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck])
                     
@@ -474,6 +460,24 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     setname_prman_btn.click(fn=manipulate_manager.setCurrAsManagerStartTask, outputs=std_output_man_list)
                     exttaskopt_chgr.change(fn=manipulate_manager.setCurrentExtTaskOptions, inputs=exttaskopt_chgr, outputs=std_output_man_list)
                     clr_prman_btn.click(fn=manipulate_manager.resetAllExtTaskOptions, outputs=std_output_man_list)
+
+                    with gr.Tab("Text"):
+                        analysis_text = gr.Highlightedtext(label="Diff",
+                                    combine_adjacent=True,
+                                    show_legend=True,
+                                    color_map={
+                                        "bad": "red", 
+                                        "good": "green",
+                                        "notgood":"yellow"
+                                        })
+                        with gr.Row():
+                            log_plot = gr.Plot()
+                        with gr.Row():
+                            notgood = gr.Number(value=-0.1, label='Notgood')
+                            bad = gr.Number(value=-5, label='bad')
+                            analysis_log = gr.Textbox()
+                            gr.Button('Get').click(fn=projecter.getTextInfo, inputs=[notgood, bad], outputs=[analysis_text, analysis_log, log_plot])
+                        
 
                     with gr.Tab("Others"):
                         parents_list = gr.Dropdown(label="Parent tasks:")
