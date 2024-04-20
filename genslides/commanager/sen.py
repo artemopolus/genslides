@@ -1087,4 +1087,8 @@ class Projecter:
         man = self.actioner.manager
         man.getForwardRelatedTaskChain(man.curr_task, range)
         return self.actioner.updateUIelements()
+    
+    def setCurrentTaskByName(self, name):
+        self.actioner.manager.setCurrentTaskByName(name)
+        return self.actioner.updateUIelements()
 

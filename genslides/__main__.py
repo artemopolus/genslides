@@ -130,7 +130,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                     next_tree_btn = gr.Button(value='Next tree', min_width=150)
                 # with gr.Column():
             # with gr.Row() as r:
-                    go_lnkback_btn = gr.Button(value='Go bcklnk')
                 # with gr.Column():
             with gr.Row():
                 status_txt = gr.Textbox(label='Status')
@@ -159,6 +158,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             name_info = gr.Text(value="None", label="Task")
                     with gr.Column():
                         with gr.Row():
+                            go_lnkback_btn = gr.Button(value='Go BackLnk')
+                            go_lnkfrwd_rad = gr.Radio(label='Targets')
+                            go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
+
+                        with gr.Row():
                             sec_msg = gr.Chatbot(height=700)
                         with gr.Accordion('Tools', open=False):
                             with gr.Row():
@@ -184,9 +188,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             updbrnc_step_btn = gr.Button(value='Update tree')
                             reset_step_btn = gr.Button(value="Reset steps")
                             
-                            move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
-                            move2parnt_btn = gr.Button(value='Go up')
-                            move2child_btn = gr.Button(value='Go down')
+                            # move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
+                            # move2parnt_btn = gr.Button(value='Go up')
+                            # move2child_btn = gr.Button(value='Go down')
                         with gr.Row():
                             dial_block = gr.Chatbot(height=500)
             with gr.Tab('Raw view'):
@@ -196,11 +200,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             width=500
                         )
                     with gr.Column(scale=1):
-                        with gr.Row():
-                            raw_next_brnch_btn = gr.Button(value='Next branch', min_width=150)
-                            raw_next_brend_btn = gr.Button(value='Next bud', min_width=150)
-                            raw_move_parnt_btn = gr.Button(value='Go up')
-                            raw_move_child_btn = gr.Button(value='Go down')
+                        # with gr.Row():
+                        #     raw_next_brnch_btn = gr.Button(value='Next branch', min_width=150)
+                        #     raw_next_brend_btn = gr.Button(value='Next bud', min_width=150)
+                        #     raw_move_parnt_btn = gr.Button(value='Go up')
+                        #     raw_move_child_btn = gr.Button(value='Go down')
                         with gr.Row():
                             raw_dial = gr.Chatbot(height=500)
                         with gr.Row():
@@ -567,15 +571,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
-            std_output_list = [sec_msg, output, graph_img, fst_msg, 
+            std_output_list = [sec_msg, output, fst_msg, 
                                prompt_tag_list, checkbox, name_info, 
                                param_info, prompt, task_list, param_type, 
                                parents_list, base_action_list, dial_block, 
-                               exttaskopt_chgr, graph_alone, tree_names_radio, new_tree_name_txt,
+                               exttaskopt_chgr, tree_names_radio, new_tree_name_txt,
                                end_names_radio, end_name_text, extcopy_chck,
                                branches_data, trees_data, branch_msgs,
                                status_txt,
-                               raw_dial, raw_graph
+                               raw_dial, 
+                               go_lnkfrwd_rad,
+                               graph_img, graph_alone, raw_graph
                                ]
             moveupprio_btn.click(fn=projecter.moveBranchIdxUp, outputs=std_output_list )
             movedwprio_btn.click(fn=projecter.moveBranchIdxDw, outputs=std_output_list )
@@ -663,19 +669,19 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             extpr_append.click(fn=projecter.appendExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
 
 
-            move2child_btn.click(fn=projecter.moveToNextChild, outputs=std_output_list)
-            move2parnt_btn.click(fn=projecter.moveToParent, outputs=std_output_list)
-            move2brnch_btn.click(fn=projecter.moveToNextBranch, outputs=std_output_list)
+            # move2child_btn.click(fn=projecter.moveToNextChild, outputs=std_output_list)
+            # move2parnt_btn.click(fn=projecter.moveToParent, outputs=std_output_list)
+            # move2brnch_btn.click(fn=projecter.moveToNextBranch, outputs=std_output_list)
 
             next_branch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
             next_brend_bt.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
             go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
             go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
 
-            raw_next_brnch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
-            raw_next_brend_btn.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
-            raw_move_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
-            raw_move_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
+            # raw_next_brnch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
+            # raw_next_brend_btn.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
+            # raw_move_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
+            # raw_move_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
 
            
 
@@ -683,7 +689,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             next_tree_btn.click(fn=projecter.goToNextTree, outputs=std_output_list)
             go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=std_output_list)          
 
-            sel_task_btn.click(fn=manager.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
+            sel_task_btn.click(fn=projecter.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
+            go_lnkfrwd_btn.click(fn=projecter.setCurrentTaskByName, inputs=[go_lnkfrwd_rad], outputs= std_output_list )
 
 
             project_save.click(fn=projecter.save, inputs=[project_name] )

@@ -681,16 +681,24 @@ class Manager:
         return img_path
 
 
-    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False):
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False):
         # print('Draw graph')
         if only_current:
             if self.curr_task.isRootParent():
                 trg_list = self.curr_task.getTree(max_childs=10)
             else:
                 trg_list = self.curr_task.getAllParents(max_index = max_index)
-                for task in self.curr_task.getAllChildChains(max_index=max_index, max_childs=3):
+                for task in self.curr_task.getAllChildChains(max_index=max_index, max_childs=max_childs):
                     if task not in trg_list:
                         trg_list.append(task)
+                if add_linked:
+                    linked_task_list = []
+                    for task in trg_list:
+                        linkeds = task.getGarlandPart()
+                        if len(linkeds):
+                            for l in linkeds:
+                                linked_task_list.append(l)
+                    trg_list.extend(linked_task_list)
                 if add_multiselect:
                     for t in self.multiselect_tasks:
                         if t not in trg_list:
@@ -765,7 +773,7 @@ class Manager:
                         if len(task.getAffectedTasks()) > 0:
                             color = 'teal'
                     elif len(task.getAffectedTasks()) > 0:
-                        color="aquamarine3"
+                        color="aquamarine2"
                     else:
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":
@@ -1197,7 +1205,7 @@ class Manager:
         for i in range(0, len(self.task_list)):
             if self.task_list[i] == task:
                 self.task_index = i
-        return self.getCurrTaskPrompts() 
+        # return self.getCurrTaskPrompts() 
            # in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
         # return self.drawGraph(), gr.Dropdown.update(choices= self.getTaskList()), in_prompt, in_role, out_prompt
 
@@ -1544,14 +1552,14 @@ class Manager:
 
         # value = finder.getBranchCodeTag(self.curr_task.getName())
 
-        graph = self.drawGraph(hide_tasks=hide_tasks)
+        maingraph = self.drawGraph(hide_tasks=hide_tasks)
 
-        graph2 = self.drawGraph(max_index= 2, path = "output/img2", hide_tasks=hide_tasks)
+        stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
 
         res_params = {'params':self.curr_task.getAllParams(), 'queue':self.curr_task.queue}
         
         rawinfo_msgs = self.convertMsgsToChat(self.curr_task.getRawMsgsInfo())
-        rawgraph = graph
+        rawgraph = self.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
 
         for param in res_params:
             if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
@@ -1563,11 +1571,9 @@ class Manager:
                 cnt += 1
         status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(self.task_list))
  
-
         return (
             r_msgs, 
             in_prompt ,
-            graph, 
             out_prompt, 
             in_role, 
             chck, 
@@ -1585,7 +1591,6 @@ class Manager:
             r_msgs,
             self.getCurrentExtTaskOptions(),
             # TODO: Рисовать весь граф, но в упрощенном виде
-            graph2,
             self.getTreeNamesForRadio(),
             self.getCurrentTreeNameForTxt(),
             self.getBranchEndList(),
@@ -1596,6 +1601,9 @@ class Manager:
             self.getBranchMessages(),
             status_msg,
             rawinfo_msgs,
+            gr.Radio(choices=[t.getName() for t in self.curr_task.getHoldGarlands()], interactive=True),
+            maingraph, 
+            stepgraph,
             rawgraph
             )
     
