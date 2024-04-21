@@ -244,7 +244,6 @@ class Manager:
         #         print("to ",info.parent.getName())
 
     def updateTreeArr(self, check_list = False):
-        # print('Update tree array with check state:', check_list)
         self.tree_arr = []
         for task in self.task_list:
             if check_list:
@@ -254,6 +253,7 @@ class Manager:
             else:
                 if task.isRootParent():
                     self.tree_arr.append(task)
+        print('Update tree array with check state:', check_list, [t.getName() for t in self.tree_arr])
         
 
     def goToNextTreeFirstTime(self):
@@ -265,8 +265,8 @@ class Manager:
     def getTreeNamesForRadio(self):
         names = []
         for task in self.tree_arr:
-            names.append(task.getBranchSummary())
-        trg = self.curr_task.getBranchSummary()
+            names.append(':'.join([task.getName(),task.getBranchSummary()]))
+        trg = ':'.join([self.curr_task.getName(),self.curr_task.getBranchSummary()])
         return gr.Radio(choices=names, value=trg, interactive=True)
     
     def getCurrentTreeNameForTxt(self):
@@ -275,12 +275,12 @@ class Manager:
     def goToTreeByName(self, name):
         print('Go to tree by name', name)
         for i in range(len(self.tree_arr)):
-            trg = self.tree_arr[i].getBranchSummary()
+            trg = ':'.join([self.tree_arr[i].getName(),self.tree_arr[i].getBranchSummary()])
             if trg == name:
                 self.curr_task = self.tree_arr[i]
                 self.tree_idx = i
                 break
-        return self.getCurrTaskPrompts()
+        # return self.getCurrTaskPrompts()
         # return self.goToNextBranchEnd()
 
 
