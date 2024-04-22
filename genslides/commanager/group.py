@@ -6,6 +6,8 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 
+import genslides.utils.filemanager as FileManager
+
 import os
 import json
 import gradio as gr
@@ -37,6 +39,24 @@ class Actioner():
         if os.path.exists(tmppath):
             shutil.rmtree(tmppath)
 
+    def loadTmpManagers(self):
+        tmppath = os.path.join(self.getPath(),'tmp')
+        for fldpath in FileManager.getFoldersInFolder(tmppath):
+                manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+                manager.initInfo(
+                                method =self.loadExtProject, 
+                                task = None,
+                                path = tmppath,
+                                params={'path': os.path.join(tmppath, fldpath)}
+                                )
+                self.addTasksByInfo(manager)
+                # Добавляем менеджера
+                if manager is not None:
+                    manager.disableOutput2()
+                    manager.loadTasksList()
+                    manager.enableOutput2()
+                    self.tmp_managers.append(manager)
+
 
     def createPrivateManagerForTaskByName(self, man)-> Manager.Manager:
         # TODO: изменять стартовые задачи по правилам, которые следуют из названия
@@ -57,9 +77,10 @@ class Actioner():
                          task = task,
                          path = self.getPath(), 
                          act_list= man['actions'],
-                         repeat = man['repeat'] 
+                         repeat = man['repeat'],
+                         params=man
                          )
-        self.addTasksByInfo(manager, man)
+        self.addTasksByInfo(manager)
         return manager
     
     def addTmpManager(self, path : str, start_task : BaseTask = None, trg_files = []) ->Manager.Manager:
@@ -81,14 +102,17 @@ class Actioner():
         # self.manager.initInfo(self.loadExtProject, task, self.getPath(), man['actions'], man['repeat'] )
         # self.addTasksByInfo(self.manager,man)
 
-    def addTasksByInfo(self,manager, man):
-        if 'task_names' in man and len(man['task_names']) > 0:
+    def addTasksByInfo(self,manager):
+        man = manager.info
+        if man and 'task_names' in man and len(man['task_names']) > 0:
             for code in man['task_names']:
                 task = self.std_manager.getTaskByName(code)
                 if task is not None:
                     manager.addTask(task)
             manager.info['task_names'] = man['task_names']
             print('List for', manager.getName(),':',[t.getName() for t in manager.task_list])
+            if manager.curr_task == None:
+                manager.curr_task = manager.task_list[0]
             manager.saveInfo()
 
 
@@ -124,10 +148,35 @@ class Actioner():
                 return self.addPrivateManagerForTaskByName(man)
         return None
     
+
     def addEmptyScript(self, param):
         if self.manager.curr_task:
             param['task'] = self.manager.curr_task.getName()
-            return self.addPrivateManagerForTaskByName(param)
+            man_info = param
+            print('Add priv manager for info', man_info)
+            # Проверяем создавались ли раньше менеджеры
+            for manager in self.tmp_managers:
+                if man_info['task'] == manager.getName():
+                    return None
+            # Создаем менеджера
+            task = self.manager.getTaskByName(man_info['task'])
+            for manager in self.tmp_managers:
+                if task.getName() == manager.getName():
+                    return None
+            manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+            manager.initInfo(
+                            method =self.loadExtProject, 
+                            task = task,
+                            path = self.getPath(), 
+                            act_list= man_info['actions'],
+                            repeat = man_info['repeat'],
+                            params=man_info
+                            )
+            self.addTasksByInfo(manager)
+            # Добавляем менеджера
+            if manager is not None:
+                self.tmp_managers.append(manager)
+            return manager
         return None
 
     

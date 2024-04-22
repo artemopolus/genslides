@@ -262,11 +262,14 @@ class Manager:
             self.curr_task = self.tree_arr[0]
             self.tree_idx = 1
 
+    def getTreeName(self, task:BaseTask):
+        return task.getBranchSummary() + '[' + task.getName() + ']'
+
     def getTreeNamesForRadio(self):
         names = []
         for task in self.tree_arr:
-            names.append(':'.join([task.getName(),task.getBranchSummary()]))
-        trg = ':'.join([self.curr_task.getName(),self.curr_task.getBranchSummary()])
+            names.append(self.getTreeName(task))
+        trg = self.getTreeName(self.curr_task)
         return gr.Radio(choices=names, value=trg, interactive=True)
     
     def getCurrentTreeNameForTxt(self):
@@ -275,7 +278,7 @@ class Manager:
     def goToTreeByName(self, name):
         print('Go to tree by name', name)
         for i in range(len(self.tree_arr)):
-            trg = ':'.join([self.tree_arr[i].getName(),self.tree_arr[i].getBranchSummary()])
+            trg = self.getTreeName(self.tree_arr[i])
             if trg == name:
                 self.curr_task = self.tree_arr[i]
                 self.tree_idx = i
@@ -2235,7 +2238,7 @@ class Manager:
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
         if not self.info: 
             loaded = False
-            # print('Try to load', path_to_projectfile)
+            print('Try to load', path_to_projectfile)
             if os.path.exists(path_to_projectfile):
                 try:
                     with open(path_to_projectfile,'r') as f:
@@ -2269,22 +2272,36 @@ class Manager:
             print('Remove last cmd:', cmd)
             self.saveInfo()
 
-    def initInfo(self, method, task : BaseTask = None, path = 'saved', act_list = [], repeat = 3, limits = 1000):
-        # print('Manager init info')
+    def initInfo(self, method, task : BaseTask = None, path = 'saved', act_list = [], repeat = 3, limits = 1000, params = {}):
         self.loadexttask = method
-        # self.task_list =  task.getAllParents() if task is not None else []
+        if 'path' in params:
+            self.setPath(Loader.Loader.getUniPath(params['path']))
+            del params['path']
+        else:
+            if task is not None:
+                self.setPath(os.path.join(path,'tmp', task.getName()))
+            else:
+                self.setPath(path)
+        self.saveInfo()
         self.curr_task = task
         if task is not None:
             self.task_list = [task]
-        task_name = task.getName() if task is not None else 'Base'
-        self.setName(task_name)
-        if task is not None:
-            self.setPath(os.path.join(path,'tmp', self.getName()))
+            if 'name' in params:
+                self.setName(params['name'])
+            else:
+                task_name = task.getName() if task is not None else 'Base'
+                self.setName(task_name)
+                if 'task' not in self.info:
+                    self.info['task'] = task_name
+        
+        self.info.update(params)
+
+        if 'name' in self.info:
+            self.setName(self.info['name'])
         else:
-            self.setPath(path)
-        self.saveInfo()
-        if 'task' not in self.info:
-            self.info['task'] = task_name
+            self.setName(self.info['task'])
+            
+
         if 'script' not in self.info:
             self.info['script'] = {'managers':[]}
         if 'repeat' not in self.info:

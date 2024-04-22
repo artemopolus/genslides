@@ -58,11 +58,15 @@ class Projecter:
         return self.actioner.updateUIelements()
     
     def loadManagerFromBrowser(self):
-        man_path = Loader.Loader.getDirPathFromSystem()
-        self.actioner.std_manager.setPath(man_path)
-        self.resetManager(manager = self.actioner.std_manager, path = man_path)
-        if len(self.actioner.std_manager.task_list) == 0:
-            return self.createNewTree()
+        man_path = Loader.Loader.getFilePathFromSystemRaw(filetypes=[("Project File", "project.json")])
+        if man_path.name == 'project.json':
+            man_path = man_path.parent
+            man_path = Loader.Loader.getUniPath(man_path)
+            self.actioner.std_manager.setPath(man_path)
+            self.resetManager(manager = self.actioner.std_manager, path = man_path)
+            if len(self.actioner.std_manager.task_list) == 0:
+                self.createNewTree()
+            self.actioner.loadTmpManagers()
         return self.actioner.updateUIelements()
 
     def resetManager(self, manager : Manager, fast = True, load = True, path = 'saved'):

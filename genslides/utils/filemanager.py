@@ -1,6 +1,6 @@
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, isdir
 import shutil
 from pathlib import Path
 
@@ -43,3 +43,6 @@ def createUniqueDir(path : str, folder :str, name : str) -> list[bool, Path]:
 
 def getFilesInFolder(path: str):
     return [f for f in listdir(path) if isfile(join(path, f))]
+
+def getFoldersInFolder(path:str):
+    return [f for f in listdir(path) if isdir(join(path, f))]

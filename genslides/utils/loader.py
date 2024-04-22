@@ -84,11 +84,11 @@ class Loader:
                 out.append(Loader.convertFilePathToTag(path, manager_path))
         return filename_src
  
-    def getFilePathFromSystemRaw() -> Path:
+    def getFilePathFromSystemRaw(filetypes = None) -> Path:
         app = Tk()
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
-        filepath = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+        filepath = askopenfilename(filetypes=filetypes) # show an "Open" dialog box and return the path to the selected file
         return Path(filepath)
   
     def getDirPathFromSystemRaw() -> Path:
