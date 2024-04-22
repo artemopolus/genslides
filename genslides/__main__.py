@@ -405,7 +405,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     # get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
                                     get_tempman = gr.Radio(label='Temp managers')
                                 with gr.Row():
-                                    load_tempman_btn = gr.Button(value='Set tmp man')
+                                    tmpmanname_txt = gr.Textbox(label='Cur man name')
+                                with gr.Row():
+                                    tmpman_clrpck = gr.ColorPicker()
+                                    load_tempman_btn = gr.Button(value='Set color').click(fn=projecter.setCurManagerColor, 
+                                                                                          inputs=[tmpman_clrpck])
+                                with gr.Row():
                                     updt_prman_btn = gr.Button(value='Updt man list')
                                 with gr.Row():
                                     load_extproj_act_btn = gr.Button('Set Act ExtProject')
@@ -585,8 +590,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                status_txt,
                                raw_dial, 
                                go_lnkfrwd_rad,
-                               graph_img, graph_alone, raw_graph
+                               tmpmanname_txt,
+                               tmpman_clrpck
                                ]
+            std_output_list.extend([graph_img, graph_alone, raw_graph])
+                               
             moveupprio_btn.click(fn=projecter.moveBranchIdxUp, outputs=std_output_list )
             movedwprio_btn.click(fn=projecter.moveBranchIdxDw, outputs=std_output_list )
             moveuptree_btn.click(fn=projecter.moveUpTree, outputs=std_output_list )
@@ -598,6 +606,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             get_tempman.change(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
             load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)
             reset_initact_btn.click(fn=manipulate_manager.backToDefaultActioner, outputs=std_full)
+
+            tmpmanname_txt.submit(fn=manipulate_manager.setCurManagerName, inputs = [tmpmanname_txt], outputs=std_full)
             
             exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_full)
 

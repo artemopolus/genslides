@@ -12,6 +12,7 @@ import os
 import json
 import gradio as gr
 import shutil
+import graphviz
 
 class Actioner():
     def __init__(self, manager : Manager.Manager) -> None:
@@ -806,12 +807,169 @@ class Actioner():
         # print('tmp',self.tmp_managers)
         # print('man',self.manager)
         if self.std_manager == self.manager:
-            return self.manager.getCurrTaskPrompts(set_prompt=prompt, hide_tasks=False)
+            hide_tasks = False
+            maingraph = self.drawGraph(hide_tasks=hide_tasks)
+            stepgraph = self.std_manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
+            rawgraph = self.std_manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
+
+            out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
+            out += (maingraph, stepgraph, rawgraph)
+            return out
         else:
-            return self.manager.getCurrTaskPrompts(set_prompt=prompt)
+            hide_tasks = True
+            maingraph = self.manager.drawGraph(hide_tasks=hide_tasks)
+            stepgraph = self.manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
+            rawgraph = self.manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
+            out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
+            out += (maingraph, stepgraph, rawgraph)
+            return out
     
     def updateTaskManagerUI(self):
-        out = self.manager.getCurrTaskPrompts()
+        out = self.updateUIelements()
         out += self.getTmpManagerInfo()
         return out
+ 
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False):
+        # print('Draw graph')
+        man = self.std_manager
+        tmpman_list = []
+        for manager in self.tmp_managers:
+            if manager != self.std_manager:
+                tmpman_list.extend(manager.task_list)
+        if only_current:
+            if man.curr_task.isRootParent():
+                trg_list = man.curr_task.getTree(max_childs=10)
+            else:
+                trg_list = man.curr_task.getAllParents(max_index = max_index)
+                for task in man.curr_task.getAllChildChains(max_index=max_index, max_childs=max_childs):
+                    if task not in trg_list:
+                        trg_list.append(task)
+                if add_linked:
+                    linked_task_list = []
+                    for task in trg_list:
+                        linkeds = task.getGarlandPart()
+                        if len(linkeds):
+                            for l in linkeds:
+                                linked_task_list.append(l)
+                    trg_list.extend(linked_task_list)
+                if add_multiselect:
+                    for t in man.multiselect_tasks:
+                        if t not in trg_list:
+                            trg_list.append(t)
+        else:
+            trg_list = man.task_list
+        # print('Target tasks:',[t.getName() for t in trg_list])
+        if len(trg_list) > 0:
+            f = graphviz.Digraph(comment='The Test Table',
+                                  graph_attr={'size':"7.75,10.25",'ratio':'fill'})
+            
+            # Скрываем задачи не этого менеджера
+            if hide_tasks:
+                # print('Hide tasks')
+                rm_tasks = []
+                for task in trg_list:
+                    if task not in man.task_list:
+                        rm_tasks.append(task)
+                for task in rm_tasks:
+                    trg_list.remove(task)
+
+            # if self.curr_task:
+            #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
+            trgs_rsm = []
+            for task in man.task_list:
+                if len(task.getAffectedTasks()) > 0:
+                    trgs = task.getAffectedTasks()
+                    if trgs in trg_list:
+                        trg_list.append(task)
+
+            
+
+            for task in trg_list:
+                if task in trgs_rsm:
+                    if task == man.curr_task:
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="blueviolet")
+                    else:
+                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkmagenta")
+                elif task.readyToGenerate():
+                    color = 'darkmagenta'
+                    shape = "ellipse" #rectangle,hexagon
+                    f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
+                elif task == man.curr_task:
+                    color = "skyblue"
+                    shape = "ellipse" #rectangle,hexagon
+                    if len(task.getHoldGarlands()) > 0:
+                        color = 'skyblue4'
+                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
+                elif task in tmpman_list:
+                    color = 'blueviolet'
+                    for manager in self.tmp_managers:
+                        if manager != self.std_manager:
+                            if task in manager.task_list:
+                                if 'color' in manager.info:
+                                    color = manager.info['color']
+                                break
+                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
+                elif task in man.multiselect_tasks:
+                    color = "lightsalmon3"
+                    shape = "ellipse" #rectangle,hexagon
+                    if task == man.curr_task:
+                        color = "lightsalmon1"
+                    if len(task.getHoldGarlands()) > 0:
+                        color = 'crimson'
+                    if task.checkType('Response'):
+                        shape = 'hexagon'
+                    f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
+                else:
+                    color = 'ghostwhite'
+                    shape = "ellipse" #rectangle,hexagon
+                    if man.getTaskParamRes(task, "block"):
+                        color="gold2"
+                    elif man.getTaskParamRes(task, "input"):
+                        color="aquamarine"
+                    elif man.getTaskParamRes(task, "output"):
+                        color="darkgoldenrod1"
+                    elif man.getTaskParamRes(task, "check"):
+                        color="darkorchid1"
+                    elif task.is_freeze:
+                        color="cornflowerblue"
+                        if len(task.getAffectedTasks()) > 0:
+                            color = 'teal'
+                    elif len(task.getAffectedTasks()) > 0:
+                        color="aquamarine2"
+                    else:
+                        info = task.getInfo()
+                        if task.prompt_tag == "assistant":
+                            color="azure2"
+                    if task.checkType('Response'):
+                        shape = 'hexagon'
+                    f.node( task.getIdStr(), task.getName(),style="filled",color=color, shape = shape)
+
+
+                # print("info=",task.getIdStr(),"   ", task.getName())
+            
+            for task in trg_list:
+                if task.checkType('IterationEnd'):
+                    if task.iter_start:
+                        f.edge(task.getIdStr(), task.iter_start.getIdStr())
+                draw_child_cnt = 0
+                for child in task.childs:
+                    if child not in trg_list:
+                        draw_child_cnt += 1
+                        if draw_child_cnt < 4:
+                            f.edge(task.getIdStr(), child.getIdStr())
+                    else:
+                        f.edge(task.getIdStr(), child.getIdStr())
+                    # print("edge=", task.getIdStr(), "====>",child.getIdStr())
+
+                for info in task.getGarlandPart():
+                    f.edge(info.getIdStr(), task.getIdStr(), color = "darkorchid3", style="dashed")
+                for info in task.getHoldGarlands():
+                    f.edge(task.getIdStr(), info.getIdStr(), color = "darkorchid3", style="dashed")
+               
+
+            img_path = path
+            f.render(filename=img_path,view=False,format='png')
+            img_path += ".png"
+            return img_path
+        return "output/img.png"
  

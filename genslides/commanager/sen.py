@@ -1108,4 +1108,13 @@ class Projecter:
     def setCurrentTaskByName(self, name):
         self.actioner.manager.setCurrentTaskByName(name)
         return self.actioner.updateUIelements()
+    
 
+    def setCurManagerColor(self, color):
+        print('Set color', color,'to',self.actioner.manager.getName())
+        self.actioner.manager.info['color'] = color
+        self.actioner.manager.saveInfo()
+
+    def setCurManagerName(self, name):
+        self.actioner.manager.setName(name)
+        return self.actioner.updateTaskManagerUI()

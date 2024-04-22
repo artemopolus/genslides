@@ -84,6 +84,11 @@ class Manager:
         if self.info and 'name' in self.info:
             return self.info['name']
         return self.name
+    
+    def getColor(self) -> str:
+        if self.info and 'color' in self.info:
+            return self.info['color']
+        return '#7ed38c'
 
 # TODO: сменить место хранения параметров менеджера
     def setParam(self, param_name, param_value):
@@ -1608,6 +1613,70 @@ class Manager:
             maingraph, 
             stepgraph,
             rawgraph
+            )
+    
+    def getCurrTaskPrompts2(self, set_prompt = "", hide_tasks = True):
+        if self.no_output:
+            return
+        if self.curr_task is None:
+            return
+        msgs = self.curr_task.getMsgs()
+        out_prompt = ""
+        if msgs:
+            out_prompt = msgs[-1]["content"]
+        saver = SaveData()
+        chck = gr.CheckboxGroup(choices=saver.getMessages())
+        in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
+
+        r_msgs = self.convertMsgsToChat(msgs=msgs)
+
+
+
+        res_params = {'params':self.curr_task.getAllParams(), 'queue':self.curr_task.queue}
+        
+        rawinfo_msgs = self.convertMsgsToChat(self.curr_task.getRawMsgsInfo())
+
+        for param in res_params:
+            if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
+                del param['logprobs']
+
+        cnt = 0
+        for task in self.task_list:
+            if task.is_freeze:
+                cnt += 1
+        status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(self.task_list))
+ 
+        return (
+            r_msgs, 
+            in_prompt ,
+            out_prompt, 
+            in_role, 
+            chck, 
+            self.curr_task.getName(), 
+            res_params,
+            set_prompt, 
+            gr.Dropdown(choices= self.getTaskList()),
+            gr.Dropdown(choices=self.getByTaskNameParamListInternal(self.curr_task), 
+                               interactive=True), 
+            gr.Dropdown(choices=[t.getName() for t in self.curr_task.getAllParents()], 
+                               value=self.curr_task.getName(), 
+                               interactive=True), 
+            gr.Radio(value="SubTask"), 
+            r_msgs,
+            self.getCurrentExtTaskOptions(),
+            self.getTreeNamesForRadio(),
+            self.getCurrentTreeNameForTxt(),
+            self.getBranchEndList(),
+            self.getBranchEndName(),
+            gr.CheckboxGroup(value=[]),
+            self.getBranchList(),
+            self.getTreesList(),
+            self.getBranchMessages(),
+            status_msg,
+            rawinfo_msgs,
+            gr.Radio(choices=[t.getName() for t in self.curr_task.getHoldGarlands()], interactive=True),
+            self.getName(),
+            self.getColor()
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
