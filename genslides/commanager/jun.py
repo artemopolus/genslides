@@ -2514,8 +2514,10 @@ class Manager:
                     found = True
                     code = param['code']
             if not found:
+                print('No branch code')
                 return []
         else:
+            print('No params in target file')
             return []
         return self.getTaskFileNamesByBranchCode(code, budname, path)
 

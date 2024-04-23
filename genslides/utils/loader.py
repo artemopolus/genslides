@@ -86,7 +86,7 @@ class Loader:
                 out.append(Loader.convertFilePathToTag(path, manager_path))
         return filename_src
  
-    def getFilePathFromSystemRaw(filetypes = None) -> Path:
+    def getFilePathFromSystemRaw(filetypes = [('Project archive','*.7z')]) -> Path:
         app = Tk()
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)

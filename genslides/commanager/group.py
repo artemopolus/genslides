@@ -912,6 +912,7 @@ class Actioner():
                     f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 elif task in tmpman_list:
                     color = 'blueviolet'
+                    shape = "ellipse" #rectangle,hexagon
                     for manager in self.tmp_managers:
                         if manager != self.std_manager:
                             if task in manager.task_list:

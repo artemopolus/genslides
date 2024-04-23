@@ -806,8 +806,8 @@ class TextTask(BaseTask):
     def update(self, input: TaskDescription = None):
         self.checkInput(input)
         out = super().update(input)
-        # self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
-        self.updateParamStruct(param_name='branch', key='code', val=self.getBranchCodeTag())
+        self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
+        # self.updateParamStruct(param_name='branch', key='code', val=self.getBranchCodeTag())
         return out
 
     def getInfo(self, short=True) -> str:
