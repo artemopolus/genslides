@@ -58,15 +58,17 @@ class Projecter:
         return self.actioner.updateUIelements()
     
     def loadManagerFromBrowser(self):
-        man_path = Loader.Loader.getFilePathFromSystemRaw(filetypes=[("Project File", "project.json")])
-        if man_path.name == 'project.json':
-            man_path = man_path.parent
-            man_path = Loader.Loader.getUniPath(man_path)
-            self.actioner.std_manager.setPath(man_path)
-            self.resetManager(manager = self.actioner.std_manager, path = man_path)
-            if len(self.actioner.std_manager.task_list) == 0:
-                self.createNewTree()
-            self.actioner.loadTmpManagers()
+        # man_path = Loader.Loader.getFilePathFromSystemRaw(filetypes=[("Project File", "project.json")])
+        man_path = Loader.Loader.getDirPathFromSystem()
+        # files = FileManager.getFilesInFolder(man_path)
+        # if 'project.json' in files:
+            # man_path = man_path.parent
+        man_path = Loader.Loader.getUniPath(man_path)
+        self.actioner.std_manager.setPath(man_path)
+        self.resetManager(manager = self.actioner.std_manager, path = man_path)
+        if len(self.actioner.std_manager.task_list) == 0:
+            self.createNewTree()
+        self.actioner.loadTmpManagers()
         return self.actioner.updateUIelements()
 
     def resetManager(self, manager : Manager, fast = True, load = True, path = 'saved'):
@@ -228,7 +230,7 @@ class Projecter:
     def makeCustomAction(self, prompt, selected_action, custom_action):
         print('Make custom action:', selected_action, custom_action, 'with prompt:\n', prompt)
         if custom_action in self.getStdCmdList():
-            return self.makeTaskAction(prompt, custom_action, selected_action, "assistant")
+            self.makeTaskAction(prompt, custom_action, selected_action, "assistant")
         elif custom_action in self.getCustomCmdList():
             if selected_action == "New":
                 return self.makeTaskAction(prompt, custom_action, "NewExtProject", "")
@@ -280,17 +282,21 @@ class Projecter:
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 
     def createGarlandOnSelectedTasks(self, action_type):
-        return self.manager.createTreeOnSelectedTasks(action_type,'Garland')
+        self.manager.createTreeOnSelectedTasks(action_type,'Garland')
+        return self.actioner.updateUIelements()
 
     def createCollectTreeOnSelectedTasks(self, action_type):
-        return self.manager.createTreeOnSelectedTasks(action_type,"Collect")
+        self.manager.createTreeOnSelectedTasks(action_type,"Collect")
+        return self.actioner.updateUIelements()
     
     def createShootTreeOnSelectedTasks(self, action_type):
-        return self.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
+        self.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
+        return self.actioner.updateUIelements()
     
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
         # TODO: Критическая проблема. Из-за вылетов программы может потеряться важный текст запроса, что может весьма расстроить, поэтому следует сохранять сообщение в проектный файл и передавать их пользователю по отдельному запросу через GUI
-        return self.actioner.makeTaskAction(prompt, type1, creation_type, creation_tag, param , save_action)
+        self.actioner.makeTaskAction(prompt, type1, creation_type, creation_tag, param , save_action)
+        return self.actioner.updateUIelements()
         # return self.manager.getCurrTaskPrompts()
  
 
@@ -455,18 +461,22 @@ class Projecter:
   
  
     def appendNewParamToTask(self, param_name):
-        return self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
+        self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
+        return self.actioner.updateTaskManagerUI()
     
     def removeParamFromTask(self, param_name):
-        return self.makeTaskAction('','','RemoveTaskParam','', {'name':param_name})
+        self.makeTaskAction('','','RemoveTaskParam','', {'name':param_name})
+        return self.actioner.updateTaskManagerUI()
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
         print('Set task key value:','|'.join([param_name,key,str(slt_value),str(mnl_value)]))
-        return self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
+        self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
+        return self.actioner.updateTaskManagerUI()
     
     def addTaskNewKeyValue(self, param_name, key, value):
         print('Set task key value:','|'.join([param_name,key,str(value)]))
-        return self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':value,'manual':''})
+        self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':value,'manual':''})
+        return self.actioner.updateTaskManagerUI()
     
     def getMainCommandList(self):
         return self.manager.getMainCommandList()
@@ -476,9 +486,12 @@ class Projecter:
     
 
     def newExtProject(self, filename, prompt):
-        return self.makeTaskAction(prompt,"New","NewExtProject","")
+        self.makeTaskAction(prompt,"New","NewExtProject","")
+        return self.actioner.updateTaskManagerUI()
+
     def appendExtProject(self, filename, prompt):
-        return self.makeTaskAction(prompt,"SubTask","SubExtProject","")
+        self.makeTaskAction(prompt,"SubTask","SubExtProject","")
+        return self.actioner.updateTaskManagerUI()
     
 
     def initPrivManager(self):

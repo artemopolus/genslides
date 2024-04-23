@@ -2368,7 +2368,10 @@ class Manager:
         if 'name' in self.info:
             self.setName(self.info['name'])
         else:
-            self.setName(self.info['task'])
+            if 'task' in self.info:
+                self.setName(self.info['task'])
+            else:
+                self.setName('Base')
             
 
         if 'script' not in self.info:

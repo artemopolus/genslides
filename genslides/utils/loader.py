@@ -67,8 +67,10 @@ class Loader:
         return False, None
     
     def convertFilePathToTag(path, manager_path):
-        filename = PurePosixPath(path)
+        filename = PurePosixPath(Path(path))
         mfilename = Loader.checkManagerTag(path, manager_path, False)
+        print(filename)
+        print(mfilename)
         if filename == mfilename:
             return Loader.checkManagerTag(path, manager_path)
         return filename
@@ -115,13 +117,14 @@ class Loader:
             if to_par_fld:
                 tag = 'fld'
                 mpath = mpath.parent.parent
+            print('Check manager tag', mpath)
             rel_path = path.relative_to(mpath)
             str_rel_path = str(PurePosixPath(rel_path))
             filename = '[[manager:path:'+ tag +']]/'+ str_rel_path
         except Exception as e:
             print('Manager folder is not relative:',e)
             filename = PurePosixPath(path)
-            return path
+            return filename
         return filename
 
     

@@ -42,6 +42,8 @@ class Actioner():
 
     def loadTmpManagers(self):
         tmppath = os.path.join(self.getPath(),'tmp')
+        if not os.path.exists(tmppath):
+            return
         for fldpath in FileManager.getFoldersInFolder(tmppath):
                 manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
                 manager.initInfo(
