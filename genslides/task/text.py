@@ -138,7 +138,7 @@ class TextTask(BaseTask):
 
 
     def fixQueueByChildList(self):
-        print('Fix queue by child list')
+        # print('Fix queue by child list')
         super().fixQueueByChildList()
         q_names = [q['name'] for q in self.queue if 'name' in q]
         to_del = []

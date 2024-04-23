@@ -36,9 +36,11 @@ class Actioner():
         return self.path
 
     def clearTmp(self):
-        tmppath = os.path.join(self.getPath(),'tmp')
-        if os.path.exists(tmppath):
-            shutil.rmtree(tmppath)
+        print('Clear temporary files')
+        pass
+        # tmppath = os.path.join(self.getPath(),'tmp')
+        # if os.path.exists(tmppath):
+        #     shutil.rmtree(tmppath)
 
     def loadTmpManagers(self):
         tmppath = os.path.join(self.getPath(),'tmp')
@@ -113,7 +115,7 @@ class Actioner():
                 if task is not None:
                     manager.addTask(task)
             manager.info['task_names'] = man['task_names']
-            print('List for', manager.getName(),':',[t.getName() for t in manager.task_list])
+            # print('List for', manager.getName(),':',[t.getName() for t in manager.task_list])
             if manager.curr_task == None:
                 manager.curr_task = manager.task_list[0]
             manager.saveInfo()
@@ -382,7 +384,8 @@ class Actioner():
                     self.manager = self.tmp_managers[-1]
                 else:
                     return self.manager.getCurrTaskPrompts()
-            trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
+            # trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
+            trg = self.std_manager
             if save_action:
                 self.manager.remLastActions()
             self.removeTmpManager(self.manager, trg, copy=False)
@@ -477,15 +480,19 @@ class Actioner():
         trg.saveInfo()
 
     def removeTmpManager(self, man : Manager, next_man: Manager, copy = True):
+        print('Remove tmp manager', man.getName())
         if man is next_man:
+            print('Reject nex manager == deleted manager')
             return
         # проверяем целевой
         if next_man is None:
+            print('Reject nex manager == None')
             return
         if man is self.std_manager:
+            print('Reject next manager == start manager')
             return
-        print('Cur task list', [t.getName() for t in man.task_list])
-        print('Nxt task list', [t.getName() for t in next_man.task_list])
+        # print('Cur task list', [t.getName() for t in man.task_list])
+        # print('Nxt task list', [t.getName() for t in next_man.task_list])
         if copy:
             self.tmp_managers.remove(man)
             # копировать все задачи
@@ -507,7 +514,7 @@ class Actioner():
                 for task in del_tasks:
                     if task in manager.task_list:
                         notdel_tasks.append(task)
-                        print(task.getManager().getName())
+                        # print(task.getManager().getName())
             for task in notdel_tasks:
                 del_tasks.remove(task)
             print('Task to delete:',[t.getName() for t in del_tasks])
@@ -530,7 +537,7 @@ class Actioner():
         self.manager = next_man
 
     def getTmpManagerInfo(self):
-        print('Get temporary manager',self.manager.getName(),'info')
+        # print('Get temporary manager',self.manager.getName(),'info')
         saved_man = [t['task'] for t in self.manager.info['script']['managers']]
         saved_man.append('None')
         param = self.manager.info.copy()
@@ -681,8 +688,9 @@ class Actioner():
         #     if task.is_freeze:
         #         cnt += 1
         # print('Frozen tasks cnt:', cnt)
-        out = man.getCurrTaskPrompts()
-        return out
+
+        # out = self.updateUIelements()
+        # return out
 
     def updateCurrentTree(self):
         man = self.manager

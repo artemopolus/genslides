@@ -200,7 +200,7 @@ class TaskManager(metaclass=Singleton):
                 print("Task prompts error=", type(e),"using", path)
             if  ignore_safe and trg_path != "" and len(out) == len(pr_ch):
                 break
-        print('Target files count:',len(pr_ch),'from',len(onlyfiles),'for', trg_path,'in', idx, 'iter')
+        # print('Target files count:',len(pr_ch),'from',len(onlyfiles),'for', trg_path,'in', idx, 'iter')
         return out
 
 
@@ -784,7 +784,7 @@ class BaseTask():
     
     
     def fixQueueByChildList(self):
-        print('Fix queue of', self.getName(),'by childs and links list')
+        # print('Fix queue of', self.getName(),'by childs and links list')
         to_del = []
         for i, child in enumerate(self.childs):
             found = False

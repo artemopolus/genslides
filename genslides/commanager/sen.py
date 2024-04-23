@@ -738,10 +738,12 @@ class Projecter:
         return self.actioner.updateUIelements()
 
     def resetUpdate(self):
-        return self.actioner.resetUpdate()
+        self.actioner.resetUpdate()
+        return self.actioner.updateUIelements()
        
     def update(self):
-        return self.actioner.update()
+        self.actioner.update()
+        return self.actioner.updateUIelements()
         
     def updateAll(self):
         self.actioner.manager.disableOutput2()

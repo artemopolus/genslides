@@ -258,7 +258,7 @@ class Manager:
             else:
                 if task.isRootParent():
                     self.tree_arr.append(task)
-        print('Update tree array with check state:', check_list, [t.getName() for t in self.tree_arr])
+        # print('Update tree array with check state:', check_list, [t.getName() for t in self.tree_arr])
         
 
     def goToNextTreeFirstTime(self):
@@ -275,6 +275,7 @@ class Manager:
         for task in self.tree_arr:
             names.append(self.getTreeName(task))
         trg = self.getTreeName(self.curr_task)
+        # print('Trg tree:', trg,'out of', names)
         return gr.Radio(choices=names, value=trg, interactive=True)
     
     def getCurrentTreeNameForTxt(self):
@@ -1147,7 +1148,7 @@ class Manager:
                     cmd = lnkcmd.LinkCommand(info)
                     self.cmd_list.append(cmd)
             else:
-                print("[Make link] from ", task_out.getName(), " to ", task_in.getName())
+                # print("[Make link] from ", task_out.getName(), " to ", task_in.getName())
                 info = TaskDescription(target=task_in, parent=task_out)
                 cmd = lnkcmd.LinkCommand(info)
                 self.cmd_list.append(cmd)
@@ -1619,6 +1620,7 @@ class Manager:
         if self.no_output:
             return
         if self.curr_task is None:
+            print('No current task')
             return
         msgs = self.curr_task.getMsgs()
         out_prompt = ""
@@ -2297,7 +2299,7 @@ class Manager:
  
 
     def saveInfo(self):
-        print('Save info', self.getName())
+        # print('Save info', self.getName())
         tree_info = []
         self.updateTreeArr()
         for task in self.tree_arr:
@@ -2307,7 +2309,7 @@ class Manager:
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
         if not self.info: 
             loaded = False
-            print('Try to load', path_to_projectfile)
+            # print('Try to load', path_to_projectfile)
             if os.path.exists(path_to_projectfile):
                 try:
                     with open(path_to_projectfile,'r') as f:
