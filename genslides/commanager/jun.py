@@ -346,7 +346,7 @@ class Manager:
                         ch_tag = ch.getBranchCodeTag()
                         # Если код совпал с кодом в памяти
                         print('Check', ch_tag,'with',self.branch_code)
-                        if ch_tag.startswith(self.branch_code):
+                        if ch_tag.startswith(self.branch_code) and ch in self.task_list:
                             # Установить новую текущую
                             self.curr_task = ch
                             break
@@ -360,7 +360,7 @@ class Manager:
         return self.getCurrTaskPrompts()
     
     def goToParent(self):
-        if self.curr_task.parent is not None:
+        if self.curr_task.parent is not None and self.curr_task.getParent() in self.task_list:
             self.curr_task = self.curr_task.parent
         return self.getCurrTaskPrompts()
     
@@ -538,7 +538,7 @@ class Manager:
         while j < idx:
             found = False
             for child in trg.getChilds():
-                if self.branch_code == child.getBranchCodeTag():
+                if self.branch_code == child.getBranchCodeTag() and child in self.task_list:
                     trg = child
                     found = True
                     break
@@ -726,6 +726,7 @@ class Manager:
                 for task in trg_list:
                     if task not in self.task_list:
                         rm_tasks.append(task)
+                # print('Task to hide:',[t.getName() for t in rm_tasks])
                 for task in rm_tasks:
                     trg_list.remove(task)
 
