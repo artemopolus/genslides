@@ -58,7 +58,7 @@ class Actioner():
                 # Добавляем менеджера
                 if manager is not None:
                     manager.disableOutput2()
-                    manager.loadTasksList()
+                    manager.loadTasksListFileBased()
                     manager.enableOutput2()
                     self.tmp_managers.append(manager)
 

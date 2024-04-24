@@ -21,6 +21,7 @@ import genslides.utils.writer as writer
 import genslides.utils.loader as Loader
 import genslides.utils.searcher as Sr
 import genslides.utils.readfileman as Reader
+import genslides.utils.filemanager as FileMan
 
 import os
 from os import listdir
@@ -225,6 +226,7 @@ class Manager:
         task_manager = TaskManager()
         links = task_manager.getLinks(Loader.Loader.getUniPath(self.getPath()), trg_files=trg_files)
         self.createTask(prnt_task=None, safe=safe, trg_tasks=trg_files)
+            
 
         # print('Links', links)
 
@@ -554,6 +556,71 @@ class Manager:
         with open(filenames.name) as f:
             text += f.read()
         return text
+    
+    def createTaskByFile(self, parent :BaseTask = None):
+        path = Loader.Loader.getUniPath(self.getPath())
+        files = FileMan.getFilesPathInFolder(path)
+        starttasklist = self.task_list.copy()
+        linklist = []
+        for file in files:
+            task_info = Reader.ReadFileMan.readJson(Loader.Loader.getUniPath(file))
+            prompt = ''
+            role = 'user'
+            self.curr_task = parent
+            if parent == None and 'parent' in task_info and task_info['parent'] == '':
+                if 'chat' in task_info and len(task_info['chat']) > 0:
+                    prompt = task_info['chat'][-1]['content']
+                    role = task_info['chat'][-1]['role']
+                for link in task_info['linked']:
+                    linklist.append({'in':FileMan.getFileName(file),'out':link})
+                self.makeTaskAction(prompt, task_info['type'], "New", role)
+            elif parent and 'parent' in task_info and task_info['parent'] == parent.getName():
+                if 'chat' in task_info and len(task_info['chat']) > 0:
+                    prompt = task_info['chat'][-1]['content']
+                    role = task_info['chat'][-1]['role']
+                for link in task_info['linked']:
+                    linklist.append({'in':FileMan.getFileName(file),'out':link})
+                self.makeTaskAction(prompt, task_info['type'], "SubTask", role)
+        addtasklist = []
+        for task in self.task_list:
+            if task not in starttasklist:
+                addtasklist.append(task)
+        return addtasklist, linklist
+    
+    def applyLinks(self,linklist):
+        for link in linklist:
+            self.makeLink(self.getTaskByName(link['in']),self.getTaskByName(link['out']))
+
+    def loadTasksListFileBased(self):
+        idx = 0
+        start_tasks = []
+        task_links = []
+        while idx < 1000:
+            n_start_tasks = []
+            if idx == 0:
+                for task in self.task_list: #Если некоторые задачи уже загружены
+                    n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
+                    n_start_tasks.extend(n_start_tasks2)
+                    task_links.extend(n_task_list2)
+                n_start_tasks2, n_task_list2 = self.createTaskByFile()
+                n_start_tasks.extend(n_start_tasks2)
+                task_links.extend(n_task_list2)
+                task_links.extend(n_task_list2)
+            else:
+                for task in start_tasks:
+                    n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
+                    n_start_tasks.extend(n_start_tasks2)
+                    task_links.extend(n_task_list2)
+            if len(n_start_tasks) == 0:
+                break
+            else:
+                start_tasks = n_start_tasks
+            idx +=1
+        print('Loadinf done in',idx,'steps')
+        self.applyLinks(task_links)
+
+
+
 
     def createTask(self, prnt_task = None, safe = False, trg_tasks = []):
         # print(10*"=======")

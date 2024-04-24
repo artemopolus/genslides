@@ -44,5 +44,11 @@ def createUniqueDir(path : str, folder :str, name : str) -> list[bool, Path]:
 def getFilesInFolder(path: str):
     return [f for f in listdir(path) if isfile(join(path, f))]
 
+def getFilesPathInFolder(path: str):
+    return [join(path,f) for f in listdir(path) if isfile(join(path, f))]
+
 def getFoldersInFolder(path:str):
     return [f for f in listdir(path) if isdir(join(path, f))]
+
+def getFileName(path:str):
+    return Path(path).stem

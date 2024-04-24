@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 def checkFolderPathAndCreate(path):
-    print('Check folder path and create', path)
+    # print('Check folder path and create', path)
     if not os.path.exists(path):
         lst_path = os.path.split(path)
         if not os.path.exists( lst_path[0]):
