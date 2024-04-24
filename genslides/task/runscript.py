@@ -3,6 +3,8 @@ from genslides.task.response import ResponseTask
 from genslides.utils.readfileman import ReadFileMan
 from genslides.utils.loader import Loader
 
+import genslides.utils.writer as wr
+import genslides.utils.filemanager as fm
 
 import os
 from os.path import isfile, join
@@ -32,6 +34,10 @@ class RunScriptTask(ResponseTask):
                     phrase_success = ''
                 phrase_error = self.findKeyParam( pparam["on_error"] )
                 phrase_final = self.findKeyParam( pparam["on_final"] )
+                workspace = self.findKeyParam(pparam["cwd"])
+                workspace = Loader.getUniPath(workspace)
+                fm.createFolder(workspace)
+
 
                 str_path_to_output_files = self.findKeyParam(pparam["output_files"])
 
@@ -44,6 +50,16 @@ class RunScriptTask(ResponseTask):
                         onlyfiles = path_tmp
                     else:
                         print('No args')
+                        return
+                if targets_type == 'single':
+                    if 'script_param' in pparam:
+                        if exe_type == 'py' and 'path_to_python' in pparam:
+                            target_script = ' '.join([pparam['path_to_python'],pparam['script_param']])
+                            onlyfiles = [target_script]
+                        else:
+                            return
+                    else:
+                        print('No script param')
                         return
                 else:
                     if exe_type == 'py':
@@ -102,9 +118,9 @@ class RunScriptTask(ResponseTask):
                     n_file.append(self.findKeyParam(opt))
                 file = n_file
             # file = file.encode('unicode_escape').decode()
-            print("Run script", file)
+            print("Run script", file,'in', workspace)
             # TODO: Указать конкретную папку работы https://stackoverflow.com/questions/1685157/how-can-i-specify-working-directory-for-a-subprocess
-            result = subprocess.run(file, capture_output=True, text=True)
+            result = subprocess.run(file, capture_output=True, text=True, cwd=workspace)
             if result.returncode:
                 done = False
                 data += phrase_error + result.stderr + "\n"

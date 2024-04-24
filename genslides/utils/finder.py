@@ -1,5 +1,6 @@
 import re
 import genslides.utils.loader as Loader
+import genslides.utils.reqhelper as Helper
 import json
 
 def convertMdToScript(md_text):
@@ -115,9 +116,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                 # print("No param")
                 pass
         return rep_text
-# TODO: сменить на квадратные скобки
-def findByKey(text, manager , base ):
-        #  results = re.findall(r'\{.*?\}', text)
+
+def findByKey(text, manager , base, reqhelper : Helper.RequestHelper):
          results = re.findall(r"\[\[.*?\]\]", text)
          n_res = []
          for res in results:
@@ -148,8 +148,6 @@ def findByKey(text, manager , base ):
 
 
 
-        #  print("Find keys=", text)
-        #  print("Results=", results)
          rep_text = text
          for res in results:
              arr = res[2:-2].split(":")
@@ -175,6 +173,12 @@ def findByKey(text, manager , base ):
                         arr.pop(0)
                  elif arr[0] == 'parent':
                     task = base.getParent()
+                 elif arr[0] == 'project':
+                    if len(arr) > 1:
+                        rres, rvalue = reqhelper.getValue(base.getType(), arr[1])
+                        if rres:
+                            rep_text = rep_text.replace(res, str(rvalue))
+
                  else:
                     task = base.getAncestorByName(arr[0])
                  if task:

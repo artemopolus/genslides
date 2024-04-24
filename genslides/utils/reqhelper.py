@@ -1,16 +1,15 @@
 import json
+import os
+import genslides.utils.loader as ld
 
 
 class RequestHelper:
     def __init__(self) -> None:
-        # print('Read prompt from config')
         self.dict = []
-        with open('config/prompt.json', 'r') as reader:
+        with open(os.path.join('config','prompt.json'), 'r') as reader:
             input = json.load(reader)
             self.dict = input
-        # for val in self.dict:
-            # print(str(val) + '=>' + str(self.dict[val]))
-        # print('Get dictionary reading is done')
+
     def getPrompt(self, type, info):
         if type in self.dict:
             return self.dict[type]['Init'] + info + self.dict[type]['Endi']
@@ -27,7 +26,11 @@ class RequestHelper:
     def getValue(self, type, flag):
         if type in self.dict:
             if flag in self.dict[type]:
-                return True, self.dict[type][flag]
+                value = self.dict[type][flag]
+                if isinstance(value, dict):
+                    if value['type'] == 'path':
+                        return True, ld.Loader.getUniPath(value['value'])
+                return True, value
         return False, None
 
 

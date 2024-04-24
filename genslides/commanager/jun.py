@@ -1772,7 +1772,7 @@ class Manager:
             filename = []
             print('Get filenames for args:', filename)
             for val in filename_src:
-                filename.append( data['path_to_python'] + ' ' + val)
+                filename.append( val)
             return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
                     gr.Textbox(str(filename)))
 
