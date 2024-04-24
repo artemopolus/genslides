@@ -931,9 +931,9 @@ class Projecter:
                     print('Param', task.getName(),'is diff')
                     difftasknames.append(task.getName())
         if param == None:
-            return {}, gr.Radio(choices=[]),'No param'
+            return '','No param'
         
-        return param, gr.Radio(choices=list(param.keys())), 'Diff tasks:\n' + ','.join(difftasknames)
+        return json.dumps(param, indent=1), 'Diff tasks:\n' + ','.join(difftasknames)
     
     def getValueFromJSONMultiSelect(self, param, key):
         if key in param:
@@ -947,6 +947,20 @@ class Projecter:
             man.curr_task = task
             self.setTaskKeyValue(param_name=param, key=key, slt_value='', mnl_value=value)
         man.curr_task = start
+
+    def setParamStructToMultiSelect(self, text_param, param_name):
+        print('Set param struct to multiselect')
+        try:
+            man = self.actioner.manager
+            param = json.loads(text_param)
+            if param_name == param['type']:
+                for task in man.multiselect_tasks:
+                    task.rewriteParamStruct( param )
+            else:
+                return self.getParamFromMultiSelected(param_name)
+        except Exception as e:
+            print('Json error', e)
+        return self.getParamFromMultiSelected(param_name)
 
     def createGarlandFromMultiSelect(self):
         man = self.actioner.manager

@@ -911,11 +911,30 @@ class TextTask(BaseTask):
         trg = None
         for param in self.params:
             if 'type' in param and param['type'] == param_name:
+                print('Remove', param['type'],'from', self.getName())
                 trg = param
         if trg != None:
-            print('Remove', trg)
             self.params.remove(trg)
             self.saveJsonToFile(self.msg_list)
+
+    def rewriteParamStruct(self, trg_param: dict):
+        if 'type' in trg_param:
+            param_name = trg_param['type']
+        else:
+            return
+        trg = None
+        for param in self.params:
+            if 'type' in param and param['type'] == param_name:
+                print('Rewrite', param['type'],'from', self.getName())
+                trg = param
+        if trg != None:
+            self.params.remove(trg)
+            self.params.append(trg_param)
+            self.saveJsonToFile(self.msg_list)
+        else:
+            print('Nothing to rewrite')
+
+
 
     def rmParamStruct(self, param):
         try:

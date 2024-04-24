@@ -317,20 +317,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                             relattaskcln_btn = gr.Button('Clear all')
                         with gr.Row():
                             with gr.Column():
-                                getparamamulti_btn = gr.Button('Get params from multi')
                                 parammultikey_dd = gr.Dropdown(choices=projecter.getAppendableParam(),label='Param keys')
-                                parammulti_json = gr.JSON(label='Parameters')
-                                parammulti_paramkey_rad = gr.Radio(label='Key to edit')
-                                parammulti_paramval_txt = gr.Textbox(label='Value to set')
-                                gr.Button(value='Set param to multi task').click(fn=projecter.setValueToMultiSelect,
-                                                                                 inputs=[parammultikey_dd, parammulti_paramkey_rad,parammulti_paramval_txt])
+                                getparamamulti_btn = gr.Button('Get params from multi')
+                                parammulti_json = gr.Textbox(label='Parameters', interactive=True)
                                 parammultilog_txt = gr.Textbox(label='log')
-                                parammulti_paramkey_rad.input(fn=projecter.getValueFromJSONMultiSelect, 
-                                                              inputs=[parammulti_json, parammulti_paramkey_rad], 
-                                                              outputs=parammulti_paramval_txt)                  
+                                gr.Button(value='Update param struct').click(fn=projecter.setParamStructToMultiSelect, 
+                                                                             inputs=[parammulti_json, parammultikey_dd], 
+                                                                             outputs=[parammulti_json, parammultilog_txt])
+
                                 getparamamulti_btn.click(fn=projecter.getParamFromMultiSelected, 
                                                          inputs=parammultikey_dd, 
-                                                         outputs=[parammulti_json, parammulti_paramkey_rad, parammultilog_txt])
+                                                         outputs=[parammulti_json, parammultilog_txt])
                             with gr.Column():
                                 delete_reltasks_btn = gr.Button('Delete multiselected')
                                 garlandmulti_btn = gr.Button('Garland from multi')
