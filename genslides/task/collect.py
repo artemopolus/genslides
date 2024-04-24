@@ -262,12 +262,10 @@ class ReceiveTask(TextTask):
     def getTrgLinkInfo(self, trg):
         return True, {'out': trg, 'in': self, 'dir': 'in'}
 
-    #TODO: переместить сюда задачу размораживания, 
     # просто задача Receive не должна замораживать себя и наследников
 class CollectTask(ReceiveTask):
     def __init__(self, task_info: TaskDescription, type='Collect') -> None:
         super().__init__(task_info, type)
-# TODO: особый способ уведомления о связях
 class GarlandTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="Garland") -> None:
         super().__init__(task_info, type)

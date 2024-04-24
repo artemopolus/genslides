@@ -152,7 +152,6 @@ class Manager:
         return self.curr_task
 
     def addTaskToSelectList(self, task :BaseTask):
-        # TODO: Разрешить мультивыбор когда-нибудь
         if len(self.selected_tasks):
             self.selected_tasks.pop()
         self.selected_tasks.append(task)
@@ -177,7 +176,6 @@ class Manager:
         trg = self.curr_task
         task_list = self.selected_tasks.copy()
         for task in task_list:
-            # TODO: Заменить на запрос к MakeAction
             self.curr_task = trg
             self.makeTaskAction("",task_type, action_type, 'user')
             # if first:
@@ -897,7 +895,6 @@ class Manager:
     
  
     def makeTaskActionPro(self, prompt, type, creation_type, creation_tag):
-        #  TODO: добавить конвертацию используя type
         if creation_type == "RemoveBranch":
             tasks = self.curr_task.getChainBeforeBranching()
             trg = None
@@ -1089,7 +1086,6 @@ class Manager:
                 break
             return self.runIteration(prompt)
         elif creation_type == "Delete":
-        # TODO: после удаления возвращаться к тому же дереву
             task = self.curr_task
             next_task_after = task.getParent()
             if next_task_after is None:
@@ -1600,7 +1596,6 @@ class Manager:
             gr.Radio(value="SubTask"), 
             r_msgs,
             self.getCurrentExtTaskOptions(),
-            # TODO: Рисовать весь граф, но в упрощенном виде
             self.getTreeNamesForRadio(),
             self.getCurrentTreeNameForTxt(),
             self.getBranchEndList(),
@@ -1922,7 +1917,6 @@ class Manager:
             shutil.rmtree(self.getPath())
 
     def createExtProject(self, filename, prompt, parent) -> bool:
-        # TODO: Возможно, что следует просто отправлять сюда имя программы, которое потом будет использовать loadExtProject. Таким образом имя папок будет уникальным
         res, ext_pr_name = self.loadexttask(filename, self)
         if res:
             cur = self.curr_task
@@ -2066,7 +2060,6 @@ class Manager:
             prio = task.getPrio()
             self.curr_task.setPrio(prio)
 
-        # TODO: замораживать текущую задачу, чтобы оставить возможность дополнительного редактирования
         if j == 0:
             self.curr_task.freezeTask()
 
@@ -2211,7 +2204,6 @@ class Manager:
         print('Links list:')
         print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
 
-        #TODO: протестировать вставку 
         for link in self.tc_links_chain:
             outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
             if 'insert' in link and 'prompt' in link:

@@ -117,9 +117,7 @@ class RunScriptTask(ResponseTask):
                 for opt in file:
                     n_file.append(self.findKeyParam(opt))
                 file = n_file
-            # file = file.encode('unicode_escape').decode()
             print("Run script", file,'in', workspace)
-            # TODO: Указать конкретную папку работы https://stackoverflow.com/questions/1685157/how-can-i-specify-working-directory-for-a-subprocess
             result = subprocess.run(file, capture_output=True, text=True, cwd=workspace)
             if result.returncode:
                 done = False
@@ -164,7 +162,7 @@ class RunScriptTask(ResponseTask):
             print("No data is getted from")
         
     def updateIternal(self, input : TaskDescription = None):
-        # TODO: Это просто переопределение функции обновления для Response, она была дополнена свойством, что при указании, что читается диалог, всегда происходило чтение вне зависимости от совпадают ли родительские сообщения с сохраненными
+        # Это просто переопределение функции обновления для Response, она была дополнена свойством, что при указании, что читается диалог, всегда происходило чтение вне зависимости от совпадают ли родительские сообщения с сохраненными
         res, stopped = self.getParam("stopped")
         if res and stopped:
             print("Stopped=", self.getName())

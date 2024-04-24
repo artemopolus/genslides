@@ -164,7 +164,7 @@ class ReadFileParamTask(ReadFileTask):
             return True, val, self.parent
 
     def updateIternal(self, input : TaskDescription = None):
-        # TODO: Это просто переопределение функции обновления для Response, она была дополнена свойством, что при указании, что читается диалог, всегда происходило чтение вне зависимости от совпадают ли родительские сообщения с сохраненными
+        # Это просто переопределение функции обновления для Response, она была дополнена свойством, что при указании, что читается диалог, всегда происходило чтение вне зависимости от совпадают ли родительские сообщения с сохраненными
         res, stopped = self.getParam("stopped")
         if res and stopped:
             print("Stopped=", self.getName())

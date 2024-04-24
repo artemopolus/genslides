@@ -179,7 +179,7 @@ class GeneratorTask(SetOptionsTask):
                 if gparam['iteration'] != iterators:
                     self.updateIteration2action(iterators)
                     self.updateParamStruct('generator','iteration', iterators)
-                # TODO: выполнить только те команды, которых не было ранее
+                # выполнить только те команды, которых не было ранее
                 if len(gparam['iter2act']) > 0:
                     outparam = pparam['info']
                     for act in gparam['iter2act']:

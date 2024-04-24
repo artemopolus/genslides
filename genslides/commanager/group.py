@@ -64,7 +64,6 @@ class Actioner():
 
 
     def createPrivateManagerForTaskByName(self, man)-> Manager.Manager:
-        # TODO: изменять стартовые задачи по правилам, которые следуют из названия
         # получаем имя задачи из текущего менеджера
         task = self.manager.getTaskByName(man['task'])
         return self.createPrivateManagerForTask(task, man)
@@ -372,7 +371,6 @@ class Actioner():
             if self.manager == self.std_manager:
                 return self.manager.getCurrTaskPrompts()
             # trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
-            # TODO: Сделать функцию для перехода от одного времен. менеджера к другому времен. мен. Или же при создании менеджера указывать исходного менеджера для исключения ошибок. Текущая предусматривает переход только к исходному
             trg = self.std_manager
             self.removeTmpManager(self.manager, trg, copy=True)
             print('New manager is', self.manager.getName())
@@ -753,7 +751,6 @@ class Actioner():
         out = man.getCurrTaskPrompts()
         return out
 
-#TODO: Select group task 
     def getRelatedTasks(self, task :BaseTask, lnk_in = True, lnk_out= True):
         if lnk_in:
             trg_tasks = task.getAllParents()
