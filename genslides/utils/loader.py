@@ -154,6 +154,9 @@ class Loader:
         if platform == 'win32':
             out = PureWindowsPath(out)
         return str(out)
+    
+    def getProgramFolder():
+        return Loader.getUniPath( Path.cwd() )
         
 
 

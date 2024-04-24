@@ -1370,3 +1370,6 @@ class BaseTask():
 
     def getActioner(self):
         return None
+    
+    def isFrozen(self):
+        return self.is_freeze

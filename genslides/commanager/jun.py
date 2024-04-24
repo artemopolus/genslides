@@ -1356,7 +1356,9 @@ class Manager:
             # if next.parent == None:
                 # next.resetTreeQueue()
             bres, bparam = next.getParamStruct('block')
-            if bres and bparam['block']:
+            if next.getParent() != None and next.getParent().isFrozen():
+                pass
+            elif bres and bparam['block']:
                 pass
             else:
                 self.curr_task = next

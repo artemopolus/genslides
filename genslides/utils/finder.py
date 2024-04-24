@@ -3,6 +3,7 @@ import genslides.utils.loader as Loader
 import genslides.utils.reqhelper as Helper
 import json
 
+
 def convertMdToScript(md_text):
     # print('convert md to script')
     code_pattern = r'```python\n(.*?)\n```'
@@ -178,7 +179,10 @@ def findByKey(text, manager , base, reqhelper : Helper.RequestHelper):
                         rres, rvalue = reqhelper.getValue(base.getType(), arr[1])
                         if rres:
                             rep_text = rep_text.replace(res, str(rvalue))
-
+                 elif arr[0] == 'global':
+                    if len(arr) > 1:
+                        if arr[1] == 'path':
+                            rep_text = rep_text.replace(res, Loader.Loader.getProgramFolder())
                  else:
                     task = base.getAncestorByName(arr[0])
                  if task:

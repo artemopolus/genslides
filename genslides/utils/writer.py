@@ -10,6 +10,7 @@ def checkFolderPathAndCreate(path):
             Path(lst_path[0]).mkdir(parents=True, exist_ok=True)
 
 def writeToFile(path, text, ctrl = 'w'):
+    print('Write to file', path)
     if not os.path.exists(path):
         lst_path = os.path.split(path)
         if not os.path.exists( lst_path[0]):
