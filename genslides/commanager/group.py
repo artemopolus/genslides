@@ -650,7 +650,10 @@ class Actioner():
         self.update_state = 'init'
         man = self.manager
         if len(man.tree_arr) == 0:
-            man.updateTreeArr()
+            if man == self.std_manager:
+                man.updateTreeArr()
+            else:
+                man.updateTreeArr(check_list=True)
         man.curr_task = man.tree_arr[0]
         for task in man.tree_arr:
             task.resetTreeQueue()

@@ -42,7 +42,7 @@ def createTaskByType(type : str, info : TaskDescription):
     stype = ''.join([i for i in type if not i.isdigit()])
     info.type = stype
     info.filename = type
-    # print('Create task', stype)
+    print('Create task',type,'-', stype)
     if stype.endswith("Text"):
         info.method = RichTextTask
         return cr.CreateCommand(info)

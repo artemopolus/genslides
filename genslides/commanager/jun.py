@@ -560,6 +560,8 @@ class Manager:
     def createTaskByFile(self, parent :BaseTask = None):
         path = Loader.Loader.getUniPath(self.getPath())
         files = FileMan.getFilesPathInFolder(path)
+        if parent != None:
+            print('Create task by parent',parent.getName())
         starttasklist = self.task_list.copy()
         linklist = []
         for file in files:
@@ -576,6 +578,7 @@ class Manager:
                 # self.makeTaskAction(prompt, task_info['type'], "New", role)
                 self.createOrAddTask(prompt=prompt, type=FileMan.getFileName(file), tag=role,parent=None)
             elif parent and 'parent' in task_info and task_info['parent'] == parent.getName():
+                print('Create using path=', file)
                 if 'chat' in task_info and len(task_info['chat']) > 0:
                     prompt = task_info['chat'][-1]['content']
                     role = task_info['chat'][-1]['role']
@@ -586,7 +589,7 @@ class Manager:
         for task in self.task_list:
             if task not in starttasklist:
                 addtasklist.append(task)
-        # print('Add task list',[t.getName() for t in addtasklist])
+        print('Add task list',[t.getName() for t in addtasklist])
         return addtasklist, linklist
     
     def applyLinks(self,linklist):
@@ -596,12 +599,13 @@ class Manager:
     def loadTasksListFileBased(self):
         print('Load task list based on file', self.getName(),'path',self.getPath())
         idx = 0
-        start_tasks = []
+        start_tasks = self.task_list.copy()
         task_links = []
         while idx < 1000:
             n_start_tasks = []
+            print('[',idx,']Start tasks list',[t.getName() for t in start_tasks])
             if idx == 0:
-                for task in self.task_list: #Если некоторые задачи уже загружены
+                for task in start_tasks: #Если некоторые задачи уже загружены
                     # print('Create task for', task.getName())
                     n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
                     n_start_tasks.extend(n_start_tasks2)
@@ -612,13 +616,13 @@ class Manager:
                 task_links.extend(n_task_list2)
             else:
                 for task in start_tasks:
+                    print('Create task for', task.getName())
                     n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
                     n_start_tasks.extend(n_start_tasks2)
                     task_links.extend(n_task_list2)
             if len(n_start_tasks) == 0:
                 break
-            else:
-                start_tasks = n_start_tasks
+            start_tasks = n_start_tasks
             idx +=1
         # print('Loadinf done in',idx,'steps')
         self.applyLinks(task_links)
