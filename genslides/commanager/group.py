@@ -831,6 +831,9 @@ class Actioner():
             stepgraph = self.manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
             rawgraph = self.manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
+            if out == None:
+                self.manager = self.std_manager
+                out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
             out += (maingraph, stepgraph, rawgraph)
             return out
     
