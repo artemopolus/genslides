@@ -1388,7 +1388,7 @@ class Manager:
     
     def updateSteppedSelectedInternal(self, info : TaskDescription = None):
         # print(10*"----------")
-        # print("STEP",4*">>",self.curr_task.getName(),"||||||")
+        print("STEP",4*">>",self.curr_task.getName(),"||||||")
         # print(10*"----------")
         if info:
             info.stepped = True
@@ -1434,7 +1434,8 @@ class Manager:
                 # print('Set new current task', next.getName())
                 self.curr_task = next
         elif next and self.curr_task != next and next not in self.task_list:
-            return None
+            self.curr_task = self.curr_task.getParent()
+            return self.curr_task.getParent()
         else:
             if len(self.return_points) > 0:
                 # print('Go to return points from', [t.getName() for t in self.return_points])

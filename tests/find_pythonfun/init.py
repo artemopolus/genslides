@@ -1,6 +1,9 @@
 import re
 
 def extract_functions_and_classes(file_name):
+    functions_list = []
+    classes_dict = {}
+
     with open(file_name, 'r') as file:
         content = file.read()
 
@@ -10,19 +13,20 @@ def extract_functions_and_classes(file_name):
     functions = re.findall(function_pattern, content)
     classes = re.findall(class_pattern, content, re.DOTALL)
 
-    for function in functions:
-        print(f"Function: {function[0]}")
+    for func in functions:
+        functions_list.append(func[0])
 
     for class_name, class_content in classes:
-        print(f"Class: {class_name}")
         class_functions = re.findall(r'def\s+([a-zA-Z_][a-zA-Z0-9_]*)\((.*?)\)\s*->\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', class_content)
-        for class_function in class_functions:
-            print(f"    Function: {class_function[0]}")
+        classes_dict[class_name] = [f[0] for f in class_functions]
 
-    # Handle functions without return type hints
-    remaining_functions = re.findall(r'def\s+([a-zA-Z_][a-zA-Z0-9_]*)\((.*?)\)\s*:', content)
-    for function in remaining_functions:
-        print(f"Function: {function[0]}")
+    for func in functions_list:
+        print(f"Function: {func}")
+
+    for class_name, class_methods in classes_dict.items():
+        print(f"Class: {class_name}")
+        for method in class_methods:
+            print(f"    Function: {method}")
 
 file_name = "sample_file.py"
 
