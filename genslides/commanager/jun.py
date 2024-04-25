@@ -560,8 +560,8 @@ class Manager:
     def createTaskByFile(self, parent :BaseTask = None):
         path = Loader.Loader.getUniPath(self.getPath())
         files = FileMan.getFilesPathInFolder(path)
-        if parent != None:
-            print('Create task by parent',parent.getName())
+        # if parent != None:
+            # print('Create task by parent',parent.getName())
         starttasklist = self.task_list.copy()
         linklist = []
         for file in files:
@@ -589,7 +589,7 @@ class Manager:
         for task in self.task_list:
             if task not in starttasklist:
                 addtasklist.append(task)
-        print('Add task list',[t.getName() for t in addtasklist])
+        # print('Add task list',[t.getName() for t in addtasklist])
         return addtasklist, linklist
     
     def applyLinks(self,linklist):
@@ -603,7 +603,7 @@ class Manager:
         task_links = []
         while idx < 1000:
             n_start_tasks = []
-            print('[',idx,']Start tasks list',[t.getName() for t in start_tasks])
+            # print('[',idx,']Start tasks list',[t.getName() for t in start_tasks])
             if idx == 0:
                 for task in start_tasks: #Если некоторые задачи уже загружены
                     # print('Create task for', task.getName())
@@ -1394,19 +1394,6 @@ class Manager:
             info.stepped = True
             self.curr_task.update(info)
         else:
-            # idx = 0
-            # while(idx < 1000):
-            #     if self.curr_task.isRootParent():
-            #         print('Parent of',self.curr_task.getName(),' is None')
-            #         break
-            #     if self.curr_task.parent.findNextFromQueue(True) is not None:
-            #         par = self.curr_task.parent
-            #         self.curr_task = par
-            #     else:
-            #         print('Can\'t step on',self.curr_task.parent.getName())
-            #         break
-            #     idx += 1
-            # print('Use old prompt:', self.curr_task.getLastMsgContent())
             self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), 
                                                   prompt_tag=self.curr_task.getLastMsgRole(), 
                                                   stepped=True))
@@ -1426,11 +1413,16 @@ class Manager:
 
 
         next = self.curr_task.getNextFromQueue()
+
+        # if next:
+            # print('Next task', next.getName(),'in list:',next in self.task_list)
+
         if next not in self.curr_task.getTree():
             # print('Go to the next tree')
             self.return_points.append(self.curr_task)
         # print(len(self.return_points))
         if next and self.curr_task != next and next in self.task_list:
+            # print('Next task is in task list')
             # if next.parent == None:
                 # next.resetTreeQueue()
             bres, bparam = next.getParamStruct('block')
@@ -1439,9 +1431,13 @@ class Manager:
             elif bres and bparam['block']:
                 pass
             else:
+                # print('Set new current task', next.getName())
                 self.curr_task = next
+        elif next and self.curr_task != next and next not in self.task_list:
+            return None
         else:
             if len(self.return_points) > 0:
+                # print('Go to return points from', [t.getName() for t in self.return_points])
                 self.curr_task = self.return_points.pop()
             elif self.curr_task.parent:
                 # print("Done some")

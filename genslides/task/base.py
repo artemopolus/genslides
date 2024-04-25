@@ -977,7 +977,7 @@ class BaseTask():
         pass
 
     def onQueueCheck(self, param) -> bool:
-        # print("React on condition:",param)
+        # print("Task",self.getName(), "react on condition:",param)
         # self.printQueueInit()
 
         if param['cond'] in ['>','<','=','!=']:
@@ -1018,34 +1018,6 @@ class BaseTask():
                     print('Infinity loop!')
                     param['cur'] = param['str'] # Или возврат к исходному?
 
-  
-
-
-        # if param['cond'] == '=' or param['cond'] == '!=':
-        #     if isinstance(param['cur'], str):
-        #         cur = self.findKeyParam(param['cur'])
-        #         print('Cond', self.getName(),':',cur,param['cond'],param['trg'])
-        #         if param['cond'] == '=':
-        #             if cur != param['trg'] or param['cur'] == 'None':
-        #                 return False
-        #             else:
-        #                 if 'endless' not in param or not param['endless']:
-        #                     param['cur'] = 'None'
-        #         elif param['cond'] == '!=':
-        #             if cur == param['trg'] or param['cur'] == 'None':
-        #                 return False
-        #             else:
-        #                 if 'endless' not in param or not param['endless']:
-        #                     param['cur'] = 'None'
-        # elif isinstance(param['trg'], int) and isinstance(param['cur'], int):
-        #     cur = int(param['cur'])
-        #     trg = int(param['trg'])
-        #     if param['cond'] == '>' and cur < trg:
-        #         return False
-        #     elif param['cond'] == '<' and cur > trg:
-        #         return False
-        #     elif param['cond'] == '=' and cur != trg:
-        #         return False
         elif param['cond'] == 'None':
             if param['cur'] == param['trg']:
                 return False
@@ -1110,20 +1082,6 @@ class BaseTask():
                     # print("info:", info['name'])
                     if self.onQueueCheck(info):
                         return self.getChildByName(info['name'])
-                # if info["type"] == "link":
-                #     if self.onQueueCheck(info):
-                #         input = TaskDescription(
-                #             prompt=self.findKeyParam(self.getLastMsgContent()), 
-                #             id=info["id"], stepped=True, 
-                #             parent=self, enabled= not self.is_freeze)
-                #         # info["method"](input)
-                #         # print('Use link to', info['name'])
-                #         for affected in self.affect_to_ext_list:
-                #             if affected.target.getName() == info['name']:
-                #                 input.id = affected.id
-                #                 affected.method(input)
-                #         return self.getLinkedByName(info['name'])
-        # print('Find none from queue')
         return None
     
     def useLinksToTask(self, stepped = False):

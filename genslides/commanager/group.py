@@ -23,6 +23,8 @@ class Actioner():
         # TODO: установить как значение по умолчанию
         self.path = 'saved'
         self.update_state = 'init'
+        self.is_executing = False
+        self.executing_man = None
 
     def reset(self):
         self.manager = self.std_manager
@@ -613,10 +615,14 @@ class Actioner():
     def updateStepInternal(self):
         man = self.manager
         start = self.manager.curr_task
+        # print('Update step internal',start.getName())
         res, act_param = self.manager.curr_task.getExeCommands()
         if res:
             print('Execute actions')
-            if self.manager is self.std_manager:
+            if not self.is_executing:
+                self.is_executing = True
+                self.executing_man = self.manager
+            # if self.manager is self.std_manager:
                 t_manager = self.createPrivateManagerForTask(start, act_param)
                 self.tmp_managers.append(t_manager)
                 self.manager = t_manager
@@ -627,24 +633,32 @@ class Actioner():
             self.manager.curr_task = start
             return
         else:
-            if self.manager is not self.std_manager:
+            # if self.manager is not self.std_manager:
+            if self.is_executing:
+                self.is_executing = False
                 print('End execution')
-                self.manager = self.std_manager
+                self.manager = self.executing_man
              
 
         next = man.updateSteppedSelectedInternal()
+        # if next:
+            # print('Next task', next.getName(),'cur task', man.curr_task.getName())
+
 
         if next is None:
             self.update_state = 'next tree'
         elif self.root_task_tree == next:
             self.update_state = 'next tree'
             # print('Complete tree', self.root_task_tree.getName())
+        # elif next == start:
+        #     print("Stop cause identical task")
+        #     self.update_state = 'next tree'
         else:
             self.update_state = 'step'
             self.update_processed_chain.append(next.getName())
-
-        if len(next.getChilds()) == 0:
-            print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
+        if next:
+            if len(next.getChilds()) == 0:
+                print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
 
     def resetUpdate(self):
         self.update_state = 'init'
@@ -657,7 +671,6 @@ class Actioner():
         man.curr_task = man.tree_arr[0]
         for task in man.tree_arr:
             task.resetTreeQueue()
-        return man.getCurrTaskPrompts()
     
        
     def update(self):
@@ -718,7 +731,7 @@ class Actioner():
         start_task = man.curr_task
         self.resetUpdate()
         idx = 0
-        while(idx < 1000):
+        while(idx < 10000):
             self.update()
             if self.update_state == 'done':
                 break
