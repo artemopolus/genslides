@@ -615,10 +615,11 @@ class TextTask(BaseTask):
         return False
     
     def getResponseFromFile(self, msg_list, remove_last=True):
-        # print("Get response from file:")
         mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        # print("Get response from files:", onlyfiles)
         trg_file = self.filename + self.manager.getTaskExtention()
+        # print('Target name:', trg_file)
         # for file in onlyfiles:
         if trg_file in onlyfiles:
             file = trg_file

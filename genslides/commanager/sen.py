@@ -69,6 +69,7 @@ class Projecter:
         if len(self.actioner.std_manager.task_list) == 0:
             self.createNewTree()
         self.actioner.loadTmpManagers()
+        print('Load manager from browser is complete')
         return self.actioner.updateUIelements()
 
     def resetManager(self, manager : Manager, fast = True, load = True, path = 'saved'):

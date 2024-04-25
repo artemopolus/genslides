@@ -573,18 +573,20 @@ class Manager:
                     role = task_info['chat'][-1]['role']
                 for link in task_info['linked']:
                     linklist.append({'in':FileMan.getFileName(file),'out':link})
-                self.makeTaskAction(prompt, task_info['type'], "New", role)
+                # self.makeTaskAction(prompt, task_info['type'], "New", role)
+                self.createOrAddTask(prompt=prompt, type=FileMan.getFileName(file), tag=role,parent=None)
             elif parent and 'parent' in task_info and task_info['parent'] == parent.getName():
                 if 'chat' in task_info and len(task_info['chat']) > 0:
                     prompt = task_info['chat'][-1]['content']
                     role = task_info['chat'][-1]['role']
                 for link in task_info['linked']:
                     linklist.append({'in':FileMan.getFileName(file),'out':link})
-                self.makeTaskAction(prompt, task_info['type'], "SubTask", role)
+                self.createOrAddTask(prompt=prompt, type=FileMan.getFileName(file), tag=role,parent=parent)
         addtasklist = []
         for task in self.task_list:
             if task not in starttasklist:
                 addtasklist.append(task)
+        # print('Add task list',[t.getName() for t in addtasklist])
         return addtasklist, linklist
     
     def applyLinks(self,linklist):
@@ -592,6 +594,7 @@ class Manager:
             self.makeLink(self.getTaskByName(link['in']),self.getTaskByName(link['out']))
 
     def loadTasksListFileBased(self):
+        print('Load task list based on file', self.getName(),'path',self.getPath())
         idx = 0
         start_tasks = []
         task_links = []
@@ -599,6 +602,7 @@ class Manager:
             n_start_tasks = []
             if idx == 0:
                 for task in self.task_list: #Если некоторые задачи уже загружены
+                    # print('Create task for', task.getName())
                     n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
                     n_start_tasks.extend(n_start_tasks2)
                     task_links.extend(n_task_list2)
@@ -616,7 +620,7 @@ class Manager:
             else:
                 start_tasks = n_start_tasks
             idx +=1
-        print('Loadinf done in',idx,'steps')
+        # print('Loadinf done in',idx,'steps')
         self.applyLinks(task_links)
 
 
@@ -758,6 +762,9 @@ class Manager:
     def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False):
         # print('Draw graph')
         if only_current:
+            if self.curr_task == None:
+                if len(self.task_list) > 0:
+                    self.curr_task = self.task_list[0] 
             if self.curr_task.isRootParent():
                 trg_list = self.curr_task.getTree(max_childs=10)
             else:
