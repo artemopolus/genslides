@@ -414,8 +414,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 with gr.Row():
                                     addmultitotmp_btn = gr.Button(value='Add stdMST std->tmp man')
                                     rmvmultifrtmp_btn = gr.Button(value='Rmv tmpMST from tmp man')
-                                    copymulti2std_btn = gr.Button(value='Copy tmpMST to std man')
-                                    copymulti2tmp_btn = gr.Button(value='Copy stdMST to tmp man')
+                                    copymulti2std_btn = gr.Button(value='Move tmpMST to std man')
+                                    copymulti2tmp_btn = gr.Button(value='Move stdMST to tmp man')
                                 with gr.Row():
                                     load_extproj_act_btn = gr.Button('Set Act ExtProject')
                                     reset_initact_btn = gr.Button('Set def act')

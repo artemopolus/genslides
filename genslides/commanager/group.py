@@ -1000,11 +1000,37 @@ class Actioner():
             return img_path
         return "output/img.png"
 
-    def copyTaskFromManagerToAnother(self, tasks : list[BaseTask], next_man: Manager.Manager):
+    def copyTaskFromManagerToAnother(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager, to_std = False):
+        if not to_std: #std->tmp
+            for task in tasks:
+                for child in task.getChilds():
+                    if child not in tasks:
+                        print('Move to tmp error:',task.getName(),'is moving, but',child.getName(),'is not')
+                        return
         for task in tasks:
             if task not in next_man.task_list:
                 next_man.addTask(task)
                 task.setManager(next_man)
+                cur_man.rmvTask(task)
+        if to_std: #tmp->std
+            ext_tasks = []
+            for task in tasks:
+                for child in task.getChilds():
+                    if child in cur_man.task_list:
+                        ext_tasks.append(task)
+                        break
+            if len(ext_tasks):
+                self.addExtTasksForManager(cur_man, ext_tasks)
+        else: #std->tmp
+            ext_tasks = []
+            for task in tasks:
+                par = task.getParent()
+                if par and par not in next_man:
+                    ext_tasks.append(task)
+            if len(ext_tasks):
+                self.addExtTasksForManager(next_man, ext_tasks)
+
+        
 
     def addExtTasksForManager(self, manager : Manager.Manager, tasks : list[BaseTask]):
         task_names = manager.info['task_names'].copy()
@@ -1019,8 +1045,14 @@ class Actioner():
         task_names = manager.info['task_names'].copy()
         for task in tasks:
             if task.getName() in task_names:
-                task_names.remove(task.getName())
-                manager.rmvTask(task)
+                to_delete = True
+                for child in task.getChilds():
+                    if child in manager.task_list:
+                        to_delete = False
+                        break
+                if to_delete:
+                    task_names.remove(task.getName())
+                    manager.rmvTask(task)
         manager.info['task_names'] = task_names
         manager.saveInfo()
  

@@ -1160,12 +1160,18 @@ class Projecter:
 
     def copyTaskToStdMan(self):
         if self.actioner.manager != self.actioner.std_manager:
-            self.actioner.copyTaskFromManagerToAnother(self.actioner.manager.multiselect_tasks, self.actioner.std_manager)
+            self.actioner.copyTaskFromManagerToAnother(tasks= self.actioner.manager.multiselect_tasks, 
+                                                       cur_man= self.actioner.manager,
+                                                       next_man= self.actioner.std_manager,
+                                                       to_std=True)
         return self.actioner.updateTaskManagerUI()
 
     def copyTaskToTmpMan(self):
         if self.actioner.manager != self.actioner.std_manager:
-            self.actioner.copyTaskFromManagerToAnother(self.actioner.std_manager.multiselect_tasks, self.actioner.manager)
+            self.actioner.copyTaskFromManagerToAnother(tasks=self.actioner.std_manager.multiselect_tasks, 
+                                                       cur_man=self.actioner.std_manager,
+                                                       next_man=self.actioner.manager
+                                                       )
         return self.actioner.updateTaskManagerUI()
 
 
