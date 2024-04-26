@@ -410,6 +410,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 with gr.Row():
                                     updt_prman_btn = gr.Button(value='Updt man list')
                                 with gr.Row():
+                                    gr.Label(value='Multiselect tasks (MST) action')
+                                with gr.Row():
+                                    addmultitotmp_btn = gr.Button(value='Add stdMST std->tmp man')
+                                    rmvmultifrtmp_btn = gr.Button(value='Rmv tmpMST from tmp man')
+                                    copymulti2std_btn = gr.Button(value='Copy tmpMST to std man')
+                                    copymulti2tmp_btn = gr.Button(value='Copy stdMST to tmp man')
+                                with gr.Row():
                                     load_extproj_act_btn = gr.Button('Set Act ExtProject')
                                     reset_initact_btn = gr.Button('Set def act')
                                 with gr.Row():
@@ -592,6 +599,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                ]
             std_output_list.extend([graph_img, graph_alone, raw_graph])
                                
+            addmultitotmp_btn.click(fn=projecter.addMultiSelectTasksFromStdMan, outputs=std_output_list) 
+            rmvmultifrtmp_btn.click(fn=projecter.rmvMultiSelectTasksFromTmpMan, outputs=std_output_list)  
+            copymulti2std_btn.click(fn=projecter.copyTaskToStdMan, outputs=std_output_list) 
+            copymulti2tmp_btn.click(fn=projecter.copyTaskToTmpMan, outputs=std_output_list) 
+
             moveupprio_btn.click(fn=projecter.moveBranchIdxUp, outputs=std_output_list )
             movedwprio_btn.click(fn=projecter.moveBranchIdxDw, outputs=std_output_list )
             moveuptree_btn.click(fn=projecter.moveUpTree, outputs=std_output_list )

@@ -831,7 +831,7 @@ class Actioner():
         # print('man',self.manager)
         if self.std_manager == self.manager:
             hide_tasks = False
-            maingraph = self.drawGraph(hide_tasks=hide_tasks)
+            maingraph = self.drawGraph(hide_tasks=True)
             stepgraph = self.std_manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
             rawgraph = self.std_manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
 
@@ -999,4 +999,28 @@ class Actioner():
             img_path += ".png"
             return img_path
         return "output/img.png"
+
+    def copyTaskFromManagerToAnother(self, tasks : list[BaseTask], next_man: Manager.Manager):
+        for task in tasks:
+            if task not in next_man.task_list:
+                next_man.addTask(task)
+                task.setManager(next_man)
+
+    def addExtTasksForManager(self, manager : Manager.Manager, tasks : list[BaseTask]):
+        task_names = manager.info['task_names'].copy()
+        for task in tasks:
+            if task not in manager.task_list:
+                manager.addTask(task)
+                task_names.append(task.getName())
+        manager.info['task_names'] = task_names
+        manager.saveInfo()
+        
+    def rmvExtTasksForManager(self, manager : Manager.Manager, tasks : list[BaseTask]):
+        task_names = manager.info['task_names'].copy()
+        for task in tasks:
+            if task.getName() in task_names:
+                task_names.remove(task.getName())
+                manager.rmvTask(task)
+        manager.info['task_names'] = task_names
+        manager.saveInfo()
  

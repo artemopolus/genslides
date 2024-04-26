@@ -1147,3 +1147,25 @@ class Projecter:
     def setCurManagerName(self, name):
         self.actioner.manager.setName(name)
         return self.actioner.updateTaskManagerUI()
+    
+    def addMultiSelectTasksFromStdMan(self):
+        if self.actioner.manager != self.actioner.std_manager:
+            self.actioner.addExtTasksForManager(self.actioner.manager, self.actioner.std_manager.multiselect_tasks)
+        return self.actioner.updateTaskManagerUI()
+
+    def rmvMultiSelectTasksFromTmpMan(self):
+        if self.actioner.manager != self.actioner.std_manager:
+            self.actioner.rmvExtTasksForManager(self.actioner.manager, self.actioner.manager.multiselect_tasks)
+        return self.actioner.updateTaskManagerUI()
+
+    def copyTaskToStdMan(self):
+        if self.actioner.manager != self.actioner.std_manager:
+            self.actioner.copyTaskFromManagerToAnother(self.actioner.manager.multiselect_tasks, self.actioner.std_manager)
+        return self.actioner.updateTaskManagerUI()
+
+    def copyTaskToTmpMan(self):
+        if self.actioner.manager != self.actioner.std_manager:
+            self.actioner.copyTaskFromManagerToAnother(self.actioner.std_manager.multiselect_tasks, self.actioner.manager)
+        return self.actioner.updateTaskManagerUI()
+
+
