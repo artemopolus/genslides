@@ -2509,7 +2509,7 @@ class Manager:
             self.task_list.append(task)
     
     def rmvTask(self, task: BaseTask):
-        if task not in self.task_list:
+        if task in self.task_list:
             self.task_list.remove(task)
  
 

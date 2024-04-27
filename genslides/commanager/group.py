@@ -1006,6 +1006,12 @@ class Actioner():
             pass 
         else:#std->tmp
             for task in tasks:
+                if len(task.getGarlandPart()) > 0:
+                    print('Move to tmp error: task[',task.getName(),'] is linked')
+                    return
+                if len(task.getHoldGarlands()) > 0:
+                    print('Move to tmp error: task[',task.getName(),'] is linked')
+                    return
                 for child in task.getChilds():
                     if child not in tasks:
                         print('Move to tmp error: task[',task.getName(),'] is moving, but child[',child.getName(),'] is not')
@@ -1014,17 +1020,20 @@ class Actioner():
                         print('Move to tmp error: task[',task.getName(),'] is std man task, but child[',child.getName(),'] is tmp man task and not copied')
                         return
             task_names = self.getExtTaskNamesOfManager(next_man)
+            print(task_names)
             task_names_to_del = []
+        print(len(cur_man.task_list))
         for task in tasks:
             if task not in next_man.task_list:
                 next_man.addTask(task)
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
             elif not to_std and task.getName() in task_names:
+                task_names_to_del.append(task.getName())
                 next_man.addTask(task)
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
-                task_names_to_del.append(task.getName())
+        print(len(cur_man.task_list))
         if to_std: #tmp->std
             ext_tasks = []
             for task in tasks:
@@ -1035,6 +1044,7 @@ class Actioner():
             if len(ext_tasks):
                 self.addExtTasksForManager(cur_man, ext_tasks)
         else: #std->tmp
+            print(task_names)
             print(task_names_to_del)
             for name in task_names_to_del:
                 task_names.remove(name)

@@ -1192,7 +1192,9 @@ class Projecter:
 
     def moveTaskToTmpMan(self):
         if self.actioner.manager != self.actioner.std_manager:
-            self.actioner.moveTaskFromManagerToAnother(tasks=self.actioner.std_manager.multiselect_tasks, 
+            task_to_copy = self.actioner.std_manager.multiselect_tasks.copy()
+            self.actioner.std_manager.multiselect_tasks = []
+            self.actioner.moveTaskFromManagerToAnother(tasks=task_to_copy, 
                                                        cur_man=self.actioner.std_manager,
                                                        next_man=self.actioner.manager
                                                        )
