@@ -926,16 +926,6 @@ class Actioner():
                     if len(task.getHoldGarlands()) > 0:
                         color = 'skyblue4'
                     f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
-                elif task in tmpman_list:
-                    color = 'blueviolet'
-                    shape = "ellipse" #rectangle,hexagon
-                    for manager in self.tmp_managers:
-                        if manager != self.std_manager:
-                            if task in manager.task_list:
-                                if 'color' in manager.info:
-                                    color = manager.info['color']
-                                break
-                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 elif task in man.multiselect_tasks:
                     color = "lightsalmon3"
                     shape = "ellipse" #rectangle,hexagon
@@ -946,6 +936,16 @@ class Actioner():
                     if task.checkType('Response'):
                         shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
+                elif task in tmpman_list:
+                    color = 'blueviolet'
+                    shape = "ellipse" #rectangle,hexagon
+                    for manager in self.tmp_managers:
+                        if manager != self.std_manager:
+                            if task in manager.task_list:
+                                if 'color' in manager.info:
+                                    color = manager.info['color']
+                                break
+                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 else:
                     color = 'ghostwhite'
                     shape = "ellipse" #rectangle,hexagon
@@ -1001,6 +1001,7 @@ class Actioner():
         return "output/img.png"
 
     def moveTaskFromManagerToAnother(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager, to_std = False):
+        print('Move tasks from',cur_man.getName(),'to',next_man.getName(),':',[t.getName() for t in tasks])
         if to_std:
             pass 
         else:#std->tmp
@@ -1030,7 +1031,7 @@ class Actioner():
             ext_tasks = []
             for task in tasks:
                 par = task.getParent()
-                if par and par not in next_man:
+                if par and par not in next_man.task_list:
                     ext_tasks.append(task)
             if len(ext_tasks):
                 self.addExtTasksForManager(next_man, ext_tasks)
