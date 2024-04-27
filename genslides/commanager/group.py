@@ -1008,16 +1008,23 @@ class Actioner():
             for task in tasks:
                 for child in task.getChilds():
                     if child not in tasks:
-                        print('Move to tmp error:',task.getName(),'is moving, but',child.getName(),'is not')
+                        print('Move to tmp error: task[',task.getName(),'] is moving, but child[',child.getName(),'] is not')
                         return
-                    if child not in cur_man.task_list:
-                        print('Move to tmp error:',task.getName(),'is std man task, but',child.getName(),'is tmp man task')
+                    if child not in cur_man.task_list and child not in tasks:
+                        print('Move to tmp error: task[',task.getName(),'] is std man task, but child[',child.getName(),'] is tmp man task and not copied')
                         return
+            task_names = self.getExtTaskNamesOfManager(next_man)
+            task_names_to_del = []
         for task in tasks:
             if task not in next_man.task_list:
                 next_man.addTask(task)
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
+            elif not to_std and task.getName() in task_names:
+                next_man.addTask(task)
+                task.setManager(next_man)
+                cur_man.rmvTask(task)
+                task_names_to_del.append(task.getName())
         if to_std: #tmp->std
             ext_tasks = []
             for task in tasks:
@@ -1028,6 +1035,10 @@ class Actioner():
             if len(ext_tasks):
                 self.addExtTasksForManager(cur_man, ext_tasks)
         else: #std->tmp
+            print(task_names_to_del)
+            for name in task_names_to_del:
+                task_names.remove(name)
+            self.setExtTaskNamesToManager(task_names, next_man)
             ext_tasks = []
             for task in tasks:
                 par = task.getParent()
@@ -1036,7 +1047,11 @@ class Actioner():
             if len(ext_tasks):
                 self.addExtTasksForManager(next_man, ext_tasks)
 
-        
+    def getExtTaskNamesOfManager(self, manager : Manager.Manager):
+        return manager.info['task_names'].copy()
+    
+    def setExtTaskNamesToManager(self, task_names : list[str], manager : Manager.Manager):
+        manager.info['task_names'] = task_names
 
     def addExtTasksForManager(self, manager : Manager.Manager, tasks : list[BaseTask]):
         task_names = manager.info['task_names'].copy()
