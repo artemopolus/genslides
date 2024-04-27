@@ -414,8 +414,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 with gr.Row():
                                     addmultitotmp_btn = gr.Button(value='Add stdMST std->tmp man')
                                     rmvmultifrtmp_btn = gr.Button(value='Rmv tmpMST from tmp man')
-                                    copymulti2std_btn = gr.Button(value='Move tmpMST to std man')
-                                    copymulti2tmp_btn = gr.Button(value='Move stdMST to tmp man')
+                                    movemulti2std_btn = gr.Button(value='Move tmpMST to std man')
+                                    movemulti2tmp_btn = gr.Button(value='Move stdMST to tmp man')
                                 with gr.Row():
                                     load_extproj_act_btn = gr.Button('Set Act ExtProject')
                                     reset_initact_btn = gr.Button('Set def act')
@@ -601,8 +601,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                
             addmultitotmp_btn.click(fn=projecter.addMultiSelectTasksFromStdMan, outputs=std_output_list) 
             rmvmultifrtmp_btn.click(fn=projecter.rmvMultiSelectTasksFromTmpMan, outputs=std_output_list)  
-            copymulti2std_btn.click(fn=projecter.copyTaskToStdMan, outputs=std_output_list) 
-            copymulti2tmp_btn.click(fn=projecter.copyTaskToTmpMan, outputs=std_output_list) 
+            movemulti2std_btn.click(fn=projecter.moveTaskToStdMan, outputs=std_output_list) 
+            movemulti2tmp_btn.click(fn=projecter.moveTaskToTmpMan, outputs=std_output_list) 
 
             moveupprio_btn.click(fn=projecter.moveBranchIdxUp, outputs=std_output_list )
             movedwprio_btn.click(fn=projecter.moveBranchIdxDw, outputs=std_output_list )

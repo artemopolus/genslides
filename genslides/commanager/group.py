@@ -1000,12 +1000,17 @@ class Actioner():
             return img_path
         return "output/img.png"
 
-    def copyTaskFromManagerToAnother(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager, to_std = False):
-        if not to_std: #std->tmp
+    def moveTaskFromManagerToAnother(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager, to_std = False):
+        if to_std:
+            pass 
+        else:#std->tmp
             for task in tasks:
                 for child in task.getChilds():
                     if child not in tasks:
                         print('Move to tmp error:',task.getName(),'is moving, but',child.getName(),'is not')
+                        return
+                    if child not in cur_man.task_list:
+                        print('Move to tmp error:',task.getName(),'is std man task, but',child.getName(),'is tmp man task')
                         return
         for task in tasks:
             if task not in next_man.task_list:

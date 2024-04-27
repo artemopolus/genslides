@@ -1158,17 +1158,17 @@ class Projecter:
             self.actioner.rmvExtTasksForManager(self.actioner.manager, self.actioner.manager.multiselect_tasks)
         return self.actioner.updateTaskManagerUI()
 
-    def copyTaskToStdMan(self):
+    def moveTaskToStdMan(self):
         if self.actioner.manager != self.actioner.std_manager:
-            self.actioner.copyTaskFromManagerToAnother(tasks= self.actioner.manager.multiselect_tasks, 
+            self.actioner.moveTaskFromManagerToAnother(tasks= self.actioner.manager.multiselect_tasks, 
                                                        cur_man= self.actioner.manager,
                                                        next_man= self.actioner.std_manager,
                                                        to_std=True)
         return self.actioner.updateTaskManagerUI()
 
-    def copyTaskToTmpMan(self):
+    def moveTaskToTmpMan(self):
         if self.actioner.manager != self.actioner.std_manager:
-            self.actioner.copyTaskFromManagerToAnother(tasks=self.actioner.std_manager.multiselect_tasks, 
+            self.actioner.moveTaskFromManagerToAnother(tasks=self.actioner.std_manager.multiselect_tasks, 
                                                        cur_man=self.actioner.std_manager,
                                                        next_man=self.actioner.manager
                                                        )
