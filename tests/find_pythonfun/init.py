@@ -1,9 +1,6 @@
 import re
 
 def extract_functions_and_classes(file_name):
-    functions_list = []
-    classes_dict = {}
-
     with open(file_name, 'r') as file:
         content = file.read()
 
@@ -13,28 +10,27 @@ def extract_functions_and_classes(file_name):
     functions = re.findall(function_pattern, content)
     classes = re.findall(class_pattern, content, re.DOTALL)
 
-    for func in functions:
-        functions_list.append(func[0])
+    for function in functions:
+        print(f"Function: {function[0]}")
 
     for class_name, class_content in classes:
-        class_functions = re.findall(r'def\s+([a-zA-Z_][a-zA-Z0-9_]*)\((.*?)\)\s*->\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', class_content)
-        classes_dict[class_name] = [f[0] for f in class_functions]
-
-    for func in functions_list:
-        print(f"Function: {func}")
-
-    for class_name, class_methods in classes_dict.items():
         print(f"Class: {class_name}")
-        for method in class_methods:
-            print(f"    Function: {method}")
+        class_functions = re.findall(function_pattern, class_content)
+        for class_function in class_functions:
+            print(f"    Function: {class_function[0]}")
+
+    # Handle functions without return type hints
+    remaining_functions = re.findall(r'def\s+([a-zA-Z_][a-zA-Z0-9_]*)\((.*?)\)\s*:', content)
+    for function in remaining_functions:
+        print(f"Function: {function[0]}")
 
 file_name = "sample_file.py"
 
 test_data = """
-def add(a, b) -> int:
+def add(a, b):
     return a + b
 
-def subtract(a, b) -> int:
+def subtract(a, b):
     return a - b
 
 def getValue(name: str, age: int) -> str:
@@ -44,10 +40,10 @@ class Calculator:
     def __init__(self):
         self.result = 0
 
-    def add(self, num) -> None:
+    def add(self, num):
         self.result += num
 
-    def subtract(self, num) -> None:
+    def subtract(self, num):
         self.result -= num
 
 class Person:
@@ -55,7 +51,7 @@ class Person:
         self.name = name
         self.age = age
 
-    def greet(self) -> str:
+    def greet(self):
         return f"Hello, my name is {self.name} and I am {self.age} years old."
 
 if __name__ == "__main__":

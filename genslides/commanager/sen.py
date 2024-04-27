@@ -199,8 +199,9 @@ class Projecter:
         print('Save man', self.actioner.manager.getName(),'(Temp)' if self.actioner.manager != self.actioner.std_manager else '(Main)')
         path = self.actioner.manager.getPath()
         path = Loader.Loader.getUniPath(path)
-        trg_path = Loader.Loader.getUniPath(Loader.Loader.getDirPathFromSystemRaw())
-        Archivator.saveAll(path, trg_path, name)
+        trg_path = Loader.Loader.getUniPath(Archivator.getProjectFileName())
+        Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
+        # Archivator.saveAllbyName(path, trg_path, name)
 
         return gr.Dropdown( choices= self.loadList(), interactive=True)
 
