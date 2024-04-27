@@ -210,6 +210,15 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                         with gr.Row():
                             task_list = gr.Dropdown(choices=manager.getTaskList(), label='Available tasks')
                             sel_task_btn = gr.Button(value="Select")
+            with gr.Tab('Comparing'):
+                with gr.Row():
+                    comparison_rad = gr.Radio(choices=projecter.getComparisonTypes())
+                with gr.Row():
+                    comparison_btn = gr.Button('Compare')
+                with gr.Row():
+                    comparison_chat = gr.Chatbot(height=500)
+
+                comparison_btn.click(fn=projecter.getBudMsgs, inputs=comparison_rad, outputs=comparison_chat)
  
             with gr.Row():
                 # with gr.Column():

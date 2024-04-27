@@ -403,7 +403,13 @@ class Manager:
         print('Get new branch code:', self.branch_code)
         return self.getCurrTaskPrompts()
     
-    def getBranchEndList(self):
+    def getBranchEndTasksList(self) -> list[BaseTask]:
+        self.iterateOnBranchEnd()
+        return [task for task in self.endes]
+
+       
+
+    def getBranchEnds(self) -> list[str]:
         # print('Get branch end list', self.getName())
         task = self.curr_task
         self.iterateOnBranchEnd()
@@ -436,8 +442,10 @@ class Manager:
             else:
                 if self.endes_idx == idx:
                     trg = name
-            
-        return gr.Radio(choices=leaves_list, interactive=True)
+        return leaves_list
+
+    def getBranchEndList(self): 
+        return gr.Radio(choices=self.getBranchEnds(), interactive=True)
     
     def getBranchEndName(self):
         if len(self.endes) == 0:

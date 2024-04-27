@@ -68,7 +68,6 @@ class Projecter:
         self.resetManager(manager = self.actioner.std_manager, path = man_path)
         if len(self.actioner.std_manager.task_list) == 0:
             self.createNewTree()
-        self.actioner.loadTmpManagers()
         print('Load manager from browser is complete')
         return self.actioner.updateUIelements()
 
@@ -85,6 +84,7 @@ class Projecter:
             self.manager.disableOutput2()
             self.manager.loadTasksList(fast)
             self.manager.enableOutput2()
+            self.actioner.loadTmpManagers()
  
 
 # сохранение сессионных имен необходимо связать только с проектером сеном, а не с менеджером
@@ -401,6 +401,29 @@ class Projecter:
     def goToNextBranchEnd(self):
         self.actioner.manager.goToNextBranchEnd()
         return self.actioner.updateUIelements()
+    
+    def getComparisonTypes(self):
+        return ['MultiSelect','Buds']
+    
+    def getBudMsgs(self, select_type):
+        buds_chat = []
+        iterate_array = []
+        if select_type == 'Buds':
+            iterate_array = self.actioner.manager.getBranchEndTasksList()
+        elif select_type == 'MultiSelect':
+            iterate_array = self.actioner.manager.multiselect_tasks
+        for bud in iterate_array:
+            name = bud.getName()
+            res, contents, _ = bud.getLastMsgAndParent()
+            if res:
+                content = contents.pop()
+                content['content'] = name + '\n\n---\n\n' + content['content']
+                buds_chat.append(content)
+        
+        return self.actioner.manager.convertMsgsToChat(buds_chat)
+
+
+
     
     def goToNextBranch(self):
         self.actioner.manager.goToNextBranch()
