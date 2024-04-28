@@ -252,7 +252,16 @@ class Projecter:
     
     def getParamListForEdit(self):
         # TODO: добавить простую копию задачи
-        return ['change','resp2req','coll2req','read2req','in','out','link','av_cp','step','chckresp','sel2par','ignrlist','wishlist','upd_cp']
+        return ['change', #Копировать ветвь
+                'resp2req','coll2req','read2req', #конвертировать задачи этого типа в другой
+                'in','out','link','av_cp', #Параметры ветвления
+                'step','chckresp',
+                'sel2par', # Копировать и ветвиться от выбранной задачи
+                'ignrlist',
+                'wishlist', #
+                'upd_cp', #Обновить ветки, которые скопирован ранее через Edit
+                'onlymulti' #Копировать только мультивыбранные задачи
+                ]
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request')
@@ -269,7 +278,10 @@ class Projecter:
             names = self.getParamListForEdit()
             names.remove('resp2req')
             for name in names:
-                param[name] = True if name in checks else False
+                if name =='onlymulti' and 'onlymulti' in checks:
+                    param[name] = [t.getName() for t in self.actioner.manager.multiselect_tasks]
+                else:
+                    param[name] = True if name in checks else False
             param['switch'] = []
             if 'resp2req' in checks:
                 param['switch'].append({'src':'Response','trg':'Request'})
