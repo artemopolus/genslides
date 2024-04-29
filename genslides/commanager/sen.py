@@ -278,8 +278,11 @@ class Projecter:
             names = self.getParamListForEdit()
             names.remove('resp2req')
             for name in names:
-                if name =='onlymulti' and 'onlymulti' in checks:
-                    param[name] = [t.getName() for t in self.actioner.manager.multiselect_tasks]
+                if name =='onlymulti':
+                    if 'onlymulti' in checks:
+                        param['trg_tasks'] = [t.getName() for t in self.actioner.manager.multiselect_tasks]
+                    else:
+                        param['trg_tasks'] = [t.getName() for t in self.actioner.manager.task_list]
                 else:
                     param[name] = True if name in checks else False
             param['switch'] = []

@@ -567,8 +567,8 @@ class BaseTask():
         print('Get child and links for', task.getName(),'[',start_j,']')
         index = 0
         branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
-        if 'onlymulti' in pparam:
-            trg_task_names = pparam['onlymulti']
+        if 'trg_tasks' in pparam:
+            trg_task_names = pparam['trg_tasks']
         else:
             trg_task_names = []
         while(index < 1000):
@@ -581,7 +581,7 @@ class BaseTask():
                     childs = trg.getChilds()
                     trg.getLinkCopyInfo(branch['links'], pparam)
                     if len(childs) == 1:
-                        if childs[0].getName() in trg_task_names:
+                        if childs[0].getName() not in trg_task_names:
                             branch['done'] = True
                             break
                         else:
@@ -594,11 +594,15 @@ class BaseTask():
                                 if child.getName() in trg_task_names: 
                                     slct_trg_childs.append(child)
                             if len(slct_trg_childs) == 1:
+                                branch['branch'].append(slct_trg_childs[0])
                                 trg = slct_trg_childs[0]
                             elif len(slct_trg_childs) > 1:
                                 childs_to_add.extend(slct_trg_childs)
-                            branch['done'] = True
-                            break
+                                branch['done'] = True
+                                break
+                            else:
+                                branch['done'] = True
+                                break
                         else:
                             childs_to_add.extend(childs)
                             branch['done'] = True
