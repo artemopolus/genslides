@@ -516,7 +516,21 @@ class Manager:
                                         found = True
                                 if found:
                                     break
-        
+
+    def iterateNextBranch(self, task :BaseTask):
+        childs = task.getChilds()
+        iter = len(childs)
+        if self.branch_idx >= iter:
+            self.branch_idx = 0
+        for idx in range(iter):
+            if self.branch_idx < iter - 1:
+                self.branch_idx += 1
+            else:
+                self.branch_idx = 0
+            if childs[self.branch_idx] in self.task_list:
+                return childs[self.branch_idx]
+        return task
+
 
     def goToNextBranch(self):
         trg = self.curr_task
@@ -526,11 +540,7 @@ class Manager:
                 return self.getCurrTaskPrompts()
             if len(trg.parent.getChilds()) > 1:
                 if self.branch_lastpar is not None and trg.parent == self.branch_lastpar:
-                    if self.branch_idx + 1 < len(trg.parent.getChilds()):
-                        self.branch_idx += 1
-                    else:
-                        self.branch_idx = 0
-                    self.curr_task = trg.parent.childs[self.branch_idx]
+                    self.curr_task =self.iterateNextBranch(trg.getParent()) 
                 else:
                     self.branch_lastpar = trg.parent
                     self.curr_task = trg.parent.childs[0]
@@ -2428,7 +2438,16 @@ class Manager:
             del params['path']
         else:
             if task is not None:
-                self.setPath(os.path.join(path,'tmp', task.getName()))
+                tmp_manname = task.getName()
+                tmp_manpath = os.path.join(path,'tmp', tmp_manname)
+                idx = 0
+                while os.path.exists(tmp_manpath):
+                    idx += 1
+                    tmp_manname = task.getName() + '_' + str(idx)
+                    tmp_manpath = os.path.join(path,'tmp', tmp_manname)
+                    
+                params['name'] = tmp_manname
+                self.setPath(tmp_manpath)
             else:
                 self.setPath(path)
         self.saveInfo()

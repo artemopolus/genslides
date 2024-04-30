@@ -1185,6 +1185,7 @@ class Projecter:
 
     def setCurManagerName(self, name):
         self.actioner.manager.setName(name)
+        self.actioner.manager.saveInfo()
         return self.actioner.updateTaskManagerUI()
     
     def addMultiSelectTasksFromStdMan(self):

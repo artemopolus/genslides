@@ -161,14 +161,14 @@ class Actioner():
             man_info = param
             print('Add priv manager for info', man_info)
             # Проверяем создавались ли раньше менеджеры
-            for manager in self.tmp_managers:
-                if man_info['task'] == manager.getName():
-                    return None
+            # for manager in self.tmp_managers:
+            #     if man_info['task'] == manager.getName():
+            #         return None
             # Создаем менеджера
             task = self.manager.getTaskByName(man_info['task'])
-            for manager in self.tmp_managers:
-                if task.getName() == manager.getName():
-                    return None
+            # for manager in self.tmp_managers:
+            #     if task.getName() == manager.getName():
+            #         return None
             manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
             manager.initInfo(
                             method =self.loadExtProject, 
@@ -1001,6 +1001,9 @@ class Actioner():
         return "output/img.png"
 
     def moveTaskFromManagerToAnother(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager, to_std = False):
+        t_to_rem = [t for t in tasks if t not in cur_man.task_list]
+        for task in t_to_rem:
+            tasks.remove(task)
         print('Move tasks from',cur_man.getName(),'to',next_man.getName(),':',[t.getName() for t in tasks])
         if to_std:
             pass 
@@ -1022,7 +1025,7 @@ class Actioner():
             task_names = self.getExtTaskNamesOfManager(next_man)
             print(task_names)
             task_names_to_del = []
-        print(len(cur_man.task_list))
+        print('cur=',len(cur_man.task_list))
         for task in tasks:
             if task not in next_man.task_list:
                 next_man.addTask(task)
@@ -1033,7 +1036,7 @@ class Actioner():
                 next_man.addTask(task)
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
-        print(len(cur_man.task_list))
+        print('cur=',len(cur_man.task_list))
         if to_std: #tmp->std
             ext_tasks = []
             for task in tasks:
