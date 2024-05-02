@@ -426,6 +426,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                     movemulti2std_btn = gr.Button(value='Move tmpMST to std man')
                                     movemulti2tmp_btn = gr.Button(value='Move stdMST to tmp man')
                                 with gr.Row():
+                                    tempman_drp = gr.Dropdown()
+                                    movetmp2tmp_btn = gr.Button('Move curman->selman')
+                                with gr.Row():
                                     load_extproj_act_btn = gr.Button('Set Act ExtProject')
                                     reset_initact_btn = gr.Button('Set def act')
                                 with gr.Row():
@@ -468,7 +471,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
                                 gr.Button('Save action').click(fn=projecter.addActionToCurrentManager, inputs=[actions_list_toadd, action_param], outputs=actions_list)
                                 actions_list.change(fn=projecter.getActionInfo, inputs=actions_list, outputs=actions_info_txt)
                     
-                    std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr]
+                    std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr, tempman_drp]
 
                     edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
                     save2curtask_btn.click(fn=manipulate_manager.savePrivManToTask, outputs=std_output_man_list)
@@ -620,6 +623,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
  
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
+
+            movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)
+
             init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
             get_tempman.change(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
             load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)

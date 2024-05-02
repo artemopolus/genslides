@@ -561,7 +561,9 @@ class Actioner():
                 gr.Radio(choices= tmp_man, value=self.manager.getName(), interactive=True), 
                 json.dumps(param, indent=1), 
                 gr.Text(value=name), 
-                self.manager.getCurrentExtTaskOptions())
+                self.manager.getCurrentExtTaskOptions(),
+                gr.Dropdown(choices=[m.getName() for m in self.tmp_managers], value=None, interactive=True)
+                )
 
     def setParamToManagerInfo(self, param : dict, manager : Manager):
         for key, value in param.keys():
@@ -1023,7 +1025,6 @@ class Actioner():
                         print('Move to tmp error: task[',task.getName(),'] is std man task, but child[',child.getName(),'] is tmp man task and not copied')
                         return
             task_names = self.getExtTaskNamesOfManager(next_man)
-            print(task_names)
             task_names_to_del = []
         print('cur=',len(cur_man.task_list))
         for task in tasks:
@@ -1047,8 +1048,6 @@ class Actioner():
             if len(ext_tasks):
                 self.addExtTasksForManager(cur_man, ext_tasks)
         else: #std->tmp
-            print(task_names)
-            print(task_names_to_del)
             for name in task_names_to_del:
                 task_names.remove(name)
             self.setExtTaskNamesToManager(task_names, next_man)
