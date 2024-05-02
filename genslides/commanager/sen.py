@@ -57,18 +57,18 @@ class Projecter:
             return self.createNewTree()
         return self.actioner.updateUIelements()
     
-    def loadManagerFromBrowser(self):
-        # man_path = Loader.Loader.getFilePathFromSystemRaw(filetypes=[("Project File", "project.json")])
-        man_path = Loader.Loader.getDirPathFromSystem()
-        # files = FileManager.getFilesInFolder(man_path)
-        # if 'project.json' in files:
-            # man_path = man_path.parent
-        man_path = Loader.Loader.getUniPath(man_path)
+    def loadManagerByPath(self, path : str):
+        print('Load manager by path',path)
+        man_path = Loader.Loader.getUniPath(path)
         self.actioner.std_manager.setPath(man_path)
         self.resetManager(manager = self.actioner.std_manager, path = man_path)
         if len(self.actioner.std_manager.task_list) == 0:
             self.createNewTree()
         print('Load manager from browser is complete')
+   
+    def loadManagerFromBrowser(self):
+        man_path = Loader.Loader.getDirPathFromSystem()
+        self.loadManagerByPath(path=man_path)
         return self.actioner.updateUIelements()
 
     def resetManager(self, manager : Manager, fast = True, load = True, path = 'saved'):

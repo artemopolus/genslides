@@ -21,6 +21,7 @@ import time
 import json
 import os
 import genslides.utils.finder as finder
+import argparse
 
 # [[---]]
 
@@ -99,7 +100,7 @@ def moveDown( img, H_pos):
 
 
 # [[---]]
-def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) -> None:
+def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, project_params) -> None:
 
     seafoam = Seafoam()
     with gr.Blocks(theme=seafoam) as demo:
@@ -753,7 +754,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
             prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
             action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
-
+            if project_params['project'] != None:
+                projecter.loadManagerByPath(project_params['project'])
 # [[---]]
         elif manager.getParam("mode") == "user":
             gr.themes.Base(text_size=sizes.text_lg)
@@ -806,7 +808,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter) 
             # TODO: сменить владельца на проектер
             config_name.change(fn=manager.getParamGradioInput, inputs=[config_name], outputs=[config_values])
 
-    demo.launch(share=manager.getParam('shared'))
+    demo.launch(share=project_params['share'])
 
 def test_cmd_body(manager : Actioner.Manager, projecter : Projecter):
     projecter.clear()
@@ -931,6 +933,28 @@ def mliner_body(manager : Actioner.Manager, projecter : Projecter):
 def main() -> None:
     prompt = "Bissness presentation for investors. My idea is automation of presentation. You just type your idea then software propose your steps to create presentation and try to automatize it."
     # prompt = "automation of presentation"
+
+
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser()
+
+    # Add arguments for the variables
+    parser.add_argument("--project", type=str, help="Path to start project location")
+    parser.add_argument("--share", type=bool, help="Share UI via Gradio", default=False)
+
+    # Parse the command line arguments
+    args = parser.parse_args()
+
+    # Access the values of the variables
+    project_params = {
+        "project": args.project,
+        "share": args.share
+    }
+
+    # Use the variables in your script
+    print(f"Params: {project_params}")
+
+
     manager = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
 
     projecter = Projecter(manager)
@@ -939,7 +963,7 @@ def main() -> None:
 
     if mode == "gradio":
         print("Start gradio application")
-        gr_body(prompt, manager, projecter)
+        gr_body(prompt, manager, projecter, project_params=project_params)
     elif mode == "mliner":
         print("Start console application")
         mliner_body(manager, projecter)
