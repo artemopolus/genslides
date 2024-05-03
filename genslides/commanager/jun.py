@@ -1406,7 +1406,7 @@ class Manager:
     
     def updateSteppedSelectedInternal(self, info : TaskDescription = None):
         # print(10*"----------")
-        print("STEP",4*">>",self.curr_task.getName(),"||||||")
+        init_log = "STEP" + 4*">>" + self.curr_task.getName() + "||||||:"
         # print(10*"----------")
         if info:
             info.stepped = True
@@ -1429,11 +1429,13 @@ class Manager:
             saver.save(pack)
 
 
+        acceptedchilds = [t.getName() for t in self.curr_task.getChilds() if t in self.task_list]
+        next = self.curr_task.getNextFromQueue(trgtaskNames=acceptedchilds)
 
-        next = self.curr_task.getNextFromQueue()
-
-        # if next:
-            # print('Next task', next.getName(),'in list:',next in self.task_list)
+        if next:
+            print(init_log,'===>', next.getName(),'in list:',next in self.task_list)
+        else:
+            print(init_log, 'Next task is None')
 
         if next not in self.curr_task.getTree():
             # print('Go to the next tree')

@@ -216,8 +216,8 @@ class ReceiveTask(TextTask):
         #     self.update()
     
     
-    def findNextFromQueue(self):
-        res = super().findNextFromQueue()
+    def findNextFromQueue(self, trgtasknames = []):
+        res = super().findNextFromQueue(trgtasknames=trgtasknames)
         if res:
             return res
         # for cl in self.callback_link:

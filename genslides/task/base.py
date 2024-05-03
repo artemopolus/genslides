@@ -1093,8 +1093,9 @@ class BaseTask():
         self.queue.sort(key=self.sortKey)
         # print([[q['name'], q['idx']] for q in self.queue])
 
-    def findNextFromQueue(self, only_check = False):
+    def findNextFromQueue(self, only_check = False, trgtasknames = []):
         # print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
+        # print('Trg tasks:', trgtasknames)
         self.sortQueue()
         if self.queue:
             for info1 in self.queue:
@@ -1102,7 +1103,10 @@ class BaseTask():
                     info = info1.copy()
                 else:
                     info = info1
-                if info["type"] == "child":
+                if len(trgtasknames):
+                    if info["name"] in trgtasknames and info["type"] == "child" and self.onQueueCheck(info):
+                        return self.getChildByName(info['name'])
+                elif info["type"] == "child":
                     # print("info:", info['name'])
                     if self.onQueueCheck(info):
                         return self.getChildByName(info['name'])
@@ -1121,8 +1125,8 @@ class BaseTask():
             return False
         return True
 
-    def getNextFromQueue(self):
-        res = self.findNextFromQueue()
+    def getNextFromQueue(self, trgtaskNames = []):
+        res = self.findNextFromQueue(trgtasknames=trgtaskNames)
         # print("Get next from",self.getName(),"queue:", res)
         if res:
             return res
