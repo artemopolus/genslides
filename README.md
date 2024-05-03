@@ -19,17 +19,35 @@ To quickly set up ThoughtTuner, follow these steps:
     python3 -m venv .env
     source .env/bin/activate
     ```
+1.1 Maybe you have to install:
+```shell
+sudo apt-get install python3.12-venv
+```
+change 3.12 on your version
 
 2. Install the necessary dependencies:
     ```shell
     python -m pip install -r requirements.txt
     python -m nltk.downloader popular
     ```
+2.1 Install tkinter for your version of python
+
+   ```shell
+   sudo apt-get install python3-tk
+   ```
+2.2 If error: ModuleNotFoundError: No module named 'distutils'
+
+```shell
+   python -m pip install setuptools
+```
 
 3. Install Graphviz:
 
    - Windows: Download and install from [Graphviz Download Page](https://www.graphviz.org/download/)
-   - Ubuntu: Run `sudo apt-get install graphviz`
+   - Ubuntu: Run 
+   ```shell
+   sudo apt-get install graphviz
+   ```
 
 4. Obtain your API keys:
    - OpenAI API: Obtain from [OpenAI API Keys](https://platform.openai.com/account/api-keys)
