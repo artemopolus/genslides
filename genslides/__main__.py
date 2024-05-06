@@ -298,6 +298,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         select_to_list_btn.click(fn=projecter.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
                     with gr.Tab('MultiSelect'):
                         with gr.Row():
+                            multiselecttask_txt = gr.Textbox(label='Multiselected tasks:')
+                        with gr.Row():
                             addtask2reltask_btn = gr.Button('Add task')
                             addpart2reltask_btn = gr.Button('Add brpart')
                             addbrch2reltask_btn = gr.Button('Add branch')
@@ -318,6 +320,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             rmvbrch2reltask_btn = gr.Button('Rmv branch')
                             rmvchds2reltask_btn = gr.Button('Rmv childs')
                             rmvtree2reltask_btn = gr.Button('Rmv tree')
+                            rmvprns2reltask_btn = gr.Button('Rmv parents')
                         with gr.Row():
                             addrow2reltask_btn = gr.Button('Select row')
                             addcurrtaskrow2reltask_btn = gr.Button('Select row by range')
@@ -608,7 +611,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                raw_dial, 
                                go_lnkfrwd_rad,
                                tmpmanname_txt,
-                               tmpman_clrpck
+                               tmpman_clrpck,
+                               multiselecttask_txt
                                ]
             std_output_list.extend([graph_img, graph_alone, raw_graph])
                                
@@ -661,6 +665,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             rmvbrch2reltask_btn.click(fn=projecter.removeBranchFromChain, outputs=std_output_list)
             rmvtree2reltask_btn.click(fn=projecter.removeTreeFromChain, outputs=std_output_list)
             rmvchds2reltask_btn.click(fn=projecter.removeChildsFromChain, outputs=std_output_list)
+            rmvprns2reltask_btn.click(fn=projecter.removeParentsFromChain, outputs=std_output_list)
             delete_reltasks_btn.click(fn=projecter.removeMultiSelect, outputs=std_output_list)
             
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)

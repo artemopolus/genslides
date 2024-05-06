@@ -596,7 +596,7 @@ class Manager:
                 # self.makeTaskAction(prompt, task_info['type'], "New", role)
                 self.createOrAddTask(prompt=prompt, type=FileMan.getFileName(file), tag=role,parent=None)
             elif parent and 'parent' in task_info and task_info['parent'] == parent.getName():
-                print('Create using path=', file)
+                # print('Create using path=', file)
                 if 'chat' in task_info and len(task_info['chat']) > 0:
                     prompt = task_info['chat'][-1]['content']
                     role = task_info['chat'][-1]['role']
@@ -634,7 +634,7 @@ class Manager:
                 task_links.extend(n_task_list2)
             else:
                 for task in start_tasks:
-                    print('Create task for', task.getName())
+                    # print('Create task for', task.getName())
                     n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
                     n_start_tasks.extend(n_start_tasks2)
                     task_links.extend(n_task_list2)
@@ -1429,7 +1429,8 @@ class Manager:
             saver.save(pack)
 
 
-        acceptedchilds = [t.getName() for t in self.curr_task.getChilds() if t in self.task_list]
+        # acceptedchilds = [t.getName() for t in self.curr_task.getChilds() if t in self.task_list]
+        acceptedchilds = [t.getName() for t in self.task_list]
         next = self.curr_task.getNextFromQueue(trgtaskNames=acceptedchilds)
 
         if next:
@@ -1771,7 +1772,8 @@ class Manager:
             rawinfo_msgs,
             gr.Radio(choices=[t.getName() for t in self.curr_task.getHoldGarlands()], interactive=True),
             self.getName(),
-            self.getColor()
+            self.getColor(),
+            ','.join([t.getName() for t in self.multiselect_tasks])
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):

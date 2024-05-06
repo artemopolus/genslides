@@ -787,6 +787,7 @@ class Projecter:
         return self.actioner.updateUIelements()
         
     def updateAll(self):
+        print('Update All trees stepped')
         self.actioner.manager.disableOutput2()
         self.actioner.updateAll()
         self.actioner.manager.enableOutput2()
@@ -940,6 +941,15 @@ class Projecter:
                 man.multiselect_tasks.remove(task)
         return self.actioner.updateUIelements()
     
+    def removeParentsFromChain(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getAllParents()
+        tasks.remove(man.curr_task)
+        for task in tasks:
+            if task in man.multiselect_tasks:
+                man.multiselect_tasks.remove(task)
+        return self.actioner.updateUIelements()
+
     def selectRowTasks(self):
         man = self.actioner.manager
         trg, child_idx = man.curr_task.getClosestBranching()
