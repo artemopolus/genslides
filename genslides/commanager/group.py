@@ -17,7 +17,7 @@ import graphviz
 class Actioner():
     def __init__(self, manager : Manager.Manager) -> None:
         self.std_manager = manager
-        self.manager = manager
+        self.setManager(manager)
         self.tmp_managers = []
         self.loadExtProject = manager.loadexttask
         # TODO: установить как значение по умолчанию
@@ -26,8 +26,16 @@ class Actioner():
         self.is_executing = False
         self.executing_man = None
 
+    def setManager(self, manager : Manager.Manager):
+        if not manager.is_loaded:
+            manager.disableOutput2()
+            manager.loadTasksListFileBased()
+            manager.enableOutput2()
+ 
+        self.manager = manager
+
     def reset(self):
-        self.manager = self.std_manager
+        self.setManager(self.std_manager)
         self.tmp_managers = []
         self.clearTmp()
 
@@ -48,20 +56,24 @@ class Actioner():
         tmppath = os.path.join(self.getPath(),'tmp')
         if not os.path.exists(tmppath):
             return
-        for fldpath in FileManager.getFoldersInFolder(tmppath):
+        for fldname in FileManager.getFoldersInFolder(tmppath):
+            manfoldpath = os.path.join(tmppath, fldname)
+            self.loadManagerByPath(manfoldpath)
+                
+    def loadManagerByPath(self, manfoldpath):
                 manager = Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
                 manager.initInfo(
                                 method =self.loadExtProject, 
                                 task = None,
-                                path = tmppath,
-                                params={'path': os.path.join(tmppath, fldpath)}
+                                # path = tmppath,
+                                params={'path': manfoldpath}
                                 )
                 self.addTasksByInfo(manager)
                 # Добавляем менеджера
                 if manager is not None:
-                    manager.disableOutput2()
-                    manager.loadTasksListFileBased()
-                    manager.enableOutput2()
+                #     manager.disableOutput2()
+                #     manager.loadTasksListFileBased()
+                #     manager.enableOutput2()
                     self.tmp_managers.append(manager)
 
 
@@ -191,14 +203,14 @@ class Actioner():
         for man in pack['managers']:
             self.addPrivateManagerForTaskByName(man)
         for manager in self.tmp_managers:
-            self.manager = manager
+            self.setManager(manager)
             self.exeComList(manager.info['actions'])
     
     def clearTmpManagers(self):
         tmp = self.tmp_managers.copy()
         for man in tmp:
             self.removeTmpManager(man, self.std_manager)
-        self.manager = self.std_manager
+        self.setManager(self.std_manager)
 
     def getTmpManagersList(self):
         return [t.getName() for t in self.tmp_managers]
@@ -216,14 +228,14 @@ class Actioner():
             all_done = True
             for manager in self.tmp_managers:
                 if not manager.info['done']:
-                    self.manager = manager
+                    self.setManager(manager)
                     self.exeComList(manager.info['actions'])
                     all_done = False
             idx +=1
         tmp = self.tmp_managers.copy()
         for man in tmp:
             self.removeTmpManager(man, self.std_manager)
-        self.manager = self.std_manager
+        self.setManager(self.std_manager)
         
     def makeSavedAction(self, pack):
         print(10*"----------")
@@ -353,11 +365,11 @@ class Actioner():
         elif creation_type == "InitSavdManagerToCur":
             man = self.addSavedScriptToCurTask(param['task'])
             if man is not None:
-                self.manager = man
+                self.setManager(man)
         elif creation_type == "InitSavdManager":
             man = self.addSavedScript(param['task'])
             if man is not None:
-                self.manager = man
+                self.setManager(man)
         elif creation_type == "EditPrivManager":
             self.setParamToManagerInfo(param, self.manager)
         elif creation_type == "ExecuteManager":
@@ -365,7 +377,7 @@ class Actioner():
         elif creation_type == "InitPrivManager":
             man = self.addEmptyScript(param)
             if man is not None:
-                self.manager = man
+                self.setManager(man)
         elif creation_type == "SavePrivManToTask":
             # print(self.manager.info)
             self.manager.curr_task.setManagerParamToTask({'type':'manager', 'info': self.manager.info})
@@ -381,7 +393,7 @@ class Actioner():
         elif creation_type == "RmvePrivManager":
             if self.manager == self.std_manager:
                 if len(self.tmp_managers):
-                    self.manager = self.tmp_managers[-1]
+                    self.setManager(self.tmp_managers[-1])
                 else:
                     return self.manager.getCurrTaskPrompts()
             # trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
@@ -534,7 +546,7 @@ class Actioner():
 
         del man
         # установить следущий менедежер
-        self.manager = next_man
+        self.setManager(next_man)
 
     def getTmpManagerInfo(self):
         # print('Get temporary manager',self.manager.getName(),'info')
@@ -627,7 +639,7 @@ class Actioner():
             # if self.manager is self.std_manager:
                 t_manager = self.createPrivateManagerForTask(start, act_param)
                 self.tmp_managers.append(t_manager)
-                self.manager = t_manager
+                self.setManager(t_manager)
             self.resetCurrentPrivateManager(start, act_param)
             self.exeCurManagerSmpl()
             start.confirmExeCommands(act_param)
@@ -639,7 +651,7 @@ class Actioner():
             if self.is_executing:
                 self.is_executing = False
                 print('End execution')
-                self.manager = self.executing_man
+                self.setManager(self.executing_man)
              
 
         next = man.updateSteppedSelectedInternal()
@@ -847,7 +859,7 @@ class Actioner():
             rawgraph = self.manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
             if out == None:
-                self.manager = self.std_manager
+                self.setManager(self.std_manager)
                 out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
             out += (maingraph, stepgraph, rawgraph)
             return out

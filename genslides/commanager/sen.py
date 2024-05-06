@@ -127,7 +127,7 @@ class Projecter:
 
 
     def load(self):
-        self.actioner.manager = self.actioner.std_manager
+        self.actioner.setManager(self.actioner.std_manager)
         self.clearFiles()
         path = self.actioner.manager.getPath()
         path = Loader.Loader.getUniPath(path)
@@ -197,7 +197,7 @@ class Projecter:
         self.actioner.std_manager.setParam("current_project_name",self.current_project_name)
 
         # Archivator.saveOnlyFiles(self.savedpath, self.mypath, name)
-        self.actioner.manager = self.actioner.std_manager
+        self.actioner.setManager(self.actioner.std_manager)
         print('Save man', self.actioner.manager.getName(),'(Temp)' if self.actioner.manager != self.actioner.std_manager else '(Main)')
         path = self.actioner.manager.getPath()
         path = Loader.Loader.getUniPath(path)
@@ -547,11 +547,11 @@ class Projecter:
     
     def loadTmpManager(self, name):
         if self.actioner.std_manager.getName() == name:
-            self.actioner.manager = self.actioner.std_manager
+            self.actioner.setManager(self.actioner.std_manager)
         else:
             for man in self.actioner.tmp_managers:
                 if man.getName() == name:
-                    self.actioner.manager = man
+                    self.actioner.setManager(man)
                     break
         return self.actioner.updateTaskManagerUI()
     
@@ -1235,8 +1235,8 @@ class Projecter:
                 self.moveTaskToStdMan()
                 self.actioner.std_manager.multiselect_tasks = task_trgs
                 start_man.multiselect_tasks = []
-                self.actioner.manager = trg_man
+                self.actioner.setManager(trg_man)
                 self.moveTaskToTmpMan()
-                self.actioner.manager = start_man
+                self.actioner.setManager(start_man)
         return self.actioner.updateTaskManagerUI()
 

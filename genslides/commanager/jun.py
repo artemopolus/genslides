@@ -148,6 +148,7 @@ class Manager:
         self.tc_start = False
         self.tc_stop = False
         self.multiselect_tasks = []
+        self.is_loaded = False
 
     def getCurrentTask(self) -> BaseTask:
         return self.curr_task
@@ -239,6 +240,8 @@ class Manager:
 
         for task in self.task_list:
                 task.completeTask()
+
+        self.is_loaded = True
 
         # for task in self.task_list:
         #     print("Task name=", task.getName(), " affected")
@@ -575,6 +578,14 @@ class Manager:
             text += f.read()
         return text
     
+    def checkParentName(self, task_info, parent :BaseTask) -> bool:
+        # TODO: если задача в списке внешних задач, подменить
+        return 'parent' in task_info and task_info['parent'] == parent.getName()
+    
+    def getParentSavingName(self, task : BaseTask):
+        # TODO: если задача в списке внешних задач, то передать старое имя
+        return task.getName().replace(self.getProjPrefix(), "")
+
     def createTaskByFile(self, parent :BaseTask = None):
         path = Loader.Loader.getUniPath(self.getPath())
         files = FileMan.getFilesPathInFolder(path)
@@ -644,7 +655,7 @@ class Manager:
             idx +=1
         # print('Loadinf done in',idx,'steps')
         self.applyLinks(task_links)
-
+        self.is_loaded = True
 
 
 

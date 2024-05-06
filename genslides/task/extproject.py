@@ -350,7 +350,7 @@ class SearcherTask(ExtProjectTask):
                     if int_child['idx'] == idx:
                         self.intpar = int_child['root']
                         self.intch_trg = int_child['trg']
-                        self.actioner.manager = int_child['manager']
+                        self.actioner.setManager(int_child['manager'])
                         self.intpar = self.parent
                         return
 

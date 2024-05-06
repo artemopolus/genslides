@@ -329,8 +329,7 @@ class BaseTask():
             info.parent.updateNameQueue(old_name, name)
 
     def getClearName(self) -> str:
-        return self.name.replace(self.pref, "")
-
+        return self.manager.getParentSavingName(self)
     
     def getName(self) -> str:
         return self.name
