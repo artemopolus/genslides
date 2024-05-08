@@ -162,6 +162,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             go_lnkback_btn = gr.Button(value='Go BackLnk')
                             go_lnkfrwd_rad = gr.Radio(label='Targets')
                             go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
+                            go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
 
                         with gr.Row():
                             sec_msg = gr.Chatbot(height=700)
@@ -325,7 +326,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             addrow2reltask_btn = gr.Button('Select row')
                             addcurrtaskrow2reltask_btn = gr.Button('Select row by range')
                             addcurrtaskrow2reltask_sld = gr.Slider(minimum=0, maximum=20,step=1,value=1,label='range to row')
-
+                        with gr.Row():
+                            addcpbranch2reltask_btn = gr.Button('Select copy Branch')
+                            addcptasks2reltask_btn = gr.Button('Select copy Task')
                         with gr.Row():
                             relattaskcln_btn = gr.Button('Clear all')
                         with gr.Row():
@@ -658,6 +661,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             addtree2reltask_btn.click(fn=projecter.appendTreeToChain, outputs=std_output_list)
             addchds2reltask_btn.click(fn=projecter.appendChildsToChain, outputs=std_output_list)
             addrow2reltask_btn.click(fn=projecter.selectRowTasks, outputs=std_output_list)
+
+            addcpbranch2reltask_btn.click(fn=projecter.selectCopyBranch, outputs=std_output_list)
+            addcptasks2reltask_btn.click(fn=projecter.selectCopyTasks, outputs=std_output_list)
+
             addcurrtaskrow2reltask_btn.click(fn=projecter.selectTaskRowFromCurrent, inputs=[addcurrtaskrow2reltask_sld], outputs=std_output_list)
 
             rmvtask2reltask_btn.click(fn=projecter.removeTaskFromChain, outputs=std_output_list)
@@ -721,6 +728,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             next_brend_bt.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
             go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
             go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
+            go_hlfbrch_btn.click(fn=projecter.goToHalfBranch, outputs=std_output_list)
 
             # raw_next_brnch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
             # raw_next_brend_btn.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)

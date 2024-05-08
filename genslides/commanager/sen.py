@@ -476,6 +476,13 @@ class Projecter:
         self.actioner.manager.goToParent()
         return self.actioner.updateUIelements()
         # return self.makeTaskAction("","","GoToParent","")
+
+    def goToHalfBranch(self):
+        cur = self.actioner.manager.curr_task
+        tasks = cur.getAllParents()
+        idx = int(len(tasks)/2)
+        self.actioner.manager.curr_task = tasks[idx]
+        return self.actioner.updateUIelements()
     
     def moveToNextChild(self):
         self.actioner.manager.goToNextChild()
@@ -955,10 +962,26 @@ class Projecter:
         trg, child_idx = man.curr_task.getClosestBranching()
         tasks = trg.getChildSameRange(trg_idx=child_idx)
         for task in tasks:
-            if task not in man.multiselect_tasks:
+            if task in man.task_list and task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
         return self.actioner.updateUIelements()
     
+    def selectCopyBranch(self):
+        man = self.actioner.manager
+        tasks = man.getCopyBranch(man.curr_task)
+        for task in tasks:
+            if task in man.task_list and task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return self.actioner.updateUIelements()
+
+    def selectCopyTasks(self):
+        man = self.actioner.manager
+        tasks = man.getCopyTasks(man.curr_task)
+        for task in tasks:
+            if task in man.task_list and task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return self.actioner.updateUIelements()
+   
     def selectTaskRowFromCurrent(self, child_idx):
         man = self.actioner.manager
         tasks = man.curr_task.getChildSameRange(trg_idx=child_idx)
