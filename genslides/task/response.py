@@ -225,3 +225,19 @@ class ResponseTask(TextTask):
         else:
             return super().getTextInfo()
 
+    def checkGetContentAndParent(self):
+        pres, pparam = self.getParamStruct('hidden')
+        if pres and pparam['hidden']:
+            return False, [], self.parent
+        pack = {
+                "role":self.getLastMsgRole(), 
+                "content": self.findKeyParam(self.getLastMsgContent()),
+                "task": self.getName()
+                }
+        rres, rparam = self.getParamStruct('response', only_current=True)
+        if rres:
+            pack["logprobs"] = rparam["logprobs"]
+        val = [pack]
+        if self.parent != None:
+            self.parent.setActiveBranch(self)
+        return True, val, self.parent

@@ -2808,4 +2808,18 @@ class Manager:
                 out.append([name,'common'])
         return out
     
- 
+    def getChatRecord(self, idx : int):
+        data = self.curr_task.getChatRecords()
+        if idx < len(data):
+            msgs = data[idx]['chat']
+            return self.convertMsgsToChat(msgs=msgs)
+        return []
+
+    def getChatRecordRow(self, idx : int):
+        data = self.curr_task.getChatRecords()
+        out = []
+        for i, pack in enumerate(data):
+            chat = pack['chat']
+            if idx < len(chat):
+                out.append(chat[idx])
+        return self.convertMsgsToChat(msgs=out)

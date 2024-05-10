@@ -439,8 +439,33 @@ class Projecter:
         
         return self.actioner.manager.convertMsgsToChat(buds_chat)
 
-
-
+    def getCopyBranch(self, id_branch):
+        print('Get copy id:', id_branch)
+        out = [self.actioner.manager.getChatRecord(id_branch)]
+        out.extend( list( self.getCopyBranchesInfo()))
+        return out
+    
+    def getCopyBranchRow(self, id_task):
+        print('Get copy row by id:', id_task)
+        out = [self.actioner.manager.getChatRecordRow(id_task)]
+        out.extend(list(self.getCopyBranchesInfo()))
+        return out
+    
+    def getCopyBranchesInfo(self):
+        data = self.actioner.manager.curr_task.getChatRecords()
+        data_len = len(data)
+        data_chatlen = 0
+        data_info  = 'Copyed num: ' + str(data_len) + '\n'
+        if len(data):
+            data_chatlen = len(data[0]['chat'])
+            data_info += 'Branch len: ' + str(data_chatlen)
+        return (data_info, 
+                gr.Slider(minimum=0, maximum=data_len, step=1),
+                gr.Slider(minimum=0, maximum=data_chatlen, step=1)
+                )
+    def makeTaskRecordable(self):
+        self.actioner.manager.curr_task.setRecordsParam()
+        return self.actioner.updateUIelements()
     
     def goToNextBranch(self):
         self.actioner.manager.goToNextBranch()

@@ -15,6 +15,9 @@ class SetOptionsTask(WriteToFileTask):
     def isInputTask(self):
         return False
     
+    def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
+        return False, [], self.parent
+    
     def getLastMsgAndParent(self):
         return False, [], self.parent
 

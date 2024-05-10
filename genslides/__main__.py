@@ -218,8 +218,23 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     comparison_btn = gr.Button('Compare')
                 with gr.Row():
+                    fullchatrecords_btn = gr.Button('Get full chat')
+                    fullchatrecords_sld = gr.Slider(interactive=True)
+                with gr.Row():
+                    rowchatrecords_btn = gr.Button('Get chat row')
+                    rowchatrecords_sld = gr.Slider(interactive=True)
+                with gr.Row():
+                    infochatrecords_txt = gr.Textbox()
+                with gr.Row():
+                    infochatrecords_btn = gr.Button('Update')
+                with gr.Row():
                     comparison_chat = gr.Chatbot(height=500)
 
+                fullchatrecords_btn.click(fn=projecter.getCopyBranch, inputs = [fullchatrecords_sld], 
+                                          outputs=[comparison_chat, infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
+                rowchatrecords_btn.click(fn=projecter.getCopyBranchRow, inputs = [rowchatrecords_sld], 
+                                          outputs=[comparison_chat, infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
+                infochatrecords_btn.click(fn=projecter.getCopyBranchesInfo, outputs=[infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
                 comparison_btn.click(fn=projecter.getBudMsgs, inputs=comparison_rad, outputs=comparison_chat)
  
             with gr.Row():
@@ -273,7 +288,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 addkey_val_txt = gr.Textbox(label='New key value')
                                 addkey_apd_btn = gr.Button('Add new key, value')
                                 param_key.select(fn=projecter.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
-                          
+                                setrecords_btn = gr.Button('Set recording') 
                     with gr.Tab('Select'):
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
@@ -618,6 +633,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                multiselecttask_txt
                                ]
             std_output_list.extend([graph_img, graph_alone, raw_graph])
+
+            setrecords_btn.click(fn=projecter.makeTaskRecordable, outputs=std_output_list)
                                
             addmultitotmp_btn.click(fn=projecter.addMultiSelectTasksFromStdMan, outputs=std_output_list) 
             rmvmultifrtmp_btn.click(fn=projecter.rmvMultiSelectTasksFromTmpMan, outputs=std_output_list)  

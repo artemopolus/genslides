@@ -803,11 +803,73 @@ class TextTask(BaseTask):
             trg = par
             index += 1
         return names
+    
+    def getTasksContent(self, except_task = []):
+        task = self
+        index = 0
+        out = []
+        while(index < 1000):
+            res, msg, par = task.checkGetContentAndParent()
+            if res and task.getName() not in except_task:
+                msg.extend(out)
+                out = msg
+            if par is None:
+                break
+            else:
+                task = par
+            index += 1
+        return out
+
+
+    def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
+        res, pparam = self.getParamStruct('hidden')
+        if res and pparam['hidden']:
+            return False, [], self.parent
+        val = [{
+                "role":self.getLastMsgRole(), 
+                "content": self.findKeyParam(self.getLastMsgContent()),
+                "task": self.getName()
+                }]
+        if self.parent != None:
+            self.parent.setActiveBranch(self)
+        return True, val, self.parent
+
+    def internalUpdateParams(self):
+        self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
+        res, param = self.getParamStruct(param_name='records', only_current=True)
+        if res:
+            data = param['data']
+            chat = self.getTasksContent()
+            if len(data) == 0 or (len(data) and data[-1]['chat'] != chat):
+                print('data=',data[-1]['chat'])
+                print('chat=',chat)
+                pack = {
+                    'chat': chat,
+                    'time': savedata.getTimeForSaving()
+                    }
+                data.append(pack)
+                self.setParamStruct({'type':'records','data':data})
+
+    def setRecordsParam(self):
+        print('Set',self.getName(),'to recording')
+        data = [{
+                    'chat': self.getTasksContent(),
+                    'time': savedata.getTimeForSaving()
+        }]
+        self.setParamStruct({'type':'records','data':data})
+
+
+    def getChatRecords(self) ->list:
+        res, param = self.getParamStruct(param_name='records', only_current=True)
+        if res:
+            return param['data']
+        return []
+
 
     def update(self, input: TaskDescription = None):
         self.checkInput(input)
         out = super().update(input)
-        self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
+        self.internalUpdateParams()
         # self.updateParamStruct(param_name='branch', key='code', val=self.getBranchCodeTag())
         return out
 
