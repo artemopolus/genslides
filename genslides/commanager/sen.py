@@ -460,8 +460,8 @@ class Projecter:
             data_chatlen = len(data[0]['chat'])
             data_info += 'Branch len: ' + str(data_chatlen)
         return (data_info, 
-                gr.Slider(minimum=0, maximum=data_len, step=1),
-                gr.Slider(minimum=0, maximum=data_chatlen, step=1)
+                gr.Slider(minimum=0, maximum=data_len - 1 if data_len > 0 else 0, step=1),
+                gr.Slider(minimum=0, maximum=data_chatlen - 1 if data_chatlen > 0 else 0, step=1)
                 )
     def makeTaskRecordable(self):
         self.actioner.manager.curr_task.setRecordsParam()
