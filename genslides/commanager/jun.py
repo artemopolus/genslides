@@ -1785,13 +1785,14 @@ class Manager:
 
 
 
-        res_params = {'params':self.curr_task.getAllParams(), 'queue':self.curr_task.queue}
         
         rawinfo_msgs = self.convertMsgsToChat(self.curr_task.getRawMsgsInfo())
 
-        for param in res_params:
+        task_params = self.curr_task.getAllParams()
+        for param in task_params:
             if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
                 del param['logprobs']
+        res_params = {'params': task_params, 'queue':self.curr_task.getQueueList()}
 
         cnt = 0
         for task in self.task_list:

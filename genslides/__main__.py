@@ -189,7 +189,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             upd2cur_step_btn = gr.Button(value='UAT to cur')
                             updbrnc_step_btn = gr.Button(value='Update tree')
                             reset_step_btn = gr.Button(value="Reset steps")
-                            
+                        with gr.Row():
+                            clnresp_btn = gr.Button(value='Clean Response')
+ 
                             # move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
                             # move2parnt_btn = gr.Button(value='Go up')
                             # move2child_btn = gr.Button(value='Go down')
@@ -379,8 +381,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             update_task_btn = gr.Button(value="Update")
                             updatecur_task_btn = gr.Button(value='Update current')
                             clean_task_btn = gr.Button(value='Clean')
-                        with gr.Row():
-                            gr.Button(value='Clean Response').click(fn=projecter.cleanLastMessage)
                     with gr.Tab('Arrange'):
                         with gr.Row():
                             with gr.Column():
@@ -635,7 +635,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_output_list.extend([graph_img, graph_alone, raw_graph])
 
             setrecords_btn.click(fn=projecter.makeTaskRecordable, outputs=std_output_list)
-                               
+            clnresp_btn.click(fn=projecter.cleanLastMessage, outputs=std_output_list)
+
             addmultitotmp_btn.click(fn=projecter.addMultiSelectTasksFromStdMan, outputs=std_output_list) 
             rmvmultifrtmp_btn.click(fn=projecter.rmvMultiSelectTasksFromTmpMan, outputs=std_output_list)  
             movemulti2std_btn.click(fn=projecter.moveTaskToStdMan, outputs=std_output_list) 

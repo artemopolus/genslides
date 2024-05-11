@@ -26,6 +26,7 @@ import pprint
 import re
 import ast
 import genslides.utils.finder as finder
+import copy
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
@@ -1119,7 +1120,7 @@ class TextTask(BaseTask):
         
 
     def getAllParams(self):
-        pparams = self.params.copy()
+        pparams = copy.deepcopy(self.params)
         return pparams
     
     def afterRestoration(self):

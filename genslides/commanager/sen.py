@@ -1144,6 +1144,7 @@ class Projecter:
         if task.checkType( 'Response'):
             task.forceCleanChat()
             task.freezeTask()
+        return self.actioner.updateUIelements()
 
     def getCurrentTaskBranchCodeTag(self):
         man = self.actioner.manager

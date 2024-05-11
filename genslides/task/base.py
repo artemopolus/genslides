@@ -1119,6 +1119,8 @@ class BaseTask():
             input.id = task.id
             task.method(input)
 
+    def getQueueList(self):
+        return self.queue
 
     def isQueueComplete(self):
         if len(self.queue) > 0:
