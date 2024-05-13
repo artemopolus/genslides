@@ -27,10 +27,10 @@ class Actioner():
         self.executing_man = None
 
     def setManager(self, manager : Manager.Manager):
-        # if not manager.is_loaded:
-        #     manager.disableOutput2()
-        #     manager.loadTasksListFileBased()
-        #     manager.enableOutput2()
+        if manager != self.std_manager and not manager.is_loaded:
+            manager.disableOutput2()
+            manager.loadTasksListFileBased()
+            manager.enableOutput2()
  
         self.manager = manager
 
@@ -71,9 +71,9 @@ class Actioner():
                 self.addTasksByInfo(manager)
                 # Добавляем менеджера
                 if manager is not None:
-                    manager.disableOutput2()
-                    manager.loadTasksListFileBased()
-                    manager.enableOutput2()
+                    # manager.disableOutput2()
+                    # manager.loadTasksListFileBased()
+                    # manager.enableOutput2()
                     self.tmp_managers.append(manager)
 
 
