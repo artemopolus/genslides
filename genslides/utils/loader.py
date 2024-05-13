@@ -117,8 +117,8 @@ class Loader:
             if to_par_fld:
                 tag = 'fld'
                 mpath = mpath.parent.parent
-            print('Check manager tag', mpath)
             rel_path = path.relative_to(mpath)
+            print('Check manager tag', mpath, 'with', path,':', rel_path)
             str_rel_path = str(PurePosixPath(rel_path))
             filename = '[[manager:path:'+ tag +']]/'+ str_rel_path
         except Exception as e:
@@ -140,6 +140,8 @@ class Loader:
             mfilename = Loader.checkManagerTag(path, manager_path, False)
             if filename == mfilename:
                 return Loader.checkManagerTag(path, manager_path)
+            else:
+                return mfilename
         return str(filename)
     
     def getFolderPath(path : str, to_par_fld = True) -> str:

@@ -2448,14 +2448,14 @@ class Manager:
         return self.getCurrTaskPrompts()
  
 
-    def saveInfo(self):
-        # print('Save info', self.getName())
+    def saveInfo(self, check = False):
         tree_info = []
-        self.updateTreeArr()
+        self.updateTreeArr(check_list=check)
         for task in self.tree_arr:
             task_buds = self.getSceletonBranchBuds(task)
             tree_info.append(Sr.ProjectSearcher.getInfoForSearch(task_buds))
 
+        # print('Save info', self.getName(), '[',len(self.tree_arr),']\n', tree_info)
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
         if not self.info: 
             loaded = False

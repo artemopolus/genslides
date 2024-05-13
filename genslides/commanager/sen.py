@@ -1304,13 +1304,19 @@ class Projecter:
         path = Loader.Loader.getDirPathFromSystem(self.actioner.manager.getPath())
         extbrjson = {'type':'external','path':path}
         manpath = Finder.findByKey(path,self.actioner.manager, None, self.actioner.manager.helper)
-        buds_info = Searcher.ProjectSearcher.openProject(manpath)
-        print(extbrjson)
-        print(buds_info)
-        return (extbrjson, 
-                gr.Dropdown(choices=[t['name'] for t in buds_info if 'name' in t], interactive=True))
+        buds_info, tasks_info, all_tasks = Searcher.ProjectSearcher.openProject(manpath)
+        return (json.dumps(extbrjson, indent=1), 
+                gr.Dropdown(choices=[t['name'] for t in buds_info if 'name' in t], interactive=True),
+                gr.Dropdown(choices=tasks_info, interactive=True),
+                gr.Dropdown(choices=all_tasks, interactive=True)
+                )
     
     def saveCurrManInfo(self):
-        self.actioner.manager.saveInfo()
-        print('Save info for',self.actioner.manager.getName())
+        self.actioner.manager.saveInfo(True)
+
+    def addExtBranchInfo(self, start_json, branch_type, task_name):
+        extbrjson = json.loads(start_json)
+        extbrjson['dir'] = branch_type
+        extbrjson['trg'] = task_name
+        return json.dumps(extbrjson, indent=1)
 

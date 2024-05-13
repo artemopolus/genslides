@@ -500,15 +500,19 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             manbudlist_drd = gr.Dropdown(label='Buds:')
                             manbudlist_btn = gr.Button('Select')
+                            manalltsklist_drd = gr.Dropdown(label='Tasks')
                         with gr.Row():
                             mantsklist_drd = gr.Dropdown(label='Tasks:')
                             mantsklist_btn = gr.Button('Select')
                         with gr.Row():
                             manbudindo_txt = gr.Textbox(label='BranchCode')
                         with gr.Row():
-                            extproj_jsn = gr.Textbox()
+                            extbrnchtype_rad = gr.Radio(choices=['In','Out'],value='In',interactive=True, label='Ext Branch Type')
+                        with gr.Row():
+                            extproj_jsn = gr.Textbox(label='ExtBranchParam',lines=5)
 
-                        maninfoget_btn.click(fn=projecter.loadManagerInfoForExtWithBrowser, outputs=[extproj_jsn, manbudlist_drd])
+                        maninfoget_btn.click(fn=projecter.loadManagerInfoForExtWithBrowser, outputs=[extproj_jsn, manbudlist_drd, mantsklist_drd, manalltsklist_drd])
+                        manbudlist_btn.click(fn=projecter.addExtBranchInfo, inputs=[extproj_jsn, extbrnchtype_rad, manbudlist_drd], outputs=[extproj_jsn])
                         
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr, tempman_drp]
