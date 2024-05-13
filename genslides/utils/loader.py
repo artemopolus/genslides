@@ -129,6 +129,7 @@ class Loader:
 
     
     def getDirPathFromSystem(manager_path = '') -> str:
+        print('Get dir path from mpath',manager_path)
         app = Tk()
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)

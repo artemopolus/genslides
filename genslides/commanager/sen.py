@@ -8,6 +8,8 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.loader as Loader
+import genslides.utils.finder as Finder
+import genslides.utils.searcher as Searcher
 import genslides.utils.filemanager as FileManager
 
 from os import listdir
@@ -19,7 +21,6 @@ import json
 import gradio as gr
 import datetime
 
-import genslides.utils.filemanager as fm
 import pyperclip
 import pathlib
 import matplotlib.pyplot as plt
@@ -107,7 +108,7 @@ class Projecter:
     
     def clearFiles(self):
         mypath = self.savedpath
-        fm.deleteFiles(mypath)
+        FileManager.deleteFiles(mypath)
 
     def clear(self):
         self.clearFiles()
@@ -1298,4 +1299,18 @@ class Projecter:
                 self.moveTaskToTmpMan()
                 self.actioner.manager = start_man
         return self.actioner.updateTaskManagerUI()
+    
+    def loadManagerInfoForExtWithBrowser(self):
+        path = Loader.Loader.getDirPathFromSystem(self.actioner.manager.getPath())
+        extbrjson = {'type':'external','path':path}
+        manpath = Finder.findByKey(path,self.actioner.manager, None, self.actioner.manager.helper)
+        buds_info = Searcher.ProjectSearcher.openProject(manpath)
+        print(extbrjson)
+        print(buds_info)
+        return (extbrjson, 
+                gr.Dropdown(choices=[t['name'] for t in buds_info if 'name' in t], interactive=True))
+    
+    def saveCurrManInfo(self):
+        self.actioner.manager.saveInfo()
+        print('Save info for',self.actioner.manager.getName())
 

@@ -441,6 +441,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 with gr.Row():
                                     updt_prman_btn = gr.Button(value='Updt man list')
                                 with gr.Row():
+                                    gr.Button('Save cur man info').click(fn=projecter.saveCurrManInfo)
+                                with gr.Row():
                                     gr.Label(value='Multiselect tasks (MST) action')
                                 with gr.Row():
                                     addmultitotmp_btn = gr.Button(value='Add stdMST std->tmp man')
@@ -492,6 +494,22 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 actions_list_toadd.select(fn=projecter.getAvailableActionTemplate,inputs=actions_list_toadd, outputs=action_param)
                                 gr.Button('Save action').click(fn=projecter.addActionToCurrentManager, inputs=[actions_list_toadd, action_param], outputs=actions_list)
                                 actions_list.change(fn=projecter.getActionInfo, inputs=actions_list, outputs=actions_info_txt)
+                    with gr.Tab('ExtProject'):
+                        with gr.Row():
+                            maninfoget_btn = gr.Button('Get info from manager')
+                        with gr.Row():
+                            manbudlist_drd = gr.Dropdown(label='Buds:')
+                            manbudlist_btn = gr.Button('Select')
+                        with gr.Row():
+                            mantsklist_drd = gr.Dropdown(label='Tasks:')
+                            mantsklist_btn = gr.Button('Select')
+                        with gr.Row():
+                            manbudindo_txt = gr.Textbox(label='BranchCode')
+                        with gr.Row():
+                            extproj_jsn = gr.Textbox()
+
+                        maninfoget_btn.click(fn=projecter.loadManagerInfoForExtWithBrowser, outputs=[extproj_jsn, manbudlist_drd])
+                        
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr, tempman_drp]
 

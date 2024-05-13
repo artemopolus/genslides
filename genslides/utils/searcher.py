@@ -65,6 +65,20 @@ class ProjectSearcher():
     def saveSearchInfo( trees_info : list, target : dict ):
         target['trees'] = trees_info
 
+    def openProject (path : str):
+        out_infos = []
+        trg_path = pathlib.Path(path) / 'project.json'
+        proj_info = Rd.ReadFileMan.readJson(Ld.Loader.getUniPath(trg_path))
+        print('Read data')
+        if 'trees' in proj_info:
+            for tree in proj_info['trees']:
+                if 'buds' in tree:
+                    for bud in tree['buds']:
+                        name = bud['task']
+                        code = bud['branch']
+                        out_infos.append({"name": name, "code":code})
+        return out_infos
+
     def searchByParams(params : dict):
         if 'type' in params and params['type'] == 'search':
             if params['search'] == 'tags':
