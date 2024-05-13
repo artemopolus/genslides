@@ -44,6 +44,7 @@ class ResponseTask(TextTask):
         else:
             # в противном случае выполняем запрос
             self.executeResponse()
+        return super().onEmptyMsgListAction()
 
     def onExistedMsgListAction(self, msg_list_from_file):
         # print('On existed msg list action')
@@ -59,6 +60,7 @@ class ResponseTask(TextTask):
         if self.checkParentMsgList(update=True, save_curr=False):
             self.stdProcessUnFreeze()
         # print("Get list from file=", self.path)
+        return super().onExistedMsgListAction(msg_list_from_file)
 
     def setChatPram(self, name):
             res, temperature =  self.reqhelper.getValue(self.getType(), name)

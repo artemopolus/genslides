@@ -53,6 +53,12 @@ class TextTask(BaseTask):
         # TODO: Добавить загрузку начальных параметров
         self.stdProcessUnFreeze()
 
+    def onEmptyMsgListAction(self):
+        print('On empty msg list', self.getName())
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        pass
+
     def loadInitParam(self):
         init_params = self.reqhelper.getParams(self.getType())
         for param in init_params:
