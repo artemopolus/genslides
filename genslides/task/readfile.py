@@ -33,6 +33,7 @@ class ReadFileTask(ResponseTask):
             self.msg_list.append({"role": self.prompt_tag, "content": ""})
         else:
             self.executeResponse()
+        return super().onEmptyMsgListAction()
 
     def onExistedMsgListAction(self, msg_list_from_file):
         # print("t=",temperature)
@@ -43,6 +44,7 @@ class ReadFileTask(ResponseTask):
 
         self.msg_list = msg_list_from_file
         # print("Get list from file=", self.path)
+        return super().onExistedMsgListAction(msg_list_from_file)
 
 
     def getResponseFromFile(self, msg_list, remove_last = True):

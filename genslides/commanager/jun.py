@@ -479,13 +479,10 @@ class Manager:
             i += 1
         return self.getCurrTaskPrompts()
     
-
-    def updateEditToCopyBranch(self, start_task : BaseTask):
-        idx = 0
-        trg = start_task
+    def getBranchFork(self, start_task : BaseTask):
         fork = None
-        fork_root = start_task
-        src_tasks = start_task.getAllChildChains()
+        trg = start_task
+        idx = 0
         while(idx < 1000):
             par = trg.getParent()
             if par == None:
@@ -497,6 +494,63 @@ class Manager:
             else:
                 trg = par
             idx +=1
+        return fork, fork_root
+    
+    def getCopyTasks(self, start_task : BaseTask) ->list[BaseTask]:
+        fork, fork_root = self.getBranchFork(start_task)
+        select_branches = [start_task]
+        if fork != None:
+            print('Fork is',fork.getName())
+            for child in fork.getChilds():
+                if child != fork_root:
+                    child_branch = child.getAllChildChains()
+                    branch_found = False
+                    task_found = None
+                    for idx, task in enumerate(child_branch):
+                        print('Check in', task.getName())
+                        pres, pparam = task.getParamStruct('copied', True)
+                        if pres:
+                            names = pparam['cp_path']
+                            if start_task.getName() in names:
+                                    task_found = task
+                                    branch_found = True
+                                    break
+                    if branch_found:
+                        select_branches.extend([task_found])
+        return select_branches
+
+
+    def getCopyBranch(self, start_task: BaseTask) ->list[BaseTask]:
+        fork, fork_root = self.getBranchFork(start_task)
+        src_branch = fork_root.getAllChildChains()
+        select_branches = src_branch.copy()
+        if fork != None:
+            print('Fork is',fork.getName())
+            for child in fork.getChilds():
+                if child != fork_root:
+                    child_branch = child.getAllChildChains()
+                    branch_found = False
+                    for idx, task in enumerate(child_branch):
+                        print('Check in', task.getName())
+                        pres, pparam = task.getParamStruct('copied', True)
+                        task_found = False
+                        if pres:
+                            names = pparam['cp_path']
+                            for s_task in src_branch:
+                                if s_task.getName() in names:
+                                    task_found = True
+                                    break
+                        if task_found:
+                            branch_found = True
+                    if branch_found:
+                        select_branches.extend(child_branch)
+        return select_branches
+
+
+
+    def updateEditToCopyBranch(self, start_task : BaseTask):
+        fork, fork_root = self.getBranchFork(start_task)
+        src_tasks = start_task.getAllChildChains()
 
         if fork != None:
             print('Fork for branches is',fork.getName())
@@ -607,7 +661,7 @@ class Manager:
                 # self.makeTaskAction(prompt, task_info['type'], "New", role)
                 self.createOrAddTask(prompt=prompt, type=FileMan.getFileName(file), tag=role,parent=None)
             elif parent and 'parent' in task_info and task_info['parent'] == parent.getName():
-                print('Create using path=', file)
+                # print('Create using path=', file)
                 if 'chat' in task_info and len(task_info['chat']) > 0:
                     prompt = task_info['chat'][-1]['content']
                     role = task_info['chat'][-1]['role']
@@ -645,7 +699,7 @@ class Manager:
                 task_links.extend(n_task_list2)
             else:
                 for task in start_tasks:
-                    print('Create task for', task.getName())
+                    # print('Create task for', task.getName())
                     n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
                     n_start_tasks.extend(n_start_tasks2)
                     task_links.extend(n_task_list2)
@@ -856,12 +910,6 @@ class Manager:
                     color = 'darkmagenta'
                     shape = "ellipse" #rectangle,hexagon
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
-                elif task == self.curr_task:
-                    color = "skyblue"
-                    shape = "ellipse" #rectangle,hexagon
-                    if len(task.getHoldGarlands()) > 0:
-                        color = 'skyblue4'
-                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 elif task in self.multiselect_tasks:
                     color = "lightsalmon3"
                     shape = "ellipse" #rectangle,hexagon
@@ -872,6 +920,12 @@ class Manager:
                     if task.checkType('Response'):
                         shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
+                elif task == self.curr_task:
+                    color = "skyblue"
+                    shape = "ellipse" #rectangle,hexagon
+                    if len(task.getHoldGarlands()) > 0:
+                        color = 'skyblue4'
+                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 else:
                     color = 'ghostwhite'
                     shape = "ellipse" #rectangle,hexagon
@@ -1440,7 +1494,8 @@ class Manager:
             saver.save(pack)
 
 
-        acceptedchilds = [t.getName() for t in self.curr_task.getChilds() if t in self.task_list]
+        # acceptedchilds = [t.getName() for t in self.curr_task.getChilds() if t in self.task_list]
+        acceptedchilds = [t.getName() for t in self.task_list]
         next = self.curr_task.getNextFromQueue(trgtaskNames=acceptedchilds)
 
         if next:
@@ -1670,14 +1725,17 @@ class Manager:
 
         stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
 
-        res_params = {'params':self.curr_task.getAllParams(), 'queue':self.curr_task.queue}
         
         rawinfo_msgs = self.convertMsgsToChat(self.curr_task.getRawMsgsInfo())
         rawgraph = self.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
 
-        for param in res_params:
+        task_params = self.curr_task.getAllParams()
+
+        for idx, param in enumerate(task_params):
             if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
-                del param['logprobs']
+                task_params[idx].pop('logprobs',None)
+
+        res_params = {'params':task_params, 'queue':self.curr_task.queue}
 
         cnt = 0
         for task in self.task_list:
@@ -1738,13 +1796,14 @@ class Manager:
 
 
 
-        res_params = {'params':self.curr_task.getAllParams(), 'queue':self.curr_task.queue}
         
         rawinfo_msgs = self.convertMsgsToChat(self.curr_task.getRawMsgsInfo())
 
-        for param in res_params:
+        task_params = self.curr_task.getAllParams()
+        for param in task_params:
             if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
                 del param['logprobs']
+        res_params = {'params': task_params, 'queue':self.curr_task.getQueueList()}
 
         cnt = 0
         for task in self.task_list:
@@ -1782,7 +1841,8 @@ class Manager:
             rawinfo_msgs,
             gr.Radio(choices=[t.getName() for t in self.curr_task.getHoldGarlands()], interactive=True),
             self.getName(),
-            self.getColor()
+            self.getColor(),
+            ','.join([t.getName() for t in self.multiselect_tasks])
             )
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
@@ -2399,14 +2459,14 @@ class Manager:
         return self.getCurrTaskPrompts()
  
 
-    def saveInfo(self):
-        # print('Save info', self.getName())
+    def saveInfo(self, check = False):
         tree_info = []
-        self.updateTreeArr()
+        self.updateTreeArr(check_list=check)
         for task in self.tree_arr:
             task_buds = self.getSceletonBranchBuds(task)
             tree_info.append(Sr.ProjectSearcher.getInfoForSearch(task_buds))
 
+        # print('Save info', self.getName(), '[',len(self.tree_arr),']\n', tree_info)
         path_to_projectfile = os.path.join(self.getPath(),'project.json')
         if not self.info: 
             loaded = False
@@ -2760,4 +2820,18 @@ class Manager:
                 out.append([name,'common'])
         return out
     
- 
+    def getChatRecord(self, idx : int):
+        data = self.curr_task.getChatRecords()
+        if idx < len(data):
+            msgs = data[idx]['chat']
+            return self.convertMsgsToChat(msgs=msgs)
+        return []
+
+    def getChatRecordRow(self, idx : int):
+        data = self.curr_task.getChatRecords()
+        out = []
+        for i, pack in enumerate(data):
+            chat = pack['chat']
+            if idx < len(chat):
+                out.append(chat[idx])
+        return self.convertMsgsToChat(msgs=out)

@@ -162,6 +162,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             go_lnkback_btn = gr.Button(value='Go BackLnk')
                             go_lnkfrwd_rad = gr.Radio(label='Targets')
                             go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
+                            go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
 
                         with gr.Row():
                             sec_msg = gr.Chatbot(height=700)
@@ -188,7 +189,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             upd2cur_step_btn = gr.Button(value='UAT to cur')
                             updbrnc_step_btn = gr.Button(value='Update tree')
                             reset_step_btn = gr.Button(value="Reset steps")
-                            
+                        with gr.Row():
+                            clnresp_btn = gr.Button(value='Clean Response')
+ 
                             # move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
                             # move2parnt_btn = gr.Button(value='Go up')
                             # move2child_btn = gr.Button(value='Go down')
@@ -217,8 +220,23 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     comparison_btn = gr.Button('Compare')
                 with gr.Row():
+                    fullchatrecords_btn = gr.Button('Get full chat')
+                    fullchatrecords_sld = gr.Slider(interactive=True)
+                with gr.Row():
+                    rowchatrecords_btn = gr.Button('Get chat row')
+                    rowchatrecords_sld = gr.Slider(interactive=True)
+                with gr.Row():
+                    infochatrecords_txt = gr.Textbox()
+                with gr.Row():
+                    infochatrecords_btn = gr.Button('Update')
+                with gr.Row():
                     comparison_chat = gr.Chatbot(height=500)
 
+                fullchatrecords_btn.click(fn=projecter.getCopyBranch, inputs = [fullchatrecords_sld], 
+                                          outputs=[comparison_chat, infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
+                rowchatrecords_btn.click(fn=projecter.getCopyBranchRow, inputs = [rowchatrecords_sld], 
+                                          outputs=[comparison_chat, infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
+                infochatrecords_btn.click(fn=projecter.getCopyBranchesInfo, outputs=[infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
                 comparison_btn.click(fn=projecter.getBudMsgs, inputs=comparison_rad, outputs=comparison_chat)
  
             with gr.Row():
@@ -272,7 +290,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 addkey_val_txt = gr.Textbox(label='New key value')
                                 addkey_apd_btn = gr.Button('Add new key, value')
                                 param_key.select(fn=projecter.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
-                          
+                                setrecords_btn = gr.Button('Set recording') 
                     with gr.Tab('Select'):
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
@@ -298,6 +316,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         select_to_list_btn.click(fn=projecter.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
                     with gr.Tab('MultiSelect'):
                         with gr.Row():
+                            multiselecttask_txt = gr.Textbox(label='Multiselected tasks:')
+                        with gr.Row():
                             addtask2reltask_btn = gr.Button('Add task')
                             addpart2reltask_btn = gr.Button('Add brpart')
                             addbrch2reltask_btn = gr.Button('Add branch')
@@ -318,11 +338,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             rmvbrch2reltask_btn = gr.Button('Rmv branch')
                             rmvchds2reltask_btn = gr.Button('Rmv childs')
                             rmvtree2reltask_btn = gr.Button('Rmv tree')
+                            rmvprns2reltask_btn = gr.Button('Rmv parents')
                         with gr.Row():
                             addrow2reltask_btn = gr.Button('Select row')
                             addcurrtaskrow2reltask_btn = gr.Button('Select row by range')
                             addcurrtaskrow2reltask_sld = gr.Slider(minimum=0, maximum=20,step=1,value=1,label='range to row')
-
+                        with gr.Row():
+                            addcpbranch2reltask_btn = gr.Button('Select copy Branch')
+                            addcptasks2reltask_btn = gr.Button('Select copy Task')
                         with gr.Row():
                             relattaskcln_btn = gr.Button('Clear all')
                         with gr.Row():
@@ -358,8 +381,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             update_task_btn = gr.Button(value="Update")
                             updatecur_task_btn = gr.Button(value='Update current')
                             clean_task_btn = gr.Button(value='Clean')
-                        with gr.Row():
-                            gr.Button(value='Clean Response').click(fn=projecter.cleanLastMessage)
                     with gr.Tab('Arrange'):
                         with gr.Row():
                             with gr.Column():
@@ -420,6 +441,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 with gr.Row():
                                     updt_prman_btn = gr.Button(value='Updt man list')
                                 with gr.Row():
+                                    gr.Button('Save cur man info').click(fn=projecter.saveCurrManInfo)
+                                with gr.Row():
                                     gr.Label(value='Multiselect tasks (MST) action')
                                 with gr.Row():
                                     addmultitotmp_btn = gr.Button(value='Add stdMST std->tmp man')
@@ -471,6 +494,26 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 actions_list_toadd.select(fn=projecter.getAvailableActionTemplate,inputs=actions_list_toadd, outputs=action_param)
                                 gr.Button('Save action').click(fn=projecter.addActionToCurrentManager, inputs=[actions_list_toadd, action_param], outputs=actions_list)
                                 actions_list.change(fn=projecter.getActionInfo, inputs=actions_list, outputs=actions_info_txt)
+                    with gr.Tab('ExtProject'):
+                        with gr.Row():
+                            maninfoget_btn = gr.Button('Get info from manager')
+                        with gr.Row():
+                            manbudlist_drd = gr.Dropdown(label='Buds:')
+                            manbudlist_btn = gr.Button('Select')
+                            manalltsklist_drd = gr.Dropdown(label='Tasks')
+                        with gr.Row():
+                            mantsklist_drd = gr.Dropdown(label='Tasks:')
+                            mantsklist_btn = gr.Button('Select')
+                        with gr.Row():
+                            manbudindo_txt = gr.Textbox(label='BranchCode')
+                        with gr.Row():
+                            extbrnchtype_rad = gr.Radio(choices=['In','Out'],value='In',interactive=True, label='Ext Branch Type')
+                        with gr.Row():
+                            extproj_jsn = gr.Textbox(label='ExtBranchParam',lines=5)
+
+                        maninfoget_btn.click(fn=projecter.loadManagerInfoForExtWithBrowser, outputs=[extproj_jsn, manbudlist_drd, mantsklist_drd, manalltsklist_drd])
+                        manbudlist_btn.click(fn=projecter.addExtBranchInfo, inputs=[extproj_jsn, extbrnchtype_rad, manbudlist_drd], outputs=[extproj_jsn])
+                        
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr, tempman_drp]
 
@@ -608,10 +651,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                raw_dial, 
                                go_lnkfrwd_rad,
                                tmpmanname_txt,
-                               tmpman_clrpck
+                               tmpman_clrpck,
+                               multiselecttask_txt
                                ]
             std_output_list.extend([graph_img, graph_alone, raw_graph])
-                               
+
+            setrecords_btn.click(fn=projecter.makeTaskRecordable, outputs=std_output_list)
+            clnresp_btn.click(fn=projecter.cleanLastMessage, outputs=std_output_list)
+
             addmultitotmp_btn.click(fn=projecter.addMultiSelectTasksFromStdMan, outputs=std_output_list) 
             rmvmultifrtmp_btn.click(fn=projecter.rmvMultiSelectTasksFromTmpMan, outputs=std_output_list)  
             movemulti2std_btn.click(fn=projecter.moveTaskToStdMan, outputs=std_output_list) 
@@ -654,6 +701,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             addtree2reltask_btn.click(fn=projecter.appendTreeToChain, outputs=std_output_list)
             addchds2reltask_btn.click(fn=projecter.appendChildsToChain, outputs=std_output_list)
             addrow2reltask_btn.click(fn=projecter.selectRowTasks, outputs=std_output_list)
+
+            addcpbranch2reltask_btn.click(fn=projecter.selectCopyBranch, outputs=std_output_list)
+            addcptasks2reltask_btn.click(fn=projecter.selectCopyTasks, outputs=std_output_list)
+
             addcurrtaskrow2reltask_btn.click(fn=projecter.selectTaskRowFromCurrent, inputs=[addcurrtaskrow2reltask_sld], outputs=std_output_list)
 
             rmvtask2reltask_btn.click(fn=projecter.removeTaskFromChain, outputs=std_output_list)
@@ -661,6 +712,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             rmvbrch2reltask_btn.click(fn=projecter.removeBranchFromChain, outputs=std_output_list)
             rmvtree2reltask_btn.click(fn=projecter.removeTreeFromChain, outputs=std_output_list)
             rmvchds2reltask_btn.click(fn=projecter.removeChildsFromChain, outputs=std_output_list)
+            rmvprns2reltask_btn.click(fn=projecter.removeParentsFromChain, outputs=std_output_list)
             delete_reltasks_btn.click(fn=projecter.removeMultiSelect, outputs=std_output_list)
             
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
@@ -716,6 +768,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             next_brend_bt.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
             go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
             go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
+            go_hlfbrch_btn.click(fn=projecter.goToHalfBranch, outputs=std_output_list)
 
             # raw_next_brnch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
             # raw_next_brend_btn.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)

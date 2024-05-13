@@ -16,15 +16,23 @@ class ReceiveTask(TextTask):
         self.afterFileLoading()
         
         if len(msg_list_from_file) == 0:
-            self.hasNoMsgAction()
             # self.updateCollectedMsgList(tmp_msg_list)
+            self.onEmptyMsgListAction()
         else:
             # print("Get list from file=", self.path)
-            self.haveMsgsAction(msg_list_from_file)
+            self.onExistedMsgListAction(msg_list_from_file)
             # self.setMsgList(msg_list_from_file)
 
 
         self.callback_link = []
+
+    def onEmptyMsgListAction(self):
+        self.hasNoMsgAction()
+        return super().onEmptyMsgListAction()
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        self.haveMsgsAction(msg_list_from_file)
+        return super().onExistedMsgListAction(msg_list_from_file)
 
     
     def isReceiver(self) ->bool:

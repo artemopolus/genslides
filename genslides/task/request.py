@@ -18,10 +18,18 @@ class RequestTask(TextTask):
         
         if len(msg_list_from_file) == 0:
             self.msg_list.append(pair)
-            self.saveJsonToFile(self.msg_list)
+            self.onEmptyMsgListAction()
         else:
-            self.msg_list = msg_list_from_file
+            self.onExistedMsgListAction(msg_list_from_file)
             # print("Get list from file=", self.path)
+
+    def onEmptyMsgListAction(self):
+        self.saveJsonToFile(self.msg_list)
+        return super().onEmptyMsgListAction()
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        self.msg_list = msg_list_from_file
+        return super().onExistedMsgListAction(msg_list_from_file)
 
     def update(self, input : TaskDescription = None):
         if self.parent:

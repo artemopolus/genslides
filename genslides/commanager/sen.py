@@ -8,6 +8,8 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.loader as Loader
+import genslides.utils.finder as Finder
+import genslides.utils.searcher as Searcher
 import genslides.utils.filemanager as FileManager
 
 from os import listdir
@@ -19,7 +21,6 @@ import json
 import gradio as gr
 import datetime
 
-import genslides.utils.filemanager as fm
 import pyperclip
 import pathlib
 import matplotlib.pyplot as plt
@@ -107,7 +108,7 @@ class Projecter:
     
     def clearFiles(self):
         mypath = self.savedpath
-        fm.deleteFiles(mypath)
+        FileManager.deleteFiles(mypath)
 
     def clear(self):
         self.clearFiles()
@@ -439,8 +440,33 @@ class Projecter:
         
         return self.actioner.manager.convertMsgsToChat(buds_chat)
 
-
-
+    def getCopyBranch(self, id_branch):
+        print('Get copy id:', id_branch)
+        out = [self.actioner.manager.getChatRecord(id_branch)]
+        out.extend( list( self.getCopyBranchesInfo()))
+        return out
+    
+    def getCopyBranchRow(self, id_task):
+        print('Get copy row by id:', id_task)
+        out = [self.actioner.manager.getChatRecordRow(id_task)]
+        out.extend(list(self.getCopyBranchesInfo()))
+        return out
+    
+    def getCopyBranchesInfo(self):
+        data = self.actioner.manager.curr_task.getChatRecords()
+        data_len = len(data)
+        data_chatlen = 0
+        data_info  = 'Copyed num: ' + str(data_len) + '\n'
+        if len(data):
+            data_chatlen = len(data[0]['chat'])
+            data_info += 'Branch len: ' + str(data_chatlen)
+        return (data_info, 
+                gr.Slider(minimum=0, maximum=data_len - 1 if data_len > 0 else 0, step=1),
+                gr.Slider(minimum=0, maximum=data_chatlen - 1 if data_chatlen > 0 else 0, step=1)
+                )
+    def makeTaskRecordable(self):
+        self.actioner.manager.curr_task.setRecordsParam()
+        return self.actioner.updateUIelements()
     
     def goToNextBranch(self):
         self.actioner.manager.goToNextBranch()
@@ -476,6 +502,13 @@ class Projecter:
         self.actioner.manager.goToParent()
         return self.actioner.updateUIelements()
         # return self.makeTaskAction("","","GoToParent","")
+
+    def goToHalfBranch(self):
+        cur = self.actioner.manager.curr_task
+        tasks = cur.getAllParents()
+        idx = int(len(tasks)/2)
+        self.actioner.manager.curr_task = tasks[idx]
+        return self.actioner.updateUIelements()
     
     def moveToNextChild(self):
         self.actioner.manager.goToNextChild()
@@ -787,6 +820,7 @@ class Projecter:
         return self.actioner.updateUIelements()
         
     def updateAll(self):
+        print('Update All trees stepped')
         self.actioner.manager.disableOutput2()
         self.actioner.updateAll()
         self.actioner.manager.enableOutput2()
@@ -940,15 +974,40 @@ class Projecter:
                 man.multiselect_tasks.remove(task)
         return self.actioner.updateUIelements()
     
+    def removeParentsFromChain(self):
+        man = self.actioner.manager
+        tasks = man.curr_task.getAllParents()
+        tasks.remove(man.curr_task)
+        for task in tasks:
+            if task in man.multiselect_tasks:
+                man.multiselect_tasks.remove(task)
+        return self.actioner.updateUIelements()
+
     def selectRowTasks(self):
         man = self.actioner.manager
         trg, child_idx = man.curr_task.getClosestBranching()
         tasks = trg.getChildSameRange(trg_idx=child_idx)
         for task in tasks:
-            if task not in man.multiselect_tasks:
+            if task in man.task_list and task not in man.multiselect_tasks:
                 man.multiselect_tasks.append(task)
         return self.actioner.updateUIelements()
     
+    def selectCopyBranch(self):
+        man = self.actioner.manager
+        tasks = man.getCopyBranch(man.curr_task)
+        for task in tasks:
+            if task in man.task_list and task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return self.actioner.updateUIelements()
+
+    def selectCopyTasks(self):
+        man = self.actioner.manager
+        tasks = man.getCopyTasks(man.curr_task)
+        for task in tasks:
+            if task in man.task_list and task not in man.multiselect_tasks:
+                man.multiselect_tasks.append(task)
+        return self.actioner.updateUIelements()
+   
     def selectTaskRowFromCurrent(self, child_idx):
         man = self.actioner.manager
         tasks = man.curr_task.getChildSameRange(trg_idx=child_idx)
@@ -1086,6 +1145,7 @@ class Projecter:
         if task.checkType( 'Response'):
             task.forceCleanChat()
             task.freezeTask()
+        return self.actioner.updateUIelements()
 
     def getCurrentTaskBranchCodeTag(self):
         man = self.actioner.manager
@@ -1239,4 +1299,24 @@ class Projecter:
                 self.moveTaskToTmpMan()
                 self.actioner.setManager(start_man)
         return self.actioner.updateTaskManagerUI()
+    
+    def loadManagerInfoForExtWithBrowser(self):
+        path = Loader.Loader.getDirPathFromSystem(self.actioner.manager.getPath())
+        extbrjson = {'type':'external','path':path}
+        manpath = Finder.findByKey(path,self.actioner.manager, None, self.actioner.manager.helper)
+        buds_info, tasks_info, all_tasks = Searcher.ProjectSearcher.openProject(manpath)
+        return (json.dumps(extbrjson, indent=1), 
+                gr.Dropdown(choices=[t['name'] for t in buds_info if 'name' in t], interactive=True),
+                gr.Dropdown(choices=tasks_info, interactive=True),
+                gr.Dropdown(choices=all_tasks, interactive=True)
+                )
+    
+    def saveCurrManInfo(self):
+        self.actioner.manager.saveInfo(True)
+
+    def addExtBranchInfo(self, start_json, branch_type, task_name):
+        extbrjson = json.loads(start_json)
+        extbrjson['dir'] = branch_type
+        extbrjson['trg'] = task_name
+        return json.dumps(extbrjson, indent=1)
 

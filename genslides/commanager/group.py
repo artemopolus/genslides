@@ -934,12 +934,6 @@ class Actioner():
                     color = 'darkmagenta'
                     shape = "ellipse" #rectangle,hexagon
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
-                elif task == man.curr_task:
-                    color = "skyblue"
-                    shape = "ellipse" #rectangle,hexagon
-                    if len(task.getHoldGarlands()) > 0:
-                        color = 'skyblue4'
-                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 elif task in man.multiselect_tasks:
                     color = "lightsalmon3"
                     shape = "ellipse" #rectangle,hexagon
@@ -950,6 +944,12 @@ class Actioner():
                     if task.checkType('Response'):
                         shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
+                elif task == man.curr_task:
+                    color = "skyblue"
+                    shape = "ellipse" #rectangle,hexagon
+                    if len(task.getHoldGarlands()) > 0:
+                        color = 'skyblue4'
+                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 elif task in tmpman_list:
                     color = 'blueviolet'
                     shape = "ellipse" #rectangle,hexagon

@@ -1118,6 +1118,8 @@ class BaseTask():
             input.id = task.id
             task.method(input)
 
+    def getQueueList(self):
+        return self.queue
 
     def isQueueComplete(self):
         if len(self.queue) > 0:
@@ -1129,13 +1131,13 @@ class BaseTask():
         # print("Get next from",self.getName(),"queue:", res)
         if res:
             return res
-        res = self.getNextFromQueueRe()
+        res = self.getNextFromQueueRe(trgtasknames=trgtaskNames)
         return res
         # if self.isQueueComplete():
         #     return self.getNextFromQueueRe()
         # return None
         
-    def getNextFromQueueRe(self):
+    def getNextFromQueueRe(self, trgtasknames = []):
         # print("Get next recursevly", self.getName())
         trg = self
         index = 0
@@ -1145,7 +1147,7 @@ class BaseTask():
                 return trg
             else:
                 trg = trg.getParent()
-                res = trg.findNextFromQueue()
+                res = trg.findNextFromQueue(trgtasknames=trgtasknames)
                 if res:
                     # print('Reset from task=', res.getName())
                     res.resetTreeQueue()

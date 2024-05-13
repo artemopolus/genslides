@@ -12,13 +12,21 @@ class WriteToFileTask(TextTask):
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list, False)
         del tmp_msg_list
         if len(msg_list_from_file) == 0 and not self.is_freeze:
-            self.executeResponse()
+            self.onEmptyMsgListAction()
         else:
-            self.msg_list = msg_list_from_file
+            self.onExistedMsgListAction(msg_list_from_file)
             # print("Get list from file=", self.path)
         # print("name=", self.getName())
         # print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
+
+    def onEmptyMsgListAction(self):
+        self.executeResponse()
+        return super().onEmptyMsgListAction()
+    
+    def onExistedMsgListAction(self, msg_list_from_file):
+        self.msg_list = msg_list_from_file
+        return super().onExistedMsgListAction(msg_list_from_file)
 
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
         return False, [], self.parent

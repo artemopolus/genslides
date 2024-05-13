@@ -5,6 +5,7 @@ import pathlib
 import genslides.task.base as Bt
 import genslides.utils.readfileman as Rd
 import genslides.utils.loader as Ld
+import genslides.utils.filemanager as Fm
 
 class WebSearcher:
     def __init__(self) -> None:
@@ -64,6 +65,30 @@ class ProjectSearcher():
     
     def saveSearchInfo( trees_info : list, target : dict ):
         target['trees'] = trees_info
+
+    def openProject (path : str):
+        buds_info = []
+        fld_path = pathlib.Path(path)
+        files = Fm.getFilesInFolder(Ld.Loader.getUniPath(fld_path))
+        all_tasks = []
+        for name in files:
+             vals = name.split('.')
+             if len(vals) == 2 and vals[1] == 'json':
+                 all_tasks.append(vals[0])
+        trg_path = fld_path / 'project.json'
+        proj_info = Rd.ReadFileMan.readJson(Ld.Loader.getUniPath(trg_path))
+        print('Read project data')
+        if 'trees' in proj_info:
+            for tree in proj_info['trees']:
+                if 'buds' in tree:
+                    for bud in tree['buds']:
+                        name = bud['task']
+                        code = bud['branch']
+                        buds_info.append({"name": name, "code":code})
+        ext_tasks = []
+        if 'task_names' in proj_info:
+            ext_tasks = proj_info['task_names']
+        return buds_info, ext_tasks, all_tasks
 
     def searchByParams(params : dict):
         if 'type' in params and params['type'] == 'search':
