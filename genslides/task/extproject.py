@@ -360,3 +360,8 @@ class SearcherTask(ExtProjectTask):
     def updateIternal(self, input: TaskDescription = None):
         if self.actioner == None:
             self.createInternalActioner()
+
+
+class InExtTreeTask(ExtProjectTask):
+    def __init__(self, task_info: TaskDescription, type="InExtTree") -> None:
+        super().__init__(task_info, type)

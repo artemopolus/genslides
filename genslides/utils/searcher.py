@@ -82,9 +82,7 @@ class ProjectSearcher():
             for tree in proj_info['trees']:
                 if 'buds' in tree:
                     for bud in tree['buds']:
-                        name = bud['task']
-                        code = bud['branch']
-                        buds_info.append({"name": name, "code":code})
+                        buds_info.append(bud)
         ext_tasks = []
         if 'task_names' in proj_info:
             ext_tasks = proj_info['task_names']

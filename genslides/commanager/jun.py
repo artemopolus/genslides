@@ -149,6 +149,7 @@ class Manager:
         self.tc_stop = False
         self.multiselect_tasks = []
         self.is_loaded = False
+        self.renamed_parent = []
 
     def getCurrentTask(self) -> BaseTask:
         return self.curr_task
@@ -632,12 +633,29 @@ class Manager:
             text += f.read()
         return text
     
+    def addRenamedPair(self, stdtaskname : str, chgtaskname : str):
+        self.renamed_parent.append(
+            {
+                'std': stdtaskname,
+                'chg': chgtaskname
+            }
+        )
+
+    def clearRaenamedList(self):
+        self.renamed_parent.clear()
+    
     def checkParentName(self, task_info, parent :BaseTask) -> bool:
         # TODO: если задача в списке внешних задач, подменить
+        for pair in self.renamed_parent:
+            if pair['std'] == parent.getName():
+                return 'parent' in task_info and task_info['parent'] == pair['chg']
         return 'parent' in task_info and task_info['parent'] == parent.getName()
     
     def getParentSavingName(self, task : BaseTask):
         # TODO: если задача в списке внешних задач, то передать старое имя
+        for pair in self.renamed_parent:
+            if pair['chg'] == task.getName():
+                return pair['std'].replace(self.getProjPrefix(), "")
         return task.getName().replace(self.getProjPrefix(), "")
 
     def createTaskByFile(self, parent :BaseTask = None):
@@ -660,7 +678,7 @@ class Manager:
                     linklist.append({'in':FileMan.getFileName(file),'out':link})
                 # self.makeTaskAction(prompt, task_info['type'], "New", role)
                 self.createOrAddTask(prompt=prompt, type=FileMan.getFileName(file), tag=role,parent=None)
-            elif parent and 'parent' in task_info and task_info['parent'] == parent.getName():
+            elif parent and self.checkParentName(task_info, parent):
                 # print('Create using path=', file)
                 if 'chat' in task_info and len(task_info['chat']) > 0:
                     prompt = task_info['chat'][-1]['content']
