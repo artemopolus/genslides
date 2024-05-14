@@ -22,7 +22,7 @@ class ExtProjectTask(CollectTask):
         self.intch = []
         self.intch_trg = None
         self.intman = None
-        self.actioner = None
+        self.intact = None
         super().__init__(task_info, type)
         self.is_freeze = False
 
@@ -55,9 +55,9 @@ class ExtProjectTask(CollectTask):
 
             self.intman.setPath(path)
         self.intman.initInfo(self.manager.loadexttask, task = None, path = path)
-        self.actioner = Actioner.Actioner(self.intman)
-        self.actioner.setPath(path)
-        self.actioner.clearTmp()
+        self.intact = Actioner.Actioner(self.intman)
+        self.intact.setPath(path)
+        self.intact.clearTmp()
         # print(10*"----------")
         # print('Load tasks from',path)
         # print(10*"----------")
@@ -80,7 +80,7 @@ class ExtProjectTask(CollectTask):
         task = self.intpar
         if task != None and task not in self.intman.tree_arr:
             self.intman.tree_arr.append(task)
-        return self.actioner
+        return self.intact
 
     def updateInOutExtProject(self):
          if self.intman is None:
@@ -112,8 +112,8 @@ class ExtProjectTask(CollectTask):
 
     def hasNoMsgAction(self):
         self.updateExtProjectInternal(self.prompt)
-        if self.actioner != None:
-            self.actioner.callScript('init_created')
+        if self.intact != None:
+            self.intact.callScript('init_created')
         self.updateInOutExtProject()
 
     def updateExtProjectInternal(self, prompt):
@@ -139,7 +139,7 @@ class ExtProjectTask(CollectTask):
                 self.setMsgList(msgs)
             else:
                 self.updateExtProjectInternal(self.prompt)
-                self.actioner.callScript('init_loaded_change')
+                self.intact.callScript('init_loaded_change')
                 self.updateInOutExtProject()
     
     def checkParentsMsg(self):
@@ -160,19 +160,19 @@ class ExtProjectTask(CollectTask):
                 # self.intman.curr_task = self.intpar
                 # self.intman.updateSteppedTree(input)
                 self.updateExtProjectInternal(input.prompt)
-                self.actioner.callScript('update_input_step')
+                self.intact.callScript('update_input_step')
                 self.updateInOutExtProject()
             else:
                 # self.intpar.update(input)
                 self.updateExtProjectInternal(input.prompt)
-                self.actioner.callScript('update_input_nostep')
+                self.intact.callScript('update_input_nostep')
                 self.updateInOutExtProject()
         else:
             if self.intpar is not None and not self.intpar.checkParentMsgList(update=False, remove=True):
                 print('Normal update', self.getName())
                 info = TaskDescription(prompt=self.prompt, prompt_tag=self.intpar.getLastMsgRole(), manual=True)
                 self.intpar.update(info)
-                self.actioner.callScript('update_noinput')
+                self.intact.callScript('update_noinput')
                 self.updateInOutExtProject()
             else:
                 return
