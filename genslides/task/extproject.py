@@ -436,7 +436,7 @@ class OutExtTreeTask(ExtProjectTask):
         super().__init__(task_info, type)
     
     def afterFileLoading(self, trg_files=[]):
-        if self.getParent() != 'InExtTree':
+        if not self.getParent().checkType( 'InExtTree'):
             print(f'Parent of {self.getName()} is not InExtTree')
             return
         eres, eparam = self.getParamStruct('external')
@@ -452,6 +452,7 @@ class OutExtTreeTask(ExtProjectTask):
             
         except Exception as e:
             print('Failed load man and act:', e)
+        self.saveAllParams()
 
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
         return False, [], self.intch_trg

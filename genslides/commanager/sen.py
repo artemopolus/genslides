@@ -42,6 +42,7 @@ class Projecter:
         self.actioner = None
 
         self.tmp_actioner = None
+        self.tmp_actioner_task = None
 
         self.resetManager(manager, load=False)
         # saver = SaveData()
@@ -594,6 +595,7 @@ class Projecter:
         man = self.actioner.manager
         task_actioner = man.curr_task.getActioner()
         if task_actioner != None and self.tmp_actioner == None:
+            self.tmp_actioner_task = man.curr_task
             self.tmp_actioner = self.actioner
             self.actioner = task_actioner
             print('Switch on actioner of', man.curr_task.getName())
@@ -606,6 +608,7 @@ class Projecter:
         if self.tmp_actioner != None:
             self.actioner = self.tmp_actioner
             self.tmp_actioner = None
+            self.tmp_actioner_task = None
         return self.actioner.updateTaskManagerUI()
  
     
@@ -1339,8 +1342,12 @@ class Projecter:
         extbrjson['name'] = extreetaskname
         return json.dumps(extbrjson, indent=1)
     
+    def setCurTaskToOutExtTree(self, start_inext):
+        man = self.actioner.manager
+        return self.addOutExtTreeInfo(start_inext, man.curr_task.getName())
+    
     def addOutExtTreeInfo(self, start_inext,  task_name):
-        extbrjson = json.loads(start_inext)
+        extbrjson = start_inext
         extbrjson['target'] = task_name
         return json.dumps(extbrjson, indent=1)
     
@@ -1350,8 +1357,25 @@ class Projecter:
         return self.actioner.updateUIelements()
     
     def addOutExtTreeSubTask(self, params):
-        man = self.actioner.manager
-        if man.curr_task.getType() == 'InExtTree':
-            man.createOrAddTask('','OutExtTree','user',man.curr_task, json.loads(params))
-        return self.actioner.updateUIelements()
+        if self.tmp_actioner_task != None:
+            man = self.tmp_actioner_task.getManager()
+            if self.tmp_actioner_task.checkType('InExtTree'):
+                man.createOrAddTask('','OutExtTree','user',man.curr_task, [params])
+        # return self.actioner.updateUIelements()
+    
+    def getExtTreeParamsForEdit(self):
+        if self.tmp_actioner_task != None:
+            print(f"Get ExtTreeTask {self.tmp_actioner_task.getName()} params")
+            if self.tmp_actioner_task.checkType('InExtTree'):
+                eres, eparam = self.tmp_actioner_task.getParamStruct('external')
+                if eres:
+                    return self.tmp_actioner_task.getName(),'None',  eparam, {'type':'external', 'dir':'Out'}
+            elif self.tmp_actioner_task.checkType('OutExtTree') and self.tmp_actioner_task.getParent() != None and self.tmp_actioner_task.getParent().checkType('InExtTree'):
+                eres, eparam = self.tmp_actioner_task.getParamStruct('external')
+                eres1, eparam1 = self.tmp_actioner_task.getParent().getParamStruct('external')
+                if eres and eres1:
+                    return self.tmp_actioner_task.getParent().getName(), self.tmp_actioner_task.getName(), eparam1, eparam
+
+        return 'None','None', {}, {}
+
 

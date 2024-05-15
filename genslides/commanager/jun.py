@@ -645,9 +645,8 @@ class Manager:
         self.renamed_parent.clear()
     
     def checkParentName(self, task_info, parent :BaseTask) -> bool:
-        # TODO: если задача в списке внешних задач, подменить
-        if len(self.renamed_parent) and 'parent' in task_info:
-            print(f"""Check {parent.getName()} with {task_info['parent']} using {self.renamed_parent}""")
+        # if len(self.renamed_parent) and 'parent' in task_info:
+            # print(f"""Check {parent.getName()} with {task_info['parent']} using {self.renamed_parent}""")
         for pair in self.renamed_parent:
             if pair['chg'] == parent.getName():
                 return 'parent' in task_info and task_info['parent'] == pair['std']
@@ -663,8 +662,8 @@ class Manager:
     def createTaskByFile(self, parent :BaseTask = None):
         path = Loader.Loader.getUniPath(self.getPath())
         files = FileMan.getFilesPathInFolder(path)
-        if parent != None:
-            print('Create task by parent',parent.getName())
+        # if parent != None:
+        #     print('Create task by parent',parent.getName())
         starttasklist = self.task_list.copy()
         linklist = []
         for file in files:
