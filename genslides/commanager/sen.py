@@ -1350,5 +1350,8 @@ class Projecter:
         return self.actioner.updateUIelements()
     
     def addOutExtTreeSubTask(self, params):
+        man = self.actioner.manager
+        if man.curr_task.getType() == 'InExtTree':
+            man.createOrAddTask('','OutExtTree','user',man.curr_task, json.loads(params))
         return self.actioner.updateUIelements()
 

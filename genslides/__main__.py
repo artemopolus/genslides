@@ -529,7 +529,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     inextreesubtask_btn = gr.Button('Sub InExtTree')
                             with gr.Column():
                                 with gr.Row():
-                                    outexttreeparam_txt = gr.Textbox(label='InExtTreeParam',lines=5)
+                                    outexttreeparam_txt = gr.Textbox(label='OutExtTreeParam',lines=5)
                                 with gr.Row():
                                     outextreesubtask_btn = gr.Button('Sub OutExtTree')
                         with gr.Row():
