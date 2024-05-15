@@ -127,6 +127,9 @@ def createTaskByType(type : str, info : TaskDescription):
     if stype.endswith("InExtTree"):
         info.method = ep.InExtTreeTask
         return cr.CreateCommand(info)
+    if stype.endswith("OutExtTree"):
+        info.method = ep.OutExtTreeTask
+        return cr.CreateCommand(info)
     if stype.endswith("Searcher"):
         info.method = ep.SearcherTask
         return cr.CreateCommand(info)    
@@ -153,5 +156,6 @@ def getTasksDict() -> list:
     out.append({"type":"RunScript","short":"Rs","creation":RunScriptTask})
     out.append({"type":"ExtProject","short":"Ep","creation":ep.ExtProjectTask})
     out.append({"type":"InExtTree","short":"Ie","creation":ep.InExtTreeTask})
+    out.append({"type":"OutExtTree","short":"Oe","creation":ep.InExtTreeTask})
     out.append({"type":"Searcher","short":"Se","creation":ep.SearcherTask})
     return out

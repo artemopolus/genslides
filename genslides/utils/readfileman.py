@@ -10,7 +10,7 @@ class ReadFileMan():
         return text
     
     def readJson(s_path: str):
-        print('Read json by path:', s_path)
+        # print('Read json by path:', s_path)
         text = {}
         with open(s_path,'r',encoding='utf-8') as f:
             text = json.load(f)

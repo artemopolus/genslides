@@ -851,6 +851,7 @@ class Actioner():
 
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
             out += (maingraph, stepgraph, rawgraph)
+            # print('act:',out)
             return out
         else:
             hide_tasks = True

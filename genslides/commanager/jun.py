@@ -646,9 +646,11 @@ class Manager:
     
     def checkParentName(self, task_info, parent :BaseTask) -> bool:
         # TODO: если задача в списке внешних задач, подменить
+        if len(self.renamed_parent) and 'parent' in task_info:
+            print(f"""Check {parent.getName()} with {task_info['parent']} using {self.renamed_parent}""")
         for pair in self.renamed_parent:
-            if pair['std'] == parent.getName():
-                return 'parent' in task_info and task_info['parent'] == pair['chg']
+            if pair['chg'] == parent.getName():
+                return 'parent' in task_info and task_info['parent'] == pair['std']
         return 'parent' in task_info and task_info['parent'] == parent.getName()
     
     def getParentSavingName(self, task : BaseTask):
@@ -661,8 +663,8 @@ class Manager:
     def createTaskByFile(self, parent :BaseTask = None):
         path = Loader.Loader.getUniPath(self.getPath())
         files = FileMan.getFilesPathInFolder(path)
-        # if parent != None:
-            # print('Create task by parent',parent.getName())
+        if parent != None:
+            print('Create task by parent',parent.getName())
         starttasklist = self.task_list.copy()
         linklist = []
         for file in files:
@@ -698,10 +700,11 @@ class Manager:
             self.makeLink(self.getTaskByName(link['in']),self.getTaskByName(link['out']))
 
     def loadTasksListFileBased(self):
-        print('Load task list based on file', self.getName(),'path',self.getPath())
+        print('Loading of tasks list based on file: manager', self.getName(),'with path',self.getPath())
         idx = 0
         start_tasks = self.task_list.copy()
         task_links = []
+        print(f"Start task list:{[t.getName() for t in start_tasks]}")
         while idx < 1000:
             n_start_tasks = []
             # print('[',idx,']Start tasks list',[t.getName() for t in start_tasks])
@@ -728,6 +731,7 @@ class Manager:
         # print('Loadinf done in',idx,'steps')
         self.applyLinks(task_links)
         self.is_loaded = True
+        print(f'Loading is done:{len(self.task_list)} task(s)')
 
 
 
@@ -1305,8 +1309,8 @@ class Manager:
             # info.params = params
         curr_cmd = cr.createTaskByType(type, info)
 
-        if not curr_cmd:
-            return self.getCurrTaskPrompts()
+        # if not curr_cmd:
+            # return self.getCurrTaskPrompts()
         self.cmd_list.append(curr_cmd)
         return self.runIteration(prompt)
 
@@ -1405,7 +1409,7 @@ class Manager:
 
         if self.need_human_response:
             self.need_human_response = False
-            return self.getCurrTaskPrompts()
+            # return self.getCurrTaskPrompts()
 
         self.index += 1
         log = 'id[' + str(self.index) + '] '
@@ -1430,7 +1434,7 @@ class Manager:
             out += str(task) + '\n'
             out += "Task description:\n"
             # out += task.task_description
-            return self.getCurrTaskPrompts()
+            # return self.getCurrTaskPrompts()
 
 
         all_task_expanded = False 
@@ -1468,11 +1472,11 @@ class Manager:
         if len(self.task_list) == 0:
             if True:
                 log += "No any task"
-                return self.getCurrTaskPrompts()
+                # return self.getCurrTaskPrompts()
 
         out += 'tasks: ' + str(len(self.task_list)) + '\n'
         out += 'cmds: ' + str(len(self.cmd_list)) + '\n'
-        return self.getCurrTaskPrompts()
+        # return self.getCurrTaskPrompts()
     
     def updateCurrent(self):
         self.curr_task.update()
@@ -1829,7 +1833,7 @@ class Manager:
                 cnt += 1
         status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(self.task_list))
  
-        return (
+        out =  (
             r_msgs, 
             in_prompt ,
             out_prompt, 
@@ -1862,6 +1866,8 @@ class Manager:
             self.getColor(),
             ','.join([t.getName() for t in self.multiselect_tasks])
             )
+        # print('Man output =',out)
+        return out
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []
@@ -2614,7 +2620,11 @@ class Manager:
             task.setTreeQueue()
 
     def addTask(self, task :BaseTask):
+        if task ==None:
+            return
         # print('Add task', task.getName())
+        if self.curr_task == None:
+            self.curr_task = task
         if task not in self.task_list:
             self.task_list.append(task)
     

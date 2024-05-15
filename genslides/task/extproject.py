@@ -367,17 +367,21 @@ class InExtTreeTask(ExtProjectTask):
         super().__init__(task_info, type)
 
     def afterFileLoading(self, trg_files=[]):
+        print('After file loading', self.getName())
         self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         eres, eparam = self.getParamStruct('external')
-        if not eres and 'path' in eparam:
+        if not eres and 'project_path' in eparam:
             print('No path for ext project task')
             return
         if eparam['retarget']['chg'] == 'Self':
             eparam['retarget']['chg'] = self.getName()
             exttrgtask = self
+        elif eparam['retarget']['chg'] == self.getName():
+            exttrgtask = self
         else:
+            print(eparam['retarget']['chg'])
             exttrgtask = self.manager.getTaskByName(eparam['retarget']['chg'])
-        src_path = self.findKeyParam(eparam['path'])
+        src_path = self.findKeyParam(eparam['project_path'])
         src_path = Loader.Loader.getUniPath(src_path)
         if eparam['name'] == '':
             fld_name = eparam['retarget']['chg']
@@ -397,10 +401,12 @@ class InExtTreeTask(ExtProjectTask):
         self.intact.setPath(trg_path)
         self.intact.clearTmp()
         self.intman.disableOutput2()
-        self.intman.loadTasksList(trg_files=trg_files)
+        self.intman.loadTasksListFileBased()
         self.intman.enableOutput2()
 
         self.intpar = exttrgtask
+
+        self.saveAllParams()
 
 
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
@@ -408,9 +414,24 @@ class InExtTreeTask(ExtProjectTask):
     
     def getLastMsgAndParent(self):
         return False, [], self.parent
+    
+    def onEmptyMsgListAction(self):
+        pass
+    
+    def onExistedMsgListAction(self, msg_list_from_file):
+        pass
+    
+    def getBranchCode(self, second) -> str:
+        code_s = ""
+        if len(self.getChilds()) > 1:
+            trg1 = self
+            code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+            trg1 = second
+            code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
+        return code_s
 
 
-class OutExtTree(ExtProjectTask):
+class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
         super().__init__(task_info, type)
     

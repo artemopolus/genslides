@@ -599,7 +599,7 @@ class Projecter:
             print('Switch on actioner of', man.curr_task.getName())
             print('Path:', self.actioner.getPath())
             print('Man:', self.actioner.manager.getName())
-            print('Tasks:',[t.getName() for t in self.actioner.manager.task_list])
+            # print('Tasks:',[t.getName() for t in self.actioner.manager.task_list])
         return self.actioner.updateTaskManagerUI()
     
     def backToDefaultActioner(self):
@@ -1310,7 +1310,7 @@ class Projecter:
         parnames = [t.getName() for t in parents]
         parnames.append('Self')
         self.exttreemanbudinfo = buds_info
-        inexttreeparam = {'type':'external','path':path, 'dir':'In'}
+        inexttreeparam = {'type':'external','project_path':path, 'dir':'In'}
         outexttreeparam = {'type':'external', 'dir':'Out'}
         return (json.dumps(inexttreeparam, indent=1),
                 json.dumps(outexttreeparam, indent = 1), 
@@ -1346,7 +1346,7 @@ class Projecter:
     
     def addInExtTreeSubTask(self, params):
         man = self.actioner.manager
-        man.createOrAddTask('','InExtTree','user',man.curr_task, json.loads(params))
+        man.createOrAddTask('','InExtTree','user',man.curr_task, [json.loads(params)])
         return self.actioner.updateUIelements()
     
     def addOutExtTreeSubTask(self, params):

@@ -17,7 +17,7 @@ def deleteFiles(mypath):
 def copyDirToDir(src_path : str, trg_path : str):
     createFolder(trg_path)
     files = distutils.dir_util.copy_tree(src=src_path, dst=trg_path)
-    print('Copy:\n', files)
+    # print('Copy:\n', files)
 
 
 def copyFiles(src_folder, trg_folder, trg_files = []):
