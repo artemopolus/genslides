@@ -1,9 +1,10 @@
+import distutils.dir_util
 import os
 from os import listdir
 from os.path import isfile, join, isdir
 import shutil
 from pathlib import Path
-
+import distutils
 
 def deleteFiles(mypath):
     for f in listdir(mypath):
@@ -12,6 +13,12 @@ def deleteFiles(mypath):
             os.remove(f_path)
         else:
             shutil.rmtree(f_path)
+
+def copyDirToDir(src_path : str, trg_path : str):
+    createFolder(trg_path)
+    files = distutils.dir_util.copy_tree(src=src_path, dst=trg_path)
+    print('Copy:\n', files)
+
 
 def copyFiles(src_folder, trg_folder, trg_files = []):
     print('Copy files from', src_folder,'to', trg_folder,':', trg_files)
@@ -28,6 +35,12 @@ def copyFiles(src_folder, trg_folder, trg_files = []):
 def createFolder(path):
     if not os.path.exists( path ):
         Path( path ).mkdir( parents=True, exist_ok=True )        
+
+def addFolderToPath(path : str, folder_names : list[str]) -> str:
+    dir = Path(path)
+    for name in folder_names:
+        dir = dir / name
+    return str( dir )
 
 def createUniqueDir(path : str, folder :str, name : str) -> list[bool, Path]:
     print('Create in', path, 'folder',folder, 'target',name)

@@ -52,6 +52,8 @@ class Projecter:
         self.updateSessionName()
         self.actioner.clearTmp()
 
+        self.exttreemanbudinfo = None
+
     def loadManager(self):
         self.resetManager(self.actioner.std_manager)
         if len(self.actioner.std_manager.task_list) == 0:
@@ -1302,29 +1304,51 @@ class Projecter:
     
     def loadManagerInfoForExtWithBrowser(self):
         path = Loader.Loader.getDirPathFromSystem(self.actioner.manager.getPath())
-        extbrjson = {'type':'external','path':path}
         manpath = Finder.findByKey(path,self.actioner.manager, None, self.actioner.manager.helper)
         buds_info, tasks_info, all_tasks = Searcher.ProjectSearcher.openProject(manpath)
         parents = self.actioner.manager.curr_task.getAllParents()
         parnames = [t.getName() for t in parents]
         parnames.append('Self')
-        return (json.dumps(extbrjson, indent=1), 
-                gr.Dropdown(choices=[t['task'] for t in buds_info if 'task' in t], interactive=True),
+        self.exttreemanbudinfo = buds_info
+        inexttreeparam = {'type':'external','path':path, 'dir':'In'}
+        outexttreeparam = {'type':'external', 'dir':'Out'}
+        return (json.dumps(inexttreeparam, indent=1),
+                json.dumps(outexttreeparam, indent = 1), 
+                gr.Radio(choices=[t['task'] for t in buds_info if 'task' in t], interactive=True),
                 gr.Dropdown(choices=tasks_info, interactive=True),
                 gr.Dropdown(choices=all_tasks, interactive=True),
                 gr.Dropdown(choices=parnames, value='Self', interactive=True)
                 )
-    
+    def getBudInfo(self, budname : str):
+        for budinfo in self.exttreemanbudinfo:
+            if budinfo['task'] == budname:
+                return budinfo['summary'], budinfo['branch'], self.actioner.manager.convertMsgsToChat(msgs=budinfo['message'])
+        return '','',[]
+
     def saveCurrManInfo(self):
         self.actioner.manager.saveInfo(True)
 
-    def addExtBranchInfo(self, start_json, branch_type, exttask_name, copy_type, task_name):
-        extbrjson = json.loads(start_json)
-        extbrjson['dir'] = branch_type
+    def addInExtTreeInfo(self, start_inext, branch_type, exttask_name, copy_type, extreetaskname, task_name):
+        extbrjson = json.loads(start_inext)
+        # extbrjson['dir'] = branch_type
         extbrjson['retarget'] = {
             'std' : task_name,
             'chg' : exttask_name
         }
         extbrjson['copy'] = copy_type
+        extbrjson['name'] = extreetaskname
         return json.dumps(extbrjson, indent=1)
+    
+    def addOutExtTreeInfo(self, start_inext,  task_name):
+        extbrjson = json.loads(start_inext)
+        extbrjson['target'] = task_name
+        return json.dumps(extbrjson, indent=1)
+    
+    def addInExtTreeSubTask(self, params):
+        man = self.actioner.manager
+        man.createOrAddTask('','InExtTree','user',man.curr_task, json.loads(params))
+        return self.actioner.updateUIelements()
+    
+    def addOutExtTreeSubTask(self, params):
+        return self.actioner.updateUIelements()
 

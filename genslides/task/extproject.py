@@ -365,3 +365,76 @@ class SearcherTask(ExtProjectTask):
 class InExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="InExtTree") -> None:
         super().__init__(task_info, type)
+
+    def afterFileLoading(self, trg_files=[]):
+        self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        eres, eparam = self.getParamStruct('external')
+        if not eres and 'path' in eparam:
+            print('No path for ext project task')
+            return
+        if eparam['retarget']['chg'] == 'Self':
+            eparam['retarget']['chg'] = self.getName()
+            exttrgtask = self
+        else:
+            exttrgtask = self.manager.getTaskByName(eparam['retarget']['chg'])
+        src_path = self.findKeyParam(eparam['path'])
+        src_path = Loader.Loader.getUniPath(src_path)
+        if eparam['name'] == '':
+            fld_name = eparam['retarget']['chg']
+        else:
+            fld_name = eparam['name']
+        if eparam['copy'] == 'Copy':
+            trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', fld_name])
+            Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(src_path), trg_path=Loader.Loader.getUniPath(trg_path))
+        else:
+            trg_path = src_path
+        self.intman.setPath(trg_path)
+        self.intman.initInfo(self.manager.loadexttask, task = None, path = trg_path)
+        self.intman.addTask(exttrgtask)
+        self.intman.addRenamedPair(eparam['retarget']['std'],eparam['retarget']['chg'])
+
+        self.intact = Actioner.Actioner(self.intman)
+        self.intact.setPath(trg_path)
+        self.intact.clearTmp()
+        self.intman.disableOutput2()
+        self.intman.loadTasksList(trg_files=trg_files)
+        self.intman.enableOutput2()
+
+        self.intpar = exttrgtask
+
+
+    def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
+        return False, [], self.parent
+    
+    def getLastMsgAndParent(self):
+        return False, [], self.parent
+
+
+class OutExtTree(ExtProjectTask):
+    def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
+        super().__init__(task_info, type)
+    
+    def afterFileLoading(self, trg_files=[]):
+        if self.getParent() != 'InExtTree':
+            print(f'Parent of {self.getName()} is not InExtTree')
+            return
+        eres, eparam = self.getParamStruct('external')
+        if not eres:
+            print(f'No params of {self.getName()}')
+            return
+        
+        try:
+            self.intact = self.parent.intact
+            self.intman = self.parent.intman
+
+            self.intch_trg = self.intman.getTaskByName(eparam['target'])
+            
+        except Exception as e:
+            print('Failed load man and act:', e)
+
+    def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
+        return False, [], self.intch_trg
+    
+    def getLastMsgAndParent(self):
+        return False, [], self.intch_trg
+

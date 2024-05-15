@@ -453,9 +453,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     tempman_drp = gr.Dropdown()
                                     movetmp2tmp_btn = gr.Button('Move curman->selman')
                                 with gr.Row():
-                                    load_extproj_act_btn = gr.Button('Set Act ExtProject')
-                                    reset_initact_btn = gr.Button('Set def act')
-                                with gr.Row():
                                     get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
                                 with gr.Row():
                                     load_prman_btn = gr.Button(value='Load to trgtask')
@@ -498,35 +495,63 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             maninfoget_btn = gr.Button('Get info from manager')
                         with gr.Row():
-                            manbudlist_drd = gr.Dropdown(label='Buds:')
-                            manbudlist_btn = gr.Button('Select')
-                        with gr.Row():
-                            manalltsklist_drd = gr.Dropdown(label='Project Tasks')
-                            manalltsklist_btn = gr.Button('Select')
+                            with gr.Column():
+                                manbudlist_drd = gr.Radio(label='Buds:')
+                                with gr.Row():
+                                    inet_extmanbud_btn = gr.Button('Set for In')
+                                    outet_extmanbud_btn = gr.Button('Set for Out')
+                                manbudsum_txt = gr.Textbox(label='Summary')
+                                manbudindo_txt = gr.Textbox(label='BranchCode')
+                                manalltsklist_drd = gr.Dropdown(label='Project Tasks')
+                                with gr.Row():
+                                    inet_extmantasks_btn = gr.Button('Set for In')
+                                    outet_extmantasks_btn = gr.Button('Set for Out')
+                            with gr.Column():
+                                manbudlist_cht = gr.Chatbot()
+                            # manbudinfoupdt_btn.click(fn=projecter.getBudInfo, inputs=[manbudlist_drd], outputs=[manbudsum_txt,manbudindo_txt, manbudlist_cht])
+                            manbudlist_drd.input(fn=projecter.getBudInfo, inputs=[manbudlist_drd], outputs=[manbudsum_txt,manbudindo_txt, manbudlist_cht])
                         with gr.Row():
                             mantsklist_drd = gr.Dropdown(label='External Tasks:')
                             mantsklist_btn = gr.Button('Select')
                         with gr.Row():
-                            manbudindo_txt = gr.Textbox(label='BranchCode')
-                        with gr.Row():
                             exttargettask_drd = gr.Dropdown(label='Available targets')
+                        with gr.Row():
+                            exttreename_txt = gr.Textbox(label='ExtTreeTask name:')
 
                         with gr.Row():
                             exttreetasktype_rad = gr.Radio(choices=['In','Out'],value='In',interactive=True, label='Ext Branch Type')
                             exttreecopytype_rad = gr.Radio(choices=['Src','Copy'],value='Copy',interactive=True, label='Ext Branch Type')
                         with gr.Row():
-                            extproj_jsn = gr.Textbox(label='ExtBranchParam',lines=5)
+                            with gr.Column():
+                                with gr.Row():
+                                    inexttreeparam_txt = gr.Textbox(label='InExtTreeParam',lines=5)
+                                with gr.Row():
+                                    inextreesubtask_btn = gr.Button('Sub InExtTree')
+                            with gr.Column():
+                                with gr.Row():
+                                    outexttreeparam_txt = gr.Textbox(label='InExtTreeParam',lines=5)
+                                with gr.Row():
+                                    outextreesubtask_btn = gr.Button('Sub OutExtTree')
+                        with gr.Row():
+                            gr.Label('Manipulate actioner')
+                        with gr.Row():
+                            load_extproj_act_btn = gr.Button('Set Act ExtPr')
+                            reset_initact_btn = gr.Button('Set Act Base')
 
                         maninfoget_btn.click(fn=projecter.loadManagerInfoForExtWithBrowser, outputs=[
-                            extproj_jsn, 
+                            inexttreeparam_txt, 
+                            outexttreeparam_txt,
                             manbudlist_drd, 
                             mantsklist_drd, 
                             manalltsklist_drd, 
                             exttargettask_drd])
-                        exttreeoption_output = [extproj_jsn, exttreetasktype_rad, exttargettask_drd, exttreecopytype_rad]
-                        manbudlist_btn.click(fn=projecter.addExtBranchInfo, inputs=exttreeoption_output + [manbudlist_drd], outputs=[extproj_jsn])
-                        manalltsklist_btn.click(fn=projecter.addExtBranchInfo, inputs=exttreeoption_output + [manalltsklist_drd], outputs=[extproj_jsn])
-                        mantsklist_btn.click(fn=projecter.addExtBranchInfo, inputs=exttreeoption_output + [mantsklist_drd], outputs=[extproj_jsn])
+                        exttreeoption_input = [inexttreeparam_txt, exttreetasktype_rad, exttargettask_drd, exttreecopytype_rad, exttreename_txt]
+                        inet_extmanbud_btn.click(fn=projecter.addInExtTreeInfo, inputs=exttreeoption_input + [manbudlist_drd], outputs=[inexttreeparam_txt])
+                        inet_extmantasks_btn.click(fn=projecter.addInExtTreeInfo, inputs=exttreeoption_input + [manalltsklist_drd], outputs=[inexttreeparam_txt])
+                        mantsklist_btn.click(fn=projecter.addInExtTreeInfo, inputs=exttreeoption_input + [mantsklist_drd], outputs=[inexttreeparam_txt])
+
+                        outet_extmanbud_btn.click(fn=projecter.addOutExtTreeInfo, inputs=[outexttreeparam_txt, manbudlist_drd], outputs=outexttreeparam_txt)
+                        outet_extmantasks_btn.click(fn=projecter.addOutExtTreeInfo, inputs=[outexttreeparam_txt, manalltsklist_drd], outputs=outexttreeparam_txt)
                     
                     std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr, tempman_drp]
 
@@ -570,6 +595,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         fix_task_btn = gr.Button(value = 'Fix Q Tasks')
  
             with gr.Row() as r:
+                gr.Label('Save and load project')
+            with gr.Row() as r:
                 project_name = gr.Textbox(value = project_manipulator.current_project_name, label="Project name")
                 project_save = gr.Button(value="save")
                 # projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
@@ -577,7 +604,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 project_reload = gr.Button(value='reload')
                 gr.Button('append').click(fn=project_manipulator.appendProjectTasks)
 
-            param_updt = gr.Button(value="Edit param")
+            # param_updt = gr.Button(value="Edit param")
 
 
             creation_types_radio_list = projecter.getMainCommandList()
@@ -668,6 +695,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                multiselecttask_txt
                                ]
             std_output_list.extend([graph_img, graph_alone, raw_graph])
+
+            inextreesubtask_btn.click(fn=projecter.addInExtTreeSubTask, inputs=[inexttreeparam_txt], outputs=std_output_list)
+            outextreesubtask_btn.click(fn=projecter.addOutExtTreeSubTask, inputs=[outexttreeparam_txt], outputs=std_output_list)
 
             setrecords_btn.click(fn=projecter.makeTaskRecordable, outputs=std_output_list)
             clnresp_btn.click(fn=projecter.cleanLastMessage, outputs=std_output_list)
