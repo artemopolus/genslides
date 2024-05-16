@@ -365,6 +365,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 delete_reltasks_btn = gr.Button('Delete multiselected')
                                 garlandmulti_btn = gr.Button('Garland from multi')
                                 collectmulti_btn = gr.Button('Collect from multi')
+                                shiftpartag_sld = gr.Slider(minimum=-20, maximum=20, step=1, value=1)
+                                shiftpartag_btn = gr.Button('Shift par tag')
+                                shiftpartag_btn.click(fn=projecter.shiftParentTagForMultiSelect, inputs=[shiftpartag_sld])
                     with gr.Tab('Cmds'):
                         with gr.Row():
                             moveup_btn = gr.Button(value='MoveUP')

@@ -1092,7 +1092,12 @@ class Projecter:
         man.curr_task = start
         return self.actioner.updateUIelements()
 
-
+    def shiftParentTagForMultiSelect(self, shift : int):
+        man = self.actioner.manager
+        for task in man.multiselect_tasks:
+            if task.checkType('Request'):
+                content = task.getLastMsgContentRaw()
+                pass
 
 
     def removeMultiSelect(self):
