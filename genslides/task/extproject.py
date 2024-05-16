@@ -24,7 +24,7 @@ class ExtProjectTask(CollectTask):
         self.intman = None
         self.intact = None
         super().__init__(task_info, type)
-        self.is_freeze = False
+        self.is_freeze = True
 
     def afterFileLoading(self, trg_files = []):
         # print('Init external project task')
@@ -251,6 +251,34 @@ class ExtProjectTask(CollectTask):
                     return True, acts
         return super().getExeCommands()
  
+    def stdProcessUnFreeze(self, input=None):
+        res, pparam = self.getParamStruct('block')
+        if res and pparam['block']:
+            self.is_freeze = True
+            return
+        if self.parent:
+            pass
+        if self.is_freeze:
+            to_unfreeze = False
+            if self.parent and not self.parent.is_freeze:
+                to_unfreeze = True
+            elif not self.parent and self.is_freeze:
+                to_unfreeze = True
+            if to_unfreeze:
+                # if len(self.by_ext_affected_list) == 0:
+                    # return
+                for tsk_info in self.by_ext_affected_list:
+                    if not tsk_info.enabled:
+                        return
+                self.is_freeze = False
+            else:
+                pass
+        else:
+            for tsk_info in self.by_ext_affected_list:
+                if not tsk_info.enabled:
+                    print("Freeze from children")
+                    self.freezeTask()
+                    return
  
 class SearcherTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="Searcher") -> None:
@@ -406,6 +434,8 @@ class InExtTreeTask(ExtProjectTask):
 
         self.intpar = exttrgtask
 
+        self.setMsgList(self.getParent().getMsgList())
+
         self.saveAllParams()
 
 
@@ -431,7 +461,16 @@ class InExtTreeTask(ExtProjectTask):
         return code_s
 
     def updateIternal(self, input : TaskDescription = None):
-        pass
+        if not self.checkParentMsgList(remove=False, update=True):
+            self.intact.manager.disableOutput2()
+            self.intact.updateAll(force_check=True)
+            self.intact.manager.enableOutput2()
+        elif self.intact.manager.getFozenTasksCount():
+            print(f"Frozen tasks:{self.intact.manager.getFozenTasksCount()}")
+            self.intact.manager.disableOutput2()
+            self.intact.updateAll(force_check=True)
+            self.intact.manager.enableOutput2()
+
 
 class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
@@ -463,7 +502,8 @@ class OutExtTreeTask(ExtProjectTask):
         return False, [], self.intch_trg
 
     def updateIternal(self, input : TaskDescription = None):
-        pass
+        if self.intch_trg.is_freeze:
+            self.freezeTask()
 
     def getParentForFinder(self):
         return self.intch_trg

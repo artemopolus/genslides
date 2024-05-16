@@ -299,8 +299,8 @@ class TextTask(BaseTask):
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
         if self.parent:
             # print('Check msg list of',self.getName(),'with', self.parent.getName())
-            trg = self.parent.msg_list.copy()
-            src = self.msg_list.copy()
+            trg = self.getParent().getMsgList()
+            src = self.getMsgList()
             last = None
             if len(src) > 0 and remove:
                 last = src.pop()
@@ -312,7 +312,7 @@ class TextTask(BaseTask):
                 if update:
                     if last and save_curr:
                         trg.append(last)
-                    self.msg_list = trg
+                    self.setMsgList( trg )
                 return False
         return True
     
@@ -336,6 +336,9 @@ class TextTask(BaseTask):
     
     def setMsgList(self, msgs):
         self.msg_list = msgs
+
+    def getMsgList(self):
+        return copy.deepcopy(self.msg_list)
  
     def copyParentMsg(self):
         self.msg_list = self.getRawParentMsgs()

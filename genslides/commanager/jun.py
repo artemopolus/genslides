@@ -153,6 +153,13 @@ class Manager:
 
     def getCurrentTask(self) -> BaseTask:
         return self.curr_task
+    
+    def getFozenTasksCount(self) -> int:
+        cnt = 0
+        for t in self.task_list:
+            if t.is_freeze:
+                cnt += 1
+        return cnt
 
     def addTaskToSelectList(self, task :BaseTask):
         if len(self.selected_tasks):
@@ -1520,7 +1527,7 @@ class Manager:
         next = self.curr_task.getNextFromQueue(trgtaskNames=acceptedchilds)
 
         if next:
-            print(init_log,'===>', next.getName(),'in list:',next in self.task_list)
+            print(init_log,'===>', next.getName(),'in tasks list:',next in self.task_list)
         else:
             print(init_log, 'Next task is None')
 

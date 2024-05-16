@@ -17,7 +17,7 @@ class RunScriptTask(ResponseTask):
         self.execute_success = False
 
     def executeResponse(self):
-        print('[EXE] run script task')
+        # print('[EXE] run script task')
         res, pparam = self.getParamStruct("script")
         if res:
             try:
@@ -90,7 +90,7 @@ class RunScriptTask(ResponseTask):
         else:
             print('No params')
             return    
-        print("Trg files=", onlyfiles)
+        # print("Trg files=", onlyfiles)
         data = ""
         done = True
         if len(onlyfiles) == 0:
@@ -102,7 +102,7 @@ class RunScriptTask(ResponseTask):
                 pfile = self.findKeyParam(file)
                 if pfile[0] == "\"" and pfile[-1] == "\"":
                     pfile = pfile[1:-1]
-                print('path',pfile)
+                # print('path',pfile)
                 options = pfile.split(" ")
                 n_options = []
                 for option in options:
@@ -117,7 +117,7 @@ class RunScriptTask(ResponseTask):
                 for opt in file:
                     n_file.append(self.findKeyParam(opt))
                 file = n_file
-            print("Run script", file,'in', workspace)
+            # print("Run script", file,'in', workspace)
             result = subprocess.run(file, capture_output=True, text=True, cwd=workspace)
             if result.returncode:
                 done = False
@@ -128,7 +128,7 @@ class RunScriptTask(ResponseTask):
 
             if str_path_to_output_files:
                 tres, output_paths = Loader.stringToPathList(str_path_to_output_files)
-                print('Path to output:', output_paths, tres)
+                # print('Path to output:', output_paths, tres)
                 if tres:
                     data += "\n\n\nHere below outputs of script:\n\n\n"
                     for p in output_paths:
@@ -156,7 +156,7 @@ class RunScriptTask(ResponseTask):
         # print('Execute result=', self.execute_success)
 
         if len(data) > 0:
-            print('Script output len=', len(data))
+            # print('Script output len=', len(data))
             self.msg_list.append({"role": "user", "content": data})
         else:
             print("No data is getted from")

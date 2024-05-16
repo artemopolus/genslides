@@ -674,11 +674,11 @@ class Actioner():
             if len(next.getChilds()) == 0:
                 print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
 
-    def resetUpdate(self):
+    def resetUpdate(self, force_check = False):
         self.update_state = 'init'
         man = self.manager
         if len(man.tree_arr) == 0:
-            if man == self.std_manager:
+            if not force_check and man == self.std_manager:
                 man.updateTreeArr()
             else:
                 man.updateTreeArr(check_list=True)
@@ -740,10 +740,11 @@ class Actioner():
         man.curr_task = start_task
         return man.getCurrTaskPrompts()
 
-    def updateAll(self):
+    def updateAll(self, force_check = False):
         man = self.manager
+        print(f"Update all tasks of {man.getName()}")
         start_task = man.curr_task
-        self.resetUpdate()
+        self.resetUpdate(force_check=force_check)
         idx = 0
         while(idx < 10000):
             self.update()
@@ -755,11 +756,11 @@ class Actioner():
         for task in man.task_list:
             if task.is_freeze:
                 cnt += 1
-        print('Frozen tasks cnt:', cnt)
+        print(f"[{man.getName()}]Frozen: {cnt} of {len(man.task_list)} task(s)")
         man.saveInfo()
         man.curr_task = start_task
-        out = man.getCurrTaskPrompts()
-        return out
+        # out = man.getCurrTaskPrompts()
+        # return out
 
     def updateAllUntillCurrTask(self):
         man = self.manager
