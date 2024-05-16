@@ -1094,10 +1094,15 @@ class Projecter:
 
     def shiftParentTagForMultiSelect(self, shift : int):
         man = self.actioner.manager
+        start = man.curr_task
         for task in man.multiselect_tasks:
             if task.checkType('Request'):
                 content = task.getLastMsgContentRaw()
-                pass
+                _,role,_ = task.getMsgInfo()
+                edit = Finder.shiftParentTags(content,shift)
+                man.curr_task = task
+                self.makeTaskAction(prompt=edit,type1='Request',creation_type= 'Edit',creation_tag= role, param=[])
+        man.curr_task = start
 
 
     def removeMultiSelect(self):

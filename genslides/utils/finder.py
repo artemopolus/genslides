@@ -141,6 +141,7 @@ def shiftParentTags( text : str, shift : int ):
                     change_parent = parent_tag[0]
                 if index > 0:
                     text.replace(res[2:-2], change_parent)
+    return text
 
 
 
