@@ -465,3 +465,6 @@ class OutExtTreeTask(ExtProjectTask):
     def updateIternal(self, input : TaskDescription = None):
         pass
 
+    def getParentForFinder(self):
+        return self.intch_trg
+

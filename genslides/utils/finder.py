@@ -187,7 +187,7 @@ def findByKey(text, manager , base, reqhelper : Helper.RequestHelper):
                     task = base.getAncestorByName(arr[0])
                  if task:
                      while( arr[1] == 'parent'):
-                         task = task.getParent()
+                         task = task.getParentForFinder()
                          if task is None:
                              return text
                          arr.pop(0)

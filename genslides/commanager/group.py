@@ -926,6 +926,15 @@ class Actioner():
             
 
             for task in trg_list:
+                shape = "ellipse" #rectangle,hexagon
+                if task.checkType('Response'):
+                    shape = 'rectangle'
+                elif task.checkType('InExtTree'):
+                    shape = 'invhouse'
+                elif task.checkType('OutExtTree'):
+                    shape = 'house'
+                elif task.checkType('SetOption'):
+                    shape = 'doubleoctagon'
                 if task in trgs_rsm:
                     if task == man.curr_task:
                         f.node( task.getIdStr(), task.getName(),style="filled",color="blueviolet")
@@ -933,27 +942,22 @@ class Actioner():
                         f.node( task.getIdStr(), task.getName(),style="filled",color="darkmagenta")
                 elif task.readyToGenerate():
                     color = 'darkmagenta'
-                    shape = "ellipse" #rectangle,hexagon
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
                 elif task in man.multiselect_tasks:
                     color = "lightsalmon3"
-                    shape = "ellipse" #rectangle,hexagon
                     if task == man.curr_task:
                         color = "lightsalmon1"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'crimson'
-                    if task.checkType('Response'):
-                        shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
                 elif task == man.curr_task:
                     color = "skyblue"
-                    shape = "ellipse" #rectangle,hexagon
                     if len(task.getHoldGarlands()) > 0:
                         color = 'skyblue4'
                     f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 elif task in tmpman_list:
                     color = 'blueviolet'
-                    shape = "ellipse" #rectangle,hexagon
+                    # shape = "ellipse" #rectangle,hexagon
                     for manager in self.tmp_managers:
                         if manager != self.std_manager:
                             if task in manager.task_list:
@@ -962,8 +966,7 @@ class Actioner():
                                 break
                     f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 else:
-                    color = 'ghostwhite'
-                    shape = "ellipse" #rectangle,hexagon
+                    color = 'antiquewhite1'
                     if man.getTaskParamRes(task, "block"):
                         color="gold2"
                     elif man.getTaskParamRes(task, "input"):
@@ -982,8 +985,6 @@ class Actioner():
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":
                             color="azure2"
-                    if task.checkType('Response'):
-                        shape = 'hexagon'
                     f.node( task.getIdStr(), task.getName(),style="filled",color=color, shape = shape)
 
 

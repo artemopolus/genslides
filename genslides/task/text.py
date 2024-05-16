@@ -350,11 +350,18 @@ class TextTask(BaseTask):
         if self.parent != None:
             self.parent.setActiveBranch(self)
         return True, val, self.parent
+    
+    def getParentForFinder(self):
+        return self.getParent()
 
     def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
-        content = self.getName() + ' ' + 'parent_' + str(idx) + '\n'
-        content += 'in:' + ','.join([t.getName() for t in self.getGarlandPart()]) + '\n'
-        content += 'out:' + ','.join([t.getName() for t in self.getHoldGarlands()]) + '\n'
+        idx += 1
+        content = '[[parent_' + str(idx) + ':msg_content]]\n' if idx != 1 else '[[parent:msg_content]]\n'
+        content += self.getName() + '\n'
+        if len(self.getGarlandPart()):
+            content += ','.join([t.getName() for t in self.getGarlandPart()]) + '->' + self.getName() + '\n'
+        if len(self.getHoldGarlands()):
+            content += self.getName() + '->' + ','.join([t.getName() for t in self.getHoldGarlands()]) + '\n'
         content += '\n\n---\n\n'
         content += self.getLastMsgContent()
         content +='\n'
@@ -362,7 +369,7 @@ class TextTask(BaseTask):
                 "content": content}]
         if self.parent != None:
             self.parent.setActiveBranch(self)
-        return True, val, self.parent
+        return True, val, self.getParentForFinder()
 
     def getMsgByIndex(self, i_trg):
         task = self
