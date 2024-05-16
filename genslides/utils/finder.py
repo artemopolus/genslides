@@ -118,6 +118,32 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                 pass
         return rep_text
 
+def shiftParentTags( text : str, shift : int ):
+    results = re.findall(r"\[\[.*?\]\]", text)
+    for res in results:
+        tags_arr = res[2:-2].split(":")
+        for tag in tags_arr:
+            index = 0
+            found = False
+            if tag.startswith('parent') and len(tag) > 6:
+                parent_tag = tag.split('_')
+                if len(parent_tag) == 2 and parent_tag[1].isdigit():
+                    index = int(parent_tag[1])
+                    index += shift
+                    found = True
+            elif tag == 'parent':
+                index = 1 + shift
+                found = True
+            if found:
+                if index > 1:
+                    change_parent = '_'.join([ parent_tag[0], str(index)])
+                elif index == 1:
+                    change_parent = parent_tag[0]
+                if index > 0:
+                    text.replace(res[2:-2], change_parent)
+
+
+
 def findByKey(text, manager , base, reqhelper : Helper.RequestHelper):
          results = re.findall(r"\[\[.*?\]\]", text)
          n_res = []
