@@ -1369,13 +1369,23 @@ class Projecter:
             if self.tmp_actioner_task.checkType('InExtTree'):
                 eres, eparam = self.tmp_actioner_task.getParamStruct('external')
                 if eres:
-                    return self.tmp_actioner_task.getName(),'None',  eparam, {'type':'external', 'dir':'Out'}
+                    return (self.tmp_actioner_task.getName(),
+                            'None',  
+                            eparam, 
+                            {'type':'external', 'dir':'Out'}, 
+                            gr.Button(interactive=True), 
+                            gr.Button(interactive=False))
             elif self.tmp_actioner_task.checkType('OutExtTree') and self.tmp_actioner_task.getParent() != None and self.tmp_actioner_task.getParent().checkType('InExtTree'):
                 eres, eparam = self.tmp_actioner_task.getParamStruct('external')
                 eres1, eparam1 = self.tmp_actioner_task.getParent().getParamStruct('external')
                 if eres and eres1:
-                    return self.tmp_actioner_task.getParent().getName(), self.tmp_actioner_task.getName(), eparam1, eparam
+                    return (self.tmp_actioner_task.getParent().getName(), 
+                            self.tmp_actioner_task.getName(), 
+                            eparam1, 
+                            eparam, 
+                            gr.Button(interactive=False), 
+                            gr.Button(interactive=True))
 
-        return 'None','None', {}, {}
+        return 'None','None', {}, {}, gr.Button(interactive=False), gr.Button(interactive=False)
 
 

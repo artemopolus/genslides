@@ -531,8 +531,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 with gr.Column():
                                     with gr.Row():
                                         outexttreeparam_txt = gr.Textbox(label='OutExtTreeParam',lines=5)
-                                    with gr.Row():
-                                        outextreesubtask_btn = gr.Button('Sub OutExtTree')
+                                    # with gr.Row():
+                                    #     outextreesubtask_btn = gr.Button('Sub OutExtTree')
                         with gr.Tab('Edit'):
                             with gr.Row():
                                 gr.Label('Manipulate actioner')
@@ -548,13 +548,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     outexttaskparamedit_jsn = gr.JSON(label='Out ExtTask Param')
                                     outexttaskset_btn = gr.Button("Set Cur Task for Out Param")
 
-                                    outexttaskadd_btn = gr.Button('Add Out Ext Task')
+                                    outexttaskadd_btn = gr.Button('Add Out Ext Task', interactive=False)
+                                    outexttaskedit_btn = gr.Button('Edit Out Ext Task', interactive=False)
                             with gr.Row():
                                 gr.Button('Get params').click(fn=projecter.getExtTreeParamsForEdit, outputs=[
                                     inexttaskname_txt, 
                                     outexttaskname_txt,
                                     inexttaskparamedit_jsn, 
-                                    outexttaskparamedit_jsn])
+                                    outexttaskparamedit_jsn,
+                                    outexttaskadd_btn,
+                                    outexttaskedit_btn
+                                    ])
                             outexttaskset_btn.click(fn=projecter.setCurTaskToOutExtTree, inputs=[outexttaskparamedit_jsn], outputs=[outexttaskparamedit_jsn])
                             outexttaskadd_btn.click(fn=projecter.addOutExtTreeSubTask, inputs=[outexttaskparamedit_jsn])
                         maninfoget_btn.click(fn=projecter.loadManagerInfoForExtWithBrowser, outputs=[

@@ -384,7 +384,7 @@ class InExtTreeTask(ExtProjectTask):
         src_path = self.findKeyParam(eparam['project_path'])
         src_path = Loader.Loader.getUniPath(src_path)
         if eparam['name'] == '':
-            fld_name = eparam['retarget']['chg']
+            fld_name = self.getName()
         else:
             fld_name = eparam['name']
         if eparam['copy'] == 'Copy':
@@ -430,6 +430,8 @@ class InExtTreeTask(ExtProjectTask):
             code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
         return code_s
 
+    def updateIternal(self, input : TaskDescription = None):
+        pass
 
 class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
@@ -459,4 +461,7 @@ class OutExtTreeTask(ExtProjectTask):
     
     def getLastMsgAndParent(self):
         return False, [], self.intch_trg
+
+    def updateIternal(self, input : TaskDescription = None):
+        pass
 
