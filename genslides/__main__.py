@@ -467,16 +467,16 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     actpack_saved_lst = gr.Dropdown(label='Saved actpacks', choices=projecter.getActPacksList())
                                     actpack_load_btn = gr.Button(value='Load actpack2man')
                                     actpack_save_btn.click(fn=projecter.saveActPack, inputs=[actpack_name_txt], outputs=actpack_saved_lst)
-                                with gr.Row():
-                                    clr_prman_btn = gr.Button('Clear vals')
-                                with gr.Row():
-                                    params_prman = gr.Textbox(label="Params", lines=4, max_lines=20)
-                                with gr.Row():
-                                    edit_param_prman = gr.Button(value='Edit param managers')
-                                with gr.Row():
-                                    setname_prman_text = gr.Button('Back')
-                                    setname_prman_btn = gr.Button('Set name')
-                                    exttaskopt_chgr = gr.CheckboxGroup()
+                                # with gr.Row():
+                                    # clr_prman_btn = gr.Button('Clear vals')
+                                # with gr.Row():
+                                    # params_prman = gr.Textbox(label="Params", lines=4, max_lines=20)
+                                # with gr.Row():
+                                    # edit_param_prman = gr.Button(value='Edit param managers')
+                                # with gr.Row():
+                                    # setname_prman_text = gr.Button('Back')
+                                    # setname_prman_btn = gr.Button('Set name')
+                                    # exttaskopt_chgr = gr.CheckboxGroup()
                         # with gr.Tab("Actions"):
                             with gr.Column():
                                 actions_list = gr.CheckboxGroup(label='Action list')
@@ -579,16 +579,20 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         outet_extmanbud_btn.click(fn=projecter.addOutExtTreeInfo, inputs=[outexttreeparam_txt, manbudlist_drd], outputs=outexttreeparam_txt)
                         outet_extmantasks_btn.click(fn=projecter.addOutExtTreeInfo, inputs=[outexttreeparam_txt, manalltsklist_drd], outputs=outexttreeparam_txt)
                     
-                    std_output_man_list = [get_savdman_btn, get_tempman, params_prman, name_prman, exttaskopt_chgr, tempman_drp]
+                    std_output_man_list = [get_savdman_btn, get_tempman, 
+                                        #    params_prman, 
+                                           name_prman, 
+                                        #    exttaskopt_chgr, 
+                                           tempman_drp]
 
-                    edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
+                    # edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
                     save2curtask_btn.click(fn=manipulate_manager.savePrivManToTask, outputs=std_output_man_list)
                     updt_prman_btn.click(fn=manipulate_manager.getPrivManager, outputs=std_output_man_list)                  
                     exe_act2cur_btn.click(fn=manipulate_manager.initSavdManagerToCur, inputs=get_savdman_btn, outputs=std_output_man_list)
                     load_prman_btn.click(fn=manipulate_manager.loadPrivManager, inputs=get_savdman_btn, outputs = std_output_man_list)
-                    setname_prman_btn.click(fn=manipulate_manager.setCurrAsManagerStartTask, outputs=std_output_man_list)
-                    exttaskopt_chgr.change(fn=manipulate_manager.setCurrentExtTaskOptions, inputs=exttaskopt_chgr, outputs=std_output_man_list)
-                    clr_prman_btn.click(fn=manipulate_manager.resetAllExtTaskOptions, outputs=std_output_man_list)
+                    # setname_prman_btn.click(fn=manipulate_manager.setCurrAsManagerStartTask, outputs=std_output_man_list)
+                    # exttaskopt_chgr.change(fn=manipulate_manager.setCurrentExtTaskOptions, inputs=exttaskopt_chgr, outputs=std_output_man_list)
+                    # clr_prman_btn.click(fn=manipulate_manager.resetAllExtTaskOptions, outputs=std_output_man_list)
 
                     with gr.Tab("Text"):
                         analysis_text = gr.Highlightedtext(label="Diff",
@@ -654,9 +658,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             #    prompt_tag_list, 
                             #    checkbox,
                                 name_info, 
-                               param_info, prompt, task_list, param_type, 
-                               parents_list, base_action_list, dial_block, 
-                               exttaskopt_chgr, tree_names_radio, new_tree_name_txt,
+                               param_info, 
+                               prompt, task_list, 
+                               param_type, 
+                               parents_list, 
+                               base_action_list, 
+                               dial_block, 
+                            #    exttaskopt_chgr, 
+                               tree_names_radio, new_tree_name_txt,
                                end_names_radio, end_name_text, extcopy_chck,
                                branches_data, trees_data, branch_msgs,
                                status_txt,
@@ -734,7 +743,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
             end_names_radio.input(fn=projecter.setCurrTaskByBranchEndName, inputs=[end_names_radio], outputs=std_output_list)
             end_name_text.submit(fn=projecter.setBranchEndName, inputs=[end_name_text], outputs=std_output_list)
-            setname_prman_text.click(fn=projecter.backToStartTask, outputs=std_output_list)
+            # setname_prman_text.click(fn=projecter.backToStartTask, outputs=std_output_list)
             roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
             request_btn.click(fn=userinput_manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list, extcopy_chck], outputs=std_output_list)

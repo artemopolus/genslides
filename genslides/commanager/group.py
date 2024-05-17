@@ -571,9 +571,9 @@ class Actioner():
 
         return (gr.Dropdown(choices= saved_man, value=None, interactive=True), 
                 gr.Radio(choices= tmp_man, value=self.manager.getName(), interactive=True), 
-                json.dumps(param, indent=1), 
+                # json.dumps(param, indent=1), 
                 gr.Text(value=name), 
-                self.manager.getCurrentExtTaskOptions(),
+                # self.manager.getCurrentExtTaskOptions(),
                 gr.Dropdown(choices=[m.getName() for m in self.tmp_managers], value=None, interactive=True)
                 )
 

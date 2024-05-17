@@ -1856,7 +1856,7 @@ class Manager:
                                interactive=True), 
             gr.Radio(value="SubTask"), 
             r_msgs,
-            self.getCurrentExtTaskOptions(),
+            # self.getCurrentExtTaskOptions(),
             self.getTreeNamesForRadio(),
             self.getCurrentTreeNameForTxt(),
             self.getBranchEndList(),
