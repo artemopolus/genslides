@@ -638,76 +638,22 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             for param in manager.vars_param:
                 creation_types_radio_list.append(param)
                 creation_types_radio_list.append("un" + param)
-            # print("list=", creation_types_radio_list)
-            # creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
-            # creation_types_radio = gr.Dropdown(choices=creation_types_radio_list, label="Type of task creation",value="New")
-            # task_type_list = gr.Dropdown(choices = types,label="Task to create", value=types[0])
-            # with gr.Row():
-            #     action_to_task_btn = gr.Button(value="Make action!")
-            #     copy_tree = gr.Button(value='Copy')
-
-            # task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
-            prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
-            # extpr_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
-            # with gr.Row():
-            #     extpr_new = gr.Button(value='new')
-            #     extpr_append = gr.Button(value='append')
 
 
-
-            # with gr.Column():
-            #     prev_task_btn = gr.Button(value="Prev task")
-            #     next_task_btn = gr.Button(value="Next task")
-            # next_task_val = gr.Textbox(value="1",label='Iteration next value')
-            # prev_task_val = gr.Textbox(value="-1", label='Iteration prev value')
-
-            # base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil",height=800)
-            # base_img = gr.Image()
-            # base_img.style(height=800)
-
-            # gr.Button(value='Draw tree').click(fn=manager.drawSceletonBranches, outputs=[base_img])
-
-           
-
-            # with gr.Row() as r:
-            #     run_iter_btn = gr.Button(value="Step run")
-            #     with gr.Column():
-            #         l_set_btn = gr.Button("Up")
-            #         h_set_btn = gr.Button("Down")
-            
+            # prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
 
 
-            fst_msg = gr.Textbox(label="Current", lines=4, value=request)
-            # sec_msg = gr.Textbox(label="Previous", lines=4)
-            # sec_msg = gr.HighlightedText(label="Previous", color_map={"assistant":"green"},adjacent_separator="\n",show_legend=True,combine_adjacent=True)
-            # info = gr.Markdown()
-            output = gr.Textbox(label="Output Box")
-            # file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
+            # fst_msg = gr.Textbox(label="Current", lines=4, value=request)
+            # output = gr.Textbox(label="Output Box")
 
+            # checkbox = gr.CheckboxGroup(["test1","1111", "val"])
 
-            # dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
-
-            # with gr.Column():
-            #     with gr.Row():
-            checkbox = gr.CheckboxGroup(["test1","1111", "val"])
-            #     with gr.Row():
-            #         gr.Button("Evaluate").click(fn=projecter.getEvaluetionResults, inputs=checkbox)
-
-            
-            # graph_img.edit(fn=manager.updateGraph, inputs=[graph_img], outputs=[graph_img])
-            # gr.Button("Clear mask").click(fn=manager.updateGraph, inputs = [graph_img], outputs = [graph_img])
-
-            # with gr.Row():
-            #     x_value_txt = gr.Number(value=0, precision=0)
-            #     y_value_txt = gr.Number(value=0, precision=0)
-
-
-            # h_set_btn.click(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
-            # l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
-
-            # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
-            std_output_list = [sec_msg, output, fst_msg, 
-                               prompt_tag_list, checkbox, name_info, 
+            std_output_list = [sec_msg, 
+                            #    output, 
+                            #    fst_msg, 
+                            #    prompt_tag_list, 
+                            #    checkbox,
+                                name_info, 
                                param_info, prompt, task_list, param_type, 
                                parents_list, base_action_list, dial_block, 
                                exttaskopt_chgr, tree_names_radio, new_tree_name_txt,

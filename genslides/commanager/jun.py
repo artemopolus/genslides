@@ -1841,10 +1841,10 @@ class Manager:
  
         out =  (
             r_msgs, 
-            in_prompt ,
-            out_prompt, 
-            in_role, 
-            chck, 
+            # in_prompt ,
+            # out_prompt, 
+            # in_role, 
+            # chck, 
             self.curr_task.getName(), 
             res_params,
             set_prompt, 
