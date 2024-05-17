@@ -76,6 +76,23 @@ class Actioner():
                     # manager.enableOutput2()
                     self.tmp_managers.append(manager)
 
+    def loadStdManagerTasks(self):
+        self.manager = self.std_manager
+        man = self.manager
+        if not man.is_loaded:
+            man.disableOutput2()
+            man.loadTasksListFileBased()
+            man.enableOutput2()
+
+
+
+    def loadTmpManagerTasks(self):
+        for man in self.tmp_managers:
+            if not man.is_loaded:
+                man.disableOutput2()
+                man.loadTasksListFileBased()
+                man.enableOutput2()
+
 
     def createPrivateManagerForTaskByName(self, man)-> Manager.Manager:
         # получаем имя задачи из текущего менеджера

@@ -428,9 +428,9 @@ class InExtTreeTask(ExtProjectTask):
         self.intact = Actioner.Actioner(self.intman)
         self.intact.setPath(trg_path)
         self.intact.clearTmp()
-        self.intman.disableOutput2()
-        self.intman.loadTasksListFileBased()
-        self.intman.enableOutput2()
+        # self.intman.disableOutput2()
+        # self.intman.loadTasksListFileBased()
+        # self.intman.enableOutput2()
 
         self.intpar = exttrgtask
 
@@ -462,10 +462,12 @@ class InExtTreeTask(ExtProjectTask):
 
     def updateIternal(self, input : TaskDescription = None):
         if not self.checkParentMsgList(remove=False, update=True):
+            self.intact.loadTmpManagerTasks()
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
         elif self.intact.manager.getFozenTasksCount():
+            self.intact.loadTmpManagerTasks()
             print(f"Frozen tasks:{self.intact.manager.getFozenTasksCount()}")
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)

@@ -607,6 +607,7 @@ class Projecter:
             self.tmp_actioner_task = man.curr_task
             self.tmp_actioner = self.actioner
             self.actioner = task_actioner
+            self.actioner.loadStdManagerTasks()
             print('Switch on actioner of', man.curr_task.getName())
             print('Path:', self.actioner.getPath())
             print('Man:', self.actioner.manager.getName())
