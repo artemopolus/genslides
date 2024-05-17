@@ -39,8 +39,8 @@ class Archivator():
             print('Filename',trgfile_path,'is not 7z archive')
             return
         with py7zr.SevenZipFile( trgfile_path, 'w') as archive:
-            print('write',data_path,'to', trgfile_path)
             archive.writeall(data_path, arcname='')
+        print(f"Save data from {data_path} to {trgfile_path}")
 
     def saveAllbyName(src_path, trg_path, name):
         print('Archivator save from',src_path,'to', trg_path,'with name', name)

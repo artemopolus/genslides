@@ -210,6 +210,15 @@ class Projecter:
         # Archivator.saveAllbyName(path, trg_path, name)
 
         return gr.Dropdown( choices= self.loadList(), interactive=True)
+    
+    def saveTmpMan(self):
+        if self.actioner.manager == self.actioner.std_manager:
+            return
+        print(f"Save {self.actioner.manager.getName()} tmp manager")
+        path = Loader.Loader.getUniPath(self.actioner.manager.getPath())
+        trg_path = Loader.Loader.getUniPath(Archivator.getProjectFileName())
+        Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
+       
 
    
     

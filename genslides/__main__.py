@@ -445,6 +445,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     updt_prman_btn = gr.Button(value='Updt man list')
                                 with gr.Row():
                                     gr.Button('Save cur man info').click(fn=projecter.saveCurrManInfo)
+                                    gr.Button('Save Cur Tmp Man').click(fn=projecter.saveTmpMan)
                                 with gr.Row():
                                     gr.Label(value='Multiselect tasks (MST) action')
                                 with gr.Row():
