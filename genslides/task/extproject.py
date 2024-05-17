@@ -505,7 +505,16 @@ class OutExtTreeTask(ExtProjectTask):
         return False, [], self.intch_trg
 
     def updateIternal(self, input : TaskDescription = None):
-        if self.intch_trg.is_freeze:
+        if self.intch_trg == None:
+            eres, eparam = self.getParamStruct('external')
+            if eres:
+                self.intch_trg = self.intman.getTaskByName(eparam['target'])
+        try:
+            if self.intch_trg.is_freeze:
+                self.freezeTask()
+            else:
+                self.stdProcessUnFreeze()
+        except:
             self.freezeTask()
 
     def getParentForFinder(self):
