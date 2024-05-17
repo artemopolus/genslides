@@ -640,40 +640,40 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 creation_types_radio_list.append("un" + param)
             # print("list=", creation_types_radio_list)
             # creation_types_radio = gr.Radio(choices=creation_types_radio_list, label="Type of task creation",value="New")
-            creation_types_radio = gr.Dropdown(choices=creation_types_radio_list, label="Type of task creation",value="New")
-            task_type_list = gr.Dropdown(choices = types,label="Task to create", value=types[0])
-            with gr.Row():
-                action_to_task_btn = gr.Button(value="Make action!")
-                copy_tree = gr.Button(value='Copy')
+            # creation_types_radio = gr.Dropdown(choices=creation_types_radio_list, label="Type of task creation",value="New")
+            # task_type_list = gr.Dropdown(choices = types,label="Task to create", value=types[0])
+            # with gr.Row():
+            #     action_to_task_btn = gr.Button(value="Make action!")
+            #     copy_tree = gr.Button(value='Copy')
 
             # task_type_list = gr.Radio(choices = types,label="Task to create", value=types[0])
             prompt_tag_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt",info="Only for request", value="user")
-            extpr_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
-            with gr.Row():
-                extpr_new = gr.Button(value='new')
-                extpr_append = gr.Button(value='append')
+            # extpr_list = gr.Dropdown(choices=projecter.loadList(), label="Available projects:")
+            # with gr.Row():
+            #     extpr_new = gr.Button(value='new')
+            #     extpr_append = gr.Button(value='append')
 
 
 
-            with gr.Column():
-                prev_task_btn = gr.Button(value="Prev task")
-                next_task_btn = gr.Button(value="Next task")
-            next_task_val = gr.Textbox(value="1",label='Iteration next value')
-            prev_task_val = gr.Textbox(value="-1", label='Iteration prev value')
+            # with gr.Column():
+            #     prev_task_btn = gr.Button(value="Prev task")
+            #     next_task_btn = gr.Button(value="Next task")
+            # next_task_val = gr.Textbox(value="1",label='Iteration next value')
+            # prev_task_val = gr.Textbox(value="-1", label='Iteration prev value')
 
             # base_img = gr.Image(tool="sketch", interactive=True, source="upload", type="pil",height=800)
-            base_img = gr.Image()
+            # base_img = gr.Image()
             # base_img.style(height=800)
 
-            gr.Button(value='Draw tree').click(fn=manager.drawSceletonBranches, outputs=[base_img])
+            # gr.Button(value='Draw tree').click(fn=manager.drawSceletonBranches, outputs=[base_img])
 
            
 
-            with gr.Row() as r:
-                run_iter_btn = gr.Button(value="Step run")
-                with gr.Column():
-                    l_set_btn = gr.Button("Up")
-                    h_set_btn = gr.Button("Down")
+            # with gr.Row() as r:
+            #     run_iter_btn = gr.Button(value="Step run")
+            #     with gr.Column():
+            #         l_set_btn = gr.Button("Up")
+            #         h_set_btn = gr.Button("Down")
             
 
 
@@ -685,25 +685,25 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             # file_input.change(fn=manager.getTextFromFile, inputs=[input,file_input], outputs = [input])
 
 
-            dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
+            # dropdown = gr.Dropdown(choices=task_man.model_list, label="Available models list")
 
-            with gr.Column():
-                with gr.Row():
-                    checkbox = gr.CheckboxGroup(["test1","1111", "val"])
-                with gr.Row():
-                    gr.Button("Evaluate").click(fn=projecter.getEvaluetionResults, inputs=checkbox)
+            # with gr.Column():
+            #     with gr.Row():
+            checkbox = gr.CheckboxGroup(["test1","1111", "val"])
+            #     with gr.Row():
+            #         gr.Button("Evaluate").click(fn=projecter.getEvaluetionResults, inputs=checkbox)
 
             
             # graph_img.edit(fn=manager.updateGraph, inputs=[graph_img], outputs=[graph_img])
-            gr.Button("Clear mask").click(fn=manager.updateGraph, inputs = [graph_img], outputs = [graph_img])
+            # gr.Button("Clear mask").click(fn=manager.updateGraph, inputs = [graph_img], outputs = [graph_img])
 
-            with gr.Row():
-                x_value_txt = gr.Number(value=0, precision=0)
-                y_value_txt = gr.Number(value=0, precision=0)
+            # with gr.Row():
+            #     x_value_txt = gr.Number(value=0, precision=0)
+            #     y_value_txt = gr.Number(value=0, precision=0)
 
 
-            h_set_btn.click(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
-            l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
+            # h_set_btn.click(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
+            # l_set_btn.click(fn=moveDown, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt])
 
             # graph_img.render(fn=moveUp, inputs=[graph_img, y_value_txt], outputs=[base_img, y_value_txt],)
             std_output_list = [sec_msg, output, fst_msg, 
@@ -825,8 +825,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             addkey_apd_btn.click(fn=parameters_manager.addTaskNewKeyValue, inputs=[param_type, addkey_key_txt, addkey_val_txt], outputs=std_output_list)
 
 
-            extpr_new.click(fn=projecter.newExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
-            extpr_append.click(fn=projecter.appendExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
+            # extpr_new.click(fn=projecter.newExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
+            # extpr_append.click(fn=projecter.appendExtProject, inputs=[ extpr_list, prompt], outputs=std_output_list)
 
 
             # move2child_btn.click(fn=projecter.moveToNextChild, outputs=std_output_list)
@@ -863,7 +863,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             fix_task_btn.click(fn=manager.fixTasks, outputs=std_output_list)
 
-            run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
+            # run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
             updatecur_task_btn.click(fn=manager.updateCurrent, outputs=std_output_list)
 
@@ -873,9 +873,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             updbrnc_step_btn.click(fn=projecter.updateCurrentTree, outputs=std_output_list)
             reset_step_btn.click(fn=projecter.resetUpdate, outputs= std_output_list)
 
-            next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
-            prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
-            action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
+            # next_task_btn.click(fn=manager.setNextTask, inputs=[next_task_val], outputs=std_output_list, api_name='next_task',)
+            # prev_task_btn.click(fn=manager.setNextTask, inputs=[prev_task_val], outputs=std_output_list, api_name='prev_task',)
+            # action_to_task_btn.click(fn=manager.makeTaskAction, inputs=[prompt, task_type_list, creation_types_radio, prompt_tag_list], outputs=std_output_list, api_name="makeTaskAction")
             if project_params['project'] != None:
                 projecter.loadManagerByPath(project_params['project'])
 # [[---]]
