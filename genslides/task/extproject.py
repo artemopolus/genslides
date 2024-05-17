@@ -417,7 +417,8 @@ class InExtTreeTask(ExtProjectTask):
             fld_name = eparam['name']
         if eparam['copy'] == 'Copy':
             trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', fld_name])
-            Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(src_path), trg_path=Loader.Loader.getUniPath(trg_path))
+            if len(Fm.getFilesInFolder(trg_path)) < 2:
+                Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(src_path), trg_path=Loader.Loader.getUniPath(trg_path))
         else:
             trg_path = src_path
         self.intman.setPath(trg_path)

@@ -140,7 +140,8 @@ def shiftParentTags( text : str, shift : int ):
                 elif index == 1:
                     change_parent = parent_tag[0]
                 if index > 0:
-                    text.replace(res[2:-2], change_parent)
+                    target_parent = tag
+                    text = text.replace(target_parent, change_parent)
     return text
 
 

@@ -63,5 +63,10 @@ def getFilesPathInFolder(path: str):
 def getFoldersInFolder(path:str):
     return [f for f in listdir(path) if isdir(join(path, f))]
 
+def checkDirsContent(dirpath1 : str, dirpath2 : str) -> bool:
+    files1 = getFilesInFolder(dirpath1)
+    files2 = getFilesInFolder(dirpath2)
+    return files1 == files2
+
 def getFileName(path:str):
     return Path(path).stem

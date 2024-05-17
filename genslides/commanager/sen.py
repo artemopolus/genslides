@@ -1113,6 +1113,23 @@ class Projecter:
                 man.curr_task = task
                 self.makeTaskAction(prompt=edit,type1='Request',creation_type= 'Edit',creation_tag= role, param=[])
         man.curr_task = start
+        print(f"Shift parent tag for {len(man.multiselect_tasks)} multiselected task(s)")
+
+    def shiftParentTagForCurAndChilds(self, shift : int):
+        man = self.actioner.manager
+        start = man.curr_task
+        tasks = man.curr_task.getAllChildChains()
+        for task in tasks:
+            if task.checkType('Request'):
+                content = task.getLastMsgContentRaw()
+                _,role,_ = task.getMsgInfo()
+                edit = Finder.shiftParentTags(content,shift)
+                # print('Start',content)
+                # print('Edir', edit)
+                man.curr_task = task
+                self.makeTaskAction(prompt=edit,type1='Request',creation_type= 'Edit',creation_tag= role, param=[])
+        man.curr_task = start
+        print(f"Shift parent tag for {start.getName()} and its {len(tasks)} child(s)")
 
 
     def removeMultiSelect(self):

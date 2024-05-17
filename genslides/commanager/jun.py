@@ -515,7 +515,7 @@ class Manager:
                     branch_found = False
                     task_found = None
                     for idx, task in enumerate(child_branch):
-                        print('Check in', task.getName())
+                        # print('Check in', task.getName())
                         pres, pparam = task.getParamStruct('copied', True)
                         if pres:
                             names = pparam['cp_path']
@@ -539,7 +539,7 @@ class Manager:
                     child_branch = child.getAllChildChains()
                     branch_found = False
                     for idx, task in enumerate(child_branch):
-                        print('Check in', task.getName())
+                        # print('Check in', task.getName())
                         pres, pparam = task.getParamStruct('copied', True)
                         task_found = False
                         if pres:
@@ -566,7 +566,7 @@ class Manager:
                 if child != fork_root:
                     trg_tasks = child.getAllChildChains()
                     for task in trg_tasks:
-                        print('Check in', task.getName())
+                        # print('Check in', task.getName())
                         pres, pparam = task.getParamStruct('copied', True)
                         if pres:
                             names = pparam['cp_path']
