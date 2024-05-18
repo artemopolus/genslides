@@ -275,7 +275,8 @@ class Projecter:
                 'ignrlist',
                 'wishlist', #
                 'upd_cp', #Обновить ветки, которые скопирован ранее через Edit
-                'onlymulti' #Копировать только мультивыбранные задачи
+                'onlymulti', #Копировать только мультивыбранные задачи
+                'reqSraw'
                 ]
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
@@ -1114,6 +1115,7 @@ class Projecter:
                 self.makeTaskAction(prompt=edit,type1='Request',creation_type= 'Edit',creation_tag= role, param=[])
         man.curr_task = start
         print(f"Shift parent tag for {len(man.multiselect_tasks)} multiselected task(s)")
+        return self.actioner.updateUIelements()
 
     def shiftParentTagForCurAndChilds(self, shift : int):
         man = self.actioner.manager
@@ -1130,6 +1132,36 @@ class Projecter:
                 self.makeTaskAction(prompt=edit,type1='Request',creation_type= 'Edit',creation_tag= role, param=[])
         man.curr_task = start
         print(f"Shift parent tag for {start.getName()} and its {len(tasks)} child(s)")
+        return self.actioner.updateUIelements()
+
+    def replaceTextForMultiSelect(self, old : str, rpc : str):
+        man = self.actioner.manager
+        start = man.curr_task
+        for task in man.multiselect_tasks:
+            if task.checkType('Request'):
+                content = task.getLastMsgContentRaw()
+                edit = content.replace(old=old, new=rpc)
+                _,role,_ = task.getMsgInfo()
+                man.curr_task = task
+                self.makeTaskAction(prompt=edit,type1='Request',creation_type= 'Edit',creation_tag= role, param=[])
+        man.curr_task = start
+        print(f"Replace [{old}] to [{rpc}] for {len(man.multiselect_tasks)} multiselected task(s)")
+        return self.actioner.updateUIelements()
+
+    def findSubStringInTasks(self, trg : str):
+        man = self.actioner.manager
+        output = ''
+        for task in man.task_list:
+            if task.checkType('Request'):
+                content = task.getLastMsgContentRaw()
+                for idx in range(len(content)):
+                    if content.startswith(trg, idx):
+                        info = ':'.join([task.getName(), str(idx)]) + '\n\n'
+                        start_idx = max(0, idx - 20)
+                        end_idx = min((len(content) - 1), idx + len(trg) + 20)
+                        info += content[start_idx : end_idx] + '\n\n\n\n'
+                        output += info
+        return output
 
 
     def removeMultiSelect(self):

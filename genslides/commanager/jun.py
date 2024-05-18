@@ -874,13 +874,13 @@ class Manager:
         return img_path
 
 
-    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False):
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False, all_tree_task = False):
         # print('Draw graph')
         if only_current:
             if self.curr_task == None:
                 if len(self.task_list) > 0:
                     self.curr_task = self.task_list[0] 
-            if self.curr_task.isRootParent():
+            if self.curr_task.isRootParent() or all_tree_task:
                 trg_list = self.curr_task.getTree(max_childs=10)
             else:
                 trg_list = self.curr_task.getAllParents(max_index = max_index)
@@ -2209,8 +2209,13 @@ class Manager:
         tasks_chains = self.tc_tasks_chains
         branch = tasks_chains[i]
         task = branch['branch'][j]
-        # TODO: Заменить на особую функцию, которая используется только в случае копирования, чтобы переопределить ее для ExtProject. Для этой задачи при копировании важнее не входные переменные, а результирующее сообщение
-        prompt=task.getLastMsgContent() 
+        # Заменить на особую функцию, которая используется только в случае копирования, 
+        # чтобы переопределить ее для ExtProject. Для этой задачи при копировании важнее не входные переменные, 
+        # а результирующее сообщение
+        if 'reqSraw' in self.tasksbranchcopy_param and self.tasksbranchcopy_param['reqSraw']:
+            prompt=task.getPromptContentForCopyConverted() 
+        else:
+            prompt=task.getPromptContentForCopy() 
         prompt_tag=task.getLastMsgRole()
         trg_type = task.getType()
         param_task = task.copyAllParams(True)
@@ -2334,13 +2339,13 @@ class Manager:
         return res_tasks_chains
 
 
-    def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = [], new_parent = None, ignore_conv = []):
+    def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = [], new_parent = None, ignore_conv = [], param = {}):
         print('Copy tasks by info')
-        self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch, new_parent, ignore_conv)
+        self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch, new_parent, ignore_conv, param)
         self.copyTasksByInfoExe()
         return self.copyTasksByInfoStop()
 
-    def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = [], new_parent = None, ignore_conv = []):
+    def copyTasksByInfoStart(self, tasks_chains, change_prompt = False, edited_prompt = '',switch = [], new_parent = None, ignore_conv = [], param = {}):
         i = 0
         links_chain = []
         insert_tasks = []
@@ -2379,6 +2384,7 @@ class Manager:
 
         self.tc_new_parent = new_parent
         self.tc_ignore_conv = ignore_conv
+        self.tasksbranchcopy_param = param
 
         for i in range(len(tasks_chains)):
             for j in range(len(tasks_chains[i]['branch'])):

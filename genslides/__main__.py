@@ -199,21 +199,22 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             dial_block = gr.Chatbot(height=500)
             with gr.Tab('Raw view'):
                 with gr.Row():
-                    with gr.Column(scale=1):
+                    # with gr.Column(scale=1):
                         raw_graph = gr.Image(
-                            width=500
+                            # width=500
+                            # height=800
                         )
-                    with gr.Column(scale=1):
-                        # with gr.Row():
-                        #     raw_next_brnch_btn = gr.Button(value='Next branch', min_width=150)
-                        #     raw_next_brend_btn = gr.Button(value='Next bud', min_width=150)
-                        #     raw_move_parnt_btn = gr.Button(value='Go up')
-                        #     raw_move_child_btn = gr.Button(value='Go down')
-                        with gr.Row():
+                    # with gr.Column(scale=1):
+                with gr.Row():
                             raw_dial = gr.Chatbot(height=500)
-                        with gr.Row():
+                with gr.Row():
                             task_list = gr.Dropdown(choices=manager.getTaskList(), label='Available tasks')
                             sel_task_btn = gr.Button(value="Select")
+                with gr.Row():
+                            trgtexttosearch_txt = gr.Textbox(label='Text to search')
+                            foundtaskstext_txt = gr.Textbox(label='Search results')
+                            findtextintasks_btn = gr.Button('Find')
+                            findtextintasks_btn.click(fn=projecter.findSubStringInTasks, inputs=[trgtexttosearch_txt], outputs=[foundtaskstext_txt])
             with gr.Tab('Comparing'):
                 with gr.Row():
                     comparison_rad = gr.Radio(choices=projecter.getComparisonTypes())
@@ -248,6 +249,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                             label="Select actions", 
                                                             value="New"
                                                             )
+                                roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
                             with gr.Column(scale = 19):
                                 prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                                 with gr.Row():
@@ -256,9 +258,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     custom_list_data = projecter.getFullCmdList()
                                     custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
                                     custom_btn = gr.Button(value='Custom')
-                                
-                                extcopy_chck = gr.CheckboxGroup()
-                        roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
+                                with gr.Row():
+                                    extcopy_chck = gr.CheckboxGroup()
+                        with gr.Row():
+                            oldtexttochange_txt = gr.Textbox(label='Old text to change')
+                            newtexttochange_txt = gr.Textbox(label='New text for replacing')
+                            changeoldtonew_btn = gr.Button('Change for multi')
+                        with gr.Row():
+                            shiftpartag_sld = gr.Slider(minimum=-20, maximum=20, step=1, value=1)
+                        with gr.Row():
+                            childshiftpartag_btn = gr.Button('Shift par tag for cur&child')
+                            multishiftpartag_btn = gr.Button('Shift par tag for multisel')
 
                         
                    
@@ -365,13 +375,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 delete_reltasks_btn = gr.Button('Delete multiselected')
                                 garlandmulti_btn = gr.Button('Garland from multi')
                                 collectmulti_btn = gr.Button('Collect from multi')
-                                with gr.Row():
-                                    shiftpartag_sld = gr.Slider(minimum=-20, maximum=20, step=1, value=1)
-                                with gr.Row():
-                                    childshiftpartag_btn = gr.Button('Shift par tag for cur&child')
-                                    multishiftpartag_btn = gr.Button('Shift par tag for multisel')
-                                multishiftpartag_btn.click(fn=projecter.shiftParentTagForMultiSelect, inputs=[shiftpartag_sld])
-                                childshiftpartag_btn.click(fn=projecter.shiftParentTagForCurAndChilds, inputs=[shiftpartag_sld])
                     with gr.Tab('Cmds'):
                         with gr.Row():
                             moveup_btn = gr.Button(value='MoveUP')
@@ -681,6 +684,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                multiselecttask_txt
                                ]
             std_output_list.extend([graph_img, graph_alone, raw_graph])
+
+            multishiftpartag_btn.click(fn=projecter.shiftParentTagForMultiSelect, inputs=[shiftpartag_sld], outputs=std_output_list)
+            childshiftpartag_btn.click(fn=projecter.shiftParentTagForCurAndChilds, inputs=[shiftpartag_sld], outputs=std_output_list)
+            changeoldtonew_btn.click(fn=projecter.replaceTextForMultiSelect, inputs=[oldtexttochange_txt, newtexttochange_txt], outputs=std_output_list)
 
             inextreesubtask_btn.click(fn=projecter.addInExtTreeSubTask, inputs=[inexttreeparam_txt], outputs=std_output_list)
             # outextreesubtask_btn.click(fn=projecter.addOutExtTreeSubTask, inputs=[outexttreeparam_txt], outputs=std_output_list)

@@ -351,7 +351,8 @@ class Actioner():
                                          change_prompt=param['change'], 
                                          switch=param['switch'],
                                          new_parent=trg_parent,
-                                         ignore_conv=ignore_conv
+                                         ignore_conv=ignore_conv,
+                                         param= param
                 )
             else:
                 self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
@@ -359,7 +360,8 @@ class Actioner():
                                          change_prompt=param['change'],
                                          switch=param['switch'],
                                          new_parent=trg_parent,
-                                         ignore_conv=ignore_conv
+                                         ignore_conv=ignore_conv,
+                                         param = param
                                          )
             
 
@@ -865,7 +867,7 @@ class Actioner():
             hide_tasks = False
             maingraph = self.drawGraph(hide_tasks=True)
             stepgraph = self.std_manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True)
-            rawgraph = self.std_manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
+            rawgraph = self.std_manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True)
 
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
             out += (maingraph, stepgraph, rawgraph)

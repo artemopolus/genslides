@@ -316,8 +316,21 @@ class TextTask(BaseTask):
                 return False
         return True
     
+    def getPromptContentForCopy(self):
+    # Сделать отдельную функцию для получения последнего сообщения и переопределить его в SetOptions и ExtProject. В противном случае, при редактировании будут отображаться не те данные, которые были введены изначально. Дублирует по свойствам getLastMsgContent, но замена может повлиять на многие функции, поэтому оставляем изменение к следующеему этапу тестирования.
+        if len(self.msg_list) > 0:
+            return self.msg_list[-1]["content"]
+        else:
+            return ""
+        
+    def getPromptContentForCopyConverted(self):
+        if len(self.msg_list) > 0:
+            return self.findKeyParam( self.msg_list[-1]["content"])
+        else:
+            return ""
+   
+
     def getLastMsgContentRaw(self):
-    # TODO: Сделать отдельную функцию для получения последнего сообщения и переопределить его в SetOptions и ExtProject. В противном случае, при редактировании будут отображаться не те данные, которые были введены изначально. Дублирует по свойствам getLastMsgContent, но замена может повлиять на многие функции, поэтому оставляем изменение к следующеему этапу тестирования.
         if len(self.msg_list) > 0:
             return self.getRawMsgs()[-1]['content']
         else:
