@@ -118,7 +118,7 @@ class RunScriptTask(ResponseTask):
                     n_file.append(self.findKeyParam(opt))
                 file = n_file
             # print("Run script", file,'in', workspace)
-            result = subprocess.run(file, capture_output=True, text=True, cwd=workspace)
+            result = subprocess.run(file, capture_output=True, text=True, cwd=workspace, shell=True)
             if result.returncode:
                 done = False
                 data += phrase_error + result.stderr + "\n"
