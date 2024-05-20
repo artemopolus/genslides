@@ -30,6 +30,7 @@ class ResponseTask(TextTask):
 
 
     def onEmptyMsgListAction(self):
+        # print('On empty msg list action', self.getName())
         self.setChatPram("temperature")
         self.setChatPram("model")
         # Если задача заморожена
@@ -47,7 +48,7 @@ class ResponseTask(TextTask):
         return super().onEmptyMsgListAction()
 
     def onExistedMsgListAction(self, msg_list_from_file):
-        # print('On existed msg list action')
+        # print('On existed msg list action', self.getName())
         res, val = self.getParam("model")
         if not res:
             res, model_name =  self.reqhelper.getValue(self.getType(), "model")
@@ -58,7 +59,9 @@ class ResponseTask(TextTask):
 
         self.msg_list = msg_list_from_file
         if self.checkParentMsgList(update=True, save_curr=False):
-            self.stdProcessUnFreeze()
+            res, content, _ =  self.getLastMsgAndParent()
+            if res and content[0]['content'] != "":
+                self.stdProcessUnFreeze()
         # print("Get list from file=", self.path)
         return super().onExistedMsgListAction(msg_list_from_file)
 

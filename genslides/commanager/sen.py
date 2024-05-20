@@ -493,6 +493,12 @@ class Projecter:
         self.actioner.manager.goToNextBranch()
         return self.actioner.updateUIelements()
     
+    def goToBranchFork(self):
+        man = self.actioner.manager
+        _, trg = man.getBranchFork(start_task=man.curr_task)
+        man.curr_task = trg
+        return self.actioner.updateUIelements()
+    
     def createNewTree(self):
         self.makeTaskAction("","SetOptions","New","user",[])
         self.actioner.manager.updateTreeArr()
@@ -843,10 +849,10 @@ class Projecter:
         self.actioner.update()
         return self.actioner.updateUIelements()
         
-    def updateAll(self):
+    def updateAll(self, check = False):
         print('Update All trees stepped')
         self.actioner.manager.disableOutput2()
-        self.actioner.updateAll()
+        self.actioner.updateAll(force_check=check)
         self.actioner.manager.enableOutput2()
         return self.actioner.updateUIelements()
     
@@ -857,9 +863,9 @@ class Projecter:
         return self.actioner.updateUIelements()
 
    
-    def updateAllUntillCurrTask(self):
+    def updateAllUntillCurrTask(self, force_check = False):
         self.actioner.manager.disableOutput2()
-        self.actioner.updateAllUntillCurrTask()
+        self.actioner.updateAllUntillCurrTask(force_check=force_check)
         self.actioner.manager.enableOutput2()
         return self.actioner.updateUIelements()
    

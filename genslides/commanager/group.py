@@ -701,6 +701,8 @@ class Actioner():
                 man.updateTreeArr()
             else:
                 man.updateTreeArr(check_list=True)
+        if len(man.tree_arr) == 0:
+            return
         man.curr_task = man.tree_arr[0]
         for task in man.tree_arr:
             task.resetTreeQueue()
@@ -764,6 +766,8 @@ class Actioner():
         print(f"Update all tasks of {man.getName()}")
         start_task = man.curr_task
         self.resetUpdate(force_check=force_check)
+        if len(man.tree_arr) == 0:
+            return
         idx = 0
         while(idx < 10000):
             self.update()
@@ -781,10 +785,13 @@ class Actioner():
         # out = man.getCurrTaskPrompts()
         # return out
 
-    def updateAllUntillCurrTask(self):
+    def updateAllUntillCurrTask(self, force_check=False):
         man = self.manager
         start_task = man.curr_task
-        self.resetUpdate()
+        self.resetUpdate(force_check=force_check)
+        if len(man.tree_arr) == 0:
+            return
+
         idx = 0
         while(idx < 1000):
             self.update()
@@ -798,8 +805,8 @@ class Actioner():
                 cnt += 1
         print('Frozen tasks cnt:', cnt)
         # man.curr_task = start_task
-        out = man.getCurrTaskPrompts()
-        return out
+        # out = man.getCurrTaskPrompts()
+        # return out
 
     def getRelatedTasks(self, task :BaseTask, lnk_in = True, lnk_out= True):
         if lnk_in:

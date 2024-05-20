@@ -163,6 +163,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             go_lnkfrwd_rad = gr.Radio(label='Targets')
                             go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
                             go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
+                            go_brchfrk_btn = gr.Button(value='Go to fork')
 
                         with gr.Row():
                             sec_msg = gr.Chatbot(height=700)
@@ -188,6 +189,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             update_step_btn = gr.Button(value="UAT one step")
                             upd2cur_step_btn = gr.Button(value='UAT to cur')
                             updbrnc_step_btn = gr.Button(value='Update tree')
+                            updatecheckown_chk = gr.Checkbox(label='Check tasks manager', value=False)
                             reset_step_btn = gr.Button(value="Reset steps")
                         with gr.Row():
                             clnresp_btn = gr.Button(value='Clean Response')
@@ -805,6 +807,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
             go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
             go_hlfbrch_btn.click(fn=projecter.goToHalfBranch, outputs=std_output_list)
+            go_brchfrk_btn.click(fn=projecter.goToBranchFork, outputs=std_output_list)
 
             # raw_next_brnch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
             # raw_next_brend_btn.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
@@ -835,8 +838,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             updatecur_task_btn.click(fn=manager.updateCurrent, outputs=std_output_list)
 
             update_step_btn.click(fn=projecter.update, outputs=std_output_list)
-            updateall_step_btn.click(fn=projecter.updateAll, outputs=std_output_list)
-            upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, outputs=std_output_list)
+            updateall_step_btn.click(fn=projecter.updateAll, inputs=[updatecheckown_chk], outputs=std_output_list)
+            upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, inputs=[updatecheckown_chk], outputs=std_output_list)
             updbrnc_step_btn.click(fn=projecter.updateCurrentTree, outputs=std_output_list)
             reset_step_btn.click(fn=projecter.resetUpdate, outputs= std_output_list)
 
