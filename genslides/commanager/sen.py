@@ -69,6 +69,14 @@ class Projecter:
         if len(self.actioner.std_manager.task_list) == 0:
             self.createNewTree()
         print('Load manager from browser is complete')
+        man = self.actioner.std_manager
+        python_path = Finder.findByKey("[[project:python]]", man, man.curr_task, man.helper)
+        fld = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper)
+        spc = Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper)
+        print("Vars for manager")
+        print(f"Python path: {python_path}")
+        print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
+        print(f"Manager space: { Loader.Loader.getUniPath( spc )}")
    
     def loadManagerFromBrowser(self):
         man_path = Loader.Loader.getDirPathFromSystem()
