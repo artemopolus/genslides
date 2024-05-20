@@ -752,9 +752,10 @@ class Manager:
             # print("Parent task path=", parent_path)
         init_task_list = self.task_list.copy()
         task_manager = TaskManager()
-        parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), trg_path= parent_path, ignore_safe=safe, trg_tasks=trg_tasks)
+        path_to_get = Loader.Loader.getUniPath(self.getPath())
+        parent_prompt_list = task_manager.getTaskPrompts(path_to_get, trg_path= parent_path, ignore_safe=safe, trg_tasks=trg_tasks)
 
-        # print("prompt count=",len(parent_prompt_list))
+        print(f"Found {len(parent_prompt_list)} prompt(s) by path {path_to_get}")
 
         for prompt in parent_prompt_list:
             self.curr_task = prnt_task
