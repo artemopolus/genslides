@@ -203,8 +203,8 @@ def findByKey(text, manager , base, reqhelper : Helper.RequestHelper):
                  elif arr[0] == 'parent':
                     task = base.getParent()
                  elif arr[0] == 'project':
-                    if len(arr) > 1:
-                        rres, rvalue = reqhelper.getValue(base.getType(), arr[1])
+                    if len(arr) > 2:
+                        rres, rvalue = reqhelper.getValue(arr[1], arr[2])
                         if rres:
                             rep_text = rep_text.replace(res, str(rvalue))
                  elif arr[0] == 'global':

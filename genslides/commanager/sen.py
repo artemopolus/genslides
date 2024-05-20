@@ -70,11 +70,11 @@ class Projecter:
             self.createNewTree()
         print('Load manager from browser is complete')
         man = self.actioner.std_manager
-        python_path = Finder.findByKey("[[project:python]]", man, man.curr_task, man.helper)
+        python_path = Finder.findByKey("[[project:RunScript:python]]", man, man.curr_task, man.helper)
         fld = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper)
         spc = Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper)
         print("Vars for manager")
-        print(f"Python path: {python_path}")
+        print(f"Python path: { Loader.Loader.getUniPath( python_path )}")
         print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
         print(f"Manager space: { Loader.Loader.getUniPath( spc )}")
    
@@ -1041,7 +1041,7 @@ class Projecter:
         return self.actioner.updateUIelements()
 
 
-    def getParamFromMultiSelected(self, key):
+    def getParamFromMultiSelected(self, key, info = ""):
         man = self.actioner.manager
         param = None
         difftasknames = []
@@ -1058,7 +1058,9 @@ class Projecter:
         if param == None:
             return '','No param'
         
-        return json.dumps(param, indent=1), 'Diff tasks:\n' + ','.join(difftasknames)
+        output_info = 'Diff tasks:\n' + ','.join(difftasknames) + '\n' + info
+        
+        return json.dumps(param, indent=1), output_info
     
     def getValueFromJSONMultiSelect(self, param, key):
         if key in param:
@@ -1075,17 +1077,20 @@ class Projecter:
 
     def setParamStructToMultiSelect(self, text_param, param_name):
         print('Set param struct to multiselect')
+        task_names = []
         try:
             man = self.actioner.manager
             param = json.loads(text_param)
             if param_name == param['type']:
                 for task in man.multiselect_tasks:
-                    task.rewriteParamStruct( param )
+                    res = task.rewriteParamStruct( param )
+                    if res:
+                        task_names.append(task.getName())
             else:
-                return self.getParamFromMultiSelected(param_name)
+                return self.getParamFromMultiSelected(param_name, info="Apply to " + ",".join(task_names))
         except Exception as e:
             print('Json error', e)
-        return self.getParamFromMultiSelected(param_name)
+        return self.getParamFromMultiSelected(param_name, info="Apply to " + ",".join(task_names))
 
     def createGarlandFromMultiSelect(self):
         man = self.actioner.manager

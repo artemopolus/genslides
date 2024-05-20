@@ -1014,7 +1014,7 @@ class TextTask(BaseTask):
         if 'type' in trg_param:
             param_name = trg_param['type']
         else:
-            return
+            return False
         trg = None
         for param in self.params:
             if 'type' in param and param['type'] == param_name:
@@ -1026,6 +1026,8 @@ class TextTask(BaseTask):
             self.saveJsonToFile(self.msg_list)
         else:
             print('Nothing to rewrite')
+            return False
+        return True
 
 
 
