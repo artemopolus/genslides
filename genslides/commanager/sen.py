@@ -11,6 +11,7 @@ import genslides.utils.loader as Loader
 import genslides.utils.finder as Finder
 import genslides.utils.searcher as Searcher
 import genslides.utils.filemanager as FileManager
+import genslides.utils.readfileman as Reader
 
 from os import listdir
 from os.path import isfile, join
@@ -1475,5 +1476,50 @@ class Projecter:
                             gr.Button(interactive=True))
 
         return 'None','None', {}, {}, gr.Button(interactive=False), gr.Button(interactive=False)
+    
+    def checkTaskFiles(self):
+        man = self.actioner.manager
+        self.addExternalTasksToManager(man, man.getPath(), [t.getName() for t in man.multiselect_tasks])
+
+    def addExternalTasksToManager(self, manager : Manager, path : str, tasknames : list[str]):
+        budtasknames = tasknames.copy()
+        alltaskpaths = []
+        for name in tasknames:
+            taskname = name + manager.getTaskExtention()
+            task_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(path,[taskname]))
+            alltaskpaths.append(task_path)
+            task_info = Reader.ReadFileMan.readJson(task_path)
+            parent_name = task_info['parent']
+            if parent_name in budtasknames:
+                budtasknames.remove(parent_name)
+
+        print(f"Try to load tasks: {tasknames}\nBuds:{budtasknames}")
+        branches = []
+        for budname in budtasknames:
+            branchtasks = [budname]
+            trgname = budname
+            idx = 0
+            while idx < 1000:
+                taskname = trgname + manager.getTaskExtention()
+                task_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(path,[taskname]))
+                task_info = Reader.ReadFileMan.readJson(task_path)
+                parent_name = task_info['parent']
+                if parent_name != '' and parent_name in tasknames:
+                    branchtasks.extend([parent_name])
+                    trgname = parent_name
+                else:
+                    break
+            print(f"Branch:{branchtasks}")
+            branches.append(branchtasks)
+
+        for i, branchtasks in enumerate(branches):
+            for task in branchtasks:
+                found_copy = False
+                for j, anotherbranchtasks in enumerate(branches):
+                    if i != j and task in anotherbranchtasks:
+                        found_copy = True
+                        break
 
 
+
+            

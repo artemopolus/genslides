@@ -13,6 +13,7 @@ def llamacppGetChatCompletion(msgs, params):
         completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=msgs,
+                timeout=7200
             )
             
         # print('Openai completion=',completion)

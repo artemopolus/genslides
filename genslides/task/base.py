@@ -210,7 +210,7 @@ class TaskDescription():
     def __init__(self, prompt = "", method = None, parent=None, helper=None, 
                  requester=None, target=None, manager=None, id = 0, type = "", 
                  prompt_tag = "user", filename = "", enabled = False, 
-                 params = [], manual = False, stepped = False) -> None:
+                 params = [], manual = False, stepped = False, trgtaskname = '') -> None:
         self.manager = manager
         self.prompt = prompt
         self.prompt_tag = prompt_tag
@@ -226,6 +226,7 @@ class TaskDescription():
         self.params = params
         self.manual = manual
         self.stepped = stepped
+        self.trgtaskname = trgtaskname
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
@@ -265,6 +266,7 @@ class BaseTask():
         
         self.target = task_info.target
         self.filename = task_info.filename
+        self.trgtaskname = task_info.trgtaskname
 
 
     def getBranchCodeTag(self) -> str:

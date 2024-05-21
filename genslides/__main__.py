@@ -377,6 +377,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 delete_reltasks_btn = gr.Button('Delete multiselected')
                                 garlandmulti_btn = gr.Button('Garland from multi')
                                 collectmulti_btn = gr.Button('Collect from multi')
+                                gr.Button('Check').click(fn=projecter.checkTaskFiles)
                     with gr.Tab('Cmds'):
                         with gr.Row():
                             moveup_btn = gr.Button(value='MoveUP')

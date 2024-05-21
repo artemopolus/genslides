@@ -6,6 +6,8 @@ import genslides.utils.request as Requester
 import genslides.utils.browser as Browser
 import genslides.utils.browser as WebBrowser
 import genslides.utils.largetext as Summator
+import genslides.utils.readfileman as Reader
+import genslides.utils.filemanager as FileMan
 
 from genslides.utils.searcher import GoogleApiSearcher
 from genslides.utils.chatgptrequester import ChatGPTrequester
@@ -30,6 +32,7 @@ import copy
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
+        self.checkparentsettrue = False
         self.msg_list = []
         self.params = task_info.params
         super().__init__(task_info, type)
@@ -52,6 +55,9 @@ class TextTask(BaseTask):
         self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
         # TODO: Добавить загрузку начальных параметров
         self.stdProcessUnFreeze()
+
+    def setCheckParentForce(self, val : bool):
+        self.checkparentsettrue = val
 
     def onEmptyMsgListAction(self):
         print('On empty msg list', self.getName())
@@ -297,6 +303,8 @@ class TextTask(BaseTask):
         return False
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
+        if self.checkparentsettrue:
+            return True
         if self.parent:
             # print('Check msg list of',self.getName(),'with', self.parent.getName())
             trg = self.getParent().getMsgList()
@@ -647,6 +655,19 @@ class TextTask(BaseTask):
     def getResponseFromFile(self, msg_list, remove_last=True):
         mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+        if self.trgtaskname != "":
+            targettaskfile = self.trgtaskname + self.manager.getTaskExtention()
+            if targettaskfile in onlyfiles:
+                targettask_path = FileMan.addFolderToPath(mypath,[targettaskfile])
+                rq = Reader.ReadFileMan.readJson(Loader.getUniPath(targettask_path))
+                if 'chat' in rq and 'param' in rq:
+                    self.path = targettask_path
+                    self.setName(self.trgtaskname)
+                    self.params = self.resetResetableParams(rq['params'])
+                    return rq['chat']
+
+  
         # print("Get response from files:", onlyfiles)
         trg_file = self.filename + self.manager.getTaskExtention()
         # print('Target name:', trg_file)
