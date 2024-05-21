@@ -57,4 +57,5 @@ class Archivator():
         with py7zr.SevenZipFile(join(trg_path, filename + ".7z"), 'r') as archive:
             print('Extract all from',trg_path, filename,'to',path_to_extract)
             archive.extractall(path=path_to_extract)
+        print(f"Extract files of {filename} from {trg_path} to {path_to_extract}")
         return True

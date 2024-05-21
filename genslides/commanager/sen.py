@@ -211,6 +211,19 @@ class Projecter:
         trg_path = FileManager.add(path, ["reserved","project.7z"])
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
+    def loadFromTmp(self):
+        self.actioner.setManager(self.actioner.std_manager)
+        self.clearFiles()
+        path = self.actioner.manager.getPath()
+        path = Loader.Loader.getUniPath(path)
+        project_path = Loader.Loader.getUniPath(self.mypath)
+        ppath = FileManager.add(path, ["reserved","project.7z"])
+        project_path = Loader.Loader.getUniPath(ppath.parent)
+        filename = str(ppath.stem)
+        Archivator.extractFiles(project_path, filename, path)
+        self.resetManager(self.actioner.manager, path=self.actioner.getPath())
+        return self.actioner.updateTaskManagerUI()
+
     def save(self, name):
         self.current_project_name = name
         self.actioner.std_manager.setParam("current_project_name",self.current_project_name)

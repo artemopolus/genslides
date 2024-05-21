@@ -644,7 +644,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 project_load = gr.Button(value = "load")
                 project_reload = gr.Button(value='reload')
                 gr.Button('append').click(fn=project_manipulator.appendProjectTasks)
+            with gr.Row() as r:
                 gr.Button('Save to reserved').click(fn=projecter.saveToTmp)
+                projectrestore_btn = gr.Button('Restore reserved')
 
             # param_updt = gr.Button(value="Edit param")
 
@@ -712,6 +714,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
 
+            projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)
             movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)
 
             init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
