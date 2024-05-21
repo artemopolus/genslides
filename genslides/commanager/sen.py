@@ -1,4 +1,4 @@
-from genslides.task.base import TaskManager, BaseTask
+from genslides.task.base import TaskManager, BaseTask, TaskDescription
 from genslides.utils.savedata import SaveData
 from genslides.utils.archivator import Archivator
 from genslides.commanager.jun import Manager
@@ -204,7 +204,13 @@ class Projecter:
                     return True, ext_pr_name
         return False, ''
     
-    
+    def saveToTmp(self):
+        self.actioner.setManager(self.actioner.std_manager)
+        path = self.actioner.manager.getPath()
+        path = Loader.Loader.getUniPath(path)
+        trg_path = FileManager.add(path, ["reserved","project.7z"])
+        Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
+
     def save(self, name):
         self.current_project_name = name
         self.actioner.std_manager.setParam("current_project_name",self.current_project_name)
@@ -1496,8 +1502,11 @@ class Projecter:
         print(f"Try to load tasks: {tasknames}\nBuds:{budtasknames}")
         branches = []
         for budname in budtasknames:
-            branchtasks = [budname]
             trgname = budname
+            taskname = trgname + manager.getTaskExtention()
+            task_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(path,[taskname]))
+            task_info = Reader.ReadFileMan.readJson(task_path)
+            branchtasks = [{"name": budname,"path": task_path}]
             idx = 0
             while idx < 1000:
                 taskname = trgname + manager.getTaskExtention()
@@ -1505,21 +1514,39 @@ class Projecter:
                 task_info = Reader.ReadFileMan.readJson(task_path)
                 parent_name = task_info['parent']
                 if parent_name != '' and parent_name in tasknames:
-                    branchtasks.extend([parent_name])
+                    tmp = branchtasks.copy()
+                    branchtasks = [{"name":parent_name,"path":task_path}]
+                    branchtasks.extend(tmp)
                     trgname = parent_name
                 else:
                     break
-            print(f"Branch:{branchtasks}")
+            print("Branch:",[t["name"] for t in branchtasks])
             branches.append(branchtasks)
+        print("\n\n\n\nBranches:", branches)
 
-        for i, branchtasks in enumerate(branches):
-            for task in branchtasks:
-                found_copy = False
-                for j, anotherbranchtasks in enumerate(branches):
-                    if i != j and task in anotherbranchtasks:
-                        found_copy = True
-                        break
+    def createExtTaskForManager(self, manager : Manager, taskbranchinfos):
+        linklist = []
+        parent = None
+        for i, info in enumerate(taskbranchinfos):
+            if i == 0:
+                parent = None
+            task_name = info["name"]
+            task_path = info["path"]
+            task_obj = manager.getTaskByName(task_name)
+            if task_obj == None:
+                task_info = Reader.ReadFileMan.readJson(task_path)
+                prompt = ''
+                role = 'user'
+                task_type = FileManager.getFileName(task_path)
+                if 'chat' in task_info and len(task_info['chat']) > 0:
+                    prompt = task_info['chat'][-1]['content']
+                    role = task_info['chat'][-1]['role']
+                for link in task_info['linked']:
+                    linklist.append({'in':FileManager.getFileName(task_path),'out':link})
 
-
+                parent = manager.createOrAddTaskByInfo(task_type=task_type, 
+                                    info=TaskDescription(prompt=prompt, prompt_tag=role, parent=parent,trgtaskname=task_name))
+                parent.setCheckParentForce(True)
+            
 
             

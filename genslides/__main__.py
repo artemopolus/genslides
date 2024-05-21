@@ -644,6 +644,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 project_load = gr.Button(value = "load")
                 project_reload = gr.Button(value='reload')
                 gr.Button('append').click(fn=project_manipulator.appendProjectTasks)
+                gr.Button('Save to reserved').click(fn=projecter.saveToTmp)
 
             # param_updt = gr.Button(value="Edit param")
 

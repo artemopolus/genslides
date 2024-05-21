@@ -1409,7 +1409,30 @@ class Manager:
         if task:
             print("Set current task=", task.getName())
             self.slct_task = task
- 
+
+    def createOrAddTaskByInfo(self,task_type, info : TaskDescription):
+        info.helper = self.helper
+        info.requester=self.requester
+        info.manager = self
+        curr_cmd = cr.createTaskByType(task_type, info)
+        self.cmd_list.append(curr_cmd)
+        return self.runCmdList()
+
+    def runCmdList(self) ->BaseTask:
+        if len(self.cmd_list) > 0:
+            cmd = self.cmd_list.pop(0)
+            task, action = cmd.execute()
+            if action == 'create' and task != None:
+                self.addTask(task)
+                self.curr_task = task
+                return task
+            elif action == 'delete':
+                if task in self.task_list:
+                    self.task_list.remove(task)
+                if self.curr_task == None:
+                    self.curr_task = self.task_list[0]
+        return None
+
     def runIteration(self, prompt = ''):
         # print("Run iteration")
 
