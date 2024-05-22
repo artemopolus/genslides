@@ -1677,26 +1677,6 @@ class Manager:
         return self.curr_task.getLastMsgContentRaw()
     
     
-    def copyToClickBoardLstMsg(self):
-        msg = self.getCurTaskLstMsg()
-        pyperclip.copy(msg)
-        pyperclip.paste()
-
-    
-    def copyToClickBoardDial(self):
-        msgs = self.curr_task.getMsgs()
-        text = ""
-        for msg in msgs:
-            text += msg['role'] + '\n' + 10*'====' + '\n\n\n'
-            text += msg['content'] + '\n'
-        pyperclip.copy(text)
-        pyperclip.paste()
-
-    def copyToClickBoardTokens(self):
-        tokens, price = self.curr_task.getCountPrice()
-        text  = 'Tokens: ' + str(tokens) + ' price: ' + str(price)
-        pyperclip.copy(text)
-        pyperclip.paste()
 
     def getCurrentExtTaskOptions(self):
         p = []

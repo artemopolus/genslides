@@ -154,7 +154,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # tool="sketch", 
                             # interactive=True, 
                             # source="upload", type="pil", 
-                            height=700)
+                            # height=700
+                            )
                         with gr.Row():
                             name_info = gr.Text(value="None", label="Task")
                     with gr.Column():
@@ -167,14 +168,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
                         with gr.Row():
                             sec_msg = gr.Chatbot(height=700)
-                        with gr.Accordion('Tools', open=False):
-                            with gr.Row():
-                                gr.Button("Copy dial").click(fn=manager.copyToClickBoardDial)
-                                gr.Button("Copy lst msg").click(fn=manager.copyToClickBoardLstMsg)
-                                gr.Button("Copy tokens").click(fn=manager.copyToClickBoardTokens)
-                                gr.Button("Cp fldr path").click(fn=manager.getPathToFolder)
-                                gr.Button("Cp file path").click(fn=manager.getPathToFile)
-                                gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):
@@ -241,6 +234,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                           outputs=[comparison_chat, infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
                 infochatrecords_btn.click(fn=projecter.getCopyBranchesInfo, outputs=[infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
                 comparison_btn.click(fn=projecter.getBudMsgs, inputs=comparison_rad, outputs=comparison_chat)
+            
+            with gr.Accordion('Tools', open=False):
+                with gr.Row():
+                    gr.Button("Copy dial").click(fn=projecter.copyToClickBoardDial)
+                    gr.Button("Copy raw dial").click(fn=projecter.copyToClickBoardDialRaw)
+                    gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg)
+                    gr.Button("Copy tokens").click(fn=projecter.copyToClickBoardTokens)
+                    gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
  
             with gr.Row():
                 # with gr.Column():

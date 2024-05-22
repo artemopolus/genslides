@@ -1569,5 +1569,35 @@ class Projecter:
                                     info=TaskDescription(prompt=prompt, prompt_tag=role, parent=parent,trgtaskname=task_name))
                 parent.setCheckParentForce(True)
             
+    def copyToClickBoardDial(self):
+        msgs = self.actioner.manager.curr_task.getMsgs()
+        text = ""
+        for msg in msgs:
+            text += msg['role'] + '\n' + 10*'====' + '\n\n\n'
+            text += msg['content'] + '\n'
+        pyperclip.copy(text)
+        pyperclip.paste()
 
-            
+    def copyToClickBoardDialRaw(self):
+        msgs = self.actioner.manager.curr_task.getRawMsgs()
+        text = ""
+        for msg in msgs:
+            text += msg['role'] + '\n' + 10*'====' + '\n\n\n'
+            text += msg['content'] + '\n'
+        pyperclip.copy(text)
+        pyperclip.paste()
+   
+
+    def copyToClickBoardLstMsg(self):
+        msg = self.actioner.manager.getCurTaskLstMsg()
+        pyperclip.copy(msg)
+        pyperclip.paste()
+
+    
+
+    def copyToClickBoardTokens(self):
+        tokens, price = self.actioner.manager.curr_task.getCountPrice()
+        text  = 'Tokens: ' + str(tokens) + ' price: ' + str(price)
+        pyperclip.copy(text)
+        pyperclip.paste()
+           
