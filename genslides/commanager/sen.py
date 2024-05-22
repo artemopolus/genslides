@@ -206,20 +206,28 @@ class Projecter:
     
     def saveToTmp(self):
         self.actioner.setManager(self.actioner.std_manager)
-        path = self.actioner.manager.getPath()
-        path = Loader.Loader.getUniPath(path)
-        trg_path = FileManager.add(path, ["reserved","project.7z"])
+        man = self.actioner.manager
+        path = Loader.Loader.getUniPath( Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
+        folder = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
+        name = Finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
+        fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp"]))
+        FileManager.createFolder(fld_path)
+        trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp",name + ".7z"]))
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
     def loadFromTmp(self):
         self.actioner.setManager(self.actioner.std_manager)
+        man = self.actioner.manager
+        folder = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
+        filename = Finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
+        fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp"]))
+        path = Loader.Loader.getUniPath( Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
+
+
         self.clearFiles()
-        path = self.actioner.manager.getPath()
-        path = Loader.Loader.getUniPath(path)
-        project_path = Loader.Loader.getUniPath(self.mypath)
-        ppath = FileManager.add(path, ["reserved","project.7z"])
-        project_path = Loader.Loader.getUniPath(ppath.parent)
-        filename = str(ppath.stem)
+
+        project_path = fld_path
+
         Archivator.extractFiles(project_path, filename, path)
         self.resetManager(self.actioner.manager, path=self.actioner.getPath())
         return self.actioner.updateTaskManagerUI()

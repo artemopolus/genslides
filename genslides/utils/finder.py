@@ -1,6 +1,7 @@
 import re
 import genslides.utils.loader as Loader
 import genslides.utils.reqhelper as Helper
+import genslides.utils.filemanager as FileMan
 import json
 
 
@@ -192,6 +193,8 @@ def findByKey(text, manager , base, reqhelper : Helper.RequestHelper):
                             trg_text = Loader.Loader.getFolderPath(path=manager.getPath(), to_par_fld = False)
                         else:
                             trg_text = res
+                        if len(arr) > 3 and arr[3] == 'name':
+                            trg_text = FileMan.getFileName(trg_text)
                         rep_text = rep_text.replace(res, trg_text)
                     elif arr[1] == 'path':
                         trg_text = manager.getPath()
