@@ -753,7 +753,15 @@ class Projecter:
         plt.title('Comparison of Vectors')
         plt.legend()
         return pairs, log, fig
-
+    
+    def getWordTokenPairs(self):
+        man = self.actioner.manager
+        pairs = man.curr_task.getWordTokenPairs()
+        todraw = []
+        for pair in pairs:
+            todraw.append([pair['token'],'token'])
+            todraw.append([ str(pair['bytes']) ,'bytes'])
+        return todraw
 
 
     def getActionsList(self) -> list:

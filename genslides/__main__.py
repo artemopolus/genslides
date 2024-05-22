@@ -622,7 +622,15 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             bad = gr.Number(value=-5, label='bad')
                             analysis_log = gr.Textbox()
                             gr.Button('Get').click(fn=projecter.getTextInfo, inputs=[notgood, bad], outputs=[analysis_text, analysis_log, log_plot])
-                        
+                        tokenizedtext_htxt = gr.Highlightedtext(label="Tokens",
+                                    combine_adjacent=True,
+                                    show_legend=True,
+                                    color_map={
+                                        "token": "white", 
+                                        "bytes": "green"
+                                        })
+                        gr.Button('Tokenize').click(fn=projecter.getWordTokenPairs, outputs=tokenizedtext_htxt)
+                       
 
                     with gr.Tab("Others"):
                         parents_list = gr.Dropdown(label="Parent tasks:")

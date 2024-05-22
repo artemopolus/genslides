@@ -18,6 +18,7 @@ from genslides.utils.llmodel import LLModel
 import genslides.utils.savedata as savedata
 import genslides.utils.writer as wr
 from genslides.utils.loader import Loader
+from genslides.utils.llmodel import LLModel
 
 
 import json
@@ -1191,3 +1192,17 @@ class TextTask(BaseTask):
         if res:
             return param['text']
         return pars[0].getName()
+    
+    def getWordTokenPairs(self):
+        content = self.findKeyParam(self.getLastMsgContent())
+        res, param = self.getParamStruct('model')
+        output = []
+        if res:
+            chat = LLModel(param)
+            words = content.split(" ")
+            for word in words:
+                msg = word
+                tokens = chat.getTokensFromMessage(msg)
+                output.append({"token": msg, "bytes": tokens})
+        return output
+
