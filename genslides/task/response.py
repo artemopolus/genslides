@@ -183,6 +183,32 @@ class ResponseTask(TextTask):
 
         # super().update(input)
 
+    def forceSetPrompt(self, prompt):
+        if len(self.msg_list) == 0:
+            return
+        if not self.checkParentMsgList(update=True, save_curr=False):
+            self.copyParentMsg()
+        else:
+            msg = self.getLastMsgContentRaw()
+            if len(msg) == 0:
+                self.msg_list.pop()
+            else:
+                return
+        res, param = self.getParamStruct('model')
+        if res:
+            chat = LLModel(param)
+        else:
+            chat = LLModel()
+        
+        pair = {}
+        pair["role"] = chat.getAssistTag()
+        pair["content"] = prompt
+        self.prompt = prompt
+        self.msg_list.append(pair)
+        self.stdProcessUnFreeze()
+ 
+
+
     def getMsgInfo(self):
         if len(self.msg_list):
             out = self.msg_list[len(self.msg_list) - 1]

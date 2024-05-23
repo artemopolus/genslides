@@ -942,7 +942,7 @@ class Manager:
                     color = "lightsalmon3"
                     shape = "ellipse" #rectangle,hexagon
                     if task == self.curr_task:
-                        color = "lightsalmon1"
+                        color = "gold"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'crimson'
                     if task.checkType('Response'):
@@ -2268,6 +2268,10 @@ class Manager:
 
         if j == 0:
             self.curr_task.freezeTask()
+        
+        if 'forcecopyresp' in self.tasksbranchcopy_param and self.tasksbranchcopy_param['forcecopyresp']:
+            if self.curr_task.checkType('Response'):
+                self.curr_task.forceSetPrompt(prompt)
 
         # for link in branch['links']:
             # if link['out'] == task:

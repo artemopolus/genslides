@@ -312,7 +312,8 @@ class Projecter:
                 'wishlist', #
                 'upd_cp', #Обновить ветки, которые скопирован ранее через Edit
                 'onlymulti', #Копировать только мультивыбранные задачи
-                'reqSraw'
+                'reqSraw', #Конвертировать ссылки в сообщениях при копировании
+                'forcecopyresp' #Насильно вставлять промпт в Response
                 ]
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
