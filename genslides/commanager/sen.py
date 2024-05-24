@@ -1595,6 +1595,16 @@ class Projecter:
             text += msg['content'] + '\n'
         pyperclip.copy(text)
         pyperclip.paste()
+
+    def copyToClickBoardReqListRaw(self):
+        msgs = self.actioner.manager.curr_task.getRawMsgs()
+        text = ""
+        for msg in msgs:
+            if msg['role'] == 'user':
+                # text += msg['role'] + '\n' + 10*'====' + '\n\n\n'
+                text += msg['content'] + '\n'
+        pyperclip.copy(text)
+        pyperclip.paste()
    
 
     def copyToClickBoardLstMsg(self):

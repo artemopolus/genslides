@@ -239,6 +239,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     gr.Button("Copy dial").click(fn=projecter.copyToClickBoardDial)
                     gr.Button("Copy raw dial").click(fn=projecter.copyToClickBoardDialRaw)
+                    gr.Button("Copy raw reqs").click(fn=projecter.copyToClickBoardReqListRaw)
                     gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg)
                     gr.Button("Copy tokens").click(fn=projecter.copyToClickBoardTokens)
                     gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
