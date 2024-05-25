@@ -1120,4 +1120,12 @@ class Actioner():
                     manager.rmvTask(task)
         manager.info['task_names'] = task_names
         manager.saveInfo()
+
+    def beforeRemove(self):
+        for man in self.tmp_managers:
+            man.beforeRemove(remove_folder = True, remove_task = True)
+        self.tmp_managers.clear()
+        if self.std_manager != None:
+            self.std_manager.beforeRemove(remove_folder = True, remove_task = True)
+
  

@@ -6,6 +6,9 @@ import shutil
 from pathlib import Path
 import distutils
 
+def deleteFolder( mypath ):
+    shutil.rmtree( mypath )
+
 def deleteFiles(mypath):
     for f in listdir(mypath):
         f_path = join(mypath, f)

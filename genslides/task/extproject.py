@@ -180,15 +180,18 @@ class ExtProjectTask(CollectTask):
             self.setMsgList(self.intch_trg.getMsgs())
         self.saveJsonToFile(self.msg_list)
 
+    def removeProject(self):
+        if self.intman is not None:
+            self.intman.beforeRemove(True)
+            del self.intman
+
     def beforeRemove(self):
         print('Delete external proj files')
         # res, param = self.getParamStruct('external')
         # if res and 'path' in param:
         #     print('Remove', param['path'])
         #     shutil.rmtree(param['path'])
-        if self.intman is not None:
-            self.intman.beforeRemove(True)
-            del self.intman
+        self.removeProject()
         super().beforeRemove()
 
     def getLastMsgAndParent(self) -> (bool, list, BaseTask):
@@ -476,6 +479,22 @@ class InExtTreeTask(ExtProjectTask):
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
 
+    def removeProject(self):
+        eres, eparam = self.getParamStruct('external')
+        exttrgtask = self.manager.getTaskByName(eparam['retarget']['chg'])
+        trgs = self.intact.std_manager.task_list
+        for man in self.intact.tmp_managers:
+            trgs.extend(man.task_list)
+        if self in trgs:
+            trgs.remove(self)
+        if exttrgtask in trgs:
+            trgs.remove(exttrgtask)
+        for task in trgs:
+            task.beforeRemove()
+        trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', self.getName()])
+        Fm.deleteFolder(trg_path)
+        del self.intact
+        
 
 class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
@@ -521,4 +540,7 @@ class OutExtTreeTask(ExtProjectTask):
 
     def getParentForFinder(self):
         return self.intch_trg
+    
+    def removeProject(self):
+        pass
 
