@@ -510,6 +510,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Tab('ExtProject'):
                         with gr.Tab('Create'):
                             with gr.Row():
+                                convbranch2inoutext_btn = gr.Button('Convert muliselect tasks in InOutExtTree Tasks')
+                            with gr.Row():
                                 maninfoget_btn = gr.Button('Get info from manager')
                             with gr.Row():
                                 with gr.Column():
@@ -550,6 +552,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     # with gr.Row():
                                     #     outextreesubtask_btn = gr.Button('Sub OutExtTree')
                         with gr.Tab('Edit'):
+                            with gr.Row():
+                                addmultitastoinexttree_btn = gr.Button('Add multi to Cur InExtTree')
+
                             with gr.Row():
                                 gr.Label('Manipulate actioner')
                             with gr.Row():
@@ -706,6 +711,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             changeoldtonew_btn.click(fn=projecter.replaceTextForMultiSelect, inputs=[oldtexttochange_txt, newtexttochange_txt], outputs=std_output_list)
 
             inextreesubtask_btn.click(fn=projecter.addInExtTreeSubTask, inputs=[inexttreeparam_txt], outputs=std_output_list)
+            convbranch2inoutext_btn.click(fn=projecter.convertTaskBranchInInOutExtPair, outputs=std_output_list)
+            addmultitastoinexttree_btn.click(fn=projecter.addTaskBranchInExtTree, outputs=std_output_list)
             # outextreesubtask_btn.click(fn=projecter.addOutExtTreeSubTask, inputs=[outexttreeparam_txt], outputs=std_output_list)
 
             setrecords_btn.click(fn=projecter.makeTaskRecordable, outputs=std_output_list)

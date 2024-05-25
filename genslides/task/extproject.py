@@ -398,8 +398,8 @@ class InExtTreeTask(ExtProjectTask):
         print('After file loading', self.getName())
         self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         eres, eparam = self.getParamStruct('external')
-        if not eres and 'project_path' in eparam:
-            print('No path for ext project task')
+        if not eres:
+            print('No params for ext project task')
             return
         if eparam['retarget']['chg'] == 'Self':
             eparam['retarget']['chg'] = self.getName()
@@ -409,18 +409,20 @@ class InExtTreeTask(ExtProjectTask):
         else:
             print(eparam['retarget']['chg'])
             exttrgtask = self.manager.getTaskByName(eparam['retarget']['chg'])
-        src_path = self.findKeyParam(eparam['project_path'])
-        src_path = Loader.Loader.getUniPath(src_path)
+
         if eparam['name'] == '':
             fld_name = self.getName()
         else:
             fld_name = eparam['name']
-        if eparam['copy'] == 'Copy':
-            trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', fld_name])
-            if len(Fm.getFilesInFolder(trg_path)) < 2:
-                Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(src_path), trg_path=Loader.Loader.getUniPath(trg_path))
-        else:
-            trg_path = src_path
+        trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', fld_name])
+        if 'project_path' in eparam:
+            src_path = self.findKeyParam(eparam['project_path'])
+            src_path = Loader.Loader.getUniPath(src_path)
+            if eparam['copy'] == 'Copy':
+                if len(Fm.getFilesInFolder(trg_path)) < 2:
+                    Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(src_path), trg_path=Loader.Loader.getUniPath(trg_path))
+            else:
+                trg_path = src_path
         self.intman.setPath(trg_path)
         self.intman.initInfo(self.manager.loadexttask, task = None, path = trg_path)
         self.intman.addTask(exttrgtask)

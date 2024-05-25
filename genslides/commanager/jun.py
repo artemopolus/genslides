@@ -229,6 +229,8 @@ class Manager:
         return self.proj_pref
 
     def loadTasksList(self, safe = False, trg_files = []):
+        if self.is_loaded:
+            return
         # print(10*"=======")
         print('Fast load of tasks' if safe else 'Load task from files')
         print('Manager path=', self.getPath())
@@ -706,6 +708,8 @@ class Manager:
             self.makeLink(self.getTaskByName(link['in']),self.getTaskByName(link['out']))
 
     def loadTasksListFileBased(self):
+        if self.is_loaded:
+            return
         print('Loading of tasks list based on file: manager', self.getName(),'with path',self.getPath())
         idx = 0
         start_tasks = self.task_list.copy()
@@ -2882,3 +2886,13 @@ class Manager:
             if idx < len(chat):
                 out.append(chat[idx])
         return self.convertMsgsToChat(msgs=out)
+    
+    def copyTasksIntoManager(self, tasks : list[BaseTask]):
+        next_man = self
+        for task in tasks:
+            if task not in next_man.task_list:
+                cur_man = task.getManager()
+                next_man.addTask(task)
+                task.setManager(next_man)
+                cur_man.rmvTask(task)
+

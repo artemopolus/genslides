@@ -1481,6 +1481,87 @@ class Projecter:
         man.createOrAddTask('','InExtTree','user',man.curr_task, [json.loads(params)])
         return self.actioner.updateUIelements()
     
+    def convertTaskBranchInInOutExtPair(self):
+        man = self.actioner.manager
+        if len(man.multiselect_tasks) == 0:
+            print('No tasks for convert')
+            return
+        root_task = None
+        buds = []
+        for task in man.multiselect_tasks:
+            if task.getParent() == None or task.getParent() not in man.multiselect_tasks:
+                if root_task == None:
+                    root_task = task
+                else:
+                    print('More than one root in multiselect')
+                    return
+            if len(task.getChilds()) == 0:
+                buds.append(task)
+            elif len([t for t in task.getChilds() if t in man.multiselect_tasks]) == 0:
+                buds.append(task)
+        if not root_task and not root_task.getParent():
+            print('No parent')
+            return
+        trgpar = root_task.getParent()
+        inexttreeparam = {
+            'type':'external',
+            'dir':'In',
+            'retarget':{
+                'std': trgpar.getName(),
+                'chg': trgpar.getName()
+            },
+            'name':''
+            }
+        print('Converted branch buds:',[t.getName() for t in buds])
+        inxttreetask = man.createOrAddTaskByInfo('InExtTree', TaskDescription(prompt='', prompt_tag='user',parent=trgpar, params=[inexttreeparam]))
+        if inxttreetask and len(buds) > 0:
+            task_actioner = inxttreetask.getActioner()
+            task_actioner.manager.loadTasksListFileBased()
+            task_actioner.manager.copyTasksIntoManager(man.multiselect_tasks)
+        
+            outexttreeparam = {
+                'type':'external', 
+                'dir':'Out',
+                'target': buds[0].getName()
+                }
+            outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
+                    TaskDescription(prompt='', prompt_tag='user',parent=inxttreetask, params=[outexttreeparam]))
+            
+        return self.actioner.updateUIelements()
+    
+    def addTaskBranchInExtTree(self):
+        man = self.actioner.manager
+        if len(man.multiselect_tasks) == 0:
+            print('No tasks to add')
+            return
+        if not man.curr_task.checkType('InExtTree'):
+            return
+        root_task = None
+        for task in man.multiselect_tasks:
+            if task.getParent() == None or task.getParent() not in man.multiselect_tasks:
+                if root_task == None:
+                    root_task = task
+                else:
+                    print('More than one root in multiselect')
+                    return
+        
+        inexttreetask = man.curr_task
+        eres, eparam = inexttreetask.getParamStruct('external')
+        if not eres:
+            print('No param')
+            return
+        if eparam['retarget']['chg'] != root_task.getParent().getName():
+            print('Root different')
+            return
+        task_actioner = inexttreetask.getActioner()
+        task_actioner.manager.loadTasksListFileBased()
+        task_actioner.manager.copyTasksIntoManager(man.multiselect_tasks)
+
+        return self.actioner.updateUIelements()
+        
+
+
+    
     def addOutExtTreeSubTask(self, params):
         if self.tmp_actioner_task != None:
             man = self.tmp_actioner_task.getManager()
