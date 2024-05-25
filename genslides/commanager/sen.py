@@ -906,6 +906,47 @@ class Projecter:
         self.actioner.updateAllUntillCurrTask(force_check=force_check)
         self.actioner.manager.enableOutput2()
         return self.actioner.updateUIelements()
+    
+    def updateChildTasks(self, force_check = False):
+        man = self.actioner.manager
+        act = self.actioner
+        start_task = man.curr_task
+        if force_check:
+            targets = [t for t in man.curr_task.getAllChildChains() if t in man.task_list]
+        else:
+            targets = man.curr_task.getAllChildChains()
+        start_task.resetTreeQueue()
+        idx = 0
+        act.update_state = 'step'
+        while(idx < 1000):
+            if act.update_state == 'done' or man.curr_task not in targets:
+                break
+            act.update()
+            idx += 1
+        print('Frozen tasks cnt:', man.getFozenTasksCount())
+        man.curr_task = start_task
+        return self.actioner.updateUIelements()
+        
+    def updateMultiSelectedTasks(self, force_check = False):
+        man = self.actioner.manager
+        act = self.actioner
+        start_task = man.curr_task
+        if force_check:
+            targets = [t for t in man.multiselect_tasks if t in man.task_list]
+        else:
+            targets = man.multiselect_tasks
+        start_task.resetTreeQueue()
+        idx = 0
+        act.update_state = 'step'
+        while(idx < 1000):
+            if act.update_state == 'done' or man.curr_task not in targets:
+                break
+            act.update()
+            idx += 1
+        print('Frozen tasks cnt:', man.getFozenTasksCount())
+        man.curr_task = start_task
+        return self.actioner.updateUIelements()
+ 
    
     def setBranchEndName(self, summary):
         self.actioner.manager.setBranchEndName(summary)

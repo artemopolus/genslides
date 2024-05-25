@@ -184,6 +184,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             updbrnc_step_btn = gr.Button(value='Update tree')
                             updatecheckown_chk = gr.Checkbox(label='Check tasks manager', value=False)
                             reset_step_btn = gr.Button(value="Reset steps")
+                            updatechildtasks_btn = gr.Button('UAT childs')
+                            updatemultitasks_btn = gr.Button('UAT multi')
                         with gr.Row():
                             clnresp_btn = gr.Button(value='Clean Response')
  
@@ -863,6 +865,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             update_step_btn.click(fn=projecter.update, outputs=std_output_list)
             updateall_step_btn.click(fn=projecter.updateAll, inputs=[updatecheckown_chk], outputs=std_output_list)
             upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, inputs=[updatecheckown_chk], outputs=std_output_list)
+            updatechildtasks_btn.click(fn=projecter.updateChildTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
+            updatemultitasks_btn.click(fn=projecter.updateMultiSelectedTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
+
             updbrnc_step_btn.click(fn=projecter.updateCurrentTree, outputs=std_output_list)
             reset_step_btn.click(fn=projecter.resetUpdate, outputs= std_output_list)
 

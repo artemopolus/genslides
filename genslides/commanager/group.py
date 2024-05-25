@@ -791,22 +791,13 @@ class Actioner():
         self.resetUpdate(force_check=force_check)
         if len(man.tree_arr) == 0:
             return
-
         idx = 0
         while(idx < 1000):
             self.update()
             if self.update_state == 'done' or man.curr_task == start_task:
                 break
             idx += 1
-
-        cnt = 0
-        for task in man.task_list:
-            if task.is_freeze:
-                cnt += 1
-        print('Frozen tasks cnt:', cnt)
-        # man.curr_task = start_task
-        # out = man.getCurrTaskPrompts()
-        # return out
+        print('Frozen tasks cnt:', man.getFozenTasksCount())
 
     def getRelatedTasks(self, task :BaseTask, lnk_in = True, lnk_out= True):
         if lnk_in:
