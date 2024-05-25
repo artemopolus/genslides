@@ -214,6 +214,7 @@ class Projecter:
         FileManager.createFolder(fld_path)
         trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp",name + ".7z"]))
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
+        return "Save"
 
     def loadFromTmp(self):
         self.actioner.setManager(self.actioner.std_manager)
