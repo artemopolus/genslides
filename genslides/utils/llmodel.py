@@ -63,13 +63,6 @@ class LLModel():
                         else:
                             self.method = model_to_method[name]['default']
 
-                        if name == 'openai':
-                            self.get_tokens_from_message = openai_get_tokens_from_message
-                        else:
-                            if 'pretrained_model_path' in option:
-                                self.tokenizer = AutoTokenizer.from_pretrained(
-                                    option['pretrained_model_path'], trust_remote_code=True)
-                                self.get_tokens_from_message = self.internalGetTokensFromMessage
                            
                         self.vendor = name
                         self.model = model_name
@@ -192,7 +185,15 @@ class LLModel():
     
     def getTokensFromMessage(self,message):
         if self.get_tokens_from_message == None:
-            return []
+            if self.vendor == 'openai':
+                self.get_tokens_from_message = openai_get_tokens_from_message
+            else:
+                if 'pretrained_model_path' in self.params:
+                    self.tokenizer = AutoTokenizer.from_pretrained(
+                                    self.params['pretrained_model_path'], trust_remote_code=True)
+                    self.get_tokens_from_message = self.internalGetTokensFromMessage
+                else:
+                    return []
         return self.get_tokens_from_message (message=message, model=self.params['model'])
     
     def internalGetTokensFromMessage(self,message, model):
