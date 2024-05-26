@@ -1,4 +1,5 @@
 from transformers import GPT2Tokenizer
+from transformers import AutoTokenizer
 # import openai
 # from openai import OpenAI
 import json
@@ -37,6 +38,9 @@ class LLModel():
         self.path = path_to_config
         self.path_to_file = os.path.join("output","openai.json")
 
+        self.get_tokens_from_message = None
+        self.tokenizer = None
+
 
         model_name = params['model']
         self.params = params
@@ -58,6 +62,14 @@ class LLModel():
                             self.method = model_to_method[name][model_name]
                         else:
                             self.method = model_to_method[name]['default']
+
+                        if name == 'openai':
+                            self.get_tokens_from_message = openai_get_tokens_from_message
+                        else:
+                            if 'pretrained_model_path' in option:
+                                self.tokenizer = AutoTokenizer.from_pretrained(
+                                    option['pretrained_model_path'], trust_remote_code=True)
+                                self.get_tokens_from_message = self.internalGetTokensFromMessage
                            
                         self.vendor = name
                         self.model = model_name
@@ -179,7 +191,14 @@ class LLModel():
         return msgs
     
     def getTokensFromMessage(self,message):
-        return openai_get_tokens_from_message(message=message, model=self.params['model'])
+        if self.get_tokens_from_message == None:
+            return []
+        return self.get_tokens_from_message (message=message, model=self.params['model'])
+    
+    def internalGetTokensFromMessage(self,message, model):
+        encoded = self.tokenizer.encode(message, return_tensors='pt', add_special_tokens=False)
+        return encoded[0]
+    
     
     def decodeToken(self,token):
         return openai_decode_token(token=token, model=self.params['model'])
