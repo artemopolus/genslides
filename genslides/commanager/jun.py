@@ -8,7 +8,7 @@ from genslides.utils.searcher import WebSearcher
 from genslides.utils.largetext import Summator
 from genslides.utils.browser import WebBrowser
 
-from genslides.utils.savedata import SaveData
+from genslides.utils.savedata import SaveData, getTimeForSaving
 
 import genslides.task.creator as cr
 import genslides.commands.edit as edit
@@ -1526,7 +1526,7 @@ class Manager:
     
     def updateSteppedSelectedInternal(self, info : TaskDescription = None):
         # print(10*"----------")
-        init_log = "STEP" + 4*">>" + self.curr_task.getName() + "||||||:"
+        init_log = "STEP" + 4*">>" + self.curr_task.getName() + "||" + getTimeForSaving() + "||"
         # print(10*"----------")
         if info:
             info.stepped = True
