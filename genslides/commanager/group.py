@@ -344,7 +344,7 @@ class Actioner():
                             if task not in self.manager.multiselect_tasks and task not in ignore_conv:
                                 ignore_conv.append(task)
             print('Ignore list:', [t.getName() for t in ignore_conv])
-            if param['step']:
+            if 'step' in param and param['step']:
                 self.manager.copyTasksByInfoStart(
                                         tasks_chains=tasks_chains,
                                          edited_prompt=prompt, 
@@ -707,7 +707,12 @@ class Actioner():
         for task in man.tree_arr:
             task.resetTreeQueue()
     
-       
+    def setStartParamsForUpdate(self, man : Manager.Manager, task : BaseTask):
+        self.root_task_tree = task
+        man.curr_task = task
+        # man.curr_task.resetTreeQueue()
+        self.update_processed_chain = [self.root_task_tree.getName()]
+      
     def update(self):
         man = self.manager
         # print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
@@ -716,10 +721,7 @@ class Actioner():
         elif self.update_state == 'start tree':
             task = man.tree_arr[self.update_tree_idx]
             print('Start tree', task.getName(),'[',self.update_tree_idx,']')
-            self.root_task_tree = task
-            man.curr_task = task
-            # man.curr_task.resetTreeQueue()
-            self.update_processed_chain = [self.root_task_tree.getName()]
+            self.setStartParamsForUpdate(man, task)
             self.updateStepInternal()
         elif self.update_state == 'step':
             self.updateStepInternal()
@@ -875,7 +877,7 @@ class Actioner():
             hide_tasks = True
             maingraph = self.manager.drawGraph(hide_tasks=hide_tasks)
             stepgraph = self.manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
-            rawgraph = self.manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
+            rawgraph = self.manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True)
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
             if out == None:
                 self.setManager(self.std_manager)

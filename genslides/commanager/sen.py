@@ -318,7 +318,7 @@ class Projecter:
                 ]
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
-        print('Make',selected_action,'Request')
+        print('Make',selected_action,'Request\n', prompt)
         act_type = ""
         param = {}
         if selected_action == "New" or selected_action == "SubTask" or selected_action == "Insert":
@@ -918,8 +918,9 @@ class Projecter:
         start_task.resetTreeQueue()
         idx = 0
         act.update_state = 'step'
+        act.setStartParamsForUpdate(man, start_task)
         while(idx < 1000):
-            if act.update_state == 'done' or man.curr_task not in targets:
+            if act.update_state == 'done' or act.update_state == 'next tree' or man.curr_task not in targets:
                 break
             act.update()
             idx += 1
@@ -938,8 +939,9 @@ class Projecter:
         start_task.resetTreeQueue()
         idx = 0
         act.update_state = 'step'
+        act.setStartParamsForUpdate(man, start_task)
         while(idx < 1000):
-            if act.update_state == 'done' or man.curr_task not in targets:
+            if act.update_state == 'done' or act.update_state == 'next tree' or man.curr_task not in targets:
                 break
             act.update()
             idx += 1
@@ -949,11 +951,26 @@ class Projecter:
     
     def updateFromFork(self, force_check = False):
         man = self.actioner.manager
-        start = man.curr_task
-        _, trg = man.getBranchFork(start_task=man.curr_task)
-        man.curr_task = trg
+        start_task = man.curr_task
+        fork_root = None
+        trg = start_task
+        idx = 0
+        while(idx < 1000):
+            par = trg.getParent()
+            if par == None:
+                return
+            if len(par.getChilds()) > 1:
+                fork_root = trg
+                break
+            elif par.isRootParent():
+                fork_root = par
+                break
+            else:
+                trg = par
+            idx +=1
+        man.curr_task = fork_root
         self.updateChildTasks(force_check)
-        man.curr_task = start
+        man.curr_task = start_task
         return self.actioner.updateUIelements()
         
  

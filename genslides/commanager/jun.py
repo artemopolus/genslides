@@ -1838,6 +1838,8 @@ class Manager:
         for param in task_params:
             if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
                 del param['logprobs']
+            if 'type' in param and param['type'] == 'model' and 'api_key' in param:
+                del param['api_key']
         res_params = {'params': task_params, 'queue':self.curr_task.getQueueList()}
 
         cnt = 0

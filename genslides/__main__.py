@@ -117,8 +117,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             manipulate_manager = projecter
             parameters_manager = projecter
             with gr.Row():
-                project_manLoad = gr.Button(value='Default task loading')
-                project_manBrow = gr.Button(value='Select task location')
+                project_manLoad = gr.Button(value='Default project location')
+                project_manBrow = gr.Button(value='Select project location')
 
             with gr.Row() as r:
                 tree_names_radio = gr.Radio(label='Trees:')
@@ -150,14 +150,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     with gr.Column(scale=1):
                         with gr.Row():
+                            name_info = gr.Text(value="None", label="Task")
+                        with gr.Row():
                             graph_img = gr.Image(
                             # tool="sketch", 
                             # interactive=True, 
                             # source="upload", type="pil", 
                             # height=700
                             )
-                        with gr.Row():
-                            name_info = gr.Text(value="None", label="Task")
                     with gr.Column(scale=3):
                         with gr.Row():
                             go_lnkback_btn = gr.Button(value='Go BackLnk')
