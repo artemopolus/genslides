@@ -148,7 +148,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             with gr.Tab('Workspace'):
                 with gr.Row():
-                    with gr.Column():
+                    with gr.Column(scale=1):
                         with gr.Row():
                             graph_img = gr.Image(
                             # tool="sketch", 
@@ -158,7 +158,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             )
                         with gr.Row():
                             name_info = gr.Text(value="None", label="Task")
-                    with gr.Column():
+                    with gr.Column(scale=3):
                         with gr.Row():
                             go_lnkback_btn = gr.Button(value='Go BackLnk')
                             go_lnkfrwd_rad = gr.Radio(label='Targets')
@@ -174,7 +174,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     with gr.Column(scale=1):
                         graph_alone = gr.Image(
-                            width=500
+                            # width=500
                         )
                     with gr.Column(scale=1):
                         with gr.Row():
@@ -196,7 +196,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # move2child_btn = gr.Button(value='Go down')
                         with gr.Row():
                             dial_block = gr.Chatbot(height=500)
-            with gr.Tab('Raw view'):
+            with gr.Tab('Raw graph'):
                 with gr.Row():
                     # with gr.Column(scale=1):
                         raw_graph = gr.Image(
@@ -204,6 +204,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # height=800
                         )
                     # with gr.Column(scale=1):
+            with gr.Tab('Raw dial'):
                 with gr.Row():
                             raw_dial = gr.Chatbot(height=500)
                 with gr.Row():
@@ -267,13 +268,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
                                     custom_btn = gr.Button(value='Custom')
                                 with gr.Row():
-                                    extcopy_chck = gr.CheckboxGroup()
+                                    extcopy_chck = gr.CheckboxGroup(label='Edit task parameters')
                         with gr.Row():
                             oldtexttochange_txt = gr.Textbox(label='Old text to change')
                             newtexttochange_txt = gr.Textbox(label='New text for replacing')
                             changeoldtonew_btn = gr.Button('Change for multi')
                         with gr.Row():
-                            shiftpartag_sld = gr.Slider(minimum=-20, maximum=20, step=1, value=1)
+                            shiftpartag_sld = gr.Slider(label='Shift value for par tag', minimum=-20, maximum=20, step=1, value=1)
                         with gr.Row():
                             childshiftpartag_btn = gr.Button('Shift par tag for cur&child')
                             multishiftpartag_btn = gr.Button('Shift par tag for multisel')

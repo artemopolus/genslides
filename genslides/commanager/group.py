@@ -348,7 +348,7 @@ class Actioner():
                 self.manager.copyTasksByInfoStart(
                                         tasks_chains=tasks_chains,
                                          edited_prompt=prompt, 
-                                         change_prompt=param['change'], 
+                                         change_prompt=param['copy_editbranch'], 
                                          switch=param['switch'],
                                          new_parent=trg_parent,
                                          ignore_conv=ignore_conv,
@@ -357,7 +357,7 @@ class Actioner():
             else:
                 self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
                                          edited_prompt=prompt, 
-                                         change_prompt=param['change'],
+                                         change_prompt=param['copy_editbranch'],
                                          switch=param['switch'],
                                          new_parent=trg_parent,
                                          ignore_conv=ignore_conv,
@@ -365,7 +365,7 @@ class Actioner():
                                          )
             
 
-            # return self.manager.copyChildChains(change_prompt = param['change'],
+            # return self.manager.copyChildChains(change_prompt = param['copy_editbranch'],
             #                                     edited_prompt=prompt, 
             #                                     apply_link= param['apply_link'], 
             #                                     remove_old_link=param['remove_old'],

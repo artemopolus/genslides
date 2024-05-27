@@ -304,10 +304,10 @@ class Projecter:
     
     def getParamListForEdit(self):
         # TODO: добавить простую копию задачи
-        return ['change', #Копировать ветвь
+        return ['copy_editbranch', #Копировать ветвь
                 'resp2req','coll2req','read2req', #конвертировать задачи этого типа в другой
                 'in','out','link','av_cp', #Параметры ветвления
-                'step','chckresp',
+                # 'step','chckresp',
                 'sel2par', # Копировать и ветвиться от выбранной задачи
                 'ignrlist',
                 'wishlist', #
