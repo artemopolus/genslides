@@ -187,6 +187,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             updatechildtasks_btn = gr.Button('UAT childs')
                             updatemultitasks_btn = gr.Button('UAT multi')
                         with gr.Row():
+                            updateforktasks_btn = gr.Button('UAT fork')
+                        with gr.Row():
                             clnresp_btn = gr.Button(value='Clean Response')
  
                             # move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
@@ -867,6 +869,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, inputs=[updatecheckown_chk], outputs=std_output_list)
             updatechildtasks_btn.click(fn=projecter.updateChildTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
             updatemultitasks_btn.click(fn=projecter.updateMultiSelectedTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
+            updateforktasks_btn.click(fn=projecter.updateFromFork, inputs=[updatecheckown_chk], outputs=std_output_list)
 
             updbrnc_step_btn.click(fn=projecter.updateCurrentTree, outputs=std_output_list)
             reset_step_btn.click(fn=projecter.resetUpdate, outputs= std_output_list)

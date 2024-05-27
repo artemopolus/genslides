@@ -946,6 +946,16 @@ class Projecter:
         print('Frozen tasks cnt:', man.getFozenTasksCount())
         man.curr_task = start_task
         return self.actioner.updateUIelements()
+    
+    def updateFromFork(self, force_check = False):
+        man = self.actioner.manager
+        start = man.curr_task
+        _, trg = man.getBranchFork(start_task=man.curr_task)
+        man.curr_task = trg
+        self.updateChildTasks(force_check)
+        man.curr_task = start
+        return self.actioner.updateUIelements()
+        
  
    
     def setBranchEndName(self, summary):

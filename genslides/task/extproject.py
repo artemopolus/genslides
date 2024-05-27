@@ -535,6 +535,14 @@ class OutExtTreeTask(ExtProjectTask):
                 self.freezeTask()
             else:
                 self.stdProcessUnFreeze()
+            bres, bparam = self.intch_trg.getParamStruct('bud')
+            if bres:
+                param = {'type':'bud','text': bparam['text'],'branch':self.getBranchCodeTag()}
+                self.setParamStruct(param)
+            else:
+                print('No param for summary')
+ 
+            
         except:
             self.freezeTask()
 
