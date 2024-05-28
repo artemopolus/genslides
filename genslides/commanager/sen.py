@@ -381,7 +381,7 @@ class Projecter:
         if len(man.selected_tasks) == 0:
             return self.actioner.updateUIelements()
         else:
-            param = {'select': man.selected_tasks[0].getName()}
+            param = {'select': man.getSelectedTask().getName()}
         return self.makeTaskAction("","","Parent","", param)
     
     def reparentCurTaskChildsUP(self):
@@ -418,7 +418,7 @@ class Projecter:
         if len(man.selected_tasks) == 0:
             return self.actioner.updateUIelements()
         else:
-            param = {'curr': man.selected_tasks[0].getName()}
+            param = {'curr': man.getSelectedTask().getName()}
         return self.makeTaskAction("","","Parent","", param)
     
 
@@ -431,7 +431,7 @@ class Projecter:
         if len(man.selected_tasks) == 0:
             return self.actioner.updateUIelements()
         else:
-            param = {'select': man.selected_tasks[0].getName()}
+            param = {'select': man.getSelectedTask().getName()}
         return self.makeTaskAction("","","Link","", param)
  
     def makeActionRevertLink(self):
@@ -439,7 +439,7 @@ class Projecter:
         if len(man.selected_tasks) == 0:
             return man.getCurrTaskPrompts()
         else:
-            param = {'curr': man.selected_tasks[0].getName()}
+            param = {'curr': man.getSelectedTask().getName()}
         return self.makeTaskAction("","","Link","", param)
     
 
@@ -1776,3 +1776,51 @@ class Projecter:
         pyperclip.copy(text)
         pyperclip.paste()
            
+    def copyMultiSelectedTasksChainsToSingleChain(self):
+        act = self.actioner
+        man = act.manager
+        # Я люблю опасность
+        # for task in man.multiselect_tasks: 
+        #     if len(task.getChilds() > 0):
+        #         print('Try to copy fork')
+        #         return act.updateUIelements()
+        minichains = []
+        mtasks = man.getMultiSelectedTasks().copy()
+        for trg in mtasks:
+            minichain = [t for t in trg.getAllParents() if t in mtasks]
+            if len(minichain) > 0:
+                minichains.append(minichain)
+        chain_to_delete = []
+        for i, trg_chain in enumerate( minichains ):
+            for j, cmp_chain in enumerate( minichains ):
+                if i != j and len(cmp_chain) < len(trg_chain):
+                    for task in cmp_chain:
+                        same = True
+                        if task not in trg_chain:
+                            same = False
+                            break
+                        if same and cmp_chain not in chain_to_delete:
+                            chain_to_delete.append(cmp_chain)
+        
+        for chain in chain_to_delete:
+            minichains.remove(chain)
+        
+        for chain in minichains:
+            print('Branch:',[t.getName() for t in chain])
+
+
+        for i, chain in enumerate(minichains):
+            if i != 0:
+                man.addCurrTaskToSelectList()
+            man.clearMultiSelectedTasksList()
+            for task in chain:
+                man.addTaskToMultiSelected(task)
+            man.curr_task = chain[0]
+            # prompt = man.getCurTaskLstMsgRaw()
+            role = man.getCurTaskRole()
+            print('Selected task:', man.getSelectedTask().getName())
+            print('Current task:', man.getCurrentTask().getName())
+            self.makeRequestAction('','Edit',role,{'onlymulti','sel2par'})
+        return act.updateUIelements()
+
+

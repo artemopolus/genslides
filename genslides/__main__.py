@@ -385,6 +385,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 garlandmulti_btn = gr.Button('Garland from multi')
                                 collectmulti_btn = gr.Button('Collect from multi')
                                 gr.Button('Check').click(fn=projecter.checkTaskFiles)
+                                minichainstobig_btn = gr.Button('Mini chains to ONE')
                     with gr.Tab('Cmds'):
                         with gr.Row():
                             moveup_btn = gr.Button(value='MoveUP')
@@ -798,6 +799,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             
             garlandmulti_btn.click(fn=projecter.createGarlandFromMultiSelect, outputs=std_output_list)
             collectmulti_btn.click(fn=projecter.createCollectFromMultiSelect, outputs=std_output_list)
+            minichainstobig_btn.click(fn=projecter.copyMultiSelectedTasksChainsToSingleChain, outputs=std_output_list)
 
             moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
             switchup_btn.click(fn=manipulate_manager.swicthCurTaskUP, outputs=std_output_list)

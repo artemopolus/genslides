@@ -151,6 +151,19 @@ class Manager:
         self.is_loaded = False
         self.renamed_parent = []
 
+    def getSelectedTask(self) ->BaseTask:
+        return self.selected_tasks[0]
+    
+    def getMultiSelectedTasks(self) -> list[BaseTask]:
+        return self.multiselect_tasks
+    
+    def clearMultiSelectedTasksList(self):
+        self.multiselect_tasks.clear()
+
+    def addTaskToMultiSelected(self, task : BaseTask):
+        if task not in self.multiselect_tasks:
+            self.multiselect_tasks.append(task)
+
     def getCurrentTask(self) -> BaseTask:
         return self.curr_task
     
@@ -1679,6 +1692,11 @@ class Manager:
     
     def getCurTaskLstMsgRaw(self) -> str:
         return self.curr_task.getLastMsgContentRaw()
+    
+    def getCurTaskRole(self) -> str:
+        _,role,_ = self.curr_task.getMsgInfo()
+        return role
+        
     
     
 

@@ -1094,7 +1094,7 @@ class Actioner():
         trg_parent = None
         ignore_conv = []
         if 'sel2par' in param and param['sel2par'] and len(self.manager.selected_tasks) == 1:
-            trg_parent = self.manager.selected_tasks[0]
+            trg_parent = self.manager.getSelectedTask()
         tasks_chains = self.manager.getTasksChainsFromCurrTask(param)
         if len(self.manager.multiselect_tasks) > 0:
             if 'ignrlist' in param and param['ignrlist']:
