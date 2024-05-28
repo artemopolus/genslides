@@ -10,6 +10,7 @@ def deleteFolder( mypath ):
     shutil.rmtree( mypath )
 
 def deleteFiles(mypath):
+    print('Delete files by path', mypath)
     for f in listdir(mypath):
         f_path = join(mypath, f)
         if isfile(f_path):

@@ -91,7 +91,9 @@ class Projecter:
             self.actioner.reset()
         self.actioner.setPath(path)
         self.manager = self.actioner.std_manager
+        print('Manager start tasks list:',len(self.manager.task_list))
         self.manager.onStart()
+        print('Manager after reset tasks list:',len(self.manager.task_list))
         self.manager.initInfo(self.loadExtProject, path = self.actioner.getPath())
         if load:
             self.manager.disableOutput2()
@@ -217,6 +219,7 @@ class Projecter:
         return "Save"
 
     def loadFromTmp(self):
+        print('Load from temporary')
         self.actioner.setManager(self.actioner.std_manager)
         man = self.actioner.manager
         folder = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
@@ -225,7 +228,9 @@ class Projecter:
         path = Loader.Loader.getUniPath( Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
 
 
-        self.clearFiles()
+        # self.clearFiles()
+        # man.beforeRemove()
+        FileManager.deleteFiles(man.getPath())
 
         project_path = fld_path
 
@@ -1214,11 +1219,20 @@ class Projecter:
         man = self.actioner.manager
         start = man.curr_task
         trg = start
-        for task in man.multiselect_tasks:
-            man.addTaskToSelectList(task)
-            man.curr_task = trg
-            self.createGarlandOnSelectedTasks('Insert')
-            trg = man.curr_task
+        minichains = man.getMiniChainsFromMultiSelected()
+        for mini in minichains:
+            trg = start
+            for task in mini:
+                man.addTaskToSelectList(task)
+                man.curr_task = trg
+                self.createGarlandOnSelectedTasks('Insert')
+                trg = start
+
+        # for task in man.multiselect_tasks:
+        #     man.addTaskToSelectList(task)
+        #     man.curr_task = trg
+        #     self.createGarlandOnSelectedTasks('Insert')
+        #     trg = man.curr_task
         man.curr_task = start
         return self.actioner.updateUIelements()
 

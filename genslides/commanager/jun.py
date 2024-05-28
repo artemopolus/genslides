@@ -200,7 +200,8 @@ class Manager:
         task_list = self.selected_tasks.copy()
         for task in task_list:
             self.curr_task = trg
-            self.makeTaskAction("",task_type, action_type, 'user')
+            role = task.getLastMsgRole()
+            self.makeTaskAction("",task_type, action_type, role)
             # if first:
             #     parent = None
             #     if action_type == 'SubTask':
@@ -2438,6 +2439,7 @@ class Manager:
             print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
         print('Links list:')
         print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
+        print('Inserting order:', [[i,link['in'].getName()] for i,link in enumerate(self.tc_links_chain)])
 
         for link in self.tc_links_chain:
             outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
@@ -2923,8 +2925,11 @@ class Manager:
         #     if len(task.getChilds() > 0):
         #         print('Try to copy fork')
         #         return act.updateUIelements()
-        minichains = []
         mtasks = man.getMultiSelectedTasks().copy()
+        return self.getMiniChainsFromTasksList(mtasks)
+
+    def getMiniChainsFromTasksList(self, mtasks):
+        minichains = []
         for trg in mtasks:
             minichain = [t for t in trg.getAllParents() if t in mtasks]
             if len(minichain) > 0:

@@ -258,7 +258,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                             label="Select actions", 
                                                             value="New"
                                                             )
-                                roles_list = gr.Radio(choices=["user","assistant"], label="Tag type for prompt", value="user", interactive=False)
+                                roles_list = gr.Radio(choices=["user","assistant","system"], label="Tag type for prompt", value="user", interactive=False)
                             with gr.Column(scale = 19):
                                 prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                                 with gr.Row():
