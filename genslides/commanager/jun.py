@@ -2916,3 +2916,35 @@ class Manager:
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
 
+    def getMiniChainsFromMultiSelected(self):
+        man = self
+        # Я люблю опасность
+        # for task in man.multiselect_tasks: 
+        #     if len(task.getChilds() > 0):
+        #         print('Try to copy fork')
+        #         return act.updateUIelements()
+        minichains = []
+        mtasks = man.getMultiSelectedTasks().copy()
+        for trg in mtasks:
+            minichain = [t for t in trg.getAllParents() if t in mtasks]
+            if len(minichain) > 0:
+                minichains.append(minichain)
+        chain_to_delete = []
+        for i, trg_chain in enumerate( minichains ):
+            for j, cmp_chain in enumerate( minichains ):
+                if i != j and len(cmp_chain) < len(trg_chain):
+                    for task in cmp_chain:
+                        same = True
+                        if task not in trg_chain:
+                            same = False
+                            break
+                        if same and cmp_chain not in chain_to_delete:
+                            chain_to_delete.append(cmp_chain)
+        
+        for chain in chain_to_delete:
+            minichains.remove(chain)
+        
+        for chain in minichains:
+            print('Branch:',[t.getName() for t in chain])
+        return minichains
+
