@@ -296,9 +296,9 @@ class Projecter:
             self.makeTaskAction('', custom_action, selected_action, '')
         return self.actioner.updateUIelements()
     
-    def makeResponseAction(self, prompt, selected_action, selected_tag):
+    def makeResponseAction(self, prompt, selected_action, selected_tag, checks):
         if selected_action == 'Edit':
-            return self.makeTaskAction(prompt, "Response","Divide", selected_tag)
+            return self.makeTaskAction(prompt, "Request","Divide", selected_tag, param=self.setEditChecks(checks))
         else:
             return self.makeTaskAction("", "Response",selected_action, "assistant")
     
@@ -317,6 +317,31 @@ class Projecter:
                 'forcecopyresp' #Насильно вставлять промпт в Response
                 ]
     
+    def setEditChecks(self, checks):
+        param = {}
+        param['extedit'] = True
+        names = self.getParamListForEdit()
+        names.remove('resp2req')
+        for name in names:
+            if name =='onlymulti':
+                if 'onlymulti' in checks:
+                    param['trg_tasks'] = [t.getName() for t in self.actioner.manager.multiselect_tasks]
+                else:
+                    param['trg_tasks'] = [t.getName() for t in self.actioner.manager.task_list]
+            else:
+                param[name] = True if name in checks else False
+        param['switch'] = []
+        if 'resp2req' in checks:
+            param['switch'].append({'src':'Response','trg':'Request'})
+        if 'coll2req' in checks:
+            param['switch'].append({'src':'Collect','trg':'Request'})
+            param['switch'].append({'src':'GroupCollect','trg':'Request'})
+            param['switch'].append({'src':'Garland','trg':'Request'})
+        if 'read2req' in checks:
+            param['switch'].append({'src':'ReadFileParam','trg':'Request'})
+        return param
+
+    
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         print('Make',selected_action,'Request\n', prompt)
         act_type = ""
@@ -328,26 +353,7 @@ class Projecter:
         elif selected_action == "Edit":
             act_type = "Request"
         if len(checks) > 0:
-            param['extedit'] = True
-            names = self.getParamListForEdit()
-            names.remove('resp2req')
-            for name in names:
-                if name =='onlymulti':
-                    if 'onlymulti' in checks:
-                        param['trg_tasks'] = [t.getName() for t in self.actioner.manager.multiselect_tasks]
-                    else:
-                        param['trg_tasks'] = [t.getName() for t in self.actioner.manager.task_list]
-                else:
-                    param[name] = True if name in checks else False
-            param['switch'] = []
-            if 'resp2req' in checks:
-                param['switch'].append({'src':'Response','trg':'Request'})
-            if 'coll2req' in checks:
-                param['switch'].append({'src':'Collect','trg':'Request'})
-                param['switch'].append({'src':'GroupCollect','trg':'Request'})
-                param['switch'].append({'src':'Garland','trg':'Request'})
-            if 'read2req' in checks:
-                param['switch'].append({'src':'ReadFileParam','trg':'Request'})
+            param = self.setEditChecks(checks=checks)
         print('Action param=', param)
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 

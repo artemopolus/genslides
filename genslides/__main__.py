@@ -789,7 +789,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             roles_list.change(fn=projecter.switchRole, inputs=[roles_list, prompt], outputs=std_output_list)
 
             request_btn.click(fn=userinput_manager.makeRequestAction, inputs=[prompt, base_action_list, roles_list, extcopy_chck], outputs=std_output_list)
-            response_btn.click(fn=userinput_manager.makeResponseAction, inputs=[prompt, base_action_list, roles_list], outputs=std_output_list)
+            response_btn.click(fn=userinput_manager.makeResponseAction, inputs=[prompt, base_action_list, roles_list, extcopy_chck], outputs=std_output_list)
             custom_btn.click(fn=userinput_manager.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
             
             collect_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)

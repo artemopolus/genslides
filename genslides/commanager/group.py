@@ -324,56 +324,14 @@ class Actioner():
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
         if type1 == "Garland":
             return self.manager.createTreeOnSelectedTasks(creation_type,'Garland')
+        elif creation_type == "Divide" and 'extedit' in param and param['extedit']:
+            self.divideActions(prompt, param)
         elif 'extedit' in param and param['extedit']:
             if 'upd_cp' in param and param['upd_cp']:
                 self.manager.updateEditToCopyBranch(self.manager.curr_task)
                 return self.manager.getCurrTaskPrompts()
 
-            # tasks_chains = self.manager.curr_task.getTasksFullLinks(param)
-            trg_parent = None
-            ignore_conv = []
-            if 'sel2par' in param and param['sel2par'] and len(self.manager.selected_tasks) == 1:
-                trg_parent = self.manager.selected_tasks[0]
-            tasks_chains = self.manager.getTasksChainsFromCurrTask(param)
-            if len(self.manager.multiselect_tasks) > 0:
-                if 'ignrlist' in param and param['ignrlist']:
-                    ignore_conv = self.manager.multiselect_tasks.copy()
-                elif 'wishlist' in param and param['wishlist']:
-                    for chain in tasks_chains:
-                        for task in chain['branch']:
-                            if task not in self.manager.multiselect_tasks and task not in ignore_conv:
-                                ignore_conv.append(task)
-            print('Ignore list:', [t.getName() for t in ignore_conv])
-            if 'step' in param and param['step']:
-                self.manager.copyTasksByInfoStart(
-                                        tasks_chains=tasks_chains,
-                                         edited_prompt=prompt, 
-                                         change_prompt=param['copy_editbranch'], 
-                                         switch=param['switch'],
-                                         new_parent=trg_parent,
-                                         ignore_conv=ignore_conv,
-                                         param= param
-                )
-            else:
-                self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
-                                         edited_prompt=prompt, 
-                                         change_prompt=param['copy_editbranch'],
-                                         switch=param['switch'],
-                                         new_parent=trg_parent,
-                                         ignore_conv=ignore_conv,
-                                         param = param
-                                         )
-            
-
-            # return self.manager.copyChildChains(change_prompt = param['copy_editbranch'],
-            #                                     edited_prompt=prompt, 
-            #                                     apply_link= param['apply_link'], 
-            #                                     remove_old_link=param['remove_old'],
-            #                                     copy=param['copy'],
-            #                                     subtask=param['subtask'],
-            #                                     trg_type= param['trg_type'] if 'trg_type' in param else '',
-            #                                     src_type = param['src_type'] if 'src_type' in param else ''
-            #                                     )
+            self.editBasicActions(prompt, param)
 
         elif creation_type == "TakeFewSteps":
             self.manager.takeFewSteps(param['dir'], param['times'])
@@ -1131,3 +1089,56 @@ class Actioner():
             self.std_manager.beforeRemove(remove_folder = True, remove_task = True)
 
  
+    def editBasicActions(self, prompt, param):
+        # tasks_chains = self.manager.curr_task.getTasksFullLinks(param)
+        trg_parent = None
+        ignore_conv = []
+        if 'sel2par' in param and param['sel2par'] and len(self.manager.selected_tasks) == 1:
+            trg_parent = self.manager.selected_tasks[0]
+        tasks_chains = self.manager.getTasksChainsFromCurrTask(param)
+        if len(self.manager.multiselect_tasks) > 0:
+            if 'ignrlist' in param and param['ignrlist']:
+                ignore_conv = self.manager.multiselect_tasks.copy()
+            elif 'wishlist' in param and param['wishlist']:
+                for chain in tasks_chains:
+                    for task in chain['branch']:
+                        if task not in self.manager.multiselect_tasks and task not in ignore_conv:
+                            ignore_conv.append(task)
+        print('Ignore list:', [t.getName() for t in ignore_conv])
+        if 'step' in param and param['step']:
+            self.manager.copyTasksByInfoStart(
+                                    tasks_chains=tasks_chains,
+                                        edited_prompt=prompt, 
+                                        change_prompt=param['copy_editbranch'], 
+                                        switch=param['switch'],
+                                        new_parent=trg_parent,
+                                        ignore_conv=ignore_conv,
+                                        param= param
+            )
+        else:
+            self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
+                                        edited_prompt=prompt, 
+                                        change_prompt=param['copy_editbranch'],
+                                        switch=param['switch'],
+                                        new_parent=trg_parent,
+                                        ignore_conv=ignore_conv,
+                                        param = param
+                                        )
+            
+    def divideActions(self, prompt, param):
+        text = prompt
+        tag = self.manager.curr_task.getLastMsgRole()
+        verticaldiv = text.split('[[---]]')
+        horizontaldiv = text.split('[[+++]]')
+        
+        if len(verticaldiv) > 1:
+            last = verticaldiv.pop()
+            for batch in verticaldiv:
+                self.manager.makeTaskAction(batch, "Request", "Insert", tag)
+            return self.manager.makeTaskAction(last, "Request", "Edit", tag)
+        elif len(horizontaldiv) > 1:
+            start_task = self.manager.curr_task
+            for batch in horizontaldiv:
+                self.manager.curr_task = start_task
+                self.editBasicActions(batch, param)
+
