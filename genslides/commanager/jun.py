@@ -1891,7 +1891,6 @@ class Manager:
             self.getBranchEndName(),
             gr.CheckboxGroup(value=[]),
             self.getBranchList(),
-            self.getTreesList(),
             self.getBranchMessages(),
             status_msg,
             rawinfo_msgs,
@@ -2643,15 +2642,16 @@ class Manager:
     
 
     def sortTreeOrder(self, check_list = False):
+        # print('Tree idx', self.tree_idx, 'out of', len(self.tree_arr))
+        self.updateTreeArr(check_list=check_list)
         if self.tree_idx >= len(self.tree_arr):
-            self.updateTreeArr(check_list=check_list)
             self.tree_idx = 0
 
         if len(self.tree_arr) == 0:
             return
         trg_task = self.tree_arr[self.tree_idx]
         for task in self.tree_arr:
-            res, pparam = task.getParamStruct('tree_step')
+            res, pparam = task.getParamStruct('tree_step', only_current = True)
             if not res:
                 self.curr_task = task
                 self.appendNewParamToTask('tree_step')    
@@ -2875,12 +2875,12 @@ class Manager:
                     out += val + '\n'
         return out
   
-    def getTreesList(self):
+    def getTreesList(self, check = False):
         man = self
         task = man.curr_task
         out = []
         cur_tree = task.getRootParent()
-        man.sortTreeOrder()
+        man.sortTreeOrder(check)
         for tree in man.tree_arr:
             sres, sparam = tree.getParamStruct('tree_step', True)
             name = tree.getBranchSummary()

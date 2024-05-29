@@ -446,21 +446,20 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 with gr.Row():
                                     name_prman = gr.Text(value='None', label = 'Manager')
                                 with gr.Row():
-                                    init_prman_btn = gr.Button(value='Init empty')
-                                    rset_prman_btn = gr.Button(value='Only RM man')
-                                    stop_prman_btn = gr.Button(value='RM man&Save tasks')
-                                    save2curtask_btn = gr.Button(value='Save man2task')
+                                    init_prman_btn = gr.Button(value='Init manager from MultiTasks')
+                                    rset_prman_btn = gr.Button(value='Remove manager')
+                                    stop_prman_btn = gr.Button(value='RM man & Save tasks to BASE')
                                 with gr.Row():
                                     # get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
-                                    get_tempman = gr.Radio(label='Temp managers')
+                                    get_tempman = gr.Radio(label='Managers list')
                                 with gr.Row():
-                                    tmpmanname_txt = gr.Textbox(label='Cur man name')
+                                    tmpmanname_txt = gr.Textbox(label='Current manager name')
                                 with gr.Row():
                                     tmpman_clrpck = gr.ColorPicker()
-                                    load_tempman_btn = gr.Button(value='Set color').click(fn=projecter.setCurManagerColor, 
+                                    load_tempman_btn = gr.Button(value='Set man tasks color').click(fn=projecter.setCurManagerColor, 
                                                                                           inputs=[tmpman_clrpck])
                                 with gr.Row():
-                                    updt_prman_btn = gr.Button(value='Updt man list')
+                                    updt_prman_btn = gr.Button(value='Updt managers list')
                                 with gr.Row():
                                     gr.Button('Save cur man info').click(fn=projecter.saveCurrManInfo)
                                     gr.Button('Save Cur Tmp Man').click(fn=projecter.saveTmpMan)
@@ -486,6 +485,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     actpack_saved_lst = gr.Dropdown(label='Saved actpacks', choices=projecter.getActPacksList())
                                     actpack_load_btn = gr.Button(value='Load actpack2man')
                                     actpack_save_btn.click(fn=projecter.saveActPack, inputs=[actpack_name_txt], outputs=actpack_saved_lst)
+                                with gr.Row():
+                                    save2curtask_btn = gr.Button(value='Save man2task')
                                 # with gr.Row():
                                     # clr_prman_btn = gr.Button('Clear vals')
                                 # with gr.Row():
@@ -703,7 +704,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             #    exttaskopt_chgr, 
                                tree_names_radio, new_tree_name_txt,
                                end_names_radio, end_name_text, extcopy_chck,
-                               branches_data, trees_data, branch_msgs,
+                               branches_data, 
+                               branch_msgs,
                                status_txt,
                                raw_dial, 
                                go_lnkfrwd_rad,
@@ -711,7 +713,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                tmpman_clrpck,
                                multiselecttask_txt
                                ]
-            std_output_list.extend([graph_img, graph_alone, raw_graph])
+            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
             multishiftpartag_btn.click(fn=projecter.shiftParentTagForMultiSelect, inputs=[shiftpartag_sld], outputs=std_output_list)
             childshiftpartag_btn.click(fn=projecter.shiftParentTagForCurAndChilds, inputs=[shiftpartag_sld], outputs=std_output_list)
@@ -742,7 +744,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)
 
             init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
-            get_tempman.change(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
+            get_tempman.input(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
             load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)
             reset_initact_btn.click(fn=manipulate_manager.backToDefaultActioner, outputs=std_full)
 

@@ -828,7 +828,7 @@ class Actioner():
             rawgraph = self.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True)
 
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
-            out += (maingraph, stepgraph, rawgraph)
+            out += (self.manager.getTreesList(), maingraph, stepgraph, rawgraph)
             # print('act:',out)
             return out
         else:
@@ -840,7 +840,7 @@ class Actioner():
             if out == None:
                 self.setManager(self.std_manager)
                 out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
-            out += (maingraph, stepgraph, rawgraph)
+            out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
             return out
     
     def updateTaskManagerUI(self):
@@ -1009,11 +1009,15 @@ class Actioner():
         else:#std->tmp
             for task in tasks:
                 if len(task.getGarlandPart()) > 0:
-                    print('Move to tmp error: task[',task.getName(),'] is linked')
-                    return
+                    for resp in task.getGarlandPart():
+                        if resp not in tasks:
+                            print(f"Move to tmp error: task[{task.getName()}] has link from {recv.getName()}[not in list]")
+                            return
                 if len(task.getHoldGarlands()) > 0:
-                    print('Move to tmp error: task[',task.getName(),'] is linked')
-                    return
+                    for recv in task.getHoldGarlands():
+                        if recv not in tasks:
+                            print(f"Move to tmp error: task[{task.getName()}] has link to {recv.getName()}[not in list]")
+                            return
                 for child in task.getChilds():
                     if child not in tasks:
                         print('Move to tmp error: task[',task.getName(),'] is moving, but child[',child.getName(),'] is not')

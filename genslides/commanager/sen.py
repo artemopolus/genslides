@@ -546,6 +546,7 @@ class Projecter:
         return self.actioner.updateUIelements()
     
     def goToNextTree(self):
+        print('Go to next tree')
         if self.actioner.manager != self.actioner.std_manager:
             self.actioner.manager.sortTreeOrder(check_list=True)
         else:
@@ -643,6 +644,9 @@ class Projecter:
         for task in man.multiselect_tasks:
             code = task.getName()
             tags.append(code)
+        if len(tags) == 0:
+            print('No multiselected task for manager')
+            return self.actioner.updateTaskManagerUI()
         self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3, 'task_names':tags})
         return self.actioner.updateTaskManagerUI()
     
