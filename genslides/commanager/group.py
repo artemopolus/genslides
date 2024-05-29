@@ -824,8 +824,8 @@ class Actioner():
         if self.std_manager == self.manager:
             hide_tasks = False
             maingraph = self.drawGraph(hide_tasks=True)
-            stepgraph = self.std_manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True)
-            rawgraph = self.std_manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True)
+            stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True)
+            rawgraph = self.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True)
 
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
             out += (maingraph, stepgraph, rawgraph)
@@ -848,7 +848,7 @@ class Actioner():
         out += self.getTmpManagerInfo()
         return out
  
-    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False):
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False, add_garlands=False, all_tree_task = False):
         # print('Draw graph')
         man = self.std_manager
         tmpman_list = []
@@ -856,7 +856,7 @@ class Actioner():
             if manager != self.std_manager:
                 tmpman_list.extend(manager.task_list)
         if only_current:
-            if man.curr_task.isRootParent():
+            if man.curr_task.isRootParent() or all_tree_task:
                 trg_list = man.curr_task.getTree(max_childs=10)
             else:
                 trg_list = man.curr_task.getAllParents(max_index = max_index)
@@ -895,11 +895,15 @@ class Actioner():
             # if self.curr_task:
             #         f.node ("Current",self.curr_task.getInfo(), style="filled", color="skyblue", shape = "rectangle", pos = "0,0")
             trgs_rsm = []
-            for task in man.task_list:
-                if len(task.getAffectedTasks()) > 0:
-                    trgs = task.getAffectedTasks()
-                    if trgs in trg_list:
-                        trg_list.append(task)
+            if add_garlands:
+                for task in trg_list:
+                    if len(task.getHoldGarlands()) > 0:
+                        trgs = task.getHoldGarlands()
+                        for trg in trgs:
+                            if trg not in trg_list:
+                                trgs_rsm.append(trg)
+                trg_list.extend(trgs_rsm)
+
 
             
 
@@ -981,11 +985,12 @@ class Actioner():
                     else:
                         f.edge(task.getIdStr(), child.getIdStr())
                     # print("edge=", task.getIdStr(), "====>",child.getIdStr())
-
-                for info in task.getGarlandPart():
-                    f.edge(info.getIdStr(), task.getIdStr(), color = "darkorchid3", style="dashed")
-                for info in task.getHoldGarlands():
-                    f.edge(task.getIdStr(), info.getIdStr(), color = "darkorchid3", style="dashed")
+                if not add_linked:
+                    for info in task.getGarlandPart():
+                        f.edge(info.getIdStr(), task.getIdStr(), color = "darkorchid3", style="dashed")
+                if not add_garlands:
+                    for info in task.getHoldGarlands():
+                        f.edge(task.getIdStr(), info.getIdStr(), color = "darkorchid3", style="dashed")
                
 
             img_path = path
