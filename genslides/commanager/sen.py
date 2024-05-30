@@ -1818,5 +1818,20 @@ class Projecter:
             print('Current task:', man.getCurrentTask().getName())
             self.makeRequestAction('','Edit',role,{'onlymulti','sel2par'})
         return act.updateUIelements()
+    
+    def checkTrashInManagerFolder(self):
+        act = self.actioner
+        man = act.manager
+        names = [t.getName()+".json" for t in man.task_list]
+        names.append("project.json")
+        files = FileManager.getFilesInFolder(Loader.Loader.getUniPath(man.getPath()))
+        trash = []
+        for file in files:
+            if file not in names:
+                trash.append( Loader.Loader.getUniPath(FileManager.addFolderToPath(man.getPath(),[file])))
+        print('Found trash:\n', '\n'.join(trash))
+        for file in trash:
+            FileManager.deleteFile(file)
+        
 
 

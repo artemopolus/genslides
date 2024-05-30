@@ -9,6 +9,10 @@ import distutils
 def deleteFolder( mypath ):
     shutil.rmtree( mypath )
 
+def deleteFile( mypath):
+    if isfile (mypath):
+        os.remove(mypath)
+
 def deleteFiles(mypath):
     print('Delete files by path', mypath)
     for f in listdir(mypath):

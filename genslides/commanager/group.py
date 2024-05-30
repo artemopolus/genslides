@@ -976,10 +976,11 @@ class Actioner():
                 if task.checkType('IterationEnd'):
                     if task.iter_start:
                         f.edge(task.getIdStr(), task.iter_start.getIdStr())
-                draw_child_cnt = 0
+                # draw_child_cnt = 0
                 for child in task.childs:
                     if child not in trg_list:
-                        pass
+                        if child in man.task_list:
+                            f.edge(task.getIdStr(), child.getIdStr())
                         # draw_child_cnt += 1
                         # if draw_child_cnt < 4:
                         #     f.edge(task.getIdStr(), child.getIdStr())

@@ -661,6 +661,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
                         project_clear = gr.Button(value="clear tasks")
                         fix_task_btn = gr.Button(value = 'Fix Q Tasks')
+                        gr.Button('Check Trash').click(fn=projecter.checkTrashInManagerFolder)
  
             with gr.Row() as r:
                 gr.Label('Save and load project')
