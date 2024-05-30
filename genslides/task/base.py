@@ -557,12 +557,20 @@ class BaseTask():
         if len(self.getHoldGarlands()) and copy_out:
             for ll in self.getHoldGarlands():
                 res, val = ll.getTrgLinkInfo(self)
-                if res:
+                if 'check_man' in param and param['check_man']:
+                    if res and ll.manager == self.manager:
+                        print('Append:',val['out'].getName(),'->', val['in'].getName())
+                        trg_links.append(val)
+                elif res:
                     print('Append:',val['out'].getName(),'->', val['in'].getName())
                     trg_links.append(val)
         if len(self.getGarlandPart()) and copy_in:
             for ll in self.getGarlandPart():
-                trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
+                if 'check_man' in param and param['check_man']:
+                    if ll.manager == self.manager:
+                        trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
+                else:
+                    trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
 
     def getChildAndLinks(self, task, pparam, start_j = 0):
         print('Get child and links for', task.getName(),'[',start_j,']')
@@ -579,7 +587,10 @@ class BaseTask():
                 j = 0
                 while (j < 1000 and not branch['done']):
                     # print('Task', trg.getName())
-                    childs = trg.getChilds()
+                    if 'check_man' in pparam and pparam['check_man']:
+                        childs = trg.getChilds(True)
+                    else:
+                        childs = trg.getChilds()
                     trg.getLinkCopyInfo(branch['links'], pparam)
                     if len(childs) == 1:
                         if childs[0].getName() not in trg_task_names:
@@ -871,7 +882,9 @@ class BaseTask():
     def getChildsRaw(self):
         return self.childs
     
-    def getChilds(self):
+    def getChilds(self, check_manager = False):
+        if check_manager:
+            return [child for child in self.childs if child.manager == self.manager]
         return self.childs.copy()
     
     

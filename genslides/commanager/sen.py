@@ -319,7 +319,8 @@ class Projecter:
                 'upd_cp', #Обновить ветки, которые скопирован ранее через Edit
                 'onlymulti', #Копировать только мультивыбранные задачи
                 'reqSraw', #Конвертировать ссылки в сообщениях при копировании
-                'forcecopyresp' #Насильно вставлять промпт в Response
+                'forcecopyresp', #Насильно вставлять промпт в Response,
+                'check_man' #проверять менеджера
                 ]
     
     def setEditChecks(self, checks):
