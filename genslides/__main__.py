@@ -519,43 +519,46 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 convbranch2inoutext_btn = gr.Button('Convert muliselect tasks in InOutExtTree Tasks')
                             with gr.Row():
-                                maninfoget_btn = gr.Button('Get info from manager')
+                                maninfoget_btn = gr.Button('Get info from tmp manager')
                             with gr.Row():
                                 with gr.Column():
-                                    manbudlist_drd = gr.Radio(label='Buds:')
                                     with gr.Row():
-                                        inet_extmanbud_btn = gr.Button('Set for In')
-                                        outet_extmanbud_btn = gr.Button('Set for Out')
-                                    manbudsum_txt = gr.Textbox(label='Summary')
-                                    manbudindo_txt = gr.Textbox(label='BranchCode')
-                                    manalltsklist_drd = gr.Dropdown(label='Project Tasks')
+                                        mantsklist_drd = gr.Dropdown(label='External Tasks of Loaded Tmp Manager')
+                                        mantsklist_btn = gr.Button('Select')
                                     with gr.Row():
-                                        inet_extmantasks_btn = gr.Button('Set for In')
-                                        outet_extmantasks_btn = gr.Button('Set for Out')
+                                        exttargettask_drd = gr.Dropdown(label='Available Targets in Current Manager')
                                 with gr.Column():
-                                    manbudlist_cht = gr.Chatbot()
-                                # manbudinfoupdt_btn.click(fn=projecter.getBudInfo, inputs=[manbudlist_drd], outputs=[manbudsum_txt,manbudindo_txt, manbudlist_cht])
-                                manbudlist_drd.input(fn=projecter.getBudInfo, inputs=[manbudlist_drd], outputs=[manbudsum_txt,manbudindo_txt, manbudlist_cht])
-                            with gr.Row():
-                                mantsklist_drd = gr.Dropdown(label='External Tasks:')
-                                mantsklist_btn = gr.Button('Select')
-                            with gr.Row():
-                                exttargettask_drd = gr.Dropdown(label='Available targets')
-                            with gr.Row():
-                                exttreename_txt = gr.Textbox(label='ExtTreeTask name:')
+                                    with gr.Row():
+                                        inexttreeparam_txt = gr.Textbox(label='InExtTree Task Parameters',lines=5)
+                                    with gr.Row():
+                                        inextreesubtask_btn = gr.Button('InExtTree SubTask')
+                            with gr.Accordion(visible=False):
+                                with gr.Row():
+                                    with gr.Column():
+                                        manbudlist_drd = gr.Radio(label='Buds:')
+                                        with gr.Row():
+                                            inet_extmanbud_btn = gr.Button('Set for In')
+                                            outet_extmanbud_btn = gr.Button('Set for Out')
+                                        manbudsum_txt = gr.Textbox(label='Summary')
+                                        manbudindo_txt = gr.Textbox(label='BranchCode')
+                                        manalltsklist_drd = gr.Dropdown(label='Project Tasks')
+                                        with gr.Row():
+                                            inet_extmantasks_btn = gr.Button('Set for In')
+                                            outet_extmantasks_btn = gr.Button('Set for Out')
+                                    with gr.Column():
+                                        manbudlist_cht = gr.Chatbot()
+                                    # manbudinfoupdt_btn.click(fn=projecter.getBudInfo, inputs=[manbudlist_drd], outputs=[manbudsum_txt,manbudindo_txt, manbudlist_cht])
+                                    manbudlist_drd.input(fn=projecter.getBudInfo, inputs=[manbudlist_drd], outputs=[manbudsum_txt,manbudindo_txt, manbudlist_cht])
+                                with gr.Row():
+                                    exttreename_txt = gr.Textbox(label='ExtTreeTask name:')
 
-                            with gr.Row():
-                                exttreetasktype_rad = gr.Radio(choices=['In','Out'],value='In',interactive=True, label='Ext Branch Type')
-                                exttreecopytype_rad = gr.Radio(choices=['Src','Copy'],value='Copy',interactive=True, label='Ext Branch Type')
-                            with gr.Row():
-                                with gr.Column():
-                                    with gr.Row():
-                                        inexttreeparam_txt = gr.Textbox(label='InExtTreeParam',lines=5)
-                                    with gr.Row():
-                                        inextreesubtask_btn = gr.Button('Sub InExtTree')
-                                with gr.Column():
-                                    with gr.Row():
-                                        outexttreeparam_txt = gr.Textbox(label='OutExtTreeParam',lines=5)
+                                with gr.Row():
+                                    exttreetasktype_rad = gr.Radio(choices=['In','Out'],value='In',interactive=True, label='Ext Branch Type')
+                                    exttreecopytype_rad = gr.Radio(choices=['Src','Copy'],value='Copy',interactive=True, label='Ext Branch Type')
+                                with gr.Row():
+                                    with gr.Column():
+                                        with gr.Row():
+                                            outexttreeparam_txt = gr.Textbox(label='OutExtTreeParam',lines=5)
                                     # with gr.Row():
                                     #     outextreesubtask_btn = gr.Button('Sub OutExtTree')
                         with gr.Tab('Edit'):

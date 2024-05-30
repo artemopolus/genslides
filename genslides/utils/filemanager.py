@@ -59,6 +59,8 @@ def createUniqueDir(path : str, folder :str, name : str) -> list[bool, Path]:
     return False, None
 
 def getFilesInFolder(path: str):
+    if not os.path.exists(path):
+        return []
     return [f for f in listdir(path) if isfile(join(path, f))]
 
 def getFilesPathInFolder(path: str):
