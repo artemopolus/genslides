@@ -825,7 +825,7 @@ class Actioner():
             hide_tasks = False
             maingraph = self.drawGraph(hide_tasks=True)
             stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True)
-            rawgraph = self.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True)
+            rawgraph = self.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True)
 
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
             out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
@@ -979,9 +979,10 @@ class Actioner():
                 draw_child_cnt = 0
                 for child in task.childs:
                     if child not in trg_list:
-                        draw_child_cnt += 1
-                        if draw_child_cnt < 4:
-                            f.edge(task.getIdStr(), child.getIdStr())
+                        pass
+                        # draw_child_cnt += 1
+                        # if draw_child_cnt < 4:
+                        #     f.edge(task.getIdStr(), child.getIdStr())
                     else:
                         f.edge(task.getIdStr(), child.getIdStr())
                     # print("edge=", task.getIdStr(), "====>",child.getIdStr())
