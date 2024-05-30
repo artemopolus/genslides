@@ -2271,7 +2271,7 @@ class Manager:
         for switch in self.tc_switch_type:
             if trg_type == switch['src'] and task not in self.tc_ignore_conv:
                 trg_type = switch['trg']
-        if trg_type == 'ExtProject':
+        if task.checkType('ExtProject'):
             res, param = task.getParamStruct('external')
             if res:
                 prompt = param['prompt']
@@ -2283,6 +2283,19 @@ class Manager:
             else:
                 print('No options')
                 # return self.getCurrTaskPrompts()
+                return False
+        elif task.checkType('InExtTree'):
+            # res, param = task.getParamStruct('external')
+            try:
+                found = False
+                for i,param in enumerate(param_task):
+                    if param['type'] == 'external':
+                        found = True
+                        param_task[i]['retarget']['chg'] = parent.getName()
+                        break
+                if found:
+                    self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
+            except:
                 return False
         else:
             self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)

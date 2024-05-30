@@ -599,7 +599,7 @@ class Actioner():
 
     def updateInit(self):
         man = self.manager
-        man.sortTreeOrder()
+        man.sortTreeOrder(True)
         self.update_state = 'start tree'
         self.update_tree_idx = 0
 
@@ -655,9 +655,9 @@ class Actioner():
         self.update_state = 'init'
         man = self.manager
         if len(man.tree_arr) == 0:
-            if not force_check and man == self.std_manager:
-                man.updateTreeArr()
-            else:
+            # if not force_check and man == self.std_manager:
+                # man.updateTreeArr()
+            # else:
                 man.updateTreeArr(check_list=True)
         if len(man.tree_arr) == 0:
             return
@@ -828,7 +828,7 @@ class Actioner():
             rawgraph = self.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True)
 
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
-            out += (self.manager.getTreesList(), maingraph, stepgraph, rawgraph)
+            out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
             # print('act:',out)
             return out
         else:

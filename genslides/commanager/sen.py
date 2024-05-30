@@ -1758,8 +1758,14 @@ class Projecter:
         for msg in msgs:
             text += msg['role'] + '\n' + 10*'====' + '\n\n\n'
             text += msg['content'] + '\n'
+        self.copyToClickBoard(text)
+
+    def copyToClickBoard(self, text):
         pyperclip.copy(text)
         pyperclip.paste()
+
+    def copyToClickBoardParentContent(self):
+        self.copyToClickBoard("[[parent:msg_content]]")
 
     def copyToClickBoardDialRaw(self):
         msgs = self.actioner.manager.curr_task.getRawMsgs()
@@ -1767,8 +1773,7 @@ class Projecter:
         for msg in msgs:
             text += msg['role'] + '\n' + 10*'====' + '\n\n\n'
             text += msg['content'] + '\n'
-        pyperclip.copy(text)
-        pyperclip.paste()
+        self.copyToClickBoard(text)
 
     def copyToClickBoardReqListRaw(self):
         msgs = self.actioner.manager.curr_task.getRawMsgs()
