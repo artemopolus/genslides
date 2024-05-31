@@ -55,6 +55,8 @@ class Projecter:
         self.actioner.clearTmp()
 
         self.exttreemanbudinfo = None
+        self.tree3plaintext_tasks = []
+        self.tree3plaintext_idx = 0
 
     def loadManager(self):
         self.resetManager(self.actioner.std_manager)
@@ -1524,8 +1526,18 @@ class Projecter:
                 self.actioner.setManager(start_man)
         return self.actioner.updateTaskManagerUI()
     
-    def loadManagerInfoForExtWithBrowser(self):
+    def loadMangerExtInfoExtWithBrowser(self):
         path = Loader.Loader.getDirPathFromSystem(self.actioner.manager.getPath())
+        return self.loadMangerExtInfoExt(path)
+    
+    def loadMangerExtInfoExtForCurTask(self):
+        man = self.actioner.manager
+        taskpath = FileManager.addFolderToPath(man.getPath(), ['tmp', man.curr_task.getName() ])
+        path = Loader.Loader.checkManagerTag(taskpath, man.getPath(), False)
+        return self.loadMangerExtInfoExt(path)
+    
+
+    def loadMangerExtInfoExt(self, path):
         manpath = Finder.findByKey(path,self.actioner.manager, None, self.actioner.manager.helper)
         buds_info, tasks_info, all_tasks = Searcher.ProjectSearcher.openProject(manpath)
         parents = self.actioner.manager.curr_task.getAllParents()
@@ -1833,6 +1845,56 @@ class Projecter:
         print('Found trash:\n', '\n'.join(trash))
         for file in trash:
             FileManager.deleteFile(file)
+
+
+    def getConvertTreeTo3PlainText(self, tree_type = 'Current'):
+        act = self.actioner
+        man = act.manager
+        if tree_type == 'Current Task Tree':
+            trgtasklist = man.curr_task.getAllChildsRecursive()
+        elif tree_type == 'Tree':
+            trgtasklist = man.curr_task.getAllParents()[0].getAllChildsRecursive()
+        elif tree_type == 'MultiSelected':
+            minichains = man.getMiniChainsFromMultiSelected()
+            if len(minichains) == 0:
+                return self.getTree3PlainText()
+            trgtasklist = []
+            for chain in minichains:
+                rechild = chain[0].getAllChildsRecursive( check_tasks = False, trgs = man.multiselect_tasks)
+                for t in rechild:
+                    if t not in trgtasklist:
+                        trgtasklist.append(t)
+        else:
+            return self.getTree3PlainText()
+
+        tasks = [t for t in trgtasklist if not t.checkType('SetOptions')]
+        self.tree3plaintext_tasks = tasks
+        self.tree3plaintext_idx = 0
+        return self.getTree3PlainText()
+    
+    def moveUpTree3PlainText(self):
+        if self.tree3plaintext_idx > 0:
+            self.tree3plaintext_idx += -1
+        return self.getTree3PlainText()
+    def moveDwTree3PlainText(self):
+        if self.tree3plaintext_idx < len(self.tree3plaintext_tasks) - 1:
+            self.tree3plaintext_idx += 1
+        return self.getTree3PlainText()
+
+    def getTree3PlainText(self):
+        pretext = ""
+        text = ""
+        suftext = ""
+
+        for i, task in enumerate(self.tree3plaintext_tasks):
+            if i < self.tree3plaintext_idx:
+                pretext += task.getLastMsgContentRaw() + '\n'
+            elif i == self.tree3plaintext_idx:
+                text += task.getLastMsgContentRaw() + '\n'
+            elif i > self.tree3plaintext_idx:
+                suftext += task.getLastMsgContentRaw() + '\n'
+        return pretext, text, suftext
+
         
 
 

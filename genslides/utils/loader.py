@@ -110,8 +110,9 @@ class Loader:
             return Loader.convertFilePathToTag(path, manager_path)
         return str(PurePosixPath(path))
     
-    def checkManagerTag(path, manager_path, to_par_fld = True):
+    def checkManagerTag(spath, manager_path, to_par_fld = True):
         try:
+            path = Path(spath)
             mpath = Path(manager_path)
             tag = 'spc'
             if to_par_fld:
@@ -122,7 +123,7 @@ class Loader:
             str_rel_path = str(PurePosixPath(rel_path))
             filename = '[[manager:path:'+ tag +']]/'+ str_rel_path
         except Exception as e:
-            print('Manager folder is not relative:',e)
+            print('Manager folder is not relative:',e,spath)
             filename = PurePosixPath(path)
             return filename
         return filename

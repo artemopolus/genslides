@@ -661,6 +661,16 @@ class BaseTask():
             if index == trg_idx:
                 return n_trgs
         return []
+    
+    def getAllChildsRecursive(self, check_tasks = False, trgs = []):
+        chain = [self]
+        for child in self.childs:
+            if check_tasks:
+                if child in trgs:
+                    chain.extend(child.getAllChildsRecursive(check_tasks, trgs))
+            else:
+                chain.extend(child.getAllChildsRecursive(check_tasks, trgs))
+        return chain
  
 
     def getAllChildChains(self, max_index = -1, max_childs = -1):
