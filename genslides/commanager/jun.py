@@ -682,9 +682,10 @@ class Manager:
                 return pair['std'].replace(self.getProjPrefix(), "")
         return task.getName().replace(self.getProjPrefix(), "")
 
-    def createTaskByFile(self, parent :BaseTask = None):
-        path = Loader.Loader.getUniPath(self.getPath())
-        files = FileMan.getFilesPathInFolder(path)
+    def createTaskByFile(self, parent :BaseTask = None, files = []):
+        if len(files) == 0:
+            path = Loader.Loader.getUniPath(self.getPath())
+            files = FileMan.getFilesPathInFolder(path)
         # if parent != None:
         #     print('Create task by parent',parent.getName())
         starttasklist = self.task_list.copy()
@@ -721,7 +722,7 @@ class Manager:
         for link in linklist:
             self.makeLink(self.getTaskByName(link['in']),self.getTaskByName(link['out']))
 
-    def loadTasksListFileBased(self):
+    def loadTasksListFileBased(self, files = []):
         if self.is_loaded:
             return
         print('Loading of tasks list based on file: manager', self.getName(),'with path',self.getPath())
@@ -735,17 +736,17 @@ class Manager:
             if idx == 0:
                 for task in start_tasks: #Если некоторые задачи уже загружены
                     # print('Create task for', task.getName())
-                    n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
+                    n_start_tasks2, n_task_list2 = self.createTaskByFile(task, files)
                     n_start_tasks.extend(n_start_tasks2)
                     task_links.extend(n_task_list2)
-                n_start_tasks2, n_task_list2 = self.createTaskByFile()
+                n_start_tasks2, n_task_list2 = self.createTaskByFile(files = files)
                 n_start_tasks.extend(n_start_tasks2)
                 task_links.extend(n_task_list2)
                 task_links.extend(n_task_list2)
             else:
                 for task in start_tasks:
                     # print('Create task for', task.getName())
-                    n_start_tasks2, n_task_list2 = self.createTaskByFile(task)
+                    n_start_tasks2, n_task_list2 = self.createTaskByFile(task, files)
                     n_start_tasks.extend(n_start_tasks2)
                     task_links.extend(n_task_list2)
             if len(n_start_tasks) == 0:
@@ -2291,6 +2292,7 @@ class Manager:
                 for i,param in enumerate(param_task):
                     if param['type'] == 'external':
                         found = True
+                        param_task[i]['retarget']['std'] = parent.getName()
                         param_task[i]['retarget']['chg'] = parent.getName()
                         break
                 if found:

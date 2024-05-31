@@ -683,6 +683,10 @@ class Projecter:
             self.tmp_actioner = None
             self.tmp_actioner_task = None
         return self.actioner.updateTaskManagerUI()
+    
+    def activateExtTask(self):
+        self.switchToExtTaskManager()
+        return self.backToDefaultActioner()
  
     
     def initSavdManagerToCur(self,name):
@@ -1845,6 +1849,23 @@ class Projecter:
         print('Found trash:\n', '\n'.join(trash))
         for file in trash:
             FileManager.deleteFile(file)
+
+    def loadAdditionalTasksInManager(self):
+        act = self.actioner
+        man = act.manager
+        path = Loader.Loader.getDirPathFromSystem(self.actioner.manager.getPath())
+        manpath = Finder.findByKey(path,self.actioner.manager, None, self.actioner.manager.helper)
+        names = [t.getName()+".json" for t in man.task_list]
+        names.append("project.json")
+        files = FileManager.getFilesInFolder(Loader.Loader.getUniPath(manpath))
+        filepaths = []
+        for file in files:
+            if file not in names:
+                filepaths.append( Loader.Loader.getUniPath(FileManager.addFolderToPath(manpath,[file])))
+        print('Found additional tasks:\n', '\n'.join(filepaths))
+        man.is_loaded = False
+        man.loadTasksListFileBased(filepaths)
+        return act.updateUIelements()
 
 
     def getConvertTreeTo3PlainText(self, tree_type = 'Current'):

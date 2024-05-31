@@ -483,6 +483,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 with gr.Row():
                                     gr.Button('Save cur man info').click(fn=projecter.saveCurrManInfo)
                                     gr.Button('Save Cur Tmp Man').click(fn=projecter.saveTmpMan)
+                                    loadtaskintomanbrow_btn = gr.Button('Load task into manager from browser')
                                 with gr.Row():
                                     gr.Label(value='Multiselect tasks (MST) action')
                                 with gr.Row():
@@ -589,8 +590,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 gr.Label('Manipulate actioner')
                             with gr.Row():
-                                load_extproj_act_btn = gr.Button('Set Act ExtPr')
-                                reset_initact_btn = gr.Button('Set Act Base')
+                                updinexttree_btn = gr.Button('Updata InExtTree act')
+                            with gr.Row():
+                                load_extproj_act_btn = gr.Button('Set Act InOutExtTree')
+                                reset_initact_btn = gr.Button('Set Act ProjectBase')
                             with gr.Row():
                                 inoutexttreeparamget_btn = gr.Button('Get params for InExtTree OutExtTree Tasks')
                             with gr.Row():
@@ -749,6 +752,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
+
+            loadtaskintomanbrow_btn.click(fn=projecter.loadAdditionalTasksInManager, outputs=std_output_list)
+
             multishiftpartag_btn.click(fn=projecter.shiftParentTagForMultiSelect, inputs=[shiftpartag_sld], outputs=std_output_list)
             childshiftpartag_btn.click(fn=projecter.shiftParentTagForCurAndChilds, inputs=[shiftpartag_sld], outputs=std_output_list)
             changeoldtonew_btn.click(fn=projecter.replaceTextForMultiSelect, inputs=[oldtexttochange_txt, newtexttochange_txt], outputs=std_output_list)
@@ -780,6 +786,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
             get_tempman.input(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
             load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)
+            updinexttree_btn.click(fn=manipulate_manager.activateExtTask, outputs=std_full)
             reset_initact_btn.click(fn=manipulate_manager.backToDefaultActioner, outputs=std_full)
 
             tmpmanname_txt.submit(fn=manipulate_manager.setCurManagerName, inputs = [tmpmanname_txt], outputs=std_full)
