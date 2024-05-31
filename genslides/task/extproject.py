@@ -524,6 +524,11 @@ class OutExtTreeTask(ExtProjectTask):
     
     def getLastMsgAndParent(self):
         return False, [], self.intch_trg
+    
+    def getLastMsgContent(self):
+        if self.intch_trg == None:
+            return ""
+        return self.intch_trg.getLastMsgContent()
 
     def updateIternal(self, input : TaskDescription = None):
         if self.intch_trg == None:
