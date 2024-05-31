@@ -41,6 +41,12 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                 if bres and arr[3] in pparam and pparam[arr[3]] == arr[4] and arr[5] in pparam:
                     jtrg_val = pparam[arr[5]]
                     rep_text = rep_text.replace(res, str(jtrg_val))
+        elif arr[1] == 'allmsgs':
+            msgs = task.getMsgs()
+            out_text = ""
+            for msg in msgs:
+                out_text += msg['content'] + '\n\n'
+            rep_text = rep_text.replace(res, out_text)
         elif arr[1] == getMsgTag():
             param = task.getLastMsgContent()
             if len(arr) == 3 and arr[2] == 'json':
