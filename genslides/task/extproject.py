@@ -11,6 +11,7 @@ import genslides.utils.loader as Loader
 import genslides.utils.readfileman as Reader
 import genslides.utils.searcher as Searcher
 import genslides.utils.filemanager as Fm
+import genslides.utils.finder as Finder
 
 import os
 import shutil
@@ -410,24 +411,28 @@ class InExtTreeTask(ExtProjectTask):
         elif eparam['retarget']['chg'] == self.getName():
             exttrgtask = self
         else:
-            print(eparam['retarget']['chg'])
+            # print(eparam['retarget']['chg'])
             exttrgtask = self.manager.getTaskByName(eparam['retarget']['chg'])
 
         if eparam['name'] == '':
             fld_name = self.getName()
         else:
             fld_name = eparam['name']
-        trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', fld_name])
-        if 'project_path' in eparam:
-            src_path = self.findKeyParam(eparam['project_path'])
-            src_path = Loader.Loader.getUniPath(src_path)
-            if eparam['copy'] == 'Copy':
-                if len(Fm.getFilesInFolder(trg_path)) < 2:
-                    Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(src_path), trg_path=Loader.Loader.getUniPath(trg_path))
-            else:
-                trg_path = src_path
+        if 'exttreetask_path' in eparam:
+            trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+        else:
+            trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', fld_name])
+            if 'project_path' in eparam:
+                src_path = self.findKeyParam(eparam['project_path'])
+                src_path = Loader.Loader.getUniPath(src_path)
+                if eparam['copy'] == 'Copy':
+                    if len(Fm.getFilesInFolder(trg_path)) < 2:
+                        Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(src_path), trg_path=Loader.Loader.getUniPath(trg_path))
+                else:
+                    trg_path = src_path
         self.intman.setPath(trg_path)
-        self.intman.initInfo(self.manager.loadexttask, task = None, path = trg_path)
+        self.intman.initInfo(self.manager.loadexttask, task = None, path = trg_path, params={'task_names':[exttrgtask.getName()]})
+        print('ExtTargetTask=',exttrgtask.getName())
         self.intman.addTask(exttrgtask)
         self.intman.addRenamedPair(eparam['retarget']['std'],eparam['retarget']['chg'])
 
@@ -442,6 +447,11 @@ class InExtTreeTask(ExtProjectTask):
 
         self.setMsgList(self.getParent().getMsgList())
 
+        if 'exttreetask_path' not in eparam:
+            eparam['exttreetask_path'] = Loader.Loader.checkManagerTag(trg_path, self.manager.getPath(), False) 
+
+        self.setParamStruct(eparam)
+        # self.intman.saveInfo()
         self.saveAllParams()
 
 

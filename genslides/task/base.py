@@ -330,8 +330,8 @@ class BaseTask():
         for info in self.by_ext_affected_list:
             info.parent.updateNameQueue(old_name, name)
 
-    def getClearName(self) -> str:
-        return self.manager.getParentSavingName(self)
+    def getClearName(self, manager) -> str:
+        return manager.getParentSavingName(self)
     
     def getName(self) -> str:
         return self.name

@@ -553,7 +553,7 @@ class Projecter:
         if self.actioner.manager != self.actioner.std_manager:
             self.actioner.manager.sortTreeOrder(check_list=True)
         else:
-            self.actioner.manager.sortTreeOrder()
+            self.actioner.manager.sortTreeOrder(True)
         self.actioner.manager.goToNextTree()
         return self.actioner.updateUIelements()
     
@@ -664,6 +664,7 @@ class Projecter:
         return self.actioner.updateTaskManagerUI()
     
     def switchToExtTaskManager(self):
+        print('Switch to ext task manager')
         man = self.actioner.manager
         task_actioner = man.curr_task.getActioner()
         if task_actioner != None and self.tmp_actioner == None:

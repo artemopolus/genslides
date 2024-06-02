@@ -2292,8 +2292,11 @@ class Manager:
                 for i,param in enumerate(param_task):
                     if param['type'] == 'external':
                         found = True
-                        param_task[i]['retarget']['std'] = parent.getName()
                         param_task[i]['retarget']['chg'] = parent.getName()
+                        param_task[i]['project_path'] = param_task[i]['exttreetask_path']
+                        del param_task[i]['exttreetask_path']
+
+                        # param_task[i]['retarget']['chg'] = parent.getName()
                         break
                 if found:
                     self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)

@@ -580,7 +580,7 @@ class TextTask(BaseTask):
         resp_json_out['linked'] = linked
         path = ""
         if self.parent and self.caretaker is None:
-            path = self.parent.getClearName()
+            path = self.parent.getClearName(self.manager)
         resp_json_out['parent'] = path
         return resp_json_out
     
