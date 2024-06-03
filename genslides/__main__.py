@@ -267,7 +267,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     gr.Button("Copy tokens").click(fn=projecter.copyToClickBoardTokens)
                     gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
                 with gr.Row():
-                    gr.Button("Copy parent tag").click(fn=projecter.copyToClickBoardParentContent)
+                    gr.Button("[[parent:msg_content]]").click(fn=projecter.copyToClickBoardParentContent)
  
             with gr.Row():
                 # with gr.Column():

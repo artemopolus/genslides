@@ -623,13 +623,11 @@ class Manager:
             children = [t for t in trg.parent.getChilds() if t in self.task_list]
             if len(children) > 1:
                 if self.branch_lastpar is not None and trg.parent == self.branch_lastpar:
-                    print('-')
                     next_task = self.iterateNextBranch(trg.getParent())
                     if next_task == trg:
                         next_task = self.iterateNextBranch(trg.getParent())
                     self.curr_task = next_task
                 else:
-                    print('+')
                     self.branch_lastpar = trg.parent
                     if trg != trg.parent.childs[0]:
                         self.curr_task = trg.parent.childs[0]
