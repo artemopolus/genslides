@@ -823,9 +823,9 @@ class Actioner():
         # print('man',self.manager)
         if self.std_manager == self.manager:
             hide_tasks = False
-            maingraph = self.drawGraph(hide_tasks=True)
-            stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True)
-            rawgraph = self.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True)
+            maingraph = self.drawGraph(hide_tasks=True, out_childtask_max=1)
+            stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
+            rawgraph = self.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
             out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
             out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
@@ -848,7 +848,7 @@ class Actioner():
         out += self.getTmpManagerInfo()
         return out
  
-    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False, add_garlands=False, all_tree_task = False):
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False, add_garlands=False, all_tree_task = False, out_childtask_max = -1):
         # print('Draw graph')
         man = self.std_manager
         tmpman_list = []
@@ -857,7 +857,12 @@ class Actioner():
                 tmpman_list.extend(manager.task_list)
         if only_current:
             if man.curr_task.isRootParent() or all_tree_task:
+                target_chain = man.curr_task.getAllParents()
+                target_chain.extend(man.curr_task.getAllChildChains(max_childs=1))
                 trg_list = man.curr_task.getTree(max_childs=10)
+                for t in target_chain:
+                    if t not in trg_list:
+                        trg_list.append(t)
             else:
                 trg_list = man.curr_task.getAllParents(max_index = max_index)
                 for task in man.curr_task.getAllChildChains(max_index=max_index, max_childs=max_childs):
@@ -976,13 +981,13 @@ class Actioner():
                 if task.checkType('IterationEnd'):
                     if task.iter_start:
                         f.edge(task.getIdStr(), task.iter_start.getIdStr())
-                # draw_child_cnt = 0
+                draw_child_cnt = 0
                 for child in task.childs:
                     if child not in trg_list:
                         if child in man.task_list:
-                            f.edge(task.getIdStr(), child.getIdStr())
-                        # draw_child_cnt += 1
-                        # if draw_child_cnt < 4:
+                            if out_childtask_max > 0 and draw_child_cnt < out_childtask_max:
+                                f.edge(task.getIdStr(), child.getIdStr())
+                                draw_child_cnt += 1
                         #     f.edge(task.getIdStr(), child.getIdStr())
                     else:
                         f.edge(task.getIdStr(), child.getIdStr())
