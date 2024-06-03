@@ -201,7 +201,7 @@ class Manager:
         for task in task_list:
             self.curr_task = trg
             role = task.getLastMsgRole()
-            self.makeTaskAction("",task_type, action_type, role)
+            self.makeTaskActionBase("",task_type, action_type, role,[])
             # if first:
             #     parent = None
             #     if action_type == 'SubTask':
