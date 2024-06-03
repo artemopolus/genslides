@@ -1386,5 +1386,10 @@ class BaseTask():
     def isFrozen(self):
         return self.is_freeze
 
+    def getFrozenCnt(self):
+        if self.is_freeze:
+            return 0
+        return 1
+
     def getLastMsgAndParent(self):
         return False, [], self.parent

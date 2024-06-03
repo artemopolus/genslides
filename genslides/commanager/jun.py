@@ -619,7 +619,8 @@ class Manager:
         while(idx < 1000):
             if trg.isRootParent():
                 return self.getCurrTaskPrompts()
-            if len(trg.parent.getChilds()) > 1:
+            children = [t for t in trg.parent.getChilds() if t in self.task_list]
+            if len(children) > 1:
                 if self.branch_lastpar is not None and trg.parent == self.branch_lastpar:
                     self.curr_task =self.iterateNextBranch(trg.getParent()) 
                 else:
