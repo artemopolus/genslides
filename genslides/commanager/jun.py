@@ -618,15 +618,25 @@ class Manager:
         idx = 0
         while(idx < 1000):
             if trg.isRootParent():
-                return self.getCurrTaskPrompts()
+                return
+                # return self.getCurrTaskPrompts()
             children = [t for t in trg.parent.getChilds() if t in self.task_list]
             if len(children) > 1:
                 if self.branch_lastpar is not None and trg.parent == self.branch_lastpar:
-                    self.curr_task =self.iterateNextBranch(trg.getParent()) 
+                    print('-')
+                    next_task = self.iterateNextBranch(trg.getParent())
+                    if next_task == trg:
+                        next_task = self.iterateNextBranch(trg.getParent())
+                    self.curr_task = next_task
                 else:
+                    print('+')
                     self.branch_lastpar = trg.parent
-                    self.curr_task = trg.parent.childs[0]
-                    self.branch_idx += 1
+                    if trg != trg.parent.childs[0]:
+                        self.curr_task = trg.parent.childs[0]
+                        self.branch_idx = 0
+                    else:
+                        self.curr_task = trg.parent.childs[1]
+                        self.branch_idx = 1
                 break
             else:
                 trg = trg.parent
@@ -646,7 +656,7 @@ class Manager:
                 break
             j += 1
         self.curr_task = trg
-        return self.getCurrTaskPrompts()
+        # return self.getCurrTaskPrompts()
 
 
     def getTextFromFile(self, text, filenames):
