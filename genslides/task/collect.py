@@ -277,16 +277,26 @@ class CollectTask(ReceiveTask):
 class GarlandTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="Garland") -> None:
         super().__init__(task_info, type)
-
+        sres, sparam = self.getParamStruct('garland', True)
+        if not sres:
+            self.setParamStruct({
+                            'type':'garland',
+                            'insert':True
+                            })
+ 
     def isLinkForCopy(self):
         return False
 
     def getTrgLinkInfo(self, trg):
-        # TODO: Перенести в параметры
-        return True, {'out': trg, 'in': self, 'dir':'out',
+        oparam = {'out': trg, 'in': self, 'dir':'out',
                                    'insert':True,
                                    'type': self.getType(),
                                    'tag': self.prompt_tag,
                                    'prompt':'',
                                    'parent': self.parent
                                    }
+        sres, sparam = self.getParamStruct('garland', True)
+        if sres:
+            oparam['insert'] = sparam['insert']
+        return True, oparam
+

@@ -1103,7 +1103,7 @@ class Manager:
         return "", "" ,self.drawGraph(),"" , "user", chck
     
  
-    def makeTaskActionPro(self, prompt, type, creation_type, creation_tag):
+    def makeTaskActionPro(self, prompt, type, creation_type, creation_tag, params = []):
         if creation_type == "RemoveBranch":
             tasks = self.curr_task.getChainBeforeBranching()
             trg = None
@@ -1111,7 +1111,7 @@ class Manager:
                 trg = tasks[0].getParent()
             for task in tasks:
                 self.curr_task = task
-                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+                self.makeTaskActionBase(prompt, type, "Delete", creation_tag, params)
             if trg is not None:
                 self.curr_task = trg
         elif creation_type == "RemoveTaskList":
@@ -1122,16 +1122,16 @@ class Manager:
             tasks = self.curr_task.getTree()
             for task in tasks:
                 self.curr_task = task
-                self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+                self.makeTaskActionBase(prompt, type, "Delete", creation_tag, params)
         elif creation_type == "Insert":
             task1 = self.curr_task.parent
             task2 = self.curr_task
             if task1:
                 # self.makeTaskActionBase(prompt, type, "RemoveParent", creation_tag)
                 self.curr_task = task1
-                self.makeTaskActionBase(prompt, type, "SubTask", creation_tag)
+                self.makeTaskActionBase(prompt, type, "SubTask", creation_tag, params)
             else:
-                self.makeTaskActionBase(prompt, type, "New", creation_tag)
+                self.makeTaskActionBase(prompt, type, "New", creation_tag, params)
             task_12 = self.curr_task
             self.slct_task = self.curr_task
             self.selected_tasks = [self.curr_task]
@@ -1182,14 +1182,14 @@ class Manager:
             task2 = self.curr_task
             self.curr_task.extractTask()
             self.curr_task = task2
-            self.makeTaskActionBase(prompt, type, "Delete", creation_tag)
+            self.makeTaskActionBase(prompt, type, "Delete", creation_tag, params)
            
         elif creation_type == "ReqResp":
             if self.curr_task is not None:
-                self.makeTaskActionBase(prompt,"Request","SubTask","user")
+                self.makeTaskActionBase(prompt,"Request","SubTask","user", params)
             else:
-                self.makeTaskActionBase(prompt,"Request","New","user")
-            self.makeTaskActionBase(prompt,"Response","SubTask","assistant")
+                self.makeTaskActionBase(prompt,"Request","New","user", params)
+            self.makeTaskActionBase(prompt,"Response","SubTask","assistant", params)
         elif creation_type == "MoveUp":
             return self.moveCurrentTaskUP()
         elif creation_type == "Divide":
@@ -1201,15 +1201,15 @@ class Manager:
             else:
                 last = prs.pop()
                 for text in prs:
-                    self.makeTaskAction(text, "Request", "Insert", tag)
-                return self.makeTaskAction(last, "Request", "Edit", tag)
+                    self.makeTaskActionBase(text, "Request", "Insert", tag, params)
+                return self.makeTaskActionBase(last, "Request", "Edit", tag, params)
         return self.getCurrTaskPrompts()
 
     def updateTaskParam(self, param):
         self.curr_task.setParam(param)
         return self.getCurrTaskPrompts()
     
-    def makeTaskActionBase(self, prompt, type, creation_type, creation_tag):
+    def makeTaskActionBase(self, prompt, type, creation_type, creation_tag, params = []):
         # print(10*"==")
         # print("Create new task")
         # print("type=",type)
@@ -1323,14 +1323,19 @@ class Manager:
         else:
             return self.getCurrTaskPrompts()
         
-        return self.createOrAddTask(prompt,type, creation_tag, parent,[])
+        return self.createOrAddTask(prompt,type, creation_tag, parent, params)
         
     def createOrAddTask(self, prompt, type, tag, parent, params = []):
         # print('Create task')
         # print('Params=',params)
+        res, task_params = self.helper.getParams(type)
+        if res:
+            task_params.update(params)
+        else:
+            task_params = params
         info = TaskDescription(prompt=prompt, prompt_tag=tag, 
                                                              helper=self.helper, requester=self.requester, manager=self, 
-                                                             parent=parent, params=params)
+                                                             parent=parent, params=task_params)
         # if params is not None:
             # info.params = params
         curr_cmd = cr.createTaskByType(type, info)
@@ -1434,6 +1439,11 @@ class Manager:
         info.helper = self.helper
         info.requester=self.requester
         info.manager = self
+        res, task_params = self.helper.getParams(task_type)
+        if res:
+            task_params.update(info.params)
+            info.params = task_params
+
         curr_cmd = cr.createTaskByType(task_type, info)
         self.cmd_list.append(curr_cmd)
         return self.runCmdList()
@@ -2462,8 +2472,12 @@ class Manager:
         for link in self.tc_links_chain:
             outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
             if 'insert' in link and 'prompt' in link:
+                param_task = link['in'].copyAllParams(True)
                 self.curr_task = link['in']
-                self.makeTaskActionPro(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'])
+                if link['insert']:
+                    self.makeTaskActionPro(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'], params=param_task)
+                else:
+                    self.makeTaskActionPro(prompt=link['prompt'],type=link['type'], creation_type='SubTask', creation_tag=link['tag'], params=param_task)
                 intask = self.slct_task
             else:
                 intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
