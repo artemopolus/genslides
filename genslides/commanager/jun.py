@@ -2483,10 +2483,11 @@ class Manager:
                 param_task = link['in'].copyAllParams(True)
                 self.curr_task = link['in']
                 if link['insert']:
-                    self.makeTaskActionPro(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'], params=param_task)
+                    self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'], params=param_task)
+                    intask = self.slct_task
                 else:
-                    self.makeTaskActionPro(prompt=link['prompt'],type=link['type'], creation_type='SubTask', creation_tag=link['tag'], params=param_task)
-                intask = self.slct_task
+                    self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='SubTask', creation_tag=link['tag'], params=param_task)
+                    intask = self.curr_task
             else:
                 intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
             
