@@ -666,13 +666,17 @@ class Projecter:
     def switchToExtTaskManager(self):
         print('Switch to ext task manager')
         man = self.actioner.manager
-        task_actioner = man.curr_task.getActioner()
+        task = man.curr_task
+        self.switchToTargetInExtTreeTask(task)
+    
+    def switchToTargetInExtTreeTask(self, task):
+        task_actioner = task.getActioner()
         if task_actioner != None and self.tmp_actioner == None:
-            self.tmp_actioner_task = man.curr_task
+            self.tmp_actioner_task = task
             self.tmp_actioner = self.actioner
             self.actioner = task_actioner
             self.actioner.loadStdManagerTasks()
-            print('Switch on actioner of', man.curr_task.getName())
+            print('Switch on actioner of', task.getName())
             print('Path:', self.actioner.getPath())
             print('Man:', self.actioner.manager.getName())
             # print('Tasks:',[t.getName() for t in self.actioner.manager.task_list])
@@ -1921,4 +1925,20 @@ class Projecter:
         self.actioner.manager.fixTasks()
         return self.actioner.updateUIelements() 
 
+    def getCurManInExtTreeTasks(self):
+        man = self.actioner.manager
+        out = []
+        for task in man.task_list:
+            if task.checkType('InExtTree'):
+                out.append(task.getName())
+        return gr.CheckboxGroup(choices=out, interactive=True)
+    
+    def updateInExtTreeTasksByName(self, names : list[str]):
+        man = self.actioner.manager
+        for name in names:
+            task = man.getTaskByName(name)
+            if task != None and task.checkType('InExtTree'):
+                self.switchToTargetInExtTreeTask(task)
+                self.backToDefaultActioner()
+        return self.actioner.updateUIelements() 
 

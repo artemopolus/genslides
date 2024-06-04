@@ -590,8 +590,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 gr.Label('Manipulate actioner')
                             with gr.Row():
-                                updinexttree_btn = gr.Button('Updata InExtTree act')
-                            with gr.Row():
                                 load_extproj_act_btn = gr.Button('Set Act InOutExtTree')
                                 reset_initact_btn = gr.Button('Set Act ProjectBase')
                             with gr.Row():
@@ -624,6 +622,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             mantsklist_drd, 
                             manalltsklist_drd, 
                             exttargettask_drd]
+                        with gr.Tab('Cmds'):
+                            with gr.Row():
+                                updinexttree_btn = gr.Button('Update InExtTree act')
+                            with gr.Row():
+                                getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
+                            with gr.Row():
+                                inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
+                            with gr.Row():
+                                updselinexttreetasks_btn = gr.Button('Update selected')
+
+                                getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
                         
                         manextinfobrowse_btn.click(fn=projecter.loadMangerExtInfoExtWithBrowser, outputs=maninfoextout)
                         manextinfocurtask_btn.click(fn=projecter.loadMangerExtInfoExtForCurTask, outputs=maninfoextout)
@@ -753,6 +762,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
 
+            updselinexttreetasks_btn.click(fn=projecter.updateInExtTreeTasksByName, inputs=[inexttretasklist_chk], outputs=std_output_list)
             loadtaskintomanbrow_btn.click(fn=projecter.loadAdditionalTasksInManager, outputs=std_output_list)
 
             multishiftpartag_btn.click(fn=projecter.shiftParentTagForMultiSelect, inputs=[shiftpartag_sld], outputs=std_output_list)
