@@ -167,6 +167,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             go_brchfrk_btn = gr.Button(value='Go to fork')
 
                         with gr.Row():
+                            viewhiddenmsgs_chck = gr.Checkbox(label='Hide task(s)', value=True)
+                        with gr.Row():
                             sec_msg = gr.Chatbot(height=700)
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
@@ -764,6 +766,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
+            viewhiddenmsgs_chck.input(fn=projecter.setHideTaskStatus, inputs=[viewhiddenmsgs_chck], outputs=std_output_list)
 
             updselinexttreetasks_btn.click(fn=projecter.updateInExtTreeTasksByName, inputs=[inexttretasklist_chk], outputs=std_output_list)
             loadtaskintomanbrow_btn.click(fn=projecter.loadAdditionalTasksInManager, outputs=std_output_list)

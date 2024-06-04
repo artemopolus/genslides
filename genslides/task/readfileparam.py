@@ -152,7 +152,7 @@ class ReadFileParamTask(ReadFileTask):
             return value, out["role"],out["content"]
         return value,"user",""
  
-    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+    def getLastMsgAndParent(self, hide_task = True) -> (bool, list, BaseTask):
         val = []
         rres, pparam = self.getParamStruct("path_to_read")
         if rres and "read_dial" in pparam and pparam["read_dial"]:

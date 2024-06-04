@@ -25,6 +25,7 @@ class Actioner():
         self.update_state = 'init'
         self.is_executing = False
         self.executing_man = None
+        self.hide_task = True
 
     def setManager(self, manager : Manager.Manager):
         if manager != self.std_manager and not manager.is_loaded:
@@ -827,7 +828,7 @@ class Actioner():
             stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
             rawgraph = self.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
-            out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=hide_tasks)
+            out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.hide_task)
             out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
             # print('act:',out)
             return out

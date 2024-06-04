@@ -1952,4 +1952,6 @@ class Projecter:
             FileManager.copyFile(Loader.Loader.getUniPath(task.getJsonFilePath()), Loader.Loader.getUniPath(trg_path))
         print('Copying done')
 
-
+    def setHideTaskStatus(self, value):
+        self.actioner.hide_task = value
+        return self.actioner.updateUIelements() 

@@ -365,10 +365,11 @@ class TextTask(BaseTask):
     def copyParentMsg(self):
         self.msg_list = self.getRawParentMsgs()
         
-    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
-        res, pparam = self.getParamStruct('hidden', only_current=True)
-        if res and pparam['hidden']:
-            return False, [], self.parent
+    def getLastMsgAndParent(self, hide_task = True) -> (bool, list, BaseTask):
+        if hide_task:
+            res, pparam = self.getParamStruct('hidden', only_current=True)
+            if res and pparam['hidden']:
+                return False, [], self.parent
         # TODO: можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         val = [{"role":self.getLastMsgRole(), 
                 "content": self.findKeyParam(self.getLastMsgContent())}]
@@ -417,13 +418,13 @@ class TextTask(BaseTask):
             text.replace(trg_old, trg_new)
             msg['content'] = text
  
-    def getMsgs(self, except_task = []):
+    def getMsgs(self, except_task = [], hide_task = True):
         # print("Get msgs excluded ",except_task)
         task = self
         index = 0
         out = []
         while(index < 1000):
-            res, msg, par = task.getLastMsgAndParent()
+            res, msg, par = task.getLastMsgAndParent(hide_task)
             if res and task.getName() not in except_task:
                 # print(task.getName(),"give", len(msg), "msg")
                 msg.extend(out)

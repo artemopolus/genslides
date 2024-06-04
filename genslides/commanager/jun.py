@@ -1858,7 +1858,7 @@ class Manager:
         if self.curr_task is None:
             print('No current task')
             return
-        msgs = self.curr_task.getMsgs()
+        msgs = self.curr_task.getMsgs(hide_task=hide_tasks)
         out_prompt = ""
         if msgs:
             out_prompt = msgs[-1]["content"]

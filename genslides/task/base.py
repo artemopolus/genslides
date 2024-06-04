@@ -1292,7 +1292,7 @@ class BaseTask():
     def getRawMsgs(self):
         return None
     
-    def getMsgs(self, except_task = []):
+    def getMsgs(self, except_task = [], hide_task = True):
         return None
     
     def findKeyParam(self, text: str):
@@ -1392,7 +1392,7 @@ class BaseTask():
             return 0
         return 1
 
-    def getLastMsgAndParent(self):
+    def getLastMsgAndParent(self, hide_task = True):
         return False, [], self.parent
     
     def getJsonFilePath(self):
