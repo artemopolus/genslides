@@ -27,6 +27,11 @@ def copyDirToDir(src_path : str, trg_path : str):
     files = distutils.dir_util.copy_tree(src=src_path, dst=trg_path)
     # print('Copy:\n', files)
 
+def copyFile(filepath, folderpath):
+    srcpath = Path(filepath)
+    trgpath = Path(folderpath) / srcpath.name
+    shutil.copyfile(srcpath, trgpath)
+
 
 def copyFiles(src_folder, trg_folder, trg_files = []):
     print('Copy files from', src_folder,'to', trg_folder,':', trg_files)

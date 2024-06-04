@@ -1393,3 +1393,6 @@ class BaseTask():
 
     def getLastMsgAndParent(self):
         return False, [], self.parent
+    
+    def getJsonFilePath(self):
+        return ""

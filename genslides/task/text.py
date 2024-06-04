@@ -596,6 +596,9 @@ class TextTask(BaseTask):
         except:
             print('Can\'t save json file')
 
+    def getJsonFilePath(self):
+        return self.path
+
     def deleteJsonFile(self):
         path = Loader.getUniPath(self.path)
         print('Remove file', path)

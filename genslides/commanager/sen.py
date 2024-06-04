@@ -1941,4 +1941,14 @@ class Projecter:
                 self.switchToTargetInExtTreeTask(task)
                 self.backToDefaultActioner()
         return self.actioner.updateUIelements() 
+    
+    def copyManagerTaskFilesToAnotherFolder(self):
+        man = self.actioner.manager
+        
+        trg_path = Loader.Loader.getDirPathFromSystem()
+        print(f"Target path: {trg_path}")
+        for task in man.task_list:
+            print(f"Copy file by path {task.getJsonFilePath()}")
+            FileManager.copyFile(Loader.Loader.getUniPath(task.getJsonFilePath()), Loader.Loader.getUniPath(trg_path))
+
 

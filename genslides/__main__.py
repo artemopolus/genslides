@@ -495,6 +495,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     tempman_drp = gr.Dropdown()
                                     movetmp2tmp_btn = gr.Button('Move curman->selman')
                                 with gr.Row():
+                                    copycurmantaskstofolder_btn = gr.Button('Copy tasks in another folder')
+                                    copycurmantaskstofolder_btn.click(fn=projecter.copyManagerTaskFilesToAnotherFolder)
+                                with gr.Row():
                                     get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
                                 with gr.Row():
                                     load_prman_btn = gr.Button(value='Load to trgtask')
