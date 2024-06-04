@@ -830,7 +830,7 @@ class BaseTask():
     
     
     def fixQueueByChildList(self):
-        # print('Fix queue of', self.getName(),'by childs and links list')
+        # print('Fix queue of', self.getName(),'by childs', [t.getName() for t in self.getChilds()], 'and links list')
         to_del = []
         for i, child in enumerate(self.childs):
             found = False
@@ -862,7 +862,7 @@ class BaseTask():
             if 'idx' not in trg:
                 trg['idx'] = 0
 
-
+        self.syncQueueToParam()
 
     def getHoldGarlands(self):
         return [t.target for t in self.affect_to_ext_list]

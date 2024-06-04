@@ -195,13 +195,14 @@ class Manager:
         return self.createTreeOnSelectedTasks(action_type,"Collect")
 
     def createTreeOnSelectedTasks(self, action_type : str, task_type : str):
+        print(action_type,' on ', task_type, 'cur task', self.curr_task.getName(),'with selected', self.getSelectedTask().getName())
         first = True
         trg = self.curr_task
         task_list = self.selected_tasks.copy()
         for task in task_list:
             self.curr_task = trg
             role = task.getLastMsgRole()
-            self.makeTaskActionBase("",task_type, action_type, role,[])
+            self.makeTaskAction("",task_type, action_type, role,[])
             # if first:
             #     parent = None
             #     if action_type == 'SubTask':
@@ -1101,11 +1102,11 @@ class Manager:
         return self.makeTaskAction("", "Response",selected_action, "assistant")
         
  
-    def makeTaskAction(self, prompt, type, creation_type, creation_tag):
+    def makeTaskAction(self, prompt, type, creation_type, creation_tag, params = []):
         if creation_type in self.getMainCommandList() or creation_type in self.vars_param:
-            return self.makeTaskActionBase(prompt, type, creation_type, creation_tag)
+            return self.makeTaskActionBase(prompt, type, creation_type, creation_tag, params)
         elif creation_type in self.getSecdCommandList():
-            return self.makeTaskActionPro(prompt, type, creation_type, creation_tag)
+            return self.makeTaskActionPro(prompt, type, creation_type, creation_tag, params)
         saver = SaveData()
         chck = gr.CheckboxGroup(choices=saver.getMessages())
         return "", "" ,self.drawGraph(),"" , "user", chck
@@ -1631,7 +1632,6 @@ class Manager:
     def fixTasks(self):
         for task in self.task_list:
             task.fixQueueByChildList()
-        return self.getCurrTaskPrompts()
     
     def updateAndExecuteStep(self, msg):
         self.curr_task.resetTreeQueue()

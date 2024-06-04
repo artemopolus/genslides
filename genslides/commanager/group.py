@@ -401,9 +401,9 @@ class Actioner():
             if 'select' in param:
                 self.manager.selected_tasks = []
                 self.manager.selected_tasks.append(self.manager.getTaskByName(param['select']))
-            return self.manager.makeTaskActionBase(prompt, type1, creation_type, creation_tag)
+            return self.manager.makeTaskActionBase(prompt, type1, creation_type, creation_tag, [])
         elif creation_type in self.manager.getSecdCommandList():
-            return self.manager.makeTaskActionPro(prompt, type1, creation_type, creation_tag)
+            return self.manager.makeTaskActionPro(prompt, type1, creation_type, creation_tag, [])
         elif creation_type == "MoveCurrTaskUP":
             return self.manager.moveTaskUP(self.manager.curr_task)
         elif creation_type == "EdCp1":

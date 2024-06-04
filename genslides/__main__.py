@@ -904,7 +904,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             project_manLoad.click(fn=projecter.loadManager, outputs=std_output_list)
             project_manBrow.click(fn=projecter.loadManagerFromBrowser, outputs=std_output_list)
 
-            fix_task_btn.click(fn=manager.fixTasks, outputs=std_output_list)
+            fix_task_btn.click(fn=projecter.fixCurManQtasks, outputs=std_output_list)
 
             # run_iter_btn.click(fn=manager.updateSteppedTree, outputs=std_output_list, api_name='runIteration')
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")

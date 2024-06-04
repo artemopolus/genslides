@@ -1917,6 +1917,8 @@ class Projecter:
                 suftext += task.getLastMsgContentRaw() + '\n'
         return pretext, text, suftext
 
-        
+    def fixCurManQtasks(self):
+        self.actioner.manager.fixTasks()
+        return self.actioner.updateUIelements() 
 
 
