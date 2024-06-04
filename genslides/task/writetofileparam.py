@@ -67,7 +67,7 @@ class WriteToFileParamTask(WriteToFileTask):
         else:
             print("No struct param=",self.getName())
 
-        # print(self.getName(),"write =", path)
+        print(self.getName(),"write to", path)
         writer.writeToFile(path, text, ctrl)
        
     def update(self, input : TaskDescription = None):

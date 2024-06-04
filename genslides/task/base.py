@@ -1349,6 +1349,7 @@ class BaseTask():
             if task1 is not None:
                 task1.removeChild(self)
                 task1.addChild(task)
+            task.saveAllParams()
 
     def extractTaskList(self, del_tasks):
         buds = []

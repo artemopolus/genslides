@@ -135,6 +135,7 @@ class Loader:
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
         dirpath = askdirectory() # show an "Open" dialog box and return the path to the selected file
+        del app
         path = Path(dirpath)
         filename = PurePosixPath(path)
         if manager_path != '':

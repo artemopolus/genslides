@@ -1950,5 +1950,6 @@ class Projecter:
         for task in man.task_list:
             print(f"Copy file by path {task.getJsonFilePath()}")
             FileManager.copyFile(Loader.Loader.getUniPath(task.getJsonFilePath()), Loader.Loader.getUniPath(trg_path))
+        print('Copying done')
 
 
