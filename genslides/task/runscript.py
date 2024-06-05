@@ -47,11 +47,11 @@ class RunScriptTask(ResponseTask):
                 if targets_type == 'args':
                     # print('Get args:', path_tmp)
                     if isinstance(path_tmp, list):
-                        onlyfiles = path_tmp
+                        onlyfiles = path_trgs_tmp
                     else:
                         print('No args')
                         return
-                if targets_type == 'single':
+                elif targets_type == 'single':
                     if 'script_param' in pparam:
                         if exe_type == 'py' and 'path_to_python' in pparam:
                             target_script = ' '.join([pparam['path_to_python'],pparam['script_param']])
@@ -117,7 +117,7 @@ class RunScriptTask(ResponseTask):
                 for opt in file:
                     n_file.append(self.findKeyParam(opt))
                 file = n_file
-            # print("Run script", file,'in', workspace)
+            print("Run script", file,'in', workspace)
             result = subprocess.run(file, capture_output=True, text=True, cwd=workspace, shell=True)
             if result.returncode:
                 done = False

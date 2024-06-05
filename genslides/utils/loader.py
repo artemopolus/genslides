@@ -105,6 +105,7 @@ class Loader:
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
         filepath = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+        app.destroy()
         path = Path(filepath)
         if manager_path != '':
             return Loader.convertFilePathToTag(path, manager_path)
@@ -135,7 +136,7 @@ class Loader:
         app.withdraw() # we don't want a full GUI, so keep the root window from appearing
         app.attributes('-topmost', True)
         dirpath = askdirectory() # show an "Open" dialog box and return the path to the selected file
-        del app
+        app.destroy()
         path = Path(dirpath)
         filename = PurePosixPath(path)
         if manager_path != '':

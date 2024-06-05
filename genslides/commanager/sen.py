@@ -615,6 +615,9 @@ class Projecter:
         return self.actioner.updateTaskManagerUI()
     
     def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
+        if key == 'path_to_trgs':
+            val_arr = mnl_value.split(';')
+            mnl_value = val_arr
         print('Set task key value:','|'.join([param_name,key,str(slt_value),str(mnl_value)]))
         self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
         return self.actioner.updateTaskManagerUI()

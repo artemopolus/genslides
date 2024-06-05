@@ -2003,24 +2003,13 @@ class Manager:
             return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
                     gr.Textbox(str(filename)))
         elif param_name == 'script' and param_key == 'path_to_trgs':
-            app = Tk()
-            app.withdraw()  
-            app.attributes('-topmost', True)
-            filename_src = list(askopenfilenames() )
-            res, data = self.curr_task.getParamStruct(param_name)
-            # data['targets_type'] = 'args'
-            filename = []
-            print('Get filenames for args:', filename)
-            for val in filename_src:
-                filename.append( val)
+            filename = "[[project:RunScript:python]] "
+            filename += Loader.Loader.getFilePathFromSystem(manager_path=self.getPath())
             return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
                     gr.Textbox(str(filename)))
 
         elif param_key == 'path_to_write':
-            app = Tk()
-            app.withdraw() # we don't want a full GUI, so keep the root window from appearing
-            app.attributes('-topmost', True)
-            filename = askdirectory() # show an "Open" dialog box and return the path to the selected file
+            filename = Loader.Loader.getDirPathFromSystem(self.getPath())
             return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
         elif param_key == 'model':
             res, data = self.curr_task.getParamStruct(param_name)
