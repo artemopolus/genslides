@@ -614,13 +614,16 @@ class Projecter:
         self.makeTaskAction('','','RemoveTaskParam','', {'name':param_name})
         return self.actioner.updateTaskManagerUI()
     
-    def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
+    def setTaskKeyValue(self, param_name, key, mnl_value):
         if key == 'path_to_trgs':
             val_arr = mnl_value.split(';')
             mnl_value = val_arr
-        print('Set task key value:','|'.join([param_name,key,str(slt_value),str(mnl_value)]))
-        self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':slt_value,'manual':mnl_value})
+        print('Set task key value:','|'.join([param_name,key,str(mnl_value)]))
+        self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'manual':mnl_value})
         return self.actioner.updateTaskManagerUI()
+    
+    def setSelectOptionToValue(self, name, key, option):
+        return option
     
     def addTaskNewKeyValue(self, param_name, key, value):
         print('Set task key value:','|'.join([param_name,key,str(value)]))

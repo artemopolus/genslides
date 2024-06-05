@@ -323,9 +323,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Column():
                                 param_key = gr.Dropdown(choices=[],label="Key")
                                 param_type.select(fn=projecter.getTaskKeys, inputs=param_type, outputs=param_key)
-                                param_slcval = gr.Dropdown(choices=[],label="Value")
-                                param_mnlval = gr.Textbox(label='value',info='manual',lines=4)
+                                param_slcval = gr.Dropdown(choices=[],label="Options")
+                                paramslctset_btn = gr.Button('Set option to value')
+                                param_mnlval = gr.Textbox(label='Value',info='manual',lines=4)
                                 param_edit = gr.Button("Edit param")
+
+                                paramslctset_btn.click(fn=projecter.setSelectOptionToValue, inputs=[param_type, param_key,param_slcval], outputs=[param_mnlval])
 
                                 addkey_key_txt = gr.Textbox(label='New key to add')
                                 addkey_val_txt = gr.Textbox(label='New key value')
@@ -879,7 +882,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
  
             param_apnd.click(fn=parameters_manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
             param_rmve.click(fn=parameters_manager.removeParamFromTask, inputs=[param_type], outputs=std_output_list)
-            param_edit.click(fn=parameters_manager.setTaskKeyValue, inputs=[param_type, param_key, param_slcval, param_mnlval], outputs=std_output_list)
+            param_edit.click(fn=parameters_manager.setTaskKeyValue, inputs=[param_type, param_key, param_mnlval], outputs=std_output_list)
             addkey_apd_btn.click(fn=parameters_manager.addTaskNewKeyValue, inputs=[param_type, addkey_key_txt, addkey_val_txt], outputs=std_output_list)
 
 

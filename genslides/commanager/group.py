@@ -420,7 +420,7 @@ class Actioner():
         elif creation_type == "RemoveTaskParam":
             return self.manager.removeParamFromTask(param['name'])
         elif creation_type == "SetParamValue":
-            return self.manager.setTaskKeyValue(param['name'], param['key'], param['select'], param['manual'])
+            return self.manager.setTaskKeyValue(param['name'], param['key'], param['manual'])
         elif creation_type == "SetCurrentExtTaskOptions":
             self.manager.setCurrentExtTaskOptions(param['names'])
         elif creation_type == "ResetAllExtTaskOptions":

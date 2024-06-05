@@ -2049,11 +2049,8 @@ class Manager:
         return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
                 gr.Textbox(value=''))
     
-    def setTaskKeyValue(self, param_name, key, slt_value, mnl_value):
-        if mnl_value == "":
-            info = TaskDescription(target=self.curr_task, params={'name':param_name,'key':key,'select':slt_value})
-        else:
-            info = TaskDescription(target=self.curr_task, params={'name':param_name,'key':key,'select':mnl_value})
+    def setTaskKeyValue(self, param_name, key, mnl_value):
+        info = TaskDescription(target=self.curr_task, params={'name':param_name,'key':key,'select':mnl_value})
         cmd = edit.EditParamCommand(info)
         self.cmd_list.append(cmd)
         return self.runIteration('')
