@@ -667,7 +667,7 @@ class Projecter:
         print('Switch to ext task manager')
         man = self.actioner.manager
         task = man.curr_task
-        self.switchToTargetInExtTreeTask(task)
+        return self.switchToTargetInExtTreeTask(task)
     
     def switchToTargetInExtTreeTask(self, task):
         task_actioner = task.getActioner()
