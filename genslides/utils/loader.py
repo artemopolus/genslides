@@ -125,7 +125,7 @@ class Loader:
             filename = '[[manager:path:'+ tag +']]/'+ str_rel_path
         except Exception as e:
             print('Manager folder is not relative:',e,spath)
-            filename = PurePosixPath(path)
+            filename = str(PurePosixPath(path))
             return filename
         return filename
 

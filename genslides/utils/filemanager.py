@@ -33,7 +33,7 @@ def copyFile(filepath, folderpath):
     shutil.copyfile(srcpath, trgpath)
 
 
-def copyFiles(src_folder, trg_folder, trg_files = []):
+def copyFiles(src_folder, trg_folder, trg_files = [], exld_files = []):
     print('Copy files from', src_folder,'to', trg_folder,':', trg_files)
     if len(trg_files):
         files = trg_files
@@ -41,9 +41,10 @@ def copyFiles(src_folder, trg_folder, trg_files = []):
         files = listdir(src_folder)
     createFolder(trg_folder)
     for file in files:
-        path = join(src_folder, file)
-        if isfile(path):
-            shutil.copyfile(path, join(trg_folder, file))
+        if file not in exld_files:
+            path = join(src_folder, file)
+            if isfile(path):
+                shutil.copyfile(path, join(trg_folder, file))
 
 def createFolder(path):
     if not os.path.exists( path ):
@@ -74,6 +75,9 @@ def getFilesInFolder(path: str):
 
 def getFilesPathInFolder(path: str):
     return [join(path,f) for f in listdir(path) if isfile(join(path, f))]
+
+def getFilenamesFromFilepaths( paths : list[str]):
+    return [Path(p).name for p in paths]
 
 def getFoldersInFolder(path:str):
     return [f for f in listdir(path) if isdir(join(path, f))]

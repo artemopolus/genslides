@@ -12,6 +12,7 @@ import genslides.utils.finder as Finder
 import genslides.utils.searcher as Searcher
 import genslides.utils.filemanager as FileManager
 import genslides.utils.readfileman as Reader
+import genslides.utils.writer as Writer
 
 from os import listdir
 from os.path import isfile, join
@@ -645,6 +646,16 @@ class Projecter:
         self.makeTaskAction(prompt,"SubTask","SubExtProject","")
         return self.actioner.updateTaskManagerUI()
     
+    def getPrivMangerDefaultInfo(self):
+        man = self.actioner.manager
+        if len(man.multiselect_tasks):
+            return {'actions':[],'repeat':3,'task_names':[t.getName() for t in man.multiselect_tasks]}, gr.Button(interactive=True)
+        else:
+            return {}, gr.Button(interactive=False)
+
+    def initPrivManagerByInfo(self, params):
+        self.makeTaskAction("","","InitPrivManager","", params)
+        return self.actioner.updateTaskManagerUI()
 
     def initPrivManager(self):
         print("Init empty private manager")
@@ -1551,6 +1562,43 @@ class Projecter:
         path = Loader.Loader.checkManagerTag(taskpath, man.getPath(), False)
         return self.loadMangerExtInfoExt(path)
     
+    def loadTmpManagerInfoForCopying(self):
+        man = self.actioner.manager
+        path = Loader.Loader.getDirPathFromSystem(man.getPath())
+        manpath = Loader.Loader.getUniPath(Finder.findByKey(path, man, None, man.helper))
+        buds_info, tasks_info, all_tasks = Searcher.ProjectSearcher.openProject(manpath)
+        output = []
+        for tname in tasks_info:
+            output.append([tname,""])
+        return (
+            output,
+            ','.join([t.getName() for t in man.task_list]),
+            manpath
+                )
+    
+    def copyExternalTmpManagerToCurrProject(self, change_table, path):
+        man = self.actioner.manager
+        start_files = FileManager.getFilesPathInFolder(Loader.Loader.getUniPath(man.getPath()))
+        start_names = FileManager.getFilenamesFromFilepaths(start_files)
+        FileManager.copyFiles(path, Loader.Loader.getUniPath(man.getPath()),exld_files=start_names)
+        curr_files = FileManager.getFilesPathInFolder(Loader.Loader.getUniPath(man.getPath()))
+        trg_files = [t for t in curr_files if t not in start_files]
+        print(f"Copy external temporary manager {path} to current tmp man, ignore:\n{start_names}")
+        for task_path in curr_files:
+            task_info = Reader.ReadFileMan.readJson(task_path)
+            if 'parent' in task_info:
+                parentname = task_info['parent']
+                for pair in change_table:
+                    if parentname == pair[0]:
+                        print(f"Change {pair[0]} to {pair[1]} for {task_path}")
+                        task_info['parent'] = pair[1]
+                        break
+                Writer.writeJsonToFile(task_path, task_info)
+        man.is_loaded = False
+        man.loadTasksListFileBased(files=trg_files)
+
+        print('Done')
+        return self.actioner.updateUIelements()
 
     def loadMangerExtInfoExt(self, path):
         manpath = Finder.findByKey(path,self.actioner.manager, None, self.actioner.manager.helper)

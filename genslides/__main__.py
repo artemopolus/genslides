@@ -467,13 +467,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             
                     with gr.Tab('Manager'):
                         with gr.Row():
-                            with gr.Column():
-                                with gr.Row():
-                                    name_prman = gr.Text(value='None', label = 'Manager')
-                                with gr.Row():
-                                    init_prman_btn = gr.Button(value='Init manager from MultiTasks')
-                                    rset_prman_btn = gr.Button(value='Remove manager')
-                                    stop_prman_btn = gr.Button(value='RM man & Save tasks to BASE')
+                            with gr.Tab('List'):
                                 with gr.Row():
                                     # get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
                                     get_tempman = gr.Radio(label='Managers list')
@@ -486,22 +480,60 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 with gr.Row():
                                     updt_prman_btn = gr.Button(value='Updt managers list')
                                 with gr.Row():
-                                    gr.Button('Save cur man info').click(fn=projecter.saveCurrManInfo)
-                                    gr.Button('Save Cur Tmp Man').click(fn=projecter.saveTmpMan)
-                                    loadtaskintomanbrow_btn = gr.Button('Load task into manager from browser')
+                                    gr.Button('Save Cur Tmp man info files').click(fn=projecter.saveCurrManInfo)
+                                    gr.Button('Save Cur Tmp Man to location').click(fn=projecter.saveTmpMan)
+                            with gr.Tab('Create'):
                                 with gr.Row():
-                                    gr.Label(value='Multiselect tasks (MST) action')
+                                    name_prman = gr.Text(value='None', label = 'Manager')
+                                with gr.Column():
+                                    getinittmpmaninfo_btn = gr.Button('Get init man info')
+                                    inittmpmaninfo_jsn = gr.JSON()
+                                    init_prman_btn = gr.Button(value='Init manager from MultiTasks', interactive=False)
+
+                                    getinittmpmaninfo_btn.click(fn=projecter.getPrivMangerDefaultInfo, outputs=[
+                                        inittmpmaninfo_jsn,
+                                        init_prman_btn
+                                    ])
+                            with gr.Tab('Remove'):
+                                rset_prman_btn = gr.Button(value='Remove manager')
+                                stop_prman_btn = gr.Button(value='RM man & Save tasks to BASE')
+                            with gr.Tab('MultiSelect'):
+                                # with gr.Row():
+                                    # gr.Label(value='Multiselect tasks (MST) action')
+                                gr.Textbox("std -- Base Manager\ntmp -- Temporary Manager\nMST -- Multiselected task of manager",lines=3)
                                 with gr.Row():
                                     addmultitotmp_btn = gr.Button(value='Add stdMST std->tmp man')
                                     rmvmultifrtmp_btn = gr.Button(value='Rmv tmpMST from tmp man')
                                     movemulti2std_btn = gr.Button(value='Move tmpMST to std man')
                                     movemulti2tmp_btn = gr.Button(value='Move stdMST to tmp man')
                                 with gr.Row():
-                                    tempman_drp = gr.Dropdown()
+                                    tempman_drp = gr.Dropdown(label='Selected Manager')
                                     movetmp2tmp_btn = gr.Button('Move curman->selman')
+                            with gr.Tab('Files management'):
                                 with gr.Row():
                                     copycurmantaskstofolder_btn = gr.Button('Copy tasks in another folder')
-                                    copycurmantaskstofolder_btn.click(fn=projecter.copyManagerTaskFilesToAnotherFolder)
+                                with gr.Row():
+                                    settmpmanagertasks_btn = gr.Button('Get Tmp Manager Folder')
+                                with gr.Row():
+                                    newtmpmanname_txt = gr.Textbox(label='Tmp Manager Name')
+                                with gr.Row():
+                                    pathtotrgtmpman_txt = gr.Textbox(label='Path to tmp manager folder')
+                                with gr.Row():
+                                    multiselectedlistcurman_txt = gr.Textbox(label="Tasks of current manager")
+                                with gr.Row():
+                                    tmpmanagerexttasks_dtf = gr.DataFrame(headers=['External', 'Target'],type='array', col_count=2)
+                                with gr.Row():
+                                    addextmantasksintocurman = gr.Button('Copy & change tasks in cur tmp man')
+                                
+                                loadtaskintomanbrow_btn = gr.Button('Load task into manager from browser')
+                                copycurmantaskstofolder_btn.click(fn=projecter.copyManagerTaskFilesToAnotherFolder)
+                                settmpmanagertasks_btn.click(fn=projecter.loadTmpManagerInfoForCopying, 
+                                                             outputs=[
+                                                                 tmpmanagerexttasks_dtf,
+                                                                 multiselectedlistcurman_txt,
+                                                                 pathtotrgtmpman_txt
+                                                                 ])
+                            with gr.Tab('Other'):
                                 with gr.Row():
                                     get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
                                 with gr.Row():
@@ -527,7 +559,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     # setname_prman_btn = gr.Button('Set name')
                                     # exttaskopt_chgr = gr.CheckboxGroup()
                         # with gr.Tab("Actions"):
-                            with gr.Column():
+                            with gr.Tab('Actions'):
                                 actions_list = gr.CheckboxGroup(label='Action list')
                                 actpack_load_btn.click(fn=projecter.loadActPack, inputs=[actpack_saved_lst], outputs=[actions_list])
                                 with gr.Row():
@@ -641,6 +673,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 updselinexttreetasks_btn = gr.Button('Update selected')
 
                                 getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
+
+
                         
                         manextinfobrowse_btn.click(fn=projecter.loadMangerExtInfoExtWithBrowser, outputs=maninfoextout)
                         manextinfocurtask_btn.click(fn=projecter.loadMangerExtInfoExtForCurTask, outputs=maninfoextout)
@@ -769,6 +803,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
+            addextmantasksintocurman.click(fn=projecter.copyExternalTmpManagerToCurrProject,
+                                                               inputs=[
+                                                                   tmpmanagerexttasks_dtf,
+                                                                   pathtotrgtmpman_txt
+                                                               ], outputs=std_output_list
+                                                               )
+            
             viewhiddenmsgs_chck.input(fn=projecter.setHideTaskStatus, inputs=[viewhiddenmsgs_chck], outputs=std_output_list)
 
             updselinexttreetasks_btn.click(fn=projecter.updateInExtTreeTasksByName, inputs=[inexttretasklist_chk], outputs=std_output_list)
@@ -802,7 +843,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)
             movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)
 
-            init_prman_btn.click(fn=manipulate_manager.initPrivManager, outputs=std_full)
+            init_prman_btn.click(fn=manipulate_manager.initPrivManagerByInfo, inputs=[inittmpmaninfo_jsn], outputs=std_full)
             get_tempman.input(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
             load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)
             updinexttree_btn.click(fn=manipulate_manager.activateExtTask, outputs=std_full)
