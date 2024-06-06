@@ -1952,6 +1952,13 @@ class Projecter:
         self.tree3plaintext_idx = 0
         return self.getTree3PlainText()
     
+    def editPromptTree3PlainText(self, prompt):
+        task = self.tree3plaintext_tasks[self.tree3plaintext_idx]
+        role = task.getLastMsgRole()
+        self.actioner.manager.curr_task = task
+        self.makeRequestAction(prompt,"Edit", role,[])
+        return self.getTree3PlainText()
+    
     def moveUpTree3PlainText(self):
         if self.tree3plaintext_idx > 0:
             self.tree3plaintext_idx += -1

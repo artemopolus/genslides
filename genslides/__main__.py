@@ -250,15 +250,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     moveupplaintext_btn = gr.Button('Up')
                 with gr.Row():
-                    curtext_txt = gr.Textbox()
+                    curtext_txt = gr.Textbox(label='Current task', lines=4)
                 with gr.Row():
                     saveplaintextcontent_btn = gr.Button('Save edits')
                     movedwplaintext_btn = gr.Button('Down')
                 with gr.Row():
                     afttext_txt = gr.Textbox()
-                updateplaintext_btn.click(fn=projecter.getConvertTreeTo3PlainText, inputs=[treeplaintexttype_rad], outputs=[pretext_txt, curtext_txt, afttext_txt])
-                moveupplaintext_btn.click(fn=projecter.moveUpTree3PlainText, outputs=[pretext_txt, curtext_txt, afttext_txt])
-                movedwplaintext_btn.click(fn=projecter.moveDwTree3PlainText, outputs=[pretext_txt, curtext_txt, afttext_txt])
+                plaintext_output = [pretext_txt, curtext_txt, afttext_txt]
+                updateplaintext_btn.click(fn=projecter.getConvertTreeTo3PlainText, inputs=[treeplaintexttype_rad], outputs=plaintext_output)
+                moveupplaintext_btn.click(fn=projecter.moveUpTree3PlainText, outputs=plaintext_output)
+                movedwplaintext_btn.click(fn=projecter.moveDwTree3PlainText, outputs=plaintext_output)
+                saveplaintextcontent_btn.click(fn=projecter.editPromptTree3PlainText, inputs=[curtext_txt], outputs=plaintext_output)
             
             with gr.Accordion('Tools', open=False):
                 with gr.Row():
