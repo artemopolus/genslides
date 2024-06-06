@@ -501,11 +501,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 # with gr.Row():
                                     # gr.Label(value='Multiselect tasks (MST) action')
                                 gr.Textbox("std -- Base Manager\ntmp -- Temporary Manager\nMST -- Multiselected task of manager",lines=3)
-                                with gr.Row():
-                                    addmultitotmp_btn = gr.Button(value='Add stdMST std->tmp man')
-                                    rmvmultifrtmp_btn = gr.Button(value='Rmv tmpMST from tmp man')
-                                    movemulti2std_btn = gr.Button(value='Move tmpMST to std man')
-                                    movemulti2tmp_btn = gr.Button(value='Move stdMST to tmp man')
+                                with gr.Column():
+                                    addmultitotmp_btn = gr.Button(value='Add links of Base multiselected to Tmp Manager')
+                                    rmvmultifrtmp_btn = gr.Button(value='Rmv links from Tmp Manager')
+                                    movemulti2std_btn = gr.Button(value='Move Tmp Manager Multiselected tasks to Base')
+                                    movemulti2tmp_btn = gr.Button(value='Move Base Multiselected tasks to Tmp Manager')
                                 with gr.Row():
                                     tempman_drp = gr.Dropdown(label='Selected Manager')
                                     movetmp2tmp_btn = gr.Button('Move curman->selman')

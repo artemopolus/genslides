@@ -506,7 +506,8 @@ class Actioner():
                         notdel_tasks.append(task)
                         # print(task.getManager().getName())
             for task in notdel_tasks:
-                del_tasks.remove(task)
+                if task in del_tasks:
+                    del_tasks.remove(task)
             print('Task to delete:',[t.getName() for t in del_tasks])
             print('Retarget task:',[t.getName() for t in notdel_tasks])
             # Вытаскиваем задачи из цепей
@@ -1019,7 +1020,7 @@ class Actioner():
                 if len(task.getGarlandPart()) > 0:
                     for resp in task.getGarlandPart():
                         if resp not in tasks:
-                            print(f"Move to tmp error: task[{task.getName()}] has link from {recv.getName()}[not in list]")
+                            print(f"Move to tmp error: task[{task.getName()}] has link from {resp.getName()}[not in list]")
                             return
                 if len(task.getHoldGarlands()) > 0:
                     for recv in task.getHoldGarlands():

@@ -551,10 +551,10 @@ class Projecter:
     
     def goToNextTree(self):
         print('Go to next tree')
-        if self.actioner.manager != self.actioner.std_manager:
-            self.actioner.manager.sortTreeOrder(check_list=True)
-        else:
-            self.actioner.manager.sortTreeOrder(True)
+        # if self.actioner.manager != self.actioner.std_manager:
+        #     self.actioner.manager.sortTreeOrder(check_list=True)
+        # else:
+        #     self.actioner.manager.sortTreeOrder(True)
         self.actioner.manager.goToNextTree()
         return self.actioner.updateUIelements()
     

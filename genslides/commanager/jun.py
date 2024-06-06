@@ -2687,10 +2687,11 @@ class Manager:
 
         i = 0
         for task in self.tree_arr:
-            if trg_task == task:
-                self.tree_idx = i
+            # if trg_task == task:
+                # self.tree_idx = i
             i += 1
             task.setTreeQueue()
+        # print('Tree idx', self.tree_idx, 'out of', len(self.tree_arr))
 
     def addTask(self, task :BaseTask):
         if task ==None:
@@ -2908,7 +2909,7 @@ class Manager:
         task = man.curr_task
         out = []
         cur_tree = task.getRootParent()
-        man.sortTreeOrder(check)
+        man.sortTreeOrder(True)
         for tree in man.tree_arr:
             sres, sparam = tree.getParamStruct('tree_step', True)
             name = tree.getBranchSummary()
