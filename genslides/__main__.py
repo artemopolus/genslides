@@ -12,7 +12,7 @@ from genslides.commanager.sen import Projecter
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
-
+import genslides.gr_ui as UI
 # from genslides.utils.mliner import Mliner
 
 from PIL.Image import Image
@@ -233,7 +233,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     infochatrecords_btn = gr.Button('Update')
                 with gr.Row():
-                    comparison_chat = gr.Chatbot(height=500)
+                    comparison_chat = gr.Chatbot(height=500, label='Comparison chat')
+                with gr.Column():
+                    comparison_txt = gr.Textbox(label='Comparison input',lines=4)
+
 
                 fullchatrecords_btn.click(fn=projecter.getCopyBranch, inputs = [fullchatrecords_sld], 
                                           outputs=[comparison_chat, infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
@@ -535,6 +538,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                                  multiselectedlistcurman_txt,
                                                                  pathtotrgtmpman_txt
                                                                  ])
+
                             with gr.Tab('Other'):
                                 with gr.Row():
                                     get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
@@ -729,6 +733,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                         })
                         gr.Button('Tokenize').click(fn=projecter.getWordTokenPairs, outputs=tokenizedtext_htxt)
                        
+                    with gr.Tab('Ext Tree Managment'):
+                        UI.exttreemanagerManipulator(projecter)
 
                     with gr.Tab("Others"):
                         parents_list = gr.Dropdown(label="Parent tasks:")
