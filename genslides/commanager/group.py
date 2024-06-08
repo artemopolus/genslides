@@ -1213,6 +1213,53 @@ class Actioner():
         mangetname = man.getName()
         mangetcolor = man.getColor()
         multitasks = ','.join([t.getName() for t in man.multiselect_tasks])
+        return self.convToGradioUI(
+                        r_msgs, 
+                        mancurtaskgetname, 
+                        res_params, 
+                        set_prompt, 
+                        mangettasklist,
+                        mangetcurtaskparamlist, 
+                        curtaskallpars,
+                        gettreenameforradio_names,
+                        gettreenameforradio_trg,
+                        mancurtaskgetbranchsum,
+                        mangetbranchend,
+                        mangetbranchendname,
+                        mangetbranchlist,
+                        mangetbranchmessages,
+                        status_msg,
+                        rawinfo_msgs,
+                        manholdgarlands,
+                        mangetname,
+                        mangetcolor,
+                        multitasks
+
+        )
+
+
+    def convToGradioUI(self, 
+                        r_msgs, 
+                        mancurtaskgetname, 
+                        res_params, 
+                        set_prompt, 
+                        mangettasklist,
+                        mangetcurtaskparamlist, 
+                        curtaskallpars,
+                        gettreenameforradio_names,
+                        gettreenameforradio_trg,
+                        mancurtaskgetbranchsum,
+                        mangetbranchend,
+                        mangetbranchendname,
+                        mangetbranchlist,
+                        mangetbranchmessages,
+                        status_msg,
+                        rawinfo_msgs,
+                        manholdgarlands,
+                        mangetname,
+                        mangetcolor,
+                        multitasks
+                       ):
         out =  (
             r_msgs, 
             # in_prompt ,
