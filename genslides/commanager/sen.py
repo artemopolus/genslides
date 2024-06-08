@@ -59,6 +59,8 @@ class Projecter:
         self.tree3plaintext_tasks = []
         self.tree3plaintext_idx = 0
 
+        self.exttreeact = []
+
     def loadManager(self):
         self.resetManager(self.actioner.std_manager)
         if len(self.actioner.std_manager.task_list) == 0:
@@ -103,6 +105,21 @@ class Projecter:
             self.manager.loadTasksList(fast)
             self.manager.enableOutput2()
             self.actioner.loadTmpManagers()
+
+    def createActioner(self, eparam) -> Actioner:
+        path = eparam['exttreetask_path']
+        manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        manager.onStart()
+        manager.initInfo(self.loadExtProject, path = path)
+        if 'retarget' in eparam:
+            manager.addRenamedPair(eparam['retarget']['std'],eparam['retarget']['chg'])
+        elif 'retrgs' in eparam:
+            for pair in eparam['retrgs']:
+                manager.addRenamedPair(pair['std'], pair['chg'])
+        act = Actioner(manager)
+        act.setPath(path)
+        return act
+
  
 
 # сохранение сессионных имен необходимо связать только с проектером сеном, а не с менеджером

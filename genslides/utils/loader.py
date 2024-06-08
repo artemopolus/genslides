@@ -107,11 +107,18 @@ class Loader:
         filepath = askopenfilename() # show an "Open" dialog box and return the path to the selected file
         app.destroy()
         path = Path(filepath)
+        filename = PurePosixPath(path)
         if manager_path != '':
-            return Loader.convertFilePathToTag(path, manager_path)
-        return str(PurePosixPath(path))
-    
+            mfilename = Loader.checkManagerTag(path, manager_path, False)
+            print(filename, mfilename, filename == mfilename)
+            if Path(filename) == Path(mfilename):
+                return Loader.checkManagerTag(path, manager_path)
+            else:
+                return mfilename
+        return str(filename)
+
     def checkManagerTag(spath, manager_path, to_par_fld = True):
+        print('check')
         try:
             path = Path(spath)
             mpath = Path(manager_path)
