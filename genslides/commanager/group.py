@@ -7,6 +7,8 @@ from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 
 import genslides.utils.filemanager as FileManager
+import genslides.utils.finder as finder
+import genslides.utils.loader as Loader
 
 import os
 import json
@@ -422,9 +424,9 @@ class Actioner():
         elif creation_type == "SetParamValue":
             return self.manager.setTaskKeyValue(param['name'], param['key'], param['manual'])
         elif creation_type == "SetCurrentExtTaskOptions":
-            self.manager.setCurrentExtTaskOptions(param['names'])
+            self.setCurrentExtTaskOptions(param['names'])
         elif creation_type == "ResetAllExtTaskOptions":
-            self.manager.resetAllExtTaskOptions()
+            self.resetAllExtTaskOptions()
         elif creation_type == "RelinkToCurrTask":
             task = self.std_manager.getTaskByName(param['name'])
             start = self.manager.curr_task
@@ -1231,3 +1233,91 @@ class Actioner():
             ','.join([t.getName() for t in man.multiselect_tasks])
             )
         return out
+    
+
+    def getCurrentExtTaskOptions(self):
+        p = []
+        names = finder.getExtTaskSpecialKeys()
+        for name in names:
+            res, val = self.curr_task.getParamStruct(name)
+            # print(name,'=',val)
+            if res and val[name]:
+                p.append(name)
+        return gr.CheckboxGroup(choices=names,value = p, interactive=True)
+    
+    def setCurrentExtTaskOptions(self, names : list):
+        man = self.manager
+        full_names = finder.getExtTaskSpecialKeys()
+        for name in full_names:
+            if name not in names:
+                man.curr_task.updateParam2({'type': name, name : False})
+            else:
+                man.curr_task.updateParam2({'type': name, name : True})
+
+        man.curr_task.saveAllParams()
+        return self.getCurrentExtTaskOptions()
+    
+    def resetAllExtTaskOptions(self):
+        man = self.manager
+        full_names = finder.getExtTaskSpecialKeys()
+        full_names.remove('input')
+        for task in man.task_list:
+            for name in full_names:
+                task.updateParam2({'type': name, name : False})
+            task.saveAllParams()
+        return self.getCurrentExtTaskOptions()
+
+    def getTaskKeyValue(self, param_name, param_key):
+        man = self.manager
+        print('Get task key value:',param_name,'|', param_key)
+        if param_key == 'path_to_read':
+            filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
+            return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
+                    gr.Textbox(str(filename)))
+        elif param_name == 'script' and param_key == 'path_to_trgs':
+            filename = "[[project:RunScript:python]] "
+            filename += Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
+            return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
+                    gr.Textbox(str(filename)))
+
+        elif param_key == 'path_to_write':
+            filename = Loader.Loader.getDirPathFromSystem(man.getPath())
+            return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
+        elif param_key == 'model':
+            res, data = man.curr_task.getParamStruct(param_name)
+            if res:
+                cur_val = data[param_key]
+                path_to_config = os.path.join('config','models.json')
+                values = []
+                with open(path_to_config, 'r') as config:
+                    models = json.load(config)
+                    for _, vals in models.items():
+                        values.extend([opt['name'] for opt in vals['prices']])
+                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=''))
+           
+        task_man = TaskManager()
+        res, data = man.curr_task.getParamStruct(param_name)
+        print('Get param',param_name,' struct', res, data)
+        if res and param_key in data:
+            cur_val = data[param_key]
+            if param_key == 'idx' and param_name.startswith('child') or param_name == 'tree_step':
+                values = range(50)
+                if cur_val not in values:
+                    values.append(cur_val)
+            else:
+                values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
+            print('Update with',cur_val,'from', values)
+            if len(values):
+                if cur_val in values:
+                    return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=''))
+            else:
+                    # str_cur_val = str(cur_val)
+                    str_cur_val = json.dumps(cur_val, indent=1)
+                    return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
+                         gr.Textbox(value=str_cur_val))
+        cur_val = 'None'
+        return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
+                gr.Textbox(value=''))
+ 

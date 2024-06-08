@@ -1362,11 +1362,9 @@ class Projecter:
     def removeMultiSelect(self):
         return self.makeTaskAction("","","RemoveTaskList","")
 
-    def getTaskKeys(self, param_name):
-        return self.actioner.manager.getTaskKeys(param_name)
 
     def getTaskKeyValue(self, param_name, param_key):
-        return self.actioner.manager.getTaskKeyValue(param_name, param_key)
+        return self.actioner.getTaskKeyValue(param_name, param_key)
     
     def getAppendableParam(self):
         return self.actioner.manager.getAppendableParam()
@@ -2033,3 +2031,37 @@ class Projecter:
     def setHideTaskStatus(self, value):
         self.actioner.hide_task = value
         return self.actioner.updateUIelements() 
+
+
+    def getByTaskNameParamList(self, task_name):
+        man = self.actioner.manager
+        task = man.getTaskByName(task_name)
+        return gr.Dropdown(choices=man.getByTaskNameParamListInternal(task), interactive=True)
+
+    def getTaskKeys(self, param_name):
+        man = self.actioner.manager
+        return self.getNamedTaskKeys(man.curr_task, param_name)
+
+    def getByTaskNameTasksKeys(self, task_name, param_name):
+        man = self.actioner.manager
+        task = man.getTaskByName(task_name)
+        return self.getNamedTaskKeys(task, param_name)
+
+    def getNamedTaskKeys(self, task : BaseTask, param_name : str):
+        res, data = task.getParamStruct(param_name)
+        a = ['None']
+        if res:
+            task_man = TaskManager()
+            def_vals =task_man.getListBasedOptionsDict(data) 
+            if len(def_vals) == 0:
+                def_vals = [k for k, v in data.items()]
+            a.extend(def_vals)
+        print('Get named task keys', a)
+        val = None
+        return gr.Dropdown(choices=a, value=val, interactive=True)
+
+    def getFinderKeyString(self,task_name, fk_type, param_name, key_name):
+        value = Finder.getKey(task_name, fk_type, param_name, key_name, self)
+        pyperclip.copy(value)
+        pyperclip.paste()
+

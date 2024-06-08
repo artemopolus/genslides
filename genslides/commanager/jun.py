@@ -24,12 +24,9 @@ import genslides.utils.readfileman as Reader
 import genslides.utils.filemanager as FileMan
 
 import os
-from os import listdir
-from os.path import isfile, join
 
 import json
 
-import gradio as gr
 import graphviz
 
 import pprint
@@ -38,9 +35,7 @@ import pyperclip
 import shutil
 
 import re
-import datetime
 
-import genslides.utils.finder as finder
 from tkinter import Tk     # from tkinter import Tk for Python 3.x
 from tkinter.filedialog import askopenfilename, askdirectory, askopenfilenames
 
@@ -106,11 +101,11 @@ class Manager:
             return self.params[param_name]
         return None
     
-    def getParamGradioInput(self, param_name):
-        out = self.getParam(param_name + " lst")
-        if not out:
-            out = []
-        return gr.Dropdown( choices= out, interactive=True)
+    # def getParamGradioInput(self, param_name):
+    #     out = self.getParam(param_name + " lst")
+    #     if not out:
+    #         out = []
+    #     return gr.Dropdown( choices= out, interactive=True)
 
     
     def getParamsLst(self):
@@ -1706,35 +1701,6 @@ class Manager:
     
     
 
-    def getCurrentExtTaskOptions(self):
-        p = []
-        names = finder.getExtTaskSpecialKeys()
-        for name in names:
-            res, val = self.curr_task.getParamStruct(name)
-            # print(name,'=',val)
-            if res and val[name]:
-                p.append(name)
-        return gr.CheckboxGroup(choices=names,value = p, interactive=True)
-    
-    def setCurrentExtTaskOptions(self, names : list):
-        full_names = finder.getExtTaskSpecialKeys()
-        for name in full_names:
-            if name not in names:
-                self.curr_task.updateParam2({'type': name, name : False})
-            else:
-                self.curr_task.updateParam2({'type': name, name : True})
-
-        self.curr_task.saveAllParams()
-        return self.getCurrentExtTaskOptions()
-    
-    def resetAllExtTaskOptions(self):
-        full_names = finder.getExtTaskSpecialKeys()
-        full_names.remove('input')
-        for task in self.task_list:
-            for name in full_names:
-                task.updateParam2({'type': name, name : False})
-            task.saveAllParams()
-        return self.getCurrentExtTaskOptions()
 
     def convertMsgsToChat(self, msgs):
         r_msgs = []
@@ -1771,15 +1737,7 @@ class Manager:
                     out.append(p['type'])
         return out
     
-    def getByTaskNameParamList(self, task_name):
-        task = self.getTaskByName(task_name)
-        return gr.Dropdown(choices=self.getByTaskNameParamListInternal(task), interactive=True)
     
-    def getFinderKeyString(self,task_name, fk_type, param_name, key_name):
-        value = finder.getKey(task_name, fk_type, param_name, key_name, self)
-        pyperclip.copy(value)
-        pyperclip.paste()
-
     def getPathToFolder(self):
         app = Tk()
         app.withdraw() 
@@ -1812,82 +1770,8 @@ class Manager:
                 return True, t['type']
         return False, ''
   
-    def getTaskKeys(self, param_name):
-        return self.getNamedTaskKeys(self.curr_task, param_name)
-
-    def getByTaskNameTasksKeys(self, task_name, param_name):
-        task = self.getTaskByName(task_name)
-        return self.getNamedTaskKeys(task, param_name)
-
-    def getNamedTaskKeys(self, task : BaseTask, param_name : str):
-        res, data = task.getParamStruct(param_name)
-        a = ['None']
-        if res:
-            task_man = TaskManager()
-            def_vals =task_man.getListBasedOptionsDict(data) 
-            if len(def_vals) == 0:
-                def_vals = [k for k, v in data.items()]
-            a.extend(def_vals)
-        print('Get named task keys', a)
-        # if len(a):
-        #     val = a[0]
-        # else:
-        val = None
-        return gr.Dropdown(choices=a, value=val, interactive=True)
     
-    def getTaskKeyValue(self, param_name, param_key):
-        print('Get task key value:',param_name,'|', param_key)
-        if param_key == 'path_to_read':
-            filename = Loader.Loader.getFilePathFromSystem(manager_path=self.getPath())
-            return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
-                    gr.Textbox(str(filename)))
-        elif param_name == 'script' and param_key == 'path_to_trgs':
-            filename = "[[project:RunScript:python]] "
-            filename += Loader.Loader.getFilePathFromSystem(manager_path=self.getPath())
-            return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
-                    gr.Textbox(str(filename)))
-
-        elif param_key == 'path_to_write':
-            filename = Loader.Loader.getDirPathFromSystem(self.getPath())
-            return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
-        elif param_key == 'model':
-            res, data = self.curr_task.getParamStruct(param_name)
-            if res:
-                cur_val = data[param_key]
-                path_to_config = os.path.join('config','models.json')
-                values = []
-                with open(path_to_config, 'r') as config:
-                    models = json.load(config)
-                    for _, vals in models.items():
-                        values.extend([opt['name'] for opt in vals['prices']])
-                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
-                         gr.Textbox(value=''))
-           
-        task_man = TaskManager()
-        res, data = self.curr_task.getParamStruct(param_name)
-        print('Get param',param_name,' struct', res, data)
-        if res and param_key in data:
-            cur_val = data[param_key]
-            if param_key == 'idx' and param_name.startswith('child') or param_name == 'tree_step':
-                values = range(50)
-                if cur_val not in values:
-                    values.append(cur_val)
-            else:
-                values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
-            print('Update with',cur_val,'from', values)
-            if len(values):
-                if cur_val in values:
-                    return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
-                         gr.Textbox(value=''))
-            else:
-                    # str_cur_val = str(cur_val)
-                    str_cur_val = json.dumps(cur_val, indent=1)
-                    return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
-                         gr.Textbox(value=str_cur_val))
-        cur_val = 'None'
-        return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
-                gr.Textbox(value=''))
-    
+   
     def setTaskKeyValue(self, param_name, key, mnl_value):
         info = TaskDescription(target=self.curr_task, params={'name':param_name,'key':key,'select':mnl_value})
         cmd = edit.EditParamCommand(info)

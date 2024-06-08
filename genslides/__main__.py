@@ -742,9 +742,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             trg_params_list = gr.Dropdown(label='List of params')
                             trg_keys_list = gr.Dropdown(label='List of keys')
-                        parents_list.select(fn=manager.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
-                        trg_params_list.select(fn=manager.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
-                        gr.Button('Copy').click(fn=manager.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
+                        parents_list.select(fn=projecter.getByTaskNameParamList, inputs=[parents_list], outputs=[trg_params_list])
+                        trg_params_list.select(fn=projecter.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
+                        gr.Button('Copy').click(fn=projecter.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
                         project_clear = gr.Button(value="clear tasks")
                         fix_task_btn = gr.Button(value = 'Fix Q Tasks')
                         gr.Button('Check Trash').click(fn=projecter.checkTrashInManagerFolder)
@@ -1043,7 +1043,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             config_values = gr.Dropdown(choices=manager.getParam("mode lst"))
             config_btn = gr.Button(value="update mode config").click(fn=manager.setParam, inputs=[config_name, config_values])
             # TODO: сменить владельца на проектер
-            config_name.change(fn=manager.getParamGradioInput, inputs=[config_name], outputs=[config_values])
+            # config_name.change(fn=manager.getParamGradioInput, inputs=[config_name], outputs=[config_values])
 
     demo.launch(share=project_params['share'])
 
