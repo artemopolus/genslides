@@ -217,11 +217,9 @@ class Manager:
             else:
                 self.makeLink(self.curr_task, task)
         self.clearSelectList()
-        return self.getCurrTaskPrompts()
     
     def moveCurrentTaskUP(self):
         self.moveTaskUP(self.curr_task)
-        return self.getCurrTaskPrompts()
     
     def moveTaskUP(self, task : BaseTask):
         info = TaskDescription(target=task)
@@ -385,12 +383,11 @@ class Manager:
         if self.curr_task is None:
             # Выбираем просто нулевую ветку
             self.curr_task = chs[0]
-        return self.getCurrTaskPrompts()
+        return 
     
     def goToParent(self):
         if self.curr_task.parent is not None and self.curr_task.getParent() in self.task_list:
             self.curr_task = self.curr_task.parent
-        return self.getCurrTaskPrompts()
     
     def getSceletonBranchBuds(self, trg_task :BaseTask):
         tree = trg_task.getTree()
@@ -429,7 +426,6 @@ class Manager:
         self.iterateOnBranchEnd()
         self.branch_code = self.curr_task.getBranchCodeTag()
         print('Get new branch code:', self.branch_code)
-        return self.getCurrTaskPrompts()
     
     def getBranchEndTasksList(self) -> list[BaseTask]:
         self.iterateOnBranchEnd()
@@ -489,7 +485,6 @@ class Manager:
         leave = self.endes[self.endes_idx]
         param = {'type':'bud','text': summary,'branch':leave.getBranchCodeTag()}
         leave.setParamStruct(param)
-        return self.getCurrTaskPrompts()
  
 
     
@@ -502,7 +497,6 @@ class Manager:
             if self.getBranchEndName() == name:
                 break
             i += 1
-        return self.getCurrTaskPrompts()
     
     def getBranchFork(self, start_task : BaseTask):
         fork = None
@@ -813,7 +807,7 @@ class Manager:
             print("Value error")
         #Try float.
             # ret = float(s)
-            return self.getCurrTaskPrompts()
+            return 
         print("Increment=",inc)
         self.task_index += inc
 
@@ -832,7 +826,6 @@ class Manager:
         output = ""
         output += pprint.pformat(self.curr_task.msg_list)
         in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        return self.getCurrTaskPrompts()
 
         # std_output_list = [info, output, graph_img, input, creation_tag_list]
         # next_task_btn.click(fn=manager.setNextTask, outputs=[graph_img, input, creation_tag_list, info], api_name='next_task')
@@ -1206,17 +1199,15 @@ class Manager:
             tag = self.curr_task.getLastMsgRole()
             prs = text.split('[[---]]')
             if len(prs) < 2:
-                return self.getCurrTaskPrompts()
+                return 
             else:
                 last = prs.pop()
                 for text in prs:
                     self.makeTaskActionBase(text, "Request", "Insert", tag, params)
                 return self.makeTaskActionBase(last, "Request", "Edit", tag, params)
-        return self.getCurrTaskPrompts()
 
     def updateTaskParam(self, param):
         self.curr_task.setParam(param)
-        return self.getCurrTaskPrompts()
     
     def makeTaskActionBase(self, prompt, type, creation_type, creation_tag, params = []):
         # print(10*"==")
@@ -1233,7 +1224,7 @@ class Manager:
 
         if type is None or creation_type is None:
             print('Abort maske action')
-            return self.getCurrTaskPrompts()
+            return 
         if creation_type == "Edit":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag)
             info.target = self.curr_task
@@ -1243,11 +1234,11 @@ class Manager:
         elif creation_type == "EditAndStep":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True, stepped=True)
             self.updateSteppedSelectedInternal(info)
-            return self.getCurrTaskPrompts()
+            return 
         elif creation_type == "EditAndStepTree":
             info = TaskDescription(prompt=prompt,prompt_tag=creation_tag, manual=True, stepped=True)
             self.updateSteppedTree(info)
-            return self.getCurrTaskPrompts()
+            return 
         vars_param = self.vars_param
         for param in vars_param:
             input_params= {"name" :param, "value" : True,"prompt":None}
@@ -1271,7 +1262,7 @@ class Manager:
             info = TaskDescription( prompt=self.curr_task.getLastMsgContent(), prompt_tag=self.curr_task.getLastMsgRole(), params=[input_params], target=self.slct_task)
             # info = TaskDescription(prompt=self.curr_task.prompt,prompt_tag=self.curr_task.prompt_tag, params=[input_params])
             self.curr_task.update(info)
-            return self.getCurrTaskPrompts()
+            return 
              # return self.runIteration(prompt)
         if creation_type == "Select":
             self.slct_task = self.curr_task
@@ -1321,16 +1312,16 @@ class Manager:
             else:
                 self.curr_task = next_task_after
             del task
-            return self.getCurrTaskPrompts()
+            return 
         elif creation_type == "New":
             parent = None
             if cr.checkTypeFromName(type, "Response"):
                 print('Can\'t create new Response')
-                return self.getCurrTaskPrompts()
+                return 
         elif creation_type == "SubTask":
             parent = self.curr_task
         else:
-            return self.getCurrTaskPrompts()
+            return 
         
         return self.createOrAddTask(prompt,type, creation_tag, parent, params)
         
@@ -1627,7 +1618,7 @@ class Manager:
     
     def resetCurTaskQueue(self):
         self.curr_task.resetTreeQueue()
-        return self.getCurrTaskPrompts()
+        return 
     
     def fixTasks(self):
         for task in self.task_list:
@@ -1639,11 +1630,11 @@ class Manager:
                                 prompt_tag=self.curr_task.getLastMsgRole(),
                                 manual=True)
         self.updateSteppedSelectedInternal(info)
-        return self.getCurrTaskPrompts()
+        return 
 
     def executeStep(self):
         self.updateSteppedSelectedInternal()
-        return self.getCurrTaskPrompts() 
+        return  
     
     def executeSteppedBranch(self, msg):
         info = TaskDescription(prompt=msg,
@@ -1655,7 +1646,7 @@ class Manager:
             if res and val['output']:
                 self.curr_task = task
                 break
-        return self.getCurrTaskPrompts() 
+        return  
 
     def updateSteppedTrgBranch(self, info = None):
         info = TaskDescription(prompt=self.curr_task.getLastMsgContent(),
@@ -1678,7 +1669,7 @@ class Manager:
         #             print("Done in",index,"iteration")
         #             break
         #         index +=1
-        return self.getCurrTaskPrompts() 
+        return  
 
     
     def updateSteppedTree(self, info = None):
@@ -1705,7 +1696,7 @@ class Manager:
             index +=1
         print('Done: update tree step by step in', index)
         print('Tree execution:','->'.join(processed_chain))
-        return self.getCurrTaskPrompts() 
+        return  
     
     
     def getCurTaskLstMsg(self) -> str:
@@ -1774,153 +1765,7 @@ class Manager:
             r_msgs.append([first, sec])
         return r_msgs
 
-   
-    def getCurrTaskPrompts(self, set_prompt = "", hide_tasks = True):
-        if self.no_output:
-            return
-        if self.curr_task is None:
-            return
-        msgs = self.curr_task.getMsgs()
-        out_prompt = ""
-        out_prompt2 = ""
-        if msgs:
-            out_prompt = msgs[-1]["content"]
-            if len(msgs) > 1:
-                out_prompt2 = msgs[-2]["content"]
-        saver = SaveData()
-        chck = gr.CheckboxGroup(choices=saver.getMessages())
-        in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
 
-        r_msgs = self.convertMsgsToChat(msgs=msgs)
-
-        # value = finder.getBranchCodeTag(self.curr_task.getName())
-
-        maingraph = self.drawGraph(hide_tasks=hide_tasks)
-
-        stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
-
-        
-        rawinfo_msgs = self.convertMsgsToChat(self.curr_task.getRawMsgsInfo())
-        rawgraph = self.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3")
-
-        task_params = self.curr_task.getAllParams()
-
-        for idx, param in enumerate(task_params):
-            if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
-                task_params[idx].pop('logprobs',None)
-
-        res_params = {'params':task_params, 'queue':self.curr_task.queue}
-
-        cnt = 0
-        for task in self.task_list:
-            if task.is_freeze:
-                cnt += 1
-        status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(self.task_list))
- 
-        return (
-            r_msgs, 
-            in_prompt ,
-            out_prompt, 
-            in_role, 
-            chck, 
-            self.curr_task.getName(), 
-            # json.dumps(res_params, indent=1), 
-            res_params,
-            set_prompt, 
-            gr.Dropdown(choices= self.getTaskList()),
-            gr.Dropdown(choices=self.getByTaskNameParamListInternal(self.curr_task), 
-                               interactive=True), 
-            gr.Dropdown(choices=[t.getName() for t in self.curr_task.getAllParents()], 
-                               value=self.curr_task.getName(), 
-                               interactive=True), 
-            gr.Radio(value="SubTask"), 
-            r_msgs,
-            self.getCurrentExtTaskOptions(),
-            self.getTreeNamesForRadio(),
-            self.getCurrentTreeNameForTxt(),
-            self.getBranchEndList(),
-            self.getBranchEndName(),
-            gr.CheckboxGroup(value=[]),
-            self.getBranchList(),
-            self.getTreesList(),
-            self.getBranchMessages(),
-            status_msg,
-            rawinfo_msgs,
-            gr.Radio(choices=[t.getName() for t in self.curr_task.getHoldGarlands()], interactive=True),
-            maingraph, 
-            stepgraph,
-            rawgraph
-            )
-    
-    def getCurrTaskPrompts2(self, set_prompt = "", hide_tasks = True):
-        if self.no_output:
-            return
-        if self.curr_task is None:
-            print('No current task')
-            return
-        msgs = self.curr_task.getMsgs(hide_task=hide_tasks)
-        out_prompt = ""
-        if msgs:
-            out_prompt = msgs[-1]["content"]
-        saver = SaveData()
-        chck = gr.CheckboxGroup(choices=saver.getMessages())
-        in_prompt, in_role, out_prompt22 = self.curr_task.getMsgInfo()
-
-        r_msgs = self.convertMsgsToChat(msgs=msgs)
-
-
-
-        
-        rawinfo_msgs = self.convertMsgsToChat(self.curr_task.getRawMsgsInfo())
-
-        task_params = self.curr_task.getAllParams()
-        for param in task_params:
-            if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
-                del param['logprobs']
-            if 'type' in param and param['type'] == 'model' and 'api_key' in param:
-                del param['api_key']
-        res_params = {'params': task_params, 'queue':self.curr_task.getQueueList()}
-
-        cnt = 0
-        for task in self.task_list:
-            if task.is_freeze:
-                cnt += 1
-        status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(self.task_list))
- 
-        out =  (
-            r_msgs, 
-            # in_prompt ,
-            # out_prompt, 
-            # in_role, 
-            # chck, 
-            self.curr_task.getName(), 
-            res_params,
-            set_prompt, 
-            gr.Dropdown(choices= self.getTaskList()),
-            gr.Dropdown(choices=self.getByTaskNameParamListInternal(self.curr_task), 
-                               interactive=True), 
-            gr.Dropdown(choices=[t.getName() for t in self.curr_task.getAllParents()], 
-                               value=self.curr_task.getName(), 
-                               interactive=True), 
-            gr.Radio(value="SubTask"), 
-            r_msgs,
-            # self.getCurrentExtTaskOptions(),
-            self.getTreeNamesForRadio(),
-            self.getCurrentTreeNameForTxt(),
-            self.getBranchEndList(),
-            self.getBranchEndName(),
-            gr.CheckboxGroup(value=[]),
-            self.getBranchList(),
-            self.getBranchMessages(),
-            status_msg,
-            rawinfo_msgs,
-            gr.Radio(choices=[t.getName() for t in self.curr_task.getHoldGarlands()], interactive=True),
-            self.getName(),
-            self.getColor(),
-            ','.join([t.getName() for t in self.multiselect_tasks])
-            )
-        # print('Man output =',out)
-        return out
     
     def getByTaskNameParamListInternal(self, task : BaseTask):
         out = []
@@ -2084,7 +1929,7 @@ class Manager:
             self.updateSteppedSelectedInternal(info)
         else:
             self.updateSteppedSelectedInternal()
-        return self.getCurrTaskPrompts()
+        return 
 
     def processCommand(self, json_msg,  tasks_json):
         send_task_list_json = {}
@@ -2215,10 +2060,10 @@ class Manager:
                         filename = param['filename']
                         if not self.createExtProject(filename, prompt, parent):
                             print('Can not create')
-                            return self.getCurrTaskPrompts()
+                            return 
                     else:
                         print('No options')
-                        return self.getCurrTaskPrompts()
+                        return 
                 else:
                     self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
                 if i == 0 and j == 0:
@@ -2552,7 +2397,7 @@ class Manager:
             link_array = link_array_new
             idx += 1
 
-        return self.getCurrTaskPrompts()
+        return 
  
 
     def saveInfo(self, check = False):

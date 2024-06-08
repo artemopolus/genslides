@@ -330,7 +330,7 @@ class Actioner():
         elif 'extedit' in param and param['extedit']:
             if 'upd_cp' in param and param['upd_cp']:
                 self.manager.updateEditToCopyBranch(self.manager.curr_task)
-                return self.manager.getCurrTaskPrompts()
+                return 
 
             self.editBasicActions(prompt, param)
 
@@ -361,7 +361,7 @@ class Actioner():
             self.manager.curr_task.setManagerParamToTask({'type':'manager', 'info': self.manager.info})
         elif creation_type == "StopPrivManager":
             if self.manager == self.std_manager:
-                return self.manager.getCurrTaskPrompts()
+                return 
             # trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
             trg = self.std_manager
             self.removeTmpManager(self.manager, trg, copy=True)
@@ -373,7 +373,7 @@ class Actioner():
                 if len(self.tmp_managers):
                     self.setManager(self.tmp_managers[-1])
                 else:
-                    return self.manager.getCurrTaskPrompts()
+                    return 
             # trg = self.tmp_managers[-2] if len(self.tmp_managers) > 1 else self.std_manager
             trg = self.std_manager
             if save_action:
@@ -439,18 +439,18 @@ class Actioner():
                         self.manager.makeLink(intask, outtask)
                 else:
                     if start.checkType('Collect') or start.checkType('GroupCollect') or start.checkType('Garland'):
-                        return self.manager.getCurrTaskPrompts()
+                        return 
                     # В противном случае ищем связанные объекты
                     garls = task.getHoldGarlands()
                     if len(garls) == 0:
-                        return self.manager.getCurrTaskPrompts()
+                        return 
                     task.removeLinkToTask()
                     for garl in garls:
                         intask = garl
                         outtask = start
                         self.manager.makeLink(intask, outtask)
             self.manager.curr_task = start
-        return self.manager.getCurrTaskPrompts()
+        return 
 
     def fromActionToScript(self, trg: Manager, src : Manager):
         print('From',src.info['task'], 'to', trg.info['task'])
@@ -721,7 +721,7 @@ class Actioner():
             idx += 1
 
         man.curr_task = start_task
-        return man.getCurrTaskPrompts()
+        return 
 
     def updateAll(self, force_check = False):
         man = self.manager
@@ -810,7 +810,7 @@ class Actioner():
         
         man.multiselect_tasks = chain
 
-        return man.getCurrTaskPrompts()
+        return 
 
     def setName(self, name : str):
         idx = 0
@@ -829,7 +829,7 @@ class Actioner():
             stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
             rawgraph = self.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
-            out = self.manager.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.hide_task)
+            out = self.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.hide_task)
             out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
             # print('act:',out)
             return out
@@ -838,10 +838,10 @@ class Actioner():
             maingraph = self.manager.drawGraph(hide_tasks=hide_tasks)
             stepgraph = self.manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
             rawgraph = self.manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True)
-            out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
+            out = self.getCurrTaskPrompts2(set_prompt=prompt)
             if out == None:
                 self.setManager(self.std_manager)
-                out = self.manager.getCurrTaskPrompts2(set_prompt=prompt)
+                out = self.getCurrTaskPrompts2(set_prompt=prompt)
             out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
             return out
     
@@ -1160,3 +1160,72 @@ class Actioner():
                 self.manager.curr_task = start_task
                 self.editBasicActions(batch, param)
 
+    def getCurrTaskPrompts2(self, set_prompt = "", hide_tasks = True):
+        man = self.manager
+        if man.no_output:
+            return
+        if man.curr_task is None:
+            print('No current task')
+            return
+        msgs = man.curr_task.getMsgs(hide_task=hide_tasks)
+        # out_prompt = ""
+        # if msgs:
+            # out_prompt = msgs[-1]["content"]
+        # saver = SaveData()
+        # chck = gr.CheckboxGroup(choices=saver.getMessages())
+        in_prompt, in_role, out_prompt22 = man.curr_task.getMsgInfo()
+
+        r_msgs = man.convertMsgsToChat(msgs=msgs)
+
+
+
+        
+        rawinfo_msgs = man.convertMsgsToChat(man.curr_task.getRawMsgsInfo())
+
+        task_params = man.curr_task.getAllParams()
+        for param in task_params:
+            if 'type' in param and param['type'] == 'response' and 'logprobs' in param:
+                del param['logprobs']
+            if 'type' in param and param['type'] == 'model' and 'api_key' in param:
+                del param['api_key']
+        res_params = {'params': task_params, 'queue':man.curr_task.getQueueList()}
+
+        cnt = 0
+        for task in man.task_list:
+            if task.is_freeze:
+                cnt += 1
+        status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(man.task_list))
+ 
+        out =  (
+            r_msgs, 
+            # in_prompt ,
+            # out_prompt, 
+            # in_role, 
+            # chck, 
+            man.curr_task.getName(), 
+            res_params,
+            set_prompt, 
+            gr.Dropdown(choices= man.getTaskList()),
+            gr.Dropdown(choices=man.getByTaskNameParamListInternal(man.curr_task), 
+                               interactive=True), 
+            gr.Dropdown(choices=[t.getName() for t in man.curr_task.getAllParents()], 
+                               value=man.curr_task.getName(), 
+                               interactive=True), 
+            gr.Radio(value="SubTask"), 
+            r_msgs,
+            # self.getCurrentExtTaskOptions(),
+            man.getTreeNamesForRadio(),
+            man.getCurrentTreeNameForTxt(),
+            man.getBranchEndList(),
+            man.getBranchEndName(),
+            gr.CheckboxGroup(value=[]),
+            man.getBranchList(),
+            man.getBranchMessages(),
+            status_msg,
+            rawinfo_msgs,
+            gr.Radio(choices=[t.getName() for t in man.curr_task.getHoldGarlands()], interactive=True),
+            man.getName(),
+            man.getColor(),
+            ','.join([t.getName() for t in man.multiselect_tasks])
+            )
+        return out

@@ -463,7 +463,7 @@ class Projecter:
     def makeActionRevertLink(self):
         man = self.actioner.manager
         if len(man.selected_tasks) == 0:
-            return man.getCurrTaskPrompts()
+            return self.actioner.updateUIelements()
         else:
             param = {'curr': man.getSelectedTask().getName()}
         return self.makeTaskAction("","","Link","", param)
@@ -1129,7 +1129,7 @@ class Projecter:
         while(len(tasks)):
             task = tasks.pop(-1)
             if len(task.getChilds()) > 1 or task.isRootParent():
-                return man.getCurrTaskPrompts()
+                return self.actioner.updateUIelements()
             if task in man.multiselect_tasks:
                 man.multiselect_tasks.remove(task)
         return self.actioner.updateUIelements()
