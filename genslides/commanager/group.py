@@ -1199,38 +1199,50 @@ class Actioner():
         status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(man.task_list))
 
         gettreenameforradio_names, gettreenameforradio_trg = man.getTreeNamesForRadio()
- 
+        mancurtaskgetname = man.curr_task.getName()
+        mangettasklist = man.getTaskList()
+        mangetcurtaskparamlist = man.getByTaskNameParamListInternal(man.curr_task)
+        curtaskallpars = [t.getName() for t in man.curr_task.getAllParents()]
+        mancurtaskgetbranchsum = man.curr_task.getBranchSummary()
+        mangetbranchend = man.getBranchEnds()
+        mangetbranchendname = man.getBranchEndName()
+
+        mangetbranchlist = man.getBranchList()
+        mangetbranchmessages = man.getBranchMessages()
+        manholdgarlands = [t.getName() for t in man.curr_task.getHoldGarlands()]
+        mangetname = man.getName()
+        mangetcolor = man.getColor()
+        multitasks = ','.join([t.getName() for t in man.multiselect_tasks])
         out =  (
             r_msgs, 
             # in_prompt ,
             # out_prompt, 
             # in_role, 
             # chck, 
-            man.curr_task.getName(), 
+            mancurtaskgetname, 
             res_params,
             set_prompt, 
-            gr.Dropdown(choices= man.getTaskList()),
-            gr.Dropdown(choices=man.getByTaskNameParamListInternal(man.curr_task), 
-                               interactive=True), 
-            gr.Dropdown(choices=[t.getName() for t in man.curr_task.getAllParents()], 
-                               value=man.curr_task.getName(), 
+            gr.Dropdown(choices= mangettasklist),
+            gr.Dropdown(choices=mangetcurtaskparamlist, interactive=True), 
+            gr.Dropdown(choices=curtaskallpars, 
+                               value=mancurtaskgetname, 
                                interactive=True), 
             gr.Radio(value="SubTask"), 
             r_msgs,
             # self.getCurrentExtTaskOptions(),
             gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
-            gr.Textbox(value=man.curr_task.getBranchSummary(), interactive=True),
-            gr.Radio(choices=man.getBranchEnds(), interactive=True),
-            man.getBranchEndName(),
+            gr.Textbox(value=mancurtaskgetbranchsum, interactive=True),
+            gr.Radio(choices=mangetbranchend, interactive=True),
+            mangetbranchendname,
             gr.CheckboxGroup(value=[]),
-            man.getBranchList(),
-            man.getBranchMessages(),
+            mangetbranchlist,
+            mangetbranchmessages,
             status_msg,
             rawinfo_msgs,
-            gr.Radio(choices=[t.getName() for t in man.curr_task.getHoldGarlands()], interactive=True),
-            man.getName(),
-            man.getColor(),
-            ','.join([t.getName() for t in man.multiselect_tasks])
+            gr.Radio(choices=manholdgarlands, interactive=True),
+            mangetname,
+            mangetcolor,
+            multitasks
             )
         return out
     
