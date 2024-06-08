@@ -1195,6 +1195,8 @@ class Actioner():
             if task.is_freeze:
                 cnt += 1
         status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(man.task_list))
+
+        gettreenameforradio_names, gettreenameforradio_trg = man.getTreeNamesForRadio()
  
         out =  (
             r_msgs, 
@@ -1214,9 +1216,9 @@ class Actioner():
             gr.Radio(value="SubTask"), 
             r_msgs,
             # self.getCurrentExtTaskOptions(),
-            man.getTreeNamesForRadio(),
-            man.getCurrentTreeNameForTxt(),
-            man.getBranchEndList(),
+            gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
+            gr.Textbox(value=man.curr_task.getBranchSummary(), interactive=True),
+            gr.Radio(choices=man.getBranchEnds(), interactive=True),
             man.getBranchEndName(),
             gr.CheckboxGroup(value=[]),
             man.getBranchList(),

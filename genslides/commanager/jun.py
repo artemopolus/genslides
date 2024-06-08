@@ -301,11 +301,10 @@ class Manager:
         for task in self.tree_arr:
             names.append(self.getTreeName(task))
         trg = self.getTreeName(self.curr_task)
+        return names, trg
         # print('Trg tree:', trg,'out of', names)
-        return gr.Radio(choices=names, value=trg, interactive=True)
+        # return gr.Radio(choices=names, value=trg, interactive=True)
     
-    def getCurrentTreeNameForTxt(self):
-        return gr.Textbox(value=self.curr_task.getBranchSummary(), interactive=True)
     
     def goToTreeByName(self, name):
         print('Go to tree by name', name)
@@ -468,8 +467,6 @@ class Manager:
                     trg = name
         return leaves_list
 
-    def getBranchEndList(self): 
-        return gr.Radio(choices=self.getBranchEnds(), interactive=True)
     
     def getBranchEndName(self):
         if len(self.endes) == 0:
@@ -799,7 +796,6 @@ class Manager:
 
     def setNextTask(self, input):
         saver = SaveData()
-        chck = gr.CheckboxGroup(choices=saver.getMessages())
 
         try:
             inc = int(input)
@@ -1101,8 +1097,6 @@ class Manager:
         elif creation_type in self.getSecdCommandList():
             return self.makeTaskActionPro(prompt, type, creation_type, creation_tag, params)
         saver = SaveData()
-        chck = gr.CheckboxGroup(choices=saver.getMessages())
-        return "", "" ,self.drawGraph(),"" , "user", chck
     
  
     def makeTaskActionPro(self, prompt, type, creation_type, creation_tag, params = []):
