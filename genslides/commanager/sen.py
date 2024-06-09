@@ -256,7 +256,7 @@ class Projecter:
 
         Archivator.extractFiles(project_path, filename, path)
         self.resetManager(self.actioner.manager, path=self.actioner.getPath())
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
 
     def save(self, name):
         self.current_project_name = name
@@ -626,11 +626,11 @@ class Projecter:
  
     def appendNewParamToTask(self, param_name):
         self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def removeParamFromTask(self, param_name):
         self.makeTaskAction('','','RemoveTaskParam','', {'name':param_name})
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def setTaskKeyValue(self, param_name, key, mnl_value):
         if key == 'path_to_trgs':
@@ -638,7 +638,7 @@ class Projecter:
             mnl_value = val_arr
         print('Set task key value:','|'.join([param_name,key,str(mnl_value)]))
         self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'manual':mnl_value})
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def setSelectOptionToValue(self, name, key, option):
         return option
@@ -646,7 +646,7 @@ class Projecter:
     def addTaskNewKeyValue(self, param_name, key, value):
         print('Set task key value:','|'.join([param_name,key,str(value)]))
         self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':value,'manual':''})
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def getMainCommandList(self):
         return self.manager.getMainCommandList()
@@ -657,11 +657,11 @@ class Projecter:
 
     def newExtProject(self, filename, prompt):
         self.makeTaskAction(prompt,"New","NewExtProject","")
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
 
     def appendExtProject(self, filename, prompt):
         self.makeTaskAction(prompt,"SubTask","SubExtProject","")
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def getPrivMangerDefaultInfo(self):
         man = self.actioner.manager
@@ -672,7 +672,7 @@ class Projecter:
 
     def initPrivManagerByInfo(self, params):
         self.makeTaskAction("","","InitPrivManager","", params)
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
 
     def initPrivManager(self):
         print("Init empty private manager")
@@ -683,9 +683,9 @@ class Projecter:
             tags.append(code)
         if len(tags) == 0:
             print('No multiselected task for manager')
-            return self.actioner.updateTaskManagerUI()
+            return self.updateTaskManagerUI()
         self.makeTaskAction("","","InitPrivManager","", {'actions':[],'repeat':3, 'task_names':tags})
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def loadTmpManager(self, name):
         if self.actioner.std_manager.getName() == name:
@@ -695,7 +695,7 @@ class Projecter:
                 if man.getName() == name:
                     self.actioner.setManager(man)
                     break
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def switchToExtTaskManager(self):
         print('Switch to ext task manager')
@@ -714,14 +714,14 @@ class Projecter:
             print('Path:', self.actioner.getPath())
             print('Man:', self.actioner.manager.getName())
             # print('Tasks:',[t.getName() for t in self.actioner.manager.task_list])
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def backToDefaultActioner(self):
         if self.tmp_actioner != None:
             self.actioner = self.tmp_actioner
             self.tmp_actioner = None
             self.tmp_actioner_task = None
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def activateExtTask(self):
         self.switchToExtTaskManager()
@@ -730,31 +730,31 @@ class Projecter:
     
     def initSavdManagerToCur(self,name):
         self.makeTaskAction("","","InitSavdManagerToCur","", {'task': name})
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
  
     
     def loadPrivManager(self, name):
         self.makeTaskAction("","","InitSavdManager","", {'task': name})
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
     
     def savePrivManToTask(self):
         self.makeTaskAction("","","SavePrivManToTask","")
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
    
     def stopPrivManager(self):
         self.makeTaskAction("","","StopPrivManager","")
         #TODO: Нужно разобраться почему так происходит и убрать этот костыль
         self.actioner.manager.fixTasks()
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
   
     def rmvePrivManager(self):
         self.makeTaskAction("","","RmvePrivManager","")
         #TODO: Нужно разобраться почему так происходит и убрать этот костыль
         self.actioner.manager.fixTasks()
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def getPrivManager(self):
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
 
     def exeActions(self):
         # Закомментированной командой производится запись команды в список команд менеджера
@@ -763,15 +763,15 @@ class Projecter:
         self.actioner.exeActions()
         # Альтернатива
         # self.makeTaskAction("","","ExecuteManager","",{},save_action=False)
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def exeSmplScript(self):
         self.actioner.exeCurManagerSmpl()
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
 
     def editParamPrivManager(self, param):
         self.makeTaskAction("","","EditPrivManager","",param)
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
 
     def actionTypeChanging(self, action):
         print('Action switch to=', action)
@@ -892,7 +892,7 @@ class Projecter:
         if name in all_tasks:
             print('set name')
             self.actioner.manager.info['task'] = name
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
     
     def setCurrAsManagerStartTask(self):
         name = self.actioner.manager.curr_task.getName()
@@ -906,11 +906,11 @@ class Projecter:
 
     def setCurrentExtTaskOptions(self, names : list):
         self.makeTaskAction("","","SetCurrentExtTaskOptions","", {'names': names})
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
 
     def resetAllExtTaskOptions(self):
         self.makeTaskAction("","","ResetAllExtTaskOptions","", {})
-        return self.actioner.getTmpManagerInfo()
+        return self.getUItmpmanagers()
     
     def getAvailableActionsList(self):
         return [t['action'] for t in self.actioner.getActionList()]
@@ -1364,7 +1364,16 @@ class Projecter:
 
 
     def getTaskKeyValue(self, param_name, param_key):
-        return self.actioner.getTaskKeyValue(param_name, param_key)
+        return self.getTaskKeyValue(param_name, param_key)
+    
+    def setTaskKeyValueUI(self, choices, value, interactive, multiselect, text, text_interactive):
+        return (
+            gr.Dropdown(choices=choices, value=value, interactive=interactive, multiselect=multiselect),
+            gr.Textbox(text, interactive=text_interactive)
+        )
+    def getTaskKeyValue(self, param_name, param_key):
+        choices, value, interactive, multiselect, text, text_interactive = self.actioner.getTaskKeyValueInternal(param_name, param_key)
+        return self.setTaskKeyValueUI(choices, value, interactive, multiselect, text, text_interactive)
     
     def getAppendableParam(self):
         return self.actioner.manager.getAppendableParam()
@@ -1515,17 +1524,17 @@ class Projecter:
     def setCurManagerName(self, name):
         self.actioner.manager.setName(name)
         self.actioner.manager.saveInfo()
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def addMultiSelectTasksFromStdMan(self):
         if self.actioner.manager != self.actioner.std_manager:
             self.actioner.addExtTasksForManager(self.actioner.manager, self.actioner.std_manager.multiselect_tasks)
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
 
     def rmvMultiSelectTasksFromTmpMan(self):
         if self.actioner.manager != self.actioner.std_manager:
             self.actioner.rmvExtTasksForManager(self.actioner.manager, self.actioner.manager.multiselect_tasks)
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
 
     def moveTaskToStdMan(self):
         if self.actioner.manager != self.actioner.std_manager:
@@ -1533,7 +1542,7 @@ class Projecter:
                                                        cur_man= self.actioner.manager,
                                                        next_man= self.actioner.std_manager,
                                                        to_std=True)
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
 
     def moveTaskToTmpMan(self):
         if self.actioner.manager != self.actioner.std_manager:
@@ -1543,13 +1552,13 @@ class Projecter:
                                                        cur_man=self.actioner.std_manager,
                                                        next_man=self.actioner.manager
                                                        )
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
 
     def moveTaskTmpToTmp(self, name):
         if self.actioner.manager == self.actioner.std_manager:
-            return self.actioner.updateTaskManagerUI()
+            return self.updateTaskManagerUI()
         if self.actioner.std_manager.getName() == name:
-            return self.actioner.updateTaskManagerUI()
+            return self.updateTaskManagerUI()
         else:
             start_man = self.actioner.manager
             trg_man = None
@@ -1565,7 +1574,7 @@ class Projecter:
                 self.actioner.setManager(trg_man)
                 self.moveTaskToTmpMan()
                 self.actioner.setManager(start_man)
-        return self.actioner.updateTaskManagerUI()
+        return self.updateTaskManagerUI()
     
     def loadMangerExtInfoExtWithBrowser(self):
         path = Loader.Loader.getDirPathFromSystem(self.actioner.manager.getPath())
@@ -2066,5 +2075,145 @@ class Projecter:
         pyperclip.paste()
 
     def updateMainUIelements(self):
-        return self.actioner.updateUIelements()
+        return self.updateUIelements()
 
+    def convToGradioUI(self, 
+                        r_msgs, 
+                        mancurtaskgetname, 
+                        res_params, 
+                        set_prompt, 
+                        mangettasklist,
+                        mangetcurtaskparamlist, 
+                        curtaskallpars,
+                        gettreenameforradio_names,
+                        gettreenameforradio_trg,
+                        mancurtaskgetbranchsum,
+                        mangetbranchend,
+                        mangetbranchendname,
+                        mangetbranchlist,
+                        mangetbranchmessages,
+                        status_msg,
+                        rawinfo_msgs,
+                        manholdgarlands,
+                        mangetname,
+                        mangetcolor,
+                        multitasks
+                       ):
+        out =  (
+            r_msgs, 
+            # in_prompt ,
+            # out_prompt, 
+            # in_role, 
+            # chck, 
+            mancurtaskgetname, 
+            res_params,
+            set_prompt, 
+            gr.Dropdown(choices= mangettasklist),
+            gr.Dropdown(choices=mangetcurtaskparamlist, interactive=True), 
+            gr.Dropdown(choices=curtaskallpars, 
+                               value=mancurtaskgetname, 
+                               interactive=True), 
+            gr.Radio(value="SubTask"), 
+            r_msgs,
+            # self.getCurrentExtTaskOptions(),
+            gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
+            gr.Textbox(value=mancurtaskgetbranchsum, interactive=True),
+            gr.Radio(choices=mangetbranchend, interactive=True),
+            mangetbranchendname,
+            gr.CheckboxGroup(value=[]),
+            mangetbranchlist,
+            mangetbranchmessages,
+            status_msg,
+            rawinfo_msgs,
+            gr.Radio(choices=manholdgarlands, interactive=True),
+            mangetname,
+            mangetcolor,
+            multitasks
+            )
+        return out
+ 
+    def updateUIelements(self, prompt = ''):
+        hide_tasks = False
+        maingraph = self.actioner.drawGraph(hide_tasks=True, out_childtask_max=1)
+        stepgraph = self.actioner.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
+        rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
+
+
+        [r_msgs, 
+        mancurtaskgetname, 
+        res_params, 
+        set_prompt, 
+        mangettasklist,
+        mangetcurtaskparamlist, 
+        curtaskallpars,
+        gettreenameforradio_names,
+        gettreenameforradio_trg,
+        mancurtaskgetbranchsum,
+        mangetbranchend,
+        mangetbranchendname,
+        mangetbranchlist,
+        mangetbranchmessages,
+        status_msg,
+        rawinfo_msgs,
+        manholdgarlands,
+        mangetname,
+        mangetcolor,
+        multitasks] = self.actioner.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
+
+        out = self.convToGradioUI(
+                r_msgs, 
+                mancurtaskgetname, 
+                res_params, 
+                set_prompt, 
+                mangettasklist,
+                mangetcurtaskparamlist, 
+                curtaskallpars,
+                gettreenameforradio_names,
+                gettreenameforradio_trg,
+                mancurtaskgetbranchsum,
+                mangetbranchend,
+                mangetbranchendname,
+                mangetbranchlist,
+                mangetbranchmessages,
+                status_msg,
+                rawinfo_msgs,
+                manholdgarlands,
+                mangetname,
+                mangetcolor,
+                multitasks
+        )
+
+
+        out += (self.actioner.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
+        # print('act:',out)
+        return out
+        # else:
+        #     hide_tasks = True
+        #     maingraph = self.manager.drawGraph(hide_tasks=hide_tasks)
+        #     stepgraph = self.manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
+        #     rawgraph = self.manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True)
+        #     out = self.getCurrTaskPrompts2(set_prompt=prompt)
+        #     if out == None:
+        #         self.setManager(self.std_manager)
+        #         out = self.getCurrTaskPrompts2(set_prompt=prompt)
+        #     out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
+        #     return out
+
+    def updateTaskManagerUI(self):
+        out = self.updateUIelements()
+        saved_man, tmp_man, mangetname, name, tmpmannames = self.actioner.getTmpManagerInfo()
+        out += self.convTmpManagerInfo(saved_man, tmp_man, mangetname, name, tmpmannames)
+        return out
+ 
+    def convTmpManagerInfo(self, saved_man, tmp_man, mangetname, name, tmpmannames):
+        return (gr.Dropdown(choices= saved_man, value=None, interactive=True), 
+                gr.Radio(choices= tmp_man, value=mangetname, interactive=True), 
+                # json.dumps(param, indent=1), 
+                gr.Text(value=name), 
+                # self.manager.getCurrentExtTaskOptions(),
+                gr.Dropdown(choices= tmpmannames, value=None, interactive=True)
+                )
+
+    def getUItmpmanagers(self):
+        saved_man, tmp_man, mangetname, name, tmpmannames = self.actioner.getTmpManagerInfo()
+        return self.convTmpManagerInfo(saved_man, tmp_man, mangetname, name, tmpmannames)

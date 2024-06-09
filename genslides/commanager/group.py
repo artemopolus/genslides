@@ -12,7 +12,6 @@ import genslides.utils.loader as Loader
 
 import os
 import json
-import gradio as gr
 import shutil
 import graphviz
 
@@ -549,14 +548,11 @@ class Actioner():
                 name = self.manager.getName() + ' [' +'|'.join(tmp_mannames) + ']'
             else:
                 name = self.std_manager.getName() + '->' + self.manager.getName()
+        mangetname = self.manager.getName()
+        tmpmannames = [m.getName() for m in self.tmp_managers]
+        return saved_man, tmp_man, mangetname, name, tmpmannames
+    
 
-        return (gr.Dropdown(choices= saved_man, value=None, interactive=True), 
-                gr.Radio(choices= tmp_man, value=self.manager.getName(), interactive=True), 
-                # json.dumps(param, indent=1), 
-                gr.Text(value=name), 
-                # self.manager.getCurrentExtTaskOptions(),
-                gr.Dropdown(choices=[m.getName() for m in self.tmp_managers], value=None, interactive=True)
-                )
 
     def setParamToManagerInfo(self, param : dict, manager : Manager):
         for key, value in param.keys():
@@ -821,37 +817,8 @@ class Actioner():
             man.setName( '_'.join(name, str(idx)) )
             idx += 1
 
-    def updateUIelements(self, prompt = ''):
-        # print('std',self.std_manager)
-        # print('tmp',self.tmp_managers)
-        # print('man',self.manager)
-        if self.std_manager == self.manager:
-            hide_tasks = False
-            maingraph = self.drawGraph(hide_tasks=True, out_childtask_max=1)
-            stepgraph = self.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
-            rawgraph = self.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
+   
 
-            out = self.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.hide_task)
-            out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
-            # print('act:',out)
-            return out
-        else:
-            hide_tasks = True
-            maingraph = self.manager.drawGraph(hide_tasks=hide_tasks)
-            stepgraph = self.manager.drawGraph(max_index= 1, path = "output/img2", hide_tasks=hide_tasks, max_childs=-1,add_linked=True)
-            rawgraph = self.manager.drawGraph(hide_tasks=hide_tasks, max_childs=1, path="output/img3", all_tree_task=True)
-            out = self.getCurrTaskPrompts2(set_prompt=prompt)
-            if out == None:
-                self.setManager(self.std_manager)
-                out = self.getCurrTaskPrompts2(set_prompt=prompt)
-            out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
-            return out
-    
-    def updateTaskManagerUI(self):
-        out = self.updateUIelements()
-        out += self.getTmpManagerInfo()
-        return out
- 
     def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False, add_garlands=False, all_tree_task = False, out_childtask_max = -1):
         # print('Draw graph')
         man = self.std_manager
@@ -1213,7 +1180,8 @@ class Actioner():
         mangetname = man.getName()
         mangetcolor = man.getColor()
         multitasks = ','.join([t.getName() for t in man.multiselect_tasks])
-        return self.convToGradioUI(
+        # return self.convToGradioUI(
+        return (
                         r_msgs, 
                         mancurtaskgetname, 
                         res_params, 
@@ -1238,72 +1206,9 @@ class Actioner():
         )
 
 
-    def convToGradioUI(self, 
-                        r_msgs, 
-                        mancurtaskgetname, 
-                        res_params, 
-                        set_prompt, 
-                        mangettasklist,
-                        mangetcurtaskparamlist, 
-                        curtaskallpars,
-                        gettreenameforradio_names,
-                        gettreenameforradio_trg,
-                        mancurtaskgetbranchsum,
-                        mangetbranchend,
-                        mangetbranchendname,
-                        mangetbranchlist,
-                        mangetbranchmessages,
-                        status_msg,
-                        rawinfo_msgs,
-                        manholdgarlands,
-                        mangetname,
-                        mangetcolor,
-                        multitasks
-                       ):
-        out =  (
-            r_msgs, 
-            # in_prompt ,
-            # out_prompt, 
-            # in_role, 
-            # chck, 
-            mancurtaskgetname, 
-            res_params,
-            set_prompt, 
-            gr.Dropdown(choices= mangettasklist),
-            gr.Dropdown(choices=mangetcurtaskparamlist, interactive=True), 
-            gr.Dropdown(choices=curtaskallpars, 
-                               value=mancurtaskgetname, 
-                               interactive=True), 
-            gr.Radio(value="SubTask"), 
-            r_msgs,
-            # self.getCurrentExtTaskOptions(),
-            gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
-            gr.Textbox(value=mancurtaskgetbranchsum, interactive=True),
-            gr.Radio(choices=mangetbranchend, interactive=True),
-            mangetbranchendname,
-            gr.CheckboxGroup(value=[]),
-            mangetbranchlist,
-            mangetbranchmessages,
-            status_msg,
-            rawinfo_msgs,
-            gr.Radio(choices=manholdgarlands, interactive=True),
-            mangetname,
-            mangetcolor,
-            multitasks
-            )
-        return out
-    
+   
 
-    def getCurrentExtTaskOptions(self):
-        p = []
-        names = finder.getExtTaskSpecialKeys()
-        for name in names:
-            res, val = self.curr_task.getParamStruct(name)
-            # print(name,'=',val)
-            if res and val[name]:
-                p.append(name)
-        return gr.CheckboxGroup(choices=names,value = p, interactive=True)
-    
+   
     def setCurrentExtTaskOptions(self, names : list):
         man = self.manager
         full_names = finder.getExtTaskSpecialKeys()
@@ -1314,7 +1219,6 @@ class Actioner():
                 man.curr_task.updateParam2({'type': name, name : True})
 
         man.curr_task.saveAllParams()
-        return self.getCurrentExtTaskOptions()
     
     def resetAllExtTaskOptions(self):
         man = self.manager
@@ -1324,24 +1228,26 @@ class Actioner():
             for name in full_names:
                 task.updateParam2({'type': name, name : False})
             task.saveAllParams()
-        return self.getCurrentExtTaskOptions()
-
-    def getTaskKeyValue(self, param_name, param_key):
+   
+    def getTaskKeyValueInternal(self, param_name, param_key):
         man = self.manager
         print('Get task key value:',param_name,'|', param_key)
         if param_key == 'path_to_read':
             filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-            return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
-                    gr.Textbox(str(filename)))
+            return [filename], filename, True, False, str(filename), False
+            # return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
+                    # gr.Textbox(str(filename)))
         elif param_name == 'script' and param_key == 'path_to_trgs':
             filename = "[[project:RunScript:python]] "
             filename += Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-            return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
-                    gr.Textbox(str(filename)))
+            return filename, filename, True, True, str(filename), False
+            # return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
+            #         gr.Textbox(str(filename)))
 
         elif param_key == 'path_to_write':
             filename = Loader.Loader.getDirPathFromSystem(man.getPath())
-            return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
+            return [filename], os.path.join(filename,'insert_name'), True, False, filename, True
+            # return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
         elif param_key == 'model':
             res, data = man.curr_task.getParamStruct(param_name)
             if res:
@@ -1352,8 +1258,9 @@ class Actioner():
                     models = json.load(config)
                     for _, vals in models.items():
                         values.extend([opt['name'] for opt in vals['prices']])
-                return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
-                         gr.Textbox(value=''))
+                return values, cur_val, True, False, "", False
+                # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                        #  gr.Textbox(value=''))
            
         task_man = TaskManager()
         res, data = man.curr_task.getParamStruct(param_name)
@@ -1369,14 +1276,17 @@ class Actioner():
             print('Update with',cur_val,'from', values)
             if len(values):
                 if cur_val in values:
-                    return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
-                         gr.Textbox(value=''))
+                    return values, cur_val, True, False, "", False
+                    # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
+                        #  gr.Textbox(value=''))
             else:
                     # str_cur_val = str(cur_val)
                     str_cur_val = json.dumps(cur_val, indent=1)
-                    return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
-                         gr.Textbox(value=str_cur_val))
+                    return cur_val, cur_val, True, False,str_cur_val, False
+                    # return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
+                        #  gr.Textbox(value=str_cur_val))
         cur_val = 'None'
-        return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
-                gr.Textbox(value=''))
+        return [cur_val], cur_val, True, False,"", False
+        # return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
+        #         gr.Textbox(value=''))
  
