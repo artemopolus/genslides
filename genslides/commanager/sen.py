@@ -65,6 +65,13 @@ class Projecter:
 
         self.exttreeact = []
 
+    def getSessionNameList(self):
+        return ['Untitled']
+
+    def getSessionName(self):
+        session_names = self.getSessionNameList()
+        return gr.Dropdown(choices=session_names, value=session_names[0], interactive=True)
+
 
     def loadManager(self):
         self.resetManager(self.actioner.std_manager)

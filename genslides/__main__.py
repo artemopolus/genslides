@@ -117,10 +117,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             manipulate_manager = projecter
             parameters_manager = projecter
             with gr.Row():
+                sessionname_drd = gr.Dropdown(label='Session name',choices=projecter.getSessionNameList())
+            with gr.Row():
                 project_manLoad = gr.Button(value='Default project location')
                 project_manBrow = gr.Button(value='Select project location')
             with gr.Column():
-                actaddbybrow_btn = gr.Button('Select actioner loaction')
+                actaddbybrow_btn = gr.Button('Select actioner location')
                 actionerlist_rad = gr.Radio(label='Actioners')
                 updactlist_btn = gr.Button('Update')
                 updactlist_btn.click(fn=projecter.getActionerList, outputs=[actionerlist_rad])
