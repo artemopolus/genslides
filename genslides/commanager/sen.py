@@ -46,6 +46,10 @@ class Projecter:
         self.tmp_actioner = None
         self.tmp_actioner_task = None
 
+        # self.actioners_list : list[Actioner] = []
+
+        self.actioners_list : list[dict] = []
+
         self.resetManager(manager, load=False)
         # saver = SaveData()
         # saver.removeFiles()
@@ -60,6 +64,7 @@ class Projecter:
         self.tree3plaintext_idx = 0
 
         self.exttreeact = []
+
 
     def loadManager(self):
         self.resetManager(self.actioner.std_manager)
@@ -105,20 +110,6 @@ class Projecter:
             self.manager.loadTasksList(fast)
             self.manager.enableOutput2()
             self.actioner.loadTmpManagers()
-
-    def createActioner(self, eparam) -> Actioner:
-        path = eparam['exttreetask_path']
-        manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
-        manager.onStart()
-        manager.initInfo(self.loadExtProject, path = path)
-        if 'retarget' in eparam:
-            manager.addRenamedPair(eparam['retarget']['std'],eparam['retarget']['chg'])
-        elif 'retrgs' in eparam:
-            for pair in eparam['retrgs']:
-                manager.addRenamedPair(pair['std'], pair['chg'])
-        act = Actioner(manager)
-        act.setPath(path)
-        return act
 
  
 
@@ -697,6 +688,81 @@ class Projecter:
                     break
         return self.updateTaskManagerUI()
     
+    def getActionerList(self):
+        print(self.actioners_list)
+        return gr.Radio(choices=[a['act'].getPath() for a in self.actioners_list], 
+    value=self.actioner.getPath() if self.actioner != None else None, interactive=True)
+    
+    def selectActionerByInfo(self, info):
+        for act in self.actioners_list:
+            if act['act'].getPath() == info:
+                self.actioner = act['act']
+        return self.updateTaskManagerUI()
+    
+    def addActionerTolist(self, act : Actioner, params = {'type':'project'}, move2selected = True):
+        found = False
+        for actpack in self.actioners_list:
+            if actpack['act'] == act:
+                found = True
+                break
+        if not found:
+            self.actioners_list.append({'act':act, 'params':params})
+        if move2selected:
+            self.actioner = act
+   
+    def addExtTreeTAskActioner(self):
+        man = self.actioner.manager
+        task = man.curr_task
+        task_actioner = task.getActioner()
+        if task_actioner != None:
+            self.addActionerTolist(task_actioner, params={'type':'exttreetask','task': task})
+            self.actioner.loadStdManagerTasks()
+        return self.getActionerList()
+
+    def createActioner(self, eparam) -> Actioner:
+        path = eparam['exttreetask_path']
+        manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        manager.onStart()
+        manager.initInfo(self.loadExtProject, path = path)
+        if 'retarget' in eparam:
+            manager.addRenamedPair(eparam['retarget']['std'],eparam['retarget']['chg'])
+        elif 'retrgs' in eparam:
+            for pair in eparam['retrgs']:
+                manager.addRenamedPair(pair['std'], pair['chg'])
+        act = Actioner(manager)
+        act.setPath(path)
+        if 'load' in eparam and eparam['load']:
+            manager.disableOutput2()
+            if 'loadtype' in eparam:
+                manager.loadTasksList(safe = True if eparam['loadtype' == 'safe'] else False)
+            else:
+                manager.loadTasksList(safe = False)
+            manager.enableOutput2()
+            act.loadTmpManagers()
+        return act
+
+
+    def loadActionerByPath(self):
+        path = Loader.Loader.getDirPathFromSystem()
+        print('Load manager by path',path)
+        man_path = Loader.Loader.getUniPath(path)
+        actioner = self.createActioner({'exttreetask_path':man_path,'load':True})
+        self.addActionerTolist(actioner)
+        man = self.actioner.std_manager
+        if len(man.task_list) == 0:
+            self.createNewTree()
+        print('Load manager from browser is complete')
+        python_path = Finder.findByKey("[[project:RunScript:python]]", man, man.curr_task, man.helper)
+        fld = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper)
+        spc = Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper)
+        print("Vars for manager")
+        print(f"Python path: { Loader.Loader.getUniPath( python_path )}")
+        print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
+        print(f"Manager space: { Loader.Loader.getUniPath( spc )}")
+        return self.updateTaskManagerUI()
+   
+
+
     def switchToExtTaskManager(self):
         print('Switch to ext task manager')
         man = self.actioner.manager

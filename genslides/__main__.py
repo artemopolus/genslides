@@ -119,6 +119,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             with gr.Row():
                 project_manLoad = gr.Button(value='Default project location')
                 project_manBrow = gr.Button(value='Select project location')
+            with gr.Column():
+                actaddbybrow_btn = gr.Button('Select actioner loaction')
+                actionerlist_rad = gr.Radio(label='Actioners')
+                updactlist_btn = gr.Button('Update')
+                updactlist_btn.click(fn=projecter.getActionerList, outputs=[actionerlist_rad])
+
 
             with gr.Row() as r:
                 tree_names_radio = gr.Radio(label='Trees:')
@@ -847,6 +853,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
  
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
+            
+            actaddbybrow_btn.click(fn=projecter.loadActionerByPath, outputs=std_full)
+            actionerlist_rad.input(fn=projecter.selectActionerByInfo, inputs=[actionerlist_rad], outputs=std_full)
 
             projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)
             movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)
