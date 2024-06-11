@@ -79,6 +79,9 @@ def getFilesPathInFolder(path: str):
 def getFilenamesFromFilepaths( paths : list[str]):
     return [Path(p).name for p in paths]
 
+def getClearFilenamesFromFilepaths( paths : list[str]):
+    return [Path(p).stem for p in paths]
+
 def getFoldersInFolder(path:str):
     return [f for f in listdir(path) if isdir(join(path, f))]
 

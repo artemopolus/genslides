@@ -67,7 +67,7 @@ class Projecter:
         self.session_name_curr = 'untitled'
         self.session_name_path = 'session'
         FileManager.createFolder(self.session_name_path)
-        self.session_names_list = FileManager.getFilenamesFromFilepaths(FileManager.getFilesPathInFolder(self.session_name_path))
+        self.session_names_list = FileManager.getClearFilenamesFromFilepaths(FileManager.getFilesPathInFolder(self.session_name_path))
         trg_name = self.session_name_curr
         idx = 0
         while( trg_name in self.session_names_list):
@@ -94,7 +94,8 @@ class Projecter:
         else:
             self.session_name_curr = name
             self.loadSession()
-        return self.getCurrentSessionName()
+        
+        return self.updateTaskManagerUI()
     
 
     def getCurrentSessionName(self):
@@ -724,7 +725,6 @@ class Projecter:
         return self.updateTaskManagerUI()
     
     def getActionerList(self):
-        print(self.actioners_list)
         return gr.Radio(choices=[a['act'].getPath() for a in self.actioners_list], 
     value=self.actioner.getPath() if self.actioner != None else None, interactive=True)
     
@@ -2363,7 +2363,9 @@ class Projecter:
                 # json.dumps(param, indent=1), 
                 gr.Text(value=name), 
                 # self.manager.getCurrentExtTaskOptions(),
-                gr.Dropdown(choices= tmpmannames, value=None, interactive=True)
+                gr.Dropdown(choices= tmpmannames, value=None, interactive=True),
+                self.getCurrentSessionName(),
+                self.getActionerList()
                 )
 
     def getUItmpmanagers(self):

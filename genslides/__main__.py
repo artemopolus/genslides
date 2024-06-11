@@ -121,11 +121,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 setsessionname_btn = gr.Button('Select')
                 sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
                 newsessionname_btn = gr.Button('New name')
-                setsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionname_drd], outputs=[sessionnamecur_txt])
-                newsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt])
-            with gr.Row():
-                project_manLoad = gr.Button(value='Default project location')
-                project_manBrow = gr.Button(value='Select project location')
+            # with gr.Row():
+                # project_manLoad = gr.Button(value='Default project location')
+                # project_manBrow = gr.Button(value='Select project location')
             with gr.Column():
                 actaddbybrow_btn = gr.Button('Select actioner location')
                 actionerlist_rad = gr.Radio(label='Actioners')
@@ -706,11 +704,16 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         outet_extmanbud_btn.click(fn=projecter.addOutExtTreeInfo, inputs=[outexttreeparam_txt, manbudlist_drd], outputs=outexttreeparam_txt)
                         outet_extmantasks_btn.click(fn=projecter.addOutExtTreeInfo, inputs=[outexttreeparam_txt, manalltsklist_drd], outputs=outexttreeparam_txt)
                     
-                    std_output_man_list = [get_savdman_btn, get_tempman, 
+                    std_output_man_list = [
+                                        get_savdman_btn, 
+                                        get_tempman, 
                                         #    params_prman, 
                                            name_prman, 
                                         #    exttaskopt_chgr, 
-                                           tempman_drp]
+                                        tempman_drp,
+                                        sessionnamecur_txt,
+                                        actionerlist_rad
+                                           ]
 
                     # edit_param_prman.click(fn=manipulate_manager.editParamPrivManager,inputs=params_prman, outputs=std_output_man_list)
                     save2curtask_btn.click(fn=manipulate_manager.savePrivManToTask, outputs=std_output_man_list)
@@ -860,7 +863,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
  
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
-            
+
+            setsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionname_drd], outputs=std_full)
+            newsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionnamecur_txt], outputs=std_full)
+   
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
             actionerlist_rad.input(fn=projecter.selectActionerByInfo, inputs=[actionerlist_rad], outputs=std_full)
 
@@ -985,8 +991,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             project_clear.click(fn=projecter.clear)
             project_load.click(fn=projecter.load, outputs=[project_name])
             project_reload.click(fn=projecter.reload)
-            project_manLoad.click(fn=projecter.loadManager, outputs=std_output_list)
-            project_manBrow.click(fn=projecter.loadManagerFromBrowser, outputs=std_output_list)
+            # project_manLoad.click(fn=projecter.loadManager, outputs=std_output_list)
+            # project_manBrow.click(fn=projecter.loadManagerFromBrowser, outputs=std_output_list)
 
             fix_task_btn.click(fn=projecter.fixCurManQtasks, outputs=std_output_list)
 
