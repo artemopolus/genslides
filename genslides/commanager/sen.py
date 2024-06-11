@@ -64,13 +64,36 @@ class Projecter:
         self.tree3plaintext_idx = 0
 
         self.exttreeact = []
+        self.session_name_curr = 'Untitled'
+        self.session_name_path = 'session'
+        FileManager.createFolder(self.session_name_path)
+        self.session_names_list = FileManager.getFilenamesFromFilepaths(FileManager.getFilesPathInFolder(self.session_name_path))
+        trg_name = self.session_name_curr
+        idx = 0
+        while( trg_name in self.session_names_list):
+            trg_name = 'Untitled' + str(idx)
+            idx += 1
+        
+        self.session_name_curr = trg_name
+        self.session_names_list.append(trg_name)
+
+        
 
     def getSessionNameList(self):
-        return ['Untitled']
+        return self.session_names_list
 
     def getSessionName(self):
         session_names = self.getSessionNameList()
         return gr.Dropdown(choices=session_names, value=session_names[0], interactive=True)
+    
+    def getSessionNameFromList(self, name):
+        self.session_name_curr = name
+        if name not in self.session_names_list:
+            self.session_names_list.append(name)
+        return self.getCurrentSessionName()
+
+    def getCurrentSessionName(self):
+        return self.session_name_curr
 
 
     def loadManager(self):
@@ -122,9 +145,9 @@ class Projecter:
 
 # сохранение сессионных имен необходимо связать только с проектером сеном, а не с менеджером
     def updateSessionName(self):
-        self.session_name = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        print("Name of session=",self.session_name)
-        self.manager.setParam("session_name",self.session_name)
+        self.session_name_curr = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+        print("Name of session=",self.session_name_curr)
+        self.manager.setParam("session_name",self.session_name_curr)
 
 
     def getTaskJsonStr(self, id : str):
@@ -714,8 +737,24 @@ class Projecter:
                 break
         if not found:
             self.actioners_list.append({'act':act, 'params':params})
+            self.saveSession()
         if move2selected:
             self.actioner = act
+
+    def saveSession(self):
+        act_data = []
+        for act in self.actioners_list:
+            act_info = {
+                'act_path': act['act'].getPath(),
+                'type' : act['params']['type']
+            }
+            if act['params']['type'] == 'exttreetask':
+                act_info['trg_task'] = act['params']['task'].getName()
+            act_data.append(act_info)
+        session_data = {
+            'actioners': act_data
+        }
+        Writer.writeJsonToFile(Loader.Loader.getUniPath(self.session_name_path), session_data)
    
     def addExtTreeTAskActioner(self):
         man = self.actioner.manager
