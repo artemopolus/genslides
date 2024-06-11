@@ -119,8 +119,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             with gr.Row():
                 sessionname_drd = gr.Dropdown(label='Session names list',choices=projecter.getSessionNameList())
                 setsessionname_btn = gr.Button('Select')
-                sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getSessionName())
+                sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
                 newsessionname_btn = gr.Button('New name')
+                setsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionname_drd], outputs=[sessionnamecur_txt])
+                newsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt])
             with gr.Row():
                 project_manLoad = gr.Button(value='Default project location')
                 project_manBrow = gr.Button(value='Select project location')
@@ -859,7 +861,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
             
-            actaddbybrow_btn.click(fn=projecter.loadActionerByPath, outputs=std_full)
+            actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
             actionerlist_rad.input(fn=projecter.selectActionerByInfo, inputs=[actionerlist_rad], outputs=std_full)
 
             projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)

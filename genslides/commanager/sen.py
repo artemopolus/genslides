@@ -64,18 +64,18 @@ class Projecter:
         self.tree3plaintext_idx = 0
 
         self.exttreeact = []
-        self.session_name_curr = 'Untitled'
+        self.session_name_curr = 'untitled'
         self.session_name_path = 'session'
         FileManager.createFolder(self.session_name_path)
         self.session_names_list = FileManager.getFilenamesFromFilepaths(FileManager.getFilesPathInFolder(self.session_name_path))
         trg_name = self.session_name_curr
         idx = 0
         while( trg_name in self.session_names_list):
-            trg_name = 'Untitled' + str(idx)
+            trg_name = 'untitled' + str(idx)
             idx += 1
         
         self.session_name_curr = trg_name
-        self.session_names_list.append(trg_name)
+        # self.session_names_list.append(trg_name)
 
         
 
@@ -90,7 +90,12 @@ class Projecter:
         self.session_name_curr = name
         if name not in self.session_names_list:
             self.session_names_list.append(name)
+            self.saveSession()
+        else:
+            self.session_name_curr = name
+            self.loadSession()
         return self.getCurrentSessionName()
+    
 
     def getCurrentSessionName(self):
         return self.session_name_curr
@@ -749,21 +754,53 @@ class Projecter:
                 'type' : act['params']['type']
             }
             if act['params']['type'] == 'exttreetask':
-                act_info['trg_task'] = act['params']['task'].getName()
+                act_info['trg_task_name'] = act['params']['task'].getName()
             act_data.append(act_info)
         session_data = {
             'actioners': act_data
         }
-        Writer.writeJsonToFile(Loader.Loader.getUniPath(self.session_name_path), session_data)
+        path = FileManager.addFolderToPath(self.session_name_path,[self.session_name_curr + ".json"])
+        Writer.writeJsonToFile(Loader.Loader.getUniPath(path), session_data)
    
-    def addExtTreeTAskActioner(self):
+    def loadSession(self):
+        path = FileManager.addFolderToPath(self.session_name_path,[self.session_name_curr + ".json"])
+        session_data = Reader.ReadFileMan.readJson(path)
+        projects_info = []
+        exttreetask_info = []
+        if 'actioners' in session_data:
+            for act_info in session_data['actioners']:
+                if act_info['type'] == 'project':
+                    projects_info.append(act_info)
+                elif act_info['type'] == 'exttreetask':
+                    exttreetask_info.append(act_info)
+
+        for info in projects_info:
+            self.loadActionerByPath(info['act_path'])
+
+        active_act = self.actioners_list.copy()
+        for info in exttreetask_info:
+            name = info['trg_task_name']
+            trg_tasks = []
+            for act in active_act:
+                act_tasks = act['act'].getTasksByName(name)
+                
+                trg_tasks.extend([t for t in act_tasks if t not in trg_tasks])
+            for task in trg_tasks:
+                self.addExtTreeTaskActioner(task)
+
+
+
+    def addExtTreeTaskActionerForCurrTask(self):
         man = self.actioner.manager
         task = man.curr_task
+        self.addExtTreeTaskActioner(task)
+        return self.getActionerList()
+    
+    def addExtTreeTaskActioner(self, task : BaseTask):
         task_actioner = task.getActioner()
         if task_actioner != None:
             self.addActionerTolist(task_actioner, params={'type':'exttreetask','task': task})
             self.actioner.loadStdManagerTasks()
-        return self.getActionerList()
 
     def createActioner(self, eparam) -> Actioner:
         path = eparam['exttreetask_path']
@@ -788,10 +825,14 @@ class Projecter:
         return act
 
 
-    def loadActionerByPath(self):
+    def loadActionerByBrowsing(self):
         path = Loader.Loader.getDirPathFromSystem()
         print('Load manager by path',path)
         man_path = Loader.Loader.getUniPath(path)
+        self.loadActionerByPath(man_path)
+        return self.updateTaskManagerUI()
+
+    def loadActionerByPath(self, man_path : str):
         actioner = self.createActioner({'exttreetask_path':man_path,'load':True})
         self.addActionerTolist(actioner)
         man = self.actioner.std_manager
@@ -805,7 +846,6 @@ class Projecter:
         print(f"Python path: { Loader.Loader.getUniPath( python_path )}")
         print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
         print(f"Manager space: { Loader.Loader.getUniPath( spc )}")
-        return self.updateTaskManagerUI()
    
 
 

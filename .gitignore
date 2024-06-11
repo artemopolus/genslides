@@ -166,3 +166,4 @@ actpacks/*
 .DS_Store
 tests/llm/test.txt
 .tt
+session/*

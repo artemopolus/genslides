@@ -528,6 +528,19 @@ class Actioner():
         # установить следущий менедежер
         self.setManager(next_man)
 
+    def getTasksByName(self, name : str) -> list[BaseTask]:
+        mans = [t for t in self.tmp_managers]
+        mans.append(self.std_manager)
+        print('Search task by name', name,'in', [t.getName() for t in mans])
+        out = []
+        for man in mans:
+            task = man.getTaskByName(name)
+            if task != None and task not in out:
+                out.append(task)
+        return out
+
+
+
     def getTmpManagerInfo(self):
         # print('Get temporary manager',self.manager.getName(),'info')
         saved_man = [t['task'] for t in self.manager.info['script']['managers']]
