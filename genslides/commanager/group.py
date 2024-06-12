@@ -538,8 +538,21 @@ class Actioner():
             if task != None and task not in out:
                 out.append(task)
         return out
+    
+    def setCurManTaskByName(self, name):
+        self.manager.setCurrentTaskByName(name)
 
+    def getCurrentTaskName(self):
+        return self.manager.curr_task.getName()
 
+    def getCurrentTaskBranchNames(self):
+        return [t.getName() for t in self.manager.curr_task.getAllParents()]
+
+    def getTaskBranchNamesByTaskName(self, name : str):
+        task = self.manager.getTaskByName(name)
+        if task != None:
+            return [t.getName() for t in task.getAllParents()]
+        return []
 
     def getTmpManagerInfo(self):
         # print('Get temporary manager',self.manager.getName(),'info')
@@ -1253,7 +1266,7 @@ class Actioner():
         elif param_name == 'script' and param_key == 'path_to_trgs':
             filename = "[[project:RunScript:python]] "
             filename += Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-            return filename, filename, True, True, str(filename), False
+            return filename, filename, True, True, str(filename), True
             # return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
             #         gr.Textbox(str(filename)))
 
@@ -1302,4 +1315,16 @@ class Actioner():
         return [cur_val], cur_val, True, False,"", False
         # return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
         #         gr.Textbox(value=''))
- 
+    def selectManagerByName(self, name):
+        if self.actioner.std_manager.getName() == name:
+            self.actioner.setManager(self.actioner.std_manager)
+        else:
+            for man in self.actioner.tmp_managers:
+                if man.getName() == name:
+                    self.actioner.setManager(man)
+                    break
+    def goToTreeByName(self, name):
+        self.manager.goToTreeByName(name)
+
+    def setCurrTaskByBranchEndName(self, name):
+        self.manager.setCurrTaskByBranchEndName(name)

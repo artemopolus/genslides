@@ -116,19 +116,23 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             userinput_manager = projecter
             manipulate_manager = projecter
             parameters_manager = projecter
-            with gr.Row():
-                sessionname_drd = gr.Dropdown(label='Session names list',choices=projecter.getSessionNameList())
-                setsessionname_btn = gr.Button('Select')
-                sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
-                newsessionname_btn = gr.Button('New name')
-            # with gr.Row():
-                # project_manLoad = gr.Button(value='Default project location')
-                # project_manBrow = gr.Button(value='Select project location')
-            with gr.Column():
-                actaddbybrow_btn = gr.Button('Select actioner location')
-                actionerlist_rad = gr.Radio(label='Actioners')
-                updactlist_btn = gr.Button('Update')
-                updactlist_btn.click(fn=projecter.getActionerList, outputs=[actionerlist_rad])
+            with gr.Accordion(label='session'):
+                with gr.Row():
+                    sessionname_drd = gr.Dropdown(label='Session names list',choices=projecter.getSessionNameList())
+                    setsessionname_btn = gr.Button('Select from list')
+                    sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
+                    newsessionname_btn = gr.Button('New name for session')
+                # with gr.Row():
+                    # project_manLoad = gr.Button(value='Default project location')
+                    # project_manBrow = gr.Button(value='Select project location')
+                with gr.Column():
+                    actaddbybrow_btn = gr.Button('Load actioner from location')
+                    actionerlist_rad = gr.Radio(label='Actioners')
+                    updactlist_btn = gr.Button('Update')
+                    updactlist_btn.click(fn=projecter.getActionerList, outputs=[actionerlist_rad])
+                with gr.Row():
+                    exttreetaskaddact_btn = gr.Button('Load ExtTree to actioner')
+
 
 
             with gr.Row() as r:
@@ -341,7 +345,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 param_type.select(fn=projecter.getTaskKeys, inputs=param_type, outputs=param_key)
                                 param_slcval = gr.Dropdown(choices=[],label="Options")
                                 paramslctset_btn = gr.Button('Set option to value')
-                                param_mnlval = gr.Textbox(label='Value',info='manual',lines=4)
+                                param_mnlval = gr.Textbox(label='Value',info='manual',lines=4, interactive=True)
                                 param_edit = gr.Button("Edit param")
 
                                 paramslctset_btn.click(fn=projecter.setSelectOptionToValue, inputs=[param_type, param_key,param_slcval], outputs=[param_mnlval])
@@ -864,8 +868,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
 
+            exttreetaskaddact_btn.click(fn=projecter.addCurrentExtTreeTaskActioner, outputs=std_full)
+
             setsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionname_drd], outputs=std_full)
-            newsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionnamecur_txt], outputs=std_full)
+            newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
             actionerlist_rad.input(fn=projecter.selectActionerByInfo, inputs=[actionerlist_rad], outputs=std_full)

@@ -77,6 +77,8 @@ class Projecter:
         self.session_name_curr = trg_name
         # self.session_names_list.append(trg_name)
 
+        self.sec_actioner : Actioner = None
+
         
 
     def getSessionNameList(self):
@@ -84,14 +86,20 @@ class Projecter:
 
     def getSessionName(self):
         session_names = self.getSessionNameList()
-        return gr.Dropdown(choices=session_names, value=session_names[0], interactive=True)
+        return gr.Dropdown(choices=session_names, value=self.getCurrentSessionName(), interactive=True)
     
-    def getSessionNameFromList(self, name):
-        self.session_name_curr = name
+    def setNewSessionName(self, name):
         if name not in self.session_names_list:
+            self.session_name_curr = name
             self.session_names_list.append(name)
             self.saveSession()
-        else:
+        return  (
+            self.getCurrentSessionName(),
+            self.getSessionName()
+            )
+    
+    def getSessionNameFromList(self, name):
+        if name in self.session_names_list:
             self.session_name_curr = name
             self.loadSession()
         
@@ -715,13 +723,7 @@ class Projecter:
         return self.updateTaskManagerUI()
     
     def loadTmpManager(self, name):
-        if self.actioner.std_manager.getName() == name:
-            self.actioner.setManager(self.actioner.std_manager)
-        else:
-            for man in self.actioner.tmp_managers:
-                if man.getName() == name:
-                    self.actioner.setManager(man)
-                    break
+        self.actioner.selectManagerByName(name)
         return self.updateTaskManagerUI()
     
     def getActionerList(self):
@@ -733,7 +735,8 @@ class Projecter:
             if act['act'].getPath() == info:
                 self.actioner = act['act']
         return self.updateTaskManagerUI()
-    
+ 
+   
     def addActionerTolist(self, act : Actioner, params = {'type':'project'}, move2selected = True):
         found = False
         for actpack in self.actioners_list:
@@ -790,11 +793,11 @@ class Projecter:
 
 
 
-    def addExtTreeTaskActionerForCurrTask(self):
+    def addCurrentExtTreeTaskActioner(self):
         man = self.actioner.manager
         task = man.curr_task
         self.addExtTreeTaskActioner(task)
-        return self.getActionerList()
+        return self.updateTaskManagerUI()
     
     def addExtTreeTaskActioner(self, task : BaseTask):
         task_actioner = task.getActioner()
@@ -1089,7 +1092,7 @@ class Projecter:
         return self.updateMainUIelements()
 
     def goToTreeByName(self, name):
-        self.actioner.manager.goToTreeByName(name)
+        self.actioner.goToTreeByName(name)
         return self.updateMainUIelements()
 
     def resetUpdate(self):
@@ -1194,7 +1197,7 @@ class Projecter:
 
     
     def setCurrTaskByBranchEndName(self, name):
-        self.actioner.manager.setCurrTaskByBranchEndName( name)
+        self.actioner.setCurrTaskByBranchEndName( name)
         return self.updateMainUIelements()
     
     def cleanCurrTask(self):
@@ -1515,8 +1518,8 @@ class Projecter:
         return self.makeTaskAction("","","RemoveTaskList","")
 
 
-    def getTaskKeyValue(self, param_name, param_key):
-        return self.getTaskKeyValue(param_name, param_key)
+    # def getTaskKeyValue(self, param_name, param_key):
+        # return self.getTaskKeyValue(param_name, param_key)
     
     def setTaskKeyValueUI(self, choices, value, interactive, multiselect, text, text_interactive):
         return (
@@ -2283,6 +2286,48 @@ class Projecter:
             multitasks
             )
         return out
+    
+
+    def updateSecActUI(self, prompt = '' ):
+        if self.sec_actioner == None:
+            act = self.actioner
+        else:
+            act = self.sec_actioner
+        [r_msgs, 
+        mancurtaskgetname, 
+        res_params, 
+        set_prompt, 
+        mangettasklist,
+        mangetcurtaskparamlist, 
+        curtaskallpars,
+        gettreenameforradio_names,
+        gettreenameforradio_trg,
+        mancurtaskgetbranchsum,
+        mangetbranchend,
+        mangetbranchendname,
+        mangetbranchlist,
+        mangetbranchmessages,
+        status_msg,
+        rawinfo_msgs,
+        manholdgarlands,
+        mangetname,
+        mangetcolor,
+        multitasks] = act.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
+
+
+        maingraph = act.drawGraph(hide_tasks=True, out_childtask_max=1)
+        branchnames = act.getCurrentTaskBranchNames()
+        saved_man, tmp_man, mangetname, name, tmpmannames = act.getTmpManagerInfo()
+        out =  (
+            r_msgs,
+            maingraph, 
+            gr.Radio(choices=[a['act'].getPath() for a in self.actioners_list], interactive=True),
+            gr.Radio(choices=tmpmannames, value=mangetname, interactive=True),
+            gr.Dropdown(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
+            gr.Dropdown(choices=mangetbranchend, interactive=True),
+            gr.Dropdown(choices=branchnames, interactive=True)
+            )
+        return out
  
     def updateUIelements(self, prompt = ''):
         hide_tasks = False
@@ -2371,3 +2416,28 @@ class Projecter:
     def getUItmpmanagers(self):
         saved_man, tmp_man, mangetname, name, tmpmannames = self.actioner.getTmpManagerInfo()
         return self.convTmpManagerInfo(saved_man, tmp_man, mangetname, name, tmpmannames)
+    
+    def selectSecActionerByInfo(self, info):
+        for act in self.actioners_list:
+            if act['act'].getPath() == info:
+                self.sec_actioner = act['act']
+        return self.updateSecActUI()
+    
+    def selectSecActMan(self, name):
+        self.sec_actioner.selectManagerByName(name)
+        return self.updateSecActUI()
+    
+    def selectSecActTree(self, name):
+        self.sec_actioner.goToTreeByName(name)
+        return self.updateSecActUI()
+    
+    def selectSecActBud(self, name):
+        self.sec_actioner.setCurrTaskByBranchEndName(name)
+        return self.updateSecActUI()
+    
+    def selectSecActTask(self, name):
+        self.sec_actioner.setCurManTaskByName(name)
+        return self.updateSecActUI()
+
+
+ 
