@@ -21,11 +21,15 @@ class RunScriptTask(ResponseTask):
         res, pparam = self.getParamStruct("script")
         if res:
             try:
-                path_trgs_tmp = pparam["path_to_trgs"]
-                if isinstance(path_trgs_tmp, str):
-                    path_tmp = self.findKeyParam(pparam["path_to_trgs"] )
+                if 'parent_task_cmd' in pparam and pparam['parent_task_cmd']:
+                    src_path_trgs_tmp = self.findKeyParam("[[parent:msg_content]]")
+                    path_trgs_tmp = self.findKeyParam(src_path_trgs_tmp)
                 else:
-                    path_tmp = path_trgs_tmp
+                    path_trgs_tmp = pparam["path_to_trgs"]
+                    if isinstance(path_trgs_tmp, str):
+                        path_tmp = self.findKeyParam(pparam["path_to_trgs"] )
+                    else:
+                        path_tmp = path_trgs_tmp
                 path_to_python = pparam["path_to_python"]
                 need_to_remove = pparam["remove_script"]  
                 phrase_script = self.findKeyParam( pparam["init_phrase"] )

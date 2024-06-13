@@ -20,6 +20,7 @@ class ReadFileParamTask(ReadFileTask):
         print(self.getName(), 'Read content from file by params')
         param_name = "read_folder"
         res, read_folder = self.getParam(param_name)
+        encoding = 'utf-8'
         
         if res and read_folder:
             res, pparam = self.getParamStruct(param_name)
@@ -93,6 +94,8 @@ class ReadFileParamTask(ReadFileTask):
                     self.prompt_tag = pparam["role"]
                 else:
                     self.prompt_tag = "user"
+                if 'encoding' in pparam:
+                    encoding = pparam['encoding']
                 if "read_dial" in pparam and pparam["read_dial"] and os.path.isfile(s_path):
                     with open(s_path, 'r') as f:
                         try:
@@ -117,8 +120,12 @@ class ReadFileParamTask(ReadFileTask):
                     pres, text = ReadFileMan.readPartitial(s_path,int(pparam["max_part"]))
                     if pres:
                         return pres,text
+                elif 'binary' in pparam and pparam['binary']:
+                    with open(s_path, 'rb', encoding=encoding) as f:
+                        text = f.read()
+                    return True, text
                 else:
-                    with open(s_path, 'r', encoding='utf-8') as f:
+                    with open(s_path, 'r', encoding=encoding) as f:
                         text = f.read()
                     return True, text
         return False, "No file found"
