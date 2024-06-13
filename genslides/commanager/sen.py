@@ -2021,6 +2021,8 @@ class Projecter:
 
     def copyToClickBoardParentContent(self):
         self.copyToClickBoard("[[parent:msg_content]]")
+    def copyToClickBoardParentContentJSONtrg(self):
+        self.copyToClickBoard("[[parent:msg_content:json:answer]]")
 
     def copyToClickBoardDialRaw(self):
         msgs = self.actioner.manager.curr_task.getRawMsgs()
