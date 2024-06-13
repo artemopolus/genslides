@@ -291,6 +291,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     gr.Button("[ [parent:msg_content] ]").click(fn=projecter.copyToClickBoardParentContent)
                     gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg)
+                    gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode)
  
             with gr.Row():
                 # with gr.Column():
