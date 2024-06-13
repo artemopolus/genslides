@@ -2,13 +2,6 @@ import gradio as gr
 from genslides.commanager.sen import Projecter
 
 def exttreemanagerManipulator(projecter : Projecter):
-    etmgetbypath_btn = gr.Button('Browse to project')
-    manpath_txt = gr.Textbox(label='Path to selected')
-    tasktotargets_dtf = gr.DataFrame(headers=['ExtTreeTasks', 'Target'],type='array', col_count=2, label='Connect existed tasks to tmp man ext tasks')
-    addcurrtask_btn = gr.Button('Add current task to Empty Target')
-    setexttreeparam_btn = gr.Button('Set ext tree project parameters')
-    exttreeparams_jsn = gr.JSON(label='Ext Tree project parameters')
-    loadexttree_btn = gr.Button('Load ext tree project')
     updsecact_btn = gr.Button('Update')
     act_rad = gr.Radio(label='Actioners')
     with gr.Row():
@@ -19,10 +12,11 @@ def exttreemanagerManipulator(projecter : Projecter):
     with gr.Column():
         man_rad = gr.Radio(label='Managers')
         tree_rad = gr.Radio(label='Trees')
-    with gr.Row():
         etmbudlist_drd = gr.Dropdown(label='Man bud list')
         etmbudtasks_drd = gr.Dropdown(label='Bud branch')
+    with gr.Row():
         trgtype_rad = gr.Radio(choices=['Current task','Compare results','Selected task'])
+    with gr.Row():
         etmtasksend_btn = gr.Button('Send to selected task')
         updatealltree_btn = gr.Button('Update All Trees')
 
@@ -37,3 +31,8 @@ def exttreemanagerManipulator(projecter : Projecter):
     ]
 
     updsecact_btn.click(fn=projecter.updateSecActUI,outputs=secoutput)
+    act_rad.input(fn=projecter.selectSecActionerByInfo, inputs=[act_rad], outputs=secoutput)
+    man_rad.input(fn=projecter.selectSecActMan, inputs=[man_rad], outputs=secoutput)
+    tree_rad.input(fn=projecter.selectSecActTree, inputs=[tree_rad], outputs=secoutput)
+    etmbudlist_drd.input(fn=projecter.selectSecActBud,inputs=[etmbudlist_drd], outputs=secoutput)
+    etmbudtasks_drd.input(fn=projecter.selectSecActTask, inputs=[etmbudtasks_drd], outputs=secoutput)

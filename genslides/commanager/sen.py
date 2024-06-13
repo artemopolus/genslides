@@ -2312,17 +2312,19 @@ class Projecter:
         manholdgarlands,
         mangetname,
         mangetcolor,
-        multitasks] = act.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
+        multitasks] = act.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=act.hide_task)
 
 
         maingraph = act.drawGraph(hide_tasks=True, out_childtask_max=1)
         branchnames = act.getCurrentTaskBranchNames()
         saved_man, tmp_man, mangetname, name, tmpmannames = act.getTmpManagerInfo()
+        acts_list = [a['act'].getPath() for a in self.actioners_list]
+        cur_act = act.getPath() if self.sec_actioner != None else None
         out =  (
             r_msgs,
             maingraph, 
-            gr.Radio(choices=[a['act'].getPath() for a in self.actioners_list], interactive=True),
-            gr.Radio(choices=tmpmannames, value=mangetname, interactive=True),
+            gr.Radio(choices=acts_list, value=cur_act, interactive=True),
+            gr.Radio(choices=tmp_man, value=mangetname, interactive=True),
             gr.Dropdown(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
             gr.Dropdown(choices=mangetbranchend, interactive=True),
             gr.Dropdown(choices=branchnames, interactive=True)
@@ -2418,8 +2420,10 @@ class Projecter:
         return self.convTmpManagerInfo(saved_man, tmp_man, mangetname, name, tmpmannames)
     
     def selectSecActionerByInfo(self, info):
+        print(f"Select second actioner by {info}")
         for act in self.actioners_list:
             if act['act'].getPath() == info:
+                print(f"Select actioner by path{act['act'].getPath()}")
                 self.sec_actioner = act['act']
         return self.updateSecActUI()
     
