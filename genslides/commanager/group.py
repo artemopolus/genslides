@@ -1284,7 +1284,7 @@ class Actioner():
                     models = json.load(config)
                     for _, vals in models.items():
                         values.extend([opt['name'] for opt in vals['prices']])
-                return values, cur_val, True, False, "", False
+                return values, cur_val, True, False, "", True
                 # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=''))
            
@@ -1302,17 +1302,17 @@ class Actioner():
             print('Update with',cur_val,'from', values)
             if len(values):
                 if cur_val in values:
-                    return values, cur_val, True, False, "", False
+                    return values, cur_val, True, False, "", True
                     # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=''))
             else:
                     # str_cur_val = str(cur_val)
                     str_cur_val = json.dumps(cur_val, indent=1)
-                    return cur_val, cur_val, True, False,str_cur_val, False
+                    return cur_val, cur_val, True, False,str_cur_val, True
                     # return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=str_cur_val))
         cur_val = 'None'
-        return [cur_val], cur_val, True, False,"", False
+        return [cur_val], cur_val, True, False,"", True
         # return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
         #         gr.Textbox(value=''))
     def selectManagerByName(self, name):

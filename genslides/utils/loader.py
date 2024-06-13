@@ -148,7 +148,7 @@ class Loader:
         filename = PurePosixPath(path)
         if manager_path != '':
             mfilename = Loader.checkManagerTag(path, manager_path, False)
-            if filename == mfilename:
+            if Path(filename) == Path( mfilename):
                 return Loader.checkManagerTag(path, manager_path)
             else:
                 return mfilename
