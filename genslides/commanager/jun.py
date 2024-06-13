@@ -2611,7 +2611,7 @@ class Manager:
         task.getParent().sortChilds()
         for child in task.getParent().getChilds():
             res, val_src, _ = child.getLastMsgAndParent()
-            if res:
+            if res and len(val_src):
                 val = val_src[0]['content']
                 if task == child:
                     out += '\n\n---\n\n'

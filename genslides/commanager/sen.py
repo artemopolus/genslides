@@ -419,15 +419,15 @@ class Projecter:
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 
     def createGarlandOnSelectedTasks(self, action_type):
-        self.manager.createTreeOnSelectedTasks(action_type,'Garland')
+        self.actioner.manager.createTreeOnSelectedTasks(action_type,'Garland')
         return self.updateMainUIelements()
 
     def createCollectTreeOnSelectedTasks(self, action_type):
-        self.manager.createTreeOnSelectedTasks(action_type,"Collect")
+        self.actioner.manager.createTreeOnSelectedTasks(action_type,"Collect")
         return self.updateMainUIelements()
     
     def createShootTreeOnSelectedTasks(self, action_type):
-        self.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
+        self.actioner.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
         return self.updateMainUIelements()
     
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
@@ -671,6 +671,10 @@ class Projecter:
         if key == 'path_to_trgs':
             val_arr = mnl_value.split(';')
             mnl_value = val_arr
+        if mnl_value == 'False':
+            mnl_value = False
+        elif mnl_value == 'True':
+            mnl_value
         print('Set task key value:','|'.join([param_name,key,str(mnl_value)]))
         self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'manual':mnl_value})
         return self.updateTaskManagerUI()
@@ -2055,6 +2059,7 @@ class Projecter:
         pyperclip.paste()
            
     def copyMultiSelectedTasksChainsToSingleChain(self):
+        print('Copy multiselected tasks into single chain')
         act = self.actioner
         man = act.manager
        
@@ -2072,7 +2077,7 @@ class Projecter:
             print('Selected task:', man.getSelectedTask().getName())
             print('Current task:', man.getCurrentTask().getName())
             self.makeRequestAction('','Edit',role,{'onlymulti','sel2par'})
-        return act.updateUIelements()
+        return self.updateUIelements()
     
     def checkTrashInManagerFolder(self):
         act = self.actioner
