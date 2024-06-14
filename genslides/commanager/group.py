@@ -1258,21 +1258,33 @@ class Actioner():
     def getTaskKeyValueInternal(self, param_name, param_key):
         man = self.manager
         print('Get task key value:',param_name,'|', param_key)
+        interacttive_drd = True
+        multiselect_drd = False
+        choices = []
         if param_key == 'path_to_read':
             filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-            return [filename], filename, True, False, str(filename), False
+            return [filename], filename, interacttive_drd, multiselect_drd, str(filename), False
             # return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
                     # gr.Textbox(str(filename)))
         elif param_name == 'script' and param_key == 'path_to_trgs':
             filename = "[[project:RunScript:python]] "
             filename += Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-            return filename, filename, True, True, str(filename), True
+            multiselect_drd = True
+            res, data = man.curr_task.getParamStruct(param_name)
+            choices.append(filename)
+            if res and param_key in data:
+                choices.append(str(data[param_key]))
+            return filename, filename, interacttive_drd, multiselect_drd, str(filename), True
             # return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
             #         gr.Textbox(str(filename)))
 
         elif param_key == 'path_to_write':
             filename = Loader.Loader.getDirPathFromSystem(man.getPath())
-            return [filename], os.path.join(filename,'insert_name'), True, False, filename, True
+            choices.append(filename)
+            res, data = man.curr_task.getParamStruct(param_name)
+            if res and param_key in data:
+                choices.append(str(data[param_key]))
+            return choices, os.path.join(filename,'insert_name'), interacttive_drd, multiselect_drd, filename, True
             # return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
         elif param_key == 'model':
             res, data = man.curr_task.getParamStruct(param_name)
@@ -1284,7 +1296,7 @@ class Actioner():
                     models = json.load(config)
                     for _, vals in models.items():
                         values.extend([opt['name'] for opt in vals['prices']])
-                return values, cur_val, True, False, "", True
+                return values, cur_val, interacttive_drd, multiselect_drd, "", True
                 # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=''))
            
@@ -1302,17 +1314,17 @@ class Actioner():
             print('Update with',cur_val,'from', values)
             if len(values):
                 if cur_val in values:
-                    return values, cur_val, True, False, "", True
+                    return values, cur_val, interacttive_drd, multiselect_drd, "", True
                     # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=''))
             else:
                     # str_cur_val = str(cur_val)
                     str_cur_val = json.dumps(cur_val, indent=1)
-                    return cur_val, cur_val, True, False,str_cur_val, True
+                    return cur_val, cur_val, interacttive_drd, multiselect_drd,str_cur_val, True
                     # return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=str_cur_val))
         cur_val = 'None'
-        return [cur_val], cur_val, True, False,"", True
+        return [cur_val], cur_val, interacttive_drd, multiselect_drd,"", True
         # return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
         #         gr.Textbox(value=''))
     def selectManagerByName(self, name):

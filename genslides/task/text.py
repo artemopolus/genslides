@@ -1139,7 +1139,7 @@ class TextTask(BaseTask):
         # print("Found nothing for", param_name)
         return False, None
     
-    def findKeyParam(self, text: str):
+    def findKeyParam(self, text: str)->str:
          manager = self.manager
          base = self
          return finder.findByKey(text, manager, base, self.reqhelper )

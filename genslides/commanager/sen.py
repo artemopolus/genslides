@@ -668,6 +668,11 @@ class Projecter:
         return self.updateTaskManagerUI()
     
     def setTaskKeyValue(self, param_name, key, mnl_value):
+        if mnl_value.isdigit():
+            if mnl_value.rfind('.') == -1:
+                mnl_value = int(mnl_value)
+            else:
+                mnl_value = float(mnl_value)
         if key == 'path_to_trgs':
             val_arr = mnl_value.split(';')
             mnl_value = val_arr

@@ -21,9 +21,15 @@ class RunScriptTask(ResponseTask):
         res, pparam = self.getParamStruct("script")
         if res:
             try:
-                if 'parent_task_cmd' in pparam and pparam['parent_task_cmd']:
-                    src_path_trgs_tmp = self.findKeyParam("[[parent:msg_content]]")
+                if 'parent_task_cmd' in pparam and pparam['parent_task_cmd'] != '':
+                    src_path_trgs_tmp = self.findKeyParam(pparam['parent_task_cmd'])
                     path_trgs_tmp = self.findKeyParam(src_path_trgs_tmp)
+                    print('init:', path_trgs_tmp)
+                    if path_trgs_tmp.rfind(';') == -1:
+                        path_tmp = path_trgs_tmp.split(';')
+                    else:
+                        path_tmp = [path_trgs_tmp]
+                    print('partask:',path_tmp)
                 else:
                     path_trgs_tmp = pparam["path_to_trgs"]
                     if isinstance(path_trgs_tmp, str):
@@ -51,7 +57,7 @@ class RunScriptTask(ResponseTask):
                 if targets_type == 'args':
                     # print('Get args:', path_tmp)
                     if isinstance(path_tmp, list):
-                        onlyfiles = path_trgs_tmp
+                        onlyfiles = path_tmp
                     else:
                         print('No args')
                         return
