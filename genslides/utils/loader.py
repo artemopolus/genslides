@@ -80,11 +80,21 @@ class Loader:
         app.withdraw()  
         app.attributes('-topmost', True)
         filename_src = list( askopenfilenames() )
-        if manager_path != '':
-            out = []
-            for path in filename_src:
-                out.append(Loader.convertFilePathToTag(path, manager_path))
-        return filename_src
+        app.destroy()
+
+        out_filenames = []
+
+        for filepath in filename_src:
+            path = Path(filepath)
+            filename = PurePosixPath(path)
+            if manager_path != '':
+                mfilename = Loader.checkManagerTag(path, manager_path, False)
+                if Path(filename) == Path(mfilename):
+                    mfilename = Loader.checkManagerTag(path, manager_path)
+            else:
+                mfilename = filename
+            out_filenames.append(mfilename)
+        return out_filenames
  
     def getFilePathFromSystemRaw(filetypes = [('Project archive','*.7z')]) -> Path:
         app = Tk()

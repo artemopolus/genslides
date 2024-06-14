@@ -2034,6 +2034,9 @@ class Projecter:
         self.copyToClickBoard("[[parent:msg_content:json:answer]]")
     def copyToClickBoardParentCode(self):
         self.copyToClickBoard("[[parent:code]]")
+    def copyToClickBoardPaths(self):
+        paths = Loader.Loader.getFilePathArrayFromSysten(self.actioner.manager.getPath())
+        self.copyToClickBoard(' '.join(paths))
 
     def copyToClickBoardDialRaw(self):
         msgs = self.actioner.manager.curr_task.getRawMsgs()

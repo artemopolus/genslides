@@ -100,7 +100,7 @@ class RunScriptTask(ResponseTask):
         else:
             print('No params')
             return    
-        # print("Trg files=", onlyfiles)
+        print("Trg proc=", onlyfiles)
         data = ""
         done = True
         if len(onlyfiles) == 0:

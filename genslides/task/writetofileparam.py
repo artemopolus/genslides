@@ -36,6 +36,7 @@ class WriteToFileParamTask(WriteToFileTask):
         param_name = "path_to_write"
         res, path = self.getParam(param_name)
         path = self.findKeyParam(path)
+        path = self.findKeyParam(path)
         path = Loader.getUniPath(path)
 
         if self.is_freeze or len(self.msg_list) == 0 or res == False:

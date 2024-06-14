@@ -288,10 +288,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg)
                     gr.Button("Copy tokens").click(fn=projecter.copyToClickBoardTokens)
                     gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
-                with gr.Row():
+                with gr.Column():
                     gr.Button("[ [parent:msg_content] ]").click(fn=projecter.copyToClickBoardParentContent)
                     gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg)
                     gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode)
+                    gr.Button("paths").click(fn=projecter.copyToClickBoardPaths)
  
             with gr.Row():
                 # with gr.Column():
