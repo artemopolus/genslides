@@ -263,3 +263,84 @@ def getKayArray():
 def getExtTaskSpecialKeys():
     return ['input', 'output', 'stopped', 'check']
 
+def findByKey2(text, manager , base):
+        reqhelper = manager.helper
+        results = re.findall(r"\[\[.*?\]\]", text)
+        n_res = []
+        for res in results:
+            arr = res[2:-2].split(":")
+            tmp_ress = []
+            try:
+                for res1 in arr:
+                    if res1.startswith('parent') and len(res1) > 6:
+                        vals = res1.split('_')
+                        if len(vals) == 2 and vals[1].isdigit():
+                            for idx in range(int(vals[1])):
+                                tmp_ress.append('parent')
+                        else:
+                            tmp_ress.append(res1)
+                    else:
+                        tmp_ress.append(res1)
+            except Exception as e:
+                print('error check array:', e)
+            n_arr = '[[' + ':'.join(tmp_ress) + ']]' 
+            text = text.replace(res, n_arr)
+            if res != n_arr:
+                n_res.append(n_arr)
+            else:
+                n_res.append(res)
+        results = n_res
+        rep_text = text
+        out_results_cnt = len(results)
+        out_target_task = base
+        for res in results:
+            arr = res[2:-2].split(":")
+            if len(arr) > 1:
+                task = None
+                if arr[0] == 'manager':
+                    if len(arr) > 2 and arr[1] == 'path':
+                        if arr[2] == 'fld':
+                            trg_text = Loader.Loader.getFolderPath(path=manager.getPath())
+                        elif arr[2] == 'spc':
+                            trg_text = Loader.Loader.getFolderPath(path=manager.getPath(), to_par_fld = False)
+                        else:
+                            trg_text = res
+                        if len(arr) > 3 and arr[3] == 'name':
+                            trg_text = FileMan.getFileName(trg_text)
+                        rep_text = rep_text.replace(res, trg_text)
+                    elif arr[1] == 'path':
+                        trg_text = manager.getPath()
+                        trg_text = Loader.Loader.getUniPath(trg_text)
+                        rep_text = rep_text.replace(res, str(trg_text))
+                    elif arr[1] == 'current':
+                        task = manager.getCurrentTask()
+                        arr.pop(0)
+                elif arr[0] == 'parent':
+                    task = base.getParent()
+                elif arr[0] == 'project':
+                    if len(arr) > 2:
+                        rres, rvalue = reqhelper.getValue(arr[1], arr[2])
+                        if rres:
+                            rep_text = rep_text.replace(res, str(rvalue))
+                elif arr[0] == 'global':
+                    if len(arr) > 1:
+                        if arr[1] == 'path':
+                            rep_text = rep_text.replace(res, Loader.Loader.getProgramFolder())
+                else:
+                    task = base.getAncestorByName(arr[0])
+                if task:
+                    while( arr[1] == 'parent'):
+                        task = task.getParentForFinder()
+                        if task is None:
+                             return text
+                        arr.pop(0)
+                    out_target_task = task
+                    rep_text = getFromTask(arr, res, rep_text, task, manager)
+                else:
+                    #  print("No task", arr[0])
+                     pass
+            else:
+                # print("Incorrect len")
+                pass
+        return rep_text, out_target_task, out_results_cnt
+

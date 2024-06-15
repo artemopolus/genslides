@@ -1142,7 +1142,18 @@ class TextTask(BaseTask):
     def findKeyParam(self, text: str)->str:
          manager = self.manager
          base = self
-         return finder.findByKey(text, manager, base, self.reqhelper )
+         idx = 0
+         while idx < 10000:
+             n_text, task, ress = finder.findByKey2(text, manager, base)
+             idx +=1
+             if task == base:
+                 break
+             elif ress == 0:
+                 break
+             else:
+                 base = task
+                 text = n_text
+         return n_text
     
     def copyAllParams(self, copy_info = False):
         pparams = self.getAllParams()
