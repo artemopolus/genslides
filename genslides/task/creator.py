@@ -17,7 +17,7 @@ from genslides.task.readdial import ReadDialTask
 from genslides.task.gettime import GetTimeTask
 
 from genslides.task.iteration import IterationTask, IterationEndTask
-from genslides.task.runscript import RunScriptTask
+# from genslides.task.runscript import RunScriptTask
 from genslides.task.websurfarray import WebSurfArrayTask
 from genslides.task.writejsontofile import WriteJsonToFileTask
 
@@ -29,6 +29,7 @@ from genslides.task.readfileparam import ReadFileParamTask
 
 # from genslides.task.extproject import ExtProjectTask
 import genslides.task.extproject as ep
+import genslides.task.runscript as rs
 from genslides.task.groupcollect import GroupCollectTask
 
 import genslides.commands.create as cr
@@ -101,7 +102,10 @@ def createTaskByType(type : str, info : TaskDescription):
         info.method = IterationEndTask
         return cr.CreateCommand(info)
     if stype.endswith("RunScript"):
-        info.method = RunScriptTask
+        info.method = rs.RunScriptTask
+        return cr.CreateCommand(info)
+    if stype.endswith("SaveScriptRun"):
+        info.method = rs.SaveScriptRunTask
         return cr.CreateCommand(info)
     if stype.endswith("WebSurfArray"):
         info.method = WebSurfArrayTask
@@ -153,7 +157,7 @@ def getTasksDict() -> list:
     out.append({"type":"WriteJsonToFile","short":"Wj","creation":WriteJsonToFileTask})
     out.append({"type":"SetOptions","short":"So","creation":so.SetOptionsTask})
     out.append({"type":"Generator","short":"Ge","creation":so.GeneratorTask})
-    out.append({"type":"RunScript","short":"Rs","creation":RunScriptTask})
+    out.append({"type":"RunScript","short":"Rs","creation":rs.RunScriptTask})
     out.append({"type":"ExtProject","short":"Ep","creation":ep.ExtProjectTask})
     out.append({"type":"InExtTree","short":"Ie","creation":ep.InExtTreeTask})
     out.append({"type":"OutExtTree","short":"Oe","creation":ep.InExtTreeTask})

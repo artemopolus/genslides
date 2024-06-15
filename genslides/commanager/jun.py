@@ -1319,7 +1319,7 @@ class Manager:
         # print('Params=',params)
         res, task_params = self.helper.getParams(type)
         if res:
-            task_params.update(params)
+            task_params = self.updateTaskParams(params, task_params)
         else:
             task_params = params
         info = TaskDescription(prompt=prompt, prompt_tag=tag, 
@@ -1424,6 +1424,25 @@ class Manager:
             print("Set current task=", task.getName())
             self.slct_task = task
 
+    def updateTaskParams(self, initparams : list, addparams : list):
+        resparams = []
+        for add in addparams:
+            for init in initparams:
+                if 'type' in init and 'type' in add and init['type'] == add['type']:
+                    add.update(init)
+                    break
+            resparams.append(add)
+
+        for init in initparams:
+            found = False
+            for add in resparams:
+                if 'type' in init and 'type' in add and init['type'] == add['type']:
+                    found = True
+                    break
+            if not found:
+                resparams.append(init)
+        return resparams
+
     def createOrAddTaskByInfo(self,task_type, info : TaskDescription):
         info.helper = self.helper
         info.requester=self.requester
@@ -1431,7 +1450,7 @@ class Manager:
         res, task_params = self.helper.getParams(task_type)
         if res:
             task_params.update(info.params)
-            info.params = task_params
+            info.params = self.updateTaskParams(info.params, task_params)
 
         curr_cmd = cr.createTaskByType(task_type, info)
         self.cmd_list.append(curr_cmd)

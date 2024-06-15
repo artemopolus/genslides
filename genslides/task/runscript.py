@@ -195,3 +195,55 @@ class RunScriptTask(ResponseTask):
 
         self.executeResponse()
         self.saveJsonToFile(self.msg_list)
+
+
+class SaveScriptRunTask(RunScriptTask):
+    def __init__(self, task_info: TaskDescription, type="SaveScriptRun") -> None:
+        super().__init__(task_info, type)
+        # sres, sparam = self.getParamStruct('savescriptrun_def', True)
+        # if not sres:
+        #     self.setParamStruct({
+        #                      'type':'savescriptrun_def',
+        #                      'script_type':'python',
+        #                      'path_to_write': '[[manager:path:spc]]/script/test.py',
+        #                      'script_content':'[[parent_3:code]]',
+        #                      'args':'[[parent:msg_content]]'
+        #                     })
+
+    def executeResponse(self):
+        sres, sparam = self.getParamStruct('savescriptrun')
+        done = False
+        data = ""
+        if not sres:
+            sres, sparam = self.getParamStruct('savescriptrun_def', True)
+            if not sres:
+                return
+        try:
+            scriptpath = Loader.getUniPath( self.findKeyParam( sparam['path_to_write'] ))
+            script_text = self.findKeyParam( sparam['script_content'] )
+            l = min(16, len(script_text))
+            print('Save script:\n', script_text[0:l])
+            wr.writeToFile(scriptpath, script_text)
+            if sparam['script_type'] == 'python':
+                path_to_python = Loader.getUniPath( self.findKeyParam(sparam['python_path']) )
+                if os.path.exists(scriptpath):
+                    workspace = Loader.getUniPath( self.findKeyParam(sparam['cwd']))
+                    args = sparam['args']
+                    trg_proc = ' '.join([path_to_python, scriptpath, args])
+                    print("Run script", trg_proc,'in', workspace)
+                    result = subprocess.run(trg_proc, capture_output=True, text=True, cwd=workspace, shell=True)
+                    if result.returncode:
+                        data += sparam['on_error'] + result.stderr + "\n"
+                    else:
+                        done = True
+                        data += sparam['on_success'] + result.stdout + "\n"
+
+
+        except Exception as e:
+            print('Task', self.getName(),'with param:\n', sparam,'\nerror:', e)
+        self.execute_success = done
+
+        if len(data) > 0:
+            self.msg_list.append({"role": "user", "content": data})
+        else:
+            print(self.getName(), "no data to present")
