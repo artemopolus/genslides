@@ -29,6 +29,7 @@ import pprint
 import re
 import ast
 import genslides.utils.finder as finder
+import genslides.task_tools.array as ar
 import copy
 
 class TextTask(BaseTask):
@@ -905,6 +906,10 @@ class TextTask(BaseTask):
                     }
                 data.append(pack)
                 self.setParamStruct({'type':'records','data':data})
+        ares, aparam = self.getParamStruct(param_name='array', only_current=True)
+        if ares:
+            naparam = ar.checkArrayIteration(self.getLastMsgContentRaw(), aparam)
+            self.updateParam2(naparam)
 
     def setRecordsParam(self):
         print('Set',self.getName(),'to recording')
@@ -948,6 +953,10 @@ class TextTask(BaseTask):
             if 'type' in param and param['type'] == param_name:
                 param.update(param_vals)
                 return
+        if param_vals['type'] == 'array':
+            res, np = ar.saveArrayToParams(self.getLastMsgContentRaw(),param_vals)
+            if res:
+                param_vals = np
         self.params.append(param_vals)
 
 
