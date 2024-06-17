@@ -1,4 +1,4 @@
-from genslides.task.base import TaskDescription
+from genslides.task.base import BaseTask, TaskDescription
 from genslides.task.response import ResponseTask
 from genslides.utils.readfileman import ReadFileMan
 from genslides.utils.loader import Loader
@@ -23,7 +23,8 @@ class RunScriptTask(ResponseTask):
             try:
                 if 'parent_task_cmd' in pparam and pparam['parent_task_cmd'] != '':
                     src_path_trgs_tmp = self.findKeyParam(pparam['parent_task_cmd'])
-                    path_trgs_tmp = self.findKeyParam(src_path_trgs_tmp)
+                    # path_trgs_tmp = self.findKeyParam(src_path_trgs_tmp)
+                    path_trgs_tmp = src_path_trgs_tmp
                     print('init:', path_trgs_tmp)
                     if path_trgs_tmp.rfind(';') == -1:
                         path_tmp = path_trgs_tmp.split(';')
@@ -195,7 +196,29 @@ class RunScriptTask(ResponseTask):
 
         self.executeResponse()
         self.saveJsonToFile(self.msg_list)
-
+    
+    def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
+        ores,oval,opar = super().getLastMsgAndParentRaw(idx)
+        pres, pparam = self.getParamStruct("script")
+        script_text = ""
+        if pres and 'parent_task_cmd' in pparam and pparam['parent_task_cmd'] != '':
+            src_path_trgs_tmp = self.findKeyParam(pparam['parent_task_cmd'])
+            # path_trgs_tmp = self.findKeyParam(src_path_trgs_tmp)
+            path_trgs_tmp = src_path_trgs_tmp
+            print('init:', path_trgs_tmp)
+            if path_trgs_tmp.rfind(';') == -1:
+                path_tmp = path_trgs_tmp.split(';')
+            else:
+                path_tmp = [path_trgs_tmp]
+            for proc in path_tmp:
+                args = proc.split(' ')
+                if len(args) > 1:
+                    script_text += args[1] + '\n\n'
+                    script_text += '```python\n' + ReadFileMan.readStandart(args[1]) + '```\n'
+        if len(oval) > 0:
+            oval[0]['content'] = script_text + oval[0]['content']
+        return ores, oval, opar
+ 
 
 class SaveScriptRunTask(RunScriptTask):
     def __init__(self, task_info: TaskDescription, type="SaveScriptRun") -> None:
