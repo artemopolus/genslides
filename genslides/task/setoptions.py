@@ -152,7 +152,12 @@ class SetOptionsTask(WriteToFileTask):
 
     def getInfo(self, short = True) -> str:
         return self.getName()
- 
+    
+    def getPromptContentForCopy(self):
+        return ""
+    def getPromptContentForCopyConverted(self):
+        return ""
+
 
 class GeneratorTask(SetOptionsTask):
     def __init__(self, task_info: TaskDescription, type="Generator") -> None:

@@ -5,6 +5,15 @@ def saveArrayToParams(data : str, param : dict):
     if 'parse' in param:
         if param['parse'] == 'std':
             arr = data.split(';')
+            for idx, word in enumerate( arr ):
+                last_char_str = 0
+                last_char_end = len(word) - 1
+                if last_char_end > 1:
+                    if word[last_char_str] == ' ':
+                        last_char_str = 1
+                    if word[last_char_end] == ' ':
+                        last_char_end = last_char_end - 1
+                    arr[idx] = word[last_char_str:last_char_end]
             if len(arr) > 0:
                 curr = arr[0]
                 idx = 0

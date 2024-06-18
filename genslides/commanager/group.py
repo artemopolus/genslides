@@ -1263,7 +1263,7 @@ class Actioner():
         choices = []
         if param_key == 'path_to_read':
             filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-            return [filename], filename, interacttive_drd, multiselect_drd, str(filename), False
+            return [filename], filename, interacttive_drd, multiselect_drd, str(filename), True
             # return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
                     # gr.Textbox(str(filename)))
         elif param_name == 'script' and param_key == 'path_to_trgs':

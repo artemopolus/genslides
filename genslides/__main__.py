@@ -193,7 +193,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         graph_alone = gr.Image(
                             # width=500
                         )
-                    with gr.Column(scale=1):
+                    with gr.Column(scale=3):
                         with gr.Row():
                             updateall_step_btn = gr.Button(value="Update all trees(UAT)")
                             update_step_btn = gr.Button(value="UAT one step")

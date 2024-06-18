@@ -30,6 +30,7 @@ import re
 import ast
 import genslides.utils.finder as finder
 import genslides.task_tools.array as ar
+import genslides.task_tools.records as rd
 import copy
 
 class TextTask(BaseTask):
@@ -37,6 +38,7 @@ class TextTask(BaseTask):
         self.checkparentsettrue = False
         self.msg_list = []
         self.params = task_info.params
+        print('Get params', self.params)
         super().__init__(task_info, type)
 
         # print("Type=", self.getType())
