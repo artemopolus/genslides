@@ -884,11 +884,7 @@ class TextTask(BaseTask):
         res, pparam = self.getParamStruct('hidden')
         if res and pparam['hidden']:
             return False, [], self.parent
-        val = [{
-                "role":self.getLastMsgRole(), 
-                "content": self.findKeyParam(self.getLastMsgContent()),
-                "task": self.getName()
-                }]
+        val = [rd.getPackForRecord(self.getLastMsgRole(), self.findKeyParam(self.getLastMsgContent()), self.getName())]
         if self.parent != None:
             self.parent.setActiveBranch(self)
         return True, val, self.parent
@@ -897,17 +893,9 @@ class TextTask(BaseTask):
         self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
         res, param = self.getParamStruct(param_name='records', only_current=True)
         if res:
-            data = param['data']
-            chat = self.getTasksContent()
-            if len(data) == 0 or (len(data) and data[-1]['chat'] != chat):
-                print('data=',data[-1]['chat'])
-                print('chat=',chat)
-                pack = {
-                    'chat': chat,
-                    'time': savedata.getTimeForSaving()
-                    }
-                data.append(pack)
-                self.setParamStruct({'type':'records','data':data})
+            rres, rparam = rd.appendDataForRecord(param, self.getTasksContent())
+            if rres:
+                self.setParamStruct(rparam)
         ares, aparam = self.getParamStruct(param_name='array', only_current=True)
         if ares:
             naparam = ar.checkArrayIteration(self.getLastMsgContentRaw(), aparam)
@@ -915,17 +903,13 @@ class TextTask(BaseTask):
 
     def setRecordsParam(self):
         print('Set',self.getName(),'to recording')
-        data = [{
-                    'chat': self.getTasksContent(),
-                    'time': savedata.getTimeForSaving()
-        }]
-        self.setParamStruct({'type':'records','data':data})
+        self.setParamStruct(rd.createRecordParam(self.getTasksContent()))
 
 
     def getChatRecords(self) ->list:
         res, param = self.getParamStruct(param_name='records', only_current=True)
         if res:
-            return param['data']
+            return rd.getDataFromRecordParam(param)
         return []
 
 
@@ -1000,7 +984,11 @@ class TextTask(BaseTask):
             for param in self.params:
                 if "type" in param and param["type"] == param_name:
                     if key in param:
-                        if isinstance(val, str) and isinstance(param[key], list):
+                        if param_name == 'array' and key == 'parse':
+                            param[key] = val
+                            nparam = ar.updateArrayParam(param)
+                            param.update(nparam)
+                        elif isinstance(val, str) and isinstance(param[key], list):
                             success = True
                             try:
                                 value = ast.literal_eval(val)

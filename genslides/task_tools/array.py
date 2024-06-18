@@ -1,36 +1,54 @@
 import json
 
+def divideArray(data, parse_type):
+    print('Divide array')
+    if parse_type == 'std':
+        arr = data.split(';')
+        for idx, word in enumerate( arr ):
+            last_char_str = 0
+            last_char_end = len(word) - 1
+            if last_char_end > 1:
+                if word[0] == ' ':
+                    word = word[1:]
+                if word[-1] == ' ':
+                    word = word[:-1]
+                arr[idx] = word
+        if len(arr) > 0:
+            return True, arr
+    return False, []
+
+
 def saveArrayToParams(data : str, param : dict):
     print('Save array to params', param)
+    param ["src_data" ]= data
+
     if 'parse' in param:
-        if param['parse'] == 'std':
-            arr = data.split(';')
-            for idx, word in enumerate( arr ):
-                last_char_str = 0
-                last_char_end = len(word) - 1
-                if last_char_end > 1:
-                    if word[last_char_str] == ' ':
-                        last_char_str = 1
-                    if word[last_char_end] == ' ':
-                        last_char_end = last_char_end - 1
-                    arr[idx] = word[last_char_str:last_char_end]
-            if len(arr) > 0:
-                curr = arr[0]
-                idx = 0
-            else:
-                return False, {}
+        res, arr = divideArray(data, param['parse'])
+        if res:
+            curr = arr[0]
+            idx = 0
         else:
-            return False, {}
+            return False, param
     else:
-        return False, {}
+        return False, param
     out = {
-        "src_data" : data,
         "curr": curr,
         "idx": idx,
         "array": arr
     }
     param.update(out)
     return True, param
+
+def updateArrayParam(param :dict):
+    try:
+        res, arr = divideArray(param['src_data'], param['parse'])
+        if res:
+            param['array'] = arr
+            param['curr'] = arr[0]
+            param['idx'] = 0
+    except Exception as e:
+        print('Update array param error:', e)
+    return param
 
 def iterateOverArrayFromParam(param: dict):
     print('Iterate over array from param', param)
