@@ -2,6 +2,7 @@ from genslides.task.base import TaskDescription, BaseTask
 from genslides.task.writetofile import WriteToFileTask
 import genslides.utils.writer as writer
 from genslides.utils.loader import Loader
+import genslides.utils.savedata as sv
 
 import os
 import json
@@ -35,9 +36,13 @@ class WriteToFileParamTask(WriteToFileTask):
         # print("Exe resp write to file param")
         param_name = "path_to_write"
         res, path = self.getParam(param_name)
+        print(path)
         path = self.findKeyParam(path)
-        path = self.findKeyParam(path)
+        print(path)
+        if path == "":
+            return
         path = Loader.getUniPath(path)
+        print(path)
 
         if self.is_freeze or len(self.msg_list) == 0 or res == False:
             return
@@ -69,6 +74,12 @@ class WriteToFileParamTask(WriteToFileTask):
             print("No struct param=",self.getName())
 
         print(self.getName(),"write to", path)
+        task_param = {
+            "type":self.getType(),
+            "resfilepath": path,
+            "time": sv.getTimeForSaving()
+        }
+        self.setParamStruct(task_param)
         writer.writeToFile(path, text, ctrl)
        
     def update(self, input : TaskDescription = None):
