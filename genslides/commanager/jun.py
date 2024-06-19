@@ -162,7 +162,7 @@ class Manager:
     def getCurrentTask(self) -> BaseTask:
         return self.curr_task
     
-    def getFozenTasksCount(self) -> int:
+    def getFrozenTasksCount(self) -> int:
         cnt = 0
         for t in self.task_list:
             if t.is_freeze:
@@ -2724,3 +2724,8 @@ class Manager:
             print('Branch:',[t.getName() for t in chain])
         return minichains
 
+    def allowUpdateInternalArrayParam(self):
+        cnt = self.getFrozenTasksCount()
+        if cnt == 0:
+            return True
+        return False

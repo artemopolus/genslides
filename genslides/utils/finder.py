@@ -3,6 +3,7 @@ import genslides.utils.loader as Loader
 import genslides.utils.reqhelper as Helper
 import genslides.utils.filemanager as FileMan
 import json
+import genslides.task_tools.records as rd
 
 
 def convertMdToScript(md_text):
@@ -114,12 +115,17 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
             rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'param' and len(arr) > 3:
             pres, pparam = task.getParamStruct(arr[2])
-            if pres and arr[3] in pparam:
-                value = pparam[arr[3]]
-                if isinstance(value, str):
-                    rep_text = rep_text.replace(res, pparam[arr[3]])
-                else:
-                    rep_text = rep_text.replace(res, str(pparam[arr[3]]))
+            if pres:
+                if arr[2] == 'records':
+                    records = rd.getTrgInfoInRecordsByOptions(pparam, arr)
+                    if records != "":
+                        rep_text = rep_text.replace(res, records)
+                elif arr[3] in pparam:
+                    value = pparam[arr[3]]
+                    if isinstance(value, str):
+                        rep_text = rep_text.replace(res, pparam[arr[3]])
+                    else:
+                        rep_text = rep_text.replace(res, str(pparam[arr[3]]))
             else:
                 # print("No param")
                 pass

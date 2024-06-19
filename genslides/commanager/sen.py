@@ -586,6 +586,11 @@ class Projecter:
         self.actioner.manager.curr_task.setRecordsParam()
         return self.updateMainUIelements()
     
+    def clearTaskRecords( self ):
+        self.actioner.manager.curr_task.clearRecordParam()
+        return self.updateMainUIelements()
+
+    
     def goToNextBranch(self):
         self.actioner.manager.goToNextBranch()
         return self.updateMainUIelements()
@@ -1149,7 +1154,7 @@ class Projecter:
                 break
             act.update()
             idx += 1
-        print('Frozen tasks cnt:', man.getFozenTasksCount())
+        print('Frozen tasks cnt:', man.getFrozenTasksCount())
         man.curr_task = start_task
         return self.updateMainUIelements()
         
@@ -1170,7 +1175,7 @@ class Projecter:
                 break
             act.update()
             idx += 1
-        print('Frozen tasks cnt:', man.getFozenTasksCount())
+        print('Frozen tasks cnt:', man.getFrozenTasksCount())
         man.curr_task = start_task
         return self.updateMainUIelements()
     

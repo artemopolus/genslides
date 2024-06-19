@@ -896,14 +896,21 @@ class TextTask(BaseTask):
             rres, rparam = rd.appendDataForRecord(param, self.getTasksContent())
             if rres:
                 self.setParamStruct(rparam)
-        ares, aparam = self.getParamStruct(param_name='array', only_current=True)
-        if ares:
-            naparam = ar.checkArrayIteration(self.getLastMsgContentRaw(), aparam)
-            self.updateParam2(naparam)
+        if self.manager.allowUpdateInternalArrayParam():
+            ares, aparam = self.getParamStruct(param_name='array', only_current=True)
+            if ares:
+                naparam = ar.checkArrayIteration(self.getLastMsgContentRaw(), aparam)
+                self.updateParam2(naparam)
 
     def setRecordsParam(self):
         print('Set',self.getName(),'to recording')
         self.setParamStruct(rd.createRecordParam(self.getTasksContent()))
+
+    def clearRecordParam(self):
+        res, param = self.getParamStruct(param_name='records', only_current=True)
+        if res:
+            np = rd.clearRecordData(param)
+            self.setParamStruct(np)
 
 
     def getChatRecords(self) ->list:

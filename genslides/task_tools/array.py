@@ -5,9 +5,7 @@ def divideArray(data, parse_type):
     if parse_type == 'std':
         arr = data.split(';')
         for idx, word in enumerate( arr ):
-            last_char_str = 0
-            last_char_end = len(word) - 1
-            if last_char_end > 1:
+            if len(word) > 0:
                 if word[0] == ' ':
                     word = word[1:]
                 if word[-1] == ' ':

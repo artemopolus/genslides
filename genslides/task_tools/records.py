@@ -1,5 +1,5 @@
 import genslides.utils.savedata as savedata
-
+import json
 
 def getPackForRecord(role: str, content : str, task_name : str) -> dict:
     return {
@@ -33,4 +33,43 @@ def appendDataForRecord(param : dict, chat):
             data.append(pack)
             return True, param
     return False, param
+
+def clearRecordData(param : dict):
+    if 'type' in param and param['type'] == 'records' and 'data' in param:
+        param['data'] = []
+    return param
+
+def getTrgInfoInRecordsByOptions( param : dict, options : list ):
+    out = ""
+    if options[2] == 'records':
+        if 'type' in param and param['type'] == 'records' and 'data' in param:
+            for pack in param['data']:
+                for idx, msg in enumerate(pack['chat']):
+                    try:
+                        if options[3] == 'chat':
+                            if options[4] == 'json':
+                                trg_jsn = json.loads(msg['content'])
+                                if options[5] in trg_jsn:
+                                    out += trg_jsn[options[5]]
+                            elif options[4] == 'msg':
+                                num = int(options[5])
+                                if num == idx:
+                                    out += msg['content']
+                            elif options[4] == 'allmsgs':
+                                out += msg['content']
+                    except Exception as e:
+                        print('Record error:',e)
+    return out
+
+
+def getTrgInfoInRecords(param : dict, info_type = "chat"):
+    out = ""
+    if 'type' in param and param['type'] == 'records' and 'data' in param:
+        if info_type == "chat":
+            for pack in param['data']:
+                chat = pack['chat']
+                for msg in chat:
+                    out += msg['content']
+
+    return out
 

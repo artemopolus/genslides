@@ -783,7 +783,7 @@ class Actioner():
             if self.update_state == 'done' or man.curr_task == start_task:
                 break
             idx += 1
-        print('Frozen tasks cnt:', man.getFozenTasksCount())
+        print('Frozen tasks cnt:', man.getFrozenTasksCount())
 
     def getRelatedTasks(self, task :BaseTask, lnk_in = True, lnk_out= True):
         if lnk_in:

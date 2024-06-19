@@ -358,6 +358,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 addkey_apd_btn = gr.Button('Add new key, value')
                                 param_key.select(fn=projecter.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
                                 setrecords_btn = gr.Button('Set recording') 
+                                clrrecords_btn = gr.Button('Clear records')
                     with gr.Tab('Select'):
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
@@ -856,6 +857,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             # outextreesubtask_btn.click(fn=projecter.addOutExtTreeSubTask, inputs=[outexttreeparam_txt], outputs=std_output_list)
 
             setrecords_btn.click(fn=projecter.makeTaskRecordable, outputs=std_output_list)
+            clrrecords_btn.click(fn=projecter.clearTaskRecords, outputs=std_output_list)
             clnresp_btn.click(fn=projecter.cleanLastMessage, outputs=std_output_list)
 
             addmultitotmp_btn.click(fn=projecter.addMultiSelectTasksFromStdMan, outputs=std_output_list) 

@@ -482,9 +482,9 @@ class InExtTreeTask(ExtProjectTask):
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
-        elif self.intact.manager.getFozenTasksCount():
+        elif self.intact.manager.getFrozenTasksCount():
             self.intact.loadTmpManagerTasks()
-            print(f"Frozen tasks:{self.intact.manager.getFozenTasksCount()}")
+            print(f"Frozen tasks:{self.intact.manager.getFrozenTasksCount()}")
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
