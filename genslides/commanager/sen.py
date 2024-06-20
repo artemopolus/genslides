@@ -661,7 +661,7 @@ class Projecter:
         task = self.actioner.manager.curr_task
         print('Set role[', role, ']for',task.getName())
         self.makeTaskAction(task.getLastMsgContent(), "Request", "Edit", role)
-        return self.actioner.updateUIelements(prompt=prompt)
+        return self.updateUIelements(prompt=prompt)
   
  
     def appendNewParamToTask(self, param_name):

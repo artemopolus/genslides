@@ -38,7 +38,7 @@ class TextTask(BaseTask):
         self.checkparentsettrue = False
         self.msg_list = []
         self.params = task_info.params
-        print('Get params', self.params)
+        # print('Get params', self.params)
         super().__init__(task_info, type)
 
         # print("Type=", self.getType())
