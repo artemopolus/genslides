@@ -139,7 +139,7 @@ class Projecter:
             idx = 0
             while (idx < 1000):
                 ext_pr_name = 'pr' + str(idx)
-                trg = os.path.join(manager.getPath(),'ext', ext_pr_name) +'/'
+                trg = os.path.join(manager.getPath(),'ext', ext_pr_name)
                 if not os.path.exists(trg):
                     if Archivator.extractFiles(mypath, filename, trg):
                         self.ext_proj_names.append(ext_pr_name)
