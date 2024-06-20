@@ -1831,7 +1831,11 @@ class Projecter:
     
     def setCurTaskToOutExtTree(self, start_inext):
         man = self.actioner.manager
-        return self.addOutExtTreeInfo(start_inext, man.curr_task.getName())
+        if self.tmp_actioner_task.checkType('InExtTree'):
+            act = self.tmp_actioner_task.getActioner()
+            task = act.manager.curr_task
+            return self.addOutExtTreeInfo(start_inext, task.getName())
+        return self.addOutExtTreeInfo(start_inext, '')
     
     def addOutExtTreeInfo(self, start_inext,  task_name):
         extbrjson = start_inext
@@ -1880,14 +1884,17 @@ class Projecter:
             task_actioner = inxttreetask.getActioner()
             task_actioner.manager.loadTasksListFileBased()
             task_actioner.manager.copyTasksIntoManager(man.multiselect_tasks)
-        
-            outexttreeparam = {
-                'type':'external', 
-                'dir':'Out',
-                'target': buds[0].getName()
-                }
-            outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
+            for bud in buds: 
+                outexttreeparam = {
+                    'type':'external', 
+                    'dir':'Out',
+                    'target': bud.getName()
+                    }
+                outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
                     TaskDescription(prompt='', prompt_tag='user',parent=inxttreetask, params=[outexttreeparam]))
+                for child in bud.getChilds():
+                    if child not in man.multiselect_tasks:
+                        outexttreetask.addChild(child)
             
         return self.updateMainUIelements()
     
@@ -1932,7 +1939,11 @@ class Projecter:
         # return self.updateMainUIelements()
     
     def getExtTreeParamsForEdit(self):
-        if self.tmp_actioner_task != None:
+        man = self.actioner.manager
+        # if man.curr_task.checkType('InExtTree'):
+        # if self.tmp_actioner_task != None:
+        if True:
+            self.tmp_actioner_task = man.curr_task
             print(f"Get ExtTreeTask {self.tmp_actioner_task.getName()} params")
             if self.tmp_actioner_task.checkType('InExtTree'):
                 eres, eparam = self.tmp_actioner_task.getParamStruct('external')

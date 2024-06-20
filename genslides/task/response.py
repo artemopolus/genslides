@@ -90,9 +90,15 @@ class ResponseTask(TextTask):
         res, param = self.getParamStruct('model')
 
         if res:
+            print('Get options from task')
             chat = LLModel(param)
         else:
-            chat = LLModel()
+            print('Init with default option')
+            res, model_name =  self.reqhelper.getValue(self.getType(), "model")
+            if res:
+                print('Init with default params')
+                param = {'type':'model','model':model_name}
+            chat = LLModel(param)
         res, out, out_params = self.executeResponseInternal(chat)
         self.updateParam2(out_params)
         if res:
