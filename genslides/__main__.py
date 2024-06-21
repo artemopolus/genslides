@@ -213,6 +213,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # move2child_btn = gr.Button(value='Go down')
                         with gr.Row():
                             dial_block = gr.Chatbot(height=500)
+                        with gr.Column():
+                            getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
+                            inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
+                            updselinexttreetasks_btn = gr.Button('Update selected')
+                            getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
+
             with gr.Tab('Raw graph'):
                 with gr.Row():
                     # with gr.Column(scale=1):
@@ -693,15 +699,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Tab('Cmds'):
                             with gr.Row():
                                 updinexttree_btn = gr.Button('Update InExtTree act')
-                            with gr.Row():
-                                getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
-                            with gr.Row():
-                                inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
-                            with gr.Row():
-                                updselinexttreetasks_btn = gr.Button('Update selected')
-
-                                getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
-
 
                         
                         manextinfobrowse_btn.click(fn=projecter.loadMangerExtInfoExtWithBrowser, outputs=maninfoextout)

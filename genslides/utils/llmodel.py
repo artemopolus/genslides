@@ -91,7 +91,8 @@ class LLModel():
         # print('Input Chat=', [[msg['role'], len(msg['content'])] for msg in messages])
         out = {
             'type' : 'response',
-            'model': self.params['model']
+            'model': self.params['model'],
+            'messages': messages
             }
         res, response, p = self.method(messages, self.params)
         if res and 'intok' in p and 'outtok' in p:

@@ -338,7 +338,7 @@ def findByKey2(text, manager , base):
                     while( arr[1] == 'parent'):
                         task = task.getParentForFinder()
                         if task is None:
-                             return text
+                             return text, out_target_task, out_results_cnt
                         arr.pop(0)
                     out_target_task = task
                     rep_text = getFromTask(arr, res, rep_text, task, manager)
