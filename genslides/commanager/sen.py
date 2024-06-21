@@ -363,7 +363,6 @@ class Projecter:
             return self.makeTaskAction("", "Response",selected_action, "assistant")
     
     def getParamListForEdit(self):
-        # TODO: добавить простую копию задачи
         return ['copy_editbranch', #Копировать ветвь
                 'resp2req','coll2req','read2req', #конвертировать задачи этого типа в другой
                 'in','out','link','av_cp', #Параметры ветвления
@@ -431,10 +430,8 @@ class Projecter:
         return self.updateMainUIelements()
     
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
-        # TODO: Критическая проблема. Из-за вылетов программы может потеряться важный текст запроса, что может весьма расстроить, поэтому следует сохранять сообщение в проектный файл и передавать их пользователю по отдельному запросу через GUI
         self.actioner.makeTaskAction(prompt, type1, creation_type, creation_tag, param , save_action)
         return self.updateMainUIelements()
-        # return self.manager.getCurrTaskPrompts()
  
 
     def makeActionParent(self):
@@ -2477,4 +2474,39 @@ class Projecter:
         return self.updateSecActUI()
 
 
+ 
+    def getTextWindowFromCurrTask(self):
+        man = self.actioner.manager
+        text = man.curr_task.getLastMsgContent()
+        text_len = len(text)
+        wintext = min(200, text_len)
+        slider_size = text_len - wintext
+        out_text = text[0:wintext]
+        return [
+            gr.Number(value=wintext,maximum=text_len, interactive=True),
+            gr.Slider(value=0, minimum=0,maximum=slider_size, interactive=True),
+            gr.Textbox(value=out_text)
+        ]
+    
+    def moveTextWindowFromCurrTask( self, winsz, slider_str ):
+        man = self.actioner.manager
+        text = man.curr_task.getLastMsgContent()
+        text_len = len(text)
+        wintext = min(winsz, text_len)
+        out_text = text[slider_str:slider_str + wintext]
+        return (
+            gr.Textbox(value=out_text)
+        )
+ 
+    def changeTextWindowFromCurrTask( self, winsz, slider_str ):
+        man = self.actioner.manager
+        text = man.curr_task.getLastMsgContent()
+        text_len = len(text)
+        wintext = min(winsz, text_len)
+        out_text = text[slider_str:slider_str + wintext]
+        slider_size = text_len - wintext
+        return (
+            gr.Textbox(value=out_text),
+            gr.Slider(value=slider_str, minimum=0,maximum=slider_size, interactive=True),
+        )
  

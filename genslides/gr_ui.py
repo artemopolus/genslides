@@ -36,3 +36,19 @@ def exttreemanagerManipulator(projecter : Projecter):
     tree_rad.input(fn=projecter.selectSecActTree, inputs=[tree_rad], outputs=secoutput)
     etmbudlist_drd.input(fn=projecter.selectSecActBud,inputs=[etmbudlist_drd], outputs=secoutput)
     etmbudtasks_drd.input(fn=projecter.selectSecActTask, inputs=[etmbudtasks_drd], outputs=secoutput)
+
+def textslider( projecter : Projecter):
+    gettextwindow_btn = gr.Button('Get text window')
+    windowsize_nbr = gr.Number(label='Window size', value=200,interactive=False)
+    movewindow_sld = gr.Slider(value=0, minimum=0, maximum=100, step=1,interactive=False)
+    windowtext_txt = gr.Textbox(label='Text Window', lines=4,interactive=False)
+
+
+    winoutput = [
+        windowsize_nbr,
+        movewindow_sld,
+        windowtext_txt
+    ]
+    gettextwindow_btn.click(fn=projecter.getTextWindowFromCurrTask, outputs=winoutput)
+    windowsize_nbr.change(fn=projecter.changeTextWindowFromCurrTask, inputs=[windowsize_nbr, movewindow_sld], outputs=[windowtext_txt, movewindow_sld])
+    movewindow_sld.input(fn=projecter.moveTextWindowFromCurrTask, inputs=[windowsize_nbr, movewindow_sld], outputs=windowtext_txt)

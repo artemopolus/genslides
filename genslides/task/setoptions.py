@@ -216,7 +216,6 @@ class GeneratorTask(SetOptionsTask):
     def getIterators(self, gparam):
         iterators = []
         if gparam['struct'] == 'json':
-            # TODO: Что-то нужно сделать с ошибкой, что json приходит с одинарынми каавычками
             # text = self.findKeyParam(gparam['target']).replace("\'","\"")
             text = self.findKeyParam(gparam['target'])
             try:

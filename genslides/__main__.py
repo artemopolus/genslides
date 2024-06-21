@@ -279,6 +279,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 moveupplaintext_btn.click(fn=projecter.moveUpTree3PlainText, outputs=plaintext_output)
                 movedwplaintext_btn.click(fn=projecter.moveDwTree3PlainText, outputs=plaintext_output)
                 saveplaintextcontent_btn.click(fn=projecter.editPromptTree3PlainText, inputs=[curtext_txt], outputs=plaintext_output)
+            with gr.Tab('Attention window'):
+                with gr.Column():
+                    UI.textslider(projecter)
             
             with gr.Accordion('Tools', open=False):
                 with gr.Row():
@@ -1075,7 +1078,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             config_name = gr.Dropdown(choices=manager.getParamsLst())
             config_values = gr.Dropdown(choices=manager.getParam("mode lst"))
             config_btn = gr.Button(value="update mode config").click(fn=manager.setParam, inputs=[config_name, config_values])
-            # TODO: сменить владельца на проектер
             # config_name.change(fn=manager.getParamGradioInput, inputs=[config_name], outputs=[config_values])
 
     demo.launch(share=project_params['share'])

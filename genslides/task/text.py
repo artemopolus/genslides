@@ -57,7 +57,6 @@ class TextTask(BaseTask):
         # print('Task params',self.params)
         self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})       
         self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
-        # TODO: Добавить загрузку начальных параметров
         self.stdProcessUnFreeze()
 
     def setCheckParentForce(self, val : bool):
@@ -780,7 +779,6 @@ class TextTask(BaseTask):
 
     def whenParentRemoved(self):
         super().whenParentRemoved()
-        # TODO: check why???? Переделать пусть тип задачи решает сколько нужно оставить
         if len(self.msg_list) > 0:
             last = self.msg_list.pop()
             self.msg_list = []
@@ -1127,7 +1125,6 @@ class TextTask(BaseTask):
                 if parent_task is None:
                     break
                 res, parent_task, val = parent_task.getParamFromExtTask(param_name)
-                # TODO: учитывать приоритет опций?
                 if res:
                     return True, val
         # если ничего не нашли загружаем стандартное

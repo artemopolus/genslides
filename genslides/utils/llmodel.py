@@ -69,7 +69,6 @@ class LLModel():
                         # self.max_tokens = option["max_tokens"]
                         # self.input_price = option["input"]
                         # self.output_price = option["output"]
-                        # TODO: проверить, что ключ не сохраняется в файлах
                         # TODO: выбирать случайный ключ для генерации запроса
                         self.api_key = values['api_key']
                         self.params['api_key'] = values['api_key']

@@ -672,7 +672,6 @@ class Manager:
         return 'parent' in task_info and task_info['parent'] == parent.getName()
     
     def getParentSavingName(self, task : BaseTask):
-        # TODO: если задача в списке внешних задач, то передать старое имя
         for pair in self.renamed_parent:
             if pair['chg'] == task.getName():
                 return pair['std'].replace(self.getProjPrefix(), "")
@@ -1442,6 +1441,11 @@ class Manager:
             if not found:
                 resparams.append(init)
         return resparams
+    # Возвращает список созданных задач. Например,
+    # если задача содержит список, то создать дочерние задачи по списку
+    # Это может быть востребовано для перебора файлов в папке
+    # Перебор результатов поиска в Гугл или Яндексе
+    # Список действий, перечисленных ГПТ
 
     def createOrAddTaskByInfo(self,task_type, info : TaskDescription):
         info.helper = self.helper
@@ -1482,7 +1486,6 @@ class Manager:
         log = 'id[' + str(self.index) + '] '
         out = "Report:\n"
         if len(self.cmd_list) > 0:
-            # TODO: вывести код выполнения команд в отдельную функцию. Чтобы можно было обращаться без вывода данных в интерфейс 
             cmd = self.cmd_list.pop(0)
             log += 'Command executed: '
             log += str(cmd) + '\n'
@@ -2077,7 +2080,6 @@ class Manager:
 
 
     def getTasksChainsFromCurrTask(self, param):
-        # TODO: при копировании учитывать только ветви с Response, чтобы не плодить ненужные копии
         tasks_chains = self.curr_task.getTasksFullLinks(param)
         if 'chckresp' not in param:
             return  tasks_chains
