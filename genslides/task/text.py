@@ -112,6 +112,27 @@ class TextTask(BaseTask):
                 return p['idx']
         return super().getPrio()
     
+    def getQueueParam(self) -> dict:
+        par = self.getParent()
+        if par:
+            pparams = par.getAllParams()
+            for p in pparams:
+                if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
+                    return p
+        return {}
+
+    def setQueueParam(self, qparam) -> dict:
+        if 'type' in qparam and qparam['type'] == 'child' and qparam['name'] == self.getName():
+            par = self.getParent()
+            if par:
+                pparams = par.params
+                for p in pparams:
+                    if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
+                        p.update(qparam)
+                        par.saveAllParams()
+                        return
+                        
+    
     def setPrio(self, idx : int):
         if self.parent is None:
             return super().setPrio()

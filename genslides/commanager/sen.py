@@ -2082,7 +2082,28 @@ class Projecter:
         text  = 'Tokens: ' + str(tokens) + ' price: ' + str(price)
         pyperclip.copy(text)
         pyperclip.paste()
-           
+    
+    def setMultiselectedTasksChainToMainTrack(self):
+        self.setMultiSelectTaskQueueCond('Disable')
+        return self.updateUIelements()
+
+    def resetMultiselectedTasksChainToMainTrack(self):
+        self.setMultiSelectTaskQueueCond('None')
+        return self.updateUIelements()
+    
+    def setMultiSelectTaskQueueCond(self, cond : str):
+        act = self.actioner
+        man = act.manager
+        multis = man.getMultiSelectedTasks()
+        for task in multis:
+            childs = task.getChilds()
+            for child in childs:
+                if child not in multis:
+                    cparam = child.getQueueParam()
+                    if 'cond' in cparam:
+                        cparam['cond'] = cond
+                        child.setQueueParam(cparam)
+
     def copyMultiSelectedTasksChainsToSingleChain(self):
         print('Copy multiselected tasks into single chain')
         act = self.actioner
@@ -2509,4 +2530,3 @@ class Projecter:
             gr.Textbox(value=out_text),
             gr.Slider(value=slider_str, minimum=0,maximum=slider_size, interactive=True),
         )
- 

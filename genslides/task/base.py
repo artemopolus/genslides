@@ -1024,6 +1024,7 @@ class BaseTask():
         # self.printQueueInit()
 
         if param['cond'] in ['>','<','=','!=']:
+            # TODO: Модифицировать это на оценку по формуле, внесем еще больше статистики
             res = True
             if isinstance(param['trg'], str):
                 cur = self.findKeyParam(param['cur'])
@@ -1061,6 +1062,8 @@ class BaseTask():
                     print('Infinity loop!')
                     param['cur'] = param['str'] # Или возврат к исходному?
 
+        elif param['cond'] == 'Disable':
+            return False
         elif param['cond'] == 'None':
             if param['cur'] == param['trg']:
                 return False
