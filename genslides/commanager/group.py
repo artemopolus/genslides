@@ -847,7 +847,7 @@ class Actioner():
 
     def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False, add_garlands=False, all_tree_task = False, out_childtask_max = -1):
         # print('Draw graph')
-        man = self.std_manager
+        man = self.manager
         tmpman_list = []
         for manager in self.tmp_managers:
             if manager != self.std_manager:
@@ -1160,8 +1160,11 @@ class Actioner():
         if man.no_output:
             return
         if man.curr_task is None:
-            print('No current task')
-            return
+            if len(man.task_list) > 0:
+                man.curr_task = man.task_list[0]
+            else:
+                print('No current task')
+                return
         msgs = man.curr_task.getMsgs(hide_task=hide_tasks)
         # out_prompt = ""
         # if msgs:
@@ -1328,12 +1331,12 @@ class Actioner():
         # return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
         #         gr.Textbox(value=''))
     def selectManagerByName(self, name):
-        if self.actioner.std_manager.getName() == name:
-            self.actioner.setManager(self.actioner.std_manager)
+        if self.std_manager.getName() == name:
+            self.setManager(self.std_manager)
         else:
-            for man in self.actioner.tmp_managers:
+            for man in self.tmp_managers:
                 if man.getName() == name:
-                    self.actioner.setManager(man)
+                    self.setManager(man)
                     break
     def goToTreeByName(self, name):
         self.manager.goToTreeByName(name)

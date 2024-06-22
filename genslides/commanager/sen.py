@@ -2384,10 +2384,6 @@ class Projecter:
  
     def updateUIelements(self, prompt = ''):
         hide_tasks = False
-        maingraph = self.actioner.drawGraph(hide_tasks=True, out_childtask_max=1)
-        stepgraph = self.actioner.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
-        rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
-
 
         [r_msgs, 
         mancurtaskgetname, 
@@ -2409,6 +2405,11 @@ class Projecter:
         mangetname,
         mangetcolor,
         multitasks] = self.actioner.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
+
+        maingraph = self.actioner.drawGraph(hide_tasks=True, out_childtask_max=1)
+        stepgraph = self.actioner.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
+        rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
+
 
         out = self.convToGradioUI(
                 r_msgs, 
