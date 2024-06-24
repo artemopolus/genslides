@@ -558,7 +558,8 @@ class TextTask(BaseTask):
         mypath = Loader.getUniPath(mypath)
         wr.checkFolderPathAndCreate(mypath)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        self.setName( self.getType() + str(self.id))
+        if self.getName() == '':
+            self.setName( self.getType() + str(self.id))
         # print("Start Name =", self.name)
         name = self.name + self.manager.getTaskExtention()
         found = False
@@ -617,8 +618,8 @@ class TextTask(BaseTask):
         try:
             with open(self.path, 'w') as f:
                 json.dump(resp_json_out, f, indent=1)
-        except:
-            print('Can\'t save json file')
+        except Exception as e:
+            print('Can\'t save json file:', e)
 
     def getJsonFilePath(self):
         return self.path

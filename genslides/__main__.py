@@ -521,11 +521,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 with gr.Row():
                                     name_prman = gr.Text(value='None', label = 'Manager')
                                 with gr.Column():
+                                    with gr.Row():
+                                        initmannname_rad = gr.Radio(label='Manager name', choices=['Current', 'Selected','1st MultiS','Custom'],value='Current')
+                                        custominitname_txt = gr.Textbox(label='Custom name', lines=1)
+                                    manextntasklist_rad = gr.Radio(label='ExtTask for init', choices=['Current','Selected','Multis'], value='Current')
+                                    mancopytasklist_rad = gr.Radio(label='Move tasks in init', choices=['Multis','None'], value='None')
                                     getinittmpmaninfo_btn = gr.Button('Get init man info')
                                     inittmpmaninfo_jsn = gr.JSON()
                                     init_prman_btn = gr.Button(value='Init manager from MultiTasks', interactive=False)
 
-                                    getinittmpmaninfo_btn.click(fn=projecter.getPrivMangerDefaultInfo, outputs=[
+                                    getinittmpmaninfo_btn.click(fn=projecter.getPrivMangerDefaultInfo,
+                                         inputs=[initmannname_rad, custominitname_txt, manextntasklist_rad, mancopytasklist_rad], 
+                                         outputs=[
                                         inittmpmaninfo_jsn,
                                         init_prman_btn
                                     ])

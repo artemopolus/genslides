@@ -68,12 +68,14 @@ class Loader:
     
     def convertFilePathToTag(path, manager_path):
         filename = PurePosixPath(Path(path))
-        mfilename = Loader.checkManagerTag(path, manager_path, False)
-        print(filename)
-        print(mfilename)
-        if filename == mfilename:
-            return Loader.checkManagerTag(path, manager_path)
-        return filename
+        res, filename = Loader.checkManagerTag2(path, manager_path, False)
+        if not res:
+            res2, filename = Loader.checkManagerTag2(path, manager_path)
+            if res2:
+                return filename
+        else:
+            return filename
+        return path
     
     def getFilePathArrayFromSysten(manager_path = '') ->list[str]:
         app = Tk()
@@ -180,6 +182,28 @@ class Loader:
     
     def getProgramFolder():
         return Loader.getUniPath( Path.cwd() )
+    
+    def comparePath( path1 : str, path2 : str):
+        return Path( path1 ) == Path( path2 )
         
 
+    def checkManagerTag2(spath, manager_path, to_par_fld = True) -> list[bool, str]:
+        print('check')
+        try:
+            path = Path(spath)
+            mpath = Path(manager_path)
+            tag = 'spc'
+            if to_par_fld:
+                tag = 'fld'
+                mpath = mpath.parent.parent
+            rel_path = path.relative_to(mpath)
+            print('Check manager tag', mpath, 'with', path,':', rel_path)
+            str_rel_path = str(PurePosixPath(rel_path))
+            filename = '[[manager:path:'+ tag +']]/'+ str_rel_path
+        except Exception as e:
+            print('Manager folder is not relative:',e,spath)
+            filename = str(PurePosixPath(path))
+            return False, filename
+        return True, filename
 
+ 

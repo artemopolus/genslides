@@ -709,15 +709,55 @@ class Projecter:
         self.makeTaskAction(prompt,"SubTask","SubExtProject","")
         return self.updateTaskManagerUI()
     
-    def getPrivMangerDefaultInfo(self):
+    def getPrivMangerDefaultInfo(self, mannametype, custommanname, exttaskstype, copytaskstype):
         man = self.actioner.manager
+        param_json = {'actions':[],'repeat':3,'task_names':[t.getName() for t in man.multiselect_tasks]}
+        if mannametype == 'Current':
+            param_json['name'] = man.curr_task.getName()
+        elif mannametype == 'Selected':
+            param_json['name'] = man.getSelectedTask().getName()
+        elif mannametype == '1st MultiS' and len(man.getMultiSelectedTasks()):
+            param_json['name'] = man.getMultiSelectedTasks()[0]
+        elif mannametype == 'Custom':
+            param_json['name'] = custommanname
+        
+        if exttaskstype == 'Current':
+            param_json['task_names'] = [man.curr_task.getName()]
+        elif exttaskstype == 'Selected':
+            param_json['task_names'] = [man.getSelectedTask().getName()]
+        elif exttaskstype == 'Multis':
+            param_json['task_names'] = [t.getName() for t in man.getMultiSelectedTasks()]
+
+        if copytaskstype == 'None':
+            pass
+        elif copytaskstype == 'Multis':
+            param_json['move_tasks'] = [t.getName() for t in man.getMultiSelectedTasks()]
+        
         if len(man.multiselect_tasks):
-            return {'actions':[],'repeat':3,'task_names':[t.getName() for t in man.multiselect_tasks]}, gr.Button(interactive=True)
+            return param_json, gr.Button(interactive=True)
         else:
             return {}, gr.Button(interactive=False)
 
     def initPrivManagerByInfo(self, params):
+        copytasks = []
+        act = self.actioner
+        man = act.manager
+        if 'move_tasks'  in params:
+            copytasks = [man.getTaskByName(name) for name in params['move_tasks']]
+            del params['move_tasks']
         self.makeTaskAction("","","InitPrivManager","", params)
+        man.clearMultiSelectedTasksList()
+        if len(copytasks) and 'name' in params:
+            # act.selectManagerByName(params['name'])
+            # man.multiselect_tasks = copytasks
+            if act.manager != act.std_manager:
+                task_to_copy = self.actioner.std_manager.multiselect_tasks.copy()
+                act.std_manager.clearMultiSelectedTasksList()
+                act.moveTaskFromManagerToAnother(tasks=task_to_copy, 
+                                                        cur_man=act.std_manager,
+                                                        next_man=act.manager
+                                                        )
+
         return self.updateTaskManagerUI()
 
     def initPrivManager(self):

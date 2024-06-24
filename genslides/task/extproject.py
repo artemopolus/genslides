@@ -504,6 +504,28 @@ class InExtTreeTask(ExtProjectTask):
         trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', self.getName()])
         Fm.deleteFolder(trg_path)
         del self.intact
+
+    def setManager(self, manager):
+        eres, eparam = self.getParamStruct('external')
+        project_path = ''
+        exttreetask_path = ''
+        if 'project_path' in eparam:
+            project_path = Loader.Loader.getUniPath(self.findKeyParam(eparam['project_path']))
+        if 'exttreetask_path' in eparam:
+            exttreetask_path = Loader.Loader.getUniPath(self.findKeyParam(eparam['exttreetask_path']))
+        super().setManager(manager)
+        if 'project_path' in eparam:
+            eparam['project_path'] = Loader.Loader.convertFilePathToTag(project_path, manager.getPath())
+        trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', self.getName()])
+        trg_path = Loader.Loader.getUniPath(trg_path)
+        if 'exttreetask_path' in eparam and not Loader.Loader.comparePath(trg_path, exttreetask_path):
+            eparam['exttreetask_path'] = Loader.Loader.convertFilePathToTag(trg_path, manager.getPath())
+            Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(exttreetask_path), trg_path=Loader.Loader.getUniPath(trg_path))
+            Fm.deleteFolder(exttreetask_path)
+
+        print('Result param:',eparam)
+        self.setParamStruct(eparam)
+
         
 
 class OutExtTreeTask(ExtProjectTask):
