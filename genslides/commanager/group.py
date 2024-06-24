@@ -427,7 +427,7 @@ class Actioner():
         elif creation_type == "ResetAllExtTaskOptions":
             self.resetAllExtTaskOptions()
         elif creation_type == "RelinkToCurrTask":
-            task = self.std_manager.getTaskByName(param['name'])
+            task = self.manager.getTaskByName(param['name'])
             start = self.manager.curr_task
             print('selected:',task.getName())
             print('current:', start.getName())
@@ -849,9 +849,10 @@ class Actioner():
         # print('Draw graph')
         man = self.manager
         tmpman_list = []
-        for manager in self.tmp_managers:
-            if manager != self.std_manager:
-                tmpman_list.extend(manager.task_list)
+        if man == self.std_manager:
+            for manager in self.tmp_managers:
+                if manager != self.std_manager:
+                    tmpman_list.extend(manager.task_list)
         if only_current:
             if man.curr_task.isRootParent() or all_tree_task:
                 target_chain = man.curr_task.getAllParents()

@@ -554,6 +554,7 @@ class TextTask(BaseTask):
 
 
     def getPath(self) -> str:
+        # TODO: проверять имена не только файлов в текущей папке, но и все имена задач менеджера, которые могут быть подключены как 
         mypath = self.manager.getPath()
         mypath = Loader.getUniPath(mypath)
         wr.checkFolderPathAndCreate(mypath)
@@ -564,14 +565,19 @@ class TextTask(BaseTask):
         name = self.name + self.manager.getTaskExtention()
         found = False
         n = self.name
+        names = [t.getName() for t in self.manager.task_list]
         while not found:
             if name in onlyfiles:
                 n = self.getType() + str(self.getNewID())
                 name = n + self.manager.getTaskExtention()
             else:
-                found = True
+                if n in names:
+                    n = self.getType() + str(self.getNewID())
+                    name = n + self.manager.getTaskExtention()
+                else:
+                    found = True
                 # print("Res Name=", n)
-                self.setName(n)
+                    self.setName(n)
         return os.path.join( mypath, name)
 
     def getJson(self):
