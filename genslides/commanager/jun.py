@@ -156,7 +156,7 @@ class Manager:
         self.multiselect_tasks.clear()
 
     def addTaskToMultiSelected(self, task : BaseTask):
-        if task not in self.multiselect_tasks:
+        if task != None and task not in self.multiselect_tasks and task in self.task_list:
             self.multiselect_tasks.append(task)
 
     def getCurrentTask(self) -> BaseTask:
@@ -2577,6 +2577,27 @@ class Manager:
         print('Done in', idx,'range:',[t for t in taskchain])
         return taskchain
 
+    def getBackwardRelatedTaskChain(self, trg_task : BaseTask, max_idx : int):
+        related = [t for t in trg_task.getAllParents() if t in self.task_list]
+        idx = 0
+        trgs = related.copy()
+        while idx < max_idx:
+            linked = []
+            for task in trgs:
+                linked.extend(task.getGarlandPart())
+                related.extend(task.getGarlandPart())
+            if len(linked) > 0:
+                trgs = []
+                for task in linked:
+                    par = [t for t in task.getAllParents() if t in self.task_list]
+                    trgs.extend(par)
+                    related.extend(par)
+            else:
+                break
+            idx += 1
+        for task in related:
+            self.addTaskToMultiSelected(task)
+
     def getForwardRelatedTaskChain(self, trg_task : BaseTask, max_idx : int):
         childs = trg_task.getAllChildChains()
         out_tasks = childs
@@ -2595,8 +2616,7 @@ class Manager:
             idx += 1
         print('Done in', idx,'range:',[t.getName() for t in out_tasks])
         for task in out_tasks:
-            if task not in self.multiselect_tasks:
-                self.multiselect_tasks.append(task)
+            self.addTaskToMultiSelected(task)
 
 
     def getFileContentByTaskName(self, name : str, path : str) -> dict:

@@ -12,8 +12,9 @@ class ReadFileMan():
     def readJson(s_path: str):
         # print('Read json by path:', s_path)
         text = {}
-        with open(s_path,'r',encoding='utf-8') as f:
-            text = json.load(f)
+        if os.path.isfile(s_path):
+            with open(s_path,'r',encoding='utf-8') as f:
+                text = json.load(f)
         return text
     
     def readStandart(s_path: str):

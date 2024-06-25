@@ -1264,7 +1264,7 @@ class Projecter:
         man = self.actioner.manager
         taskchainnames = man.getRelatedTaskChains(man.curr_task.getName(), man.getPath())
         for name in taskchainnames:
-            man.multiselect_tasks.append(man.getTaskByName(name))
+            man.addTaskToMultiSelected(man.getTaskByName(name))
         # return self.actioner.getRelationTasksChain()
         return self.updateMainUIelements()
     
@@ -1273,8 +1273,7 @@ class Projecter:
         tasks = man.curr_task.getHoldGarlands()
         tasks.extend(man.curr_task.getGarlandPart())
         for task in tasks:
-            if task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+                man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
        
     
@@ -1284,8 +1283,7 @@ class Projecter:
     
     def appendTaskToChain(self):
         man = self.actioner.manager
-        if man.curr_task not in man.multiselect_tasks:
-            man.multiselect_tasks.append(man.curr_task)
+        man.addTaskToMultiSelected(man.curr_task)
         return self.updateMainUIelements()
     
     def removeTaskFromChain(self):
@@ -1298,8 +1296,7 @@ class Projecter:
         man = self.actioner.manager
         tasks = man.curr_task.getTree()
         for task in tasks:
-            if task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+                man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
     
     def removeTreeFromChain(self):
@@ -1314,15 +1311,13 @@ class Projecter:
         man = self.actioner.manager
         tasks = man.curr_task.getAllChildChains()
         for task in tasks:
-            if task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+                man.addTaskToMultiSelected(task)
         tasks = man.curr_task.getAllParents()
         while(len(tasks)):
             task = tasks.pop(-1)
             if len(task.getChilds()) > 1 or task.isRootParent():
                 return self.updateMainUIelements()
-            if task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+            man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
 
     def removeBranchPartFromChain(self):
@@ -1347,8 +1342,7 @@ class Projecter:
         bud = buds.pop()
         tasks = bud.getAllParents()
         for task in tasks:
-            if task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+                man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
  
     def removeBranchFromChain(self):
@@ -1365,8 +1359,7 @@ class Projecter:
         man = self.actioner.manager
         tasks = man.curr_task.getAllChildChains()
         for task in tasks:
-            if task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+                man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
  
     def removeChildsFromChain(self):
@@ -1391,32 +1384,31 @@ class Projecter:
         trg, child_idx = man.curr_task.getClosestBranching()
         tasks = trg.getChildSameRange(trg_idx=child_idx)
         for task in tasks:
-            if task in man.task_list and task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+            if task in man.task_list:
+                man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
     
     def selectCopyBranch(self):
         man = self.actioner.manager
         tasks = man.getCopyBranch(man.curr_task)
         for task in tasks:
-            if task in man.task_list and task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+            if task in man.task_list:
+                man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
 
     def selectCopyTasks(self):
         man = self.actioner.manager
         tasks = man.getCopyTasks(man.curr_task)
         for task in tasks:
-            if task in man.task_list and task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+            if task in man.task_list:
+                man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
    
     def selectTaskRowFromCurrent(self, child_idx):
         man = self.actioner.manager
         tasks = man.curr_task.getChildSameRange(trg_idx=child_idx)
         for task in tasks:
-            if task not in man.multiselect_tasks:
-                man.multiselect_tasks.append(task)
+                man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
 
 
@@ -1707,9 +1699,10 @@ class Projecter:
 
     def getRelationBack(self, range):
         man = self.actioner.manager
-        taskchainnames = man.getRelatedTaskChains(man.curr_task.getName(), man.getPath(), max_idx=range)
-        for name in taskchainnames:
-            man.multiselect_tasks.append(man.getTaskByName(name))
+        # taskchainnames = man.getRelatedTaskChains(man.curr_task.getName(), man.getPath(), max_idx=range)
+        # for name in taskchainnames:
+            # man.addTaskToMultiSelected(man.getTaskByName(name))
+        man.getBackwardRelatedTaskChain(man.curr_task, range)
         return self.updateMainUIelements()
 
     def getRalationForward(self, range):
@@ -1743,11 +1736,12 @@ class Projecter:
         return self.updateTaskManagerUI()
 
     def moveTaskToStdMan(self):
+        print('Move TmpMan tasks to StdMan')
         if self.actioner.manager != self.actioner.std_manager:
-            self.actioner.moveTaskFromManagerToAnother(tasks= self.actioner.manager.multiselect_tasks, 
+            self.actioner.moveTaskFromTMPmanToSTDman(tasks= self.actioner.manager.multiselect_tasks, 
                                                        cur_man= self.actioner.manager,
-                                                       next_man= self.actioner.std_manager,
-                                                       to_std=True)
+                                                       next_man= self.actioner.std_manager
+                                                       )
         return self.updateTaskManagerUI()
 
     def moveTaskToTmpMan(self):

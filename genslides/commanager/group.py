@@ -1344,3 +1344,43 @@ class Actioner():
 
     def setCurrTaskByBranchEndName(self, name):
         self.manager.setCurrTaskByBranchEndName(name)
+
+
+    def moveTaskFromTMPmanToSTDman(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager):
+        t_to_rem = [t for t in tasks if t in next_man.task_list] # Уже там, не копировать
+        t_to_rem.extend([t for t in tasks if t not in cur_man.task_list])
+        for task in t_to_rem:
+            tasks.remove(task)
+
+        task_to_exttask = []
+        for task in tasks:
+            if len(task.getGarlandPart()) > 0:
+                for resp in task.getGarlandPart():
+                    if resp not in tasks:
+                        print(f"Move to std error: task[{task.getName()}] has link from {resp.getName()}[not in list]")
+                        return
+            if len(task.getHoldGarlands()) > 0:
+                for recv in task.getHoldGarlands():
+                    if recv not in tasks:
+                        print(f"Move to std error: task[{task.getName()}] has link to {recv.getName()}[not in list]")
+                        return
+            for child in task.getChilds():
+                if child not in tasks:
+                    if child in next_man.task_list:
+                        pass
+                    else:
+                        task_to_exttask.append(task)
+            if task.getParent() != None and task.getParent() not in tasks and task.getParent() not in next_man.task_list:
+                print(f"Move to std error: task[{task.getName()}] has parent {task.getParent().getName()}[not in list]")
+                return
+
+        
+        print('Move tasks from',cur_man.getName(),'to',next_man.getName(),':',[t.getName() for t in tasks])
+
+        for task in tasks:
+                next_man.addTask(task)
+                task.setManager(next_man)
+                cur_man.rmvTask(task)
+
+        if len(task_to_exttask):
+            self.addExtTasksForManager(cur_man, task_to_exttask)
