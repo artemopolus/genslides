@@ -1351,6 +1351,8 @@ class Manager:
                 info = TaskDescription(target=task_in, parent=task_out)
                 cmd = lnkcmd.LinkCommand(info)
                 self.cmd_list.append(cmd)
+        else:
+            print('Can\'t make link')
         self.runIteration()
 
 
@@ -1359,6 +1361,7 @@ class Manager:
         for task in self.task_list:
             if task.getName() == name:
                 return task
+        print('Can\'t get task by name', name)
         return None
     
     def updateSetOption(self, task_name, param_name, key, value):
