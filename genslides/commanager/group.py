@@ -853,6 +853,12 @@ class Actioner():
             for manager in self.tmp_managers:
                 if manager != self.std_manager:
                     tmpman_list.extend(manager.task_list)
+        else:
+            manbase_color = 'blueviolet'
+            if 'color' in man.info:
+                manbase_color = man.info['color']
+            tmpman_list.extend(self.std_manager.task_list)
+ 
         if only_current:
             if man.curr_task.isRootParent() or all_tree_task:
                 target_chain = man.curr_task.getAllParents()
@@ -943,12 +949,15 @@ class Actioner():
                 elif task in tmpman_list:
                     color = 'blueviolet'
                     # shape = "ellipse" #rectangle,hexagon
-                    for manager in self.tmp_managers:
-                        if manager != self.std_manager:
-                            if task in manager.task_list:
-                                if 'color' in manager.info:
-                                    color = manager.info['color']
-                                break
+                    if man == self.std_manager:
+                        for manager in self.tmp_managers:
+                            if manager != self.std_manager:
+                                if task in manager.task_list:
+                                    if 'color' in manager.info:
+                                        color = manager.info['color']
+                                    break
+                    else:
+                        color = manbase_color
                     f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 else:
                     color = 'antiquewhite1'
@@ -1385,3 +1394,5 @@ class Actioner():
 
         if len(tasks):
             self.addExtTasksForManager(cur_man, tasks)
+        
+        cur_man.fixTasks()
