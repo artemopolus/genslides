@@ -1384,3 +1384,5 @@ class Actioner():
 
         if len(task_to_exttask):
             self.addExtTasksForManager(cur_man, task_to_exttask)
+        
+        cur_man.fixTasks()
