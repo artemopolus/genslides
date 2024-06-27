@@ -1013,66 +1013,54 @@ class Actioner():
             return img_path
         return "output/img.png"
 
-    def moveTaskFromManagerToAnother(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager, to_std = False):
+    def moveTaskFromManagerToAnother(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager):
         t_to_rem = [t for t in tasks if t not in cur_man.task_list]
         for task in t_to_rem:
             tasks.remove(task)
         print('Move tasks from',cur_man.getName(),'to',next_man.getName(),':',[t.getName() for t in tasks])
-        if to_std:
-            pass 
-        else:#std->tmp
-            for task in tasks:
-                if len(task.getGarlandPart()) > 0:
-                    for resp in task.getGarlandPart():
-                        if resp not in tasks:
-                            print(f"Move to tmp error: task[{task.getName()}] has link from {resp.getName()}[not in list]")
-                            return
-                if len(task.getHoldGarlands()) > 0:
-                    for recv in task.getHoldGarlands():
-                        if recv not in tasks:
-                            print(f"Move to tmp error: task[{task.getName()}] has link to {recv.getName()}[not in list]")
-                            return
-                for child in task.getChilds():
-                    if child not in tasks:
-                        print('Move to tmp error: task[',task.getName(),'] is moving, but child[',child.getName(),'] is not')
+
+        for task in tasks:
+            if len(task.getGarlandPart()) > 0:
+                for resp in task.getGarlandPart():
+                    if resp not in tasks:
+                        print(f"Move to tmp error: task[{task.getName()}] has link from {resp.getName()}[not in list]")
                         return
-                    if child not in cur_man.task_list and child not in tasks:
-                        print('Move to tmp error: task[',task.getName(),'] is std man task, but child[',child.getName(),'] is tmp man task and not copied')
+            if len(task.getHoldGarlands()) > 0:
+                for recv in task.getHoldGarlands():
+                    if recv not in tasks:
+                        print(f"Move to tmp error: task[{task.getName()}] has link to {recv.getName()}[not in list]")
                         return
-            task_names = self.getExtTaskNamesOfManager(next_man)
-            task_names_to_del = []
+            for child in task.getChilds():
+                if child not in tasks:
+                    print('Move to tmp error: task[',task.getName(),'] is moving, but child[',child.getName(),'] is not')
+                    return
+                if child not in cur_man.task_list and child not in tasks:
+                    print('Move to tmp error: task[',task.getName(),'] is std man task, but child[',child.getName(),'] is tmp man task and not copied')
+                    return
+
         print('cur=',len(cur_man.task_list))
+        rm_ext_tasks = []
         for task in tasks:
             if task not in next_man.task_list:
                 next_man.addTask(task)
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
-            elif not to_std and task.getName() in task_names:
-                task_names_to_del.append(task.getName())
+            else:
                 next_man.addTask(task)
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
-        print('cur=',len(cur_man.task_list))
-        if to_std: #tmp->std
-            ext_tasks = []
-            for task in tasks:
-                for child in task.getChilds():
-                    if child in cur_man.task_list:
-                        ext_tasks.append(task)
-                        break
-            if len(ext_tasks):
-                self.addExtTasksForManager(cur_man, ext_tasks)
-        else: #std->tmp
-            for name in task_names_to_del:
-                task_names.remove(name)
-            self.setExtTaskNamesToManager(task_names, next_man)
-            ext_tasks = []
-            for task in tasks:
-                par = task.getParent()
-                if par and par not in next_man.task_list:
-                    ext_tasks.append(task)
-            if len(ext_tasks):
-                self.addExtTasksForManager(next_man, ext_tasks)
+                rm_ext_tasks.append(task)
+        if len(rm_ext_tasks):
+            self.rmvExtTasksForManager(next_man, rm_ext_tasks)
+        ext_tasks = []
+        for task in tasks:
+            par = task.getParent()
+            if par and par not in next_man.task_list:
+                ext_tasks.append(task)
+        if len(ext_tasks):
+            self.addExtTasksForManager(next_man, ext_tasks)
+        
+        next_man.fixTasks()
 
     def getExtTaskNamesOfManager(self, manager : Manager.Manager):
         return manager.info['task_names'].copy()
@@ -1365,7 +1353,7 @@ class Actioner():
         for task in tasks:
             if len(task.getGarlandPart()) > 0:
                 for resp in task.getGarlandPart():
-                    if resp not in tasks:
+                    if resp not in tasks and resp not in next_man.task_list:
                         print(f"Move to std error: task[{task.getName()}] has link from {resp.getName()}[not in list]")
                         return
             # if len(task.getHoldGarlands()) > 0:
