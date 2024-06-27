@@ -1359,11 +1359,11 @@ class Actioner():
                     if resp not in tasks:
                         print(f"Move to std error: task[{task.getName()}] has link from {resp.getName()}[not in list]")
                         return
-            if len(task.getHoldGarlands()) > 0:
-                for recv in task.getHoldGarlands():
-                    if recv not in tasks:
-                        print(f"Move to std error: task[{task.getName()}] has link to {recv.getName()}[not in list]")
-                        return
+            # if len(task.getHoldGarlands()) > 0:
+            #     for recv in task.getHoldGarlands():
+            #         if recv not in tasks:
+            #             print(f"Move to std error: task[{task.getName()}] has link to {recv.getName()}[not in list]")
+            #             return
             for child in task.getChilds():
                 if child not in tasks:
                     if child in next_man.task_list:
@@ -1381,8 +1381,7 @@ class Actioner():
                 next_man.addTask(task)
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
+                task.saveAllParams()
 
-        if len(task_to_exttask):
-            self.addExtTasksForManager(cur_man, task_to_exttask)
-        
-        cur_man.fixTasks()
+        if len(tasks):
+            self.addExtTasksForManager(cur_man, tasks)
