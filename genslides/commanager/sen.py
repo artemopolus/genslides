@@ -2565,3 +2565,17 @@ class Projecter:
             gr.Textbox(value=out_text),
             gr.Slider(value=slider_str, minimum=0,maximum=slider_size, interactive=True),
         )
+
+    def createMessageBasedOnRecords( self, chat, header : str , prefix : str, suffix : str, post : str):
+
+        out = header
+
+        for idx, msg in enumerate(chat):
+            start = prefix
+            start.replace("[[number]]", str(idx))
+            out += prefix
+            out += msg[1]
+            out += suffix
+        out += post
+
+        return out

@@ -256,7 +256,22 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     comparison_chat = gr.Chatbot(height=500, label='Comparison chat')
                 with gr.Column():
-                    comparison_txt = gr.Textbox(label='Comparison input',lines=4)
+                    headercontent_txt = gr.Textbox(label='Header',lines=4)
+                    prefixcontent_txt = gr.Textbox(label='Prefix',lines=4)
+                    suffixcontent_txt = gr.Textbox(label='Suffix',lines=4)
+                    conclcontent_txt = gr.Textbox(label='PS',lines=4)
+
+                    resultmsg_btn = gr.Button('Create Message')
+                    resultmsg_txt = gr.Textbox(label='Result Message', lines=8)
+
+                    resultmsg_btn.click(fn=projecter.createMessageBasedOnRecords, inputs=[
+                                    comparison_chat,
+                                    headercontent_txt,
+                                    prefixcontent_txt,
+                                    suffixcontent_txt,
+                                    conclcontent_txt
+                                        ], outputs=[resultmsg_txt]
+                    )
 
 
                 fullchatrecords_btn.click(fn=projecter.getCopyBranch, inputs = [fullchatrecords_sld], 
