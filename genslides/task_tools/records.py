@@ -20,6 +20,23 @@ def getDataFromRecordParam( param : dict ):
         return param['data']
     return []
 
+def getRecordsRow( rparam : dict, cparam : dict ) -> str:
+    if 'type' in rparam and rparam['type'] == 'records' and 'data' in rparam:
+        out = cparam['header']
+        idx = cparam['idx']
+        for i, pack in enumerate(rparam['data']):
+            chat = pack['chat']
+            if idx < len(chat):
+                if cparam['enum']:
+                    out += cparam['prefix'].replace('[[number]]',str(i))
+                else:
+                    out += cparam['prefix']
+                out += chat[idx]['content']
+                out += cparam['suffix']
+        out += cparam['footer']
+        return out
+    return ""
+
 def appendDataForRecord(param : dict, chat):
     if 'type' in param and param['type'] == 'records' and 'data' in param:
         data = param['data']

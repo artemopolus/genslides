@@ -681,7 +681,7 @@ class Projecter:
         if mnl_value == 'False':
             mnl_value = False
         elif mnl_value == 'True':
-            mnl_value
+            mnl_value = True
         print('Set task key value:','|'.join([param_name,key,str(mnl_value)]))
         self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'manual':mnl_value})
         return self.updateTaskManagerUI()
@@ -733,7 +733,7 @@ class Projecter:
         elif copytaskstype == 'Multis':
             param_json['move_tasks'] = [t.getName() for t in man.getMultiSelectedTasks()]
         
-        if len(man.multiselect_tasks):
+        if len(param_json['task_names']) > 0:
             return param_json, gr.Button(interactive=True)
         else:
             return {}, gr.Button(interactive=False)
@@ -2572,8 +2572,8 @@ class Projecter:
 
         for idx, msg in enumerate(chat):
             start = prefix
-            start.replace("[[number]]", str(idx))
-            out += prefix
+            start = start.replace("[[number]]", str(idx))
+            out += start
             out += msg[1]
             out += suffix
         out += post

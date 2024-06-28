@@ -2,6 +2,7 @@ from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
 import pprint
 from genslides.utils.largetext import SimpleChatGPT
+import genslides.task_tools.records as rd
 
 import json
 
@@ -189,9 +190,23 @@ class ReceiveTask(TextTask):
 
 
     def updateLinkedPrompts(self, input : TaskDescription):
+        eres, eparam = self.getParamStruct(self.getType())
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
-                tsk_info.prompt = input.prompt
+                if eres:
+                    try:
+                        res, param = input.parent.getParamStruct(param_name='records', only_current=True)
+                        if eparam['input'] == 'records' and res:
+                            res, param = input.parent.getParamStruct(param_name='records', only_current=True)
+                            tsk_info.prompt = rd.getRecordsRow(param, eparam)
+                        elif eparam['input'] == 'request':
+                            tsk_info.prompt = eparam['header'] + input.prompt + eparam['footer']
+                            
+                    except Exception as e:
+                        print('Error parsing',self.getName(),':',e)
+                        tsk_info.prompt = input.prompt
+                else:
+                    tsk_info.prompt = input.prompt
                 tsk_info.enabled = input.enabled
                 # print("Task[", tsk_info.id,"].enabled=",tsk_info.enabled)
                 # print('New prompt:', tsk_info.prompt)
