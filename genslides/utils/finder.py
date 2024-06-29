@@ -54,6 +54,15 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 if bres:
                     rep_text = rep_text.replace(res, json.dumps(jjson, indent=1))
+            elif len(arr) > 3 and arr[2] == '---':
+                text = str(param)
+                if arr[3].isdigit():
+                    i_vert = int(arr[3])
+                    verticaldiv = text.split('[[---]]')
+                    if i_vert < len(verticaldiv):
+                        text =  verticaldiv[i_vert]
+                rep_text = rep_text.replace(res, text)
+
             elif len(arr) > 3 and arr[2] == 'json':
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 try:

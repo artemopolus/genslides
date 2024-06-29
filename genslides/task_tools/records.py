@@ -41,7 +41,7 @@ def appendDataForRecord(param : dict, chat):
     if 'type' in param and param['type'] == 'records' and 'data' in param:
         data = param['data']
         if len(data) == 0 or (len(data) and data[-1]['chat'] != chat):
-            print('data=',data[-1]['chat'])
+            # print('data=',data[-1]['chat'])
             print('chat=',chat)
             pack = {
                 'chat': chat,
