@@ -306,7 +306,8 @@ class Projecter:
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
         # Archivator.saveAllbyName(path, trg_path, name)
 
-        return gr.Dropdown( choices= self.loadList(), interactive=True)
+        # return gr.Dropdown( choices= self.loadList(), interactive=True)
+        return "Save"
     
     def saveTmpMan(self):
         if self.actioner.manager == self.actioner.std_manager:
@@ -1160,6 +1161,16 @@ class Projecter:
         self.actioner.updateAll(force_check=check)
         self.actioner.manager.enableOutput2()
         return self.updateMainUIelements()
+    
+    def updateAllnTimes(self, n, check = False):
+        print('Update All trees stepped',n,'times')
+        self.actioner.manager.disableOutput2()
+        for i in range(n):
+            print('UAT:', i)
+            self.actioner.updateAll(force_check=check)
+        self.actioner.manager.enableOutput2()
+        return self.updateMainUIelements()
+
     
     def updateCurrentTree(self):
         self.actioner.manager.disableOutput2()
@@ -2579,3 +2590,7 @@ class Projecter:
         out += post
 
         return out
+    
+    def resetActUpdateCnt (self):
+        self.actioner.updateallcounter = 0
+        return self.updateUIelements()

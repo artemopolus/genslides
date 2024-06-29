@@ -28,6 +28,8 @@ class Actioner():
         self.executing_man = None
         self.hide_task = True
 
+        self.updateallcounter = 0
+
     def setManager(self, manager : Manager.Manager):
         if manager != self.std_manager and not manager.is_loaded:
             manager.disableOutput2()
@@ -768,8 +770,11 @@ class Actioner():
         print(f"[{man.getName()}]Frozen: {cnt} of {len(man.task_list)} task(s)")
         man.saveInfo()
         man.curr_task = start_task
+
+        self.updateallcounter += 1
         # out = man.getCurrTaskPrompts()
         # return out
+
 
     def updateAllUntillCurrTask(self, force_check=False):
         man = self.manager
@@ -1190,7 +1195,7 @@ class Actioner():
         for task in man.task_list:
             if task.is_freeze:
                 cnt += 1
-        status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(man.task_list))
+        status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(man.task_list)) + ':' + str(self.updateallcounter)
 
         gettreenameforradio_names, gettreenameforradio_trg = man.getTreeNamesForRadio()
         mancurtaskgetname = man.curr_task.getName()

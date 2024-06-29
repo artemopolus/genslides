@@ -203,6 +203,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             reset_step_btn = gr.Button(value="Reset steps")
                             updatechildtasks_btn = gr.Button('UAT childs')
                             updatemultitasks_btn = gr.Button('UAT multi')
+                            updatecntreset_btn = gr.Button('reset UAT cnt')
+                        with gr.Row():
+                            updateall_stepNs_sld = gr.Slider(label='UAT N times',value=0,minimum=0, maximum=50,step=1)
+                            updateall_stepNs_btn = gr.Button('UAT N times')
                         with gr.Row():
                             updateforktasks_btn = gr.Button('UAT fork')
                         with gr.Row():
@@ -810,6 +814,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 saveresresult_txt = gr.Textbox()
                 gr.Button('Save to reserved').click(fn=projecter.saveToTmp, outputs=saveresresult_txt)
                 projectrestore_btn = gr.Button('Restore reserved')
+                project_save.click(fn=projecter.save, inputs=[project_name], outputs=saveresresult_txt )
 
             # param_updt = gr.Button(value="Edit param")
 
@@ -858,6 +863,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                multiselecttask_txt
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
+
+            updatecntreset_btn.click(fn=projecter.resetActUpdateCnt, outputs=std_output_list)
 
             addextmantasksintocurman.click(fn=projecter.copyExternalTmpManagerToCurrProject,
                                                                inputs=[
@@ -1024,7 +1031,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             go_lnkfrwd_btn.click(fn=projecter.setCurrentTaskByName, inputs=[go_lnkfrwd_rad], outputs= std_output_list )
 
 
-            project_save.click(fn=projecter.save, inputs=[project_name] )
             project_clear.click(fn=projecter.clear)
             project_load.click(fn=projecter.load, outputs=[project_name])
             project_reload.click(fn=projecter.reload)
@@ -1039,6 +1045,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             update_step_btn.click(fn=projecter.update, outputs=std_output_list)
             updateall_step_btn.click(fn=projecter.updateAll, inputs=[updatecheckown_chk], outputs=std_output_list)
+            updateall_stepNs_btn.click(fn=projecter.updateAllnTimes, inputs=[updateall_stepNs_sld, updatecheckown_chk], outputs=std_output_list)
             upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, inputs=[updatecheckown_chk], outputs=std_output_list)
             updatechildtasks_btn.click(fn=projecter.updateChildTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
             updatemultitasks_btn.click(fn=projecter.updateMultiSelectedTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
