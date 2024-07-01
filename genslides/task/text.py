@@ -393,7 +393,7 @@ class TextTask(BaseTask):
             res, pparam = self.getParamStruct('hidden', only_current=True)
             if res and pparam['hidden']:
                 return False, [], self.parent
-        # TODO: можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
+        # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         val = [{"role":self.getLastMsgRole(), 
                 "content": self.findKeyParam(self.getLastMsgContent())}]
         if self.parent != None:
@@ -554,7 +554,7 @@ class TextTask(BaseTask):
 
 
     def getPath(self) -> str:
-        # TODO: проверять имена не только файлов в текущей папке, но и все имена задач менеджера, которые могут быть подключены как 
+        # проверять имена не только файлов в текущей папке, но и все имена задач менеджера, которые могут быть подключены как 
         mypath = self.manager.getPath()
         mypath = Loader.getUniPath(mypath)
         wr.checkFolderPathAndCreate(mypath)
@@ -834,8 +834,8 @@ class TextTask(BaseTask):
         if self.parent:
             self.is_freeze = self.parent.is_freeze
 
-        res, is_input = self.getParam("input")
-        # TODO: Инпут изначально планировался как средство остановки обновления до ожидания действий пользователя, теперь его "заменяет" блокировка, может быть он теперь и не нужен?
+        # res, is_input = self.getParam("input")
+        # Инпут изначально планировался как средство остановки обновления до ожидания действий пользователя, теперь его "заменяет" блокировка, может быть он теперь и не нужен?
         res = False
 
         if res and is_input:

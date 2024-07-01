@@ -2025,6 +2025,7 @@ class Manager:
         for switch in self.tc_switch_type:
             if trg_type == switch['src'] and task not in self.tc_ignore_conv:
                 trg_type = switch['trg']
+            # TODO: При изменении типа задач. Если param_task содержит Collect и в нем input равен array, то создать цепочку задач на базе параметров, но только последовательно 
         if task.checkType('ExtProject'):
             res, param = task.getParamStruct('external')
             if res:

@@ -393,7 +393,6 @@ class BaseTask():
                             out = p
                             found = True
                             break
-                    # TODO: Ошибка возникает при удалении набора задач, связанных друг с другом. Для исправлении ошибки надо создать отдельную функцию удаления пакетов задач
                     # if not found:
                     #     raise Exception('Parent',par.parent.getName(),'task not connected with target', par.getName())
                 else:
@@ -1024,7 +1023,6 @@ class BaseTask():
         # self.printQueueInit()
 
         if param['cond'] in ['>','<','=','!=']:
-            # TODO: Модифицировать это на оценку по формуле, внесем еще больше статистики
             res = True
             if isinstance(param['trg'], str):
                 cur = self.findKeyParam(param['cur'])

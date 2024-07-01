@@ -21,6 +21,7 @@ def getDataFromRecordParam( param : dict ):
     return []
 
 def getRecordsRow( rparam : dict, cparam : dict ) -> str:
+    # TODO: Сделать аналог для возврата массивом строк
     if 'type' in rparam and rparam['type'] == 'records' and 'data' in rparam:
         out = cparam['header']
         idx = cparam['idx']
