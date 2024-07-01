@@ -1596,8 +1596,8 @@ class Manager:
         next = self.curr_task.getNextFromQueue(trgtaskNames=acceptedchilds)
 
         dt2 = datetime.datetime.now()  
-        delta = dt1 - dt2
-        init_log += str(delta.total_seconds())      
+        delta = dt2 - dt1
+        init_log += str(delta.seconds)      
         if next:
             print(init_log,'===>', next.getName(),'in tasks list:',next in self.task_list)
         else:
