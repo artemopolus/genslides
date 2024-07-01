@@ -117,6 +117,7 @@ class ReceiveTask(TextTask):
         return super().createLinkToTask(task) 
     
     def getRichPrompt(self) -> str:
+        # TODO: Перенести сюда заполнение шаблона
         res, param = self.getParamStruct('linkedfrom')
         text = ""
         if res:
@@ -135,9 +136,15 @@ class ReceiveTask(TextTask):
             else:
                 print('No')
             return text
+        eres, eparam = self.getParamStruct(self.getType(), only_current=True)
         for task in self.by_ext_affected_list:
             # print("Copy data from", task.parent.getName())
-            text += task.prompt +"\n"
+            if eres and eparam['input'] == 'records':
+                res, param = task.parent.getParamStruct(param_name='records', only_current=True)
+                if res:
+                    text += rd.getRecordsRow(param, eparam)
+            else:
+                text += task.prompt +"\n"
         # print('Result:', text)
         return text
 
@@ -190,23 +197,10 @@ class ReceiveTask(TextTask):
 
 
     def updateLinkedPrompts(self, input : TaskDescription):
-        eres, eparam = self.getParamStruct(self.getType())
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
-                if eres:
-                    try:
-                        res, param = input.parent.getParamStruct(param_name='records', only_current=True)
-                        if eparam['input'] == 'records' and res:
-                            res, param = input.parent.getParamStruct(param_name='records', only_current=True)
-                            tsk_info.prompt = rd.getRecordsRow(param, eparam)
-                        elif eparam['input'] == 'request':
-                            tsk_info.prompt = eparam['header'] + input.prompt + eparam['footer']
-                            
-                    except Exception as e:
-                        print('Error parsing',self.getName(),':',e)
-                        tsk_info.prompt = input.prompt
-                else:
-                    tsk_info.prompt = input.prompt
+                
+                tsk_info.prompt = input.prompt
                 tsk_info.enabled = input.enabled
                 # print("Task[", tsk_info.id,"].enabled=",tsk_info.enabled)
                 # print('New prompt:', tsk_info.prompt)

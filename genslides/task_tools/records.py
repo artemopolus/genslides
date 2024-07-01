@@ -25,9 +25,22 @@ def getRecordsRow( rparam : dict, cparam : dict ) -> str:
     if 'type' in rparam and rparam['type'] == 'records' and 'data' in rparam:
         out = cparam['header']
         idx = cparam['idx']
+        trg_chat_msgs = []
+        if 'range' in cparam:
+            chat_range = cparam['range']
+            nums = chat_range.split(',')
+            for num in nums:
+                if num.isdigit():
+                    trg_chat_msgs.append(int(num))
+                else:
+                    str_end = num.split('-')
+                    if len(str_end) == 2 and str_end[0].isdigit() and str_end[1].isdigit():
+                        msgrange = list( range(int(str_end[0]), int(str_end[1]) + 1))
+                        trg_chat_msgs.extend(msgrange)
         for i, pack in enumerate(rparam['data']):
             chat = pack['chat']
-            if idx < len(chat):
+            if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                    (idx < len(chat) and i in trg_chat_msgs)):
                 if cparam['enum']:
                     out += cparam['prefix'].replace('[[number]]',str(i))
                 else:

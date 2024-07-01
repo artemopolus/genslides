@@ -39,6 +39,7 @@ import re
 from tkinter import Tk     # from tkinter import Tk for Python 3.x
 from tkinter.filedialog import askopenfilename, askdirectory, askopenfilenames
 
+import datetime
 
 import pathlib
 
@@ -1566,6 +1567,7 @@ class Manager:
     
     def updateSteppedSelectedInternal(self, info : TaskDescription = None):
         # print(10*"----------")
+        dt1 = datetime.datetime.now()        
         init_log = "STEP" + 4*">>" + self.curr_task.getName() + "||" + getTimeForSaving() + "||"
         # print(10*"----------")
         if info:
@@ -1593,6 +1595,9 @@ class Manager:
         acceptedchilds = [t.getName() for t in self.task_list]
         next = self.curr_task.getNextFromQueue(trgtaskNames=acceptedchilds)
 
+        dt2 = datetime.datetime.now()  
+        delta = dt1 - dt2
+        init_log += str(delta.total_seconds())      
         if next:
             print(init_log,'===>', next.getName(),'in tasks list:',next in self.task_list)
         else:

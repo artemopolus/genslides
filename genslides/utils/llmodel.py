@@ -87,6 +87,7 @@ class LLModel():
         # print("Get response[", token_cnt,"]=",msgs[-1]["content"])
 
         if token_cnt > self.params['max_tokens']:
+            print('Too many tokens for this model:', token_cnt)
             return False, '', {}
         # print('Input Chat=', [[msg['role'], len(msg['content'])] for msg in messages])
         out = {
