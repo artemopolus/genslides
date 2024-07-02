@@ -1325,8 +1325,11 @@ class Actioner():
                         #  gr.Textbox(value=''))
             else:
                     # str_cur_val = str(cur_val)
-                    str_cur_val = json.dumps(cur_val, indent=1)
-                    return cur_val, cur_val, interacttive_drd, multiselect_drd,str_cur_val, True
+                    if isinstance(cur_val, dict):
+                        str_cur_val = json.dumps(cur_val, indent=1)
+                    else:
+                        str_cur_val = ""
+                    return [cur_val], cur_val, interacttive_drd, multiselect_drd,str_cur_val, True
                     # return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=str_cur_val))
         cur_val = 'None'
