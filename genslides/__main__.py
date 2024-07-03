@@ -465,6 +465,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 minichainstobig_btn = gr.Button('Mini chains to ONE')
                                 disunselectchild_btn = gr.Button('Disable unselected children from queue')
                                 enablemultichilds_btn = gr.Button('Enable children to queue')
+
+                                with gr.Row():
+                                    savemultitasks_txt = gr.Textbox()
+                                    savemultitasks_btn = gr.Button('Save multi to folder').click(fn=projecter.copyMultiSelectToFolder, outputs=[savemultitasks_txt])
+
+
                     with gr.Tab('Cmds'):
                         with gr.Row():
                             moveup_btn = gr.Button(value='MoveUP')

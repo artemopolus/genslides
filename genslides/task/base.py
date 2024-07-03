@@ -1,7 +1,7 @@
 import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 import genslides.utils.loader as Loader
-
+import genslides.utils.filemanager as Fm
 # import genslides.commands.create as create
 from genslides.helpers.singleton import Singleton
 
@@ -18,6 +18,8 @@ class TaskManager(metaclass=Singleton):
         self.task_id = 0
         self.task_list = []
         self.model_list = []
+
+        self.tasks_cache = []
         self.setDefaultProj()
 
     def getListBasedOptionsDict(self, param):
@@ -127,6 +129,74 @@ class TaskManager(metaclass=Singleton):
             except Exception as e:
                 pass
         return out
+    
+    def loadTasksCache(self, mypath):
+        trgfldpath = Loader.Loader.getUniPath(mypath)
+        for cache in self.tasks_cache:
+            if cache['path'] == trgfldpath:
+                return
+        new_cache = {'path':trgfldpath}
+        onlyfiles = Fm.getFilesInFolder(trgfldpath)
+        taskspack = []
+        for filename in onlyfiles:
+            path = join(mypath,filename)
+            # print('Check path=',path)
+            try:
+                with open(path, 'r') as f:
+                    rq = json.load(f)
+                if 'parent' in rq:
+                    path_from_file = rq['parent']
+                    parent_path = ""
+                    # print(path_from_file.split('/'))
+                    if len(path_from_file.split('/')) > 1:
+                        print('Load from old style')
+                        parent_path = path_from_file
+                    else:
+                        if path_from_file != "":
+                            parent_path = os.path.join(mypath , path_from_file + self.getTaskExtention())
+                    if 'chat' in rq and 'type' in rq:
+                        taskspack.append({'task_path': path, 'parent_path':parent_path, 'filename':filename})
+            except Exception as e:
+                print("Task prompts error=", type(e),"using", path)
+        new_cache['tasks'] = taskspack
+        self.tasks_cache.append(new_cache)
+
+    def clearTasksCache(self):
+        self.tasks_cache.clear()
+
+    def getTaskPromptsFromCache(self,mypath, trg_path = "", ignore_safe = False, trg_tasks = []):
+        self.loadTasksCache( mypath )
+        trgfldpath = Loader.Loader.getUniPath(mypath)
+        out = []
+        if trg_path != "":
+            trg_path = Loader.Loader.getUniPath(trg_path)
+        for cache in self.tasks_cache:
+            if cache['path'] == trgfldpath:
+                for task_info in cache['tasks']:
+                    if task_info['parent_path'] == trg_path:
+                        with open(task_info['task_path'], 'r') as f:
+                            rq = json.load(f)
+                        filename = task_info['filename']
+                        if len(rq['chat']) == 0:
+                            elem = {'role': 'user','content': ''}
+                        else:
+                            if rq['type'] == "RichText":
+                                elem = rq['chat'].pop()
+                            elem = rq['chat'].pop()
+                        pair = {}
+                        # pair['type'] = rq['type']
+                        pair['type'] =filename.split('.')[0] 
+                        pair['content'] = elem['content']
+                        pair['role'] = elem['role']
+
+                        filenamearr = filename.split('.')
+                        if len(filenamearr) == 2:
+                            pair['trgtaskname'] = filenamearr[0]
+
+                        out.append(pair)
+        return out
+ 
+
 
     def getTaskPrompts(self,mypath, trg_path = "", ignore_safe = False, trg_tasks = []):
         mypath = Loader.Loader.getUniPath(mypath)
@@ -185,6 +255,10 @@ class TaskManager(metaclass=Singleton):
                         pair['type'] =filename.split('.')[0] 
                         pair['content'] = elem['content']
                         pair['role'] = elem['role']
+
+                        filenamearr = filename.split('.')
+                        if len(filenamearr) == 2:
+                            pair['trgtaskname'] = filenamearr[0]
 
                         out.append(pair)
                         
@@ -1283,6 +1357,8 @@ class BaseTask():
         return ""
     
     def saveAllParams(self):
+        pass
+    def saveAllParamsByPath(self, path : str):
         pass
     
     def getRawMsgs(self):

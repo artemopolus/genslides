@@ -758,6 +758,7 @@ class Manager:
 
     def createTask(self, prnt_task = None, safe = False, trg_tasks = []):
         # print(10*"=======")
+        # dt1 = datetime.datetime.now()        
         if prnt_task == None:
             parent_path = ""
         else:
@@ -767,19 +768,25 @@ class Manager:
             # print("Parent task path=", parent_path)
         init_task_list = self.task_list.copy()
         task_manager = TaskManager()
-        parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), trg_path= parent_path, ignore_safe=safe, trg_tasks=trg_tasks)
+        # parent_prompt_list = task_manager.getTaskPrompts(self.getPath(), trg_path= parent_path, ignore_safe=safe, trg_tasks=trg_tasks)
+        parent_prompt_list = task_manager.getTaskPromptsFromCache(self.getPath(), trg_path= parent_path, ignore_safe=safe, trg_tasks=trg_tasks)
 
         # print("prompt count=",len(parent_prompt_list))
+        # dt2 = datetime.datetime.now()    
 
         for prompt in parent_prompt_list:
             self.curr_task = prnt_task
             # print("content=",prompt['content'])
             if parent_path == "":
-                self.makeTaskAction(prompt['content'], prompt['type'], "New", prompt['role'])
+                self.makeTaskAction(prompt['content'], prompt['type'], "New", prompt['role'], trgtaskname=prompt['trgtaskname'])
             else:
-                self.makeTaskAction(prompt['content'], prompt['type'], "SubTask",prompt['role'])
+                self.makeTaskAction(prompt['content'], prompt['type'], "SubTask",prompt['role'], trgtaskname=prompt['trgtaskname'])
 
         trg_task_list = self.task_list.copy()
+        
+        # dt3 = datetime.datetime.now()    
+
+        # print(self.curr_task.getName(),'was created by:\t',(dt2-dt1).microseconds/1000,'ms |',(dt3-dt2).microseconds/1000,'ms')    
 
         # print("task count=",len(self.task_list),",exclude=",len(init_task_list))
         if len(parent_prompt_list):
@@ -1086,9 +1093,9 @@ class Manager:
         return self.makeTaskAction("", "Response",selected_action, "assistant")
         
  
-    def makeTaskAction(self, prompt, type, creation_type, creation_tag, params = []):
+    def makeTaskAction(self, prompt, type, creation_type, creation_tag, params = [], trgtaskname = ''):
         if creation_type in self.getMainCommandList() or creation_type in self.vars_param:
-            return self.makeTaskActionBase(prompt, type, creation_type, creation_tag, params)
+            return self.makeTaskActionBase(prompt, type, creation_type, creation_tag, params, trgtaskname=trgtaskname)
         elif creation_type in self.getSecdCommandList():
             return self.makeTaskActionPro(prompt, type, creation_type, creation_tag, params)
         saver = SaveData()
@@ -1198,7 +1205,7 @@ class Manager:
     def updateTaskParam(self, param):
         self.curr_task.setParam(param)
     
-    def makeTaskActionBase(self, prompt, type, creation_type, creation_tag, params = []):
+    def makeTaskActionBase(self, prompt, type, creation_type, creation_tag, params = [], trgtaskname = ''):
         # print(10*"==")
         # print("Create new task")
         # print("type=",type)
@@ -1312,9 +1319,9 @@ class Manager:
         else:
             return 
         
-        return self.createOrAddTask(prompt,type, creation_tag, parent, params)
+        return self.createOrAddTask(prompt,type, creation_tag, parent, params, trgtaskname)
         
-    def createOrAddTask(self, prompt, type, tag, parent, params = []):
+    def createOrAddTask(self, prompt, type, tag, parent, params = [], trgtaskname = ''):
         # print('Create task')
         # print('Params=',params)
         res, task_params = self.helper.getParams(type)
@@ -1324,7 +1331,7 @@ class Manager:
             task_params = params
         info = TaskDescription(prompt=prompt, prompt_tag=tag, 
                                                              helper=self.helper, requester=self.requester, manager=self, 
-                                                             parent=parent, params=task_params)
+                                                             parent=parent, params=task_params, trgtaskname=trgtaskname)
         # if params is not None:
             # info.params = params
         curr_cmd = cr.createTaskByType(type, info)
@@ -1597,7 +1604,7 @@ class Manager:
 
         dt2 = datetime.datetime.now()  
         delta = dt2 - dt1
-        init_log += str(delta.seconds)      
+        init_log += str(delta.microseconds /1000) + 'ms'      
         if next:
             print(init_log,'===>', next.getName(),'in tasks list:',next in self.task_list)
         else:

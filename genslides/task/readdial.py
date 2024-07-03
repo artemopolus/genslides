@@ -2,9 +2,10 @@ from genslides.task.base import TaskDescription
 from genslides.task.readfile import ReadFileTask
 import os
 import json
+import genslides.task_tools.records as rd
 
-class ReadDialTask(ReadFileTask):
-    def __init__(self, task_info: TaskDescription, type="ReadDial") -> None:
+class ReadBranchTask(ReadFileTask):
+    def __init__(self, task_info: TaskDescription, type="ReadBranch") -> None:
         super().__init__(task_info, type)
         self.saveJsonToFile(self.msg_list)
 
@@ -25,16 +26,24 @@ class ReadDialTask(ReadFileTask):
             self.updateParam(param_name,self.getRichPrompt())
 
 
-            self.msg_list = self.getJsonDial(self.getRichPrompt())
+            self.msg_list = self.getJsonDial()
 
-    def getJsonDial(self, s_path):
-        with open(s_path, 'r') as f:
-            print("path_to_read =", s_path)
-            try:
+    def getJsonDial(self):
+        eres, eparam = self.getParamStruct(self.getType(), only_current=True)
+        try:
+            s_path = eparam['path_to_read']
+            with open(s_path, 'r') as f:
+                print("path_to_read =", s_path)
                 rq = json.load(f)
-                return rq
-            except ValueError as e:
-                print("json error type=", type(e))
+                if isinstance(rq, list):
+                    return rq
+                elif isinstance(rq, dict):
+                    if 'type' in rq and rq['type'] == 'records':
+                        if eparam['input'] == 'row':
+                            return {"content" : rd.getRecordsRow(rq, eparam), "role" : self.prompt_tag}
+
+        except ValueError as e:
+            print("json error type=", type(e))
         return []
 
 

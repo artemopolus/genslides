@@ -593,7 +593,14 @@ class TextTask(BaseTask):
     
     def saveAllParams(self):
         self.saveJsonToFile(self.msg_list)
-
+ 
+    def saveAllParamsByPath(self, path : str):
+        resp_json_out = self.getJsonMsg(self.msg_list)
+        try:
+            with open(path, 'w') as f:
+                json.dump(resp_json_out, f, indent=1)
+        except Exception as e:
+            print('Can\'t save json file:', e)
 
     def getJsonMsg(self, msg_list):
         pout = self.params.copy()

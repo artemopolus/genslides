@@ -60,7 +60,7 @@ class Loader:
             val = json.loads(prop, strict=False)
             return True, val
         except Exception as e:
-            print('Raise err:', e,'\nInput:\n', prop)
+            # print('Raise err:', e,'\nInput:\n', prop)
             pass
 
         # print('Can\'t find json object in txt', arr)

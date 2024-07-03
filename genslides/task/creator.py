@@ -11,8 +11,8 @@ from genslides.task.websurf import WebSurfTask
 from genslides.task.readpage import ReadPageTask
 from genslides.task.largetextresponse import LargeTextResponseTask
 
-from genslides.task.writedialtofile import WriteDialToFileTask
-from genslides.task.readdial import ReadDialTask
+from genslides.task.writedialtofile import WriteBranchTask
+from genslides.task.readdial import ReadBranchTask
 
 from genslides.task.gettime import GetTimeTask
 
@@ -89,11 +89,11 @@ def createTaskByType(type : str, info : TaskDescription):
     if stype.endswith("ReadPage"):
         info.method = ReadPageTask
         return cr.CreateCommand(info)
-    if stype.endswith("ReadDial"):
-        info.method = ReadDialTask
+    if stype.endswith("ReadBranch"):
+        info.method = ReadBranchTask
         return cr.CreateCommand(info)
-    if stype.endswith("WriteDialToFile"):
-        info.method = WriteDialToFileTask
+    if stype.endswith("WriteBranch"):
+        info.method = WriteBranchTask
         return cr.CreateCommand(info)
     if stype.endswith("Iteration"):
         info.method = IterationTask
@@ -148,8 +148,8 @@ def getTasksDict() -> list:
     out.append({"type":"Collect","short":"Cl","creation":CollectTask})
     out.append({"type":"Garland","short":"Gr","creation":GarlandTask})
     out.append({"type":"GroupCollect","short":"Gc","creation":GroupCollectTask})
-    out.append({"type":"ReadDial","short":"Rd","creation":ReadDialTask})
-    out.append({"type":"WriteDialToFile","short":"Wd","creation":WriteDialToFileTask})
+    out.append({"type":"ReadDial","short":"Rb","creation":ReadBranchTask})
+    out.append({"type":"WriteBranch","short":"Wb","creation":WriteBranchTask})
     out.append({"type":"ReadFile","short":"Rf","creation":ReadFileTask})
     out.append({"type":"WriteToFile","short":"Wf","creation":WriteToFileTask})
     out.append({"type":"WriteToFileParam","short":"Wp","creation":WriteToFileParamTask})

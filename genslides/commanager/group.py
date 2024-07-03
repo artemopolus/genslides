@@ -1392,3 +1392,8 @@ class Actioner():
             self.addExtTasksForManager(cur_man, tasks)
         
         cur_man.fixTasks()
+
+    def afterLoading(self):
+        task_manager = TaskManager()
+        task_manager.clearTasksCache()
+

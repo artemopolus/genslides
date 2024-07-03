@@ -843,6 +843,9 @@ class Projecter:
             for task in trg_tasks:
                 self.addExtTreeTaskActioner(task)
 
+        for act in self.actioners_list:
+            act['act'].afterLoading()
+
 
 
     def addCurrentExtTreeTaskActioner(self):
@@ -858,6 +861,7 @@ class Projecter:
             self.actioner.loadStdManagerTasks()
 
     def createActioner(self, eparam) -> Actioner:
+        dt1 = datetime.datetime.now()        
         path = eparam['exttreetask_path']
         manager = Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         manager.onStart()
@@ -877,6 +881,8 @@ class Projecter:
                 manager.loadTasksList(safe = False)
             manager.enableOutput2()
             act.loadTmpManagers()
+        dt2 = datetime.datetime.now()     
+        print('Actioner was created by:\t',(dt2-dt1).seconds,'second(s)')    
         return act
 
 
@@ -2594,3 +2600,13 @@ class Projecter:
     def resetActUpdateCnt (self):
         self.actioner.updateallcounter = 0
         return self.updateUIelements()
+
+    def copyMultiSelectToFolder(self):
+        act = self.actioner
+        man = act.manager
+        selpath = Loader.Loader.getDirPathFromSystem()
+        path = Loader.Loader.getUniPath(selpath)
+        for task in man.getMultiSelectedTasks():
+            task.saveAllParamsByPath(path)
+
+        return "Done"
