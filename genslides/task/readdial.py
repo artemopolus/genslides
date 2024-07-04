@@ -35,7 +35,7 @@ class ReadBranchTask(TextTask):
 
     def getJsonDial(self):
         print(self.getName(), 'Get read branch chat')
-        eres, eparam = self.getParamStruct(self.getType(), only_current=True)
+        eres, eparam = self.getParamStruct(self.getType())
         if not eres:
             return []
         try:
@@ -48,7 +48,7 @@ class ReadBranchTask(TextTask):
                 elif isinstance(rq, dict):
                     if 'type' in rq and rq['type'] == 'records':
                         if eparam['input'] == 'row':
-                            return {"content" : rd.getRecordsRow(rq, eparam), "role" : self.prompt_tag}
+                            return [{"content" : rd.getRecordsRow(rq, eparam), "role" : self.prompt_tag}]
 
         except Exception as e:
             print("json error type=", type(e))
