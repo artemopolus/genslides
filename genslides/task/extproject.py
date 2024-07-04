@@ -586,6 +586,9 @@ class OutExtTreeTask(ExtProjectTask):
     def getParentForFinder(self):
         return self.intch_trg
     
+    def getParentForRaw(self):
+        return self.intch_trg
+    
     def removeProject(self):
         pass
 

@@ -351,6 +351,7 @@ def findByKey2(text, manager , base):
                         arr.pop(0)
                     out_target_task = task
                     rep_text = getFromTask(arr, res, rep_text, task, manager)
+                    task.freeTaskByParentCode()
                 else:
                     #  print("No task", arr[0])
                      pass

@@ -399,10 +399,17 @@ class TextTask(BaseTask):
         if self.parent != None:
             self.parent.setActiveBranch(self)
         return True, val, self.parent
-    
+
+   
+    def freeTaskByParentCode(self):
+        pass
+
     def getParentForFinder(self):
         return self.getParent()
 
+    def getParentForRaw(self):
+        return self.getParent()
+    
     def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
         idx += 1
         content = '[[parent_' + str(idx) + ':msg_content]]\n' if idx != 1 else '[[parent:msg_content]]\n'
@@ -418,7 +425,7 @@ class TextTask(BaseTask):
                 "content": content}]
         if self.parent != None:
             self.parent.setActiveBranch(self)
-        return True, val, self.getParentForFinder()
+        return True, val, self.getParentForRaw()
 
     def getMsgByIndex(self, i_trg):
         task = self
@@ -452,6 +459,7 @@ class TextTask(BaseTask):
                 # print(task.getName(),"give", len(msg), "msg")
                 msg.extend(out)
                 out = msg
+                # print(index, task.getName(),'give',len(out))
             if par is None:
                 break
             else:

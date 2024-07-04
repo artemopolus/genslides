@@ -3,6 +3,8 @@ from genslides.task.writetofileparam import WriteToFileParamTask
 import json
 import genslides.task_tools.array as ar
 import genslides.task_tools.records as rd
+import genslides.utils.writer as wr
+import genslides.utils.loader as ld
 
 class WriteBranchTask(WriteToFileParamTask):
     def __init__(self, task_info: TaskDescription, type="WriteBranch") -> None:
@@ -13,14 +15,12 @@ class WriteBranchTask(WriteToFileParamTask):
         if not res:
             return
         try:
-            path = param['path_to_write']
+            path = ld.Loader.getUniPath( self.findKeyParam( param['path_to_write'] ) )
             t_input = param['input']
             content = None
             if t_input == 'msgs':
                 content = self.getMsgs()
-                with open(path, 'w',encoding='utf8') as f:
-                    print(self.getName(), "read", path)
-                    json.dump(content, f, indent=1)
+                wr.writeJsonToFile(path, content)
 
             elif t_input == 'records' and self.manager.allowUpdateInternalArrayParam():
                 with open(path, 'r',encoding='utf8') as f:
@@ -31,8 +31,7 @@ class WriteBranchTask(WriteToFileParamTask):
                 
                 else:
                     naparam = rd.createRecordParam(self.getTasksContent())
-                with open(path, 'w', encoding='utf8') as f:
-                    json.dump(naparam, f, indent=1)
+                wr.writeJsonToFile(path, naparam)
 
         except Exception as e:
             pass

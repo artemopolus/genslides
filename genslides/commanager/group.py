@@ -1169,6 +1169,7 @@ class Actioner():
                 print('No current task')
                 return
         msgs = man.curr_task.getMsgs(hide_task=hide_tasks)
+        # print('Msgs num:', len(msgs))
         # out_prompt = ""
         # if msgs:
             # out_prompt = msgs[-1]["content"]
