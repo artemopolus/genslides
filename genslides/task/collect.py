@@ -139,12 +139,18 @@ class ReceiveTask(TextTask):
         eres, eparam = self.getParamStruct(self.getType(), only_current=True)
         for task in self.by_ext_affected_list:
             # print("Copy data from", task.parent.getName())
-            if eres and eparam['input'] == 'records':
-                res, param = task.parent.getParamStruct(param_name='records', only_current=True)
-                if res:
-                    text += rd.getRecordsRow(param, eparam)
-            else:
+            try:
+                if eres and eparam['input'] == 'records':
+                    res, param = task.parent.getParamStruct(param_name='records', only_current=True)
+                    if res:
+                        text += rd.getRecordsRow(param, eparam)
+                elif eres and eparam['input'] == 'request':
+                    text += eparam['header'] + task.prompt + eparam['footer']    
+                else:
+                    text += task.prompt +"\n"
+            except Exception as e:
                 text += task.prompt +"\n"
+
         # print('Result:', text)
         return text
 

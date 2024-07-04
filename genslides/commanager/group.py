@@ -1268,6 +1268,7 @@ class Actioner():
         interacttive_drd = True
         multiselect_drd = False
         choices = []
+        cur_val = 'None'
         if param_key == 'path_to_read':
             filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
             return [filename], filename, interacttive_drd, multiselect_drd, str(filename), True
@@ -1318,22 +1319,23 @@ class Actioner():
                     values.append(cur_val)
             else:
                 values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
-            print('Update with',cur_val,'from', values)
+            print('Update with [',cur_val,'] from', values)
             if len(values):
                 if cur_val in values:
-                    return values, cur_val, interacttive_drd, multiselect_drd, "", True
+                    return values, cur_val, interacttive_drd, multiselect_drd, cur_val, True
                     # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=''))
             else:
                     # str_cur_val = str(cur_val)
                     if isinstance(cur_val, dict):
                         str_cur_val = json.dumps(cur_val, indent=1)
+                    elif isinstance(cur_val, str):
+                        str_cur_val = cur_val
                     else:
                         str_cur_val = ""
                     return [cur_val], cur_val, interacttive_drd, multiselect_drd,str_cur_val, True
                     # return (gr.Dropdown(choices=cur_val, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=str_cur_val))
-        cur_val = 'None'
         return [cur_val], cur_val, interacttive_drd, multiselect_drd,"", True
         # return (gr.Dropdown(choices=[cur_val], value=cur_val, interactive=True, multiselect=False), 
         #         gr.Textbox(value=''))
