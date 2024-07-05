@@ -251,9 +251,9 @@ class SaveScriptRunTask(RunScriptTask):
                 path_to_python = Loader.getUniPath( self.findKeyParam(sparam['python_path']) )
                 if os.path.exists(scriptpath):
                     workspace = Loader.getUniPath( self.findKeyParam(sparam['cwd']))
-                    args = sparam['args']
+                    args = self.findKeyParam(sparam['args'])
                     trg_proc = ' '.join([path_to_python, scriptpath, args])
-                    print("Run script", trg_proc,'in', workspace)
+                    print("Run script:\n", trg_proc,'\nin', workspace)
                     result = subprocess.run(trg_proc, capture_output=True, text=True, cwd=workspace, shell=True)
                     if result.returncode:
                         data += sparam['on_error'] + result.stderr + "\n"
