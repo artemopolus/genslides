@@ -35,7 +35,7 @@ class ReadBranchTask(TextTask):
 
     def getJsonDial(self):
         print(self.getName(), 'Get read branch chat')
-        eres, eparam = self.getParamStruct(self.getType())
+        eres, eparam = self.getParamStruct("ReadBranch")
         if not eres:
             return []
         try:

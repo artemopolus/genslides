@@ -65,7 +65,7 @@ class EditParamCommand(SimpleCommand):
         elif isinstance(value, str) and value.replace('.', '', 1).isdigit():
             print(value,'is float')
             value = float(value)
-        print('Update', p['key'],'for',p['name'],'with', value)
+        print('Update', p['key'],'for',p['name'],'with', value,'[', task.getName(),']')
         task.updateParamStruct(p['name'], p['key'], value)
         if res:
             value = val

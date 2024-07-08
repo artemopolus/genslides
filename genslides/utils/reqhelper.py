@@ -1,6 +1,7 @@
 import json
 import os
 import genslides.utils.loader as ld
+import copy
 
 
 class RequestHelper:
@@ -38,7 +39,7 @@ class RequestHelper:
         return self.dict
     
     def getParams(self, type: str) -> list[bool, list]:
-        res, value = self.getValue(type, 'params')
+        res, value = copy.deepcopy( self.getValue(type, 'params') )
         if res and isinstance(value, list):
             return res, value
         return False, None
