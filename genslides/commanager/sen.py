@@ -740,21 +740,21 @@ class Projecter:
             return {}, gr.Button(interactive=False)
 
     def initPrivManagerByInfo(self, params):
+        print ('Init tmp manager by info')
         copytasks = []
         act = self.actioner
         man = act.manager
+        if man != act.std_manager:
+            print ('Can init only from Base')
+            return self.updateTaskManagerUI()
         if 'move_tasks'  in params:
             copytasks = [man.getTaskByName(name) for name in params['move_tasks']]
             del params['move_tasks']
         self.makeTaskAction("","","InitPrivManager","", params)
         man.clearMultiSelectedTasksList()
-        if len(copytasks) and 'name' in params:
-            # act.selectManagerByName(params['name'])
-            # man.multiselect_tasks = copytasks
-            if act.manager != act.std_manager:
-                task_to_copy = self.actioner.std_manager.multiselect_tasks.copy()
-                act.std_manager.clearMultiSelectedTasksList()
-                act.moveTaskFromManagerToAnother(tasks=task_to_copy, 
+        if len(copytasks) and man != act.manager:
+            act.std_manager.clearMultiSelectedTasksList()
+            act.moveTaskFromManagerToAnother(tasks=copytasks, 
                                                         cur_man=act.std_manager,
                                                         next_man=act.manager
                                                         )

@@ -1019,6 +1019,7 @@ class Actioner():
         return "output/img.png"
 
     def moveTaskFromManagerToAnother(self, tasks : list[BaseTask], cur_man : Manager.Manager, next_man: Manager.Manager):
+        print('Move',len(tasks),'task(s) from', cur_man.getName(),'to', next_man.getName())
         t_to_rem = [t for t in tasks if t not in cur_man.task_list]
         for task in t_to_rem:
             tasks.remove(task)
