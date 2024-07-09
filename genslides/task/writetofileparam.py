@@ -15,6 +15,8 @@ class WriteToFileParamTask(WriteToFileTask):
         res, path = self.getParam(param_name)
         if res:
             self.writepath = path
+        else:
+            self.writepath = ''
 
     def isInputTask(self):
         return False
