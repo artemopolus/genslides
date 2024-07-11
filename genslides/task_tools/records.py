@@ -51,6 +51,35 @@ def getRecordsRow( rparam : dict, cparam : dict ) -> str:
         return out
     return ""
 
+def getRecordsChat( rparam : dict, cparam : dict ) -> list:
+    if 'type' in rparam and rparam['type'] == 'records' and 'data' in rparam:
+        out = []
+        trg_chat_msgs = []
+        if 'range' in cparam:
+            chat_range = cparam['range']
+            nums = chat_range.split(',')
+            for num in nums:
+                num = num.replace(" ","")
+                if num.isdigit():
+                    trg_chat_msgs.append(int(num))
+                else:
+                    str_end = num.split('-')
+                    if len(str_end) == 2 and str_end[0].isdigit() and str_end[1].isdigit():
+                        msgrange = list( range(int(str_end[0]), int(str_end[1]) + 1))
+                        trg_chat_msgs.extend(msgrange)
+        if len(rparam['data']):
+            chat = rparam['data'][-1]['chat']
+            for i, msg in enumerate(chat):
+                if len(trg_chat_msgs) and i in trg_chat_msgs:
+                    out.append({'role':msg['role'],'content': cparam['prefix'] + msg['content'] + cparam['suffix']})
+                elif len(trg_chat_msgs) == 0:
+                    out.append({'role':msg['role'],'content': cparam['prefix'] + msg['content'] + cparam['suffix']})
+        if len(out):
+            out[-1]['content'] = out[-1]['content'] + cparam['footer']
+        return out
+    return []
+
+
 def appendDataForRecord(param : dict, chat):
     if 'type' in param and param['type'] == 'records' and 'data' in param:
         data = param['data']

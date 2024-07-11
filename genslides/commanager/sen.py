@@ -1633,9 +1633,7 @@ class Projecter:
     def cleanLastMessage(self):
         man = self.actioner.manager
         task = man.curr_task
-        if task.checkType( 'Response'):
-            task.forceCleanChat()
-            task.freezeTask()
+        task.forceCleanChat()
         return self.updateMainUIelements()
 
     def getCurrentTaskBranchCodeTag(self):

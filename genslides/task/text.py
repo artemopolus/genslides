@@ -510,13 +510,6 @@ class TextTask(BaseTask):
                     chs4clean_next.append(ch)
             chs4clean = chs4clean_next.copy()
 
-    def forceCleanChat(self):
-        if len(self.msg_list) > 1:
-            last = self.msg_list[-1]
-            self.msg_list = []
-            self.msg_list.append(last)
-        self.freezeTask()
-
     def getCountPrice(self):
         # text = ""
         # for msg in self.getMsgs():

@@ -1469,3 +1469,6 @@ class BaseTask():
     
     def getJsonFilePath(self):
         return ""
+    
+    def forceCleanChat(self):
+        pass

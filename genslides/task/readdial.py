@@ -10,10 +10,12 @@ from os.path import isfile, join
 
 class ReadBranchTask(TextTask):
     def __init__(self, task_info: TaskDescription, type="ReadBranch") -> None:
+        self.update_read_branch = False
         super().__init__(task_info, type)
         self.msg_list = []
         msg_list_from_file = self.getResponseFromFile([])
-        self.setMsgList(self.getJsonDial())
+        self.setMsgList(msg_list_from_file)
+        self.readBranch()
         self.saveJsonToFile(self.msg_list)
         self.readbranchmsg_idx = 0
 
@@ -26,18 +28,28 @@ class ReadBranchTask(TextTask):
         return self.prompt
     
     def updateIternal(self, input: TaskDescription = None):
-        self.setMsgList(self.getJsonDial())
+        self.readBranch()
         return super().updateIternal(input)
-
-    def executeResponse(self):
-        # print("Exe response read dial=", self.getRichPrompt())
-        self.setMsgList(self.getJsonDial())
-
-    def getJsonDial(self):
+    
+    def readBranch(self):
         print(self.getName(), 'Get read branch chat')
         eres, eparam = self.getParamStruct("ReadBranch")
         if not eres:
             return []
+        if 'update' in eparam and eparam['update'] == 'auto':
+            self.setMsgList(self.getJsonDial(eparam))
+        elif 'update' in eparam and eparam['update'] == 'manual' and self.update_read_branch:
+            self.setMsgList(self.getJsonDial(eparam))
+            self.update_read_branch = False
+        elif 'update' not in eparam:
+            self.setMsgList(self.getJsonDial(eparam))
+
+
+    def executeResponse(self):
+        # print("Exe response read dial=", self.getRichPrompt())
+        self.readBranch()
+
+    def getJsonDial(self, eparam):
         try:
             s_path = ld.Loader.getUniPath( self.findKeyParam( eparam['path_to_read'] ) )
             print("path_to_read =", s_path)
@@ -49,9 +61,11 @@ class ReadBranchTask(TextTask):
                     if 'type' in rq and rq['type'] == 'records':
                         if eparam['input'] == 'row':
                             return [{"content" : rd.getRecordsRow(rq, eparam), "role" : self.prompt_tag}]
+                        elif eparam['input'] == 'chat':
+                            return rd.getRecordsChat(rq, eparam)
 
         except Exception as e:
-            print("json error type=", type(e))
+            print("json error type=", e)
         return []
 
 
@@ -125,3 +139,6 @@ class ReadBranchTask(TextTask):
             self.parent.setActiveBranch(self)
         return True, val, None
 
+    def forceCleanChat(self):
+        self.update_read_branch = True
+        self.freezeTask()

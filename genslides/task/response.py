@@ -278,3 +278,11 @@ class ResponseTask(TextTask):
         if self.parent != None:
             self.parent.setActiveBranch(self)
         return True, val, self.parent
+
+    def forceCleanChat(self):
+        if len(self.msg_list) > 1:
+            # last = self.msg_list[-1]
+            self.msg_list = []
+            # self.msg_list.append(last)
+        self.freezeTask()
+

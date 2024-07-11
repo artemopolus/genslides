@@ -355,6 +355,9 @@ def findByKey2(text, manager , base):
                 else:
                     #  print("No task", arr[0])
                      pass
+            elif len(arr) == 1:
+                if arr[0] == 'name':
+                    rep_text = rep_text.replace(res, base.getName())
             else:
                 # print("Incorrect len")
                 pass
