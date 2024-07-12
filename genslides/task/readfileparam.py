@@ -80,7 +80,7 @@ class ReadFileParamTask(ReadFileTask):
                     hres, hparam = self.getParamStruct(param_name=hparamname, only_current=True)
                     if hres:
                         if 'hash' in hparam and hparam['hash'] == readable_hash:
-                            print('Hash is same')
+                            print(self.getName(),'Hash is same')
                         else:
                             self.freezeTask()
                         self.updateParamStruct(hparamname,'hash', readable_hash)
@@ -134,10 +134,17 @@ class ReadFileParamTask(ReadFileTask):
     def loadContent(self, s_path, msg_trgs):
         res, text = self.readContentInternal()
         if res:
-            msg_trgs[-1]["content"] = text
-        return res, text
+            msg_trgs[-1]["content"] = self.updateReadedText( text )
+        return res, msg_trgs
 
-
+    def updateReadedText(self, text):
+        rres, rparam = self.getParamStruct("path_to_read")
+        if rres:
+            if 'header' in rparam:
+                text = rparam['header'] + text
+            if 'footer' in rparam:
+                text += rparam['footer']
+        return text
 
     def executeResponse(self):
         res, text = self.readContentInternal()
@@ -145,7 +152,7 @@ class ReadFileParamTask(ReadFileTask):
             self.msg_list = self.parent.msg_list.copy()
             self.msg_list.append({
                 "role": self.prompt_tag,
-                "content": text
+                "content": self.updateReadedText( text )
             })
 
     def getMsgInfo(self):
