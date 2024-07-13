@@ -102,8 +102,11 @@ class LLModel():
             out.update(p)
 
             # print('Res param=',p)
-            self.addCounterToPromts(intok, self.params['input'])
-            self.addCounterToPromts(outtok, self.params['output'])
+            try:
+                self.addCounterToPromts(intok, self.params['input'])
+                self.addCounterToPromts(outtok, self.params['output'])
+            except Exception as e:
+                print('Error count llm:',e)
         return res, response, out
 
 
