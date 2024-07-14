@@ -103,6 +103,12 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                         rep_text = rep_text.replace(res, str(jtrg_val))
                 except Exception as e:
                     print("Erorr find json list in", task.getName(),':',e)
+            elif len(arr) > 3 and arr[2] == 'filenamesbypath':
+                names = FileMan.getFilesInFolder(param)
+                rep_text = rep_text.replace(res, ','.join(names))
+            elif len(arr) > 3 and arr[2] == 'filepathsbypath':
+                names = FileMan.getFilenamesFromFilepaths(param)
+                rep_text = rep_text.replace(res, ','.join(names))
             else:
                 # print("Replace", res, "from",task.getName())
                 rep_text = rep_text.replace(res, str(param))
