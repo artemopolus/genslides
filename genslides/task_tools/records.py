@@ -47,6 +47,7 @@ def getRecordsRow( rparam : dict, cparam : dict ) -> str:
                     out += cparam['prefix']
                 out += chat[idx]['content']
                 out += cparam['suffix']
+        cparam['count'] = len(rparam['data'])
         out += cparam['footer']
         return out
     return ""

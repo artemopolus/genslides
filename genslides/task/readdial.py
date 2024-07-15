@@ -60,7 +60,9 @@ class ReadBranchTask(TextTask):
                 elif isinstance(rq, dict):
                     if 'type' in rq and rq['type'] == 'records':
                         if eparam['input'] == 'row':
-                            return [{"content" : rd.getRecordsRow(rq, eparam), "role" : self.prompt_tag}]
+                            content = rd.getRecordsRow(rq, eparam)
+                            self.setParamStruct(eparam)
+                            return [{"content" : content, "role" : self.prompt_tag}]
                         elif eparam['input'] == 'chat':
                             return rd.getRecordsChat(rq, eparam)
 
