@@ -64,7 +64,9 @@ class ReadBranchTask(TextTask):
                             self.setParamStruct(eparam)
                             return [{"content" : content, "role" : self.prompt_tag}]
                         elif eparam['input'] == 'chat':
-                            return rd.getRecordsChat(rq, eparam)
+                            msgs = rd.getRecordsChat(rq, eparam)
+                            self.setParamStruct(eparam)
+                            return msgs
 
         except Exception as e:
             print("json error type=", e)
@@ -144,3 +146,6 @@ class ReadBranchTask(TextTask):
     def forceCleanChat(self):
         self.update_read_branch = True
         self.freezeTask()
+
+    def internalUpdateParams(self):
+        return super().internalUpdateParams()
