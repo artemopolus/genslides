@@ -57,7 +57,7 @@ def getRecordsChat( rparam : dict, cparam : dict ) -> list:
         out = []
         trg_chat_msgs = []
         chat_idx = cparam['idx']
-        cparam['count'] = len(rparam['data'])
+        cparam['chat_count'] = len(rparam['data'])
         if 'range' in cparam:
             chat_range = cparam['range']
             nums = chat_range.split(',')
@@ -72,6 +72,7 @@ def getRecordsChat( rparam : dict, cparam : dict ) -> list:
                         trg_chat_msgs.extend(msgrange)
         if len(rparam['data']):
             chat = rparam['data'][chat_idx]['chat']
+            cparam['curr_chat_len'] = len(chat)
             for i, msg in enumerate(chat):
                 if len(trg_chat_msgs) and i in trg_chat_msgs:
                     out.append({'role':msg['role'],'content': cparam['prefix'] + msg['content'] + cparam['suffix']})

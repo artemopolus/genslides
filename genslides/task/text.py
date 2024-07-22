@@ -368,6 +368,11 @@ class TextTask(BaseTask):
         else:
             return ""
 
+    def getLastMsgContent2(self):
+        if len(self.msg_list) > 0:
+            return self.findKeyParam ( self.getRawMsgs()[-1]['content'] )
+        else:
+            return ""
 
     def getLastMsgContent(self):
         if len(self.msg_list) > 0:
@@ -933,7 +938,7 @@ class TextTask(BaseTask):
         if self.manager.allowUpdateInternalArrayParam():
             ares, aparam = self.getParamStruct(param_name='array', only_current=True)
             if ares:
-                naparam = ar.checkArrayIteration(self.getLastMsgContentRaw(), aparam)
+                naparam = ar.checkArrayIteration(self.getLastMsgContent2(), aparam)
                 self.updateParam2(naparam)
 
     def setRecordsParam(self):
@@ -981,7 +986,7 @@ class TextTask(BaseTask):
                 param.update(param_vals)
                 return
         if param_vals['type'] == 'array':
-            res, np = ar.saveArrayToParams(self.getLastMsgContentRaw(),param_vals)
+            res, np = ar.saveArrayToParams(self.getLastMsgContent2(),param_vals)
             if res:
                 param_vals = np
         self.params.append(param_vals)

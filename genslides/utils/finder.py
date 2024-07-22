@@ -5,6 +5,16 @@ import genslides.utils.filemanager as FileMan
 import json
 import genslides.task_tools.records as rd
 
+def convertTextPartToMsg(md_text):
+    code_pattern = r'```\n(.*?)\n```'
+    parts = re.split(code_pattern, md_text, flags=re.DOTALL)
+    text = ""
+    for i, part in enumerate(parts):
+        if i % 2 == 0:  # Non-code parts treated as comments
+            pass
+        else:  # Code parts
+            text += part.strip() + "\n"
+    return text
 
 def convertMdToScript(md_text):
     # print('convert md to script')
@@ -127,6 +137,9 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
             rep_text = rep_text.replace(res, code_s)
         elif arr[1] == 'code':
             script_text = convertMdToScript(md_text=task.getLastMsgContent())
+            rep_text = rep_text.replace(res, script_text)
+        elif arr[1] == 'text_ins':
+            script_text = convertTextPartToMsg(md_text=task.getLastMsgContent())
             rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'param' and len(arr) > 3:
             pres, pparam = task.getParamStruct(arr[2])

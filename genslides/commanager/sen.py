@@ -79,6 +79,8 @@ class Projecter:
 
         self.sec_actioner : Actioner = None
 
+        self.trg_actioner : Actioner = None
+
         
 
     def getSessionNameList(self):
@@ -2608,3 +2610,20 @@ class Projecter:
             task.saveAllParamsByPath(path)
 
         return "Done"
+    
+    def selectTargetActioner(self):
+        self.trg_actioner = self.actioner
+        return gr.Button(interactive=True)
+
+    def moveMultiSelectedTasksFromTargetActioner( self ):
+        act = self.trg_actioner
+        cur_man = act.manager
+        next_man = self.actioner.manager
+        tasks = act.manager.getMultiSelectedTasks()
+        for task in tasks:
+                next_man.addTask(task)
+                task.setManager(next_man)
+                cur_man.rmvTask(task)
+                task.saveAllParams()
+        print('Move to ext actioner tasks:', [t.getName() for t in tasks])
+        return gr.Button(interactive=False)

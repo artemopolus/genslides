@@ -147,9 +147,9 @@ class ReceiveTask(TextTask):
                 elif eres and eparam['input'] == 'request':
                     text += eparam['header'] + task.prompt + eparam['footer']    
                 else:
-                    text += task.prompt +"\n"
+                    text += task.prompt
             except Exception as e:
-                text += task.prompt +"\n"
+                text += task.prompt
 
         # print('Result:', text)
         return text
