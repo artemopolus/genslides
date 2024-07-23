@@ -66,6 +66,14 @@ class Manager:
 
         self.no_output = False
 
+    def setCurrentTask(self, task : BaseTask):
+        buds = task.getAllBuds()
+        if self.endes_idx < len(self.endes) and self.endes[self.endes_idx] not in buds:
+            for i, end in enumerate(self.endes):
+                if end in buds:
+                    self.endes_idx = i
+        self.curr_task = task
+
     def enableOutput2(self):
         self.no_output = False
 
@@ -649,7 +657,7 @@ class Manager:
             if not found:
                 break
             j += 1
-        self.curr_task = trg
+        self.setCurrentTask(trg)
         # return self.getCurrTaskPrompts()
 
 
