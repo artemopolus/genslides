@@ -2354,7 +2354,8 @@ class Projecter:
                         manholdgarlands,
                         mangetname,
                         mangetcolor,
-                        multitasks
+                        multitasks,
+                        bud_msgs
                        ):
         out =  (
             r_msgs, 
@@ -2371,7 +2372,7 @@ class Projecter:
                                value=mancurtaskgetname, 
                                interactive=True), 
             gr.Radio(value="SubTask"), 
-            r_msgs,
+            bud_msgs,
             # self.getCurrentExtTaskOptions(),
             gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
             gr.Textbox(value=mancurtaskgetbranchsum, interactive=True),
@@ -2414,7 +2415,8 @@ class Projecter:
         manholdgarlands,
         mangetname,
         mangetcolor,
-        multitasks] = act.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=act.hide_task)
+        multitasks, 
+        bud_msgs] = act.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=act.hide_task)
 
 
         maingraph = act.drawGraph(hide_tasks=True, out_childtask_max=1)
@@ -2455,7 +2457,8 @@ class Projecter:
         manholdgarlands,
         mangetname,
         mangetcolor,
-        multitasks] = self.actioner.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
+        multitasks, 
+        bud_msgs] = self.actioner.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
 
         maingraph = self.actioner.drawGraph(hide_tasks=True, out_childtask_max=1)
         stepgraph = self.actioner.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
@@ -2482,7 +2485,8 @@ class Projecter:
                 manholdgarlands,
                 mangetname,
                 mangetcolor,
-                multitasks
+                multitasks,
+                bud_msgs
         )
 
 

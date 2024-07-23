@@ -463,7 +463,15 @@ class Manager:
                     trg = name
         return leaves_list
 
-    
+    def getBranchEndTask(self)-> BaseTask:
+        task = None
+        try:
+            task = self.endes[self.endes_idx]
+        except Exception as e:
+            task = self.curr_task
+        return task
+            
+
     def getBranchEndName(self):
         if len(self.endes) == 0:
             return ''

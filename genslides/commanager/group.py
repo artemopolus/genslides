@@ -1179,6 +1179,7 @@ class Actioner():
         in_prompt, in_role, out_prompt22 = man.curr_task.getMsgInfo()
 
         r_msgs = man.convertMsgsToChat(msgs=msgs)
+        bud_msgs = man.convertMsgsToChat(man.getBranchEndTask().getMsgs(hide_task=hide_tasks))
 
 
 
@@ -1235,7 +1236,8 @@ class Actioner():
                         manholdgarlands,
                         mangetname,
                         mangetcolor,
-                        multitasks
+                        multitasks,
+                        bud_msgs
 
         )
 
