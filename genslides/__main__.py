@@ -215,13 +215,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
                             # move2parnt_btn = gr.Button(value='Go up')
                             # move2child_btn = gr.Button(value='Go down')
-                        with gr.Row():
-                            dial_block = gr.Chatbot(height=500)
                         with gr.Column():
                             getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
                             inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
                             updselinexttreetasks_btn = gr.Button('Update selected')
                             getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
+                with gr.Row():
+                    dial_block = gr.Chatbot(height=500)
 
             with gr.Tab('Raw graph'):
                 with gr.Row():

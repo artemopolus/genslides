@@ -789,6 +789,7 @@ class Actioner():
                 break
             idx += 1
         print('Frozen tasks cnt:', man.getFrozenTasksCount())
+        man.setCurrentTask(start_task)
 
     def getRelatedTasks(self, task :BaseTask, lnk_in = True, lnk_out= True):
         if lnk_in:
