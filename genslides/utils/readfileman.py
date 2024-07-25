@@ -18,8 +18,11 @@ class ReadFileMan():
         return text
     
     def readStandart(s_path: str):
-        with open(s_path, 'r',encoding='utf-8') as f:
-            text = f.read()
+        try:
+            with open(s_path, 'r',encoding='utf-8') as f:
+                text = f.read()
+        except:
+            return ""
         return text
     def readPartitial( s_path, s_start):
         if os.path.isfile(s_path):
