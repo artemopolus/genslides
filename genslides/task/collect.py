@@ -163,9 +163,10 @@ class ReceiveTask(TextTask):
 
         # print("1 frozen=", self.is_freeze)
         # print(self.getName(),' task is frozen:', self.is_freeze)
-        if self.parent:
+        if self.parent and self.parent.is_freeze:
+            self.freezeTask()
             # print(self.getName(),"parent frozen=",self.parent.is_freeze)
-            pass
+            return
         if self.is_freeze:
             to_unfreeze = False
             if self.parent and not self.parent.is_freeze:

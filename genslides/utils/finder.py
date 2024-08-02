@@ -13,7 +13,7 @@ def convertTextPartToMsg(md_text):
         if i % 2 == 0:  # Non-code parts treated as comments
             pass
         else:  # Code parts
-            text += part.strip() + "\n"
+            text += part.strip()
     return text
 
 def convertMdToScript(md_text):
