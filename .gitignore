@@ -162,6 +162,7 @@ projects/*
 tools/*
 text65.txt
 tools/*
+actpacks/*
 .DS_Store
 .tt
 session/

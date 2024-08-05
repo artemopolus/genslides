@@ -17,6 +17,7 @@ class ResponseTask(TextTask):
         # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
 
 
+        self.freezeTask()
         
 
         if len(msg_list_from_file) == 0:
@@ -27,7 +28,9 @@ class ResponseTask(TextTask):
         # print("path=", self.path)
         self.saveJsonToFile(self.msg_list)
 
+
     def onEmptyMsgListAction(self):
+        # print('On empty msg list action', self.getName())
         self.setChatPram("temperature")
         self.setChatPram("model")
         # Если задача заморожена
@@ -42,9 +45,10 @@ class ResponseTask(TextTask):
         else:
             # в противном случае выполняем запрос
             self.executeResponse()
+        return super().onEmptyMsgListAction()
 
     def onExistedMsgListAction(self, msg_list_from_file):
-        # print("t=",temperature)
+        # print('On existed msg list action', self.getName())
         res, val = self.getParam("model")
         if not res:
             res, model_name =  self.reqhelper.getValue(self.getType(), "model")
@@ -54,11 +58,16 @@ class ResponseTask(TextTask):
                 self.updateParam("model", "gpt-3.5-turbo")
 
         self.msg_list = msg_list_from_file
+        if self.checkParentMsgList(update=True, save_curr=False):
+            res, content, _ =  self.getLastMsgAndParent()
+            if res and content[0]['content'] != "":
+                self.stdProcessUnFreeze()
         # print("Get list from file=", self.path)
+        return super().onExistedMsgListAction(msg_list_from_file)
 
     def setChatPram(self, name):
             res, temperature =  self.reqhelper.getValue(self.getType(), name)
-            print("t=",temperature)
+            # print("t=",temperature)
             if res:
                 self.updateParam(name, temperature)
 
@@ -71,6 +80,7 @@ class ResponseTask(TextTask):
         #     msg["content"] = self.findKeyParam(msg["content"])
 
         input_msg_list = self.getMsgs()
+        input_msg_list.pop()
         # print('Request=',input_msg_list)
 
         return chat.createChatCompletion(input_msg_list)
@@ -80,9 +90,15 @@ class ResponseTask(TextTask):
         res, param = self.getParamStruct('model')
 
         if res:
+            print('Get options from task')
             chat = LLModel(param)
         else:
-            chat = LLModel()
+            print('Init with default option')
+            res, model_name =  self.reqhelper.getValue(self.getType(), "model")
+            if res:
+                print('Init with default params')
+                param = {'type':'model','model':model_name}
+            chat = LLModel(param)
         res, out, out_params = self.executeResponseInternal(chat)
         self.updateParam2(out_params)
         if res:
@@ -92,7 +108,11 @@ class ResponseTask(TextTask):
             pair["content"] = out
             self.prompt = out
             self.msg_list.append(pair)
-            print('Response=',out)
+            print('Update response for', self.getName())
+        else:
+            self.freezeTask()
+            self.msg_list.append({"role": "assistant", "content": ""})
+            # print('Response=',out)
         # print('Msg list=',self.msg_list)
 
 
@@ -161,11 +181,39 @@ class ResponseTask(TextTask):
                 # Если сообщение пустое, то делаем вывод, что задача была морожена
                 if len(msg) == 0:
                     # Запрашиваем сообщение
-                    print('Msg is empty', self.getName())
+                    print('Last msg is empty', self.getName())
+                    # Если сообщение пустое, то убираем его
+                    self.msg_list.pop()
                     self.executeResponse()
                     self.saveJsonToFile(self.msg_list)
 
         # super().update(input)
+
+    def forceSetPrompt(self, prompt):
+        if len(self.msg_list) == 0:
+            return
+        if not self.checkParentMsgList(update=True, save_curr=False):
+            self.copyParentMsg()
+        else:
+            msg = self.getLastMsgContentRaw()
+            if len(msg) == 0:
+                self.msg_list.pop()
+            else:
+                return
+        res, param = self.getParamStruct('model')
+        if res:
+            chat = LLModel(param)
+        else:
+            chat = LLModel()
+        
+        pair = {}
+        pair["role"] = chat.getAssistTag()
+        pair["content"] = prompt
+        self.prompt = prompt
+        self.msg_list.append(pair)
+        self.stdProcessUnFreeze()
+ 
+
 
     def getMsgInfo(self):
         if len(self.msg_list):
@@ -186,12 +234,19 @@ class ResponseTask(TextTask):
     
     def getTextInfo(self, param):
         res, p = self.getParamStruct('response', only_current=True)
-        if res:
+        if res and 'logprobs' in p:
             out = []
             max_log = -1000
             min_log = 0
+
+            prob_vector = []
+
             for value in p['logprobs']:
                 log = value['logprob']
+                if log > -20:
+                    prob_vector.append(log)
+                else:
+                    prob_vector.append(-20)
                 if log > param['notgood']:
                     pair = [value['token'], 'good']
                 elif log > param['bad']:
@@ -203,7 +258,31 @@ class ResponseTask(TextTask):
                 min_log = min(min_log, log)
 
             text = 'Log vars from' + str( max_log) + 'to' + str(min_log)
-            return out, text
+            return out, text, prob_vector
         else:
             return super().getTextInfo()
+
+    def checkGetContentAndParent(self):
+        pres, pparam = self.getParamStruct('hidden')
+        if pres and pparam['hidden']:
+            return False, [], self.parent
+        pack = {
+                "role":self.getLastMsgRole(), 
+                "content": self.findKeyParam(self.getLastMsgContent()),
+                "task": self.getName()
+                }
+        rres, rparam = self.getParamStruct('response', only_current=True)
+        if rres:
+            pack["logprobs"] = rparam["logprobs"]
+        val = [pack]
+        if self.parent != None:
+            self.parent.setActiveBranch(self)
+        return True, val, self.parent
+
+    def forceCleanChat(self):
+        if len(self.msg_list) > 1:
+            # last = self.msg_list[-1]
+            self.msg_list = []
+            # self.msg_list.append(last)
+        self.freezeTask()
 

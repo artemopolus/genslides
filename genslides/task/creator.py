@@ -11,24 +11,25 @@ from genslides.task.websurf import WebSurfTask
 from genslides.task.readpage import ReadPageTask
 from genslides.task.largetextresponse import LargeTextResponseTask
 
-from genslides.task.writedialtofile import WriteDialToFileTask
-from genslides.task.readdial import ReadDialTask
+from genslides.task.writedialtofile import WriteBranchTask
+from genslides.task.readdial import ReadBranchTask
 
 from genslides.task.gettime import GetTimeTask
 
 from genslides.task.iteration import IterationTask, IterationEndTask
-from genslides.task.runscript import RunScriptTask
+# from genslides.task.runscript import RunScriptTask
 from genslides.task.websurfarray import WebSurfArrayTask
 from genslides.task.writejsontofile import WriteJsonToFileTask
 
 from genslides.task.largedialresponse import LargeDialResponseTask
 
-from genslides.task.setoptions import SetOptionsTask
+import genslides.task.setoptions as so
 from genslides.task.writetofileparam import WriteToFileParamTask
 from genslides.task.readfileparam import ReadFileParamTask
 
 # from genslides.task.extproject import ExtProjectTask
-import genslides.task.extproject as ExtProjectTask
+import genslides.task.extproject as ep
+import genslides.task.runscript as rs
 from genslides.task.groupcollect import GroupCollectTask
 
 import genslides.commands.create as cr
@@ -38,11 +39,11 @@ def checkTypeFromName(name : str, type :str) -> bool:
     return stype.endswith(type)
 
 def createTaskByType(type : str, info : TaskDescription):
-    # print('Create task', type)
     # print('Start params=',info.params)
     stype = ''.join([i for i in type if not i.isdigit()])
     info.type = stype
     info.filename = type
+    # print('Create task',type,'-', stype)
     if stype.endswith("Text"):
         info.method = RichTextTask
         return cr.CreateCommand(info)
@@ -88,11 +89,11 @@ def createTaskByType(type : str, info : TaskDescription):
     if stype.endswith("ReadPage"):
         info.method = ReadPageTask
         return cr.CreateCommand(info)
-    if stype.endswith("ReadDial"):
-        info.method = ReadDialTask
+    if stype.endswith("ReadBranch"):
+        info.method = ReadBranchTask
         return cr.CreateCommand(info)
-    if stype.endswith("WriteDialToFile"):
-        info.method = WriteDialToFileTask
+    if stype.endswith("WriteBranch"):
+        info.method = WriteBranchTask
         return cr.CreateCommand(info)
     if stype.endswith("Iteration"):
         info.method = IterationTask
@@ -101,7 +102,10 @@ def createTaskByType(type : str, info : TaskDescription):
         info.method = IterationEndTask
         return cr.CreateCommand(info)
     if stype.endswith("RunScript"):
-        info.method = RunScriptTask
+        info.method = rs.RunScriptTask
+        return cr.CreateCommand(info)
+    if stype.endswith("SaveScriptRun"):
+        info.method = rs.SaveScriptRunTask
         return cr.CreateCommand(info)
     if stype.endswith("WebSurfArray"):
         info.method = WebSurfArrayTask
@@ -110,7 +114,10 @@ def createTaskByType(type : str, info : TaskDescription):
         info.method = WriteJsonToFileTask
         return cr.CreateCommand(info)
     if stype.endswith("SetOptions"):
-        info.method = SetOptionsTask
+        info.method = so.SetOptionsTask
+        return cr.CreateCommand(info)
+    if stype.endswith("Generator"):
+        info.method = so.GeneratorTask
         return cr.CreateCommand(info)
     if stype.endswith("WriteToFileParam"):
         info.method = WriteToFileParamTask
@@ -119,8 +126,17 @@ def createTaskByType(type : str, info : TaskDescription):
         info.method = ReadFileParamTask
         return cr.CreateCommand(info)
     if stype.endswith("ExtProject"):
-        info.method = ExtProjectTask.ExtProjectTask
+        info.method = ep.ExtProjectTask
         return cr.CreateCommand(info)
+    if stype.endswith("InExtTree"):
+        info.method = ep.InExtTreeTask
+        return cr.CreateCommand(info)
+    if stype.endswith("OutExtTree"):
+        info.method = ep.OutExtTreeTask
+        return cr.CreateCommand(info)
+    if stype.endswith("Searcher"):
+        info.method = ep.SearcherTask
+        return cr.CreateCommand(info)    
     else:
     	return None
     
@@ -128,18 +144,22 @@ def getTasksDict() -> list:
     out = []
     out.append({"type":"Request","short":"Rq","creation":RequestTask})
     out.append({"type":"Response","short":"Rs","creation":ResponseTask})
-    out.append({"type":"Receive","short":"Cl","creation":ReceiveTask})
+    out.append({"type":"Receive","short":"Rc","creation":ReceiveTask})
     out.append({"type":"Collect","short":"Cl","creation":CollectTask})
     out.append({"type":"Garland","short":"Gr","creation":GarlandTask})
     out.append({"type":"GroupCollect","short":"Gc","creation":GroupCollectTask})
-    out.append({"type":"ReadDial","short":"Rd","creation":ReadDialTask})
-    out.append({"type":"WriteDialToFile","short":"Wd","creation":WriteDialToFileTask})
+    out.append({"type":"ReadDial","short":"Rb","creation":ReadBranchTask})
+    out.append({"type":"WriteBranch","short":"Wb","creation":WriteBranchTask})
     out.append({"type":"ReadFile","short":"Rf","creation":ReadFileTask})
     out.append({"type":"WriteToFile","short":"Wf","creation":WriteToFileTask})
     out.append({"type":"WriteToFileParam","short":"Wp","creation":WriteToFileParamTask})
     out.append({"type":"ReadFileParam","short":"Rp","creation":ReadFileParamTask})
     out.append({"type":"WriteJsonToFile","short":"Wj","creation":WriteJsonToFileTask})
-    out.append({"type":"SetOptions","short":"So","creation":SetOptionsTask})
-    out.append({"type":"RunScript","short":"Rs","creation":RunScriptTask})
-    out.append({"type":"ExtProject","short":"Ep","creation":ExtProjectTask})
+    out.append({"type":"SetOptions","short":"So","creation":so.SetOptionsTask})
+    out.append({"type":"Generator","short":"Ge","creation":so.GeneratorTask})
+    out.append({"type":"RunScript","short":"Rs","creation":rs.RunScriptTask})
+    out.append({"type":"ExtProject","short":"Ep","creation":ep.ExtProjectTask})
+    out.append({"type":"InExtTree","short":"Ie","creation":ep.InExtTreeTask})
+    out.append({"type":"OutExtTree","short":"Oe","creation":ep.InExtTreeTask})
+    out.append({"type":"Searcher","short":"Se","creation":ep.SearcherTask})
     return out

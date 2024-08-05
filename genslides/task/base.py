@@ -1,6 +1,7 @@
 import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
-
+import genslides.utils.loader as Loader
+import genslides.utils.filemanager as Fm
 # import genslides.commands.create as create
 from genslides.helpers.singleton import Singleton
 
@@ -17,6 +18,8 @@ class TaskManager(metaclass=Singleton):
         self.task_id = 0
         self.task_list = []
         self.model_list = []
+
+        self.tasks_cache = []
         self.setDefaultProj()
 
     def getListBasedOptionsDict(self, param):
@@ -63,9 +66,19 @@ class TaskManager(metaclass=Singleton):
 
         
 
-    def getId(self, task) -> int:
+    def getId(self, task, manager = None) -> int:
         id = self.task_id
-        self.task_id += 1
+        name = task.getType() + str(id)
+        # Учитывать информацию от менеджера, управляющего задачей: использовать его конкретный путь, а не стандартный
+        if manager is not None:
+            mypath = manager.getPath()
+        else:
+            mypath = 'saved'
+        onlyfiles = [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
+        while name in onlyfiles:
+            id += 1
+            name = task.getType() + str(id)
+        self.task_id = id + 1
         if task not in self.task_list:
             self.task_list.append(task)
         return id
@@ -94,10 +107,13 @@ class TaskManager(metaclass=Singleton):
             os.makedirs(self.cur_task_path)
         return self.cur_task_path
     
-    def getLinks(self,mypath):
+    def getLinks(self, mypath, trg_files = []):
         # mypath = self.getPath()
         # print('Get links by path', mypath)
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        if len(trg_files):
+            onlyfiles = trg_files
+        else:
+            onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         out = []
         for filename in onlyfiles:
             path = join(mypath,filename)
@@ -113,12 +129,100 @@ class TaskManager(metaclass=Singleton):
             except Exception as e:
                 pass
         return out
+    
+    def loadTasksCache(self, mypath):
+        trgfldpath = Loader.Loader.getUniPath(mypath)
+        for cache in self.tasks_cache:
+            if cache['path'] == trgfldpath:
+                return
+        new_cache = {'path':trgfldpath}
+        onlyfiles = Fm.getFilesInFolder(trgfldpath)
+        taskspack = []
+        for filename in onlyfiles:
+            path = join(mypath,filename)
+            # print('Check path=',path)
+            try:
+                with open(path, 'r') as f:
+                    rq = json.load(f)
+                if 'parent' in rq:
+                    path_from_file = rq['parent']
+                    parent_path = ""
+                    # print(path_from_file.split('/'))
+                    if len(path_from_file.split('/')) > 1:
+                        print('Load from old style')
+                        parent_path = path_from_file
+                    else:
+                        if path_from_file != "":
+                            parent_path = os.path.join(mypath , path_from_file + self.getTaskExtention())
+                    if 'chat' in rq and 'type' in rq:
+                        taskspack.append({'task_path': path, 'parent_path':parent_path, 'filename':filename})
+            except Exception as e:
+                print("Task prompts error=", type(e),"using", path)
+        new_cache['tasks'] = taskspack
+        self.tasks_cache.append(new_cache)
 
-    def getTaskPrompts(self,mypath, trg_path = ""):
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    def clearTasksCache(self):
+        self.tasks_cache.clear()
+
+    def getTaskPromptsFromCache(self,mypath, trg_path = "", ignore_safe = False, trg_tasks = []):
+        self.loadTasksCache( mypath )
+        trgfldpath = Loader.Loader.getUniPath(mypath)
         out = []
+        if trg_path != "":
+            trg_path = Loader.Loader.getUniPath(trg_path)
+        for cache in self.tasks_cache:
+            if cache['path'] == trgfldpath:
+                for task_info in cache['tasks']:
+                    if task_info['parent_path'] == trg_path:
+                        with open(task_info['task_path'], 'r') as f:
+                            rq = json.load(f)
+                        filename = task_info['filename']
+                        if len(rq['chat']) == 0:
+                            elem = {'role': 'user','content': ''}
+                        else:
+                            if rq['type'] == "RichText":
+                                elem = rq['chat'].pop()
+                            elem = rq['chat'].pop()
+                        pair = {}
+                        # pair['type'] = rq['type']
+                        pair['type'] =filename.split('.')[0] 
+                        pair['content'] = elem['content']
+                        pair['role'] = elem['role']
+
+                        filenamearr = filename.split('.')
+                        if len(filenamearr) == 2:
+                            pair['trgtaskname'] = filenamearr[0]
+
+                        out.append(pair)
+        return out
+ 
+
+
+    def getTaskPrompts(self,mypath, trg_path = "", ignore_safe = False, trg_tasks = []):
+        mypath = Loader.Loader.getUniPath(mypath)
+        # print('Get task prompts in folder', mypath, 'with path', trg_path, 'ignore_safe=', ignore_safe)
+        pr_ch = []
+        if trg_path != "":
+            trg_path = Loader.Loader.getUniPath(trg_path)
+            with open(trg_path, 'r') as f:
+                pr_fl = json.load(f)
+                if 'params' in pr_fl:
+                    for param in pr_fl['params']:
+                        if 'type' in param and param['type'] == 'child' and 'name' in param:
+                            pr_ch.append(param['name'] + self.getTaskExtention())
+            # print('Childs:', pr_ch)
+        if len(trg_tasks):
+            onlyfiles = trg_tasks
+        else:
+            onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        for child in pr_ch:
+            if child in onlyfiles:
+                onlyfiles.insert(0, onlyfiles.pop(onlyfiles.index(child)))
+        out = []
+        idx = 0
         # print('Get available tasks from',len(onlyfiles),'files')
         for filename in onlyfiles:
+            idx += 1
             path = join(mypath,filename)
             # print('Check path=',path)
             try:
@@ -152,6 +256,10 @@ class TaskManager(metaclass=Singleton):
                         pair['content'] = elem['content']
                         pair['role'] = elem['role']
 
+                        filenamearr = filename.split('.')
+                        if len(filenamearr) == 2:
+                            pair['trgtaskname'] = filenamearr[0]
+
                         out.append(pair)
                         
                         # for elem in rq['chat']:
@@ -164,6 +272,9 @@ class TaskManager(metaclass=Singleton):
                 print("Get json error on task prompts=", e,"using", path)
             except Exception as e:
                 print("Task prompts error=", type(e),"using", path)
+            if  ignore_safe and trg_path != "" and len(out) == len(pr_ch):
+                break
+        # print('Target files count:',len(pr_ch),'from',len(onlyfiles),'for', trg_path,'in', idx, 'iter')
         return out
 
 
@@ -173,7 +284,7 @@ class TaskDescription():
     def __init__(self, prompt = "", method = None, parent=None, helper=None, 
                  requester=None, target=None, manager=None, id = 0, type = "", 
                  prompt_tag = "user", filename = "", enabled = False, 
-                 params = [], manual = False, stepped = False) -> None:
+                 params = [], manual = False, stepped = False, trgtaskname = '') -> None:
         self.manager = manager
         self.prompt = prompt
         self.prompt_tag = prompt_tag
@@ -189,6 +300,7 @@ class TaskDescription():
         self.params = params
         self.manual = manual
         self.stepped = stepped
+        self.trgtaskname = trgtaskname
 
 class BaseTask():
     def __init__(self, task_info : TaskDescription, type = 'None') -> None:
@@ -209,11 +321,10 @@ class BaseTask():
         
         self.method = task_info.method
         task_manager = TaskManager()
-        self.id = task_manager.getId(self)
+        self.id = task_manager.getId(self, self.manager)
         self.name =  ""
         self.pref = self.manager.getProjPrefix()
         self.parent = None
-        self.setParent(task_info.parent)
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
         self.queue = []
@@ -223,13 +334,13 @@ class BaseTask():
         self.task_description = "Task type = " + self.type + "\nRequest:\n" + request
         self.task_creation_result = "Results of task creation:\n"
 
-        if  self.parent:
-            self.parent.addChild(self)
+        self.setParent(task_info.parent)
             # if self.parent.is_freeze:
                 # self.is_freeze = True
         
         self.target = task_info.target
         self.filename = task_info.filename
+        self.trgtaskname = task_info.trgtaskname
 
 
     def getBranchCodeTag(self) -> str:
@@ -281,6 +392,8 @@ class BaseTask():
     
     def setName(self, name : str):
         name = self.pref + name
+        if name == self.name:
+            return
         old_name = self.name
         self.name = name
         # print("My new name is", self.name,", was", old_name)
@@ -291,15 +404,20 @@ class BaseTask():
         for info in self.by_ext_affected_list:
             info.parent.updateNameQueue(old_name, name)
 
-    def getClearName(self) -> str:
-        return self.name.replace(self.pref, "")
-
+    def getClearName(self, manager) -> str:
+        return manager.getParentSavingName(self)
     
     def getName(self) -> str:
         return self.name
     
     def getType(self) -> str:
         return self.type
+
+    def checkType(self, trg: str) -> bool:
+        return self.type.endswith(trg)
+    
+    def isReceiver(self) ->bool:
+        return False
 
     def isInputTask(self):
         return True
@@ -318,12 +436,22 @@ class BaseTask():
             index += 1
         return par
 
-    def getTree(self):
+    def getTree(self, max_childs = -1):
         par = self.getRootParent()
-        out = par.getAllChildChains()
+        out = par.getAllChildChains(max_childs=max_childs)
         return out
+    
+    def getClosestBranching(self):
+        tasks = self.getAllParents()
+        idx = 0
+        while(len(tasks)):
+            task = tasks.pop(-1)
+            if len(task.getChilds()) > 1 or task.isRootParent():
+                return task, idx
+            idx += 1
+        return self, idx
 
-    def getAllParents(self):
+    def getAllParents(self, max_index = -1):
         par = self
         index = 0
         out = [self]
@@ -332,15 +460,15 @@ class BaseTask():
                 if par not in par.parent.getChilds(): #ExtProject issue
                     found = False
                     for child in par.parent.getChilds():
-                        if child.getType() == 'ExtProject' and child.isTaskInternal(par):
+                        if child.checkType( 'ExtProject') and child.isTaskInternal(par):
                             p = [par.parent, child]
                             out.pop(0)
                             p.extend(out)
                             out = p
                             found = True
                             break
-                    if not found:
-                        raise Exception('Parent task not connected with target')
+                    # if not found:
+                    #     raise Exception('Parent',par.parent.getName(),'task not connected with target', par.getName())
                 else:
                     p = [par.parent]
                     p.extend(out)
@@ -354,6 +482,8 @@ class BaseTask():
                     out = p
                 break
             index += 1
+            if max_index != -1 and index > max_index:
+                break
         # print('Parent list:', [t.getName() for t in out])
         return out
 
@@ -405,8 +535,29 @@ class BaseTask():
                 if link['dir'] == 'in':
                     linked_task.extend([link['in']])
         return linked_task
+    
+    def printOneBranchInfo(self, branch):
+             print('|',
+                  [task.getName() for task in branch['branch']], 
+                  branch['done'],'idx=', branch['idx'],'par=' , 
+                  branch['parent'].getName() if branch['parent'] else "None", 'idx_par=',
+                  branch['i_par'],
+                  'links=',[[t['in'].getName(),t['out'].getName()] for t in branch['links']])
+    
+    def printBranchesInfo(self, tasks_chains):
+        i = 0
+        for branch in tasks_chains:
+            print(i,'|',
+                  [task.getName() for task in branch['branch']], 
+                  branch['done'],'idx=', branch['idx'],'par=' , 
+                  branch['parent'].getName() if branch['parent'] else "None", 'idx_par=',
+                  branch['i_par'],
+                  'links=',[[t['in'].getName(),t['out'].getName()] for t in branch['links']])
+            i += 1
+
 
     def getTasksFullLinks(self, pparam):
+        print('Get child and links for target branch',self.getName())
         branches = self.getChildAndLinks(self, pparam)
         if not pparam['link']:
             return branches
@@ -415,9 +566,42 @@ class BaseTask():
         while(idx < 1000):
             tmp = []
             for task in linked_task:
-                new_b = self.getChildAndLinks(task, pparam)
-                branches.extend(new_b)
-                tmp.extend(new_b)
+                start_idx = len(branches)
+                print('Get childs and links for linked branch', task.getName())
+                new_b = self.getChildAndLinks(task, pparam, start_j=start_idx)
+                self.printBranchesInfo(branches)
+                print('Add by links')
+                self.printBranchesInfo(new_b)
+                if 'av_cp' in pparam and pparam['av_cp']:
+                    add_branch = []
+                    for branch_info in new_b:
+                        found = False
+                        found_branch = None
+                        lnk_tasks = [task for task in branch_info['branch']]
+                        for curbra_info in branches:
+                            trg_tasks = [task  for task in curbra_info['branch']]
+                            for task in lnk_tasks:
+                                if task in trg_tasks:
+                                    found = True
+                                    found_branch = curbra_info
+                                    break 
+                            if found:
+                                break
+                        if not found:
+                            add_branch.append(branch_info)
+                        else:
+                            print('Found double')
+                            self.printOneBranchInfo(found_branch)
+                            self.printOneBranchInfo(branch_info)
+                            if len(found_branch['branch']) < len (branch_info['branch']):
+                                for j,branch in enumerate(branches):
+                                    if branch == found_branch:
+                                        branches[j] = branch_info
+                    branches.extend(add_branch)
+                    tmp.extend(add_branch)
+                else:
+                    branches.extend(new_b)
+                    tmp.extend(new_b)
             linked_task = self.getLinkedTaskFromBranches(tmp)
             idx += 1
         return branches
@@ -432,44 +616,82 @@ class BaseTask():
     # Копирует информацию о связях между задачами в переменную trg_links, 
     # переменная copy_in запрашивает информацию о входящих
     # переменная copy_out запрашивае информацию о исходящих 
-    # TODO: разделить между обычными задачами и задачами типа Прием обработку исходящих и входящих
-    def getLinkCopyInfo(self, trg_links:list, copy_in = True, copy_out = True):
+    def getLinkCopyInfo(self, trg_links:list, param):
+        res, bparam = self.getParamStruct('autocopy')
+        if res:
+            if bparam['blck_cp']:
+                return
+            else:
+                copy_in = bparam['cp_in']
+                copy_out = bparam['cp_out']
+        copy_in = param['in']
+        copy_out = param['out']
         # print('Get link copy info from',self.getName())
         if len(self.getHoldGarlands()) and copy_out:
             for ll in self.getHoldGarlands():
                 res, val = ll.getTrgLinkInfo(self)
-                if res:
-                    print('Append',val)
+                if 'check_man' in param and param['check_man']:
+                    if res and ll.manager == self.manager:
+                        print('Append:',val['out'].getName(),'->', val['in'].getName())
+                        trg_links.append(val)
+                elif res:
+                    print('Append:',val['out'].getName(),'->', val['in'].getName())
                     trg_links.append(val)
         if len(self.getGarlandPart()) and copy_in:
             for ll in self.getGarlandPart():
-                trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
+                if 'check_man' in param and param['check_man']:
+                    if ll.manager == self.manager:
+                        trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
+                else:
+                    trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
 
-    def getChildAndLinks(self, task, pparam):
+    def getChildAndLinks(self, task, pparam, start_j = 0):
+        print('Get child and links for', task.getName(),'[',start_j,']')
         index = 0
         branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
+        if 'trg_tasks' in pparam:
+            trg_task_names = pparam['trg_tasks']
+        else:
+            trg_task_names = []
         while(index < 1000):
             childs_to_add = []
             for branch in branch_list:
                 trg = branch['branch'][-1]
                 j = 0
                 while (j < 1000 and not branch['done']):
-                    childs = trg.getChilds()
-                    trg.getLinkCopyInfo(branch['links'], pparam['in'], pparam['out'])
-                    # if len(trg.getHoldGarlands()) and pparam['out']:
-                    #     for ll in trg.getHoldGarlands():
-                    #         branch['links'].append( {'out': trg, 'in': ll, 'dir': 'in'})
-                    # if len(trg.getGarlandPart()) and pparam['in']:
-                    #     for ll in trg.getGarlandPart():
-                    #         branch['links'].append( {'out': ll, 'in': trg, 'dir':'out'})
-                    print('links=',branch['links'])
+                    # print('Task', trg.getName())
+                    if 'check_man' in pparam and pparam['check_man']:
+                        childs = trg.getChilds(True)
+                    else:
+                        childs = trg.getChilds()
+                    trg.getLinkCopyInfo(branch['links'], pparam)
                     if len(childs) == 1:
-                        branch['branch'].append(childs[0])
-                        trg = childs[0]
+                        if childs[0].getName() not in trg_task_names:
+                            branch['done'] = True
+                            break
+                        else:
+                            branch['branch'].append(childs[0])
+                            trg = childs[0]
                     elif len(childs) > 1:
-                        childs_to_add.extend(childs)
-                        branch['done'] = True
-                        break
+                        if len(trg_task_names):
+                            slct_trg_childs = []
+                            for child in childs:
+                                if child.getName() in trg_task_names: 
+                                    slct_trg_childs.append(child)
+                            if len(slct_trg_childs) == 1:
+                                branch['branch'].append(slct_trg_childs[0])
+                                trg = slct_trg_childs[0]
+                            elif len(slct_trg_childs) > 1:
+                                childs_to_add.extend(slct_trg_childs)
+                                branch['done'] = True
+                                break
+                            else:
+                                branch['done'] = True
+                                break
+                        else:
+                            childs_to_add.extend(childs)
+                            branch['done'] = True
+                            break
                     else:
                         branch['done'] = True
                         break
@@ -477,24 +699,54 @@ class BaseTask():
             if len(childs_to_add) == 0:
                 break
             for child in childs_to_add:
+                # print('Add child', child.getName())
                 branch_list.append({'branch':[child],'done':False,'parent':None,'i_par':None,'idx':[],'links':[]})
 
             index += 1
         
         for j in range(len(branch_list)):
             trg = branch_list[j]['branch'][-1]
+            # print('Apply branch:',[t.getName() for t in branch_list[j]['branch']])
             childs = trg.getChilds()
             i_out = []
             for i in range(len(branch_list)):
                 if branch_list[i]['branch'][0] in childs:
                     i_out.append(i)
                     branch_list[i]['parent'] = trg
-                    branch_list[i]['i_par'] = j
+                    branch_list[i]['i_par'] = start_j + j
             branch_list[j]['idx'] = i_out
         return branch_list
 
+    def getChildSameRange(self, trg_idx):
+        index = 0
+        trgs = [self]
+        while(index < 1000):
+            n_trgs = []
+            found = False
+            for trg in trgs:
+                   for ch in trg.childs:
+                        found = True
+                        n_trgs.append(ch)
+            if not found:
+                break
+            trgs = n_trgs
+            index += 1
+            if index == trg_idx:
+                return n_trgs
+        return []
+    
+    def getAllChildsRecursive(self, check_tasks = False, trgs = []):
+        chain = [self]
+        for child in self.childs:
+            if check_tasks:
+                if child in trgs:
+                    chain.extend(child.getAllChildsRecursive(check_tasks, trgs))
+            else:
+                chain.extend(child.getAllChildsRecursive(check_tasks, trgs))
+        return chain
+ 
 
-    def getAllChildChains(self):
+    def getAllChildChains(self, max_index = -1, max_childs = -1):
         index = 0
         out = [self]
         trgs = [self]
@@ -502,14 +754,34 @@ class BaseTask():
             n_trgs = []
             found = False
             for trg in trgs:
-                for ch in trg.childs:
-                    found = True
-                    n_trgs.append(ch)
-                    out.append(ch)
+                if max_childs > 0:
+                    childs_cnt = 0
+                    for ch in trg.childs:
+                        found = True
+                        n_trgs.append(ch)
+                        out.append(ch)
+                        childs_cnt += 1
+                        if childs_cnt >= max_childs:
+                            break
+                else:
+                    for ch in trg.childs:
+                        found = True
+                        n_trgs.append(ch)
+                        out.append(ch)
             if not found:
                 break
             trgs = n_trgs
             index += 1
+            if max_index != -1 and index > max_index:
+                break
+        return out
+    
+    def getAllBuds(self):
+        childs = self.getAllChildChains()
+        out = []
+        for task in childs:
+            if len(task.getChilds()) == 0:
+                out.append(task)
         return out
     
     def getChainBeforeBranching(self):
@@ -559,17 +831,17 @@ class BaseTask():
                 return False
         return True
 
-    def getDefCond(self) -> dict:
-        return {"cond" : "None", "cur": "None", "trg": "used", "str": "None","idx":0}
+    def getDefCond(self, idx : int) -> dict:
+        return {"cond" : "None", "cur": "None", "trg": "used", "str": "None","idx":idx}
 
-    def getChildQueuePack(self, child) ->dict:
+    def getChildQueuePack(self, child, idx:int = 0) ->dict:
         val = {  "type":"child", "used":False ,"name": child.getName()}
-        val.update(self.getDefCond())
+        val.update(self.getDefCond(idx))
         return val
 
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
         val = { "name": info.target.getName(), "id":info.id,"method":info.method, "type":"link","used":False}
-        val.update(self.getDefCond())
+        val.update(self.getDefCond(idx=0))
         # print(val)
         return val
     
@@ -588,23 +860,36 @@ class BaseTask():
     def setParent(self, parent):
         if parent is None:
             # print('Remove parent')
-            pass
+            self.parent = None
+            return
         else:
-            # print('Set new parent', parent.getName())
             pass
-        self.parent = parent
+            # print('Set',self.getName(),'parent', parent.getName())
+        if self.parent:
+            self.parent.removeChild(self)
+
+        parent.addChild(self)
+        self.freezeTask()
+        # self.parent = parent
 
     def addChild(self, child) -> bool:
         # print('Add child',child.getName())
         if child not in self.childs:
-            child.setParent(self)
+            # child.setParent(self)
+            child.parent = self
+            idx = len(self.childs)
             self.childs.append(child)
-            info = self.getChildQueuePack(child)
+            info = self.getChildQueuePack(child, idx = idx)
             self.onQueueReset(info)
             self.queue.append(info)
             return True
         return False
     
+    def getPrio(self):
+        return 0
+    
+    def setPrio(self, idx : int):
+        pass
     
     def getChildByName(self, child_name):
         for ch in self.getChilds():
@@ -618,9 +903,9 @@ class BaseTask():
     
     
     def fixQueueByChildList(self):
-        print('Fix queue of', self.getName(),'by childs and links list')
+        # print('Fix queue of', self.getName(),'by childs', [t.getName() for t in self.getChilds()], 'and links list')
         to_del = []
-        for child in self.childs:
+        for i, child in enumerate(self.childs):
             found = False
             for q in self.queue:
                 if q['name'] == child.getName() and q['type'] == 'child':
@@ -629,7 +914,7 @@ class BaseTask():
                     else:
                         found = True
             if not found:
-                info = self.getChildQueuePack(child)
+                info = self.getChildQueuePack(child,idx=i)
                 self.onQueueReset(info)
                 self.queue.append(info)
         for q in self.queue:
@@ -650,6 +935,7 @@ class BaseTask():
             if 'idx' not in trg:
                 trg['idx'] = 0
 
+        self.syncQueueToParam()
 
     def getHoldGarlands(self):
         return [t.target for t in self.affect_to_ext_list]
@@ -676,15 +962,29 @@ class BaseTask():
         # print(self.queue)
         self.affect_to_ext_list.remove(info)
 
-    def getChilds(self):
+    def getChildsRaw(self):
+        return self.childs
+    
+    def getChilds(self, check_manager = False):
+        if check_manager:
+            return [child for child in self.childs if child.manager == self.manager]
         return self.childs.copy()
+    
+    
+    def getKeyByBranching(self, task):
+        return task.getPrio()
+    
+    def sortChilds(self):
+        self.childs.sort(key=self.getKeyByBranching)
+
+
 
     # Возвращает пару символов для точек ветвления
     def getBranchCode(self, second) -> str:
         code_s = ""
         if len(self.getChilds()) > 1:
             # Если ветвится в точке с потомком записи в файл, то это ветвление игнорируется
-            if second.getType() == 'WriteToFileParam':
+            if second.checkType( 'WriteToFileParam'):
                 return code_s
             # else:
             trg1 = self
@@ -693,11 +993,6 @@ class BaseTask():
             code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
         return code_s
 
-    # TODO: возвращать список задач для создания, а не просто копирования. Например,
-    # если задача содержит список, то создать дочерние задачи по списку
-    # Это может быть востребовано для перебора файлов в папке
-    # Перебор результатов поиска в Гугл или Яндексе
-    # Список действий, перечисленных ГПТ
 
     # def getCmd(self):
     #     if len(self.crtasklist) > 0:
@@ -723,14 +1018,15 @@ class BaseTask():
         self.updateIternal(input)
 
         if input is None:
-            
+            # print('No input')
             self.useLinksToTask()
-
             for child in self.childs:
                 child.update()
         elif input and input.stepped:
-            self.setupQueue()
+            # print('Input stepped')
+            self.useLinksToTask(stepped=True)
         else:
+            # print('Input no stepped')
             self.is_freeze = True
             self.useLinksToTask()
             for child in self.childs:
@@ -758,6 +1054,18 @@ class BaseTask():
             trgs = n_trgs
             index += 1
 
+    def setTreeQueue(self):
+        trgs = [self]
+        index = 0
+        while(index < 1000):
+            n_trgs = []
+            for trg in trgs:
+                trg.setQueue()
+                for ch in trg.childs:
+                    n_trgs.append(ch)
+            trgs = n_trgs
+            index += 1
+
     def updateNameQueue(self, old_name : str, new_name : str):
         pass
 
@@ -772,11 +1080,20 @@ class BaseTask():
         info["used"] = False
         info["cur"] = info["str"]
 
+    def setQueue(self):
+        if self.queue:
+            for info in self.queue:
+                self.onQueueSet(info)
+
+
+    def onQueueSet(self, info):
+        info["used"] = True
+
     def printQueueInit(self):
         pass
 
     def onQueueCheck(self, param) -> bool:
-        # print("React on condition:",param)
+        # print("Task",self.getName(), "react on condition:",param)
         # self.printQueueInit()
 
         if param['cond'] in ['>','<','=','!=']:
@@ -817,34 +1134,8 @@ class BaseTask():
                     print('Infinity loop!')
                     param['cur'] = param['str'] # Или возврат к исходному?
 
-  
-
-
-        # if param['cond'] == '=' or param['cond'] == '!=':
-        #     if isinstance(param['cur'], str):
-        #         cur = self.findKeyParam(param['cur'])
-        #         print('Cond', self.getName(),':',cur,param['cond'],param['trg'])
-        #         if param['cond'] == '=':
-        #             if cur != param['trg'] or param['cur'] == 'None':
-        #                 return False
-        #             else:
-        #                 if 'endless' not in param or not param['endless']:
-        #                     param['cur'] = 'None'
-        #         elif param['cond'] == '!=':
-        #             if cur == param['trg'] or param['cur'] == 'None':
-        #                 return False
-        #             else:
-        #                 if 'endless' not in param or not param['endless']:
-        #                     param['cur'] = 'None'
-        # elif isinstance(param['trg'], int) and isinstance(param['cur'], int):
-        #     cur = int(param['cur'])
-        #     trg = int(param['trg'])
-        #     if param['cond'] == '>' and cur < trg:
-        #         return False
-        #     elif param['cond'] == '<' and cur > trg:
-        #         return False
-        #     elif param['cond'] == '=' and cur != trg:
-        #         return False
+        elif param['cond'] == 'Disable':
+            return False
         elif param['cond'] == 'None':
             if param['cur'] == param['trg']:
                 return False
@@ -896,8 +1187,9 @@ class BaseTask():
         self.queue.sort(key=self.sortKey)
         # print([[q['name'], q['idx']] for q in self.queue])
 
-    def findNextFromQueue(self, only_check = False):
+    def findNextFromQueue(self, only_check = False, trgtasknames = []):
         # print("Search for next from queue", self.getName(),':',[q['name'] for q in self.queue if 'name' in q ])
+        # print('Trg tasks:', trgtasknames)
         self.sortQueue()
         if self.queue:
             for info1 in self.queue:
@@ -905,63 +1197,58 @@ class BaseTask():
                     info = info1.copy()
                 else:
                     info = info1
-                if info["type"] == "child":
-                    # print("info:", info)
+                if len(trgtasknames):
+                    if info["name"] in trgtasknames and info["type"] == "child" and self.onQueueCheck(info):
+                        return self.getChildByName(info['name'])
+                elif info["type"] == "child":
+                    # print("info:", info['name'])
                     if self.onQueueCheck(info):
                         return self.getChildByName(info['name'])
-                if info["type"] == "link":
-                    if self.onQueueCheck(info):
-                        input = TaskDescription(
-                            prompt=self.findKeyParam(self.getLastMsgContent()), 
-                            id=info["id"], stepped=True, 
-                            parent=self, enabled= not self.is_freeze)
-                        # info["method"](input)
-                        # print('Use link to', info['name'])
-                        for affected in self.affect_to_ext_list:
-                            if affected.target.getName() == info['name']:
-                                input.id = affected.id
-                                affected.method(input)
-                        return self.getLinkedByName(info['name'])
         return None
     
-    def useLinksToTask(self):
+    def useLinksToTask(self, stepped = False):
         print('Use links',[t.getName() for t in self.getHoldGarlands()])
         input = TaskDescription(prompt=self.prompt, parent=self)
         for task in self.affect_to_ext_list:
             input.id = task.id
             task.method(input)
 
+    def getQueueList(self):
+        return self.queue
 
     def isQueueComplete(self):
         if len(self.queue) > 0:
             return False
         return True
 
-    def getNextFromQueue(self):
-        res = self.findNextFromQueue()
+    def getNextFromQueue(self, trgtaskNames = []):
+        res = self.findNextFromQueue(trgtasknames=trgtaskNames)
         # print("Get next from",self.getName(),"queue:", res)
         if res:
             return res
-        return self.getNextFromQueueRe()
+        res = self.getNextFromQueueRe(trgtasknames=trgtaskNames)
+        return res
         # if self.isQueueComplete():
         #     return self.getNextFromQueueRe()
         # return None
         
-    def getNextFromQueueRe(self):
-        # print("Get recursevly")
+    def getNextFromQueueRe(self, trgtasknames = []):
+        # print("Get next recursevly", self.getName())
         trg = self
         index = 0
         while(index < 1000):
             if trg.isRootParent() or trg.caretaker is not None:
+                # print('Out reason: root')
                 return trg
             else:
-                trg = trg.parent
-                res = trg.findNextFromQueue()
+                trg = trg.getParent()
+                res = trg.findNextFromQueue(trgtasknames=trgtasknames)
                 if res:
                     # print('Reset from task=', res.getName())
                     res.resetTreeQueue()
                     return res
             index +=1
+        # print('Out index:', index)
         return None   
     
     def getMsgInfo(self):
@@ -988,7 +1275,8 @@ class BaseTask():
             child.whenParentRemoved()
 
     def whenParentRemoved(self):
-        self.setParent(None)
+        # self.setParent(None)
+        self.removeParent()
 
     def removeParent(self):
          if self.parent:
@@ -1062,16 +1350,21 @@ class BaseTask():
     def getParamStruct(self, param_name):
         return False, None
     
+    def copyAllParams(self, copy_info = False):
+        return {}
+    
     def getAllParams(self):
         return ""
     
     def saveAllParams(self):
         pass
+    def saveAllParamsByPath(self, path : str):
+        pass
     
     def getRawMsgs(self):
         return None
     
-    def getMsgs(self, except_task = []):
+    def getMsgs(self, except_task = [], hide_task = True):
         return None
     
     def findKeyParam(self, text: str):
@@ -1093,7 +1386,7 @@ class BaseTask():
         return True
     
     def getTextInfo(self, param):
-        return [],'Not Response Task'
+        return [],'Not Response Task', []
     
     def resaveWithID(self, id : int):
         pass
@@ -1101,8 +1394,81 @@ class BaseTask():
     def getLastMsgContentRaw(self):
         return "No any content"
     
+    def getLastMsgContent(self):
+        return ""
+    
     def setBranchSummary(self, summary : str):
         pass
 
     def getBranchSummary(self) -> str:
         return ''
+    
+    def getExeCommands(self):
+        return False, {}
+    
+    def confirmExeCommands(self, outparam):
+        pass
+    
+    def setManagerParamToTask(self, param):
+        pass
+
+    def extractTask(self):
+        task1 = self.parent
+        task2 = self
+        task3_list = task2.getChilds()
+        for task in task3_list:
+            task.removeParent()
+            if task1 is not None:
+                task1.removeChild(self)
+                task1.addChild(task)
+            task.saveAllParams()
+
+    def extractTaskList(self, del_tasks):
+        buds = []
+        for task in del_tasks:
+            childs = task.getChilds()
+            count = 0
+            for c in childs:
+                if c in del_tasks:
+                    count +=1
+            if count == 0:
+                buds.append(task)
+        for bud in buds:
+            b_idx = 0
+            trg = bud
+            while (b_idx < 1000):
+                if trg not in del_tasks:
+                    break
+                elif trg.getParent() == None:
+                    break
+                else:
+                    trg.extractTask()
+                    trg = trg.getParent()
+                b_idx +=1
+
+
+    def readyToGenerate(self) -> bool:
+        return False
+    
+    def setActiveBranch(self, task ):
+        pass
+
+    def getActioner(self):
+        return None
+    
+    def isFrozen(self):
+        return self.is_freeze
+
+    def getFrozenCnt(self):
+        if self.is_freeze:
+            return 0
+        return 1
+
+    def getLastMsgAndParent(self, hide_task = True):
+        return False, [], self.parent
+    
+    def getJsonFilePath(self):
+        return ""
+    
+    def forceCleanChat(self):
+        pass

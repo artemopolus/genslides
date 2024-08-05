@@ -3,12 +3,14 @@ import json
 from pathlib import Path
 
 def checkFolderPathAndCreate(path):
+    # print('Check folder path and create', path)
     if not os.path.exists(path):
         lst_path = os.path.split(path)
         if not os.path.exists( lst_path[0]):
             Path(lst_path[0]).mkdir(parents=True, exist_ok=True)
 
 def writeToFile(path, text, ctrl = 'w'):
+    # print('Write to file', path)
     if not os.path.exists(path):
         lst_path = os.path.split(path)
         if not os.path.exists( lst_path[0]):
@@ -18,6 +20,7 @@ def writeToFile(path, text, ctrl = 'w'):
         f.write(text)
 
 def writeJsonToFile(path, text, ctrl = 'w', indent = 1):
+    # print('Write json to file', path)
     if not os.path.exists(path):
         lst_path = os.path.split(path)
         if not os.path.exists( lst_path[0]):

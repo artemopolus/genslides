@@ -1,0 +1,80 @@
+[
+   {
+      "type": "child",
+      "cond": [
+         "None",
+         "<",
+         ">",
+         "=",
+         "!=",
+         "for"
+      ],
+      "cur": "None",
+      "trg": "None",
+      "str": "None",
+      "target":"None",
+      "idx":0
+   },
+   {
+      "type": "path_to_write",
+      "path_to_write": "[[manager:path:spc]]/tmp/test.py",
+      "write_dial": [false, true],
+      "excld_task": [],
+      "always_update": [true, false]
+   },
+   {
+      "type": "path_to_read",
+      "path_to_read": "[[manager:path:spc]]/saving/trg.json",
+      "read_dial": [false, true],
+      "del_msgs" :"None"
+   },
+   {
+      "type": "model",
+      "model": ["gpt-3.5-turbo","gpt-3.5-turbo-instruct","gpt-3.5-turbo-16k","text-davinci-003","gpt-4","gpt-4-32k"]
+   },
+   {
+      "type": "updateable",
+      "updateable": ["get","const"],
+      "src": "None",
+      "trg": "None"
+   },
+   {
+      "type": "script",
+      "path_to_trgs": ["./.env/Scripts/python.exe [[manager:path:spc]]/tmp/test.py"],
+      "path_to_python": ".\\.env\\Scripts\\python.exe",
+      "remove_script": [false, true],
+      "init_phrase": "None",
+      "on_success": "",
+      "on_error": "I have error: ",
+      "on_final": "",
+      "output_files": "[]",
+      "exe_type": "py",
+      "targets_type": ["args", "files"]
+   },
+   {
+      "type": "folder_to_write",
+      "folder_to_write": "[[manager:path:spc]]"
+   },
+   {
+      "type" : "linkedfrom",
+      "tasks":["name1","name2"]
+   },
+   {
+      "type": "block",
+      "block": [true, false]
+   },
+   {
+      "type": "hidden",
+      "hidden": [true, false]
+   },
+   {
+      "type": "tree_step",
+      "idx": 6
+   },
+   {
+      "type": "collecting",
+      "revert":  [false, true],
+      "tojson":  [false, true]
+   }
+
+]

@@ -2,6 +2,7 @@ from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
 import pprint
 from genslides.utils.largetext import SimpleChatGPT
+import genslides.task_tools.records as rd
 
 import json
 
@@ -16,15 +17,27 @@ class ReceiveTask(TextTask):
         self.afterFileLoading()
         
         if len(msg_list_from_file) == 0:
-            self.hasNoMsgAction()
             # self.updateCollectedMsgList(tmp_msg_list)
+            self.onEmptyMsgListAction()
         else:
             # print("Get list from file=", self.path)
-            self.haveMsgsAction(msg_list_from_file)
+            self.onExistedMsgListAction(msg_list_from_file)
             # self.setMsgList(msg_list_from_file)
 
 
         self.callback_link = []
+
+    def onEmptyMsgListAction(self):
+        self.hasNoMsgAction()
+        return super().onEmptyMsgListAction()
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        self.haveMsgsAction(msg_list_from_file)
+        return super().onExistedMsgListAction(msg_list_from_file)
+
+    
+    def isReceiver(self) ->bool:
+        return True
 
     def afterFileLoading(self):
         pass
@@ -36,10 +49,19 @@ class ReceiveTask(TextTask):
     def haveMsgsAction(self, msgs):
         self.setMsgList(msgs)
 
+    def checkInput(self, input: TaskDescription = None):
+        super().checkInput(input)
+        if input:
+            if self.parent:
+                trg_list = self.checkParentsMsg()
+            else:
+                trg_list = []
+            self.updateCollectedMsgList(trg_list)
+           
 
 
     def freezeTask(self):
-        # print("Freeze!")
+        # print('[=]',self.getName(),"is freeze!")
         self.is_freeze = True
         for tsk_info in self.by_ext_affected_list:
             tsk_info.enabled = False
@@ -95,6 +117,7 @@ class ReceiveTask(TextTask):
         return super().createLinkToTask(task) 
     
     def getRichPrompt(self) -> str:
+        # TODO: Перенести сюда заполнение шаблона
         res, param = self.getParamStruct('linkedfrom')
         text = ""
         if res:
@@ -113,24 +136,38 @@ class ReceiveTask(TextTask):
             else:
                 print('No')
             return text
+        eres, eparam = self.getParamStruct(self.getType(), only_current=True)
         for task in self.by_ext_affected_list:
             # print("Copy data from", task.parent.getName())
-            text += task.prompt +"\n"
+            try:
+                if eres and eparam['input'] == 'records':
+                    res, param = task.parent.getParamStruct(param_name='records', only_current=True)
+                    if res:
+                        text += rd.getRecordsRow(param, eparam)
+                elif eres and eparam['input'] == 'request':
+                    text += eparam['header'] + task.prompt + eparam['footer']    
+                else:
+                    text += task.prompt
+            except Exception as e:
+                text += task.prompt
+
         # print('Result:', text)
         return text
 
     def stdProcessUnFreeze(self, input=None):
+        
         res, pparam = self.getParamStruct('block')
         if res and pparam['block']:
             self.is_freeze = True
             return
 
         # print("1 frozen=", self.is_freeze)
-        if self.parent:
-            # print("parent frozen=",self.parent.is_freeze)
-            pass
+        # print(self.getName(),' task is frozen:', self.is_freeze)
+        if self.parent and self.parent.is_freeze:
+            self.freezeTask()
+            # print(self.getName(),"parent frozen=",self.parent.is_freeze)
+            return
         if self.is_freeze:
-            # print('Collect task is frozen')
             to_unfreeze = False
             if self.parent and not self.parent.is_freeze:
                 to_unfreeze = True
@@ -138,8 +175,10 @@ class ReceiveTask(TextTask):
                 to_unfreeze = True
             if to_unfreeze:
                 # print('Try unfreeze cz parent')
+                if len(self.by_ext_affected_list) == 0:
+                    return
                 for tsk_info in self.by_ext_affected_list:
-                    # print("Link input=", tsk_info.parent.getName(),"=",tsk_info.enabled)
+                    # print("\t\tLink input=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                     if not tsk_info.enabled:
                         return
                 # print("Unfreeze")
@@ -154,15 +193,20 @@ class ReceiveTask(TextTask):
             for tsk_info in self.by_ext_affected_list:
                 # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                 if not tsk_info.enabled:
-                    # print("Freeze from children")
+                    print("Freeze from children")
                     self.freezeTask()
                     return
             # print("1 frozen=", self.is_freeze)
+                
+    def printLinkState(self):
+        pass
+        # print('Link[',self.getName(),'] state:',[(tsk_info.parent.getName(),tsk_info.enabled) for tsk_info in self.by_ext_affected_list])
 
 
     def updateLinkedPrompts(self, input : TaskDescription):
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
+                
                 tsk_info.prompt = input.prompt
                 tsk_info.enabled = input.enabled
                 # print("Task[", tsk_info.id,"].enabled=",tsk_info.enabled)
@@ -188,28 +232,29 @@ class ReceiveTask(TextTask):
 
         out = super().affectedTaskCallback(input)
         self.stdProcessUnFreeze()
-        if input and input.stepped:
-            info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
-            self.update(info)
-        else:
-            self.update()
+        # if input and input.stepped:
+        #     pass
+        #     # info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
+        #     # self.update(info)
+        # else:
+        #     self.update()
     
     
-    def findNextFromQueue(self):
-        res = super().findNextFromQueue()
+    def findNextFromQueue(self, trgtasknames = []):
+        res = super().findNextFromQueue(trgtasknames=trgtasknames)
         if res:
             return res
-        for cl in self.callback_link:
-            if cl["used"] == False:
-                cl["used"] = True
-                return cl["pt"].findNextFromQueue()
+        # for cl in self.callback_link:
+        #     if cl["used"] == False:
+        #         cl["used"] = True
+        #         return cl["pt"].findNextFromQueue()
         return None
 
 
 
     def removeLinkToTask(self):
         self.prompt = ""
-        self.update()
+        # self.update()
         self.freezeTask()
         super().removeLinkToTask()
         self.saveJsonToFile(self.msg_list)
@@ -241,24 +286,33 @@ class ReceiveTask(TextTask):
     def getTrgLinkInfo(self, trg):
         return True, {'out': trg, 'in': self, 'dir': 'in'}
 
-    #TODO: переместить сюда задачу размораживания, 
     # просто задача Receive не должна замораживать себя и наследников
 class CollectTask(ReceiveTask):
     def __init__(self, task_info: TaskDescription, type='Collect') -> None:
         super().__init__(task_info, type)
-# TODO: особый способ уведомления о связях
 class GarlandTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="Garland") -> None:
         super().__init__(task_info, type)
-
+        sres, sparam = self.getParamStruct('garland', True)
+        if not sres:
+            self.setParamStruct({
+                            'type':'garland',
+                            'insert':True
+                            })
+ 
     def isLinkForCopy(self):
         return False
 
     def getTrgLinkInfo(self, trg):
-        return True, {'out': trg, 'in': self, 'dir':'out',
+        oparam = {'out': trg, 'in': self, 'dir':'out',
                                    'insert':True,
                                    'type': self.getType(),
                                    'tag': self.prompt_tag,
                                    'prompt':'',
                                    'parent': self.parent
                                    }
+        sres, sparam = self.getParamStruct('garland', True)
+        if sres:
+            oparam['insert'] = sparam['insert']
+        return True, oparam
+

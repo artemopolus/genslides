@@ -1,5 +1,5 @@
 import os
-
+import json
 
 class ReadFileMan():
     def readWithHeader(s_path:str, header: str):
@@ -8,10 +8,21 @@ class ReadFileMan():
         text += ReadFileMan.readStandart(s_path)
         text += 10*"=" + '\n'
         return text
-
+    
+    def readJson(s_path: str):
+        # print('Read json by path:', s_path)
+        text = {}
+        if os.path.isfile(s_path):
+            with open(s_path,'r',encoding='utf-8') as f:
+                text = json.load(f)
+        return text
+    
     def readStandart(s_path: str):
-        with open(s_path, 'r',encoding='utf-8') as f:
-            text = f.read()
+        try:
+            with open(s_path, 'r',encoding='utf-8') as f:
+                text = f.read()
+        except:
+            return ""
         return text
     def readPartitial( s_path, s_start):
         if os.path.isfile(s_path):

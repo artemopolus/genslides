@@ -3,7 +3,7 @@ from genslides.task.writetofile import WriteToFileTask
 
 import json, regex
 import genslides.utils.finder as finder
-
+import copy
 
 class SetOptionsTask(WriteToFileTask):
     def __init__(self, task_info: TaskDescription, type="SetOptions") -> None:
@@ -15,7 +15,10 @@ class SetOptionsTask(WriteToFileTask):
     def isInputTask(self):
         return False
     
-    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
+    def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
+        return False, [], self.parent
+    
+    def getLastMsgAndParent(self, hide_task = True):
         return False, [], self.parent
 
     def getLastMsgContentRaw(self):
@@ -27,8 +30,9 @@ class SetOptionsTask(WriteToFileTask):
     def executeResponse(self):
         try:
             self.params = json.loads(self.prompt)
-        except:
-            print("Can't load parameters")
+        except Exception as e:
+            # print("Can\'t load parameters for",self.getName(),':',e)
+            pass
 
     def updateAncestorParamStructValue(self):
         for param in self.params:
@@ -103,15 +107,16 @@ class SetOptionsTask(WriteToFileTask):
                     print("Params changed update all")
                     self.forceCleanChildsChat()
             except Exception as e:
-                print("Can't load parameters from",self.prompt,"due",e)
+                print("Can't load parameters from",self.getName(),"due",e)
 
             for param in input.params:
                 if 'name' in param and 'value' in param and 'prompt' in param:
                     self.updateParam(param["name"], param["value"],param["prompt"])
 
             if input.parent:
-                self.parent = input.parent
-                self.parent.addChild(self)
+                # self.parent = input.parent
+                # self.parent.addChild(self)
+                self.setParent(input.parent)
                 print("New parent=", self.parent)
 
  
@@ -147,5 +152,155 @@ class SetOptionsTask(WriteToFileTask):
 
     def getInfo(self, short = True) -> str:
         return self.getName()
- 
+    
+    def getPromptContentForCopy(self):
+        return ""
+    def getPromptContentForCopyConverted(self):
+        return ""
+
+
+class GeneratorTask(SetOptionsTask):
+    def __init__(self, task_info: TaskDescription, type="Generator") -> None:
+        super().__init__(task_info, type)
+        gres, gparam = self.getParamStruct('generator', True)
+        if not gres:
+            self.setParamStruct({
+                             'type':'generator',
+                             'target':'[[parent:msg_content:json:answer]]',
+                             'struct':'json',
+                             'tag':'array',
+                             'cmd_id':0,
+                             'cmd_type':'prompt',
+                             'iteration':[],
+                             'ignore_iter':[0],
+                             'iter2act':[]
+                             })
+    
+    def getExeCommands(self):
+        res, pparam = self.getParamStruct('manager', True)
+        if res:
+            gres, gparam = self.getParamStruct('generator', True)
+            if gres:
+                print('All data ready for create exe')
+                iterators = self.getIterators(gparam)
+                if len(iterators) == 0:
+                    return super().getExeCommands()
+                if gparam['iteration'] != iterators:
+                    self.updateIteration2action(iterators)
+                    self.updateParamStruct('generator','iteration', iterators)
+                # выполнить только те команды, которых не было ранее
+                if len(gparam['iter2act']) > 0:
+                    outparam = pparam['info']
+                    for act in gparam['iter2act']:
+                        print('Get act', act['var'],'=',act['done'])
+                        if act['done'] is False:
+                            outparam['actions'] = act['actions']
+                            return True, outparam
+                else:
+                    res_acts = self.updateIteration2action(iterators)
+                    self.updateParamStruct('generator','iter2act', res_acts)
+        return super().getExeCommands()
+    
+    def confirmExeCommands(self, outparam):
+        print('Confirm exe command', outparam)
+        if 'actions' not in outparam:
+            return
+        gres, gparam = self.getParamStruct('generator', True)
+        if gres and 'iter2act' in gparam and len(gparam['iter2act']) > 0:
+            for act in gparam['iter2act']:
+                if outparam['actions'] == act['actions']:
+                    act['done'] = True
+                    self.updateParamStruct('generator','iter2act', gparam['iter2act'])
+                    return
+    
+    def getIterators(self, gparam):
+        iterators = []
+        if gparam['struct'] == 'json':
+            # text = self.findKeyParam(gparam['target']).replace("\'","\"")
+            text = self.findKeyParam(gparam['target'])
+            try:
+                iter_list = json.loads(text)
+                tag = gparam['tag']
+                if isinstance(iter_list, list):
+                    # print('Get list', iter_list)
+                    for iter in iter_list:
+                        if isinstance(iter, str):
+                            iterators.append(iter)
+                        elif isinstance(iter, dict) and tag in iter:
+                            iterators.append(iter[tag])
+                elif isinstance(iter_list, dict) and tag in iter_list and isinstance(iter_list[tag],list):
+                    # print('Get dict')
+                    iterators = iter_list[tag]
+                else:
+                    print('unknown obj:', iter_list)
+                    pass
+            except Exception as e:
+                print('Try load json from', text)
+                print('error:', e)
+        return iterators
+
+    def setManagerParamToTask(self, param):
+        if 'type' not in param or param['type'] != 'manager':
+            return
+        self.setParamStruct(param)
+        gres, gparam = self.getParamStruct('generator', True)
+        if gres:
+            iterators = self.getIterators(gparam)
+            res_acts = self.updateIteration2action(iterators)
+            self.updateParamStruct('generator','iteration', iterators)
+            self.updateParamStruct('generator','iter2act', res_acts)
+               
+    def updateIteration2action(self, iterators):
+        gres, gparam = self.getParamStruct('generator', True)
+        pres, pparam = self.getParamStruct('manager', True)
+        if not gres and not pres:
+            return []
+        if len(gparam['iter2act']) > 0:
+            cur_iter = []
+            for iter in gparam['iter2act']:
+                cur_iter.append(iter['var'])
+            diff_iter = [a for a in iterators if a not in cur_iter]
+        else:
+            diff_iter = iterators
+        if len(diff_iter) > 0 and pres:
+            res_acts = gparam['iter2act']
+            idx = 0
+            for iter in diff_iter:
+                acts = pparam['info']['actions'].copy()
+                for act in acts:
+                    if str(act['id']) == str(gparam['cmd_id']):
+                        print('Check',act['id'],'with', gparam['cmd_id'], 'to apply', gparam['cmd_type'], 'with ', iter)
+                        act.update({gparam['cmd_type']:iter})
+                done = True if idx in gparam['ignore_iter'] else False
+                res_acts.append({'var':iter,'done': done,'actions': copy.deepcopy(acts)})
+                idx +=1
+            return res_acts
+        return []
+
+    def updateParamStruct(self, param_name, key, val):
+        out = super().updateParamStruct(param_name, key, val)
+        if param_name == 'generator' and key != 'iter2act':
+            gres, gparam = self.getParamStruct('generator', True)
+            if gres:
+                iterators = self.getIterators(gparam)
+                res_acts = self.updateIteration2action(iterators)
+                self.updateParamStruct('generator','iter2act', res_acts)
+        return out
+
+
+    def readyToGenerate(self) -> bool:
+        gres, gparam = self.getParamStruct('generator', True)
+        pres, pparam = self.getParamStruct('manager', True)
+        if gres and pres and 'iter2act' in gparam and len(gparam['iter2act']) > 0:
+            iterators = self.getIterators(gparam)
+            cur_iter = []
+            for iter in gparam['iter2act']:
+                if iter['done'] is False:
+                    cur_iter.append(iter['var'])
+            # diff_iter = [a for a in iterators if a not in cur_iter]
+            if len(cur_iter) > 0:
+                return True
+        return super().readyToGenerate()
+
+
 

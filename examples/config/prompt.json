@@ -5,13 +5,26 @@
 	},	
 	"Response":{
 		"Init":"",
+		"Endi":"",
+		"model":"gpt-3.5-turbo"
+	},	
+	"GroupCollect":{
+		"Init":"",
 		"Endi":""
-	},
+	},	
 	"Collect":{
 		"Init":"",
 		"Endi":""
+	},	
+	"Receive":{
+		"Init":"",
+		"Endi":""
+	},	
+	"Garland":{
+		"Init":"",
+		"Endi":""
 	},
-	"ReadFile":{
+	"Group":{
 		"Init":"",
 		"Endi":""
 	},
@@ -23,19 +36,41 @@
 		"Init":"",
 		"Endi":""
 	},
-	"WriteToFile":{
+	"GetTime":{
 		"Init":"",
 		"Endi":""
 	},
-	"RichText":{
+	"RunScript":{
 		"Init":"",
 		"Endi":""
 	},
-	"ColdResponse":{
+	"WebSurfArray":{
 		"Init":"",
 		"Endi":""
 	},
-	"HotResponse":{
+	"WriteJsonToFile":{
+		"Init":"",
+		"Endi":""
+	},
+	"SetOptions":{
+		"Init":"",
+		"Endi":""
+	},
+	"Generator":{
+		"Init":"",
+		"Endi":""
+	},
+	"ReadFileParam":{
+		"Init":"",
+		"Endi":"",
+		"path_to_read":"[[manager:path:spc]]/read.txt"
+	},
+	"WriteToFileParam":{
+		"Init":"",
+		"Endi":"",
+		"path_to_write":"[[manager:path:spc]]/write.txt"
+	},
+	"ExtProject":{
 		"Init":"",
 		"Endi":""
 	}

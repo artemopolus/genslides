@@ -1,0 +1,17 @@
+{
+ "mode lst": [
+  "base",
+  "user"
+ ],
+ "mode": "base",
+ "app type lst": [
+  "gradio",
+  "mliner",
+  "test"
+ ],
+ "shared": false,
+ "app type": "gradio",
+ "web browser": "Path_to_browser",
+ "current_project_name": "Untitled",
+ "session_name": "None"
+}

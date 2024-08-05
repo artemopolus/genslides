@@ -32,6 +32,24 @@ class AppendParamCommand(SimpleCommand):
     def unexecute(self) -> None:
         return super().unexecute()
     
+class RemoveParamCommand(SimpleCommand):
+    def __init__(self, input: TaskDescription) -> None:
+        super().__init__(input)
+        self.old_param = None
+    
+    def execute(self) -> None:
+        task = self.input.target
+        p = self.input.params
+        param_name = p['name']
+        res, param = task.getParamStruct(param_name, only_current = True)
+        if res:
+            self.old_param = param
+        task.rmParamStructByName(param_name)
+        return super().execute()
+    
+    def unexecute(self) -> None:
+        return super().unexecute()
+    
 class EditParamCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
@@ -40,9 +58,17 @@ class EditParamCommand(SimpleCommand):
         task = self.input.target
         p = self.input.params
         res, val = task.getCurParamStructValue(p['name'], p['key'])
-        task.updateParamStruct(p['name'], p['key'], p['select'])
+        value = p['select']
+        if isinstance(value, str) and value.isdigit():
+            print(value,'is int')
+            value = int(value)
+        elif isinstance(value, str) and value.replace('.', '', 1).isdigit():
+            print(value,'is float')
+            value = float(value)
+        print('Update', p['key'],'for',p['name'],'with', value,'[', task.getName(),']')
+        task.updateParamStruct(p['name'], p['key'], value)
         if res:
-            p['select'] = val
+            value = val
         return super().execute()
     
     def unexecute(self) -> None:
@@ -105,9 +131,11 @@ class MoveUpTaskCommand(SimpleCommand):
 
             if task_A is not None:
                 task_A.addChild(task_C)
-                task_A.update()
+                task_A.freezeTask()
+                # task_A.update()
             else:
-                task_C.update()
+                task_C.freezeTask()
+                # task_C.update()
 
             for t in task_trgs:
                 t.saveAllParams()

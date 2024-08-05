@@ -6,6 +6,8 @@ import genslides.utils.request as Requester
 import genslides.utils.browser as Browser
 import genslides.utils.browser as WebBrowser
 import genslides.utils.largetext as Summator
+import genslides.utils.readfileman as Reader
+import genslides.utils.filemanager as FileMan
 
 from genslides.utils.searcher import GoogleApiSearcher
 from genslides.utils.chatgptrequester import ChatGPTrequester
@@ -16,6 +18,7 @@ from genslides.utils.llmodel import LLModel
 import genslides.utils.savedata as savedata
 import genslides.utils.writer as wr
 from genslides.utils.loader import Loader
+from genslides.utils.llmodel import LLModel
 
 
 import json
@@ -26,9 +29,16 @@ import pprint
 import re
 import ast
 import genslides.utils.finder as finder
+import genslides.task_tools.array as ar
+import genslides.task_tools.records as rd
+import copy
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
+        self.checkparentsettrue = False
+        self.msg_list = []
+        self.params = task_info.params
+        # print('Get params', self.params)
         super().__init__(task_info, type)
 
         # print("Type=", self.getType())
@@ -36,7 +46,8 @@ class TextTask(BaseTask):
         self.path = self.getPath()
         self.copyParentMsg()
 
-        self.params = task_info.params
+        # print('Get params to', self.getName(),':\n', task_info.params)
+
 
         # print('Path to my file=', self.path)
 
@@ -44,19 +55,96 @@ class TextTask(BaseTask):
 
         # print('Input params',task_info.params)
         # print('Task params',self.params)
-        self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})
-        
+        self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})       
+        self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
         self.stdProcessUnFreeze()
+
+    def setCheckParentForce(self, val : bool):
+        self.checkparentsettrue = val
+
+    def onEmptyMsgListAction(self):
+        print('On empty msg list', self.getName())
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        pass
+
+    def loadInitParam(self):
+        init_params = self.reqhelper.getParams(self.getType())
+        for param in init_params:
+            if 'type' in param:
+                found = False
+                for p in self.params:
+                    if 'type' and p['type'] == param['type']:
+                        found = True
+                        break
+                if not found:
+                    self.setParamStruct(param)
     
     def addChild(self, child) -> bool:
+        # if self.getName() == 'Response250':
+        #     print('---')
+        #     print('Add child', child.getName(),'to',self.getName())
+        #     self.printQueueInit()
+        #     print('---')
         if super().addChild(child):
+            # print('Add child', child.getName(),'to',self.getName())
             self.syncQueueToParam()
-            self.printQueueInit()
+            res, pparam = self.getParamStruct('bud', only_current=True)
+            if res:
+                child_tasks = child.getAllChildChains()
+                for task in child_tasks:
+                    if len(task.getChilds()) == 0:
+                        tparam = {'type':'bud','text': pparam['text'],'branch':task.getBranchCodeTag()}
+                        task.setParamStruct(tparam)
+                self.rmParamStructByName('bud')
+            self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
+
             self.saveJsonToFile(self.msg_list)
             return True
         return False
     
+    def getPrio(self):
+        if self.parent is None:
+            return super().getPrio()
+        pparam = self.parent.getAllParams()
+        for p in pparam:
+            if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
+                return p['idx']
+        return super().getPrio()
+    
+    def getQueueParam(self) -> dict:
+        par = self.getParent()
+        if par:
+            pparams = par.getAllParams()
+            for p in pparams:
+                if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
+                    return p
+        return {}
+
+    def setQueueParam(self, qparam) -> dict:
+        if 'type' in qparam and qparam['type'] == 'child' and qparam['name'] == self.getName():
+            par = self.getParent()
+            if par:
+                pparams = par.params
+                for p in pparams:
+                    if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
+                        p.update(qparam)
+                        par.saveAllParams()
+                        return
+                        
+    
+    def setPrio(self, idx : int):
+        if self.parent is None:
+            return super().setPrio()
+        for p in self.getParent().params:
+            if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
+                p['idx'] = idx
+        self.getParent().saveAllParams()
+        return super().setPrio(idx)
+
+    
     def removeChild(self,child) -> bool:
+        print('Remove child', child.getName())
         if super().removeChild(child):
             self.syncQueueToParam()
             trg =  None
@@ -66,7 +154,7 @@ class TextTask(BaseTask):
             print("Remove from param", trg)
             if trg is not None and trg in self.params:
                 self.params.remove(trg)
-            self.printQueueInit()
+            # self.printQueueInit()
             self.saveJsonToFile(self.msg_list)
             return True
         return False
@@ -87,12 +175,19 @@ class TextTask(BaseTask):
 
 
     def fixQueueByChildList(self):
+        # print('Fix queue by child list')
         super().fixQueueByChildList()
         q_names = [q['name'] for q in self.queue if 'name' in q]
         to_del = []
+        used_names = []
         for param in self.params:
             if 'type' in param and param['type'] == 'child' and 'name' in param:
-                if param['name'] not in q_names:
+                name = param['name']
+                if name in used_names:
+                    to_del.append(param)
+                else:
+                    used_names.append(name)
+                if name not in q_names:
                     to_del.append(param)
         for p in to_del:
             self.params.remove(p)
@@ -103,42 +198,55 @@ class TextTask(BaseTask):
         q_names = [q["name"] for q in self.queue if 'name' in q]
         p_names = [p["name"] for p in self.params if "name" in p]
         c_names = [ch.getName() for ch in self.getChilds()]
-        # print("Queue:", q_names)
-        # print("Params:", p_names)
-        # print("Childs:", c_names)
+        print("Queue:", q_names)
+        print("Params:", p_names)
+        print("Childs:", c_names)
  
     def updateNameQueue(self, old_name : str, new_name : str):
+        # if self.getName() == 'Response250':
+        #     print(self.getName(), 'update queue name:',old_name,'=>', new_name)
         if old_name == new_name:
             return
         trg = None
         # print("queue:", self.queue)
         # print("params:", self.params)
+        found = False
         for param in self.params:
-            if "type" in param and "name" in param and param["name"] == old_name:
-                trg = param
+            if "type" in param and "name" in param and param["name"] == new_name:
+                found = True
+        if not found:
+            for param in self.params:
+                  if "type" in param and "name" in param and param["name"] == old_name:
+                       param["name"] = new_name
+        else:
+            for param in self.params:
+                  if "type" in param and "name" in param and param["name"] == old_name:
+                      trg = param
+ 
         # print("Delete param:",trg)
         if trg:
             self.params.remove(trg)
-            for info in self.queue:
-                if info["name"] == old_name:
-                    trg = info
-        if trg:
-            self.queue.remove(trg)
+        #     for info in self.queue:
+        #         if info["name"] == old_name:
+        #             trg = info
+        # if trg:
+        #     self.queue.remove(trg)
         self.syncParamToQueue()
         # print("queue:", self.queue)
         # print("params:", self.params)
-        self.printQueueInit()
+        # self.printQueueInit()
        
         self.saveJsonToFile(self.msg_list)
 
-    def getChildQueuePack(self, child) -> dict:
+    def getChildQueuePack(self, child, idx) -> dict:
         for param in self.params:
             if "type" in param and param["type"] == "child" and "name" in param and param["name"] == child.getName():
                 out = param.copy()
                 return out
-        pack = super().getChildQueuePack(child)
+        pack = super().getChildQueuePack(child, idx)
         # print("pack:",pack)
-        self.params.append(self.getJsonQueue(pack))
+        # print('Append to', self.getName(),'pack', child.getName())
+        # self.params.append(self.getJsonQueue(pack))
         return pack
     
     def getLinkQueuePack(self, info: TaskDescription) -> dict:
@@ -153,8 +261,9 @@ class TextTask(BaseTask):
         return pack
     
     def syncParamToQueue(self):
-        # print('Sync', self.getName(), 'param to queue')
-        # print('Init param=', self.params)
+        # if self.getName() == 'SetOptions41':
+        #     print('Sync', self.getName(), 'param to queue')
+        #     print('Init param=', self.params)
         for param in self.params:
             if "type" in param:
                 if param['type'] == 'child' or param['type'] == 'link':
@@ -183,8 +292,6 @@ class TextTask(BaseTask):
         # print('After sync param=', self.params)
     
     def syncQueueToParam(self):
-        # print("Sync",self.getName(),"queue to param")
-        # print(10*'===','Queue:', self.queue)
         for pack in self.queue:
             found = False
             for param in self.params:
@@ -199,43 +306,73 @@ class TextTask(BaseTask):
                     found = True
                     break
             if not found:
+                # print('Append to', self.getName(),'pack',pack["name"])
                 self.params.append(self.getJsonQueue(pack))
+        # if self.getName() == 'SetOptions41':
+        #     print("Sync",self.getName(),"queue to param")
+        #     print('Param', self.params)
+        #     print('Queue:', self.queue)
         self.saveJsonToFile(self.msg_list)
 
     def onQueueReset(self, info):
         # print("Queue reset")
         super().onQueueReset(info)
-        self.syncQueueToParam()
+        # self.syncQueueToParam()
 
     def onQueueCheck(self, param) -> bool:
+        # print('On queue check')
         if super().onQueueCheck(param):
             self.syncQueueToParam()
             return True
         return False
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
+        if self.checkparentsettrue:
+            return True
         if self.parent:
             # print('Check msg list of',self.getName(),'with', self.parent.getName())
-            trg = self.parent.msg_list.copy()
-            src = self.msg_list.copy()
+            trg = self.getParent().getMsgList()
+            src = self.getMsgList()
             last = None
             if len(src) > 0 and remove:
                 last = src.pop()
             if trg != src:
+                diff = [t for t in trg if t not in src]
+                dif2 = [t for t in src if t not in trg]
+                # print('Diff:', diff)
+                # print('Diff:', dif2)
                 if update:
                     if last and save_curr:
                         trg.append(last)
-                    self.msg_list = trg
+                    self.setMsgList( trg )
                 return False
         return True
     
+    def getPromptContentForCopy(self):
+    # Сделать отдельную функцию для получения последнего сообщения и переопределить его в SetOptions и ExtProject. В противном случае, при редактировании будут отображаться не те данные, которые были введены изначально. Дублирует по свойствам getLastMsgContent, но замена может повлиять на многие функции, поэтому оставляем изменение к следующеему этапу тестирования.
+        if len(self.msg_list) > 0:
+            return self.msg_list[-1]["content"]
+        else:
+            return ""
+        
+    def getPromptContentForCopyConverted(self):
+        if len(self.msg_list) > 0:
+            return self.findKeyParam( self.msg_list[-1]["content"])
+        else:
+            return ""
+   
+
     def getLastMsgContentRaw(self):
-    # TODO: Сделать отдельную функцию для получения последнего сообщения и переопределить его в SetOptions и ExtProject. В противном случае, при редактировании будут отображаться не те данные, которые были введены изначально. Дублирует по свойствам getLastMsgContent, но замена может повлиять на многие функции, поэтому оставляем изменение к следующеему этапу тестирования.
         if len(self.msg_list) > 0:
             return self.getRawMsgs()[-1]['content']
         else:
             return ""
 
+    def getLastMsgContent2(self):
+        if len(self.msg_list) > 0:
+            return self.findKeyParam ( self.getRawMsgs()[-1]['content'] )
+        else:
+            return ""
 
     def getLastMsgContent(self):
         if len(self.msg_list) > 0:
@@ -249,15 +386,51 @@ class TextTask(BaseTask):
     
     def setMsgList(self, msgs):
         self.msg_list = msgs
+
+    def getMsgList(self):
+        return copy.deepcopy(self.msg_list)
  
     def copyParentMsg(self):
         self.msg_list = self.getRawParentMsgs()
         
-    def getLastMsgAndParent(self) -> (bool, list, BaseTask):
-        # TODO: можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
+    def getLastMsgAndParent(self, hide_task = True) -> (bool, list, BaseTask):
+        if hide_task:
+            res, pparam = self.getParamStruct('hidden', only_current=True)
+            if res and pparam['hidden']:
+                return False, [], self.parent
+        # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         val = [{"role":self.getLastMsgRole(), 
                 "content": self.findKeyParam(self.getLastMsgContent())}]
+        if self.parent != None:
+            self.parent.setActiveBranch(self)
         return True, val, self.parent
+
+   
+    def freeTaskByParentCode(self):
+        pass
+
+    def getParentForFinder(self):
+        return self.getParent()
+
+    def getParentForRaw(self):
+        return self.getParent()
+    
+    def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
+        idx += 1
+        content = '[[parent_' + str(idx) + ':msg_content]]\n' if idx != 1 else '[[parent:msg_content]]\n'
+        content += self.getName() + '\n'
+        if len(self.getGarlandPart()):
+            content += ','.join([t.getName() for t in self.getGarlandPart()]) + '->' + self.getName() + '\n'
+        if len(self.getHoldGarlands()):
+            content += self.getName() + '->' + ','.join([t.getName() for t in self.getHoldGarlands()]) + '\n'
+        content += '\n\n---\n\n'
+        content += self.getLastMsgContent()
+        content +='\n'
+        val = [{"role":self.getLastMsgRole(), 
+                "content": content}]
+        if self.parent != None:
+            self.parent.setActiveBranch(self)
+        return True, val, self.getParentForRaw()
 
     def getMsgByIndex(self, i_trg):
         task = self
@@ -280,13 +453,33 @@ class TextTask(BaseTask):
             text.replace(trg_old, trg_new)
             msg['content'] = text
  
-    def getMsgs(self, except_task = []):
+    def getMsgs(self, except_task = [], hide_task = True):
         # print("Get msgs excluded ",except_task)
         task = self
         index = 0
         out = []
         while(index < 1000):
-            res, msg, par = task.getLastMsgAndParent()
+            res, msg, par = task.getLastMsgAndParent(hide_task)
+            if res and task.getName() not in except_task:
+                # print(task.getName(),"give", len(msg), "msg")
+                msg.extend(out)
+                out = msg
+                # print(index, task.getName(),'give',len(out))
+            if par is None:
+                break
+            else:
+                task = par
+            index += 1
+
+        return out
+
+
+    def getRawMsgsInfo(self, except_task = []):
+        task = self
+        index = 0
+        out = []
+        while(index < 1000):
+            res, msg, par = task.getLastMsgAndParentRaw(index)
             if res and task.getName() not in except_task:
                 # print(task.getName(),"give", len(msg), "msg")
                 msg.extend(out)
@@ -298,10 +491,12 @@ class TextTask(BaseTask):
             index += 1
 
         return out
+
    
     def getRawMsgs(self):
         return self.msg_list.copy()
     
+   
     def getRawParentMsgs(self):
         if self.parent is None:
             return []
@@ -320,23 +515,18 @@ class TextTask(BaseTask):
                     chs4clean_next.append(ch)
             chs4clean = chs4clean_next.copy()
 
-    def forceCleanChat(self):
-        if len(self.msg_list) > 1:
-            last = self.msg_list[-1]
-            self.msg_list = []
-            self.msg_list.append(last)
-
     def getCountPrice(self):
-        text = ""
-        for msg in self.getMsgs():
-            text += msg["content"]
+        # text = ""
+        # for msg in self.getMsgs():
+        #     text += msg["content"]
 
         res, param = self.getParamStruct('model')
         if res:
             chat = LLModel(param)
         else:
             chat = LLModel()
-        return chat.getPrice(text)
+        # return chat.getPrice(text)
+        return chat.getPriceFromMsgs(self.getMsgs())
     
     def getUsedTasks(self) -> list:
         msgs = self.getMsgs()
@@ -370,22 +560,30 @@ class TextTask(BaseTask):
 
 
     def getPath(self) -> str:
+        # проверять имена не только файлов в текущей папке, но и все имена задач менеджера, которые могут быть подключены как 
         mypath = self.manager.getPath()
+        mypath = Loader.getUniPath(mypath)
         wr.checkFolderPathAndCreate(mypath)
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        self.setName( self.getType() + str(self.id))
+        if self.getName() == '':
+            self.setName( self.getType() + str(self.id))
         # print("Start Name =", self.name)
         name = self.name + self.manager.getTaskExtention()
         found = False
         n = self.name
+        names = [t.getName() for t in self.manager.task_list]
         while not found:
             if name in onlyfiles:
                 n = self.getType() + str(self.getNewID())
                 name = n + self.manager.getTaskExtention()
             else:
-                found = True
+                if n in names:
+                    n = self.getType() + str(self.getNewID())
+                    name = n + self.manager.getTaskExtention()
+                else:
+                    found = True
                 # print("Res Name=", n)
-                self.setName(n)
+                    self.setName(n)
         return os.path.join( mypath, name)
 
     def getJson(self):
@@ -401,9 +599,20 @@ class TextTask(BaseTask):
     
     def saveAllParams(self):
         self.saveJsonToFile(self.msg_list)
-
+ 
+    def saveAllParamsByPath(self, path : str):
+        resp_json_out = self.getJsonMsg(self.msg_list)
+        try:
+            with open(path, 'w') as f:
+                json.dump(resp_json_out, f, indent=1)
+        except Exception as e:
+            print('Can\'t save json file:', e)
 
     def getJsonMsg(self, msg_list):
+        pout = self.params.copy()
+        for p in pout:
+            if 'type' in p and p['type'] == 'model' and 'api_key' in p:
+                del p['api_key']
         resp_json_out = {
             'chat': msg_list,
             'type': self.getType(),
@@ -415,7 +624,7 @@ class TextTask(BaseTask):
         resp_json_out['linked'] = linked
         path = ""
         if self.parent and self.caretaker is None:
-            path = self.parent.getClearName()
+            path = self.parent.getClearName(self.manager)
         resp_json_out['parent'] = path
         return resp_json_out
     
@@ -428,12 +637,17 @@ class TextTask(BaseTask):
         try:
             with open(self.path, 'w') as f:
                 json.dump(resp_json_out, f, indent=1)
-        except:
-            print('Can\'t save json file')
+        except Exception as e:
+            print('Can\'t save json file:', e)
+
+    def getJsonFilePath(self):
+        return self.path
 
     def deleteJsonFile(self):
-        print('Remove file', self.path)
-        os.remove(self.path)
+        path = Loader.getUniPath(self.path)
+        print('Remove file', path)
+        if os.path.exists(path):
+            os.remove(path)
 
         # path = self.path
         # if not os.path.exists(path):
@@ -487,10 +701,24 @@ class TextTask(BaseTask):
         return False
     
     def getResponseFromFile(self, msg_list, remove_last=True):
-        # print("Get response from file:")
         mypath = self.manager.getPath()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+        if self.trgtaskname != "":
+            targettaskfile = self.trgtaskname + self.manager.getTaskExtention()
+            if targettaskfile in onlyfiles:
+                targettask_path = FileMan.addFolderToPath(mypath,[targettaskfile])
+                rq = Reader.ReadFileMan.readJson(Loader.getUniPath(targettask_path))
+                if 'chat' in rq and 'param' in rq:
+                    self.path = targettask_path
+                    self.setName(self.trgtaskname)
+                    self.params = self.resetResetableParams(rq['params'])
+                    return rq['chat']
+
+  
+        # print("Get response from files:", onlyfiles)
         trg_file = self.filename + self.manager.getTaskExtention()
+        # print('Target name:', trg_file)
         # for file in onlyfiles:
         if trg_file in onlyfiles:
             file = trg_file
@@ -502,7 +730,7 @@ class TextTask(BaseTask):
                         rq = json.load(f)
                     if 'chat' in rq:
                         msg_trgs = rq['chat'].copy()
-                        if remove_last:
+                        if remove_last and len(msg_trgs):
                             msg_trgs.pop()
                         stopped = False
                         if 'params' in rq:
@@ -565,7 +793,7 @@ class TextTask(BaseTask):
         return self.prompt_tag
         # return self.msg_list[len(self.msg_list) - 1]["role"]
 
-    def useLinksToTask(self):
+    def useLinksToTask(self, stepped = False):
         # print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
         if len(self.msg_list) == 0:
             return
@@ -576,6 +804,8 @@ class TextTask(BaseTask):
             input.prompt = text
             input.enabled = not self.is_freeze
             input.parent = self
+            input.stepped = stepped
+            # print(self.getName(),'[ frozen=', self.is_freeze,'] linked to')
             task.method(input)
 
     def affectedTaskCallback(self, input: TaskDescription):
@@ -590,7 +820,6 @@ class TextTask(BaseTask):
 
     def whenParentRemoved(self):
         super().whenParentRemoved()
-        # TODO: check why???? Переделать пусть тип задачи решает сколько нужно оставить
         if len(self.msg_list) > 0:
             last = self.msg_list.pop()
             self.msg_list = []
@@ -618,9 +847,10 @@ class TextTask(BaseTask):
         if self.parent:
             self.is_freeze = self.parent.is_freeze
 
-        res, is_input = self.getParam("input")
-        # if input:
-        #     print("input manual=",input.manual)
+        # res, is_input = self.getParam("input")
+        # Инпут изначально планировался как средство остановки обновления до ожидания действий пользователя, теперь его "заменяет" блокировка, может быть он теперь и не нужен?
+        res = False
+
         if res and is_input:
             if input and input.manual:
                 self.is_freeze = False
@@ -629,7 +859,6 @@ class TextTask(BaseTask):
         else:
             if self.parent == None:
                 self.is_freeze = False
-        # print("freeze=", self.is_freeze)
 
     def checkInput(self, input: TaskDescription = None):
         # print('Check input')
@@ -642,8 +871,9 @@ class TextTask(BaseTask):
                     self.updateParam(param["name"], param["value"],param["prompt"])
             
             if input.parent:
-                self.parent = input.parent
-                self.parent.addChild(self)
+                # self.parent = input.parent
+                # self.parent.addChild(self)
+                self.setParent(input.parent)
                 print("New parent=", self.parent)
 
             self.saveJsonToFile(self.msg_list)
@@ -657,13 +887,13 @@ class TextTask(BaseTask):
             if par == None:
                 break
             # print("type=",par.getType())
-            if par.getType() == "Iteration":
+            if par.checkType("Iteration"):
                 pname = par.getName().replace("Iteration","It")
                 res, i = par.getParam("index")
                 print("it_res_i",res,i)
                 if res:
                     names += pname + "_" + i + "_"
-            elif par.getType() == "IterationEnd":
+            elif par.checkType("IterationEnd"):
                 if par.iter_start:
                     trg = par.iter_start.parent
             else:
@@ -671,13 +901,69 @@ class TextTask(BaseTask):
             trg = par
             index += 1
         return names
+    
+    def getTasksContent(self, except_task = []):
+        task = self
+        index = 0
+        out = []
+        while(index < 1000):
+            res, msg, par = task.checkGetContentAndParent()
+            if res and task.getName() not in except_task:
+                msg.extend(out)
+                out = msg
+            if par is None:
+                break
+            else:
+                task = par
+            index += 1
+        return out
+
+
+    def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
+        res, pparam = self.getParamStruct('hidden')
+        if res and pparam['hidden']:
+            return False, [], self.parent
+        val = [rd.getPackForRecord(self.getLastMsgRole(), self.findKeyParam(self.getLastMsgContent()), self.getName())]
+        if self.parent != None:
+            self.parent.setActiveBranch(self)
+        return True, val, self.parent
+
+    def internalUpdateParams(self):
+        self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
+        res, param = self.getParamStruct(param_name='records', only_current=True)
+        if res:
+            rres, rparam = rd.appendDataForRecord(param, self.getTasksContent())
+            if rres:
+                self.setParamStruct(rparam)
+        if self.manager.allowUpdateInternalArrayParam():
+            ares, aparam = self.getParamStruct(param_name='array', only_current=True)
+            if ares:
+                naparam = ar.checkArrayIteration(self.getLastMsgContent2(), aparam)
+                self.updateParam2(naparam)
+
+    def setRecordsParam(self):
+        print('Set',self.getName(),'to recording')
+        self.setParamStruct(rd.createRecordParam(self.getTasksContent()))
+
+    def clearRecordParam(self):
+        res, param = self.getParamStruct(param_name='records', only_current=True)
+        if res:
+            np = rd.clearRecordData(param)
+            self.setParamStruct(np)
+
+
+    def getChatRecords(self) ->list:
+        res, param = self.getParamStruct(param_name='records', only_current=True)
+        if res:
+            return rd.getDataFromRecordParam(param)
+        return []
+
 
     def update(self, input: TaskDescription = None):
         self.checkInput(input)
         out = super().update(input)
-
-
-
+        self.internalUpdateParams()
+        # self.updateParamStruct(param_name='branch', key='code', val=self.getBranchCodeTag())
         return out
 
     def getInfo(self, short=True) -> str:
@@ -699,6 +985,10 @@ class TextTask(BaseTask):
             if 'type' in param and param['type'] == param_name:
                 param.update(param_vals)
                 return
+        if param_vals['type'] == 'array':
+            res, np = ar.saveArrayToParams(self.getLastMsgContent2(),param_vals)
+            if res:
+                param_vals = np
         self.params.append(param_vals)
 
 
@@ -731,13 +1021,38 @@ class TextTask(BaseTask):
         #     print('get list')
         # else:
         #     print('not str and not list')
-        for param in self.params:
-            if "type" in param and param["type"] == param_name:
-                if key in param:
-                    if isinstance(val, str) and isinstance(param[key], list):
-                        param[key] = ast.literal_eval(val)
+        if param_name.startswith('child'):
+            name = param_name.split(':')[1]
+            for param in self.params:
+                if "type" in param and param["type"] == 'child' and param['name'] == name:
+                    param[key] = val
+        else:
+            for param in self.params:
+                if "type" in param and param["type"] == param_name:
+                    if key in param:
+                        if param_name == 'array' and key == 'parse':
+                            param[key] = val
+                            nparam = ar.updateArrayParam(param)
+                            param.update(nparam)
+                        elif isinstance(val, str) and isinstance(param[key], list):
+                            success = True
+                            try:
+                                value = ast.literal_eval(val)
+                                success = True
+                            except:
+                                success = False
+                            try:
+                                value = json.loads(val)
+                                success = True
+                            except:
+                                success = False
+                            if success:
+                                param[key] = value
+                        else:
+                            param[key] = val
                     else:
                         param[key] = val
+
         # print('Res params=',self.params)
         self.saveJsonToFile(self.msg_list)
 
@@ -753,7 +1068,39 @@ class TextTask(BaseTask):
         # print('Init params=',self.params)
         # if 'type' in param:
             # self.params.append(param)
-        self.saveJsonToFile(self.msg_list)
+        if self.msg_list:
+            self.saveJsonToFile(self.msg_list)
+
+    def rmParamStructByName(self, param_name):
+        trg = None
+        for param in self.params:
+            if 'type' in param and param['type'] == param_name:
+                print('Remove', param['type'],'from', self.getName())
+                trg = param
+        if trg != None:
+            self.params.remove(trg)
+            self.saveJsonToFile(self.msg_list)
+
+    def rewriteParamStruct(self, trg_param: dict):
+        if 'type' in trg_param:
+            param_name = trg_param['type']
+        else:
+            return False
+        trg = None
+        for param in self.params:
+            if 'type' in param and param['type'] == param_name:
+                print('Rewrite', param['type'],'from', self.getName())
+                trg = param
+        if trg != None:
+            self.params.remove(trg)
+            self.params.append(trg_param)
+            self.saveJsonToFile(self.msg_list)
+        else:
+            print('Nothing to rewrite')
+            return False
+        return True
+
+
 
     def rmParamStruct(self, param):
         try:
@@ -764,6 +1111,8 @@ class TextTask(BaseTask):
  
 
     def getParamStruct(self, param_name, only_current = False):
+        if not isinstance(param_name, str):
+            return False, None
         # print('Get in param', param_name, 'struct')
         forbidden_names = finder.getExtTaskSpecialKeys()
         if param_name not in forbidden_names and not only_current:
@@ -776,6 +1125,11 @@ class TextTask(BaseTask):
                 if res:
                     return True, val
         # print('Search in self params')
+        if param_name.startswith('child'):
+            name = param_name.split(':')[1]
+            for param in self.params:
+                if "type" in param and param["type"] == 'child' and param['name'] == name:
+                    return True, param
         for param in self.params:
             if "type" in param and param["type"] == param_name:
                 return True, param
@@ -812,7 +1166,6 @@ class TextTask(BaseTask):
                 if parent_task is None:
                     break
                 res, parent_task, val = parent_task.getParamFromExtTask(param_name)
-                # TODO: учитывать приоритет опций?
                 if res:
                     return True, val
         # если ничего не нашли загружаем стандартное
@@ -830,13 +1183,57 @@ class TextTask(BaseTask):
         # print("Found nothing for", param_name)
         return False, None
     
-    def findKeyParam(self, text: str):
+    def findKeyParam(self, text: str)->str:
          manager = self.manager
          base = self
-         return finder.findByKey(text, manager, base )
+         idx = 0
+         while idx < 10000:
+             n_text, task, ress = finder.findByKey2(text, manager, base)
+             idx +=1
+             if task == base:
+                 break
+             elif ress == 0:
+                 break
+             else:
+                 base = task
+                 text = n_text
+         return n_text
+    
+    def copyAllParams(self, copy_info = False):
+        pparams = self.getAllParams()
+        to_del = []
+        for p in pparams:
+            if 'type' in p and p['type'] == 'task_creation':
+                to_del.append(p)
+            if 'type' in p and p['type'] == 'child':
+                to_del.append(p)
+            if 'type' in p and p['type'] == 'link':
+                to_del.append(p)
+            if 'type' in p and p['type'] == 'copied':
+                to_del.append(p)
+            if 'type' in p and p['type'] == 'branch':
+                to_del.append(p)
+            # if 'type' in p and p['type'] == 'bud':
+            #     to_del.append(p)
+        for p in to_del:
+            pparams.remove(p)
+
+        if copy_info:
+            found = False
+            for p in pparams:
+                if 'type' in p and p['type'] == 'copied':
+                    found = True
+                    p['cp_path'].append(self.getName())
+                    break
+            if not found:
+                pparams.append({'type':'copied','cp_path':[self.getName()]})
+
+        return pparams
+        
 
     def getAllParams(self):
-        return json.dumps(self.params, indent=1)
+        pparams = copy.deepcopy(self.params)
+        return pparams
     
     def afterRestoration(self):
         self.saveJsonToFile(self.msg_list)
@@ -854,3 +1251,17 @@ class TextTask(BaseTask):
         if res:
             return param['text']
         return pars[0].getName()
+    
+    def getWordTokenPairs(self):
+        content = self.findKeyParam(self.getLastMsgContent())
+        res, param = self.getParamStruct('model')
+        output = []
+        if res:
+            chat = LLModel(param)
+            words = content.split(" ")
+            for word in words:
+                msg = word
+                tokens = chat.getTokensFromMessage(msg)
+                output.append({"token": msg, "bytes": tokens})
+        return output
+
