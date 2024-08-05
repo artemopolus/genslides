@@ -1418,7 +1418,7 @@ class Manager:
         return group
         
  
-    def getTaskList(self):
+    def getTaskList(self) -> list[BaseTask]:
         # print('Get tasks list')
         out = []
         for task in self.task_list:
@@ -2785,4 +2785,4 @@ class Manager:
         return False
     
     def getTasks(self) -> list[BaseTask]:
-        return self.task_list
+        return self.task_list.copy()
