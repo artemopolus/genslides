@@ -21,6 +21,10 @@ jobs:
         # Assuming your requirements are in requirements.txt
         pip install -r requirements.txt
 
+    - name: Download NLTK data
+      run: |
+        python -m nltk.downloader popular
+
     - name: Run tests
       run: |
         python -m unittest discover -s genslides/test  # Adjust the path if necessary
