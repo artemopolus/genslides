@@ -1,8 +1,7 @@
-
 import os
 import shutil
 import unittest
-from create_project import create_project, count_created_files, linking_project, expected_files_count
+from create_project import create_project, count_created_files, linking_project, expected_files_count, advanced_branching
 
 class TestCreateProject(unittest.TestCase):
     
@@ -35,6 +34,7 @@ class TestCreateProject(unittest.TestCase):
         file_count = count_created_files(self.project_path)
         self.assertEqual(file_count, expected_files_count(), "Expected 3 files to be created!")
 
+
     def test_linking_project(self):
         # Call the linking_project function
         total_tasks, total_linked_tasks = linking_project()
@@ -43,7 +43,19 @@ class TestCreateProject(unittest.TestCase):
         self.assertGreater(total_tasks, 0, "Expected some tasks to be created!")
         self.assertGreater(total_linked_tasks, 0, "Expected some linked tasks to be created!")
 
+
+    def test_advanced_branching(self):
+        # Call the advanced_branching function
+        total_tasks, total_linked_tasks, branching_tasks_count = advanced_branching()
+
+        # Check the expected counts
+        self.assertGreater(total_tasks, 0, "Expected some tasks to be created!")
+        self.assertGreater(total_linked_tasks, 0, "Expected some linked tasks to be created!")
+        self.assertGreaterEqual(branching_tasks_count, 0, "Expected non-negative count for branching tasks!")
+
+
 if __name__ == '__main__':
     unittest.main()
 
-    
+
+
