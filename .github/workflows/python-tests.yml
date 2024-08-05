@@ -25,6 +25,11 @@ jobs:
       run: |
         python -m nltk.downloader popular
 
+    - name: Install Graphviz
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y graphviz
+
     - name: Run tests
       run: |
         python -m unittest discover -s genslides/test  # Adjust the path if necessary
