@@ -2783,3 +2783,6 @@ class Manager:
         if cnt == 0:
             return True
         return False
+    
+    def getTasks(self) -> list[BaseTask]:
+        return self.task_list
