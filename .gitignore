@@ -163,3 +163,6 @@ tools/*
 text65.txt
 tools/*
 .DS_Store
+.tt
+session/
+actpacks/
