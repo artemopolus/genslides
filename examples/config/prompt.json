@@ -6,7 +6,7 @@
 	"Response":{
 		"Init":"",
 		"Endi":"",
-		"model":"gpt-3.5-turbo"
+		"model":"gpt-3.5-turbo-0125"
 	},	
 	"GroupCollect":{
 		"Init":"",
@@ -42,7 +42,8 @@
 	},
 	"RunScript":{
 		"Init":"",
-		"Endi":""
+		"Endi":"",
+		"python": {"type":"path", "value":"J:\\WorkspaceFast\\genslides\\.env\\Scripts\\python.exe"}
 	},
 	"WebSurfArray":{
 		"Init":"",
@@ -63,15 +64,166 @@
 	"ReadFileParam":{
 		"Init":"",
 		"Endi":"",
-		"path_to_read":"[[manager:path:spc]]/read.txt"
+		"path_to_read":"saved\\read.txt"
 	},
 	"WriteToFileParam":{
 		"Init":"",
 		"Endi":"",
-		"path_to_write":"[[manager:path:spc]]/write.txt"
+		"path_to_write":"saved\\write.txt"
 	},
 	"ExtProject":{
 		"Init":"",
 		"Endi":""
+	},
+	"InExtTree":{
+		"Init":"",
+		"Endi":""
+	},
+	"Searcher":{
+		"Init":"",
+		"Endi":""
+	},
+	"SaveScriptRun":{
+		"Init":"",
+		"Endi":"",
+		"python": {"type":"path", "value":"J:\\WorkspaceFast\\genslides\\.env\\Scripts\\python.exe"},
+		"params":[
+			{
+				"type":"savescriptrun_def",
+				"script_type":"python",
+				"python_path": "[[project:SaveScriptRun:python]]",
+				"path_to_write": "[[manager:path:spc]]/script/test.py",
+				"script_content":"[[parent_2:code]]",
+				"args":"[[parent:msg_content]]",
+				"cwd":"[[manager:path:spc]]/script",
+				"on_error":"I have error:\n",
+				"on_success":""
+			}
+		]
+	},
+	"SimpleSaveScriptRun":{
+		"Init":"",
+		"Endi":"",
+		"python": {"type":"path", "value":"J:\\WorkspaceFast\\genslides\\.env\\Scripts\\python.exe"},
+		"params":[
+			{
+				"type":"savescriptrun_def",
+				"script_type":"python",
+				"python_path": "[[project:SaveScriptRun:python]]",
+				"path_to_write": "[[manager:path:spc]]/script/test.py",
+				"script_content":"[[parent:code]]",
+				"args":"",
+				"cwd":"[[manager:path:spc]]/script",
+				"on_error":"I have error:\n",
+				"on_success":""
+			}
+		]
+	},
+	"WriteBranch":{
+		"Init":"",
+		"Endi":""
+	},
+	"RecWriteBranch":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "write_branch",
+				"path_to_write": "[[manager:path:spc]]/dial/[[name]].json",
+				"input": "records",
+				"excld_task": [],
+				"always_update": true
+			}
+		]
+	},
+	"MsgWriteBranch":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "write_branch",
+				"path_to_write": "[[manager:path:spc]]/dial/[[name]].json",
+				"input": "msgs",
+				"excld_task": [],
+				"always_update": true
+			}
+		]
+	},
+	"ReadBranch":{
+		"Init":"",
+		"Endi":""
+	},
+	"RecReadBranch":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type":"ReadBranch",
+				"path_to_read": "[[manager:path:spc]]/dial/[[name]].json",
+				"input":"row",
+				"header": "",
+				"footer": "",
+				"prefix": "[[number]]\n",
+				"suffix": "",
+				"range":"",
+				"idx":0,
+				"enum":true,
+				"update":"auto"
+			}
+		]
+	},
+	"LowModelSetOptions":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "model",
+				"model": "gpt-3.5-turbo-0125"
+			}
+		]
+	},
+	"MiniModelSetOptions":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "model",
+				"model": "gpt-4o-mini-2024-07-18"
+			}
+		]
+	},
+	"SuperModelSetOptions":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "model",
+				"model": "gpt-4o-2024-05-13"
+			}
+		]
+	},
+	"ScriptSetOptions":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "script",
+				"path_to_trgs": [
+				"[[project:RunScript:python]] [[manager:path:spc]]/script/test.py"
+				],
+				"path_to_python": "[[project:python]]",
+				"remove_script": false,
+				"init_phrase": "None",
+				"on_success": "",
+				"on_error": "I have error:\n",
+				"on_final": "",
+				"output_files": "[]",
+				"exe_type": "py",
+				"targets_type": "args",
+				"script_param": "[[manager:path:fld]]/init.py",
+				"cwd": "[[manager:path:spc]]/script",
+				"parent_task_cmd": "[[project:RunScript:python]] [[parent:msg_content]]"
+			}
+		]
 	}
 }

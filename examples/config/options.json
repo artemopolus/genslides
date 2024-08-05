@@ -17,20 +17,29 @@
    },
    {
       "type": "path_to_write",
-      "path_to_write": "[[manager:path:spc]]/tmp/test.py",
+      "path_to_write": "[[parent_2:msg_content]]",
       "write_dial": [false, true],
       "excld_task": [],
       "always_update": [true, false]
    },
    {
+      "type": "write_branch",
+      "path_to_write": "[[manager:path:spc]]/dial/[[name]].json",
+      "input": ["msgs", "records"],
+      "excld_task": [],
+      "always_update": [true, false]
+   },
+   {
       "type": "path_to_read",
-      "path_to_read": "[[manager:path:spc]]/saving/trg.json",
+      "path_to_read": "saved\\saving\\conv_script.json",
       "read_dial": [false, true],
+      "header": "",
+      "footer": "",
       "del_msgs" :"None"
    },
    {
       "type": "model",
-      "model": ["gpt-3.5-turbo","gpt-3.5-turbo-instruct","gpt-3.5-turbo-16k","text-davinci-003","gpt-4","gpt-4-32k"]
+      "model": ["gpt-3.5-turbo","gpt-3.5-turbo-instruct","gpt-3.5-turbo-16k","text-davinci-003","gpt-4","gpt-4-32k","gpt-4-turbo-2024-04-09"]
    },
    {
       "type": "updateable",
@@ -40,20 +49,23 @@
    },
    {
       "type": "script",
-      "path_to_trgs": ["./.env/Scripts/python.exe [[manager:path:spc]]/tmp/test.py"],
-      "path_to_python": ".\\.env\\Scripts\\python.exe",
+      "path_to_trgs": ["[[project:RunScript:python]] [[manager:path:spc]]/script/test.py"],
+      "path_to_python": "[[project:python]]",
       "remove_script": [false, true],
       "init_phrase": "None",
       "on_success": "",
-      "on_error": "I have error: ",
+      "on_error": "I have error:\n",
       "on_final": "",
       "output_files": "[]",
       "exe_type": "py",
-      "targets_type": ["args", "files"]
+      "targets_type": ["args","single", "files"],
+      "script_param": "[[manager:path:fld]]/init.py",
+      "cwd":"[[manager:path:spc]]/script",
+      "parent_task_cmd":"[[project:RunScript:python]] [[parent:msg_content]]"
    },
    {
       "type": "folder_to_write",
-      "folder_to_write": "[[manager:path:spc]]"
+      "folder_to_write": "output\\scripts\\"
    },
    {
       "type" : "linkedfrom",
@@ -68,6 +80,10 @@
       "hidden": [true, false]
    },
    {
+      "type": "garland",
+      "insert": [true, false]
+   },
+   {
       "type": "tree_step",
       "idx": 6
    },
@@ -75,6 +91,61 @@
       "type": "collecting",
       "revert":  [false, true],
       "tojson":  [false, true]
+   },
+   {
+      "type": "bud",
+      "summary": "summary" 
+   },
+   {
+      "type":"search",
+      "search":["manual","tags"],
+      "tags": "some, one"
+   },
+   {
+      "type": "autocopy",
+      "blck_cp": [true,false],
+      "cp_in":  [true,false],
+      "cp_out":  [true,false]
+   },
+   {
+      "type":"savescriptrun_def",
+      "script_type":["python"],
+      "python_path": "[[project:SaveScriptRun:python]]",
+      "path_to_write": "[[manager:path:spc]]/script/test.py",
+      "script_content":"[[parent:code]]",
+      "args":"",
+      "cwd":"[[manager:path:spc]]/script",
+      "on_error":"I have error:\n",
+      "on_success":""
+	},
+   {
+      "type":"array",
+      "parse":["None", "std"],
+      "idx":0,
+      "curr":""
+   },
+   {
+      "type":"ReadBranch",
+      "path_to_read": "saved\\saving\\conv_script.json",
+      "input":["row","chat"],
+      "header": "",
+      "footer": "",
+      "prefix": "",
+      "suffix": "",
+      "range":"",
+      "idx":0,
+      "enum":[false, true],
+      "update":["auto","manual"]
+   },
+   {
+      "type":"Collect",
+      "input":["request","records"],
+      "header":"",
+      "footer":"",
+      "enum":[false, true],
+      "prefix":"",
+      "suffix":"",
+      "idx": 0,
+      "range":""
    }
-
 ]
