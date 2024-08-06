@@ -987,8 +987,17 @@ class Projecter:
     def editParamPrivManager(self, param):
         self.makeTaskAction("","","EditPrivManager","",param)
         return self.getUItmpmanagers()
+    
+    def changeVizType(self, action, vizualisation):
+        out = gr.Code(value='', language=None)
+        if action == 'Edit':
+            out = gr.Code(value=self.actioner.manager.getCurTaskLstMsgRaw(), language=None)
+            if vizualisation != 'None':
+                out =  gr.Code(value=self.actioner.manager.getCurTaskLstMsgRaw(),language=vizualisation)
+        return out
 
-    def actionTypeChanging(self, action):
+
+    def actionTypeChanging(self, action, vizualisation):
         print('Action switch to=', action)
         # highlighttext = []
         if action == 'New':
@@ -1010,7 +1019,10 @@ class Projecter:
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
             print('Get text from',self.actioner.manager.curr_task.getName(),'(',self.actioner.manager.getName(),')')
             _,role,_ = self.actioner.manager.curr_task.getMsgInfo()
-            return (self.actioner.manager.getCurTaskLstMsgRaw(), 
+            out = gr.Code(value=self.actioner.manager.getCurTaskLstMsgRaw(), language=None)
+            if vizualisation != 'None':
+                out =  gr.Code(value=self.actioner.manager.getCurTaskLstMsgRaw(),language=vizualisation)
+            return (out, 
                     gr.Button(value='Apply'), 
                     gr.Button(value='Divide',interactive=True), 
                     gr.Button(value='',interactive=False), 
