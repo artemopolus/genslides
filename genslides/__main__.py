@@ -388,6 +388,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 param_key.select(fn=projecter.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
                                 setrecords_btn = gr.Button('Set recording') 
                                 clrrecords_btn = gr.Button('Clear records')
+                                with gr.Row():
+                                    savemanact2currtask_drd = gr.Dropdown(choices=projecter.getFullCmdList(True), interactive=True)
+                                    savemanact2currtask_btn = gr.Button('Save actions to task')
                     with gr.Tab('Select'):
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
@@ -423,6 +426,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             relatedtask_btn = gr.Button('Relationship chain')
                             nearesttask_btn = gr.Button('Nearest tasks')
+                            other_garland_btn = gr.Button('Other Garland')
                         with gr.Row():
                             relatedfwrdchain_btn = gr.Button('Forward relation')
                             relatedfwrdchain_sld = gr.Slider(minimum=0, maximum=20,step=1,value=1,label='Range')
@@ -468,6 +472,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 enablemultichilds_btn = gr.Button('Enable children to queue')
                                 selectactioner_btn = gr.Button('Select Multiselected Task Act')
                                 copymultiselecttask_btn = gr.Button('Mov here Act Multi Task', interactive=False)
+
+                                applyautocmdtomulti_btn = gr.Button('Apply AutoCmd to Multi')
                                 selectactioner_btn.click(fn=projecter.selectTargetActioner, outputs=[copymultiselecttask_btn])
                                 copymultiselecttask_btn.click(fn=projecter.moveMultiSelectedTasksFromTargetActioner, outputs=[copymultiselecttask_btn])
 
@@ -876,6 +882,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
+            savemanact2currtask_btn.click(fn=projecter.saveManagerActionToCurrentTask, inputs=[savemanact2currtask_drd], outputs=std_output_list)
+            
             updatecntreset_btn.click(fn=projecter.resetActUpdateCnt, outputs=std_output_list)
 
             addextmantasksintocurman.click(fn=projecter.copyExternalTmpManagerToCurrProject,
@@ -916,6 +924,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
 
+            applyautocmdtomulti_btn.click(projecter.applyAutoCommandsToMulti, outputs=std_full)
+
             exttreetaskaddact_btn.click(fn=projecter.addCurrentExtTreeTaskActioner, outputs=std_full)
 
             setsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionname_drd], outputs=std_full)
@@ -944,6 +954,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             relink_sel2cur_btn.click(fn=projecter.relinkToCurrTaskByName, inputs=[selected_tasks_list], outputs=std_output_list)
             relatedtask_btn.click(fn=projecter.selectRelatedChain, outputs=std_output_list)
             nearesttask_btn.click(fn=projecter.selectNearestTasks, outputs=std_output_list)
+            other_garland_btn.click(fn=projecter.selectOtherGarland, outputs=std_output_list)
 
             relatedfwrdchain_btn.click(fn=projecter.getRalationForward, inputs=relatedfwrdchain_sld, outputs=std_output_list)
             relatedbackchain_btn.click(fn=projecter.getRelationBack, inputs=relatedbackchain_sld, outputs=std_output_list)

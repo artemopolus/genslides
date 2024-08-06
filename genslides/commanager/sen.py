@@ -322,24 +322,25 @@ class Projecter:
 
    
     
-    def getStdCmdList(self)->list:
+    def getStdCmdList(self, full = False)->list:
         # comm = self.manager.getMainCommandList()
         # comm.extend(self.manager.getSecdCommandList())
         # comm.remove("New")
         # comm.remove("SubTask")
         # comm.remove("Edit")
         comm = [t for t in self.manager.helper.getNames()]
-        comm.remove("Request")
-        comm.remove("Response")
+        if not full:
+            comm.remove("Request")
+            comm.remove("Response")
         return comm
 
     def getCustomCmdList(self) -> list:
         mypath = 'tools'
         return [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
     
-    def getFullCmdList(self):
+    def getFullCmdList(self, full = False):
         a = self.getCustomCmdList()
-        p = self.getStdCmdList()
+        p = self.getStdCmdList(full=full)
         a.extend(p)
         return a
 
@@ -617,10 +618,7 @@ class Projecter:
     
     def goBackByLink(self):
         man = self.actioner.manager
-        task = man.curr_task
-        trgs = task.getGarlandPart()
-        if len(trgs) > 0:
-            man.curr_task = trgs[0]
+        man.goBackByLink()
         return self.updateMainUIelements()
     
     def goToNextChild(self):
@@ -1306,6 +1304,28 @@ class Projecter:
         for task in tasks:
                 man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
+    
+    def selectOtherGarland(self):
+        man = self.actioner.manager
+        garland_tasks = man.getCurrentTask().getHoldGarlands()
+        multi = []
+        for garland in garland_tasks:
+            tasks = garland.getTree()
+            for task in tasks:
+                if task not in garland_tasks:
+                    multi.append(task)
+        for task in multi:
+            man.addTaskToMultiSelected(task)
+        return self.updateMainUIelements()
+    
+    def applyAutoCommandsToMulti(self):
+        self.actioner.createTmpManagerForCommandExe()
+        return self.updateTaskManagerUI()
+
+    def saveManagerActionToCurrentTask(self, type_name):
+        self.actioner.saveActionsToCurrTaskAutoCommand(type_name=type_name)
+        return self.updateTaskManagerUI()
+
        
     
     def deselectRealtedChain(self):

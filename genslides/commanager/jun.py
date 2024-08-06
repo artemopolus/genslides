@@ -391,6 +391,14 @@ class Manager:
     def goToParent(self):
         if self.curr_task.parent is not None and self.curr_task.getParent() in self.task_list:
             self.curr_task = self.curr_task.parent
+
+    def sortBuds(self, trg : BaseTask):
+        tasks = trg.getAllParents()
+        prio = 0
+        for task in tasks:
+            prio += task.getPrio()
+        return prio
+    
     
     def getSceletonBranchBuds(self, trg_task :BaseTask):
         tree = trg_task.getTree()
@@ -411,15 +419,17 @@ class Manager:
         if len(self.endes) == 0:
             self.endes = self.getSceletonBranchBuds(self.curr_task)
             self.endes_idx = 0
+            self.endes.sort(key=self.sortBuds)
         else:
             endes = self.getSceletonBranchBuds(self.curr_task)
-            if endes == self.endes:
+            if set(endes) == set(self.endes):
                 if self.endes_idx + 1 < len(self.endes):
                     self.endes_idx += 1
                 else:
                     self.endes_idx = 0
             else:
                 self.endes = endes
+                self.endes.sort(key=self.sortBuds)
                 self.endes_idx = 0
         if len(self.endes) > self.endes_idx:
             self.curr_task = self.endes[self.endes_idx]
@@ -1588,18 +1598,19 @@ class Manager:
                 task.update()
         return self.runIteration("")
     
-    def updateSteppedSelectedInternal(self, info : TaskDescription = None):
+    def updateSteppedSelectedInternal(self, info : TaskDescription = None, update_task = True):
         # print(10*"----------")
         dt1 = datetime.datetime.now()        
         init_log = "STEP" + 4*">>" + self.curr_task.getName() + "||" + getTimeForSaving() + "||"
         # print(10*"----------")
-        if info:
-            info.stepped = True
-            self.curr_task.update(info)
-        else:
-            self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), 
-                                                  prompt_tag=self.curr_task.getLastMsgRole(), 
-                                                  stepped=True))
+        if update_task:
+            if info:
+                info.stepped = True
+                self.curr_task.update(info)
+            else:
+                self.curr_task.update(TaskDescription( prompt=self.curr_task.getLastMsgContent(), 
+                                                    prompt_tag=self.curr_task.getLastMsgRole(), 
+                                                    stepped=True))
 
         res, w_param = self.curr_task.getParamStruct("watched")
         if res:
@@ -2786,3 +2797,10 @@ class Manager:
     
     def getTasks(self) -> list[BaseTask]:
         return self.task_list.copy()
+
+    def goBackByLink(self):
+        task = self.getCurrentTask()
+        trgs = task.getGarlandPart()
+        if len(trgs) > 0:
+            self.setCurrentTask(trgs[0])
+

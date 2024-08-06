@@ -271,6 +271,38 @@ class Actioner():
         print('Task info', pack)
         self.makeTaskAction(prompt, act_type, action, tag, param, save_action=False)
 
+    def saveActionsToCurrTaskAutoCommand(self, type_name : str):
+        task = self.manager.getCurrentTask()
+        actions = self.manager.info['actions']
+        task.setParamStruct(
+            {
+                "type": type_name + "Cmd",
+                "actions": actions
+            }
+        )
+
+    def createTmpManagerForCommandExe(self):
+        man = self.manager
+        tmpman_json = {'actions':[],'repeat':3,
+                       'task_names':[t.getName() for t in man.getMultiSelectedTasks()],
+                       'name': man.getCurrentTask().getName()}
+        tmpman = self.addEmptyScript(tmpman_json)
+        start = man.getCurrentTask()
+        if tmpman != None:
+            self.manager = tmpman
+            project_chain = self.updateAll(update_task=False)
+            print('Chain:')
+            for elem in project_chain:
+                print('idx',elem['idx'], 'task',elem['task'].getName())
+            # for task in tmpman.getTasks():
+            #     if task != start:
+            #         man.addTaskToSelectList(start)
+            #         res, actions = task.getAutoCommand()
+            #         if res:
+            #             for act in actions:
+            #                 self.makeSavedAction(act)
+
+
     def exeCurManagerSmpl(self):
         idx = 0
         # print(self.manager.info['repeat'])
@@ -313,6 +345,7 @@ class Actioner():
         out.append({"action":"TakeFewSteps","param":{'dir':'child', 'times':3}})
         out.append({"action":"GoToNextChild","param":{}})
         out.append({"action":"GoToParent","param":{}})
+        out.append({"action":"GoBackByLink","param":{}})
         out.append({"action":"InitSavdManager","param":{'task':'task_name'}})
         out.append({"action":"InitSavdManagerToCur","param":{'task':'task_name'}})
         out.append({"action":"EditPrivManager","param":{}})
@@ -320,7 +353,7 @@ class Actioner():
         out.append({"action":"InitPrivManager","param":{}})
         out.append({"action":"StopPrivManager","param":{}})
         out.append({"action":"RmvePrivManager","param":{}})
-        out.append({"action":"SetCurrTask","param":{}})
+        out.append({"action":"SetCurrTask","param":{'task':'task_name'}})
         return out
  
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
@@ -343,6 +376,8 @@ class Actioner():
             self.manager.goToNextChild()
         elif creation_type == "GoToParent":
             self.manager.goToParent()
+        elif creation_type == "GoBackByLink":
+            self.manager.goBackByLink()
         elif creation_type == "InitSavdManagerToCur":
             man = self.addSavedScriptToCurTask(param['task'])
             if man is not None:
@@ -384,7 +419,7 @@ class Actioner():
             self.removeTmpManager(self.manager, trg, copy=False)
            
         elif creation_type == "SetCurrTask":
-            self.manager.setCurrentTaskByName(name=prompt)
+            self.manager.setCurrentTaskByName(name=param['task'])
         elif creation_type == "NewExtProject":
             self.manager.createExtProject(type1, prompt, None)
         elif creation_type == "SubExtProject":
@@ -631,7 +666,8 @@ class Actioner():
         self.update_state = 'start tree'
         self.update_tree_idx = 0
 
-    def updateStepInternal(self):
+
+    def updateStepInternal(self, update_task = True):
         man = self.manager
         start = self.manager.curr_task
         # print('Update step internal',start.getName())
@@ -659,7 +695,7 @@ class Actioner():
                 self.setManager(self.executing_man)
              
 
-        next = man.updateSteppedSelectedInternal()
+        next = man.updateSteppedSelectedInternal(update_task=update_task)
         # if next:
             # print('Next task', next.getName(),'cur task', man.curr_task.getName())
 
@@ -699,7 +735,7 @@ class Actioner():
         # man.curr_task.resetTreeQueue()
         self.update_processed_chain = [self.root_task_tree.getName()]
       
-    def update(self):
+    def update(self, update_task = True):
         man = self.manager
         # print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
         if self.update_state == 'init':
@@ -708,9 +744,9 @@ class Actioner():
             task = man.tree_arr[self.update_tree_idx]
             print('Start tree', task.getName(),'[',self.update_tree_idx,']')
             self.setStartParamsForUpdate(man, task)
-            self.updateStepInternal()
+            self.updateStepInternal(update_task=update_task)
         elif self.update_state == 'step':
-            self.updateStepInternal()
+            self.updateStepInternal(update_task=update_task)
                 # self.root_task_tree = next
         elif self.update_state == 'next tree':
             if self.update_tree_idx + 1 < len(man.tree_arr):
@@ -749,7 +785,7 @@ class Actioner():
         man.curr_task = start_task
         return 
 
-    def updateAll(self, force_check = False):
+    def updateAll(self, force_check = False, update_task = True):
         man = self.manager
         print(f"Update all tasks of {man.getName()}")
         start_task = man.curr_task
@@ -757,8 +793,10 @@ class Actioner():
         if len(man.tree_arr) == 0:
             return
         idx = 0
+        project_chain = [{'idx':idx, 'task': man.getCurrentTask()}]
         while(idx < 10000):
-            self.update()
+            self.update(update_task=update_task)
+            project_chain.append({'idx':idx, 'task': man.getCurrentTask()})
             if self.update_state == 'done':
                 break
             idx += 1
@@ -774,6 +812,7 @@ class Actioner():
         self.updateallcounter += 1
         # out = man.getCurrTaskPrompts()
         # return out
+        return project_chain
 
 
     def updateAllUntillCurrTask(self, force_check=False):

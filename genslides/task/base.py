@@ -1406,6 +1406,9 @@ class BaseTask():
     def getExeCommands(self):
         return False, {}
     
+    def getAutoCommand(self):
+        return False, []
+    
     def confirmExeCommands(self, outparam):
         pass
     
