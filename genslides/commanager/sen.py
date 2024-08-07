@@ -1305,15 +1305,15 @@ class Projecter:
                 man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
     
-    def selectOtherGarland(self):
+    def selectGarlandHolders(self):
         man = self.actioner.manager
-        garland_tasks = man.getCurrentTask().getHoldGarlands()
+        tree = man.getCurrentTask().getTree()
         multi = []
-        for garland in garland_tasks:
-            tasks = garland.getTree()
-            for task in tasks:
-                if task not in garland_tasks:
-                    multi.append(task)
+        for task in tree:
+            holders = task.getGarlandPart()
+            for holder in holders:
+                new_tasks = holder.getAllParents(2)
+                multi.extend(new_tasks)
         for task in multi:
             man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()

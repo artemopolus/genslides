@@ -1265,3 +1265,16 @@ class TextTask(BaseTask):
                 output.append({"token": msg, "bytes": tokens})
         return output
 
+    def getAutoCommand(self):
+        tres, tparam = self.getParamStruct(self.getType() + "Cmd")
+        if tres:
+            return True, tparam['actions']
+        return super().getAutoCommand()
+    
+    def setAutoCommand(self, type_name, actions):
+        self.setParamStruct(
+            {
+                "type": type_name + "Cmd",
+                "actions": actions
+            }
+        )       

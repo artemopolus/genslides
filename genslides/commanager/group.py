@@ -274,12 +274,7 @@ class Actioner():
     def saveActionsToCurrTaskAutoCommand(self, type_name : str):
         task = self.manager.getCurrentTask()
         actions = self.manager.info['actions']
-        task.setParamStruct(
-            {
-                "type": type_name + "Cmd",
-                "actions": actions
-            }
-        )
+        task.setAutoCommand(type_name, actions)
 
     def createTmpManagerForCommandExe(self):
         man = self.manager

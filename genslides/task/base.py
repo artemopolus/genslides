@@ -1409,6 +1409,9 @@ class BaseTask():
     def getAutoCommand(self):
         return False, []
     
+    def setAutoCommand(self, type_name, actions):
+        pass
+    
     def confirmExeCommands(self, outparam):
         pass
     
