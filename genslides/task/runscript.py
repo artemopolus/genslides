@@ -132,7 +132,10 @@ class RunScriptTask(ResponseTask):
             result = subprocess.run(file, capture_output=True, text=True, cwd=workspace, shell=True)
             if result.returncode:
                 done = False
-                data += result.stdout + phrase_error + result.stderr + "\n"
+                if phrase_error == "None":
+                    data += result.stdout + "\n"
+                else:
+                    data += result.stdout + phrase_error + result.stderr + "\n"
             else:
                 data += phrase_success + result.stdout + "\n"
 

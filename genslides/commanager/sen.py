@@ -266,6 +266,10 @@ class Projecter:
     def saveToTmp(self):
         self.actioner.setManager(self.actioner.std_manager)
         man = self.actioner.manager
+        self.saveManToTmp(man)
+        return "Save"
+    
+    def saveManToTmp(self, man : Manager):
         path = Loader.Loader.getUniPath( Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
         folder = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
         name = Finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
@@ -273,7 +277,7 @@ class Projecter:
         FileManager.createFolder(fld_path)
         trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp",name + ".7z"]))
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
-        return "Save"
+
 
     def loadFromTmp(self):
         print('Load from temporary')
@@ -873,6 +877,7 @@ class Projecter:
                 manager.addRenamedPair(pair['std'], pair['chg'])
         act = Actioner(manager)
         act.setPath(path)
+        self.saveManToTmp(manager)
         if 'load' in eparam and eparam['load']:
             manager.disableOutput2()
             if 'loadtype' in eparam:

@@ -762,13 +762,17 @@ class Actioner():
 
     def updateCurrentTree(self):
         man = self.manager
+        init_task = man.curr_task
         if len(man.tree_arr) <= man.tree_idx:
             man.updateTreeArr()
-        man.tree_arr[ man.tree_idx ].resetTreeQueue()
+        start_task = man.getCurrentTreeRootTask()
+        start_task.resetTreeQueue()
         self.update_state = 'start tree'
         self.update_tree_idx = man.tree_idx
 
-        start_task = man.curr_task
+        for task in start_task.getAllChildChains():
+            for linked in task.getGarlandPart():
+                linked.update()
         # self.resetUpdate()
         idx = 0
         while(idx < 1000):
@@ -777,7 +781,7 @@ class Actioner():
                 break
             idx += 1
 
-        man.curr_task = start_task
+        man.curr_task = init_task
         return 
 
     def updateAll(self, force_check = False, update_task = True):

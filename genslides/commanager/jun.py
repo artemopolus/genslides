@@ -2804,3 +2804,6 @@ class Manager:
         if len(trgs) > 0:
             self.setCurrentTask(trgs[0])
 
+    def getCurrentTreeRootTask(self) -> BaseTask:
+        return self.tree_arr[ self.tree_idx ]
+

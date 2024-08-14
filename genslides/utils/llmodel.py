@@ -40,6 +40,7 @@ class LLModel():
 
         self.get_tokens_from_message = None
         self.tokenizer = None
+        self.vendor = ""
 
 
         model_name = params['model']
@@ -151,7 +152,10 @@ class LLModel():
         tokens = 0
         if self.vendor == 'openai':
             tokens = openai_num_tokens_from_messages(msgs, self.model)
-        price = self.params['input']
+        try:
+            price = self.params['input']
+        except:
+            price = 0
         return tokens, tokens * price/1000
 
     
