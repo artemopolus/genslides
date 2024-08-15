@@ -2256,15 +2256,33 @@ class Manager:
                 param_task = link['in'].copyAllParams(True)
                 self.curr_task = link['in']
                 if link['insert']:
-                    self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'], params=param_task)
-                    intask = self.slct_task
+                    if 'option' in link:
+                        if link['option'] == 'std':
+                            self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'], params=param_task)
+                            intask = self.slct_task
+                            self.makeLink( intask, outtask )
+                        elif link['option'] == 'sub':
+                            self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='SubTask', creation_tag=link['tag'], params=param_task)
+                            intask = self.curr_task
+                            self.makeLink( intask, outtask )
+                        elif link['option'] == 'move':
+                            self.makeTaskAction("","","Unlink","")
+                            intask = self.curr_task
+                            self.makeLink( intask, outtask )
+                        else:
+                            pass
+                    else:
+                        self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'], params=param_task)
+                        intask = self.slct_task
+                        self.makeLink( intask, outtask )
                 else:
                     self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='SubTask', creation_tag=link['tag'], params=param_task)
                     intask = self.curr_task
+                    self.makeLink( intask, outtask )
             else:
                 intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
+                self.makeLink( intask, outtask )
             
-            self.makeLink( intask, outtask )
 
         self.tc_start = False
         self.tc_stop = False

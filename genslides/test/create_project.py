@@ -8,7 +8,7 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 
-project_path = 'saved/'
+project_path = os.path.join('saved', 'project','test')
 
 
 def create_task(StdProjecter : Projecter.Projecter, prompt : str, role : str, task_type = 'Request', custom_action = 'SetOptions', action_type='SubTask', edit_cmd = []):

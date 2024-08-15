@@ -297,7 +297,8 @@ class GarlandTask(CollectTask):
         if not sres:
             self.setParamStruct({
                             'type':'garland',
-                            'insert':True
+                            'insert':True,
+                            'option':'std'
                             })
  
     def isLinkForCopy(self):
@@ -314,5 +315,7 @@ class GarlandTask(CollectTask):
         sres, sparam = self.getParamStruct('garland', True)
         if sres:
             oparam['insert'] = sparam['insert']
+            if 'option' in sparam:
+                oparam['option'] = sparam['option']
         return True, oparam
 

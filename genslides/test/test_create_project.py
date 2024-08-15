@@ -4,19 +4,18 @@ import unittest
 from create_project import create_project, count_created_files, linking_project, expected_files_count, advanced_branching
 
 class TestCreateProject(unittest.TestCase):
-    
+
+
     def setUp(self):
         # Set up the path where files are saved
-        self.project_path = 'saved/'
+        self.project_path = os.path.join('saved', 'project', 'test')
         self.config_path = 'config/'
         self.examples_config_path = 'examples/config/'
 
-        # Create 'saved/' directory and clean it if it exists
-        if os.path.exists(self.project_path):
-            for f in os.listdir(self.project_path):
-                os.remove(os.path.join(self.project_path, f))
-        else:
-            os.makedirs(self.project_path)
+        # Clear all files and folders in 'saved' directory
+        if os.path.exists('saved'):
+            shutil.rmtree('saved')
+        os.makedirs(self.project_path)
 
         # Check if 'config/' directory exists, if not, create it
         if not os.path.exists(self.config_path):
@@ -26,13 +25,19 @@ class TestCreateProject(unittest.TestCase):
                 source_file = os.path.join(self.examples_config_path, filename)
                 shutil.copy(source_file, self.config_path)
 
+
     def test_create_files(self):
         # Run the project creation
         create_project()
 
-        # Check if files are created
+        # Check if files are created in the saved directory
         file_count = count_created_files(self.project_path)
         self.assertEqual(file_count, expected_files_count(), "Expected 3 files to be created!")
+
+        # Check for the creation of any .7z file in the ../../tt_temp directory
+        temp_dir_path = os.path.join(self.project_path, '..', '..', 'tt_temp')
+        seven_zip_files = [f for f in os.listdir(temp_dir_path) if f.endswith('.7z')]
+        self.assertGreater(len(seven_zip_files), 0, "Expected at least one .7z file to be created in tt_temp directory!")
 
 
     def test_linking_project(self):
