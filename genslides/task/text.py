@@ -380,9 +380,10 @@ class TextTask(BaseTask):
         return "Empty"
     
     def getLastMsgRole(self):
-        if len(self.msg_list) > 0:
-            return self.msg_list[-1]["role"]
-        return "None"
+        return self.prompt_tag
+        # if len(self.msg_list) > 0:
+            # return self.msg_list[-1]["role"]
+        # return "None"
     
     def setMsgList(self, msgs):
         self.msg_list = msgs
@@ -458,12 +459,19 @@ class TextTask(BaseTask):
         task = self
         index = 0
         out = []
+        mres, mparam = self.getParamStruct("message")
         while(index < 1000):
             res, msg, par = task.getLastMsgAndParent(hide_task)
             if res and task.getName() not in except_task:
-                # print(task.getName(),"give", len(msg), "msg")
-                msg.extend(out)
-                out = msg
+                # print(task.getName(),"give", len(msg), "msg", msg[-1]["role"]) 
+                if mres and mparam["autoconnect"] and len(out) and out[0]["role"] == msg[-1]["role"]:
+                    # print(out[0]["role"],"==", msg[-1]["role"])
+                    text = mparam["prefix"] + msg[-1]["content"] + mparam["suffix"]
+                    text += out[0]["content"]
+                    out[0]["content"] = text
+                else:
+                    msg.extend(out)
+                    out = msg
                 # print(index, task.getName(),'give',len(out))
             if par is None:
                 break

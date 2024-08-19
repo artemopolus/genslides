@@ -451,7 +451,7 @@ class BaseTask():
             idx += 1
         return self, idx
 
-    def getAllParents(self, max_index = -1):
+    def getAllParents(self, max_index = -1, revert_dir = False):
         par = self
         index = 0
         out = [self]
@@ -485,6 +485,8 @@ class BaseTask():
             if max_index != -1 and index > max_index:
                 break
         # print('Parent list:', [t.getName() for t in out])
+        if revert_dir:
+            return list(reversed(out))
         return out
 
     def getChildChainList(self):
