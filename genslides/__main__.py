@@ -337,7 +337,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 roles_list = gr.Radio(choices=["user","assistant","system"], label="Tag type for prompt", value="user", interactive=False)
                                 vizprompt_list = gr.Radio(choices=["None","markdown","python","json"], label="Visualization", value="None", interactive=True)
                             with gr.Column(scale = 19):
-                                prompt = gr.Code(label="Prompt", lines=4, value=request)
+                                prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                                 with gr.Row():
                                     request_btn = gr.Button(value='Request')
                                     response_btn = gr.Button(value='Response',interactive=False)

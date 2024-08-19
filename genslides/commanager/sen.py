@@ -1033,9 +1033,10 @@ class Projecter:
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
             print('Get text from',self.actioner.manager.curr_task.getName(),'(',self.actioner.manager.getName(),')')
             _,role,_ = self.actioner.manager.curr_task.getMsgInfo()
-            out = gr.Code(value=self.actioner.manager.getCurTaskLstMsgRaw(), language=None)
-            if vizualisation != 'None':
-                out =  gr.Code(value=self.actioner.manager.getCurTaskLstMsgRaw(),language=vizualisation)
+            # out = gr.Code(value=self.actioner.manager.getCurTaskLstMsgRaw(), language=None)
+            out = gr.Textbox(value=self.actioner.manager.getCurTaskLstMsgRaw())
+            # if vizualisation != 'None':
+                # out =  gr.Code(value=self.actioner.manager.getCurTaskLstMsgRaw(),language=vizualisation)
             return (out, 
                     gr.Button(value='Apply'), 
                     gr.Button(value='Divide',interactive=True), 
