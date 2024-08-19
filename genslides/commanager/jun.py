@@ -516,8 +516,14 @@ class Manager:
             if self.getBranchEndName() == name:
                 break
             i += 1
+
+    def goToTaskBud(self, start_task : BaseTask):
+        for task in start_task.getAllChildChains():
+            if len(task.getChilds()) == 0:
+                return task
+        return start_task
     
-    def getBranchFork(self, start_task : BaseTask):
+    def getBranchUpFork(self, start_task : BaseTask):
         fork = None
         trg = start_task
         idx = 0
@@ -535,7 +541,7 @@ class Manager:
         return fork, fork_root
     
     def getCopyTasks(self, start_task : BaseTask) ->list[BaseTask]:
-        fork, fork_root = self.getBranchFork(start_task)
+        fork, fork_root = self.getBranchUpFork(start_task)
         select_branches = [start_task]
         if fork != None:
             print('Fork is',fork.getName())
@@ -559,7 +565,7 @@ class Manager:
 
 
     def getCopyBranch(self, start_task: BaseTask) ->list[BaseTask]:
-        fork, fork_root = self.getBranchFork(start_task)
+        fork, fork_root = self.getBranchUpFork(start_task)
         src_branch = fork_root.getAllChildChains()
         select_branches = src_branch.copy()
         if fork != None:
@@ -587,7 +593,7 @@ class Manager:
 
 
     def updateEditToCopyBranch(self, start_task : BaseTask):
-        fork, fork_root = self.getBranchFork(start_task)
+        fork, fork_root = self.getBranchUpFork(start_task)
         src_tasks = start_task.getAllChildChains()
 
         if fork != None:
@@ -612,22 +618,31 @@ class Manager:
                                 if found:
                                     break
 
-    def iterateNextBranch(self, task :BaseTask):
+    def iterateNextBranch(self, task :BaseTask, revert = False):
         childs = task.getChilds()
         iter = len(childs)
         if self.branch_idx >= iter:
             self.branch_idx = 0
-        for idx in range(iter):
-            if self.branch_idx < iter - 1:
-                self.branch_idx += 1
-            else:
-                self.branch_idx = 0
-            if childs[self.branch_idx] in self.task_list:
-                return childs[self.branch_idx]
+        if revert:
+            for idx in range(iter):
+                if self.branch_idx > 0:
+                    self.branch_idx -= 1
+                else:
+                    self.branch_idx = iter - 1
+                if childs[self.branch_idx] in self.task_list:
+                    return childs[self.branch_idx]
+        else:
+            for idx in range(iter):
+                if self.branch_idx < iter - 1:
+                    self.branch_idx += 1
+                else:
+                    self.branch_idx = 0
+                if childs[self.branch_idx] in self.task_list:
+                    return childs[self.branch_idx]
         return task
 
 
-    def goToNextBranch(self):
+    def goToNextBranch(self, revert = False):
         trg = self.curr_task
         idx = 0
         while(idx < 1000):
@@ -637,9 +652,9 @@ class Manager:
             children = [t for t in trg.parent.getChilds() if t in self.task_list]
             if len(children) > 1:
                 if self.branch_lastpar is not None and trg.parent == self.branch_lastpar:
-                    next_task = self.iterateNextBranch(trg.getParent())
+                    next_task = self.iterateNextBranch(trg.getParent(), revert)
                     if next_task == trg:
-                        next_task = self.iterateNextBranch(trg.getParent())
+                        next_task = self.iterateNextBranch(trg.getParent(), revert)
                     self.curr_task = next_task
                 else:
                     self.branch_lastpar = trg.parent

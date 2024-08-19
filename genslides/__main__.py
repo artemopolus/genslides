@@ -157,6 +157,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         end_name_text = gr.Textbox(label='Current bud:')
             with gr.Row():
                 next_branch_btn = gr.Button(value='Next branch', min_width=150)
+                prev_branch_btn = gr.Button(value='Prev branch', min_width=150)
                 next_brend_bt = gr.Button(value='Next bud', min_width=150)
                 go_parnt_btn = gr.Button(value='Go up')
                 go_child_btn = gr.Button(value='Go down')
@@ -180,6 +181,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
                             go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
                             go_brchfrk_btn = gr.Button(value='Go to fork')
+                            go_taskbud_btn = gr.Button(value='Go to Task Bud')
 
                         with gr.Row():
                             viewhiddenmsgs_chck = gr.Checkbox(label='Hide task(s)', value=True)
@@ -198,30 +200,31 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             updateall_step_btn = gr.Button(value="Update all trees(UAT)")
                             update_step_btn = gr.Button(value="UAT one step")
                             upd2cur_step_btn = gr.Button(value='UAT to cur')
-                            updbrnc_step_btn = gr.Button(value='Update tree')
-                            updatecheckown_chk = gr.Checkbox(label='Check tasks manager', value=False)
-                            reset_step_btn = gr.Button(value="Reset steps")
-                            updatechildtasks_btn = gr.Button('UAT childs')
-                            updatemultitasks_btn = gr.Button('UAT multi')
-                            updatecntreset_btn = gr.Button('reset UAT cnt')
-                        with gr.Row():
-                            updateall_stepNs_sld = gr.Slider(label='UAT N times',value=0,minimum=0, maximum=50,step=1)
-                            updateall_stepNs_btn = gr.Button('UAT N times')
-                        with gr.Row():
+                            updbrnc_step_btn = gr.Button(value='Update Tree + Linked')
                             updateforktasks_btn = gr.Button('UAT fork')
-                        with gr.Row():
-                            clnresp_btn = gr.Button(value='Clean Response')
+                        with gr.Accordion("Additional",open=False):
+                            with gr.Row():
+                                updateall_stepNs_sld = gr.Slider(label='UAT N times',value=0,minimum=0, maximum=50,step=1)
+                                updateall_stepNs_btn = gr.Button('UAT N times')
+                            with gr.Row():
+                                clnresp_btn = gr.Button(value='Clean Response')
+                            with gr.Row():
+                                updatecheckown_chk = gr.Checkbox(label='Check tasks manager', value=False)
+                                reset_step_btn = gr.Button(value="Reset steps")
+                                updatechildtasks_btn = gr.Button('UAT childs')
+                                updatemultitasks_btn = gr.Button('UAT multi')
+                                updatecntreset_btn = gr.Button('reset UAT cnt')
  
                             # move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
                             # move2parnt_btn = gr.Button(value='Go up')
                             # move2child_btn = gr.Button(value='Go down')
-                        with gr.Column():
-                            getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
-                            inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
-                            updselinexttreetasks_btn = gr.Button('Update selected')
-                            getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
+                            with gr.Column():
+                                getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
+                                inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
+                                updselinexttreetasks_btn = gr.Button('Update selected')
+                                getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
                 with gr.Row():
-                    dial_block = gr.Chatbot(height=500)
+                    dial_block = gr.Chatbot(height=800)
 
             with gr.Tab('Raw graph'):
                 with gr.Row():
@@ -1033,11 +1036,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             # move2brnch_btn.click(fn=projecter.moveToNextBranch, outputs=std_output_list)
 
             next_branch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
+            prev_branch_btn.click(fn=projecter.goToPrevBranch, outputs=std_output_list)
             next_brend_bt.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)
             go_parnt_btn.click(fn=projecter.goToParent, outputs=std_output_list)
             go_child_btn.click(fn=projecter.goToNextChild, outputs=std_output_list)  
             go_hlfbrch_btn.click(fn=projecter.goToHalfBranch, outputs=std_output_list)
             go_brchfrk_btn.click(fn=projecter.goToBranchFork, outputs=std_output_list)
+            go_taskbud_btn.click(fn=projecter.goToCurrTaskBud, outputs=std_output_list)
 
             # raw_next_brnch_btn.click(fn=projecter.goToNextBranch, outputs=std_output_list)
             # raw_next_brend_btn.click(fn=projecter.goToNextBranchEnd, outputs=std_output_list)

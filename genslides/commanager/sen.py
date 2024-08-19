@@ -600,11 +600,22 @@ class Projecter:
         self.actioner.manager.goToNextBranch()
         return self.updateMainUIelements()
     
+    def goToPrevBranch(self):
+        self.actioner.manager.goToNextBranch(revert=True)
+        return self.updateMainUIelements()
+
+    
     def goToBranchFork(self):
         man = self.actioner.manager
-        _, trg = man.getBranchFork(start_task=man.curr_task)
+        _, trg = man.getBranchUpFork(start_task=man.getCurrentTask())
         man.curr_task = trg
         return self.updateMainUIelements()
+    
+    def goToCurrTaskBud(self):
+        man = self.actioner.manager
+        man.setCurrentTask(man.goToTaskBud(man.getCurrentTask()))
+        return self.updateMainUIelements()
+
     
     def createNewTree(self):
         self.makeTaskAction("","SetOptions","New","user",[])
