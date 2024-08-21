@@ -312,18 +312,21 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     UI.textslider(projecter)
             
             with gr.Accordion('Tools', open=False):
-                with gr.Row():
-                    gr.Button("Copy dial").click(fn=projecter.copyToClickBoardDial)
-                    gr.Button("Copy raw dial").click(fn=projecter.copyToClickBoardDialRaw)
-                    gr.Button("Copy raw reqs").click(fn=projecter.copyToClickBoardReqListRaw)
-                    gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg)
-                    gr.Button("Copy tokens").click(fn=projecter.copyToClickBoardTokens)
-                    gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
+                
+                tmp_code_txt = gr.Textbox(label="KeyCode", value="None", show_copy_button=True, lines=1)
+                tmp_content_txt = gr.Textbox(  value="None", show_copy_button=True, lines=3, max_lines=5)
+                # with gr.Row():
+                    # gr.Button("Copy raw dial").click(fn=projecter.copyToClickBoardDialRaw)
+                    # gr.Button("Copy raw reqs").click(fn=projecter.copyToClickBoardReqListRaw)
+                    # gr.Button("Copy tokens").click(fn=projecter.copyToClickBoardTokens)
+                    # gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
                 with gr.Column():
-                    gr.Button("[ [parent:msg_content] ]").click(fn=projecter.copyToClickBoardParentContent)
-                    gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg)
-                    gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode)
-                    gr.Button("paths").click(fn=projecter.copyToClickBoardPaths)
+                    gr.Button("Copy dial").click(fn=projecter.copyToClickBoardDial, outputs=[tmp_code_txt, tmp_content_txt])
+                    gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg, outputs=[tmp_code_txt, tmp_content_txt])
+                    # gr.Button("[ [parent:msg_content] ]").click(fn=projecter.copyToClickBoardParentContent)
+                    gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg, outputs=[tmp_code_txt, tmp_content_txt])
+                    gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode, outputs=[tmp_code_txt, tmp_content_txt])
+                    gr.Button("paths").click(fn=projecter.copyToClickBoardPaths, outputs=[tmp_code_txt, tmp_content_txt])
  
             with gr.Row():
                 # with gr.Column():
@@ -881,7 +884,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                go_lnkfrwd_rad,
                                tmpmanname_txt,
                                tmpman_clrpck,
-                               multiselecttask_txt
+                               multiselecttask_txt,
+                                selected_tasks_list, 
+                                selected_prompt
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 

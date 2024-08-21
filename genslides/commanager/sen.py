@@ -2136,6 +2136,7 @@ class Projecter:
             text += msg['role'] + '\n' + 10*'====' + '\n\n\n'
             text += msg['content'] + '\n'
         self.copyToClickBoard(text)
+        return "[[parent:allmsgs]]", text
 
     def copyToClickBoard(self, text):
         pyperclip.copy(text)
@@ -2145,11 +2146,14 @@ class Projecter:
         self.copyToClickBoard("[[parent:msg_content]]")
     def copyToClickBoardParentContentJSONtrg(self):
         self.copyToClickBoard("[[parent:msg_content:json:answer]]")
+        return "[[parent:msg_content:json:answer]]", ""
     def copyToClickBoardParentCode(self):
         self.copyToClickBoard("[[parent:code]]")
+        return "[[parent:code]]", ""
     def copyToClickBoardPaths(self):
         paths = Loader.Loader.getFilePathArrayFromSysten(self.actioner.manager.getPath())
         self.copyToClickBoard(' '.join(paths))
+        return paths, ""
 
     def copyToClickBoardDialRaw(self):
         msgs = self.actioner.manager.curr_task.getRawMsgs()
@@ -2174,6 +2178,7 @@ class Projecter:
         msg = self.actioner.manager.getCurTaskLstMsg()
         pyperclip.copy(msg)
         pyperclip.paste()
+        return "[[parent:msg_content]]", msg
 
     
 
@@ -2404,7 +2409,9 @@ class Projecter:
                         mangetname,
                         mangetcolor,
                         multitasks,
-                        bud_msgs
+                        bud_msgs,
+                        sel_task,
+                        sel_cont
                        ):
         out =  (
             r_msgs, 
@@ -2435,7 +2442,9 @@ class Projecter:
             gr.Radio(choices=manholdgarlands, interactive=True),
             mangetname,
             mangetcolor,
-            multitasks
+            multitasks,
+            sel_task,
+            sel_cont
             )
         return out
     
@@ -2507,7 +2516,10 @@ class Projecter:
         mangetname,
         mangetcolor,
         multitasks, 
-        bud_msgs] = self.actioner.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
+        bud_msgs,
+        sel_task,
+        sel_cont
+        ] = self.actioner.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
 
         maingraph = self.actioner.drawGraph(hide_tasks=True, out_childtask_max=1)
         stepgraph = self.actioner.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
@@ -2535,7 +2547,9 @@ class Projecter:
                 mangetname,
                 mangetcolor,
                 multitasks,
-                bud_msgs
+                bud_msgs,
+                sel_task,
+                sel_cont
         )
 
 

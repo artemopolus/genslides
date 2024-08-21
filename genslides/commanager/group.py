@@ -1276,7 +1276,9 @@ class Actioner():
                         mangetname,
                         mangetcolor,
                         multitasks,
-                        bud_msgs
+                        bud_msgs,
+            ','.join(self.manager.getSelectList()),
+            self.manager.getSelectedContent()
 
         )
 

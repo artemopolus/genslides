@@ -191,6 +191,12 @@ class Manager:
         self.addTaskToSelectList(self.curr_task)
 
         return (','.join( self.getSelectList()), self.curr_task.getLastMsgContent())
+    
+    def getSelectedContent(self):
+        out = self.selected_tasks
+        if len(out):
+            return out[0].getLastMsgContent()
+        return ''
 
     def getSelectList(self) -> list:
         return [t.getName() for t in self.selected_tasks]
