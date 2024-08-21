@@ -456,6 +456,12 @@ class TextTask(BaseTask):
  
     def getMsgs(self, except_task = [], hide_task = True):
         # print("Get msgs excluded ",except_task)
+        rres, rparam = self.getParamStruct("response")
+        if rres and "restricted_index" in rparam and rparam["restricted_index"]:
+            target_index = rparam["index"]
+        else:
+            target_index = -1
+
         task = self
         index = 0
         out = []
@@ -474,6 +480,8 @@ class TextTask(BaseTask):
                     out = msg
                 # print(index, task.getName(),'give',len(out))
             if par is None:
+                break
+            elif target_index != -1 and index >= target_index:
                 break
             else:
                 task = par
