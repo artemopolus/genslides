@@ -1,8 +1,7 @@
 # GenSlides
 
 GenSlides is an innovative program designed to offer a user-friendly interface for interacting with language learning models (LLMs) like GPT-4. Instead of manually inputting data into the LLM and waiting for results, GenSlides streamlines the process through an intuitive dialog tree structure, where each branch is an independent dialog.
-
-[На русском] (./README.ru.md)
+- [на русском)](./README.ru.md)
 
 ![Alt text](images/code.png)
 
