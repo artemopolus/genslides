@@ -1,10 +1,11 @@
-# ThoughtTuner
+# GenSlides
 
-ThoughtTuner is an innovative program designed to offer a user-friendly interface for interacting with language learning models (LLMs) like GPT-4. Instead of manually inputting data into the LLM and waiting for results, ThoughtTuner streamlines the process through an intuitive dialog tree structure, where each branch is an independent dialog.
+GenSlides is an innovative program designed to offer a user-friendly interface for interacting with language learning models (LLMs) like GPT-4. Instead of manually inputting data into the LLM and waiting for results, GenSlides streamlines the process through an intuitive dialog tree structure, where each branch is an independent dialog.
+
 
 ## Quick Start
 
-To quickly set up ThoughtTuner, follow these steps:
+To quickly set up GenSlides, follow these steps:
 
 1. Create a virtual environment and activate it:
 
@@ -57,7 +58,7 @@ change 3.12 on your version
    - Copy the `config` folder from the examples to the root directory.
    - Input your API keys into `google.json` and `openai.json`.
 
-6. Finally, run the following command to start ThoughtTuner:
+6. Finally, run the following command to start GenSlides:
     ```shell
     python -m genslides
     ```
@@ -73,11 +74,13 @@ python -m pip install target_lib
 
 ## Limitations
 
-Please note that ThoughtTuner is currently a prototype. Always report any errors you encounter and monitor your OpenAI API usage to avoid exceeding limits.
+Please note that GenSlides is currently a prototype. Always report any errors you encounter and monitor your OpenAI API usage to avoid exceeding limits.
 
 ## Program Functionality
 
-ThoughtTuner provides the following features:
+GenSlides provides the following features:
+
+![Alt text](images/session.png)
 
 - Create dialogs with user requests and LLM responses.
 - Select which LLM model to use.
@@ -92,7 +95,7 @@ ThoughtTuner provides the following features:
 
 ## Usage Examples
 
-Here are some ways you can utilize ThoughtTuner:
+Here are some ways you can utilize GenSlides:
 
 - Engage in step-by-step learning on various themes.
 - Decompose problems and explore multiple solutions.
@@ -106,32 +109,11 @@ Here are some ways you can utilize ThoughtTuner:
 
 The following upcoming changes are scheduled for development:
 
-### General Enhancements:
-- Task duplication and execution order modification tools.
-- Project-centric ownership management with "projecter".
-
-### Command Manager Updates:
-- Default value settings and conventions-based task starting adjustments.
-- Consolidation of settings in "projecter" and an introduction of "MakeAction."
-
-### Task Management Improvements:
-- Enhanced task copying and freezing for modification support.
-- New test insertion and validation methods.
-
-### Messaging System and UI/UX Optimizations:
-- Improved notification system and parameter configuration.
-- Functions for displaying the last message in tasks.
-
-### Utility Functions Enhancements:
-- Syntax and security updates, including random key generation for requests.
-
-### Notes:
-- Developers should clarify tasks during implementation.
-- All changes will be tested and are subject to modification.
+Please, check Issues
 
 ## License
 
-ThoughtTuner is released under the MIT License.
+GenSlides is released under the MIT License.
 
 ## Contact Information
 
@@ -147,8 +129,8 @@ A: Check out the `examples` directory for project samples, and remember to copy 
 
 For a visual guide, watch the explanatory video below:
 
-[![ThoughtTuner Guide](http://img.youtube.com/vi/tOZpFCOcqNA/0.jpg)](http://www.youtube.com/watch?v=tOZpFCOcqNA)
+[![GenSlides Guide](http://img.youtube.com/vi/tOZpFCOcqNA/0.jpg)](http://www.youtube.com/watch?v=tOZpFCOcqNA)
 
 ---
 
-ThoughtTuner, proposing a new way to enhance your dialogue with AI.
+Genslides, proposing a new way to enhance your dialogue with AI.
