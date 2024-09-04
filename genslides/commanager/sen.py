@@ -816,6 +816,12 @@ class Projecter:
         if move2selected:
             self.actioner = act
 
+    def clrActionerList(self):
+        for act_pack in self.actioners_list:
+            act_pack['act'].reset()
+        self.actioners_list.clear()
+
+
     def saveSession(self):
         act_data = []
         for act in self.actioners_list:
@@ -843,7 +849,7 @@ class Projecter:
                     projects_info.append(act_info)
                 elif act_info['type'] == 'exttreetask':
                     exttreetask_info.append(act_info)
-
+        self.clrActionerList()
         for info in projects_info:
             self.loadActionerByPath(info['act_path'])
 
