@@ -487,6 +487,15 @@ class Projecter:
             param = {'curr': man.getSelectedTask().getName()}
         return self.makeTaskAction("","","Parent","", param)
     
+    def makeMultiSelectedAsChilds(self):
+        man = self.actioner.manager
+        target = man.getCurrentTask()
+        for task in man.getMultiSelectedTasks():
+            param = {'curr': task.getName()}
+            man.setCurrentTask(target)
+            self.makeTaskAction("","","Parent","", param)
+        return self.updateMainUIelements()
+
 
     def makeActionUnParent(self):
         return self.makeTaskAction("","","Unparent","")

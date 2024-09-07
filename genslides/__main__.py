@@ -470,6 +470,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                          outputs=[parammulti_json, parammultilog_txt])
                             with gr.Column():
                                 delete_reltasks_btn = gr.Button('Delete multiselected')
+                                set_multi_child_btn = gr.Button('Set Multiselected as Child')
                                 garlandmulti_btn = gr.Button('Garland from multi')
                                 collectmulti_btn = gr.Button('Collect from multi')
                                 gr.Button('Check').click(fn=projecter.checkTaskFiles)
@@ -987,6 +988,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             rmvchds2reltask_btn.click(fn=projecter.removeChildsFromChain, outputs=std_output_list)
             rmvprns2reltask_btn.click(fn=projecter.removeParentsFromChain, outputs=std_output_list)
             delete_reltasks_btn.click(fn=projecter.removeMultiSelect, outputs=std_output_list)
+            set_multi_child_btn.click(fn=projecter.makeMultiSelectedAsChilds, outputs=std_output_list)
             
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
