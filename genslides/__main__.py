@@ -480,6 +480,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selectactioner_btn = gr.Button('Select Multiselected Task Act')
                                 copymultiselecttask_btn = gr.Button('Mov here Act Multi Task', interactive=False)
 
+                                copyinexttreetask_btn = gr.Button('Copy From Selected InExtTree to Multi InExtTrees')
+
                                 applyautocmdtomulti_btn = gr.Button('Apply AutoCmd to Multi')
                                 selectactioner_btn.click(fn=projecter.selectTargetActioner, outputs=[copymultiselecttask_btn])
                                 copymultiselecttask_btn.click(fn=projecter.moveMultiSelectedTasksFromTargetActioner, outputs=[copymultiselecttask_btn])
@@ -890,6 +892,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_prompt
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
+
+            copyinexttreetask_btn.click(fn=projecter.copyExtTreeTaskContentWithSelected, outputs=std_output_list)
 
             savemanact2currtask_btn.click(fn=projecter.saveManagerActionToCurrentTask, inputs=[savemanact2currtask_drd], outputs=std_output_list)
             

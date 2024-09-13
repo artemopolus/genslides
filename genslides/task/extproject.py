@@ -19,13 +19,16 @@ import pathlib
 
 class ExtProjectTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="ExtProject") -> None:
+        self.onStart()
+        super().__init__(task_info, type)
+        self.is_freeze = True
+
+    def onStart(self):
         self.intpar = None
         self.intch = []
         self.intch_trg = None
         self.intman = None
         self.intact = None
-        super().__init__(task_info, type)
-        self.is_freeze = True
 
     def afterFileLoading(self, trg_files = []):
         # print('Init external project task')
@@ -398,6 +401,13 @@ class InExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="InExtTree") -> None:
         super().__init__(task_info, type)
 
+    def getInExtTreeFolderPath(self):
+        eres, eparam = self.getParamStruct('external')
+        if eres:
+            return Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+        return ""
+        
+
     def afterFileLoading(self, trg_files=[]):
         print('After file loading', self.getName())
         self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
@@ -453,6 +463,10 @@ class InExtTreeTask(ExtProjectTask):
         self.setParamStruct(eparam)
         # self.intman.saveInfo()
         self.saveAllParams()
+
+    def reset(self):
+        self.onStart()
+        self.afterFileLoading()
 
 
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:

@@ -2709,3 +2709,18 @@ class Projecter:
                 task.saveAllParams()
         print('Move to ext actioner tasks:', [t.getName() for t in tasks])
         return gr.Button(interactive=False)
+    
+    def copyExtTreeTaskContentWithSelected(self):
+        man = self.actioner.manager
+        src = man.getSelectedTask()
+        if src.checkType('InExtTree'):
+            src_path = src.getInExtTreeFolderPath()
+            if src_path != "":      
+                targets = man.getMultiSelectedTasks()
+                for task in targets:
+                    if task.checkType('InExtTree'):
+                        trg_path = task.getInExtTreeFolderPath()
+                        if trg_path != "":
+                            FileManager.copyFiles(src_folder=src_path, trg_folder=trg_path, exld_files=["project.json"])
+                            task.reset()              
+        return self.updateUIelements()
