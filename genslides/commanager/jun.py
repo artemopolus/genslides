@@ -2108,13 +2108,17 @@ class Manager:
                         found = True
                         param_task[i]['retarget']['chg'] = parent.getName()
                         param_task[i]['project_path'] = param_task[i]['exttreetask_path']
+                        param_task[i]['copy'] = 'Copy'
                         del param_task[i]['exttreetask_path']
 
                         # param_task[i]['retarget']['chg'] = parent.getName()
                         break
                 if found:
                     self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
-            except:
+                else:
+                    print('No options for InExtTree')
+            except Exception as e:
+                print('InExtTree task create error:', e)
                 return False
         else:
             self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)

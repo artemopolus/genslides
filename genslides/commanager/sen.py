@@ -1769,8 +1769,8 @@ class Projecter:
         sres, sparam = cur_tree.getParamStruct('tree_step', True)
         if sres:
             idx = sparam['idx']
-            if idx != 0:
-                idx += 1
+            # if idx != 0:
+            idx += 1
             cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
         return self.updateMainUIelements()
 
