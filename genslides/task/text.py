@@ -1048,7 +1048,7 @@ class TextTask(BaseTask):
                     if key in param:
                         if param_name == 'array' and key == 'parse':
                             param[key] = val
-                            nparam = ar.updateArrayParam(param)
+                            nparam = ar.updateArrayParam(self.getLastMsgContent2(), param)
                             param.update(nparam)
                         elif isinstance(val, str) and isinstance(param[key], list):
                             success = True

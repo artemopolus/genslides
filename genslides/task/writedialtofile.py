@@ -1,7 +1,6 @@
 from genslides.task.base import TaskDescription
 from genslides.task.writetofileparam import WriteToFileParamTask
 import json
-import genslides.task_tools.array as ar
 import genslides.task_tools.records as rd
 import genslides.utils.writer as wr
 import genslides.utils.loader as ld

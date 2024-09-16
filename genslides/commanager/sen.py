@@ -14,6 +14,8 @@ import genslides.utils.filemanager as FileManager
 import genslides.utils.readfileman as Reader
 import genslides.utils.writer as Writer
 
+import genslides.task_tools.text as TextTool
+
 from os import listdir
 from os.path import isfile, join
 
@@ -2724,3 +2726,32 @@ class Projecter:
                             FileManager.copyFiles(src_folder=src_path, trg_folder=trg_path, exld_files=["project.json"])
                             task.reset()              
         return self.updateUIelements()
+    
+    def setPartialLinksParams(self, symbols_count, prefix_count, suffix_count):
+        man = self.actioner.manager
+        task = man.getCurrentTask()
+        out_text = task.getForLinkedPrompt()
+
+        targets = task.getHoldGarlands()
+
+        text_part = TextTool.cut_text_into_parts(out_text, symbols_count, prefix_count, suffix_count)
+
+        param = {'type':'partial', 'links':[]}
+
+        for idx, target in enumerate(targets):
+            if idx < len(text_part):
+                param['links'].append({'name':target.getName(),
+                'start':text_part[idx]['Start Index of Text'],
+                'end': text_part[idx]['End Index of Text']})
+            else:
+                break
+        task.setParamStruct(param)
+
+        output = ""
+        for idx, part in enumerate(text_part):
+            output += "Part " + str(idx) + "\n\n"
+            output += part['Result Text']
+            output += "\n\n---\n\n"
+
+        return output
+

@@ -1208,12 +1208,29 @@ class BaseTask():
                         return self.getChildByName(info['name'])
         return None
     
+    def getForLinkedPrompt(self):
+        return self.prompt
+    
     def useLinksToTask(self, stepped = False):
-        print('Use links',[t.getName() for t in self.getHoldGarlands()])
-        input = TaskDescription(prompt=self.prompt, parent=self)
-        for task in self.affect_to_ext_list:
-            input.id = task.id
-            task.method(input)
+        res, param = self.getParamStruct('partial')
+        if res:
+            links = param['links']
+            text_to_send = self.getForLinkedPrompt()
+            input = TaskDescription(prompt=text_to_send, parent=self)
+            for task in self.affect_to_ext_list:
+                for link in links:
+                    if link['name'] == task.target.getName():
+                        if link['start'] >= 0 and link['end'] < len(text_to_send):
+                            out_text = text_to_send[link['start']:link['end']]
+                            input.prompt = out_text
+                        input.id = task.id
+                        task.method(input)
+        else:
+            print('Use links',[t.getName() for t in self.getHoldGarlands()])
+            input = TaskDescription(prompt=self.getForLinkedPrompt(), parent=self)
+            for task in self.affect_to_ext_list:
+                input.id = task.id
+                task.method(input)
 
     def getQueueList(self):
         return self.queue
