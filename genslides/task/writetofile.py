@@ -28,7 +28,7 @@ class WriteToFileTask(TextTask):
         self.msg_list = msg_list_from_file
         return super().onExistedMsgListAction(msg_list_from_file)
 
-    def getLastMsgAndParent(self, hide_task = True) -> (bool, list, BaseTask):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1) -> (bool, list, BaseTask):
         return False, [], self.parent
     
     def getRichPrompt(self) -> str:

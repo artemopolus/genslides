@@ -1208,7 +1208,7 @@ class Actioner():
             else:
                 print('No current task')
                 return
-        msgs = man.curr_task.getMsgs(hide_task=hide_tasks)
+        msgs = man.curr_task.getMsgs(hide_task=hide_tasks, max_symbols=10000)
         # print('Msgs num:', len(msgs))
         # out_prompt = ""
         # if msgs:

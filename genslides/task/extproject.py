@@ -198,7 +198,7 @@ class ExtProjectTask(CollectTask):
         self.removeProject()
         super().beforeRemove()
 
-    def getLastMsgAndParent(self, hide_task = True) -> (bool, list, BaseTask):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1) -> (bool, list, BaseTask):
         if len(self.intch)==0:
             return super().getLastMsgAndParent()
         return self.intch_trg.getLastMsgAndParent()
@@ -472,7 +472,7 @@ class InExtTreeTask(ExtProjectTask):
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
         return False, [], self.parent
     
-    def getLastMsgAndParent(self, hide_task = True):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1):
         return False, [], self.parent
     
     def onEmptyMsgListAction(self):
@@ -568,7 +568,7 @@ class OutExtTreeTask(ExtProjectTask):
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
         return False, [], self.intch_trg
     
-    def getLastMsgAndParent(self, hide_task = True):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1):
         return False, [], self.intch_trg
     
     def getLastMsgContent(self):

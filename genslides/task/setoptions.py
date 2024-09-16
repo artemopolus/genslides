@@ -18,7 +18,7 @@ class SetOptionsTask(WriteToFileTask):
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
         return False, [], self.parent
     
-    def getLastMsgAndParent(self, hide_task = True):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1):
         rres, rparam = self.getParamStruct("response", only_current=True)
         if rres and "break" in rparam and rparam["break"]:
             return False, [], None
