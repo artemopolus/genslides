@@ -29,6 +29,42 @@ def compute_sha256_hash(input_text: str) -> str:
     return sha256_hasher.hexdigest()
 
 
+def split_text_with_context(input_text, part_symbol_count, text_length_before, text_length_after):
+    # Validate input parameters
+    if part_symbol_count <= 0:
+        raise ValueError("part_symbol_count must be greater than 0")
+    if text_length_before < 0 or text_length_after < 0:
+        raise ValueError("text_length_before and text_length_after must be non-negative")
+    
+    result_list = []
+    total_length = len(input_text)
+    
+    for start_index in range(0, total_length, part_symbol_count):
+        end_index = min(start_index + part_symbol_count, total_length)
+        
+        # Get the part of text
+        part_text = input_text[start_index:end_index]
+        
+        # Calculate the indexes for before and after text
+        before_start_index = max(0, start_index - text_length_before)
+        before_text = input_text[before_start_index:start_index]
+        
+        after_end_index = min(total_length, end_index + text_length_after)
+        after_text = input_text[end_index:after_end_index]
+        
+        # Combine before, part, and after text
+        result_text = before_text + part_text + after_text
+        
+        # Add to result list
+        result_list.append({
+            'Result Text': result_text,
+            'Start Index of Text': before_start_index,
+            'End Index of Text': after_end_index
+        })
+    
+    return result_list
+
+
 def cut_text_into_parts(text, parts_count, before_length, after_length):
     if parts_count <= 0:
         return []

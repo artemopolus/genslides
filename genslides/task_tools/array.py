@@ -16,7 +16,10 @@ def divideArray(data, param):
         if len(arr) > 0:
             return True, arr
     elif parse_type == 'text_split' and 'parts' in param and 'smbl_before' in param and 'smbl_after' in param:
-        cuts = TextTool.cut_text_into_parts(data, param['parts'],param['smbl_before'], param['smbl_after'])
+        if 'part_smbl_cnt' in param and param['parts'] == 0:
+            cuts = TextTool.split_text_with_context(data, param['part_smbl_cnt'],param['smbl_before'], param['smbl_after'])
+        else:
+            cuts = TextTool.cut_text_into_parts(data, param['parts'],param['smbl_before'], param['smbl_after'])
         if len(cuts) > 0:
             return True, [{'start':cut['Start Index of Text'],'end':cut['End Index of Text']} for cut in cuts]
     return False, []
