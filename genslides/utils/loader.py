@@ -1,7 +1,7 @@
 import json, re, os
 
 from tkinter import Tk     # from tkinter import Tk for Python 3.x
-from tkinter.filedialog import askopenfilename, askdirectory, askopenfilenames
+from tkinter.filedialog import askopenfilename, askdirectory, askopenfilenames, asksaveasfilename
 
 from sys import platform
 
@@ -76,6 +76,15 @@ class Loader:
         else:
             return filename
         return path
+    
+    def getFilePathToSave():
+        app = Tk()
+        app.withdraw() 
+        app.attributes('-topmost', True)
+        filepath = asksaveasfilename(defaultextension='.7z', initialfile='untitled.7z', confirmoverwrite=True, filetypes = [('Project archive','*.7z')]) 
+        app.destroy()
+        return filepath
+
     
     def getFilePathArrayFromSysten(manager_path = '') ->list[str]:
         app = Tk()

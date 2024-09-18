@@ -310,7 +310,7 @@ class Projecter:
         print('Save man', self.actioner.manager.getName(),'(Temp)' if self.actioner.manager != self.actioner.std_manager else '(Main)')
         path = self.actioner.manager.getPath()
         path = Loader.Loader.getUniPath(path)
-        trg_path = Loader.Loader.getUniPath(Archivator.getProjectFileName())
+        trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave() )
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
         # Archivator.saveAllbyName(path, trg_path, name)
 
@@ -322,7 +322,7 @@ class Projecter:
             return
         print(f"Save {self.actioner.manager.getName()} tmp manager")
         path = Loader.Loader.getUniPath(self.actioner.manager.getPath())
-        trg_path = Loader.Loader.getUniPath(Archivator.getProjectFileName())
+        trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave())
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
        
 

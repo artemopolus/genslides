@@ -26,13 +26,6 @@ class Archivator():
                     print('append',res_src_path,'to', res_trg_path)
                     archive.write(res_src_path, arcname = file)
 
-    def getProjectFileName():
-        app = Tk()
-        app.withdraw() 
-        app.attributes('-topmost', True)
-        filepath = asksaveasfilename(defaultextension='.7z', initialfile='untitled.7z', confirmoverwrite=True, filetypes = [('Project archive','*.7z')]) 
-        return filepath
-
 
     def saveAllbyPath(data_path, trgfile_path):
         if trgfile_path == "":

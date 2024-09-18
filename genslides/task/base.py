@@ -1246,6 +1246,7 @@ class BaseTask():
         if res:
             return res
         res = self.getNextFromQueueRe(trgtasknames=trgtaskNames)
+        # print("Get next from",self.getName(),"queue RE:", res)
         return res
         # if self.isQueueComplete():
         #     return self.getNextFromQueueRe()
