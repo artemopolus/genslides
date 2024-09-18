@@ -10,7 +10,7 @@ from os import listdir
 from os.path import isfile, join
 
 import json
-
+import copy
 
 
 class TaskManager(metaclass=Singleton):
@@ -1080,13 +1080,18 @@ class BaseTask():
         # print('Reset queue from', self.getName(),'=',info)
         # print('Reset queue from', self.getName())
         info["used"] = False
-        info["cur"] = info["str"]
+        info['cur'] = info["str"]
 
     def setQueue(self):
         if self.queue:
             for info in self.queue:
                 self.onQueueSet(info)
 
+    def getQueue(self):
+        return copy.deepcopy(self.queue)
+
+    def setQueueRaw(self, queue):
+        self.queue = queue
 
     def onQueueSet(self, info):
         info["used"] = True
@@ -1095,7 +1100,7 @@ class BaseTask():
         pass
 
     def onQueueCheck(self, param) -> bool:
-        # print("Task",self.getName(), "react on condition:",param)
+        # print("On",self.getName(), "queue check:",param)
         # self.printQueueInit()
 
         if param['cond'] in ['>','<','=','!=']:

@@ -2713,6 +2713,7 @@ class Projecter:
         return gr.Button(interactive=False)
     
     def copyExtTreeTaskContentWithSelected(self):
+        print('Copy InExtTree Task(s): Selected -> Multi')
         man = self.actioner.manager
         src = man.getSelectedTask()
         if src.checkType('InExtTree'):
@@ -2720,6 +2721,7 @@ class Projecter:
             if src_path != "":      
                 targets = man.getMultiSelectedTasks()
                 for task in targets:
+                    print('Try to copy', src.getName(),'to', task.getName())
                     if task.checkType('InExtTree'):
                         trg_path = task.getInExtTreeFolderPath()
                         if trg_path != "":

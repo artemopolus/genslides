@@ -709,6 +709,7 @@ class TextTask(BaseTask):
                 self.saveRespJson(request, responses)
 
     def resetResetableParams(self, params):
+        # print('Reset param for', self.getName())
         for param in params:
             try:
                 param['cur'] = param['str']

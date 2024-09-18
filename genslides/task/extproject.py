@@ -153,7 +153,7 @@ class ExtProjectTask(CollectTask):
         pass
 
     def updateIternal(self, input : TaskDescription = None):
-        # print('Update internal', self.getName())
+        print('Update internal External Task', self.getName())
         # self.haveMsgsAction(self.msg_list)
         if input:
             input.prompt_tag = self.intpar.getLastMsgRole() #quick fix, avoiding to change internal role param
@@ -491,6 +491,8 @@ class InExtTreeTask(ExtProjectTask):
         return code_s
 
     def updateIternal(self, input : TaskDescription = None):
+        print('Update internal InExtTree', self.getName(),'with', self.intpar.getName())
+        save_queue = self.intpar.getQueue()
         if not self.checkParentMsgList(remove=False, update=True):
             self.intact.loadTmpManagerTasks()
             self.intact.manager.disableOutput2()
@@ -502,6 +504,10 @@ class InExtTreeTask(ExtProjectTask):
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
+        # print('Queue status')
+        # print(save_queue)
+        # print(self.intpar.queue)
+        self.intpar.setQueueRaw(save_queue)
 
     def removeProject(self):
         eres, eparam = self.getParamStruct('external')
