@@ -34,17 +34,20 @@ def copyFile(filepath, folderpath):
 
 
 def copyFiles(src_folder, trg_folder, trg_files = [], exld_files = []):
-    print('Copy files from', src_folder,'to', trg_folder,':', trg_files)
     if len(trg_files):
         files = trg_files
     else:
         files = listdir(src_folder)
     createFolder(trg_folder)
+    idx = 0
+    print('Copy',len(files),'files from', src_folder,'to', trg_folder,':', trg_files,'except', exld_files)
     for file in files:
         if file not in exld_files:
             path = join(src_folder, file)
             if isfile(path):
+                idx += 1
                 shutil.copyfile(path, join(trg_folder, file))
+    print('Copied files count:', idx)
 
 def createFolder(path):
     if not os.path.exists( path ):

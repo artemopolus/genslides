@@ -268,16 +268,16 @@ class Projecter:
     def saveToTmp(self):
         self.actioner.setManager(self.actioner.std_manager)
         man = self.actioner.manager
-        self.saveManToTmp(man)
+        self.saveManToTmp(man, suffix="reserved")
         return "Save"
     
-    def saveManToTmp(self, man : Manager):
+    def saveManToTmp(self, man : Manager, suffix = ""):
         path = Loader.Loader.getUniPath( Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
         folder = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
         name = Finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
         fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp"]))
         FileManager.createFolder(fld_path)
-        trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp",name + ".7z"]))
+        trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp",name + "_" + suffix + ".7z"]))
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
 
@@ -296,6 +296,8 @@ class Projecter:
         FileManager.deleteFiles(man.getPath())
 
         project_path = fld_path
+
+        filename += "_reserved"
 
         Archivator.extractFiles(project_path, filename, path)
         self.resetManager(self.actioner.manager, path=self.actioner.getPath())

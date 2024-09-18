@@ -467,7 +467,7 @@ class InExtTreeTask(ExtProjectTask):
     def reset(self):
         self.onStart()
         self.afterFileLoading()
-
+        self.intact.loadStdManagerTasks()
 
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
         return False, [], self.parent
