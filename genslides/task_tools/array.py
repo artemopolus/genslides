@@ -57,25 +57,25 @@ def saveArrayToParams(data : str, param : dict):
             return False, param
     else:
         return False, param
-    out = {
-        "curr": curr,
-        "idx": idx,
-        "array": arr
-    }
+    out = {}
+    setArrayParamValues(out, arr, curr, idx)
     param.update(out)
     return True, param
+
+def setArrayParamValues(param, array, current, idx):
+    param['array'] = array
+    param['curr'] = current 
+    param['idx'] = idx
+    param['len'] = len(array)
+
 
 def updateArrayParam(data, param :dict):
     try:
         res, arr = divideArray(data, param)
         if res:
-            param['array'] = arr
-            param['curr'] = getArrayByIndex(arr, 0, param, data)
-            param['idx'] = 0
+            setArrayParamValues(param, arr, getArrayByIndex(arr, 0, param, data), 0)
         else:
-            param['array'] = []
-            param['curr'] = ""
-            param['idx'] = 0
+            setArrayParamValues(param, [], "", 0)
     except Exception as e:
         print('Update array param error:', e)
     return param
