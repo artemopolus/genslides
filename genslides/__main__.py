@@ -186,7 +186,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             viewhiddenmsgs_chck = gr.Checkbox(label='Hide task(s)', value=True)
                         with gr.Row():
-                            sec_msg = gr.Chatbot(height=700)
+                            sec_msg = gr.Chatbot(height=700, bubble_full_width=True, rtl=False, show_copy_button=True, render_markdown=False)
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):
