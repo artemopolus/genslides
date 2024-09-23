@@ -905,7 +905,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
-            inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, outputs=std_output_list)
+            inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, inputs=inexttreeactparam_jsn, outputs=std_output_list)
 
             copyinexttreetask_btn.click(fn=projecter.copyExtTreeTaskContentWithSelected, outputs=std_output_list)
 

@@ -7,9 +7,14 @@ class ExternalInput(RqTask.RequestTask):
     def setParent(self, parent):
         self.parent = parent
 
-    def getClearName(self, manager) -> str:
+    def getParentPath(self):
         return ""
-    
+
     def isRootParent(self):
         return True
     
+    def stdProcessUnFreeze(self, input=None):
+        if self.parent == None:
+            self.freezeTask()
+        else:
+            super().stdProcessUnFreeze(input)

@@ -2410,7 +2410,7 @@ class Projecter:
         man = self.actioner.manager
         out = []
         for task in man.task_list:
-            if task.checkType('InExtTree'):
+            if task.checkType('InExtTree') or task.checkType('JumperTree'):
                 out.append(task.getName())
         return gr.CheckboxGroup(choices=out, interactive=True)
     
@@ -2418,7 +2418,7 @@ class Projecter:
         man = self.actioner.manager
         for name in names:
             task = man.getTaskByName(name)
-            if task != None and task.checkType('InExtTree'):
+            if task != None:
                 self.loadActionerInExtTreeTask(task)
         return self.updateMainUIelements() 
     

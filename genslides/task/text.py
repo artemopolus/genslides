@@ -643,11 +643,15 @@ class TextTask(BaseTask):
         for info in self.by_ext_affected_list:
             linked.append(info.parent.getName())
         resp_json_out['linked'] = linked
-        path = ""
-        if self.parent and self.caretaker is None:
-            path = self.parent.getClearName(self.manager)
+        path = self.getParentPath()
         resp_json_out['parent'] = path
         return resp_json_out
+    
+    def getParentPath(self):
+        if self.parent and self.caretaker is None:
+            return self.parent.getClearName(self.manager)
+        return ""
+
     
     def removeJsonFile(self):
         os.remove(self.path)

@@ -49,6 +49,8 @@ class ProjectSearcher():
 
     def getInfoForSearch( task_buds : list[Bt.BaseTask]) -> dict:
         # print('Get info for buds', [t.getName() for t in task_buds])
+        if len(task_buds) == 0:
+            return {}
         info_buds = []
         for task in task_buds:
 

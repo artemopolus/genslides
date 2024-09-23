@@ -175,7 +175,10 @@ class Manager:
         cnt = 0
         for t in self.task_list:
             if t.is_freeze:
-                cnt += 1
+                if t.getRootParent().checkType('ExternalInput'):
+                    pass
+                else:
+                    cnt += 1
         return cnt
 
     def addTaskToSelectList(self, task :BaseTask):

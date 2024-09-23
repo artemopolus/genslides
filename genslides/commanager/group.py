@@ -800,10 +800,7 @@ class Actioner():
                 break
             idx += 1
 
-        cnt = 0
-        for task in man.task_list:
-            if task.is_freeze:
-                cnt += 1
+        cnt = man.getFrozenTasksCount()
         print(f"[{man.getName()}]Frozen: {cnt} of {len(man.task_list)} task(s)")
         man.saveInfo()
         man.curr_task = start_task
@@ -964,7 +961,7 @@ class Actioner():
                 shape = "ellipse" #rectangle,hexagon
                 if task.checkType('Response'):
                     shape = 'rectangle'
-                elif task.checkType('InExtTree'):
+                elif task.checkType('InExtTree') or task.checkType('JumperTree'):
                     shape = 'invhouse'
                 elif task.checkType('OutExtTree'):
                     shape = 'house'
@@ -1234,9 +1231,7 @@ class Actioner():
         res_params = {'params': task_params, 'queue':man.curr_task.getQueueList()}
 
         cnt = 0
-        for task in man.task_list:
-            if task.is_freeze:
-                cnt += 1
+        cnt = man.getFrozenTasksCount()
         status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(man.task_list)) + ':' + str(self.updateallcounter)
 
         gettreenameforradio_names, gettreenameforradio_trg = man.getTreeNamesForRadio()

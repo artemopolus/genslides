@@ -630,12 +630,12 @@ class OutExtTreeTask(ExtProjectTask):
         if not self.getParent().checkType( 'InExtTree') or not self.getParent().checkType( 'JumperTree'):
             print(f'Parent of {self.getName()} is not InExtTree')
             return
-        eres, eparam = self.getParamStruct('external')
-        if not eres:
-            print(f'No params of {self.getName()}')
-            return
-        
+        self.updateOutExtActMan()
+        self.saveAllParams()
+
+    def updateOutExtActMan(self):
         try:
+            eres, eparam = self.getParamStruct('external')
             self.intact = self.parent.intact
             self.intman = self.parent.intman
 
@@ -643,7 +643,6 @@ class OutExtTreeTask(ExtProjectTask):
             
         except Exception as e:
             print('Failed load man and act:', e)
-        self.saveAllParams()
 
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
         return False, [], self.intch_trg
@@ -657,6 +656,8 @@ class OutExtTreeTask(ExtProjectTask):
         return self.intch_trg.getLastMsgContent()
 
     def updateIternal(self, input : TaskDescription = None):
+        if self.intact == None:
+            self.updateOutExtActMan()
         if self.intch_trg == None:
             eres, eparam = self.getParamStruct('external')
             if eres:
