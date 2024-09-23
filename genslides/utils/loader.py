@@ -157,14 +157,7 @@ class Loader:
             return filename
         return filename
 
-    
-    def getDirPathFromSystem(manager_path = '') -> str:
-        print('Get dir path from mpath',manager_path)
-        app = Tk()
-        app.withdraw() # we don't want a full GUI, so keep the root window from appearing
-        app.attributes('-topmost', True)
-        dirpath = askdirectory() # show an "Open" dialog box and return the path to the selected file
-        app.destroy()
+    def checkManagerTagRe(dirpath, manager_path):
         path = Path(dirpath)
         filename = PurePosixPath(path)
         if manager_path != '':
@@ -175,6 +168,16 @@ class Loader:
                 return mfilename
         return str(filename)
     
+    def getDirPathFromSystem(manager_path = '') -> str:
+        print('Get dir path from mpath',manager_path)
+        app = Tk()
+        app.withdraw() # we don't want a full GUI, so keep the root window from appearing
+        app.attributes('-topmost', True)
+        dirpath = askdirectory() # show an "Open" dialog box and return the path to the selected file
+        app.destroy()
+        return Loader.checkManagerTagRe(dirpath, manager_path)
+   
+  
     def getFolderPath(path : str, to_par_fld = True) -> str:
         out = Path(path)
         if to_par_fld:

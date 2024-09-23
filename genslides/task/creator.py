@@ -32,6 +32,8 @@ import genslides.task.extproject as ep
 import genslides.task.runscript as rs
 from genslides.task.groupcollect import GroupCollectTask
 
+import genslides.task.external as ex
+
 import genslides.commands.create as cr
 
 def checkTypeFromName(name : str, type :str) -> bool:
@@ -128,6 +130,9 @@ def createTaskByType(type : str, info : TaskDescription):
     if stype.endswith("ExtProject"):
         info.method = ep.ExtProjectTask
         return cr.CreateCommand(info)
+    if stype.endswith('ExternalInput'):
+        info.method = ex.ExternalInput
+        return cr.CreateCommand(info)
     if stype.endswith("InExtTree"):
         info.method = ep.InExtTreeTask
         return cr.CreateCommand(info)
@@ -159,6 +164,7 @@ def getTasksDict() -> list:
     out.append({"type":"Generator","short":"Ge","creation":so.GeneratorTask})
     out.append({"type":"RunScript","short":"Rs","creation":rs.RunScriptTask})
     out.append({"type":"ExtProject","short":"Ep","creation":ep.ExtProjectTask})
+    out.append({"type":"ExternalInput","short":"Ei","creation":ex.ExternalInput})
     out.append({"type":"InExtTree","short":"Ie","creation":ep.InExtTreeTask})
     out.append({"type":"OutExtTree","short":"Oe","creation":ep.InExtTreeTask})
     out.append({"type":"Searcher","short":"Se","creation":ep.SearcherTask})

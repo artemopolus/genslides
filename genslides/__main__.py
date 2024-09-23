@@ -669,16 +669,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 convbranch2inoutext_btn = gr.Button('Convert multiselect tasks in InOutExtTree Tasks')
                             with gr.Row():
+                                inexttreeactlist_drd = gr.Dropdown(choices=[],label='Actioners list')
+                            with gr.Row():
                                 with gr.Column():
+                                    gr.Button('Get actioners list').click(fn=projecter.getActionerPathsList, outputs=inexttreeactlist_drd)
                                     targettask_rad = gr.Radio(choices=['Current','Selected'], label='Target Task')
                                     inexttree_intask_rad = gr.Radio(choices=['Current','Selected'], label='External Task Input')
                                     inexttree_outtask_rad = gr.Radio(choices=['Current Bud(s)','Selected','Multi'], label='External Task Output(s)')
-                                    inexttreeactlist_drd = gr.Dropdown(choices=[],label='Actioners list')
-                                    gr.Button('Get actioners list').click(fn=projecter.getActionerPathsList, outputs=inexttreeactlist_drd)
-                                    crparaminexttree_btn = gr.Button('Create parameters')
-                                    crparaminexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[targettask_rad, inexttree_intask_rad, inexttree_outtask_rad, inexttreeactlist_drd], outputs=inexttreeactparam_jsn)
+                                    crparaminexttree_btn = gr.Button('Create InExtTree parameters')
                                 with gr.Column():
                                     inexttreeactparam_jsn = gr.JSON(label='InExtTree Parameters')
+                                    inexttreeactcreate_btn = gr.Button('Create InExtTree & OutExtTree')
+                                    crparaminexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[targettask_rad, inexttree_intask_rad, inexttree_outtask_rad, inexttreeactlist_drd], outputs=inexttreeactparam_jsn)
                             with gr.Row():
                                 manextinfocurtask_btn = gr.Button('Get cur task tmp manager info')
                                 manextinfobrowse_btn = gr.Button('Browse info from tmp manager')

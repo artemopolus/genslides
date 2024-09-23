@@ -411,6 +411,8 @@ class InExtTreeTask(ExtProjectTask):
     def afterFileLoading(self, trg_files=[]):
         print('After file loading', self.getName())
         eres, eparam = self.getParamStruct('external')
+        if 'inexttree' in eparam  and eparam['inexttree'] != 'None':
+            return
         self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         if not eres:
             print('No params for ext project task')

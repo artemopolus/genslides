@@ -1985,6 +1985,7 @@ class Projecter:
         standart_taskname = ""
         changed_taskname = ""
         out_tasks = []
+        actioner_path = Loader.Loader.checkManagerTagRe(actioner_path, trg_man.getPath())
         try:
             if exttask_intype == 'Selected':
                 standart_taskname = src_man.getSelectedTask().getName()
@@ -2014,7 +2015,8 @@ class Projecter:
             },
             'name':'',
             'exttreetask_path':actioner_path,
-            'out_task_targets': out_tasks
+            'out_task_targets': out_tasks,
+            'inexttree':'fromact'
             }    
         return inexttreeparam
     
