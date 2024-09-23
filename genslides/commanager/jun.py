@@ -289,7 +289,7 @@ class Manager:
         for task in self.task_list:
             if check_list:
                 par = task.parent
-                if par is None or par not in self.task_list:
+                if task.isRootParent() or par not in self.task_list:
                     self.tree_arr.append(task)
             else:
                 if task.isRootParent():
@@ -1362,7 +1362,10 @@ class Manager:
                 print('Can\'t create new Response')
                 return 
         elif creation_type == "SubTask":
-            parent = self.curr_task
+            if cr.checkTypeFromName(type, "ExternalInput"):
+                parent = None
+            else:
+                parent = self.curr_task
         else:
             return 
         

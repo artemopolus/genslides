@@ -574,13 +574,60 @@ class InExtTreeTask(ExtProjectTask):
                     return None
         return None
         
+class JumperTreeTask(InExtTreeTask):
+    def __init__(self, task_info: TaskDescription, type="JumperTree") -> None:
+        super().__init__(task_info, type)
+
+    def afterFileLoading(self, trg_files=[]):
+        pass
+
+    def loadActionerTasks(self, actioners: list):
+        eres, eparam = self.getParamStruct('external')
+        if not eres:
+            return None
+        if 'inexttree' not in eparam:
+            return None
+        if eparam['inexttree'] == 'None':
+            task_actioner = self.getActioner()
+            task_actioner.loadStdManagerTasks()
+            print('Switch on actioner of', self.getName())
+            print('Path:', task_actioner.getPath())
+            print('Man:', task_actioner.manager.getName())
+        elif eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
+            trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+            for actioner in actioners:
+                if actioner.getPath() == trg_path:
+                    man = actioner.std_manager
+                    jumper = man.getTaskByName(eparam['jumper'])
+                    if jumper.checkType('ExternalInput'):
+                        self.intact = actioner
+                        self.intman = man
+                        jumper.setParent(self.getParent())
+                        return None
+        return None
+ 
+    def updateIternal(self, input : TaskDescription = None):
+        if self.intact is None:
+            return
+        if not self.checkParentMsgList(remove=False, update=True):
+            self.intact.loadTmpManagerTasks()
+            self.intact.manager.disableOutput2()
+            self.intact.updateAll(force_check=True)
+            self.intact.manager.enableOutput2()
+        elif self.intact.manager.getFrozenTasksCount():
+            self.intact.loadTmpManagerTasks()
+            print(f"Frozen tasks:{self.intact.manager.getFrozenTasksCount()}")
+            self.intact.manager.disableOutput2()
+            self.intact.updateAll(force_check=True)
+            self.intact.manager.enableOutput2()
+
 
 class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
         super().__init__(task_info, type)
     
     def afterFileLoading(self, trg_files=[]):
-        if not self.getParent().checkType( 'InExtTree'):
+        if not self.getParent().checkType( 'InExtTree') or not self.getParent().checkType( 'JumperTree'):
             print(f'Parent of {self.getName()} is not InExtTree')
             return
         eres, eparam = self.getParamStruct('external')

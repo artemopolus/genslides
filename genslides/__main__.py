@@ -673,14 +673,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 with gr.Column():
                                     gr.Button('Get actioners list').click(fn=projecter.getActionerPathsList, outputs=inexttreeactlist_drd)
-                                    targettask_rad = gr.Radio(choices=['Current','Selected'], label='Target Task')
                                     inexttree_intask_rad = gr.Radio(choices=['Current','Selected'], label='External Task Input')
                                     inexttree_outtask_rad = gr.Radio(choices=['Current Bud(s)','Selected','Multi'], label='External Task Output(s)')
                                     crparaminexttree_btn = gr.Button('Create InExtTree parameters')
                                 with gr.Column():
                                     inexttreeactparam_jsn = gr.JSON(label='InExtTree Parameters')
                                     inexttreeactcreate_btn = gr.Button('Create InExtTree & OutExtTree')
-                                    crparaminexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[targettask_rad, inexttree_intask_rad, inexttree_outtask_rad, inexttreeactlist_drd], outputs=inexttreeactparam_jsn)
+                                    crparaminexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[ inexttree_intask_rad, inexttree_outtask_rad, inexttreeactlist_drd], outputs=inexttreeactparam_jsn)
                             with gr.Row():
                                 manextinfocurtask_btn = gr.Button('Get cur task tmp manager info')
                                 manextinfobrowse_btn = gr.Button('Browse info from tmp manager')
@@ -905,6 +904,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_prompt
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
+
+            inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, outputs=std_output_list)
 
             copyinexttreetask_btn.click(fn=projecter.copyExtTreeTaskContentWithSelected, outputs=std_output_list)
 
