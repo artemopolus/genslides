@@ -129,7 +129,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     actaddbybrow_btn = gr.Button('Load actioner from location')
                     actionerlist_rad = gr.Radio(label='Actioners')
                     updactlist_btn = gr.Button('Update')
-                    updactlist_btn.click(fn=projecter.getActionerList, outputs=[actionerlist_rad])
+                    updactlist_btn.click(fn=projecter.getActionerPathsList, outputs=[actionerlist_rad])
                 with gr.Row():
                     exttreetaskaddact_btn = gr.Button('Load ExtTree to actioner')
 
@@ -667,7 +667,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Tab('ExtProject'):
                         with gr.Tab('Create'):
                             with gr.Row():
-                                convbranch2inoutext_btn = gr.Button('Convert muliselect tasks in InOutExtTree Tasks')
+                                convbranch2inoutext_btn = gr.Button('Convert multiselect tasks in InOutExtTree Tasks')
+                            with gr.Row():
+                                with gr.Column():
+                                    targettask_rad = gr.Radio(choices=['Current','Selected'], label='Target Task')
+                                    inexttree_intask_rad = gr.Radio(choices=['Current','Selected'], label='External Task Input')
+                                    inexttree_outtask_rad = gr.Radio(choices=['Current Bud(s)','Selected','Multi'], label='External Task Output(s)')
+                                    inexttreeactlist_drd = gr.Dropdown(choices=[],label='Actioners list')
+                                    gr.Button('Get actioners list').click(fn=projecter.getActionerPathsList, outputs=inexttreeactlist_drd)
+                                    crparaminexttree_btn = gr.Button('Create parameters')
+                                    crparaminexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[targettask_rad, inexttree_intask_rad, inexttree_outtask_rad, inexttreeactlist_drd], outputs=inexttreeactparam_jsn)
+                                with gr.Column():
+                                    inexttreeactparam_jsn = gr.JSON(label='InExtTree Parameters')
                             with gr.Row():
                                 manextinfocurtask_btn = gr.Button('Get cur task tmp manager info')
                                 manextinfobrowse_btn = gr.Button('Browse info from tmp manager')
@@ -945,7 +956,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
-            actionerlist_rad.input(fn=projecter.selectActionerByInfo, inputs=[actionerlist_rad], outputs=std_full)
+            actionerlist_rad.input(fn=projecter.selectActionerByPath, inputs=[actionerlist_rad], outputs=std_full)
 
             projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)
             movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)

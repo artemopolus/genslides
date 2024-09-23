@@ -1487,6 +1487,9 @@ class BaseTask():
     def getActioner(self):
         return None
     
+    def loadActionerTasks(self, actioners : list):
+        return None
+    
     def isFrozen(self):
         return self.is_freeze
 

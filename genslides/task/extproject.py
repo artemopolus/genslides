@@ -410,8 +410,8 @@ class InExtTreeTask(ExtProjectTask):
 
     def afterFileLoading(self, trg_files=[]):
         print('After file loading', self.getName())
-        self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         eres, eparam = self.getParamStruct('external')
+        self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         if not eres:
             print('No params for ext project task')
             return
@@ -491,6 +491,8 @@ class InExtTreeTask(ExtProjectTask):
         return code_s
 
     def updateIternal(self, input : TaskDescription = None):
+        if self.intpar is None:
+            return
         print('Update internal InExtTree', self.getName(),'with', self.intpar.getName())
         save_queue = self.intpar.getQueue()
         if not self.checkParentMsgList(remove=False, update=True):
@@ -546,6 +548,29 @@ class InExtTreeTask(ExtProjectTask):
         print('Result param:',eparam)
         self.setParamStruct(eparam)
 
+    def loadActionerTasks(self, actioners: list):
+        eres, eparam = self.getParamStruct('external')
+        if not eres:
+            return None
+        if 'inexttree' not in eparam:
+            return None
+        if eparam['inexttree'] == 'None':
+            task_actioner = self.getActioner()
+            task_actioner.loadStdManagerTasks()
+            print('Switch on actioner of', self.getName())
+            print('Path:', task_actioner.getPath())
+            print('Man:', task_actioner.manager.getName())
+        elif eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
+            trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+            for actioner in actioners:
+                if actioner.getPath() == trg_path:
+                    self.intact = actioner
+                    self.intman = actioner.std_manager
+                    exttrgtask = self.manager.getTaskByName(eparam['retarget']['chg'])
+                    self.intman.addTask(exttrgtask)
+                    self.intman.addRenamedPair(eparam['retarget']['std'], exttrgtask.getName())
+                    return None
+        return None
         
 
 class OutExtTreeTask(ExtProjectTask):

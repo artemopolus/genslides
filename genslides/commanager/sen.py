@@ -806,16 +806,25 @@ class Projecter:
         self.actioner.selectManagerByName(name)
         return self.updateTaskManagerUI()
     
-    def getActionerList(self):
+    def getActionersList(self):
+        return [a['act'] for a in self.actioners_list]
+    
+    def getActionerPathsList(self):
         return gr.Radio(choices=[a['act'].getPath() for a in self.actioners_list], 
     value=self.actioner.getPath() if self.actioner != None else None, interactive=True)
     
-    def selectActionerByInfo(self, info):
+    def selectActionerByPath(self, path):
         for act in self.actioners_list:
-            if act['act'].getPath() == info:
+            if act['act'].getPath() == path:
                 self.actioner = act['act']
         return self.updateTaskManagerUI()
- 
+    
+    def getActionerByPath(self, path) -> Actioner:
+        for act in self.actioners_list:
+            if act['act'].getPath() == path:
+                return act['act']
+        return None
+
    
     def addActionerTolist(self, act : Actioner, params = {'type':'project'}, move2selected = True):
         found = False
@@ -951,7 +960,7 @@ class Projecter:
         task = man.curr_task
         return self.switchToTargetInExtTreeTask(task)
     
-    def switchToTargetInExtTreeTask(self, task):
+    def switchToTargetInExtTreeTask(self, task : BaseTask):
         task_actioner = task.getActioner()
         if task_actioner != None and self.tmp_actioner == None:
             self.tmp_actioner_task = task
@@ -963,6 +972,9 @@ class Projecter:
             print('Man:', self.actioner.manager.getName())
             # print('Tasks:',[t.getName() for t in self.actioner.manager.task_list])
         return self.updateTaskManagerUI()
+    
+    def loadActionerInExtTreeTask(self, task : BaseTask):
+        task.loadActionerTasks(self.getActionersList())
     
     def backToDefaultActioner(self):
         if self.tmp_actioner != None:
@@ -1963,6 +1975,67 @@ class Projecter:
         man.createOrAddTask('','InExtTree','user',man.curr_task, [json.loads(params)])
         return self.updateMainUIelements()
     
+    def createJSONparamInExtTree(self, trg_task_type, exttask_intype, exttask_outtype, actioner_path):
+        trg_act = self.actioner
+        src_act = self.getActionerByPath(actioner_path)
+        trg_man = trg_act.std_manager
+        src_man = src_act.std_manager
+        if src_act == None:
+            return {}
+        standart_taskname = ""
+        changed_taskname = ""
+        out_tasks = []
+        try:
+            if exttask_intype == 'Selected':
+                standart_taskname = src_man.getSelectedTask().getName()
+            elif exttask_intype == 'Current':
+                standart_taskname = src_man.getCurrentTask().getName()
+
+            if trg_task_type == 'Selected':
+                changed_taskname = trg_man.getSelectedTask().getName()
+            elif trg_task_type == 'Current':
+                changed_taskname = trg_man.getCurrentTask().getName()
+
+            if exttask_outtype == 'Current Bud(s)':
+                buds = src_man.getCurrentTask().getAllChildChains()
+                out_tasks = [b.getName() for b in buds if b.getChilds() == 0]
+            elif exttask_outtype == 'Selected':
+                out_tasks = [src_man.getSelectedTask().getName()]
+            elif exttask_outtype == 'Multi':
+                out_tasks = [m.getName() for m in src_man.getMultiSelectedTasks()]
+        except Exception as e:
+            print('On get task error:', e)
+        inexttreeparam = {
+            'type':'external',
+            'dir':'In',
+            'retarget':{
+                'std': standart_taskname,
+                'chg': changed_taskname
+            },
+            'name':'',
+            'exttreetask_path':actioner_path,
+            'out_task_targets': out_tasks
+            }    
+        return inexttreeparam
+    
+    def createInExtTreeTaskByParam(self, param):
+        man = self.actioner.manager
+        trgpar = man.getCurrentTask()
+        inxttreetask = man.createOrAddTaskByInfo('InExtTree', TaskDescription(prompt='', 
+                                                                              prompt_tag='user',
+                                                                              parent=trgpar, 
+                                                                              params=[param]))
+        for outtaskname in param['out_task_targets']:
+            man.setCurrentTask(inxttreetask)
+            outexttreeparam = {
+                'type':'external', 
+                'dir':'Out',
+                'target': outtaskname
+                }
+            outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
+                TaskDescription(prompt='', prompt_tag='user',parent=inxttreetask, params=[outexttreeparam]))
+        return self.updateMainUIelements()
+
     def convertTaskBranchInInOutExtPair(self):
         man = self.actioner.manager
         if len(man.multiselect_tasks) == 0:
@@ -2353,8 +2426,7 @@ class Projecter:
         for name in names:
             task = man.getTaskByName(name)
             if task != None and task.checkType('InExtTree'):
-                self.switchToTargetInExtTreeTask(task)
-                self.backToDefaultActioner()
+                self.loadActionerInExtTreeTask(task)
         return self.updateMainUIelements() 
     
     def copyManagerTaskFilesToAnotherFolder(self):
@@ -2601,7 +2673,7 @@ class Projecter:
                 # self.manager.getCurrentExtTaskOptions(),
                 gr.Dropdown(choices= tmpmannames, value=None, interactive=True),
                 self.getCurrentSessionName(),
-                self.getActionerList()
+                self.getActionerPathsList()
                 )
 
     def getUItmpmanagers(self):
