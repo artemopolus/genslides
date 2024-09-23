@@ -579,7 +579,47 @@ class JumperTreeTask(InExtTreeTask):
         super().__init__(task_info, type)
 
     def afterFileLoading(self, trg_files=[]):
-        pass
+        print('After file loading', self.getName())
+        eres, eparam = self.getParamStruct('external')
+        if 'inexttree' in eparam  and eparam['inexttree'] != 'None':
+            return
+        self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
+        if not eres:
+            print('No params for ext project task')
+            return
+
+
+        if eparam['name'] == '':
+            fld_name = self.getName()
+        else:
+            fld_name = eparam['name']
+        if 'exttreetask_path' in eparam:
+            trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+        else:
+            trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', fld_name])
+            if 'project_path' in eparam:
+                src_path = self.findKeyParam(eparam['project_path'])
+                src_path = Loader.Loader.getUniPath(src_path)
+                if eparam['copy'] == 'Copy':
+                    if len(Fm.getFilesInFolder(trg_path)) < 2:
+                        Fm.copyDirToDir(src_path=Loader.Loader.getUniPath(src_path), trg_path=Loader.Loader.getUniPath(trg_path))
+                else:
+                    trg_path = src_path
+        self.intman.setPath(trg_path)
+        self.intman.initInfo(self.manager.loadexttask, task = None, path = trg_path, params={'task_names':[]})
+
+        self.intact = Actioner.Actioner(self.intman)
+        self.intact.setPath(trg_path)
+        self.intact.clearTmp()
+
+        self.setMsgList(self.getParent().getMsgList())
+
+        if 'exttreetask_path' not in eparam:
+            eparam['exttreetask_path'] = Loader.Loader.checkManagerTag(trg_path, self.manager.getPath(), False) 
+
+        self.setParamStruct(eparam)
+        self.saveAllParams()
+
 
     def loadActionerTasks(self, actioners: list):
         eres, eparam = self.getParamStruct('external')
@@ -588,11 +628,16 @@ class JumperTreeTask(InExtTreeTask):
         if 'inexttree' not in eparam:
             return None
         if eparam['inexttree'] == 'None':
+            
             task_actioner = self.getActioner()
-            task_actioner.loadStdManagerTasks()
-            print('Switch on actioner of', self.getName())
-            print('Path:', task_actioner.getPath())
-            print('Man:', task_actioner.manager.getName())
+            if self.intpar == None:
+                jumper = task_actioner.manager.getTaskByName(eparam['jumper'])
+                if jumper.checkType('ExternalInput'):
+                    jumper.setParent(self.getParent())
+                    task_actioner.loadStdManagerTasks()
+                    print('Switch on actioner of', self.getName())
+                    print('Path:', task_actioner.getPath())
+                    print('Man:', task_actioner.manager.getName())
         elif eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
             trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
             for actioner in actioners:
@@ -608,6 +653,7 @@ class JumperTreeTask(InExtTreeTask):
  
     def updateIternal(self, input : TaskDescription = None):
         if self.intact is None:
+            self.freezeTask()
             return
         if not self.checkParentMsgList(remove=False, update=True):
             self.intact.loadTmpManagerTasks()
@@ -658,6 +704,9 @@ class OutExtTreeTask(ExtProjectTask):
     def updateIternal(self, input : TaskDescription = None):
         if self.intact == None:
             self.updateOutExtActMan()
+        if self.intact == None:
+            self.freezeTask()
+            return
         if self.intch_trg == None:
             eres, eparam = self.getParamStruct('external')
             if eres:
