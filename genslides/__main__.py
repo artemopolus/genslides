@@ -730,10 +730,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 addmultitastoinexttree_btn = gr.Button('Add multi to Cur InExtTree')
 
                             with gr.Row():
-                                gr.Label('Manipulate actioner')
-                            with gr.Row():
-                                load_extproj_act_btn = gr.Button('Set Act InOutExtTree')
-                                reset_initact_btn = gr.Button('Set Act ProjectBase')
+                                getexttreeparam_btn = gr.Button('Get ExtTree Task Param')
+                                exttreetarget_drd = gr.Dropdown(label='Ext Tree target')
+                                setexttreeparam_btn = gr.Button('Set Edited Param')
+
+                                getexttreeparam_btn.click(fn=projecter.getExtTreeParams, outputs=exttreetarget_drd)
+                                setexttreeparam_btn.click(fn=projecter.setExtTreeParams, inputs=exttreetarget_drd)
+                                
+                                # gr.Label('Manipulate actioner')
+                            # with gr.Row():
+                                # load_extproj_act_btn = gr.Button('Set Act InOutExtTree')
+                                # reset_initact_btn = gr.Button('Set Act ProjectBase')
                             with gr.Row():
                                 inoutexttreeparamget_btn = gr.Button('Get params for InExtTree OutExtTree Tasks')
                             with gr.Row():
@@ -967,9 +974,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             init_prman_btn.click(fn=manipulate_manager.initPrivManagerByInfo, inputs=[inittmpmaninfo_jsn], outputs=std_full)
             get_tempman.input(fn=manipulate_manager.loadTmpManager, inputs=[get_tempman], outputs=std_full)
-            load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)
+            # load_extproj_act_btn.click(fn=manipulate_manager.switchToExtTaskManager, outputs=std_full)
             updinexttree_btn.click(fn=manipulate_manager.activateExtTask, outputs=std_full)
-            reset_initact_btn.click(fn=manipulate_manager.backToDefaultActioner, outputs=std_full)
+            # reset_initact_btn.click(fn=manipulate_manager.backToDefaultActioner, outputs=std_full)
 
             tmpmanname_txt.submit(fn=manipulate_manager.setCurManagerName, inputs = [tmpmanname_txt], outputs=std_full)
             

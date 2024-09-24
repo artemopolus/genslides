@@ -2823,4 +2823,36 @@ class Projecter:
             output += "\n\n---\n\n"
 
         return output
+    
+    def getExtTreeParams(self):
+        man = self.actioner.manager
+        task = man.getCurrentTask()
+        act = task.getActioner()
+        curr_trg_name = ""
+        trg_names = []
+        if act != None:
+            eres, eparam = task.getParamStruct('external')
+            if eres:
+                if task.checkType("JumperTree"):
+                    curr_trg_name = eparam['jumper']
+                elif task.checkType("OutExtTree"):
+                    curr_trg_name = eparam['target']
+                trg_names =[t.getName() for t in act.manager.task_list]
+        return gr.Dropdown(value=curr_trg_name, choices=trg_names, interactive=True)
+    
+    def setExtTreeParams(self, target_name):
+        man = self.actioner.manager
+        task = man.getCurrentTask()
+        act = task.getActioner()
+        if act != None:
+            eres, eparam = task.getParamStruct('external')
+            if eres:
+                if task.checkType("JumperTree"):
+                    eparam['jumper'] = target_name
+                elif task.checkType("OutExtTree"):
+                    eparam['target'] = target_name
+                task.setParamStruct(eparam)
+                task.loadActionerTasks(self.getActionersList())
+
+
 

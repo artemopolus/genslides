@@ -679,6 +679,10 @@ class OutExtTreeTask(ExtProjectTask):
         self.updateOutExtActMan()
         self.saveAllParams()
 
+    def loadActionerTasks(self, actioners: list):
+        self.updateOutExtActMan()
+        return None
+
     def updateOutExtActMan(self):
         try:
             eres, eparam = self.getParamStruct('external')
