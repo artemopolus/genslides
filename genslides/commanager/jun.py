@@ -495,6 +495,7 @@ class Manager:
         try:
             task = self.endes[self.endes_idx]
         except Exception as e:
+            print('Error on get branch end:',e)
             task = self.curr_task
         return task
             

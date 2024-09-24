@@ -429,7 +429,7 @@ class BaseTask():
         par = self
         index = 0
         while(index < 1000):
-            if par.parent:
+            if not par.isRootParent():
                 par = par.parent
             else:
                 break

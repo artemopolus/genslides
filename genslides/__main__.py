@@ -417,7 +417,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                             )
                         with gr.Row():
                             collect_btn = gr.Button(value='Collect')
-                            shoot_btn = gr.Button(value='Shoot')
+                            # shoot_btn = gr.Button(value='Shoot')
                             garland_btn = gr.Button(value='Garland')
                         with gr.Row():
                             selected_prompt = gr.Textbox(value='',lines=4, label='Selected prompt')
@@ -471,7 +471,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                          inputs=parammultikey_dd, 
                                                          outputs=[parammulti_json, parammultilog_txt])
                             with gr.Column():
-                                delete_reltasks_btn = gr.Button('Delete multiselected')
                                 set_multi_child_btn = gr.Button('Set Multiselected as Child')
                                 garlandmulti_btn = gr.Button('Garland from multi')
                                 collectmulti_btn = gr.Button('Collect from multi')
@@ -501,15 +500,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             reparup_btn = gr.Button(value='ReparentUP')
                             unparent_btn = gr.Button(value='Unparent')
                             unlink_btn = gr.Button(value='Unlink')
-                            delete_btn = gr.Button(value='Delete')
-                            extract_btn = gr.Button(value='Extract')
                             unite_btn = gr.Button(value='Unite')
-                            rm_branch_btn = gr.Button(value='Remove Branch')
-                            rm_tree_btn = gr.Button(value='Remove Tree')
                             copy_chain_btn = gr.Button(value='Copy ch step')
                             update_task_btn = gr.Button(value="Update")
                             updatecur_task_btn = gr.Button(value='Update current')
                             clean_task_btn = gr.Button(value='Clean')
+                    with gr.Tab('Delete'):
+                        with gr.Row():
+                            delete_btn = gr.Button(value='Delete')
+                            extract_btn = gr.Button(value='Extract')
+                            rm_branch_btn = gr.Button(value='Remove Branch')
+                            rm_tree_btn = gr.Button(value='Remove Tree')
+                            delete_reltasks_btn = gr.Button('Delete multiselected')
                     with gr.Tab('Arrange'):
                         with gr.Row():
                             with gr.Column():
@@ -1032,7 +1034,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             custom_btn.click(fn=userinput_manager.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
             
             collect_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
-            shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
+            # shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
             garland_btn.click(fn=userinput_manager.createGarlandOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
             
             garlandmulti_btn.click(fn=projecter.createGarlandFromMultiSelect, outputs=std_output_list)
