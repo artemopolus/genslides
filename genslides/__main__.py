@@ -221,6 +221,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # move2child_btn = gr.Button(value='Go down')
                             with gr.Column():
                                 getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
+                                
                                 inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
                                 updselinexttreetasks_btn = gr.Button('Update selected')
                                 getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
@@ -732,9 +733,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 getexttreeparam_btn = gr.Button('Get ExtTree Task Param')
                                 exttreetarget_drd = gr.Dropdown(label='Ext Tree target')
+                                inexttreecurrent_txt = gr.Textbox(label='Current Task')
+                                inexttreeselected_txt = gr.Textbox(label='Selected Task')
                                 setexttreeparam_btn = gr.Button('Set Edited Param')
 
-                                getexttreeparam_btn.click(fn=projecter.getExtTreeParams, outputs=exttreetarget_drd)
+                                getexttreeparam_btn.click(fn=projecter.getExtTreeParams, 
+                                                          outputs=[exttreetarget_drd, inexttreecurrent_txt, inexttreeselected_txt])
                                 setexttreeparam_btn.click(fn=projecter.setExtTreeParams, inputs=exttreetarget_drd)
                                 
                                 # gr.Label('Manipulate actioner')

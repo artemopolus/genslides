@@ -2829,6 +2829,8 @@ class Projecter:
         task = man.getCurrentTask()
         act = task.getActioner()
         curr_trg_name = ""
+        cur = ""
+        sel = ""
         trg_names = []
         if act != None:
             eres, eparam = task.getParamStruct('external')
@@ -2838,7 +2840,9 @@ class Projecter:
                 elif task.checkType("OutExtTree"):
                     curr_trg_name = eparam['target']
                 trg_names =[t.getName() for t in act.manager.task_list]
-        return gr.Dropdown(value=curr_trg_name, choices=trg_names, interactive=True)
+                sel = act.manager.getCurrentTask().getName()
+                cur = act.manager.getSelectedTask().getName()
+        return gr.Dropdown(value=curr_trg_name, choices=trg_names, interactive=True), cur, sel
     
     def setExtTreeParams(self, target_name):
         man = self.actioner.manager
@@ -2853,6 +2857,7 @@ class Projecter:
                     eparam['target'] = target_name
                 task.setParamStruct(eparam)
                 task.loadActionerTasks(self.getActionersList())
+                task.saveAllParams()
 
 
 
