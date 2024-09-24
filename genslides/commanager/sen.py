@@ -1221,10 +1221,10 @@ class Projecter:
         self.actioner.update()
         return self.updateMainUIelements()
         
-    def updateAll(self, check = False):
+    def updateAll(self, check = False, max_idx = 10000):
         print('Update All trees stepped')
         self.actioner.manager.disableOutput2()
-        self.actioner.updateAll(force_check=check)
+        self.actioner.updateAll(force_check=check, max_update_idx=max_idx)
         self.actioner.manager.enableOutput2()
         return self.updateMainUIelements()
     

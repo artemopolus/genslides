@@ -209,6 +209,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 clnresp_btn = gr.Button(value='Clean Response')
                             with gr.Row():
+                                maxupdateidx_num = gr.Number(value=10000, label='Max steps to update', minimum=1)
                                 updatecheckown_chk = gr.Checkbox(label='Check tasks manager', value=False)
                                 reset_step_btn = gr.Button(value="Reset steps")
                                 updatechildtasks_btn = gr.Button('UAT childs')
@@ -1097,7 +1098,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             updatecur_task_btn.click(fn=manager.updateCurrent, outputs=std_output_list)
 
             update_step_btn.click(fn=projecter.update, outputs=std_output_list)
-            updateall_step_btn.click(fn=projecter.updateAll, inputs=[updatecheckown_chk], outputs=std_output_list)
+            updateall_step_btn.click(fn=projecter.updateAll, inputs=[updatecheckown_chk, maxupdateidx_num], outputs=std_output_list)
             updateall_stepNs_btn.click(fn=projecter.updateAllnTimes, inputs=[updateall_stepNs_sld, updatecheckown_chk], outputs=std_output_list)
             upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, inputs=[updatecheckown_chk], outputs=std_output_list)
             updatechildtasks_btn.click(fn=projecter.updateChildTasks, inputs=[updatecheckown_chk], outputs=std_output_list)

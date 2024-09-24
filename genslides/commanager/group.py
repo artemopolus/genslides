@@ -30,6 +30,8 @@ class Actioner():
 
         self.updateallcounter = 0
 
+        self.is_updating = False
+
     def setManager(self, manager : Manager.Manager):
         if manager != self.std_manager and not manager.is_loaded:
             manager.disableOutput2()
@@ -784,16 +786,22 @@ class Actioner():
         man.curr_task = init_task
         return 
 
-    def updateAll(self, force_check = False, update_task = True):
+    def updateAll(self, force_check = False, update_task = True, max_update_idx = 10000):
+        if self.is_updating:
+            print('Abort',self.getPath,'cause: already updating')
+            return
+        else:
+            self.is_updating = True
         man = self.manager
         print(f"Update all tasks of {man.getName()}")
         start_task = man.curr_task
         self.resetUpdate(force_check=force_check)
         if len(man.tree_arr) == 0:
+            self.is_updating = False
             return
         idx = 0
         project_chain = [{'idx':idx, 'task': man.getCurrentTask()}]
-        while(idx < 10000):
+        while(idx < max_update_idx):
             self.update(update_task=update_task)
             project_chain.append({'idx':idx, 'task': man.getCurrentTask()})
             if self.update_state == 'done':
@@ -801,13 +809,14 @@ class Actioner():
             idx += 1
 
         cnt = man.getFrozenTasksCount()
-        print(f"[{man.getName()}]Frozen: {cnt} of {len(man.task_list)} task(s)")
+        print(f"Act [{man.getName()}] made {idx} step(s)\nFrozen: {cnt} of {len(man.task_list)} task(s)")
         man.saveInfo()
         man.curr_task = start_task
 
         self.updateallcounter += 1
         # out = man.getCurrTaskPrompts()
         # return out
+        self.is_updating = False
         return project_chain
 
 
