@@ -411,8 +411,8 @@ class InExtTreeTask(ExtProjectTask):
     def afterFileLoading(self, trg_files=[]):
         print('After file loading', self.getName())
         eres, eparam = self.getParamStruct('external')
-        if 'inexttree' in eparam  and eparam['inexttree'] != 'None':
-            return
+        # if 'inexttree' in eparam  and eparam['inexttree'] != 'None':
+        #     return
         self.intman = Actioner.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         if not eres:
             print('No params for ext project task')
@@ -495,9 +495,10 @@ class InExtTreeTask(ExtProjectTask):
     def updateIternal(self, input : TaskDescription = None):
         if self.intpar is None:
             return
-        print('Update internal InExtTree', self.getName(),'with', self.intpar.getName())
+        print(f"Update internal {self.getName()} task with {self.intpar.getName()} task")
         save_queue = self.intpar.getQueue()
         if not self.checkParentMsgList(remove=False, update=True):
+            print("Update: parent msgs is different")
             self.intact.loadTmpManagerTasks()
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
@@ -508,6 +509,8 @@ class InExtTreeTask(ExtProjectTask):
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
+        else:
+            print("Pass")
         # print('Queue status')
         # print(save_queue)
         # print(self.intpar.queue)
@@ -551,27 +554,11 @@ class InExtTreeTask(ExtProjectTask):
         self.setParamStruct(eparam)
 
     def loadActionerTasks(self, actioners: list):
-        eres, eparam = self.getParamStruct('external')
-        if not eres:
-            return None
-        if 'inexttree' not in eparam:
-            return None
-        if eparam['inexttree'] == 'None':
-            task_actioner = self.getActioner()
-            task_actioner.loadStdManagerTasks()
-            print('Switch on actioner of', self.getName())
-            print('Path:', task_actioner.getPath())
-            print('Man:', task_actioner.manager.getName())
-        elif eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
-            trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
-            for actioner in actioners:
-                if actioner.getPath() == trg_path:
-                    self.intact = actioner
-                    self.intman = actioner.std_manager
-                    exttrgtask = self.manager.getTaskByName(eparam['retarget']['chg'])
-                    self.intman.addTask(exttrgtask)
-                    self.intman.addRenamedPair(eparam['retarget']['std'], exttrgtask.getName())
-                    return None
+        task_actioner = self.getActioner()
+        task_actioner.loadStdManagerTasks()
+        print('Switch on actioner of', self.getName())
+        print('Path:', task_actioner.getPath())
+        print('Man:', task_actioner.manager.getName())
         return None
         
 class JumperTreeTask(InExtTreeTask):
@@ -714,6 +701,7 @@ class OutExtTreeTask(ExtProjectTask):
         if self.intact == None:
             self.updateOutExtActMan()
         if self.intact == None:
+            print(f"No internal actioner for {self.getName()}")
             self.freezeTask()
             return
         if self.intch_trg == None:
@@ -722,6 +710,7 @@ class OutExtTreeTask(ExtProjectTask):
                 self.intch_trg = self.intman.getTaskByName(eparam['target'])
         try:
             if self.intch_trg.is_freeze:
+                print(f"Target for {self.getName()} is frozen")
                 self.freezeTask()
             else:
                 self.stdProcessUnFreeze()
@@ -733,7 +722,8 @@ class OutExtTreeTask(ExtProjectTask):
                 print('No param for summary')
  
             
-        except:
+        except Exception as e:
+            print(f"Abort updating of {self.getName()}: {e}")
             self.freezeTask()
 
     def getParentForFinder(self):
