@@ -127,21 +127,21 @@ class ReadBranchTask(TextTask):
         return True, val, None 
 
 
-    def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
-        idx += 1
-        content = '[[parent_' + str(idx) + ':msg_content]]\n' if idx != 1 else '[[parent:msg_content]]\n'
-        content += self.getName() + '\n'
-        if len(self.getGarlandPart()):
-            content += ','.join([t.getName() for t in self.getGarlandPart()]) + '->' + self.getName() + '\n'
-        if len(self.getHoldGarlands()):
-            content += self.getName() + '->' + ','.join([t.getName() for t in self.getHoldGarlands()]) + '\n'
-        content += '\n\n---\n\n'
-        content += self.getLastMsgContent()
-        content +='\n'
-        val = self.msg_list.copy()
-        if self.parent != None:
-            self.parent.setActiveBranch(self)
-        return True, val, None
+    # def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
+    #     idx += 1
+    #     content = '[[parent_' + str(idx) + ':msg_content]]\n' if idx != 1 else '[[parent:msg_content]]\n'
+    #     content += self.getName() + '\n'
+    #     if len(self.getGarlandPart()):
+    #         content += ','.join([t.getName() for t in self.getGarlandPart()]) + '->' + self.getName() + '\n'
+    #     if len(self.getHoldGarlands()):
+    #         content += self.getName() + '->' + ','.join([t.getName() for t in self.getHoldGarlands()]) + '\n'
+    #     content += '\n\n---\n\n'
+    #     content += self.getLastMsgContent()
+    #     content +='\n'
+    #     val = self.msg_list.copy()
+    #     if self.parent != None:
+    #         self.parent.setActiveBranch(self)
+    #     return True, val, None
 
     def forceCleanChat(self):
         self.update_read_branch = True
@@ -149,3 +149,31 @@ class ReadBranchTask(TextTask):
 
     def internalUpdateParams(self):
         return super().internalUpdateParams()
+
+    def getLastMsgContentForRawDial(self):
+        content = ""
+        res, param = self.getParamStruct(param_name='ReadBranch')
+        if res:
+            try:
+                s_path = ld.Loader.getUniPath( self.findKeyParam( param['path_to_read'] ) )
+                content += "Path to file: " + s_path + "\n"
+                with open(s_path, 'r') as f:
+                    rq = json.load(f)
+                    if rq["type"] == "records":
+                        content += "Records count: " + str(len(rq["data"])) + "\n"
+                        min_chat_len = 100
+                        max_chat_len = 0
+                        for pack in rq["data"]:
+                            min_chat_len = min(min_chat_len,len(pack["chat"]))
+                            max_chat_len = max(max_chat_len, len(pack["chat"]))
+                        if min_chat_len > max_chat_len:
+                            min_chat_len = max_chat_len
+                        content += "Min msgs in chat: " + str(min_chat_len) +"\n"
+                        content += "Max msgs in chat: " + str(max_chat_len) +"\n"
+            except Exception as e:
+                content += "Error: "+ str(e)
+        else:
+            content += "Error: no parameters"
+
+        return content
+ 

@@ -1,4 +1,4 @@
-from genslides.task.base import TaskDescription
+from genslides.task.base import BaseTask, TaskDescription
 from genslides.task.writetofileparam import WriteToFileParamTask
 import json
 import genslides.task_tools.records as rd
@@ -9,6 +9,34 @@ import genslides.utils.filemanager as fm
 class WriteBranchTask(WriteToFileParamTask):
     def __init__(self, task_info: TaskDescription, type="WriteBranch") -> None:
         super().__init__(task_info, type)
+
+    def getLastMsgContentForRawDial(self):
+        content = ""
+        res, param = self.getParamStruct(param_name='write_branch')
+        if res:
+            try:
+                s_path = ld.Loader.getUniPath( self.findKeyParam( param['path_to_write'] ) )
+                content += "Path to file: " + s_path + "\n"
+                with open(s_path, 'r') as f:
+                    rq = json.load(f)
+                    if rq["type"] == "records":
+                        content += "Records count: " + str(len(rq["data"])) + "\n"
+                        min_chat_len = 100
+                        max_chat_len = 0
+                        for pack in rq["data"]:
+                            min_chat_len = min(min_chat_len,len(pack["chat"]))
+                            max_chat_len = max(max_chat_len, len(pack["chat"]))
+                        if min_chat_len > max_chat_len:
+                            min_chat_len = max_chat_len
+                        content += "Min msgs in chat: " + str(min_chat_len) +"\n"
+                        content += "Max msgs in chat: " + str(max_chat_len) +"\n"
+            except Exception as e:
+                content += "Error: "+ str(e)
+        else:
+            content += "Error: no parameters"
+
+        return content
+        
 
     def executeResponse(self):
         res, param = self.getParamStruct(param_name='write_branch')
@@ -53,3 +81,16 @@ class WriteBranchTask(WriteToFileParamTask):
                 return True
         return False
 
+    def clearRecordParam(self):
+        try:
+            res, param = self.getParamStruct(param_name='write_branch')
+            s_path = ld.Loader.getUniPath( self.findKeyParam( param['path_to_write'] ) )
+            with open(s_path, 'r') as f:
+                rq = json.load(f)
+                naparam = rd.clearRecordData(rq)
+            wr.writeJsonToFile(s_path, naparam)
+        except:
+            print("Error for clean records")
+
+        return super().clearRecordParam()
+    

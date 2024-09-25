@@ -421,6 +421,9 @@ class TextTask(BaseTask):
     def getParentForRaw(self):
         return self.getParent()
     
+    def getLastMsgContentForRawDial(self):
+        return self.getLastMsgContent()
+    
     def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
         idx += 1
         content = '[[parent_' + str(idx) + ':msg_content]]\n' if idx != 1 else '[[parent:msg_content]]\n'
@@ -430,7 +433,7 @@ class TextTask(BaseTask):
         if len(self.getHoldGarlands()):
             content += self.getName() + '->' + ','.join([t.getName() for t in self.getHoldGarlands()]) + '\n'
         content += '\n\n---\n\n'
-        content += self.getLastMsgContent()
+        content += self.getLastMsgContentForRawDial()
         content +='\n'
         val = [{"role":self.getLastMsgRole(), 
                 "content": content}]
@@ -475,7 +478,7 @@ class TextTask(BaseTask):
             res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols)
             if res and task.getName() not in except_task:
                 # print(task.getName(),"give", len(msg), "msg", msg[-1]["role"]) 
-                if mres and mparam["autoconnect"] and len(out) and out[0]["role"] == msg[-1]["role"]:
+                if mres and mparam["autoconnect"] and len(out) and len(msg) and out[0]["role"] == msg[-1]["role"]:
                     # print(out[0]["role"],"==", msg[-1]["role"])
                     text = mparam["prefix"] + msg[-1]["content"] + mparam["suffix"]
                     text += out[0]["content"]
@@ -972,10 +975,11 @@ class TextTask(BaseTask):
         self.setParamStruct(rd.createRecordParam(self.getTasksContent()))
 
     def clearRecordParam(self):
-        res, param = self.getParamStruct(param_name='records', only_current=True)
-        if res:
-            np = rd.clearRecordData(param)
-            self.setParamStruct(np)
+        pass
+        # res, param = self.getParamStruct(param_name='records', only_current=True)
+        # if res:
+        #     np = rd.clearRecordData(param)
+        #     self.setParamStruct(np)
 
 
     def getChatRecords(self) ->list:
