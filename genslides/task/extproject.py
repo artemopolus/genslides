@@ -673,7 +673,12 @@ class OutExtTreeTask(ExtProjectTask):
         super().__init__(task_info, type)
     
     def afterFileLoading(self, trg_files=[]):
-        if not self.getParent().checkType( 'InExtTree') or not self.getParent().checkType( 'JumperTree'):
+        print(f"Parent [{self.getName()}]:{self.getParent().getName()}")
+        if self.getParent().checkType( 'InExtTree'):
+            pass
+        elif self.getParent().checkType( 'JumperTree'):
+            pass
+        else:
             print(f'Parent of {self.getName()} is not InExtTree')
             return
         self.updateOutExtActMan()
