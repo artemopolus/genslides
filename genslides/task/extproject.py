@@ -689,7 +689,7 @@ class OutExtTreeTask(ExtProjectTask):
         try:
             parent = self.getParent()
             if parent:
-                if parent.checktype("JumperTree") or parent.checktype("InExtTree"):
+                if parent.checkType("JumperTree") or parent.checkType("InExtTree"):
                     eres, eparam = self.getParamStruct('external')
                     self.intact = self.parent.intact
                     self.intman = self.parent.intman

@@ -339,8 +339,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                             label="Select actions", 
                                                             value="New"
                                                             )
-                                roles_list = gr.Radio(choices=["user","assistant","system"], label="Tag type for prompt", value="user", interactive=False)
-                                vizprompt_list = gr.Radio(choices=["None","markdown","python","json"], label="Visualization", value="None", interactive=True)
+                                roles_list = gr.Radio(choices=["user","assistant","system","documents"], label="Tag type for prompt", value="user", interactive=False)
+                                vizprompt_list = gr.Radio(choices=["None","markdown","python","json"], label="Visualization", value="None", interactive=True, visible=False)
                             with gr.Column(scale = 19):
                                 prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                                 with gr.Row():
@@ -689,13 +689,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     outexttree_intask_rad = gr.Radio(choices=['Current','Selected'], label='External Task Output')
                                     crparamoutexttree_btn = gr.Button('Create OutExtTree parameters')
                                 with gr.Column():
-                                    outexttreeactparam_jsn = gr.JSON(label='InExtTree Parameters')
-                                    crparamoutexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[ outexttree_intask_rad, inexttreeactlist_drd], outputs=outexttreeactparam_jsn)
+                                    outexttreeactparam_jsn = gr.JSON(label='OutExtTree Parameters')
+                                    crparamoutexttree_btn.click(fn=projecter.createJSONparamOutExtTree, inputs=[ outexttree_intask_rad, inexttreeactlist_drd], outputs=outexttreeactparam_jsn)
                                     outexttreeactcreate_btn = gr.Button('Create OutExtTree')
-                            with gr.Row():
+                            with gr.Row(visible=False):
                                 manextinfocurtask_btn = gr.Button('Get cur task tmp manager info')
                                 manextinfobrowse_btn = gr.Button('Browse info from tmp manager')
-                            with gr.Row():
+                            with gr.Row(visible=False):
                                 with gr.Column():
                                     with gr.Row():
                                         mantsklist_drd = gr.Dropdown(label='External Tasks of Loaded Tmp Manager')
