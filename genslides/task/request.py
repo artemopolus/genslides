@@ -46,7 +46,7 @@ class RequestTask(TextTask):
             # print('update req input')
             try:
                 j = json.loads(text)
-                text = json.dumps(j,indent=1)
+                text = json.dumps(j,indent=1, ensure_ascii=False)
             except:
                 pass
             pair["content"] = text
