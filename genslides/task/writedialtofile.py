@@ -51,7 +51,7 @@ class WriteBranchTask(WriteToFileParamTask):
                 content = self.getMsgs()
                 wr.writeJsonToFile(path, content)
 
-            elif t_input == 'records' and self.manager.allowUpdateInternalArrayParam():
+            elif self.checkRecordsOption(param):
                 if fm.checkExistPath(path):
                     with open(path, 'r',encoding='utf8') as f:
                         content = json.load(f)
@@ -71,6 +71,14 @@ class WriteBranchTask(WriteToFileParamTask):
 
         except Exception as e:
             print(self.getName(), 'got err:', e)
+
+    def checkRecordsOption(self, param):
+        if 'check_manager' in param:
+            if param['check_manager']:
+                pass
+            else:
+                return param['input'] == 'records'
+        return param['input'] == 'records' and self.manager.allowUpdateInternalArrayParam()
 
     def checkAnotherOptions(self) -> bool:
         param_name = "write_branch"
