@@ -1975,6 +1975,33 @@ class Projecter:
         man.createOrAddTask('','InExtTree','user',man.curr_task, [json.loads(params)])
         return self.updateMainUIelements()
     
+    def createJSONparamOutExtTree(self, exttask_intype, actioner_path):
+        trg_act = self.actioner
+        trg_man = trg_act.std_manager
+        src_act = self.getActionerByPath(actioner_path)
+        src_man = src_act.std_manager
+        if src_act == None:
+            return {}
+        standart_taskname = ""
+        actioner_path = Loader.Loader.checkManagerTagRe(actioner_path, trg_man.getPath())
+        try:
+            if exttask_intype == 'Selected':
+                standart_taskname = src_man.getSelectedTask().getName()
+            elif exttask_intype == 'Current':
+                standart_taskname = src_man.getCurrentTask().getName()
+
+        except Exception as e:
+            print('On get task error:', e)
+        inexttreeparam = {
+            'type':'external',
+            'dir':'Out',
+            'target': standart_taskname,
+            'name':'',
+            'exttreetask_path':actioner_path,
+            'inexttree':'fromact'
+            }    
+        return inexttreeparam
+    
     def createJSONparamInExtTree(self, exttask_intype, exttask_outtype, actioner_path):
         trg_act = self.actioner
         trg_man = trg_act.std_manager
@@ -2027,6 +2054,12 @@ class Projecter:
                 }
             outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
                 TaskDescription(prompt='', prompt_tag='user',parent=inxttreetask, params=[outexttreeparam]))
+        return self.updateMainUIelements()
+    
+    def createOutExtTreeTaskByParam(self, param):
+        man = self.actioner.manager
+        outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
+                TaskDescription(prompt='', prompt_tag='user',parent=None, params=[param]))
         return self.updateMainUIelements()
 
     def convertTaskBranchInInOutExtPair(self):

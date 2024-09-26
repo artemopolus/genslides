@@ -685,6 +685,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     inexttreeactcreate_btn = gr.Button('Create InExtTree & OutExtTree')
                                     crparaminexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[ inexttree_intask_rad, inexttree_outtask_rad, inexttreeactlist_drd], outputs=inexttreeactparam_jsn)
                             with gr.Row():
+                                with gr.Column():
+                                    outexttree_intask_rad = gr.Radio(choices=['Current','Selected'], label='External Task Output')
+                                    crparamoutexttree_btn = gr.Button('Create OutExtTree parameters')
+                                with gr.Column():
+                                    outexttreeactparam_jsn = gr.JSON(label='InExtTree Parameters')
+                                    crparamoutexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[ outexttree_intask_rad, inexttreeactlist_drd], outputs=outexttreeactparam_jsn)
+                                    outexttreeactcreate_btn = gr.Button('Create OutExtTree')
+                            with gr.Row():
                                 manextinfocurtask_btn = gr.Button('Get cur task tmp manager info')
                                 manextinfobrowse_btn = gr.Button('Browse info from tmp manager')
                             with gr.Row():
@@ -920,6 +928,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
             inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, inputs=inexttreeactparam_jsn, outputs=std_output_list)
+            outexttreeactcreate_btn.click(fn=projecter.createOutExtTreeTaskByParam, inputs=outexttreeactparam_jsn, outputs=std_output_list)
+
 
             copyinexttreetask_btn.click(fn=projecter.copyExtTreeTaskContentWithSelected, outputs=std_output_list)
 
