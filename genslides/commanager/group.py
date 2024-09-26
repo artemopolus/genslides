@@ -970,7 +970,7 @@ class Actioner():
                 shape = "ellipse" #rectangle,hexagon
                 if task.checkType('Response'):
                     shape = 'rectangle'
-                elif task.checkType('InExtTree') or task.checkType('JumperTree') or task.checkType('ExternalTree'):
+                elif task.drawAsRootTaskSymbol():
                     shape = 'invhouse'
                 elif task.checkType('OutExtTree'):
                     shape = 'house'

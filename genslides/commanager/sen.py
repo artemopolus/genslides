@@ -2410,7 +2410,7 @@ class Projecter:
         man = self.actioner.manager
         out = []
         for task in man.task_list:
-            if task.checkType('InExtTree') or task.checkType('JumperTree'):
+            if task.isExternalProjectTask():
                 out.append(task.getName())
         return gr.CheckboxGroup(choices=out, interactive=True)
     

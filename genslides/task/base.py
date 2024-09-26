@@ -413,8 +413,14 @@ class BaseTask():
     def getType(self) -> str:
         return self.type
 
+    def drawAsRootTaskSymbol(self):
+        return self.isRootParent()
+
     def checkType(self, trg: str) -> bool:
         return self.type.endswith(trg)
+    
+    def isExternalProjectTask(self):
+        return False
     
     def isReceiver(self) ->bool:
         return False

@@ -560,7 +560,14 @@ class InExtTreeTask(ExtProjectTask):
         print('Path:', task_actioner.getPath())
         print('Man:', task_actioner.manager.getName())
         return None
-        
+    
+    def isExternalProjectTask(self):
+        return True
+    
+    def drawAsRootTaskSymbol(self):
+        return True
+
+ 
 class JumperTreeTask(InExtTreeTask):
     def __init__(self, task_info: TaskDescription, type="JumperTree") -> None:
         super().__init__(task_info, type)
@@ -674,14 +681,32 @@ class OutExtTreeTask(ExtProjectTask):
     def loadActionerTasks(self, actioners: list):
         self.updateOutExtActMan()
         return None
+    
+    def isExternalProjectTask(self):
+        return self.getParent() == None
 
-    def updateOutExtActMan(self):
+    def updateOutExtActMan(self, actioners = []):
         try:
-            eres, eparam = self.getParamStruct('external')
-            self.intact = self.parent.intact
-            self.intman = self.parent.intman
+            parent = self.getParent()
+            if parent:
+                if parent.checktype("JumperTree") or parent.checktype("InExtTree"):
+                    eres, eparam = self.getParamStruct('external')
+                    self.intact = self.parent.intact
+                    self.intman = self.parent.intman
 
-            self.intch_trg = self.intman.getTaskByName(eparam['target'])
+                    self.intch_trg = self.intman.getTaskByName(eparam['target'])
+            else:
+                eres, eparam = self.getParamStruct('external')
+                if eres and eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
+                    trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+                    for actioner in actioners:
+                        if actioner.getPath() == trg_path:
+                            man = actioner.std_manager
+                            self.intact = actioner
+                            self.intman = man
+                            self.intch_trg = man.getTaskByName(eparam['target'])
+                            return
+
             
         except Exception as e:
             print('Failed load man and act:', e)

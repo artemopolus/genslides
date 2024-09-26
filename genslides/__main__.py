@@ -223,7 +223,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
                                 
                                 inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
-                                updselinexttreetasks_btn = gr.Button('Update selected')
+                                updselinexttreetasks_btn = gr.Button('Load selected task')
                                 getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
                 with gr.Row():
                     dial_block = gr.Chatbot(height=800)
