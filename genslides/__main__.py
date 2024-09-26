@@ -219,6 +219,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # move2brnch_btn = gr.Button(value='Move to next branch', min_width=150)
                             # move2parnt_btn = gr.Button(value='Go up')
                             # move2child_btn = gr.Button(value='Go down')
+                            fix_task_btn = gr.Button(value = 'Fix Q Tasks')
                             with gr.Column():
                                 getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
                                 
@@ -500,6 +501,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             reparup_btn = gr.Button(value='ReparentUP')
                             unparent_btn = gr.Button(value='Unparent')
                             unlink_btn = gr.Button(value='Unlink')
+                        with gr.Row(visible=False):
                             unite_btn = gr.Button(value='Unite')
                             copy_chain_btn = gr.Button(value='Copy ch step')
                             update_task_btn = gr.Button(value="Update")
@@ -755,9 +757,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # with gr.Row():
                                 # load_extproj_act_btn = gr.Button('Set Act InOutExtTree')
                                 # reset_initact_btn = gr.Button('Set Act ProjectBase')
-                            with gr.Row():
+                            with gr.Row(visible=False):
                                 inoutexttreeparamget_btn = gr.Button('Get params for InExtTree OutExtTree Tasks')
-                            with gr.Row():
+                            with gr.Row(visible=False):
                                 with gr.Column():
                                     inexttaskname_txt = gr.Textbox(label='In ExtTask Name')
                                     inexttaskparamedit_jsn = gr.JSON(label='In ExtTask Param')
@@ -859,7 +861,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         trg_params_list.select(fn=projecter.getByTaskNameTasksKeys, inputs=[parents_list, trg_params_list], outputs=[trg_keys_list])
                         gr.Button('Copy').click(fn=projecter.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
                         project_clear = gr.Button(value="clear tasks")
-                        fix_task_btn = gr.Button(value = 'Fix Q Tasks')
                         gr.Button('Check Trash').click(fn=projecter.checkTrashInManagerFolder)
  
             with gr.Row() as r:
