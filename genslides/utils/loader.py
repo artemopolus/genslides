@@ -94,17 +94,8 @@ class Loader:
         app.destroy()
 
         out_filenames = []
-
         for filepath in filename_src:
-            path = Path(filepath)
-            filename = PurePosixPath(path)
-            if manager_path != '':
-                mfilename = Loader.checkManagerTag(path, manager_path, False)
-                if Path(filename) == Path(mfilename):
-                    mfilename = Loader.checkManagerTag(path, manager_path)
-            else:
-                mfilename = filename
-            out_filenames.append(mfilename)
+            out_filenames.append(Loader.getManRePath(filepath, manager_path))
         return out_filenames
  
     def getFilePathFromSystemRaw(filetypes = [('Project archive','*.7z')]) -> Path:
@@ -156,6 +147,43 @@ class Loader:
             filename = str(PurePosixPath(path))
             return filename
         return filename
+    
+    def restorePathUsingManPath(key : str, man_path):
+        if key.startswith('sub'):
+            index = int(key.split('_')[1])
+            mpath = Path(man_path)
+            npath = mpath
+            for idx in range(index):
+                npath = npath.parent
+            if platform == 'win32':
+                return str(PurePosixPath(npath))
+            return str(npath)
+        return man_path
+        
+        
+    
+    def getManRePath(trgpath, man_path):
+        spath = Path(trgpath)
+        mpath = Path(man_path)
+        idx = 0
+        while True:
+            try:
+                rpath = spath.relative_to(mpath)
+                str_rel_path = str(PurePosixPath(rpath))
+                filename = '[[manager:path:sub_'+ str(idx) +']]/'+ str_rel_path
+                return filename
+            except Exception as e:
+                npath = mpath.parent
+                if str(npath) == str(mpath):
+                    return trgpath
+                else:
+                    mpath = npath
+            idx += 1
+            if idx > 1000:
+                break
+        return trgpath
+
+
 
     def checkManagerTagRe(dirpath, manager_path):
         path = Path(dirpath)

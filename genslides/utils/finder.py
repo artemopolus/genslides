@@ -338,7 +338,7 @@ def findByKey2(text, manager , base):
                         elif arr[2] == 'spc':
                             trg_text = Loader.Loader.getFolderPath(path=manager.getPath(), to_par_fld = False)
                         else:
-                            trg_text = res
+                            trg_text = Loader.Loader.restorePathUsingManPath(arr[2],manager.getPath())
                         if len(arr) > 3 and arr[3] == 'name':
                             trg_text = FileMan.getFileName(trg_text)
                         rep_text = rep_text.replace(res, trg_text)
