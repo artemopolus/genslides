@@ -215,6 +215,7 @@ class ExtProjectTask(CollectTask):
         code_s = ""
         if self.intman is None:
             print('No manager', self.getName())
+            return ""
         if second in self.intman.task_list and len(self.intpar.getChilds()) > 1:
             trg1 = second
             code_s += self.manager.getShortName(trg1.getType(), trg1.getName())
