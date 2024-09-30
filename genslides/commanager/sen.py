@@ -28,6 +28,7 @@ import datetime
 import pyperclip
 import pathlib
 import matplotlib.pyplot as plt
+import copy
 
 class Projecter:
     def __init__(self, manager : Manager = None, path = 'saved') -> None:
@@ -2797,7 +2798,8 @@ class Projecter:
     
     def selectTargetActioner(self):
         self.trg_actioner = self.actioner
-        return gr.Button(interactive=True)
+
+        return gr.Button(interactive=True),gr.Button(interactive=True), self.trg_actioner.getPath()
 
     def moveMultiSelectedTasksFromTargetActioner( self ):
         act = self.trg_actioner
@@ -2810,8 +2812,22 @@ class Projecter:
                 cur_man.rmvTask(task)
                 task.saveAllParams()
         print('Move to ext actioner tasks:', [t.getName() for t in tasks])
-        return gr.Button(interactive=False)
+        return gr.Button(interactive=False), gr.Button(interactive=False), ''
     
+    def copyMultiSelectedTasksFromTargetActioner( self ):
+        act = self.trg_actioner
+        cur_man = act.manager
+        next_man = self.actioner.manager
+        tasks = act.manager.getMultiSelectedTasks()
+        for task in tasks:
+                new_task = copy.deepcopy(task)
+                next_man.addTask(new_task)
+                new_task.setManager(next_man)
+                new_task.saveAllParams()
+                print(f"Copy {task.getName()} from {task.manager.getName()} to {new_task.manager.getName()}")
+        # print('Move to ext actioner tasks:', [t.getName() for t in tasks])
+        return gr.Button(interactive=False), gr.Button(interactive=False),''
+   
     def copyExtTreeTaskContentWithSelected(self):
         print('Copy InExtTree Task(s): Selected -> Multi')
         man = self.actioner.manager

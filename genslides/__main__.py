@@ -479,15 +479,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 minichainstobig_btn = gr.Button('Mini chains to ONE')
                                 disunselectchild_btn = gr.Button('Disable unselected children from queue')
                                 enablemultichilds_btn = gr.Button('Enable children to queue')
-                                selectactioner_btn = gr.Button('Select Multiselected Task Act')
-                                copymultiselecttask_btn = gr.Button('Mov here Act Multi Task', interactive=False)
 
                                 copyinexttreetask_btn = gr.Button('Copy From Selected InExtTree to Multi InExtTrees')
 
                                 applyautocmdtomulti_btn = gr.Button('Apply AutoCmd to Multi')
-                                selectactioner_btn.click(fn=projecter.selectTargetActioner, outputs=[copymultiselecttask_btn])
-                                copymultiselecttask_btn.click(fn=projecter.moveMultiSelectedTasksFromTargetActioner, outputs=[copymultiselecttask_btn])
-
 
                                 with gr.Row():
                                     savemultitasks_txt = gr.Textbox()
@@ -670,6 +665,16 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 actions_list_toadd.select(fn=projecter.getAvailableActionTemplate,inputs=actions_list_toadd, outputs=action_param)
                                 gr.Button('Save action').click(fn=projecter.addActionToCurrentManager, inputs=[actions_list_toadd, action_param], outputs=actions_list)
                                 actions_list.change(fn=projecter.getActionInfo, inputs=actions_list, outputs=actions_info_txt)
+                    with gr.Tab('InterAct'):
+                        selectactioner_btn = gr.Button('Select Multiselected Task Act')
+                        selact_txt = gr.Textbox(label='Selected Actioner')
+                        movemultiseltask_btn = gr.Button('Move here Act Multi Task', interactive=False)
+                        copymultiseltask_btn = gr.Button('Copy here Act Multi Task', interactive=False)
+                        selectactioner_btn.click(fn=projecter.selectTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
+                        movemultiseltask_btn.click(fn=projecter.moveMultiSelectedTasksFromTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
+                        copymultiseltask_btn.click(fn=projecter.copyMultiSelectedTasksFromTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
+
+ 
                     with gr.Tab('ExtProject'):
                         with gr.Tab('Create'):
                             with gr.Row():
