@@ -1512,3 +1512,27 @@ class BaseTask():
     
     def forceCleanChat(self):
         pass
+
+    def getCopyInfo(self, param):
+        task = self
+        if 'reqSraw' in param and param['reqSraw']:
+            prompt=task.getPromptContentForCopyConverted() 
+        else:
+            prompt=task.getPromptContentForCopy() 
+        prompt_tag=task.getLastMsgRole()
+        trg_type = task.getType()
+        param_task = task.copyAllParams(True)
+        prio = task.getPrio()
+        parent_name = ""
+        if self.getParent():
+            parent_name = self.getParent().getName()
+        return {
+            "prompt":prompt,
+            "role":prompt_tag,
+            "trg_type": trg_type,
+            "params" : param_task,
+            "prio": prio,
+            "trgtaskname": self.getName(),
+            "parent": parent_name
+        }
+

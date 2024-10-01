@@ -673,6 +673,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         selectactioner_btn.click(fn=projecter.selectTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
                         movemultiseltask_btn.click(fn=projecter.moveMultiSelectedTasksFromTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
                         copymultiseltask_btn.click(fn=projecter.copyMultiSelectedTasksFromTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
+                        
+                        interactlist_drd = gr.Dropdown(choices=[],label='Actioners list')
+                        gr.Button('Get actioners list').click(fn=projecter.getActionerPathsList, outputs=interactlist_drd)
+                        interact_rad = gr.Radio(label='Copy Type', choices=['Current children','Act diffs'])
+                        compareacts_btn = gr.Button('Get tasks to create')
+                        interact_jsn = gr.JSON(label='Tasks to create')
+                        compareacts_btn.click(fn=projecter.interCompareActioners, inputs=[interactlist_drd, interact_rad], outputs=interact_jsn)
+                        gr.Button('Create').click(fn=projecter.copyTasksFromActionerToActioner, inputs=interact_jsn, outputs=interact_jsn)
+
+
+
 
  
                     with gr.Tab('ExtProject'):

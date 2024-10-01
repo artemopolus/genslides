@@ -2908,5 +2908,49 @@ class Projecter:
                 task.loadActionerTasks(self.getActionersList())
                 task.saveAllParams()
 
+    def getBranchInfoFromManager(self, manager : Manager, trgtask : BaseTask):
+        param = self.setEditChecks([])
+        param['task_text'] = True
+        manager.setCurrentTask(trgtask)
+        branch_infos = manager.getTasksChainsFromCurrTask(param)
+        for info in branch_infos:
+            tasks = info['branch']
+            task_info = []
+            for task in tasks:
+                task_info.append(task.getCopyInfo({}))
+            info['branch'] = task_info
 
+            info['parent_branch'] = info['i_par']
+            info['child_branches'] = info['idx']
+            del info['done']
+            del info['parent']
+            del info['i_par']
+            del info['idx']
+        return branch_infos
+
+
+    def interCompareActioners(self, actioner_path, gettype):
+        out = []
+        trg_man = self.actioner.manager
+        if gettype == 'Current children':
+            
+            out.append( self.getBranchInfoFromManager(trg_man, trg_man.getCurrentTask()) )
+        elif gettype == 'Act diffs':
+            src_man = self.getActionerByPath(actioner_path).manager
+            diff_tasks = []
+            srctasknames =[t.getName() for t in src_man.getTaskList()]
+            trgtasknames =[t.getName() for t in trg_man.getTaskList()]
+            for name in srctasknames:
+                if name not in trgtasknames:
+                    diff_tasks.append(src_man.getTaskByName(name))
+            rooottreetasks = src_man.getSeparateTreesFromTaskList(diff_tasks)
+            for task in rooottreetasks:
+                out.append( self.getBranchInfoFromManager(src_man, task) )
+        return out
+    
+    def copyTasksFromActionerToActioner(self, infos):
+        trg_man = self.actioner.manager
+        for info in infos:
+            trg_man.copyTree(info)
+        return {}
 

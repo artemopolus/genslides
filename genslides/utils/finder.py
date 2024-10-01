@@ -4,6 +4,7 @@ import genslides.utils.reqhelper as Helper
 import genslides.utils.filemanager as FileMan
 import json
 import genslides.task_tools.records as rd
+import genslides.task_tools.array as toolarr
 
 def convertTextPartToMsg(md_text):
     code_pattern = r'```\n(.*?)\n```'
@@ -148,6 +149,13 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                     records = rd.getTrgInfoInRecordsByOptions(pparam, arr)
                     if records != "":
                         rep_text = rep_text.replace(res, records)
+                elif arr[2] == 'array' and len(arr) > 4 and arr[3] == "array":
+                    try:
+                        value = int(arr[4])
+                        text = toolarr.getArrayByIndex(pparam["array"], value, pparam, task.getLastMsgContent())
+                        rep_text = rep_text.replace(res, text)
+                    except:
+                        pass
                 elif arr[3] in pparam:
                     value = pparam[arr[3]]
                     if isinstance(value, str):

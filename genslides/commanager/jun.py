@@ -2067,6 +2067,7 @@ class Manager:
         prompt_tag=task.getLastMsgRole()
         trg_type = task.getType()
         param_task = task.copyAllParams(True)
+        prio = task.getPrio()
         if j == 0:
             if branch['i_par'] is not None:
                 parent = tasks_chains[branch['i_par']]['created'][-1]
@@ -2130,7 +2131,6 @@ class Manager:
         else:
             self.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
         if j != 0:
-            prio = task.getPrio()
             self.curr_task.setPrio(prio)
 
         if j == 0:
@@ -2856,4 +2856,70 @@ class Manager:
 
     def getCurrentTreeRootTask(self) -> BaseTask:
         return self.tree_arr[ self.tree_idx ]
+    
+    def copyTree(self, branch_infos):
+        for info in branch_infos:
+            if info['parent_branch'] != None:
+                last_branch = branch_infos[info['parent_branch']]['created']
+                task = self.getTaskByName(last_branch[-1])
+                self.copyBranchPartByInfo(info, task)
+            else:
+                self.copyBranchPartByInfo(info, None)
+        return info
 
+
+    def copyBranchPartByInfo(self, branch, start_parent: BaseTask):
+        parent = start_parent
+        branch['created'] = []
+        branch['convert'] = []
+        for j, task_info in enumerate(branch['branch']):
+            # task_info = branch['branch'][j]
+            param_task = task_info['params']
+            if j != 0:
+                parent = self.getCurrentTask()
+            trg_type = task_info["trg_type"]
+            prompt = task_info["prompt"]
+            role = task_info["role"]
+            prio = task_info["prio"]
+            trgtaskname = task_info["trgtaskname"]
+            if trg_type.endswith('InExtTree'):
+                # res, param = task.getParamStruct('external')
+                try:
+                    found = False
+                    for i,param in enumerate(param_task):
+                        if param['type'] == 'external':
+                            found = True
+                            param_task[i]['retarget']['chg'] = parent.getName()
+                            param_task[i]['project_path'] = param_task[i]['exttreetask_path']
+                            param_task[i]['copy'] = 'Copy'
+                            del param_task[i]['exttreetask_path']
+
+                            # param_task[i]['retarget']['chg'] = parent.getName()
+                            break
+                    if found:
+                        self.createOrAddTask(prompt, trg_type, role, parent, param_task, trgtaskname)
+                    else:
+                        print('No options for InExtTree')
+                except Exception as e:
+                    print('InExtTree task create error:', e)
+                    return False
+            else:
+                self.createOrAddTask(prompt, trg_type, role, parent, param_task, trgtaskname)
+            if j != 0:
+                self.curr_task.setPrio(prio)
+
+            if j == 0:
+                self.curr_task.freezeTask()
+            
+            if trg_type.endswith('Response') and prompt != "":
+                self.curr_task.forceSetPrompt(prompt)
+
+            branch['created'].append(self.getCurrentTask().getName())
+            branch['convert'].append({'from': task_info["trgtaskname"], 'to': self.getCurrentTask().getName()})
+
+    def getSeparateTreesFromTaskList(self, tasks : list[BaseTask]):
+        treetasks = []
+        for task in tasks:
+            if task.getParent() is None or task.getParent() not in tasks:
+                treetasks.append(task)
+        return treetasks
