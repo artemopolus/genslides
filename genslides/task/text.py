@@ -463,7 +463,7 @@ class TextTask(BaseTask):
             msg['content'] = text
  
     def getMsgs(self, except_task = [], hide_task = True, max_symbols = -1):
-        print(f"Get msgs from {self.getName()}")
+        # print(f"Get msgs from {self.getName()}")
         rres, rparam = self.getParamStruct("response")
         if rres and "restricted_index" in rparam and rparam["restricted_index"]:
             target_index = rparam["index"]
@@ -478,13 +478,14 @@ class TextTask(BaseTask):
             res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols)
             if res and task.getName() not in except_task:
                 if mres and mparam["autoconnect"] and len(out) and len(msg) and out[0]["role"] == msg[-1]["role"]:
-                    if len(msg):
-                        print(index, " ", task.getName(),"give", len(msg), "msg", msg[-1]["role"]) 
-                        print(out[0]["role"],"==", msg[-1]["role"])
-                    text = mparam["prefix"] + msg[-1]["content"] + mparam["suffix"]
-                    text += out[0]["content"]
-                    out[0]["content"] = text
+                        # print(index, " ", task.getName(),"give", len(msg), "msgs") 
+                        # print("chat:",len(out), "role", out[0]["role"])
+                        # print("mesg:",len(msg), "role", msg[-1]["role"])
+                        text = mparam["prefix"] + msg[-1]["content"] + mparam["suffix"]
+                        text += out[0]["content"]
+                        out[0]["content"] = text
                 else:
+                    # print(f"Extend by {task.getName()}")
                     msg.extend(out)
                     out = msg
                 # print(index, task.getName(),'give',len(out))
@@ -495,7 +496,7 @@ class TextTask(BaseTask):
             else:
                 task = par
             index += 1
-
+        # print(f"Res msgs:{len(out)}")
         return out
 
 
