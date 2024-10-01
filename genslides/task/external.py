@@ -18,3 +18,4 @@ class ExternalInput(RqTask.RequestTask):
             self.freezeTask()
         else:
             super().stdProcessUnFreeze(input)
+

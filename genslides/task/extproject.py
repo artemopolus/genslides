@@ -762,3 +762,6 @@ class OutExtTreeTask(ExtProjectTask):
     def removeProject(self):
         pass
 
+    def getParamStructFromExtTask(self, param_name):
+        return False, self.intch_trg, None
+ 
