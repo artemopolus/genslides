@@ -28,6 +28,7 @@ def getRecordsRow( rparam : dict, cparam : dict ) -> str:
         trg_chat_msgs = []
         if 'range' in cparam:
             chat_range = cparam['range']
+            print('chat range:',chat_range)
             nums = chat_range.split(',')
             for num in nums:
                 if num.isdigit():
@@ -60,6 +61,7 @@ def getRecordsChat( rparam : dict, cparam : dict ) -> list:
         cparam['chat_count'] = len(rparam['data'])
         if 'range' in cparam:
             chat_range = cparam['range']
+            print('chat range:',chat_range)
             nums = chat_range.split(',')
             for num in nums:
                 num = num.replace(" ","")
