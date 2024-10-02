@@ -32,7 +32,7 @@ class ReadBranchTask(TextTask):
         return super().updateIternal(input)
     
     def readBranch(self):
-        print(self.getName(), 'Get read branch chat')
+        # print(self.getName(), 'Get read branch chat')
         eres, eparam = self.getParamStruct("ReadBranch")
         if not eres:
             return []
@@ -52,7 +52,7 @@ class ReadBranchTask(TextTask):
     def getJsonDial(self, eparam):
         try:
             s_path = ld.Loader.getUniPath( self.findKeyParam( eparam['path_to_read'] ) )
-            print("path_to_read =", s_path)
+            # print("path_to_read =", s_path)
             with open(s_path, 'r') as f:
                 rq = json.load(f)
                 if isinstance(rq, list):
@@ -69,7 +69,8 @@ class ReadBranchTask(TextTask):
                             return msgs
 
         except Exception as e:
-            print("json error type=", e)
+            # print("json error type=", e)
+            pass
         return []
 
 

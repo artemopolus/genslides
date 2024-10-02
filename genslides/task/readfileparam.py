@@ -112,7 +112,7 @@ class ReadFileParamTask(ReadFileTask):
                             else:
                                 self.msg_list = rq
                         except ValueError as e:
-                            print("json error type=", type(e))
+                            # print("json error type=", type(e))
                             self.msg_list = []
     
                     return False, ""

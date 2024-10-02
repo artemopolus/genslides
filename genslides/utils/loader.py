@@ -53,7 +53,7 @@ class Loader:
                     prop = prop[:val] + "}"
                     break
         else:
-            print('Can\'t find json object in txt', arr)
+            # print('Can\'t find json object in txt', arr)
             return False, None
         # print(prop)
         try:

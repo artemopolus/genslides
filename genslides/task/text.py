@@ -63,7 +63,8 @@ class TextTask(BaseTask):
         self.checkparentsettrue = val
 
     def onEmptyMsgListAction(self):
-        print('On empty msg list', self.getName())
+        # print('On empty msg list', self.getName())
+        pass
 
     def onExistedMsgListAction(self, msg_list_from_file):
         pass

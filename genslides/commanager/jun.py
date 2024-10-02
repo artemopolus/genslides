@@ -98,7 +98,7 @@ class Manager:
 # TODO: сменить место хранения параметров менеджера
     def setParam(self, param_name, param_value):
         if param_name in self.params:
-            print("Set ",param_name," to ",param_value)
+            # print("Set ",param_name," to ",param_value)
             self.params[param_name] = param_value
             with open(self.path_to_file, 'w') as f:
                 json.dump(self.params,f,indent=1)
@@ -320,7 +320,7 @@ class Manager:
     
     
     def goToTreeByName(self, name):
-        print('Go to tree by name', name)
+        # print('Go to tree by name', name)
         for i in range(len(self.tree_arr)):
             trg = self.getTreeName(self.tree_arr[i])
             if trg == name:
@@ -493,6 +493,8 @@ class Manager:
     def getBranchEndTask(self)-> BaseTask:
         task = None
         try:
+            if len(self.endes) == 0:
+                self.iterateOnBranchEnd()
             task = self.endes[self.endes_idx]
         except Exception as e:
             print('Error on get branch end:',e)
@@ -1423,7 +1425,7 @@ class Manager:
         for task in self.task_list:
             if task.getName() == name:
                 return task
-        print('Can\'t get task by name', name)
+        # print('Can\'t get task by name', name)
         return None
     
     def updateSetOption(self, task_name, param_name, key, value):
@@ -1660,10 +1662,10 @@ class Manager:
         dt2 = datetime.datetime.now()  
         delta = dt2 - dt1
         init_log += str(delta.microseconds /1000) + 'ms'      
-        if next:
-            print(init_log,'===>', next.getName(),'in tasks list:',next in self.task_list)
-        else:
-            print(init_log, 'Next task is None')
+        # if next:
+        #     print(init_log,'===>', next.getName(),'in tasks list:',next in self.task_list)
+        # else:
+        #     print(init_log, 'Next task is None')
 
         if next not in self.curr_task.getTree():
             # print('Go to the next tree')
@@ -1875,7 +1877,7 @@ class Manager:
         return task_man.getParamOptBasedOptionsDict()
 
     def appendNewParamToTask(self, param_name):
-        print('Append new param',param_name,'to task', self.curr_task.getName())
+        # print('Append new param',param_name,'to task', self.curr_task.getName())
         task_man = TaskManager()
         param = task_man.getParamBasedOptionsDict(param_name)
         if param is not None:

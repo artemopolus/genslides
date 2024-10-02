@@ -133,10 +133,10 @@ class Projecter:
         python_path = Finder.findByKey("[[project:RunScript:python]]", man, man.curr_task, man.helper)
         fld = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper)
         spc = Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper)
-        print("Vars for manager")
-        print(f"Python path: { Loader.Loader.getUniPath( python_path )}")
-        print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
-        print(f"Manager space: { Loader.Loader.getUniPath( spc )}")
+        # print("Vars for manager")
+        # print(f"Python path: { Loader.Loader.getUniPath( python_path )}")
+        # print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
+        # print(f"Manager space: { Loader.Loader.getUniPath( spc )}")
    
     def loadManagerFromBrowser(self):
         man_path = Loader.Loader.getDirPathFromSystem()
@@ -150,9 +150,9 @@ class Projecter:
             self.actioner.reset()
         self.actioner.setPath(path)
         self.manager = self.actioner.std_manager
-        print('Manager start tasks list:',len(self.manager.task_list))
+        # print('Manager start tasks list:',len(self.manager.task_list))
         self.manager.onStart()
-        print('Manager after reset tasks list:',len(self.manager.task_list))
+        # print('Manager after reset tasks list:',len(self.manager.task_list))
         self.manager.initInfo(self.loadExtProject, path = self.actioner.getPath())
         if load:
             self.manager.disableOutput2()
@@ -165,7 +165,7 @@ class Projecter:
 # сохранение сессионных имен необходимо связать только с проектером сеном, а не с менеджером
     def updateSessionName(self):
         self.session_name_curr = self.current_project_name + "_" + datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        print("Name of session=",self.session_name_curr)
+        # print("Name of session=",self.session_name_curr)
         self.manager.setParam("session_name",self.session_name_curr)
 
 
@@ -712,7 +712,7 @@ class Projecter:
             mnl_value = False
         elif mnl_value == 'True':
             mnl_value = True
-        print('Set task key value:','|'.join([param_name,key,str(mnl_value)]))
+        # print('Set task key value:','|'.join([param_name,key,str(mnl_value)]))
         self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'manual':mnl_value})
         return self.updateTaskManagerUI()
     
@@ -720,7 +720,7 @@ class Projecter:
         return option
     
     def addTaskNewKeyValue(self, param_name, key, value):
-        print('Set task key value:','|'.join([param_name,key,str(value)]))
+        # print('Set task key value:','|'.join([param_name,key,str(value)]))
         self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'select':value,'manual':''})
         return self.updateTaskManagerUI()
     
@@ -948,10 +948,10 @@ class Projecter:
         python_path = Finder.findByKey("[[project:RunScript:python]]", man, man.curr_task, man.helper)
         fld = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper)
         spc = Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper)
-        print("Vars for manager")
-        print(f"Python path: { Loader.Loader.getUniPath( python_path )}")
-        print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
-        print(f"Manager space: { Loader.Loader.getUniPath( spc )}")
+        # print("Vars for manager")
+        # print(f"Python path: { Loader.Loader.getUniPath( python_path )}")
+        # print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
+        # print(f"Manager space: { Loader.Loader.getUniPath( spc )}")
    
 
 
@@ -2062,6 +2062,19 @@ class Projecter:
         outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
                 TaskDescription(prompt='', prompt_tag='user',parent=None, params=[param]))
         return self.updateMainUIelements()
+    
+    def createOutExtTreeTask(self, trgtask_name, task_name):
+        man = self.actioner.manager
+
+        param = {
+                'type':'external', 
+                'dir':'Out',
+                'target': task_name
+                }
+        man = self.actioner.manager
+        outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
+                TaskDescription(prompt='', prompt_tag='user',parent=man.getTaskByName(trgtask_name), params=[param]))
+        return self.updateMainUIelements()
 
     def convertTaskBranchInInOutExtPair(self):
         man = self.actioner.manager
@@ -2494,7 +2507,7 @@ class Projecter:
             if len(def_vals) == 0:
                 def_vals = [k for k, v in data.items()]
             a.extend(def_vals)
-        print('Get named task keys', a)
+        # print('Get named task keys', a)
         val = None
         return gr.Dropdown(choices=a, value=val, interactive=True)
 
@@ -2881,17 +2894,24 @@ class Projecter:
         cur = ""
         sel = ""
         trg_names = []
+        isjumpaer = False
         if act != None:
             eres, eparam = task.getParamStruct('external')
             if eres:
                 if task.checkType("JumperTree"):
                     curr_trg_name = eparam['jumper']
+                    isjumpaer = True
                 elif task.checkType("OutExtTree"):
                     curr_trg_name = eparam['target']
                 trg_names =[t.getName() for t in act.manager.task_list]
                 sel = act.manager.getCurrentTask().getName()
                 cur = act.manager.getSelectedTask().getName()
-        return gr.Dropdown(value=curr_trg_name, choices=trg_names, interactive=True), cur, sel
+        return (gr.Dropdown(value=curr_trg_name, choices=trg_names, interactive=True),
+                cur, 
+                sel, 
+                man.getCurrentTask().getName(),
+                gr.Button(interactive=isjumpaer)
+                )
     
     def setExtTreeParams(self, target_name):
         man = self.actioner.manager

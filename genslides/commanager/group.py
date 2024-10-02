@@ -52,7 +52,7 @@ class Actioner():
         return self.path
 
     def clearTmp(self):
-        print('Clear temporary files')
+        # print('Clear temporary files')
         pass
         # tmppath = os.path.join(self.getPath(),'tmp')
         # if os.path.exists(tmppath):
@@ -1312,7 +1312,7 @@ class Actioner():
    
     def getTaskKeyValueInternal(self, param_name, param_key):
         man = self.manager
-        print('Get task key value:',param_name,'|', param_key)
+        # print('Get task key value:',param_name,'|', param_key)
         interacttive_drd = True
         multiselect_drd = False
         choices = []
@@ -1367,7 +1367,7 @@ class Actioner():
                     values.append(cur_val)
             else:
                 values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
-            print('Update with [',cur_val,'] from', values)
+            # print('Update with [',cur_val,'] from', values)
             if len(values):
                 if cur_val in values:
                     return values, cur_val, interacttive_drd, multiselect_drd, cur_val, True

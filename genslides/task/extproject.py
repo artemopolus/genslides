@@ -214,7 +214,7 @@ class ExtProjectTask(CollectTask):
     def getBranchCode(self, second) -> str:
         code_s = ""
         if self.intman is None:
-            print('No manager', self.getName())
+            # print('No manager', self.getName())
             return ""
         if second in self.intman.task_list and len(self.intpar.getChilds()) > 1:
             trg1 = second
@@ -410,7 +410,7 @@ class InExtTreeTask(ExtProjectTask):
         
 
     def afterFileLoading(self, trg_files=[]):
-        print('After file loading', self.getName())
+        # print('After file loading', self.getName())
         eres, eparam = self.getParamStruct('external')
         # if 'inexttree' in eparam  and eparam['inexttree'] != 'None':
         #     return
@@ -445,7 +445,7 @@ class InExtTreeTask(ExtProjectTask):
                     trg_path = src_path
         self.intman.setPath(trg_path)
         self.intman.initInfo(self.manager.loadexttask, task = None, path = trg_path, params={'task_names':[exttrgtask.getName()]})
-        print('ExtTargetTask=',exttrgtask.getName())
+        # print('ExtTargetTask=',exttrgtask.getName())
         self.intman.addTask(exttrgtask)
         self.intman.addRenamedPair(eparam['retarget']['std'],eparam['retarget']['chg'])
 
@@ -574,7 +574,7 @@ class JumperTreeTask(InExtTreeTask):
         super().__init__(task_info, type)
 
     def afterFileLoading(self, trg_files=[]):
-        print('After file loading', self.getName())
+        # print('After file loading', self.getName())
         eres, eparam = self.getParamStruct('external')
         if 'inexttree' in eparam  and eparam['inexttree'] != 'None':
             return
@@ -669,13 +669,13 @@ class OutExtTreeTask(ExtProjectTask):
     
     def afterFileLoading(self, trg_files=[]):
         if self.getParent():
-            print(f"Parent [{self.getName()}]:{self.getParent().getName()}")
+            # print(f"Parent [{self.getName()}]:{self.getParent().getName()}")
             if self.getParent().checkType( 'InExtTree'):
                 pass
             elif self.getParent().checkType( 'JumperTree'):
                 pass
             else:
-                print(f'Parent of {self.getName()} is not InExtTree')
+                # print(f'Parent of {self.getName()} is not InExtTree')
                 return
         self.updateOutExtActMan()
         self.saveAllParams()
@@ -685,13 +685,15 @@ class OutExtTreeTask(ExtProjectTask):
         return None
     
     def isExternalProjectTask(self):
-        return self.getParent() == None
+        if self.getParent() == None:
+            return True
+        return not self.getParent().isExternalProjectTask()
 
     def updateOutExtActMan(self, actioners = []):
         try:
             parent = self.getParent()
-            if parent:
-                if parent.checkType("JumperTree") or parent.checkType("InExtTree"):
+            if parent and parent.isExternalProjectTask():
+                # if parent.checkType("JumperTree") or parent.checkType("InExtTree"):
                     eres, eparam = self.getParamStruct('external')
                     self.intact = self.parent.intact
                     self.intman = self.parent.intman
@@ -711,7 +713,8 @@ class OutExtTreeTask(ExtProjectTask):
 
             
         except Exception as e:
-            print('Failed load man and act:', e)
+            # print('Failed load man and act:', e)
+            pass
 
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
         return False, [], self.intch_trg
@@ -746,7 +749,8 @@ class OutExtTreeTask(ExtProjectTask):
                 param = {'type':'bud','text': bparam['text'],'branch':self.getBranchCodeTag()}
                 self.setParamStruct(param)
             else:
-                print('No param for summary')
+                # print('No param for summary')
+                pass
  
             
         except Exception as e:

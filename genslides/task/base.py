@@ -157,7 +157,8 @@ class TaskManager(metaclass=Singleton):
                     if 'chat' in rq and 'type' in rq:
                         taskspack.append({'task_path': path, 'parent_path':parent_path, 'filename':filename})
             except Exception as e:
-                print("Task prompts error=", type(e),"using", path)
+                # print("Task prompts error=", type(e),"using", path)
+                pass
         new_cache['tasks'] = taskspack
         self.tasks_cache.append(new_cache)
 
@@ -271,7 +272,8 @@ class TaskManager(metaclass=Singleton):
             except json.decoder.JSONDecodeError as e:
                 print("Get json error on task prompts=", e,"using", path)
             except Exception as e:
-                print("Task prompts error=", type(e),"using", path)
+                # print("Task prompts error=", type(e),"using", path)
+                pass
             if  ignore_safe and trg_path != "" and len(out) == len(pr_ch):
                 break
         # print('Target files count:',len(pr_ch),'from',len(onlyfiles),'for', trg_path,'in', idx, 'iter')
