@@ -324,14 +324,19 @@ class BaseTask():
         self.method = task_info.method
         task_manager = TaskManager()
         self.id = task_manager.getId(self, self.manager)
-        self.name =  ""
         self.pref = self.manager.getProjPrefix()
         self.parent = None
         self.affect_to_ext_list = []
         self.by_ext_affected_list = []
         self.queue = []
         self.is_freeze = False
-        self.setName( self.type + str(self.id))
+        self.trgtaskname = task_info.trgtaskname
+        self.name =  ""
+        if self.trgtaskname != "":
+            if self.manager.getTaskByName(self.trgtaskname) == None:
+                self.setName(self.trgtaskname)
+        else:
+            self.setName( self.type + str(self.id))
         request = self.init + self.prompt + self.endi
         self.task_description = "Task type = " + self.type + "\nRequest:\n" + request
         self.task_creation_result = "Results of task creation:\n"
@@ -342,7 +347,6 @@ class BaseTask():
         
         self.target = task_info.target
         self.filename = task_info.filename
-        self.trgtaskname = task_info.trgtaskname
 
 
     def getBranchCodeTag(self) -> str:
@@ -657,6 +661,7 @@ class BaseTask():
 
     def getChildAndLinks(self, task, pparam, start_j = 0):
         # print('Get child and links for', task.getName(),'[',start_j,']')
+        # print("Params:\n", pparam)
         index = 0
         branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
         if 'trg_tasks' in pparam:
@@ -669,11 +674,11 @@ class BaseTask():
                 trg = branch['branch'][-1]
                 j = 0
                 while (j < 1000 and not branch['done']):
-                    # print('Task', trg.getName())
                     if 'check_man' in pparam and pparam['check_man']:
                         childs = trg.getChilds(True)
                     else:
                         childs = trg.getChilds()
+                    print(f"Task {trg.getName()} has {len(childs)} child(ren)")
                     trg.getLinkCopyInfo(branch['links'], pparam)
                     if len(childs) == 1:
                         if childs[0].getName() not in trg_task_names:

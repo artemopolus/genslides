@@ -391,6 +391,9 @@ class Projecter:
                 ]
     
     def setEditChecks(self, checks):
+        return self.setEditChecksByManager(checks, self.actioner.manager)
+
+    def setEditChecksByManager(self, checks, manager):
         param = {}
         param['extedit'] = True
         names = self.getParamListForEdit()
@@ -398,9 +401,9 @@ class Projecter:
         for name in names:
             if name =='onlymulti':
                 if 'onlymulti' in checks:
-                    param['trg_tasks'] = [t.getName() for t in self.actioner.manager.multiselect_tasks]
+                    param['trg_tasks'] = [t.getName() for t in manager.multiselect_tasks]
                 else:
-                    param['trg_tasks'] = [t.getName() for t in self.actioner.manager.task_list]
+                    param['trg_tasks'] = [t.getName() for t in manager.task_list]
             else:
                 param[name] = True if name in checks else False
         param['switch'] = []
@@ -2928,13 +2931,14 @@ class Projecter:
                 task.loadActionerTasks(self.getActionersList())
                 task.saveAllParams()
 
-    def getBranchInfoFromManager(self, manager : Manager, trgtask : BaseTask):
-        param = self.setEditChecks([])
+    def getBranchInfoFromManager(self, trgtask : BaseTask, manager):
+        param = self.setEditChecksByManager([], manager)
         param['task_text'] = True
-        manager.setCurrentTask(trgtask)
-        branch_infos = manager.getTasksChainsFromCurrTask(param)
+        # manager.setCurrentTask(trgtask)
+        branch_infos = trgtask.getTasksFullLinks(param) 
         for info in branch_infos:
             tasks = info['branch']
+            print(f"For {trgtask.getName()} : {len(tasks)} task(s)")
             task_info = []
             for task in tasks:
                 task_info.append(task.getCopyInfo({}))
@@ -2954,7 +2958,7 @@ class Projecter:
         trg_man = self.actioner.manager
         if gettype == 'Current children':
             
-            out["trees"].append( self.getBranchInfoFromManager(trg_man, trg_man.getCurrentTask()) )
+            out["trees"].append( self.getBranchInfoFromManager( trg_man.getCurrentTask(), trg_man) )
         elif gettype == 'Act diffs':
             src_man = self.getActionerByPath(actioner_path).manager
             diff_tasks = []
@@ -2965,7 +2969,7 @@ class Projecter:
                     diff_tasks.append(src_man.getTaskByName(name))
             rooottreetasks = src_man.getSeparateTreesFromTaskList(diff_tasks)
             for task in rooottreetasks:
-                out["trees"].append( self.getBranchInfoFromManager(src_man, task) )
+                out["trees"].append( self.getBranchInfoFromManager( task, src_man ) )
 
             srclinks = src_man.getLinksList()
             trglinks = trg_man.getLinksList()
@@ -2980,6 +2984,7 @@ class Projecter:
         for info in infos["trees"]:
             trg_man.copyTree(info)
         for info in infos["links"]:
+            print(f"Try to make link using:{info}")
             task_in = trg_man.getTaskByName(info['to'])
             task_out = trg_man.getTaskByName(info['from'])
             trg_man.makeLink(task_in, task_out)
