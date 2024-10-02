@@ -567,7 +567,7 @@ class BaseTask():
 
 
     def getTasksFullLinks(self, pparam):
-        print('Get child and links for target branch',self.getName())
+        # print('Get child and links for target branch',self.getName())
         branches = self.getChildAndLinks(self, pparam)
         if not pparam['link']:
             return branches
@@ -577,7 +577,7 @@ class BaseTask():
             tmp = []
             for task in linked_task:
                 start_idx = len(branches)
-                print('Get childs and links for linked branch', task.getName())
+                # print('Get childs and links for linked branch', task.getName())
                 new_b = self.getChildAndLinks(task, pparam, start_j=start_idx)
                 self.printBranchesInfo(branches)
                 print('Add by links')
@@ -656,7 +656,7 @@ class BaseTask():
                     trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
 
     def getChildAndLinks(self, task, pparam, start_j = 0):
-        print('Get child and links for', task.getName(),'[',start_j,']')
+        # print('Get child and links for', task.getName(),'[',start_j,']')
         index = 0
         branch_list = [{'branch':[task],'done':False,'parent':task.parent,'i_par':None,'idx':[],'links':[]}]
         if 'trg_tasks' in pparam:

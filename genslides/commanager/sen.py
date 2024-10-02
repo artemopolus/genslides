@@ -2950,27 +2950,38 @@ class Projecter:
 
 
     def interCompareActioners(self, actioner_path, gettype):
-        out = []
+        out = {"trees":[],"links": []}
         trg_man = self.actioner.manager
         if gettype == 'Current children':
             
-            out.append( self.getBranchInfoFromManager(trg_man, trg_man.getCurrentTask()) )
+            out["trees"].append( self.getBranchInfoFromManager(trg_man, trg_man.getCurrentTask()) )
         elif gettype == 'Act diffs':
             src_man = self.getActionerByPath(actioner_path).manager
             diff_tasks = []
-            srctasknames =[t.getName() for t in src_man.getTaskList()]
-            trgtasknames =[t.getName() for t in trg_man.getTaskList()]
+            srctasknames = src_man.getTaskNamesList()
+            trgtasknames = trg_man.getTaskNamesList()
             for name in srctasknames:
                 if name not in trgtasknames:
                     diff_tasks.append(src_man.getTaskByName(name))
             rooottreetasks = src_man.getSeparateTreesFromTaskList(diff_tasks)
             for task in rooottreetasks:
-                out.append( self.getBranchInfoFromManager(src_man, task) )
+                out["trees"].append( self.getBranchInfoFromManager(src_man, task) )
+
+            srclinks = src_man.getLinksList()
+            trglinks = trg_man.getLinksList()
+            for link in srclinks:
+                if link not in trglinks:
+                    out["links"].append(link)
+
         return out
     
     def copyTasksFromActionerToActioner(self, infos):
         trg_man = self.actioner.manager
-        for info in infos:
+        for info in infos["trees"]:
             trg_man.copyTree(info)
+        for info in infos["links"]:
+            task_in = trg_man.getTaskByName(info['to'])
+            task_out = trg_man.getTaskByName(info['from'])
+            trg_man.makeLink(task_in, task_out)
         return {}
 

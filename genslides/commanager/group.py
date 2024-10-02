@@ -1245,7 +1245,7 @@ class Actioner():
 
         gettreenameforradio_names, gettreenameforradio_trg = man.getTreeNamesForRadio()
         mancurtaskgetname = man.curr_task.getName()
-        mangettasklist = man.getTaskList()
+        mangettasklist = man.getTaskNamesList()
         mangetcurtaskparamlist = man.getByTaskNameParamListInternal(man.curr_task)
         curtaskallpars = [t.getName() for t in man.curr_task.getAllParents()]
         mancurtaskgetbranchsum = man.curr_task.getBranchSummary()

@@ -241,7 +241,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                             raw_dial = gr.Chatbot(height=500)
                 with gr.Row():
-                            task_list = gr.Dropdown(choices=manager.getTaskList(), label='Available tasks')
+                            task_list = gr.Dropdown(choices=manager.getTaskNamesList(), label='Available tasks')
                             sel_task_btn = gr.Button(value="Select")
                 with gr.Row():
                             trgtexttosearch_txt = gr.Textbox(label='Text to search')

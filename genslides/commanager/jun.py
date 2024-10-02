@@ -1458,13 +1458,21 @@ class Manager:
         return group
         
  
-    def getTaskList(self) -> list[BaseTask]:
+    def getTaskNamesList(self) -> list[BaseTask]:
         # print('Get tasks list')
         out = []
         for task in self.task_list:
             out.append(task.getName())
         out.sort()
         return out
+    
+    def getLinksList(self) -> list:
+        out = []
+        for task in self.getTasks():
+            for holder in task.getHoldGarlands():
+                out.append({'from':task.getName(), 'to': holder.getName()})
+        return out
+
     
     def getCurrTaskName(self):
         if self.curr_task:
@@ -1482,7 +1490,7 @@ class Manager:
                 self.task_index = i
         # return self.getCurrTaskPrompts() 
            # in_prompt, in_role, out_prompt = self.curr_task.getMsgInfo()
-        # return self.drawGraph(), gr.Dropdown.update(choices= self.getTaskList()), in_prompt, in_role, out_prompt
+        # return self.drawGraph(), gr.Dropdown.update(choices= self.getTaskNamesList()), in_prompt, in_role, out_prompt
 
     def setSelectedTaskByName(self, name):
         task = self.getTaskByName(name)
@@ -2860,13 +2868,19 @@ class Manager:
         return self.tree_arr[ self.tree_idx ]
     
     def copyTree(self, branch_infos):
+        parent_task = None
         for info in branch_infos:
             if info['parent_branch'] != None:
                 last_branch = branch_infos[info['parent_branch']]['created']
-                task = self.getTaskByName(last_branch[-1])
-                self.copyBranchPartByInfo(info, task)
+                parent_task = self.getTaskByName(last_branch[-1])
+                self.copyBranchPartByInfo(info, parent_task)
             else:
-                self.copyBranchPartByInfo(info, None)
+                if len(info['branch']):
+                    trgtaskname = info['branch'][-1]['parent']
+                    if trgtaskname != "":
+                        print(f"Try to find task with {trgtaskname}")
+                        parent_task = self.getTaskByName(trgtaskname)
+                self.copyBranchPartByInfo(info, parent_task)
         return info
 
 

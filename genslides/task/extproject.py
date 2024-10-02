@@ -288,6 +288,16 @@ class ExtProjectTask(CollectTask):
                     self.freezeTask()
                     return
  
+    def updateInternalActioners(self):
+        if self.intact is None:
+            self.freezeTask()
+            return
+        else:
+            self.intact.loadTmpManagerTasks()
+            self.intact.manager.disableOutput2()
+            self.intact.updateAll(force_check=True)
+            self.intact.manager.enableOutput2()
+ 
 class SearcherTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="Searcher") -> None:
         super().__init__(task_info, type)
@@ -396,6 +406,7 @@ class SearcherTask(ExtProjectTask):
     def updateIternal(self, input: TaskDescription = None):
         if self.actioner == None:
             self.createInternalActioner()
+
 
 
 class InExtTreeTask(ExtProjectTask):
@@ -567,6 +578,7 @@ class InExtTreeTask(ExtProjectTask):
     
     def drawAsRootTaskSymbol(self):
         return True
+    
 
  
 class JumperTreeTask(InExtTreeTask):
@@ -650,17 +662,18 @@ class JumperTreeTask(InExtTreeTask):
         if self.intact is None:
             self.freezeTask()
             return
-        if not self.checkParentMsgList(remove=False, update=True):
+        else:
+        # if not self.checkParentMsgList(remove=False, update=True):
             self.intact.loadTmpManagerTasks()
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
-        elif self.intact.manager.getFrozenTasksCount():
-            self.intact.loadTmpManagerTasks()
-            print(f"Frozen tasks:{self.intact.manager.getFrozenTasksCount()}")
-            self.intact.manager.disableOutput2()
-            self.intact.updateAll(force_check=True)
-            self.intact.manager.enableOutput2()
+        # elif self.intact.manager.getFrozenTasksCount():
+        #     self.intact.loadTmpManagerTasks()
+        #     print(f"Frozen tasks:{self.intact.manager.getFrozenTasksCount()}")
+        #     self.intact.manager.disableOutput2()
+        #     self.intact.updateAll(force_check=True)
+        #     self.intact.manager.enableOutput2()
 
 
 class OutExtTreeTask(ExtProjectTask):
@@ -742,6 +755,8 @@ class OutExtTreeTask(ExtProjectTask):
             if self.intch_trg.is_freeze:
                 print(f"Target for {self.getName()} is frozen")
                 self.freezeTask()
+                if self.isExternalProjectTask():
+                    self.updateInternalActioners()
             else:
                 self.stdProcessUnFreeze()
             bres, bparam = self.intch_trg.getParamStruct('bud')
