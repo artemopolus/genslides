@@ -522,7 +522,7 @@ class InExtTreeTask(ExtProjectTask):
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
         else:
-            print("Pass")
+            print(f"Do not update {self.getName()}")
         # print('Queue status')
         # print(save_queue)
         # print(self.intpar.queue)
@@ -567,10 +567,17 @@ class InExtTreeTask(ExtProjectTask):
 
     def loadActionerTasks(self, actioners: list):
         task_actioner = self.getActioner()
-        task_actioner.loadStdManagerTasks()
-        print('Switch on actioner of', self.getName())
-        print('Path:', task_actioner.getPath())
-        print('Man:', task_actioner.manager.getName())
+        if task_actioner == None:
+            print(f"Error: Task {self.getName()} without actioner")
+            return
+        if self.intman and self.intman.is_loaded:
+            print(f"Task {self.getName()} already loaded")
+        else:
+            task_actioner.loadStdManagerTasks()
+        task_actioner.autoUpdateExtTreeTaskActs(actioners)
+        # print('Switch on actioner of', self.getName())
+        # print('Path:', task_actioner.getPath())
+        # print('Man:', task_actioner.manager.getName())
         return None
     
     def isExternalProjectTask(self):
@@ -630,6 +637,7 @@ class JumperTreeTask(InExtTreeTask):
 
     def loadActionerTasks(self, actioners: list):
         if self.intact != None:
+            print(f"Task {self.getName()} already loaded")
             return
         eres, eparam = self.getParamStruct('external')
         if not eres:
@@ -652,7 +660,9 @@ class JumperTreeTask(InExtTreeTask):
             # str_trg_path, task, cnt = Finder.findByKey2(eparam['exttreetask_path'], self.manager, self)
             str_trg_path = self.findKeyParam(eparam['exttreetask_path'])
             trg_path = Loader.Loader.getUniPath(str_trg_path)
+            print("Try to find", trg_path)
             for actioner in actioners:
+                # print("Check",actioner.getPath())
                 if actioner.getPath() == trg_path:
                     man = actioner.std_manager
                     jumper = man.getTaskByName(eparam['jumper'])
@@ -668,6 +678,7 @@ class JumperTreeTask(InExtTreeTask):
  
     def updateIternal(self, input : TaskDescription = None):
         if self.intact is None:
+            print(f"No actioner for {self.getName()}")
             self.freezeTask()
             return
         else:
@@ -703,6 +714,7 @@ class OutExtTreeTask(ExtProjectTask):
 
     def loadActionerTasks(self, actioners: list):
         if self.intact != None:
+            print(f"Task {self.getName()} already loaded")
             return None
         self.updateOutExtActMan(actioners)
         return None
