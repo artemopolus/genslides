@@ -601,7 +601,7 @@ class JumperTreeTask(InExtTreeTask):
         else:
             fld_name = eparam['name']
         if 'exttreetask_path' in eparam:
-            trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+            trg_path = Loader.Loader.getUniPath(Finder.findByKey2(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
         else:
             trg_path = Fm.addFolderToPath(self.manager.getPath(),['ext', fld_name])
             if 'project_path' in eparam:
@@ -649,17 +649,21 @@ class JumperTreeTask(InExtTreeTask):
                     print('Path:', task_actioner.getPath())
                     print('Man:', task_actioner.manager.getName())
         elif eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
-            trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+            # str_trg_path, task, cnt = Finder.findByKey2(eparam['exttreetask_path'], self.manager, self)
+            str_trg_path = self.findKeyParam(eparam['exttreetask_path'])
+            trg_path = Loader.Loader.getUniPath(str_trg_path)
             for actioner in actioners:
                 if actioner.getPath() == trg_path:
                     man = actioner.std_manager
                     jumper = man.getTaskByName(eparam['jumper'])
-                    if jumper.checkType('ExternalInput'):
+                    if jumper and jumper.checkType('ExternalInput'):
                         self.intact = actioner
                         self.intman = man
                         jumper.setParent(self.getParent())
                         self.intact.autoUpdateExtTreeTaskActs(actioners)
                         return None
+                    else:
+                        print("No task with name", eparam['jumper'], "with path", trg_path)
         return None
  
     def updateIternal(self, input : TaskDescription = None):
@@ -722,7 +726,10 @@ class OutExtTreeTask(ExtProjectTask):
             else:
                 eres, eparam = self.getParamStruct('external')
                 if eres and eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
-                    trg_path = Loader.Loader.getUniPath(Finder.findByKey(eparam['exttreetask_path'], self.manager, self, self.manager.helper))
+                    # str_trg_path, task, cnt = Finder.findByKey2(eparam['exttreetask_path'], self.manager, self)
+                    str_trg_path = self.findKeyParam(eparam['exttreetask_path'])
+                    trg_path = Loader.Loader.getUniPath(str_trg_path)
+                    print("Try to load by path:",trg_path)
                     for actioner in actioners:
                         if actioner.getPath() == trg_path:
                             man = actioner.std_manager
