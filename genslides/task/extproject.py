@@ -694,6 +694,10 @@ class JumperTreeTask(InExtTreeTask):
         #     self.intact.updateAll(force_check=True)
         #     self.intact.manager.enableOutput2()
 
+    def removeProject(self):
+        pass
+
+
 
 class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
