@@ -979,6 +979,11 @@ class Projecter:
     
     def loadActionerInExtTreeTask(self, task : BaseTask):
         task.loadActionerTasks(self.getActionersList())
+
+    def loadAllExtTreeTask(self):
+        actioners = self.getActionersList()
+        self.actioner.autoUpdateExtTreeTaskActs(actioners)
+                
     
     def backToDefaultActioner(self):
         if self.tmp_actioner != None:

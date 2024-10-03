@@ -629,6 +629,8 @@ class JumperTreeTask(InExtTreeTask):
 
 
     def loadActionerTasks(self, actioners: list):
+        if self.intact != None:
+            return
         eres, eparam = self.getParamStruct('external')
         if not eres:
             return None
@@ -642,6 +644,7 @@ class JumperTreeTask(InExtTreeTask):
                 if jumper.checkType('ExternalInput'):
                     jumper.setParent(self.getParent())
                     task_actioner.loadStdManagerTasks()
+                    task_actioner.autoUpdateExtTreeTaskActs(actioners)
                     print('Switch on actioner of', self.getName())
                     print('Path:', task_actioner.getPath())
                     print('Man:', task_actioner.manager.getName())
@@ -655,6 +658,7 @@ class JumperTreeTask(InExtTreeTask):
                         self.intact = actioner
                         self.intman = man
                         jumper.setParent(self.getParent())
+                        self.intact.autoUpdateExtTreeTaskActs(actioners)
                         return None
         return None
  
@@ -694,6 +698,8 @@ class OutExtTreeTask(ExtProjectTask):
         self.saveAllParams()
 
     def loadActionerTasks(self, actioners: list):
+        if self.intact != None:
+            return None
         self.updateOutExtActMan(actioners)
         return None
     
@@ -710,6 +716,7 @@ class OutExtTreeTask(ExtProjectTask):
                     eres, eparam = self.getParamStruct('external')
                     self.intact = self.parent.intact
                     self.intman = self.parent.intman
+                    self.intact.autoUpdateExtTreeTaskActs(actioners)
 
                     self.intch_trg = self.intman.getTaskByName(eparam['target'])
             else:
@@ -722,6 +729,7 @@ class OutExtTreeTask(ExtProjectTask):
                             self.intact = actioner
                             self.intman = man
                             self.intch_trg = man.getTaskByName(eparam['target'])
+                            self.intact.autoUpdateExtTreeTaskActs(actioners)
                             return
 
             

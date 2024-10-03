@@ -1448,3 +1448,9 @@ class Actioner():
         task_manager = TaskManager()
         task_manager.clearTasksCache()
 
+    def autoUpdateExtTreeTaskActs(self, actioners: list):
+        man = self.std_manager
+        for task in man.getTasks():
+            if task.isExternalProjectTask():
+                task.loadActionerTasks(actioners)
+ 
