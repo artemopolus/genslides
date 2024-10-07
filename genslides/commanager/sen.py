@@ -2938,7 +2938,7 @@ class Projecter:
                 task.saveAllParams()
 
     def getBranchInfoFromManager(self, trgtask : BaseTask, manager):
-        param = self.setEditChecksByManager([], manager)
+        param = self.setEditChecksByManager(["forcecopyresp"], manager)
         param['task_text'] = True
         # manager.setCurrentTask(trgtask)
         branch_infos = trgtask.getTasksFullLinks(param) 
