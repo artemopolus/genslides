@@ -857,7 +857,8 @@ class Projecter:
             }
             if act['params']['type'] == 'exttreetask':
                 act_info['trg_task_name'] = act['params']['task'].getName()
-            act_data.append(act_info)
+            else:
+                act_data.append(act_info)
         session_data = {
             'actioners': act_data
         }
@@ -2467,7 +2468,7 @@ class Projecter:
         for task in man.task_list:
             if task.isExternalProjectTask():
                 out.append(task.getName())
-        return gr.CheckboxGroup(choices=out, interactive=True)
+        return gr.CheckboxGroup(choices=out, value=[], interactive=True)
     
     def updateInExtTreeTasksByName(self, names : list[str]):
         man = self.actioner.manager
