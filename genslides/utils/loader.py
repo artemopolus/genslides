@@ -118,16 +118,17 @@ class Loader:
         app.attributes('-topmost', True)
         filepath = askopenfilename() # show an "Open" dialog box and return the path to the selected file
         app.destroy()
-        path = Path(filepath)
-        filename = PurePosixPath(path)
-        if manager_path != '':
-            mfilename = Loader.checkManagerTag(path, manager_path, False)
-            print(filename, mfilename, filename == mfilename)
-            if Path(filename) == Path(mfilename):
-                return Loader.checkManagerTag(path, manager_path)
-            else:
-                return mfilename
-        return str(filename)
+        return Loader.getManRePath(filepath, manager_path)
+        # path = Path(filepath)
+        # filename = PurePosixPath(path)
+        # if manager_path != '':
+        #     mfilename = Loader.checkManagerTag(path, manager_path, False)
+        #     print(filename, mfilename, filename == mfilename)
+        #     if Path(filename) == Path(mfilename):
+        #         return Loader.checkManagerTag(path, manager_path)
+        #     else:
+        #         return mfilename
+        # return str(filename)
 
     def checkManagerTag(spath, manager_path, to_par_fld = True):
         print('check')
@@ -203,7 +204,7 @@ class Loader:
         app.attributes('-topmost', True)
         dirpath = askdirectory() # show an "Open" dialog box and return the path to the selected file
         app.destroy()
-        return Loader.checkManagerTagRe(dirpath, manager_path)
+        return Loader.getManRePath(dirpath, manager_path)
    
   
     def getFolderPath(path : str, to_par_fld = True) -> str:

@@ -227,7 +227,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 updselinexttreetasks_btn = gr.Button('Load selected task acts')
                                 getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
                 with gr.Row():
-                    dial_block = gr.Chatbot(height=800)
+                    dial_block = gr.Chatbot(height=800, layout='panel')
 
             with gr.Tab('Raw graph'):
                 with gr.Row():

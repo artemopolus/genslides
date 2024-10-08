@@ -16,8 +16,11 @@ def writeToFile(path, text, ctrl = 'w'):
         if not os.path.exists( lst_path[0]):
             Path(lst_path[0]).mkdir(parents=True, exist_ok=True)
         
-    with open(path, ctrl, encoding='utf8') as f:
-        f.write(text)
+    try:
+        with open(path, ctrl, encoding='utf8') as f:
+            f.write(text)
+    except Exception as e:
+        print("Write to file error:", e)
 
 def writeJsonToFile(path, text, ctrl = 'w', indent = 1):
     # print('Write json to file', path)

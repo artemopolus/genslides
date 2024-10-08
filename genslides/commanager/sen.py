@@ -1993,7 +1993,7 @@ class Projecter:
         if src_act == None:
             return {}
         standart_taskname = ""
-        actioner_path = Loader.Loader.checkManagerTagRe(actioner_path, trg_man.getPath())
+        actioner_path = Loader.Loader.getManRePath(actioner_path, trg_man.getPath())
         try:
             if exttask_intype == 'Selected':
                 standart_taskname = src_man.getSelectedTask().getName()
@@ -2021,7 +2021,7 @@ class Projecter:
             return {}
         standart_taskname = ""
         out_tasks = []
-        actioner_path = Loader.Loader.checkManagerTagRe(actioner_path, trg_man.getPath())
+        actioner_path = Loader.Loader.getManRePath(actioner_path, trg_man.getPath())
         try:
             if exttask_intype == 'Selected':
                 standart_taskname = src_man.getSelectedTask().getName()

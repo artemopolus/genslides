@@ -80,6 +80,8 @@ class ExtProjectTask(CollectTask):
         # print(10*"----------")
 
     def getActioner(self):
+        if self.intman == None:
+            return None
         self.intman.updateTreeArr()
         task = self.intpar
         if task != None and task not in self.intman.tree_arr:
@@ -634,6 +636,15 @@ class JumperTreeTask(InExtTreeTask):
         self.setParamStruct(eparam)
         self.saveAllParams()
 
+    def setParent(self, parent):
+        eres, eparam = self.getParamStruct('external')
+        task_actioner = self.getActioner()
+        if eres and task_actioner:
+            jumper = task_actioner.manager.getTaskByName(eparam['jumper'])
+            if jumper and jumper.checkType('ExternalInput'):
+                    jumper.setParent(parent)
+
+        return super().setParent(parent)
 
     def loadActionerTasks(self, actioners: list):
         if self.intact != None:
