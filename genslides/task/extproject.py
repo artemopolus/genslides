@@ -636,15 +636,19 @@ class JumperTreeTask(InExtTreeTask):
         self.setParamStruct(eparam)
         self.saveAllParams()
 
-    def setParent(self, parent):
-        eres, eparam = self.getParamStruct('external')
-        task_actioner = self.getActioner()
-        if eres and task_actioner:
-            jumper = task_actioner.manager.getTaskByName(eparam['jumper'])
-            if jumper and jumper.checkType('ExternalInput'):
+    def setParentInternal(self, parent):
+        # print("Set parent", self.getName())
+        if parent != None:
+            eres, eparam = self.getParamStruct('external')
+            task_actioner = self.getActioner()
+            if eres and task_actioner:
+                jumper = task_actioner.manager.getTaskByName(eparam['jumper'])
+                if jumper and jumper.checkType('ExternalInput'):
+                    # print('Change parent', parent.getName())
                     jumper.setParent(parent)
 
-        return super().setParent(parent)
+        return super().setParentInternal(parent)
+
 
     def loadActionerTasks(self, actioners: list):
         if self.intact != None:

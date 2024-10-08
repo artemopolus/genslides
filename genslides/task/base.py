@@ -887,11 +887,15 @@ class BaseTask():
         self.freezeTask()
         # self.parent = parent
 
+    def setParentInternal(self, parent):
+        self.parent = parent
+
     def addChild(self, child) -> bool:
-        # print('Add child',child.getName())
+        # print(f"For {self.getName()} add child {child.getName()}")
         if child not in self.childs:
             # child.setParent(self)
-            child.parent = self
+            # child.parent = self
+            child.setParentInternal(self)
             idx = len(self.childs)
             self.childs.append(child)
             info = self.getChildQueuePack(child, idx = idx)
