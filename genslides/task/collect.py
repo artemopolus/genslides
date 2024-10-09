@@ -1,12 +1,9 @@
 from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
-import pprint
-from genslides.utils.largetext import SimpleChatGPT
 import genslides.task_tools.records as rd
+import genslides.task.link as Ltask
 
-import json
-
-class ReceiveTask(TextTask):
+class ReceiveTask(Ltask.LinkedTask):
     def __init__(self, task_info : TaskDescription, type = "Receive") -> None:
         super().__init__(task_info, type=type)
 
@@ -49,15 +46,7 @@ class ReceiveTask(TextTask):
     def haveMsgsAction(self, msgs):
         self.setMsgList(msgs)
 
-    def checkInput(self, input: TaskDescription = None):
-        super().checkInput(input)
-        if input:
-            if self.parent:
-                trg_list = self.checkParentsMsg()
-            else:
-                trg_list = []
-            self.updateCollectedMsgList(trg_list)
-           
+          
 
 
     def freezeTask(self):
@@ -65,13 +54,6 @@ class ReceiveTask(TextTask):
         self.is_freeze = True
         for tsk_info in self.by_ext_affected_list:
             tsk_info.enabled = False
-
-    def updateCollectedMsgList(self, trg_list : list):
-        # print("update collected msg list")
-        last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
-        trg_list.append(last)
-        self.setMsgList( trg_list.copy())
-        self.saveJsonToFile(self.msg_list)
 
 
     def checkParentsMsg(self):
@@ -107,53 +89,7 @@ class ReceiveTask(TextTask):
         else:
             return "",""
 
-    def createLinkToTask(self, task) -> TaskDescription:
-        id = len(self.by_ext_affected_list)
-        # print("Create link to ", task.getName(),"id=", id)
-        out = TaskDescription(method=self.affectedTaskCallback, id=id, parent=task , target=self)
-        self.by_ext_affected_list.append(out)
-        
-        task.setLinkToTask(out)
-        return super().createLinkToTask(task) 
     
-    def getRichPrompt(self) -> str:
-        # TODO: Перенести сюда заполнение шаблона
-        res, param = self.getParamStruct('linkedfrom')
-        text = ""
-        if res:
-            names = param['tasks']
-            checkers = [t.getName() for t in self.getAffectingOnTask()]
-            # print('=================>>>>>>>>>>>>Check', names, '==',checkers)
-            # print(set(names) ==set(checkers))
-            # for name in names:
-                # print('Check',name,':',name in checkers)
-            if set(names).difference(set(checkers)) == set():
-                # print('Yes')
-                for t in names:
-                    for intask in self.by_ext_affected_list:
-                        if intask.parent.getName() == t:
-                            text += intask.prompt + '\n'
-            else:
-                print('No')
-            return text
-        eres, eparam = self.getParamStruct(self.getType(), only_current=True)
-        for task in self.by_ext_affected_list:
-            # print("Copy data from", task.parent.getName())
-            try:
-                if eres and eparam['input'] == 'records':
-                    res, param = task.parent.getParamStruct(param_name='records', only_current=True)
-                    if res:
-                        text += rd.getRecordsRow(param, eparam)
-                elif eres and eparam['input'] == 'request':
-                    text += eparam['header'] + task.prompt + eparam['footer']    
-                else:
-                    text += task.prompt
-            except Exception as e:
-                text += task.prompt
-
-        # print('Result:', text)
-        return text
-
     def stdProcessUnFreeze(self, input=None):
         
         res, pparam = self.getParamStruct('block')
@@ -203,42 +139,8 @@ class ReceiveTask(TextTask):
         # print('Link[',self.getName(),'] state:',[(tsk_info.parent.getName(),tsk_info.enabled) for tsk_info in self.by_ext_affected_list])
 
 
-    def updateLinkedPrompts(self, input : TaskDescription):
-        for tsk_info in self.by_ext_affected_list:
-            if input.id == tsk_info.id:
-                
-                tsk_info.prompt = input.prompt
-                tsk_info.enabled = input.enabled
-                # print("Task[", tsk_info.id,"].enabled=",tsk_info.enabled)
-                # print('New prompt:', tsk_info.prompt)
 
-
-    def affectedTaskCallback(self, input : TaskDescription):
-        # print("From ", input.parent.getName(), " to ", self.getName())
-        if input and input.stepped:
-            found = False
-            for cl in self.callback_link:
-                if cl["pt"] == input.parent:
-                    cl["used"] = False
-                    found = True
-                    break
-            if not found:
-                self.callback_link.append({"pt":input.parent,"used": False})
-                found = True
-            if found:
-                self.resetTreeQueue()
-
-        self.updateLinkedPrompts(input=input)
-
-        out = super().affectedTaskCallback(input)
-        self.stdProcessUnFreeze()
-        # if input and input.stepped:
-        #     pass
-        #     # info = TaskDescription(prompt=self.getLastMsgContent(), prompt_tag=self.getLastMsgRole(),stepped=input.stepped)
-        #     # self.update(info)
-        # else:
-        #     self.update()
-    
+   
     
     def findNextFromQueue(self, trgtasknames = []):
         res = super().findNextFromQueue(trgtasknames=trgtasknames)
@@ -252,13 +154,7 @@ class ReceiveTask(TextTask):
 
 
 
-    def removeLinkToTask(self):
-        self.prompt = ""
-        # self.update()
-        self.freezeTask()
-        super().removeLinkToTask()
-        self.saveJsonToFile(self.msg_list)
- 
+
     def getMsgInfo(self):
         if len(self.msg_list) > 0:
             out = self.msg_list[- 1]
@@ -266,10 +162,6 @@ class ReceiveTask(TextTask):
         else:
             return "", self.prompt_tag, ""    
     
-    def whenParentRemoved(self):
-        super().whenParentRemoved()
-        self.removeLinkToTask()
-
 
 
     def getInfo(self, short = True) -> str:

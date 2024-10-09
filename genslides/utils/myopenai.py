@@ -29,7 +29,7 @@ def openaiGetSmplCompletion(messages, params) ->(bool, str, int, int):
 def openaiGetChatCompletion(msgs, params):
     print('OpenAI get Chat Completion')
     try:
-        print('Input params:', params)
+        # print('Input params:', params)
         print('Chat len:', len(msgs))
         client = OpenAI(api_key=params['api_key'])
         # print(params['api_key'])
