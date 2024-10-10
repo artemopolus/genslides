@@ -35,6 +35,7 @@ from genslides.task.groupcollect import GroupCollectTask
 import genslides.task.external as ex
 
 import genslides.commands.create as cr
+import genslides.task.link as lk
 
 def checkTypeFromName(name : str, type :str) -> bool:
     stype = ''.join([i for i in name if not i.isdigit()])
@@ -72,6 +73,9 @@ def createTaskByType(type : str, info : TaskDescription):
         return cr.CreateCommand(info)
     if stype.endswith("Collect"):
         info.method = CollectTask
+        return cr.CreateCommand(info)
+    if stype.endswith("Listener"):
+        info.method = lk.ListenerTask
         return cr.CreateCommand(info)
     if stype.endswith("Garland"):
         info.method = GarlandTask
@@ -154,6 +158,7 @@ def getTasksDict() -> list:
     out.append({"type":"Response","short":"Rs","creation":ResponseTask})
     out.append({"type":"Receive","short":"Rc","creation":ReceiveTask})
     out.append({"type":"Collect","short":"Cl","creation":CollectTask})
+    out.append({"type":"Listener","short":"Ls","creation":lk.ListenerTask})
     out.append({"type":"Garland","short":"Gr","creation":GarlandTask})
     out.append({"type":"GroupCollect","short":"Gc","creation":GroupCollectTask})
     out.append({"type":"ReadDial","short":"Rb","creation":ReadBranchTask})

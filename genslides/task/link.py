@@ -4,6 +4,22 @@ import genslides.task_tools.records as rd
 class LinkedTask(TextTask.TextTask):
     def __init__(self, task_info: TextTask.TaskDescription, type='Linked') -> None:
         super().__init__(task_info, type)
+        self.callback_link = []
+
+    def checkParentsMsg(self):
+        if self.parent:
+            trg_list = self.parent.msg_list.copy()
+            cur_list = self.msg_list.copy()
+            cut = cur_list.pop()
+            if cur_list != trg_list:
+                trg_list.append(cut)
+                self.setMsgList( trg_list)
+                self.saveJsonToFile(self.msg_list)
+                # print("Freeze => parents msgs not equal target")
+                self.freezeTask()
+            return trg_list
+        return []
+
 
     def checkInput(self, input: TextTask.TaskDescription = None):
         super().checkInput(input)
@@ -114,5 +130,56 @@ class LinkedTask(TextTask.TextTask):
         super().whenParentRemoved()
         self.removeLinkToTask()
 
+class ListenerTask(LinkedTask):
+    def __init__(self, task_info: TextTask.TaskDescription, type='Listener') -> None:
+        super().__init__(task_info, type)    
+        # sres, sparam = self.getParamStruct('listener', True)
+        # if not sres:
+        #     self.setParamStruct({
+        #                     "type":"listener",
+        #                     "actions":[]
+        #                     })
+        self.is_freeze = True
+        tmp_msg_list = self.msg_list.copy()
+        msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
+
+        self.afterFileLoading()
+        
+        if len(msg_list_from_file) == 0:
+            # self.updateCollectedMsgList(tmp_msg_list)
+            self.onEmptyMsgListAction()
+        else:
+            # print("Get list from file=", self.path)
+            self.onExistedMsgListAction(msg_list_from_file)
+            # self.setMsgList(msg_list_from_file)
+
+
+
+    def onEmptyMsgListAction(self):
+        self.hasNoMsgAction()
+        return super().onEmptyMsgListAction()
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        self.haveMsgsAction(msg_list_from_file)
+        return super().onExistedMsgListAction(msg_list_from_file)
+
     
+    def isReceiver(self) ->bool:
+        return True
+
+    def afterFileLoading(self):
+        pass
+
+    def hasNoMsgAction(self):
+        tmp_msg_list = self.msg_list.copy()
+        self.updateCollectedMsgList(tmp_msg_list)
+
+    def haveMsgsAction(self, msgs):
+        self.setMsgList(msgs)
+
+
+    def updateIternal(self, input: TextTask.TaskDescription = None):
+        if not self.is_freeze:
+            self.updateCollectedMsgList(self.checkParentsMsg())
+        return super().updateIternal(input)
  

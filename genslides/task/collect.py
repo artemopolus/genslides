@@ -22,7 +22,6 @@ class ReceiveTask(Ltask.LinkedTask):
             # self.setMsgList(msg_list_from_file)
 
 
-        self.callback_link = []
 
     def onEmptyMsgListAction(self):
         self.hasNoMsgAction()
@@ -55,18 +54,6 @@ class ReceiveTask(Ltask.LinkedTask):
         for tsk_info in self.by_ext_affected_list:
             tsk_info.enabled = False
 
-
-    def checkParentsMsg(self):
-            trg_list = self.parent.msg_list.copy()
-            cur_list = self.msg_list.copy()
-            cut = cur_list.pop()
-            if cur_list != trg_list:
-                trg_list.append(cut)
-                self.setMsgList( trg_list)
-                self.saveJsonToFile(self.msg_list)
-                # print("Freeze => parents msgs not equal target")
-                self.freezeTask()
-            return trg_list
 
 
     def update(self, input : TaskDescription = None):

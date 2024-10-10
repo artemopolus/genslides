@@ -442,7 +442,7 @@ class Projecter:
         return self.updateMainUIelements()
     
     def createShootTreeOnSelectedTasks(self, action_type):
-        self.actioner.manager.createTreeOnSelectedTasks(action_type,"GroupCollect")
+        self.actioner.manager.createTreeOnSelectedTasks(action_type,"Listener")
         return self.updateMainUIelements()
     
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):

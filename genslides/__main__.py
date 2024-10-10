@@ -418,7 +418,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                             )
                         with gr.Row():
                             collect_btn = gr.Button(value='Collect')
-                            # shoot_btn = gr.Button(value='Shoot')
+                            shoot_btn = gr.Button(value='Listener')
                             garland_btn = gr.Button(value='Garland')
                         with gr.Row():
                             selected_prompt = gr.Textbox(value='',lines=4, label='Selected prompt')
@@ -1070,7 +1070,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             custom_btn.click(fn=userinput_manager.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
             
             collect_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
-            # shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
+            shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
             garland_btn.click(fn=userinput_manager.createGarlandOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
             
             garlandmulti_btn.click(fn=projecter.createGarlandFromMultiSelect, outputs=std_output_list)
