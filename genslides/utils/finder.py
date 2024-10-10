@@ -368,6 +368,9 @@ def findByKey2(text, manager , base):
                     if len(arr) > 1:
                         if arr[1] == 'path':
                             rep_text = rep_text.replace(res, Loader.Loader.getProgramFolder())
+                elif arr[0] == 'current':
+                    rep_text = getFromTask(arr, res, rep_text, base, manager)
+                    task.freeTaskByParentCode()
                 else:
                     task = base.getAncestorByName(arr[0])
                 if task:

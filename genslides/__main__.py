@@ -226,6 +226,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
                                 updselinexttreetasks_btn = gr.Button('Load selected task acts')
                                 getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
+
+                                acttask_get_btn = gr.Button('Get Action Tasks')
+                                
+                                acttask_names_chk = gr.CheckboxGroup(label='Tasks with actions')
+                                acttask_exe_btn = gr.Button('Execute actions')
+                                acttask_get_btn.click(fn=projecter.getTasksWithActions, outputs=[acttask_names_chk])
                 with gr.Row():
                     dial_block = gr.Chatbot(height=800, layout='panel')
 
@@ -653,10 +659,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 actions_list = gr.CheckboxGroup(label='Action list')
                                 actpack_load_btn.click(fn=projecter.loadActPack, inputs=[actpack_saved_lst], outputs=[actions_list])
                                 with gr.Row():
-                                    gr.Button('Update').click(fn=projecter.getActionsList, outputs=actions_list)
+                                    gr.Button('Update').click(fn=projecter.getActionsInfoByManager, outputs=actions_list)
                                     gr.Button('Move').click(fn=projecter.moveActionUp, inputs=actions_list, outputs=actions_list)
                                     gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
                                     gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
+                                    gr.Button('Clear').click(fn=projecter.clearAction, outputs=actions_list)
+                                    gr.Button('Copy to curr task').click(fn=projecter.saveActionsToCurrTask, outputs=actions_list)
                                 with gr.Row():
                                     exe_act_btn = gr.Button(value='Execute action')
                                 actions_info_txt = gr.Textbox(lines=4)
@@ -678,9 +686,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         gr.Button('Get actioners list').click(fn=projecter.getActionerPathsList, outputs=interactlist_drd)
                         interact_rad = gr.Radio(label='Copy Type', choices=['Current children','Act diffs'])
                         compareacts_btn = gr.Button('Get tasks to create')
+                        iaeditparam_chck = gr.CheckboxGroup(label='Edit task parameters',choices=projecter.getParamListForEdit())
                         interact_jsn = gr.JSON(label='Tasks to create')
-                        compareacts_btn.click(fn=projecter.interCompareActioners, inputs=[interactlist_drd, interact_rad], outputs=interact_jsn)
-                        gr.Button('Create').click(fn=projecter.copyTasksFromActionerToActioner, inputs=interact_jsn, outputs=interact_jsn)
+                        compareacts_btn.click(fn=projecter.interCompareActioners, inputs=[interactlist_drd, interact_rad, iaeditparam_chck], outputs=interact_jsn)
+                        gr.Button('Create').click(fn=projecter.copyTasksFromActionerToActioner, inputs=[interact_jsn], outputs=interact_jsn)
 
 
 
@@ -972,6 +981,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             
             viewhiddenmsgs_chck.input(fn=projecter.setHideTaskStatus, inputs=[viewhiddenmsgs_chck], outputs=std_output_list)
 
+            acttask_exe_btn.click(fn=projecter.exeTasksByName,inputs=[acttask_names_chk], outputs=std_output_list)
             updselinexttreetasks_btn.click(fn=projecter.updateInExtTreeTasksByName, inputs=[inexttretasklist_chk], outputs=std_output_list)
             loadtaskintomanbrow_btn.click(fn=projecter.loadAdditionalTasksInManager, outputs=std_output_list)
 

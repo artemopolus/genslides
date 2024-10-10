@@ -31,6 +31,7 @@ import ast
 import genslides.utils.finder as finder
 import genslides.task_tools.array as ar
 import genslides.task_tools.records as rd
+import genslides.task_tools.actions as actions
 import copy
 
 class TextTask(BaseTask):
@@ -1299,15 +1300,15 @@ class TextTask(BaseTask):
         return output
 
     def getAutoCommand(self):
-        tres, tparam = self.getParamStruct(self.getType() + "Cmd")
-        if tres:
-            return True, tparam['actions']
+        tres, tparam = self.getParamStruct("autocommander", only_current=True)
+        if tres and 'actions' in tparam:
+            return True, actions.updateActionPackByMethod( tparam['actions'], self.findKeyParam )
         return super().getAutoCommand()
     
-    def setAutoCommand(self, type_name, actions):
+    def setAutoCommand(self, type_name, actions: list):
         self.setParamStruct(
             {
-                "type": type_name + "Cmd",
+                "type": "autocommander",
                 "actions": actions
             }
         )       

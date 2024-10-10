@@ -43,6 +43,8 @@ import datetime
 
 import pathlib
 
+import genslides.task_tools.actions as Act
+
 class Manager:
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher) -> None:
         self.helper = helper
@@ -2427,18 +2429,22 @@ class Manager:
             Sr.ProjectSearcher.saveSearchInfo(tree_info, self.info)
         writer.writeJsonToFile(path_to_projectfile, self.info, 'w', 1)
 
+
+
     def addActions(self, action = '', prompt = '', tag = '', act_type = '', param = {}):
+        if 'dont' in param:
+            del param['dont']
         if self.info is None:
             self.saveInfo()
         id = len(self.info['actions'])
-        action = {'id': id,'action':action,'prompt':prompt,'tag':tag,'type':act_type, 'param': param }
-
-        action['current'] = self.curr_task.getName() if self.curr_task else None
-        action['slct'] = self.slct_task.getName() if self.slct_task else None
-        action['selected'] = [t.getName() for t in self.selected_tasks]
-
-
-        self.info['actions'].append(action)
+        curr = ""
+        sel = ""
+        multi = [t.getName() for t in self.getMultiSelectedTasks()]
+        if self.getCurrentTask():
+            curr = self.getCurrentTask().getName()
+        if self.getSelectedTask():
+            sel = self.getSelectedTask().getName()
+        self.info['actions'].append(Act.createActionPack(id, action, prompt, tag, act_type, param, curr, sel, multi))
         self.saveInfo()
 
     def remLastActions(self):

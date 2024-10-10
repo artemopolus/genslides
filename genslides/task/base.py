@@ -1389,7 +1389,7 @@ class BaseTask():
     def updateParam2(self, param_vals : dict):
         pass
 
-    def getParamStruct(self, param_name):
+    def getParamStruct(self, param_name, only_current = False):
         return False, None
     
     def copyAllParams(self, copy_info = False):

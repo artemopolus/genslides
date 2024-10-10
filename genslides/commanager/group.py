@@ -308,6 +308,21 @@ class Actioner():
             if self.manager.info['done']:
                 break
 
+    def getTasksWithActions(self):
+        names = []
+        for task in self.manager.getTasks():
+            res, _ = task.getParamStruct("autocommander", True)
+            if res:
+                names.append(task.getName())
+        return names
+    
+    def exeTasksByName(self, names):
+        for name in names:
+            task = self.manager.getTaskByName(name)
+            res, actions = task.getAutoCommand()
+            if res:
+                for action in actions:
+                    self.makeSavedAction(action)
 
     def exeActions(self):
         if self.manager is not self.std_manager:
@@ -354,8 +369,14 @@ class Actioner():
         return out
  
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
+        onlysave = False
+        if 'dont' in param:
+            onlysave = True
         if save_action and creation_type != "StopPrivManager" and creation_type != "SavePrivManToTask":
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
+        if onlysave:
+            return
+        
         if type1 == "Garland":
             return self.manager.createTreeOnSelectedTasks(creation_type,'Garland')
         elif creation_type == "Divide" and 'extedit' in param and param['extedit']:

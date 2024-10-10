@@ -84,6 +84,9 @@ class Projecter:
 
         self.trg_actioner : Actioner = None
 
+        self.actions_info = []
+        self.actions_source = ""
+
         
 
     def getSessionNameList(self):
@@ -387,7 +390,8 @@ class Projecter:
                 'onlymulti', #Копировать только мультивыбранные задачи
                 'reqSraw', #Конвертировать ссылки в сообщениях при копировании
                 'forcecopyresp', #Насильно вставлять промпт в Response,
-                'check_man' #проверять менеджера
+                'check_man', #проверять менеджера,
+                'dont' #нечего не делать просто сохранить 
                 ]
     
     def setEditChecks(self, checks):
@@ -1108,10 +1112,28 @@ class Projecter:
             todraw.append([pair['token'],'token'])
             todraw.append([ str(pair['bytes']) ,'bytes'])
         return todraw
+    
+    def getTasksWithActions(self):
+        names = self.actioner.getTasksWithActions()
+        return gr.CheckboxGroup(choices=names, value=names)
+    
+    def exeTasksByName(self, names):
+        self.actioner.exeTasksByName(names)
+        return self.updateMainUIelements()
 
+    
+    def getActionsInfoByTask(self):
+        res, self.actions_info = self.actioner.manager.getCurrentTask().getAutoCommand()
+        self.actions_source = "Task"
+        return self.getActionsList()
+
+    def getActionsInfoByManager(self):
+        self.actions_info = self.actioner.manager.info['actions']
+        self.actions_source = "Manager"
+        return self.getActionsList()
 
     def getActionsList(self) -> list:
-        actions = self.actioner.manager.info['actions']
+        actions = self.actions_info
         out = []
         for act in actions:
             name = ':'.join([str(act['id']),act['action'],act['type']])
@@ -1123,19 +1145,32 @@ class Projecter:
         text = ''
         for name in names:
             pack = name.split(':')
-            actions = self.actioner.manager.info['actions']
-            for idx in range(len(actions)):
+            actions = self.actions_info
+            for idx, action in enumerate(actions):
                 if pack[0] == str(actions[idx]['id']):
                     text += json.dumps(actions[idx], indent=1) + '\n'
         return text
  
+    def saveActionsToCurrTask(self, names: list):
+        param = []
+        for name in names:
+            pack = name.split(':')
+            actions = self.actions_info
+            for idx, action in enumerate(actions):
+                if pack[0] == str(actions[idx]['id']):
+                    param.append(action)
+                    break
+        self.actioner.manager.getCurrentTask().setAutoCommand("", param)
+        self.getActionsInfoByTask()
+        self.fixActionsIdx()
+        return self.getActionsList()
     
     def moveActionUp(self, names: list):
         for name in names:
             pack = name.split(':')
-            actions = self.actioner.manager.info['actions']
+            actions = self.actions_info
             print(pack)
-            for idx in range(len(actions)):
+            for idx, action in enumerate(actions):
                 print(pack[0],'check',actions[idx]['id'])
                 if pack[0] == str(actions[idx]['id']) and idx > 0:
                     actions.insert(idx - 1, actions.pop(idx))
@@ -1143,15 +1178,16 @@ class Projecter:
         return self.getActionsList()
     
     def fixActionsIdx(self):
+        actions = self.actions_info
         actions = self.actioner.manager.info['actions']
-        for idx in range(len(actions)):
+        for idx, action in enumerate(actions):
             actions[idx]['id'] = idx
 
     def delAction(self, names: list):
         for name in names:
             pack = name.split(':')
-            actions = self.actioner.manager.info['actions']
-            for idx in range(len(actions)):
+            actions = self.actions_info
+            for idx, action in enumerate(actions):
                 if pack[0] == str(actions[idx]['id']) and idx > 0:
                     actions.pop(idx)
                     break
@@ -1159,9 +1195,19 @@ class Projecter:
         self.fixActionsIdx()
         return self.getActionsList()
     
-    def saveAction(self):
-        self.actioner.manager.saveInfo()
+    def clearAction(self):
+        actions = self.actions_info
+        actions = []
         return self.getActionsList()
+    
+    def saveAction(self):
+        if self.actions_source == "Manager":
+            self.actioner.manager.saveInfo()
+        elif self.actions_source == "Task":
+            self.actioner.manager.getCurrentTask().setAutoCommand("", self.actions_info)
+        return self.getActionsList()
+    
+
     
     def setManagerStartTask(self, name: str):
         print('set Manager start task to',name)
@@ -2937,8 +2983,8 @@ class Projecter:
                 task.loadActionerTasks(self.getActionersList())
                 task.saveAllParams()
 
-    def getBranchInfoFromManager(self, trgtask : BaseTask, manager):
-        param = self.setEditChecksByManager(["forcecopyresp"], manager)
+    def getBranchInfoFromManager(self, trgtask : BaseTask, manager, checks = []):
+        param = self.setEditChecksByManager(checks, manager)
         param['task_text'] = True
         # manager.setCurrentTask(trgtask)
         branch_infos = trgtask.getTasksFullLinks(param) 
@@ -2959,12 +3005,12 @@ class Projecter:
         return branch_infos
 
 
-    def interCompareActioners(self, actioner_path, gettype):
+    def interCompareActioners(self, actioner_path, gettype, checks):
         out = {"trees":[],"links": []}
         trg_man = self.actioner.manager
         if gettype == 'Current children':
             
-            out["trees"].append( self.getBranchInfoFromManager( trg_man.getCurrentTask(), trg_man) )
+            out["trees"].append( self.getBranchInfoFromManager( trg_man.getCurrentTask(), trg_man), checks )
         elif gettype == 'Act diffs':
             src_man = self.getActionerByPath(actioner_path).manager
             diff_tasks = []
@@ -2975,7 +3021,7 @@ class Projecter:
                     diff_tasks.append(src_man.getTaskByName(name))
             rooottreetasks = src_man.getSeparateTreesFromTaskList(diff_tasks)
             for task in rooottreetasks:
-                out["trees"].append( self.getBranchInfoFromManager( task, src_man ) )
+                out["trees"].append( self.getBranchInfoFromManager( task, src_man, checks ) )
 
             srclinks = src_man.getLinksList()
             trglinks = trg_man.getLinksList()
