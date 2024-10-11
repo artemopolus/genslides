@@ -370,7 +370,7 @@ class Actioner():
  
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
         onlysave = False
-        if 'dont' in param:
+        if 'dont' in param and param['dont']:
             onlysave = True
         if save_action and creation_type != "StopPrivManager" and creation_type != "SavePrivManToTask":
             self.manager.addActions(action = creation_type, prompt = prompt, act_type = type1, param = param, tag=creation_tag)
@@ -1032,7 +1032,7 @@ class Actioner():
                     f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
                 else:
                     color = 'antiquewhite1'
-                    if man.getTaskParamRes(task, "block"):
+                    if task.is_blocking():
                         color="gold2"
                     elif man.getTaskParamRes(task, "input"):
                         color="aquamarine"

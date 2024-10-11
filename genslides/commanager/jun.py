@@ -158,7 +158,9 @@ class Manager:
         self.renamed_parent = []
 
     def getSelectedTask(self) ->BaseTask:
-        return self.selected_tasks[0]
+        if len(self.selected_tasks):
+            return self.selected_tasks[0]
+        return None
     
     def getMultiSelectedTasks(self) -> list[BaseTask]:
         return self.multiselect_tasks
@@ -1685,10 +1687,10 @@ class Manager:
             # print('Next task is in task list')
             # if next.parent == None:
                 # next.resetTreeQueue()
-            bres, bparam = next.getParamStruct('block')
+            # bres, bparam = next.is_blocking().getParamStruct('block')
             # if next.getParent() != None and next.getParent().isFrozen():
             #     pass
-            if bres and bparam['block']:
+            if next.is_blocking():
                 pass
             else:
                 # print('Set new current task', next.getName())

@@ -664,10 +664,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     gr.Button('Delete').click(fn=projecter.delAction, inputs=actions_list, outputs=actions_list)
                                     gr.Button('Save').click(fn=projecter.saveAction, outputs=actions_list)
                                     gr.Button('Clear').click(fn=projecter.clearAction, outputs=actions_list)
-                                    gr.Button('Copy to curr task').click(fn=projecter.saveActionsToCurrTask, outputs=actions_list)
+                                    gr.Button('Copy to curr task').click(fn=projecter.saveActionsToCurrTask, inputs=actions_list, outputs=actions_list)
                                 with gr.Row():
                                     exe_act_btn = gr.Button(value='Execute action')
-                                actions_info_txt = gr.Textbox(lines=4)
+                                actions_info_txt = gr.Textbox(lines=4, interactive=True)
                                 actions_list_toadd = gr.Dropdown(choices=projecter.getAvailableActionsList())
                                 action_param = gr.Textbox(lines = 4, interactive=True)
                                 actions_list_toadd.select(fn=projecter.getAvailableActionTemplate,inputs=actions_list_toadd, outputs=action_param)

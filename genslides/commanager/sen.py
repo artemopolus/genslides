@@ -1143,12 +1143,14 @@ class Projecter:
     def getActionInfo(self, names : list):
         print('Get action info from', names)
         text = ''
+        out = []
         for name in names:
             pack = name.split(':')
             actions = self.actions_info
             for idx, action in enumerate(actions):
                 if pack[0] == str(actions[idx]['id']):
-                    text += json.dumps(actions[idx], indent=1) + '\n'
+                    out.append(action)
+        text = json.dumps(out, indent=1, ensure_ascii=False)
         return text
  
     def saveActionsToCurrTask(self, names: list):
@@ -1196,8 +1198,7 @@ class Projecter:
         return self.getActionsList()
     
     def clearAction(self):
-        actions = self.actions_info
-        actions = []
+        self.actions_info = []
         return self.getActionsList()
     
     def saveAction(self):
@@ -2514,7 +2515,7 @@ class Projecter:
         for task in man.task_list:
             if task.isExternalProjectTask():
                 out.append(task.getName())
-        return gr.CheckboxGroup(choices=out, value=[], interactive=True)
+        return gr.CheckboxGroup(choices=out, value=out, interactive=True)
     
     def updateInExtTreeTasksByName(self, names : list[str]):
         man = self.actioner.manager

@@ -286,7 +286,7 @@ class TaskDescription():
     def __init__(self, prompt = "", method = None, parent=None, helper=None, 
                  requester=None, target=None, manager=None, id = 0, type = "", 
                  prompt_tag = "user", filename = "", enabled = False, 
-                 params = [], manual = False, stepped = False, trgtaskname = '') -> None:
+                 params = [], manual = False, stepped = False, trgtaskname = "") -> None:
         self.manager = manager
         self.prompt = prompt
         self.prompt_tag = prompt_tag
@@ -1547,3 +1547,6 @@ class BaseTask():
             "parent": parent_name
         }
 
+    def is_blocking(self):
+        return False
+    

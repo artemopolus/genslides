@@ -32,6 +32,7 @@ import genslides.utils.finder as finder
 import genslides.task_tools.array as ar
 import genslides.task_tools.records as rd
 import genslides.task_tools.actions as actions
+import genslides.task_tools.text as txt
 import copy
 
 class TextTask(BaseTask):
@@ -471,7 +472,10 @@ class TextTask(BaseTask):
             target_index = rparam["index"]
         else:
             target_index = -1
-
+        if rres and "excld_task" in rparam:
+            except_task = rparam["excld_task"].split(",")
+            for task_name in except_task:
+                task_name.replace(" ","")
         task = self
         index = 0
         out = []
@@ -838,6 +842,7 @@ class TextTask(BaseTask):
             input.enabled = not self.is_freeze
             input.parent = self
             input.stepped = stepped
+            input.params = self.copyAllParamsConv()
             # print(self.getName(),'[ frozen=', self.is_freeze,'] linked to')
             task.method(input)
 
@@ -872,8 +877,8 @@ class TextTask(BaseTask):
             self.saveJsonToFile(self.msg_list)
 
     def stdProcessUnFreeze(self, input=None):
-        res, pparam = self.getParamStruct('block')
-        if res and pparam['block']:
+        # res, pparam = self.getParamStruct('block')
+        if self.is_blocking():
             self.is_freeze = True
             return
 
@@ -973,6 +978,7 @@ class TextTask(BaseTask):
             if ares:
                 naparam = ar.checkArrayIteration(self.getLastMsgContent2(), aparam)
                 self.updateParam2(naparam)
+        self.updateAutoCommand()
 
     def setRecordsParam(self):
         print('Set',self.getName(),'to recording')
@@ -1233,7 +1239,7 @@ class TextTask(BaseTask):
                  text = n_text
          return n_text
     
-    def copyAllParams(self, copy_info = False):
+    def copyAllParams(self, copy_info = False) -> list[dict]:
         pparams = self.getAllParams()
         to_del = []
         for p in pparams:
@@ -1263,6 +1269,14 @@ class TextTask(BaseTask):
                 pparams.append({'type':'copied','cp_path':[self.getName()]})
 
         return pparams
+    
+    def copyAllParamsConv(self):
+        params = self.copyAllParams()
+        for param in params:
+            for key, value in param.items():
+                if isinstance(value, str):
+                    value = self.findKeyParam(value)
+        return params
         
 
     def getAllParams(self):
@@ -1301,14 +1315,62 @@ class TextTask(BaseTask):
 
     def getAutoCommand(self):
         tres, tparam = self.getParamStruct("autocommander", only_current=True)
-        if tres and 'actions' in tparam:
-            return True, actions.updateActionPackByMethod( tparam['actions'], self.findKeyParam )
+        if tres and 'packs' in tparam and len(tparam['pack']):
+            actions = tparam['pack'].pop()['actions']
+            self.setParamStruct( tparam )       
+            return True, actions
         return super().getAutoCommand()
     
     def setAutoCommand(self, type_name, actions: list):
-        self.setParamStruct(
-            {
-                "type": "autocommander",
-                "actions": actions
-            }
-        )       
+        pass
+
+    def updateAutoCommand(self):
+
+        tres, tparam = self.getParamStruct("autocommander", only_current=True)
+        if tres:
+            try:
+                actions = json.loads(self.findKeyParam(tparam['input']))
+                packs = tparam['packs']
+                hash = txt.compute_sha256_hash(json.dumps(actions,ensure_ascii=False))
+                if len(packs) == 0:
+                    pack = {
+                        'hash': hash,
+                        'actions':actions
+                        }
+                    tparam['packs'].append(pack)
+
+                else:
+                    for pack in packs:
+                        if hash == pack['hash']:
+                            return
+                    pack = {
+                        'hash': hash,
+                        'actions':actions
+                        }
+                    tparam['packs'].append(pack)
+
+            except Exception as e:
+                tparam = {
+                    "type": "autocommander",
+                    "pack": []
+                }
+
+                pass
+        else:
+            return
+        self.setParamStruct( tparam )       
+
+    def is_blocking(self):
+        bres, bparam = self.getParamStruct('block')
+        if bres and bparam['block']:
+            if 'reason' in bparam:
+                if bparam['reason'] == "None":
+                    return True
+                elif bparam['reason'] == "Target":
+                    target = self.findKeyParam(bparam['target'])
+                    value = self.findKeyParam(bparam['value'])
+                    if target == value:
+                        return True
+            else:
+                return True
+        return super().is_blocking()

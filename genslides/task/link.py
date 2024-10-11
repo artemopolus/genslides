@@ -1,5 +1,7 @@
 import genslides.task.text as TextTask
 import genslides.task_tools.records as rd
+import genslides.task_tools.text as txt
+import json
 
 class LinkedTask(TextTask.TextTask):
     def __init__(self, task_info: TextTask.TaskDescription, type='Linked') -> None:
@@ -182,4 +184,51 @@ class ListenerTask(LinkedTask):
         if not self.is_freeze:
             self.updateCollectedMsgList(self.checkParentsMsg())
         return super().updateIternal(input)
+ 
+    def updateLinkedPrompts(self, input : TextTask.TaskDescription):
+        for tsk_info in self.by_ext_affected_list:
+            if input.id == tsk_info.id:
+                    tsk_info.enabled = input.enabled
+                    tsk_info.prompt = input.prompt
+                    tsk_info.params = input.params
+
+    def getRichPrompt(self) -> str:
+        lres, lparam = self.getParamStruct("listener")
+        prompt = ""
+        params = []
+        for tsk_info in self.by_ext_affected_list:
+            prompt += tsk_info.prompt
+            params.extend(tsk_info.params)
+
+        if lres:
+            curr_hash = lparam['hash']
+            if lparam['input'] == 'prompt':
+                input_hash = txt.compute_sha256_hash(prompt)
+                if curr_hash != input_hash:
+                    self.prompt = prompt
+                    lparam['hash'] = input_hash
+            elif lparam['input'] == 'params':
+                input_hash = txt.compute_sha256_hash(json.dumps(params))
+                if curr_hash != input_hash:
+                    self.prompt = prompt
+                    lparam['hash'] = input_hash
+                    for param in params:
+                        self.setParamStruct(param)
+            self.setParamStruct(lparam)
+        return self.prompt
+    
+    def forceCleanChat(self):
+        self.prompt = ""
+        lres, lparam = self.getParamStruct("listener")
+        if lres:
+            lparam['hash'] = ""
+            if lparam['input'] == 'params':
+                params = []
+                for tsk_info in self.by_ext_affected_list:
+                    params.extend(tsk_info.params)
+                for param in params:
+                    if 'type' in param:
+                        self.rmParamStructByName(param['type'])
+
+
  
