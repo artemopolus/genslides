@@ -1329,9 +1329,9 @@ class TextTask(BaseTask):
         tres, tparam = self.getParamStruct("autocommander", only_current=True)
         if tres:
             try:
-                actions = json.loads(self.findKeyParam(tparam['input']))
+                actions = json.loads(self.findKeyParam(tparam['input']), strict=False)
                 packs = tparam['packs']
-                hash = txt.compute_sha256_hash(json.dumps(actions,ensure_ascii=False))
+                hash = txt.compute_sha256_hash(json.dumps(actions))
                 if len(packs) == 0:
                     pack = {
                         'hash': hash,
@@ -1348,11 +1348,13 @@ class TextTask(BaseTask):
                         'actions':actions
                         }
                     tparam['packs'].append(pack)
-
+            except json.JSONDecodeError as e:
+                print(f"Error loading JSON: {e}")
             except Exception as e:
+                print("Auto command add error:", e)
                 tparam = {
                     "type": "autocommander",
-                    "pack": []
+                    "packs": []
                 }
 
                 pass
