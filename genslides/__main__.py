@@ -225,7 +225,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 
                                 inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
                                 updselinexttreetasks_btn = gr.Button('Load selected task acts')
-                                getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk])
+                                giett_actioners_txt = gr.Textbox(label = 'Target Actioners')
+                                getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk, giett_actioners_txt])
 
                                 acttask_get_btn = gr.Button('Get Action Tasks')
                                 

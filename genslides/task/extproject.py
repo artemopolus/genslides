@@ -299,6 +299,15 @@ class ExtProjectTask(CollectTask):
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
+
+    def getTargetActionerPath(self)-> str:
+        eres, eparam = self.getParamStruct('external')
+        
+        if eres and 'inexttree' in eparam and eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
+            str_trg_path = self.findKeyParam(eparam['exttreetask_path'])
+            return Loader.Loader.getUniPath(str_trg_path)
+        return ""
+
  
 class SearcherTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="Searcher") -> None:
@@ -689,6 +698,7 @@ class JumperTreeTask(InExtTreeTask):
                         return None
                     else:
                         print("No task with name", eparam['jumper'], "with path", trg_path)
+            print("No actioners for", trg_path)
         return None
  
     def updateIternal(self, input : TaskDescription = None):

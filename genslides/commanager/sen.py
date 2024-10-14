@@ -2512,10 +2512,12 @@ class Projecter:
     def getCurManInExtTreeTasks(self):
         man = self.actioner.manager
         out = []
+        out_paths = []
         for task in man.task_list:
             if task.isExternalProjectTask():
                 out.append(task.getName())
-        return gr.CheckboxGroup(choices=out, value=out, interactive=True)
+                out_paths.append(task.getTargetActionerPath())
+        return gr.CheckboxGroup(choices=out, value=out, interactive=True), '\n'.join(out_paths)
     
     def updateInExtTreeTasksByName(self, names : list[str]):
         man = self.actioner.manager
