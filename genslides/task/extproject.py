@@ -651,15 +651,15 @@ class JumperTreeTask(InExtTreeTask):
 
 
     def loadActionerTasks(self, actioners: list):
-        if self.intact != None:
-            print(f"Task {self.getName()} already loaded")
-            return
         eres, eparam = self.getParamStruct('external')
         if not eres:
             return None
         if 'inexttree' not in eparam:
             return None
         if eparam['inexttree'] == 'None':
+            if self.intact != None:
+                print(f"Task {self.getName()} already loaded")
+                return
             
             task_actioner = self.getActioner()
             if self.intpar == None:
@@ -681,7 +681,7 @@ class JumperTreeTask(InExtTreeTask):
                 if actioner.getPath() == trg_path:
                     man = actioner.std_manager
                     jumper = man.getTaskByName(eparam['jumper'])
-                    if jumper and jumper.checkType('ExternalInput'):
+                    if jumper and jumper.checkType('ExternalInput') and self.getParent() != jumper.getParent():
                         self.intact = actioner
                         self.intman = man
                         jumper.setParent(self.getParent())
@@ -732,9 +732,13 @@ class OutExtTreeTask(ExtProjectTask):
         self.saveAllParams()
 
     def loadActionerTasks(self, actioners: list):
-        if self.intact != None:
+        if self.intact != None and self.intman != None:
             print(f"Task {self.getName()} already loaded")
-            return None
+            eres, eparam = self.getParamStruct('external')
+            if not eres:
+                return None
+            if self.intch_trg == self.intman.getTaskByName(eparam['target']):
+                return None
         self.updateOutExtActMan(actioners)
         return None
     
