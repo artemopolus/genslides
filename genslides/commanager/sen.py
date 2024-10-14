@@ -2619,7 +2619,7 @@ class Projecter:
             # self.getCurrentExtTaskOptions(),
             gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
             gr.Textbox(value=mancurtaskgetbranchsum, interactive=True),
-            gr.Radio(choices=mangetbranchend, interactive=True),
+            gr.Radio(choices=mangetbranchend, value = None, interactive=True),
             mangetbranchendname,
             gr.CheckboxGroup(value=[]),
             mangetbranchlist,

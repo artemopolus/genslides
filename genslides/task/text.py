@@ -1315,8 +1315,8 @@ class TextTask(BaseTask):
 
     def getAutoCommand(self):
         tres, tparam = self.getParamStruct("autocommander", only_current=True)
-        if tres and 'packs' in tparam and len(tparam['pack']):
-            actions = tparam['pack'].pop()['actions']
+        if tres and 'packs' in tparam and len(tparam['packs']):
+            actions = tparam['packs'].pop()['actions']
             self.setParamStruct( tparam )       
             return True, actions
         return super().getAutoCommand()
