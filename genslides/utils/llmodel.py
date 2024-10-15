@@ -10,6 +10,7 @@ import datetime
 from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages, openai_decode_token, openai_get_tokens_from_message
 from genslides.utils.myollama import ollamaGetChatCompletion
 from genslides.utils.myllamacpp import llamacppGetChatCompletion
+from genslides.utils.mygemini import geminiGetChatCompletion
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
 
 model_to_method = {
@@ -22,6 +23,9 @@ model_to_method = {
     },
     "llamacpp":{
         'default':llamacppGetChatCompletion
+    },
+    "google":{
+        'default':geminiGetChatCompletion
     }
 }
 
