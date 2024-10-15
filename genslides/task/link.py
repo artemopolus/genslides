@@ -188,17 +188,29 @@ class ListenerTask(LinkedTask):
     def updateLinkedPrompts(self, input : TextTask.TaskDescription):
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
+                hash = txt.compute_sha256_hash(input.prompt)
+                if tsk_info.type != hash:
                     tsk_info.enabled = input.enabled
                     tsk_info.prompt = input.prompt
                     tsk_info.params = input.params
+                    tsk_info.type = hash
+                return
 
     def getRichPrompt(self) -> str:
         lres, lparam = self.getParamStruct("listener")
         prompt = ""
         params = []
         for tsk_info in self.by_ext_affected_list:
-            prompt += tsk_info.prompt
-            params.extend(tsk_info.params)
+            if 'combine' in lparam:
+                if lparam['combine'] == 'single':
+                    if tsk_info.enabled:
+                        prompt = tsk_info.prompt
+                        params.extend(tsk_info.params)
+                        tsk_info.enabled = False
+                        break
+            else:
+                prompt += tsk_info.prompt
+                params.extend(tsk_info.params)
 
         if lres:
             curr_hash = lparam['hash']
