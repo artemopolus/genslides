@@ -79,9 +79,9 @@ class ResponseTask(TextTask):
         # for msg in input_msg_list:
         #     msg["content"] = self.findKeyParam(msg["content"])
 
-        input_msg_list = self.getMsgs()
-        input_msg_list.pop()
-        # print('Request=',input_msg_list)
+        # input_msg_list = self.getMsgs()
+        # input_msg_list.pop()
+        input_msg_list = self.getParent().getMsgs()
 
         return chat.createChatCompletion(input_msg_list)
 
