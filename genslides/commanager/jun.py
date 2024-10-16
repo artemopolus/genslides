@@ -1814,26 +1814,29 @@ class Manager:
 
     def convertMsgsToChat(self, msgs):
         r_msgs = []
-        first = ""
-        sec = ""
+        # first = ""
+        # sec = ""
+        # for msg in msgs:
+        #     if msg['role'] == 'assistant':
+        #         sec = msg['content']
+        #         r_msgs.append([first, sec])
+        #         first = ""
+        #         sec = ""
+        #     else:
+        #         if first != "":
+        #             r_msgs.append([first, sec])
+        #             first = msg['content']
+        #             r_msgs.append([first, sec])
+        #             first = ""
+        #             sec = ""
+        #         else:
+        #             first = msg['content']
+        # if first != "":
+        #     r_msgs.append([first, sec])
         for msg in msgs:
-            if msg['role'] == 'assistant':
-                sec = msg['content']
-                r_msgs.append([first, sec])
-                first = ""
-                sec = ""
-            else:
-                if first != "":
-                    r_msgs.append([first, sec])
-                    first = msg['content']
-                    r_msgs.append([first, sec])
-                    first = ""
-                    sec = ""
-                else:
-                    first = msg['content']
-        if first != "":
-            r_msgs.append([first, sec])
-        return r_msgs
+            if msg['role'] not in ['user','assistant','system']:
+                msg['role'] = 'user'
+        return msgs
 
 
     

@@ -186,7 +186,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             viewhiddenmsgs_chck = gr.Checkbox(label='Hide task(s)', value=True)
                         with gr.Row():
-                            sec_msg = gr.Chatbot(height=700, bubble_full_width=True, rtl=False, show_copy_button=True, render_markdown=False)
+                            sec_msg = gr.Chatbot(height=700, bubble_full_width=True, rtl=False, show_copy_button=True, render_markdown=False,type='messages')
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):
@@ -234,7 +234,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 acttask_exe_btn = gr.Button('Execute actions')
                                 acttask_get_btn.click(fn=projecter.getTasksWithActions, outputs=[acttask_names_chk])
                 with gr.Row():
-                    dial_block = gr.Chatbot(height=800, layout='panel')
+                    dial_block = gr.Chatbot(height=800, layout='panel',type='messages')
 
             with gr.Tab('Raw graph'):
                 with gr.Row():
@@ -246,7 +246,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     # with gr.Column(scale=1):
             with gr.Tab('Raw dial'):
                 with gr.Row():
-                            raw_dial = gr.Chatbot(height=500)
+                            raw_dial = gr.Chatbot(height=500, type='messages')
             with gr.Tab('Comparing'):
                 with gr.Row():
                     comparison_rad = gr.Radio(choices=projecter.getComparisonTypes())
@@ -263,7 +263,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     infochatrecords_btn = gr.Button('Update')
                 with gr.Row():
-                    comparison_chat = gr.Chatbot(height=500, label='Comparison chat')
+                    comparison_chat = gr.Chatbot(height=500, label='Comparison chat',type='messages')
                 with gr.Column():
                     headercontent_txt = gr.Textbox(label='Header',lines=4)
                     prefixcontent_txt = gr.Textbox(label='Prefix',lines=4)
@@ -759,7 +759,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                         inet_extmantasks_btn = gr.Button('Set for In')
                                         outet_extmantasks_btn = gr.Button('Set for Out')
                                 with gr.Column():
-                                    manbudlist_cht = gr.Chatbot()
+                                    manbudlist_cht = gr.Chatbot(type='messages')
                                 # manbudinfoupdt_btn.click(fn=projecter.getBudInfo, inputs=[manbudlist_drd], outputs=[manbudsum_txt,manbudindo_txt, manbudlist_cht])
                                 manbudlist_drd.input(fn=projecter.getBudInfo, inputs=[manbudlist_drd], outputs=[manbudsum_txt,manbudindo_txt, manbudlist_cht])
                             with gr.Row():

@@ -8,7 +8,7 @@ def exttreemanagerManipulator(projecter : Projecter):
         with gr.Column(scale=1):
             etmgraph_img = gr.Image(label='tree')
         with gr.Column(scale=3):
-            etminfo_cht = gr.Chatbot(label='dial')
+            etminfo_cht = gr.Chatbot(label='dial',type='messages')
     with gr.Column():
         man_rad = gr.Radio(label='Managers')
         tree_rad = gr.Radio(label='Trees')
