@@ -1,8 +1,5 @@
 import hashlib
 
-
-import hashlib
-
 def compute_sha256_hash(input_text: str) -> str:
     """
     Compute the SHA256 hash of the given input text.
@@ -97,4 +94,8 @@ def cut_text_into_parts(text, parts_count, before_length, after_length):
 
     return result
 
-
+def convert_text_with_names_to_list( text : str, delimiter = ',') -> list[str]:
+    names = text.split(delimiter)
+    for name in names:
+        name.replace(" ","")
+    return names

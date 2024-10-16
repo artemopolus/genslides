@@ -168,6 +168,10 @@ class Manager:
     def clearMultiSelectedTasksList(self):
         self.multiselect_tasks.clear()
 
+    def addTaskToMultiSelectedByName(self, name : str):
+        task = self.getTaskByName(name)
+        self.addTaskToMultiSelected(task)
+
     def addTaskToMultiSelected(self, task : BaseTask):
         if task != None and task not in self.multiselect_tasks and task in self.task_list:
             self.multiselect_tasks.append(task)

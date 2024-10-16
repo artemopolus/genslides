@@ -247,14 +247,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             with gr.Tab('Raw dial'):
                 with gr.Row():
                             raw_dial = gr.Chatbot(height=500)
-                with gr.Row():
-                            task_list = gr.Dropdown(choices=manager.getTaskNamesList(), label='Available tasks')
-                            sel_task_btn = gr.Button(value="Select")
-                with gr.Row():
-                            trgtexttosearch_txt = gr.Textbox(label='Text to search')
-                            foundtaskstext_txt = gr.Textbox(label='Search results')
-                            findtextintasks_btn = gr.Button('Find')
-                            findtextintasks_btn.click(fn=projecter.findSubStringInTasks, inputs=[trgtexttosearch_txt], outputs=[foundtaskstext_txt])
             with gr.Tab('Comparing'):
                 with gr.Row():
                     comparison_rad = gr.Radio(choices=projecter.getComparisonTypes())
@@ -297,7 +289,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                           outputs=[comparison_chat, infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
                 infochatrecords_btn.click(fn=projecter.getCopyBranchesInfo, outputs=[infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
                 comparison_btn.click(fn=projecter.getBudMsgs, inputs=comparison_rad, outputs=comparison_chat)
-            with gr.Tab('Plain Text'):
+            with gr.Tab('Plain Text', visible=False):
                 with gr.Row():
                     treeplaintexttype_rad = gr.Radio(choices=['Tree','Current Task Tree', 'MultiSelected'])
                     updateplaintext_btn = gr.Button('Update')
@@ -317,7 +309,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 moveupplaintext_btn.click(fn=projecter.moveUpTree3PlainText, outputs=plaintext_output)
                 movedwplaintext_btn.click(fn=projecter.moveDwTree3PlainText, outputs=plaintext_output)
                 saveplaintextcontent_btn.click(fn=projecter.editPromptTree3PlainText, inputs=[curtext_txt], outputs=plaintext_output)
-            with gr.Tab('Attention window'):
+            with gr.Tab('Attention window',visible=False):
                 with gr.Column():
                     UI.textslider(projecter)
             
@@ -411,25 +403,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
                             select_to_list_btn = gr.Button(value='Select')
-                            relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
                             clear_select_list_btn = gr.Button(value='Clear Select').click(fn=manager.clearSelectList, outputs=[selected_tasks_list])
-                        with gr.Row():
-                            parent_btn = gr.Button(value='Parent')
-                            link_btn = gr.Button(value='Link')
-                            child_btn = gr.Button(value='Child')
-                            revlink_btn = gr.Button(value='Revert Link')
-                        with gr.Row():
-                            slct_action_list = gr.Radio(choices=["New","SubTask","Insert"], 
-                                                            label="Select actions", 
-                                                            value="New"
-                                                            )
-                        with gr.Row():
-                            collect_btn = gr.Button(value='Collect')
-                            shoot_btn = gr.Button(value='Listener')
-                            garland_btn = gr.Button(value='Garland')
                         with gr.Row():
                             selected_prompt = gr.Textbox(value='',lines=4, label='Selected prompt')
                         select_to_list_btn.click(fn=projecter.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
+                        with gr.Row():
+                            task_list = gr.Dropdown(choices=manager.getTaskNamesList(), label='Available tasks')
+                            sel_task_btn = gr.Button(value="Set to Current")
+                        with gr.Row():
+                            trgtexttosearch_txt = gr.Textbox(label='Text to search')
+                            foundtaskstext_txt = gr.Textbox(label='Search results')
+                            findtextintasks_btn = gr.Button('Find')
+                            findtextintasks_btn.click(fn=projecter.findSubStringInTasks, inputs=[trgtexttosearch_txt], outputs=[foundtaskstext_txt])
                     with gr.Tab('MultiSelect'):
                         with gr.Row():
                             multiselecttask_txt = gr.Textbox(label='Multiselected tasks:')
@@ -465,7 +450,34 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             addcptasks2reltask_btn = gr.Button('Select copy Task')
                         with gr.Row():
                             relattaskcln_btn = gr.Button('Clear all')
-                        with gr.Row():
+                        # with gr.Row():
+                            
+                    with gr.Tab('Cmds'):
+                        with gr.Tab('Current'):
+                        # with gr.Row():
+                            moveup_btn = gr.Button(value='MoveUP')
+                            switchup_btn = gr.Button(value='SwitchUP')
+                            reparup_btn = gr.Button(value='ReparentUP')
+                            unparent_btn = gr.Button(value='Unparent')
+                            unlink_btn = gr.Button(value='Unlink')
+                        with gr.Tab('Selected'):
+                            with gr.Row():
+                                relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
+                            with gr.Row():
+                                parent_btn = gr.Button(value='Parent')
+                                link_btn = gr.Button(value='Link')
+                                child_btn = gr.Button(value='Child')
+                                revlink_btn = gr.Button(value='Revert Link')
+                            with gr.Row():
+                                slct_action_list = gr.Radio(choices=["New","SubTask","Insert"], 
+                                                                label="Select actions", 
+                                                                value="New"
+                                                                )
+                            with gr.Row():
+                                collect_btn = gr.Button(value='Collect')
+                                shoot_btn = gr.Button(value='Listener')
+                                garland_btn = gr.Button(value='Garland')
+                        with gr.Tab('Multi'):
                             with gr.Column():
                                 parammultikey_dd = gr.Dropdown(choices=projecter.getAppendableParam(),label='Param keys')
                                 getparamamulti_btn = gr.Button('Get params from multi')
@@ -487,7 +499,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 disunselectchild_btn = gr.Button('Disable unselected children from queue')
                                 enablemultichilds_btn = gr.Button('Enable children to queue')
 
-                                copyinexttreetask_btn = gr.Button('Copy From Selected InExtTree to Multi InExtTrees')
 
                                 applyautocmdtomulti_btn = gr.Button('Apply AutoCmd to Multi')
 
@@ -496,13 +507,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     savemultitasks_btn = gr.Button('Save multi to folder').click(fn=projecter.copyMultiSelectToFolder, outputs=[savemultitasks_txt])
 
 
-                    with gr.Tab('Cmds'):
-                        with gr.Row():
-                            moveup_btn = gr.Button(value='MoveUP')
-                            switchup_btn = gr.Button(value='SwitchUP')
-                            reparup_btn = gr.Button(value='ReparentUP')
-                            unparent_btn = gr.Button(value='Unparent')
-                            unlink_btn = gr.Button(value='Unlink')
                         with gr.Row(visible=False):
                             unite_btn = gr.Button(value='Unite')
                             copy_chain_btn = gr.Button(value='Copy ch step')
@@ -669,16 +673,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 with gr.Row():
                                     exe_act_btn = gr.Button(value='Execute action')
                                 actions_info_txt = gr.Textbox(lines=4, interactive=True)
-                                actions_list_toadd = gr.Dropdown(choices=projecter.getAvailableActionsList())
+                                actions_list_toadd = gr.Dropdown(label='Custom action',choices=projecter.getAvailableActionsList())
                                 action_param = gr.Textbox(lines = 4, interactive=True)
                                 actions_list_toadd.select(fn=projecter.getAvailableActionTemplate,inputs=actions_list_toadd, outputs=action_param)
                                 gr.Button('Save action').click(fn=projecter.addActionToCurrentManager, inputs=[actions_list_toadd, action_param], outputs=actions_list)
                                 actions_list.change(fn=projecter.getActionInfo, inputs=actions_list, outputs=actions_info_txt)
                     with gr.Tab('InterAct'):
-                        selectactioner_btn = gr.Button('Select Multiselected Task Act')
-                        selact_txt = gr.Textbox(label='Selected Actioner')
-                        movemultiseltask_btn = gr.Button('Move here Act Multi Task', interactive=False)
-                        copymultiseltask_btn = gr.Button('Copy here Act Multi Task', interactive=False)
+                        with gr.Row(visible=False):
+                            selectactioner_btn = gr.Button('Select Multiselected Task Act')
+                            selact_txt = gr.Textbox(label='Selected Actioner')
+                            movemultiseltask_btn = gr.Button('Move here Act Multi Task', interactive=False)
+                            copymultiseltask_btn = gr.Button('Copy here Act Multi Task', interactive=False)
                         selectactioner_btn.click(fn=projecter.selectTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
                         movemultiseltask_btn.click(fn=projecter.moveMultiSelectedTasksFromTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
                         copymultiseltask_btn.click(fn=projecter.copyMultiSelectedTasksFromTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
@@ -690,7 +695,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         iaeditparam_chck = gr.CheckboxGroup(label='Edit task parameters',choices=projecter.getParamListForEdit())
                         interact_jsn = gr.JSON(label='Tasks to create')
                         compareacts_btn.click(fn=projecter.interCompareActioners, inputs=[interactlist_drd, interact_rad, iaeditparam_chck], outputs=interact_jsn)
-                        gr.Button('Create').click(fn=projecter.copyTasksFromActionerToActioner, inputs=[interact_jsn], outputs=interact_jsn)
+                        gr.Button('Create Task(s)').click(fn=projecter.copyTasksFromActionerToActioner, inputs=[interact_jsn], outputs=interact_jsn)
 
 
 
@@ -698,8 +703,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
  
                     with gr.Tab('ExtProject'):
                         with gr.Tab('Create'):
-                            with gr.Row():
-                                convbranch2inoutext_btn = gr.Button('Convert multiselect tasks in InOutExtTree Tasks')
+                            # with gr.Row():
                             with gr.Row():
                                 inexttreeactlist_drd = gr.Dropdown(choices=[],label='Actioners list')
                             with gr.Row():
@@ -765,8 +769,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     # with gr.Row():
                                     #     outextreesubtask_btn = gr.Button('Sub OutExtTree')
                         with gr.Tab('Edit'):
-                            with gr.Row():
-                                addmultitastoinexttree_btn = gr.Button('Add multi to Cur InExtTree')
+                            # with gr.Row():
 
                             with gr.Row():
                                 ette_getparam_btn = gr.Button('Get ExtTree Task Param')
@@ -823,7 +826,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             exttargettask_drd]
                         with gr.Tab('Cmds'):
                             with gr.Row():
+                                convbranch2inoutext_btn = gr.Button('Convert multiselect tasks in InOutExtTree Tasks')
                                 updinexttree_btn = gr.Button('Update InExtTree act')
+                                addmultitastoinexttree_btn = gr.Button('Add multi to Cur InExtTree')
+                                copyinexttreetask_btn = gr.Button('Copy From Selected InExtTree to Multi InExtTrees')
 
                         
                         manextinfobrowse_btn.click(fn=projecter.loadMangerExtInfoExtWithBrowser, outputs=maninfoextout)
@@ -857,7 +863,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     # exttaskopt_chgr.change(fn=manipulate_manager.setCurrentExtTaskOptions, inputs=exttaskopt_chgr, outputs=std_output_man_list)
                     # clr_prman_btn.click(fn=manipulate_manager.resetAllExtTaskOptions, outputs=std_output_man_list)
 
-                    with gr.Tab("Text"):
+                    with gr.Tab("Text",visible=False):
                         analysis_text = gr.Highlightedtext(label="Diff",
                                     combine_adjacent=True,
                                     show_legend=True,
@@ -882,10 +888,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                         })
                         gr.Button('Tokenize').click(fn=projecter.getWordTokenPairs, outputs=tokenizedtext_htxt)
                        
-                    with gr.Tab('Ext Tree Managment'):
+                    with gr.Tab('Ext Tree Managment', visible=False):
                         UI.exttreemanagerManipulator(projecter)
 
-                    with gr.Tab("Others"):
+                    with gr.Tab("Others", visible=False):
                         parents_list = gr.Dropdown(label="Parent tasks:")
                         find_key_type = gr.Dropdown(choices=finder.getKayArray(), value='msg', interactive=True)
                         with gr.Row():
@@ -896,21 +902,21 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         gr.Button('Copy').click(fn=projecter.getFinderKeyString, inputs=[parents_list, find_key_type, trg_params_list, trg_keys_list])
                         project_clear = gr.Button(value="clear tasks")
                         gr.Button('Check Trash').click(fn=projecter.checkTrashInManagerFolder)
- 
-            with gr.Row() as r:
-                gr.Label('Save and load project')
-            with gr.Row() as r:
-                project_name = gr.Textbox(value = project_manipulator.current_project_name, label="Project name")
-                project_save = gr.Button(value="save")
-                # projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
-                project_load = gr.Button(value = "load")
-                project_reload = gr.Button(value='reload')
-                gr.Button('append').click(fn=project_manipulator.appendProjectTasks)
-            with gr.Row() as r:
-                saveresresult_txt = gr.Textbox()
-                gr.Button('Save to reserved').click(fn=projecter.saveToTmp, outputs=saveresresult_txt)
-                projectrestore_btn = gr.Button('Restore reserved')
-                project_save.click(fn=projecter.save, inputs=[project_name], outputs=saveresresult_txt )
+            with gr.Accordion(label='Save and load project',open=False):
+            # with gr.Row() as r:
+                # gr.Label('Save and load project')
+                with gr.Row() as r:
+                    project_name = gr.Textbox(value = project_manipulator.current_project_name, label="Project name")
+                    project_save = gr.Button(value="save")
+                    # projects_list = gr.Dropdown(choices=project_manipulator.loadList(), label="Available projects:")
+                    project_load = gr.Button(value = "load")
+                    project_reload = gr.Button(value='reload')
+                    gr.Button('append').click(fn=project_manipulator.appendProjectTasks)
+                with gr.Row() as r:
+                    saveresresult_txt = gr.Textbox()
+                    gr.Button('Save to reserved').click(fn=projecter.saveToTmp, outputs=saveresresult_txt)
+                    projectrestore_btn = gr.Button('Restore reserved')
+                    project_save.click(fn=projecter.save, inputs=[project_name], outputs=saveresresult_txt )
 
             # param_updt = gr.Button(value="Edit param")
 
@@ -1218,7 +1224,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 project_load = gr.Button(value = "load")
             project_load.click(fn=projecter.load, inputs=[projects_list], outputs=[project_name])
             
-        with gr.Row() as r:
+        with gr.Row(visible=False) as r:
             config_name = gr.Dropdown(choices=manager.getParamsLst())
             config_values = gr.Dropdown(choices=manager.getParam("mode lst"))
             config_btn = gr.Button(value="update mode config").click(fn=manager.setParam, inputs=[config_name, config_values])

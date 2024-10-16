@@ -9,7 +9,7 @@ from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.filemanager as FileManager
 import genslides.utils.finder as finder
 import genslides.utils.loader as Loader
-
+import genslides.task_tools.text as TextTool
 import os
 import json
 import shutil
@@ -365,7 +365,22 @@ class Actioner():
         out.append({"action":"InitPrivManager","param":{}})
         out.append({"action":"StopPrivManager","param":{}})
         out.append({"action":"RmvePrivManager","param":{}})
-        out.append({"action":"SetCurrTask","param":{'task':'task_name'}})
+        
+        if self.manager and self.manager.getCurrentTask() == None:
+            out.append({"action":"SetCurrTask","param":{'task':'task_name'}})
+        else:
+            out.append({"action":"SetCurrTask","param":{'task':self.manager.getCurrentTask().getName()}})
+        if self.manager and self.manager.getSelectedTask() == None:
+            out.append({"action":"SetSlctTask","param":{'task':'task_name'}})
+        else:
+            out.append({"action":"SetSlctTask","param":{'task':self.manager.getSelectedTask().getName()}})
+        if self.manager:
+            multi_tasks = [task.getName() for task in self.manager.getMultiSelectedTasks()]
+
+            out.append({"action":"SetMultiTask","param":{'tasks':','.join(multi_tasks)}})
+        else:
+            out.append({"action":"SetMultiTask","param":{'tasks':'name1,name2'}})
+
         return out
  
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
@@ -438,6 +453,12 @@ class Actioner():
            
         elif creation_type == "SetCurrTask":
             self.manager.setCurrentTaskByName(name=param['task'])
+        elif creation_type == "SetSlctTask":
+            self.manager.setSelectedTaskByName(name=param['task'])
+        elif creation_type == "SetMultiTask":
+            names = TextTool.convert_text_with_names_to_list(param['tasks'])
+            for name in names:
+                self.manager.addTaskToMultiSelectedByName(name)
         elif creation_type == "NewExtProject":
             self.manager.createExtProject(type1, prompt, None)
         elif creation_type == "SubExtProject":

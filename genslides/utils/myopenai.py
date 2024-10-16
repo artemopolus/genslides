@@ -1,6 +1,7 @@
 from openai import OpenAI
 
 import tiktoken
+import json
 
 # [[---]]
 
@@ -45,6 +46,17 @@ def openaiGetChatCompletion(msgs, params):
                 logprobs=logprobs,
                 top_logprobs=top_logprobs,
                 temperature=params['temperature']
+            )
+        elif 'logprobs' in params and params['logprobs'] \
+            and 'response_format' in params and params['response_format'] != "":
+            jformat = json.loads(params['response_format'], strict=False)
+            print('Response format:', jformat)
+            completion = client.chat.completions.create(
+                model = params['model'],
+                messages=msgs,
+                logprobs=logprobs,
+                top_logprobs=top_logprobs,
+                response_format=jformat
             )
         elif 'logprobs' in params and params['logprobs']:
             print('Get with logprobs')
