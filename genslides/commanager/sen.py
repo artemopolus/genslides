@@ -817,6 +817,17 @@ class Projecter:
     def getActionersList(self):
         return [a['act'] for a in self.actioners_list]
     
+    def getActionerSources(self):
+        trgs = self.getActionersList()
+        out, out_paths = self.actioner.getCurManInExtTreeTasks()
+        trgs.extend(out)
+        return (
+                gr.Radio(choices=trgs, 
+    value=self.actioner.getPath() if self.actioner != None else None, interactive=True),
+                gr.CheckboxGroup(choices=trgs, value=None)
+
+        )
+    
     def getActionerPathsList(self):
         return gr.Radio(choices=[a['act'].getPath() for a in self.actioners_list], 
     value=self.actioner.getPath() if self.actioner != None else None, interactive=True)
@@ -1651,6 +1662,18 @@ class Projecter:
             trg = man.curr_task
         man.curr_task = start
         return self.updateMainUIelements()
+    
+    def runExeAutoCommandForMultiSelect(self, text : str):
+        act = self.actioner
+        man = act.manager
+        for task in man.getMultiSelectedTasks():
+            man.setCurrentTask(task)
+            actions = json.loads(task.findKeyParam(text), strict=False)
+            if isinstance(actions, list):
+                for action in actions:
+                    act.makeSavedAction(action)
+        return self.updateMainUIelements()
+
 
     def shiftParentTagForMultiSelect(self, shift : int):
         man = self.actioner.manager
@@ -2511,12 +2534,7 @@ class Projecter:
 
     def getCurManInExtTreeTasks(self):
         man = self.actioner.manager
-        out = []
-        out_paths = []
-        for task in man.task_list:
-            if task.isExternalProjectTask():
-                out.append(task.getName())
-                out_paths.append(task.getTargetActionerPath())
+        out, out_paths = self.actioner.getCurManInExtTreeTasks()
         return gr.CheckboxGroup(choices=out, value=out, interactive=True), '\n'.join(out_paths)
     
     def updateInExtTreeTasksByName(self, names : list[str]):
@@ -3007,18 +3025,41 @@ class Projecter:
             del info['idx']
         return branch_infos
 
+    def getActionerFromLoadedOrTask(self, name)-> Actioner:
+        src_act = self.getActionerByPath( name )
+        if src_act == None:
+            task = self.actioner.manager.getTaskByName( name )
+            if task != None:
+                src_act = task.getActioner()
+        return src_act
 
-    def interCompareActioners(self, actioner_path, gettype, checks):
+
+    def interCompareActioners(self, actioner_path, targets: list, gettype, checks):
         out = {"trees":[],"links": []}
         trg_man = self.actioner.manager
         if gettype == 'Current children':
             
             out["trees"].append( self.getBranchInfoFromManager( trg_man.getCurrentTask(), trg_man), checks )
         elif gettype == 'Act diffs':
-            src_man = self.getActionerByPath(actioner_path).manager
+            src_act = self.getActionerFromLoadedOrTask(actioner_path)
+            if src_act == None:
+                return out
+            src_man = src_act.manager
+
+            trgtasknames = []
+            for name in targets:
+                trg_act = self.getActionerFromLoadedOrTask(name)
+                if trg_act:
+                    if len(trgtasknames) == 0:
+                        trgtasknames = trg_act.manager.getTaskNamesList()
+                    else:
+                        names = trg_act.manager.getTaskNamesList()
+                        for name in trgtasknames:
+                            if name not in names:
+                                trgtasknames.remove(name)
             diff_tasks = []
             srctasknames = src_man.getTaskNamesList()
-            trgtasknames = trg_man.getTaskNamesList()
+            # trgtasknames = trg_man.getTaskNamesList()
             for name in srctasknames:
                 if name not in trgtasknames:
                     diff_tasks.append(src_man.getTaskByName(name))
@@ -3034,14 +3075,18 @@ class Projecter:
 
         return out
     
-    def copyTasksFromActionerToActioner(self, infos):
-        trg_man = self.actioner.manager
-        for info in infos["trees"]:
-            trg_man.copyTree(info)
-        for info in infos["links"]:
-            print(f"Try to make link using:{info}")
-            task_in = trg_man.getTaskByName(info['to'])
-            task_out = trg_man.getTaskByName(info['from'])
-            trg_man.makeLink(task_in, task_out)
+    def copyTasksFromActionerToActioner(self, infos, names):
+        for name in names:
+            trg_act = self.getActionerFromLoadedOrTask(name)
+            if trg_act:
+                trg_man = trg_act.manager
+                print(f"Copy for {name} by infos")
+                for info in infos["trees"]:
+                    trg_man.copyTree(info)
+                for info in infos["links"]:
+                    print(f"Try to make link using:{info}")
+                    task_in = trg_man.getTaskByName(info['to'])
+                    task_out = trg_man.getTaskByName(info['from'])
+                    trg_man.makeLink(task_in, task_out)
         return {}
 

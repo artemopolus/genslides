@@ -1466,7 +1466,7 @@ class Manager:
         return group
         
  
-    def getTaskNamesList(self) -> list[BaseTask]:
+    def getTaskNamesList(self) -> list[str]:
         # print('Get tasks list')
         out = []
         for task in self.task_list:

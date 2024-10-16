@@ -1498,3 +1498,12 @@ class Actioner():
                 print(f"Load for task {task.getName()}")
                 task.loadActionerTasks(actioners)
  
+    def getCurManInExtTreeTasks(self):
+        man = self.actioner.manager
+        out = []
+        out_paths = []
+        for task in man.task_list:
+            if task.isExternalProjectTask():
+                out.append(task.getName())
+                out_paths.append(task.getTargetActionerPath())
+        return out, out_paths
