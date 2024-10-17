@@ -413,6 +413,9 @@ class BaseTask():
     def getClearName(self, manager) -> str:
         return manager.getParentSavingName(self)
     
+    def getNameForDrawing(self) -> str:
+        return self.getName()
+    
     def getName(self) -> str:
         return self.name
     

@@ -562,7 +562,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
                         
             with gr.Tab('Manager'):
-                    with gr.Row():
+                    # with gr.Row():
                         with gr.Tab('List'):
                             with gr.Row():
                                 # get_tempman = gr.Dropdown(label='Temp managers', interactive=True)

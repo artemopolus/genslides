@@ -59,6 +59,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
             for msg in msgs:
                 out_text += msg['content'] + '\n\n'
             rep_text = rep_text.replace(res, out_text)
+        elif arr[1] == 'name':
+            rep_text = rep_text.replace(res, task.getName())
         elif arr[1] == getMsgTag():
             param = task.getLastMsgContent()
             if len(arr) == 3 and arr[2] == 'json_dump':

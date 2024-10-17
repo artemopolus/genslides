@@ -168,3 +168,4 @@ actpacks/*
 session/
 actpacks/
 tt_temp
+.gradio/*

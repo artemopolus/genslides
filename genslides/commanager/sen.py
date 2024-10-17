@@ -818,11 +818,11 @@ class Projecter:
         return [a['act'] for a in self.actioners_list]
     
     def getActionerSources(self):
-        trgs = self.getActionersList()
+        trgs = [t.getPath() for t in self.getActionersList()]
         out, out_paths = self.actioner.getCurManInExtTreeTasks()
         trgs.extend(out)
         return (
-                gr.Radio(choices=trgs, 
+                gr.Dropdown(choices=trgs, 
     value=self.actioner.getPath() if self.actioner != None else None, interactive=True),
                 gr.CheckboxGroup(choices=trgs, value=None)
 

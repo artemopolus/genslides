@@ -1020,24 +1020,24 @@ class Actioner():
                     shape = 'doubleoctagon'
                 if task in trgs_rsm:
                     if task == man.curr_task:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="blueviolet")
+                        f.node( task.getIdStr(), task.getNameForDrawing(),style="filled",color="blueviolet")
                     else:
-                        f.node( task.getIdStr(), task.getName(),style="filled",color="darkmagenta")
+                        f.node( task.getIdStr(), task.getNameForDrawing(),style="filled",color="darkmagenta")
                 elif task.readyToGenerate():
                     color = 'darkmagenta'
-                    f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
+                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", color = color, shape = shape)
                 elif task in man.multiselect_tasks:
                     color = "lightsalmon3"
                     if task == man.curr_task:
                         color = "lightsalmon1"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'crimson'
-                    f.node( task.getIdStr(), task.getName(),style="filled", color = color, shape = shape)
+                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", color = color, shape = shape)
                 elif task == man.curr_task:
                     color = "skyblue"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'skyblue4'
-                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
+                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", shape = shape, color = color)
                 elif task in tmpman_list:
                     color = 'blueviolet'
                     # shape = "ellipse" #rectangle,hexagon
@@ -1050,7 +1050,7 @@ class Actioner():
                                     break
                     else:
                         color = manbase_color
-                    f.node( task.getIdStr(), task.getName(),style="filled", shape = shape, color = color)
+                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", shape = shape, color = color)
                 else:
                     color = 'antiquewhite1'
                     if task.is_blocking():
@@ -1071,7 +1071,7 @@ class Actioner():
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":
                             color="azure2"
-                    f.node( task.getIdStr(), task.getName(),style="filled",color=color, shape = shape)
+                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled",color=color, shape = shape)
 
 
                 # print("info=",task.getIdStr(),"   ", task.getName())
@@ -1499,7 +1499,7 @@ class Actioner():
                 task.loadActionerTasks(actioners)
  
     def getCurManInExtTreeTasks(self):
-        man = self.actioner.manager
+        man = self.manager
         out = []
         out_paths = []
         for task in man.task_list:

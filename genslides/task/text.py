@@ -82,6 +82,14 @@ class TextTask(BaseTask):
                         break
                 if not found:
                     self.setParamStruct(param)
+
+    def getNameForDrawing(self) -> str:
+        res, param = self.getParamStruct("label")
+        if res:
+            label = self.findKeyParam(param["text"])
+            return label
+        return super().getNameForDrawing()
+
     
     def addChild(self, child) -> bool:
         # if self.getName() == 'Response250':
