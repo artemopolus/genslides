@@ -2703,14 +2703,19 @@ class Projecter:
     def convertMsgsToChat(self, task : BaseTask, param = {}):
         hide_tasks = self.actioner.hide_task
         msgs = task.getMsgs(hide_task=hide_tasks, max_symbols=10000, inparam=param)
+        out = []
         for msg in msgs:
+            pack = None
             if msg['role'] not in ['user','assistant','system']:
                 msg['role'] = 'user'
             if 'attach' in msg and msg['attach']['category'] == 'image_url':
-                image_url = Loader.Loader.getUniPath(task.findKeyParam(msg['attach']['content']))
-                msg['content'] = gr.Image(value=image_url,label=msg['content'])
+                image_url = Loader.Loader.getUniPath(msg['attach']['content'])
+                pack = { "role": msg["role"], "content": gr.Image(value=image_url,label=msg['content']) }
                 del msg['attach']
-        return msgs
+            out.append(msg)
+            if pack:
+                out.append(pack)
+        return out
 
 
     def updateUIelements(self, prompt = ''):
