@@ -2702,7 +2702,10 @@ class Projecter:
     
     def convertMsgsToChat(self, task : BaseTask, param = {}):
         hide_tasks = self.actioner.hide_task
-        msgs = task.getMsgs(hide_task=hide_tasks, max_symbols=10000, inparam=param)
+        if "max_symbols" in param:
+            msgs = task.getMsgs(hide_task=hide_tasks, max_symbols=param["max_symbols"], inparam=param)
+        else:
+            msgs = task.getMsgs(hide_task=hide_tasks, inparam=param)
         out = []
         for msg in msgs:
             pack = None
@@ -2750,7 +2753,7 @@ class Projecter:
         stepgraph = self.actioner.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
         rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
-        workspace_msgs = self.convertMsgsToChat(self.actioner.manager.getCurrentTask(),{"attach":True})
+        workspace_msgs = self.convertMsgsToChat(self.actioner.manager.getCurrentTask(),{"attach":True,"max_symbols":10000})
         stepiteration_msgs = self.convertMsgsToChat(self.actioner.manager.getBranchEndTask(),{"attach":True})
 
 
