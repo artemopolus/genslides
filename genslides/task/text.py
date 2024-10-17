@@ -405,7 +405,7 @@ class TextTask(BaseTask):
     def copyParentMsg(self):
         self.msg_list = self.getRawParentMsgs()
         
-    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1) -> (bool, list, BaseTask):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}) -> (bool, list, BaseTask):
         if hide_task:
             res, pparam = self.getParamStruct('hidden', only_current=True)
             if res and pparam['hidden']:
@@ -416,8 +416,14 @@ class TextTask(BaseTask):
             text = content[0: max_symbols]
             text += "\n\n\n...\nText length: " + str(len(content)) + " symbol(s)"
             content = text
-        val = [{"role":self.getLastMsgRole(), 
-                "content": content}]
+        pack = {"role":self.getLastMsgRole(), 
+                "content": content}
+        val = [pack]
+        if "attach" in param and param["attach"]:
+            ares, aparam = self.getParamStruct("attach", only_current=True)
+            if ares:
+                pack["attach"] = {"category": self.findKeyParam(aparam["category"]),
+                                  "content": self.findKeyParam(aparam["content"])}
         if self.parent != None:
             self.parent.setActiveBranch(self)
         return True, val, self.parent
@@ -473,7 +479,7 @@ class TextTask(BaseTask):
             text.replace(trg_old, trg_new)
             msg['content'] = text
  
-    def getMsgs(self, except_task = [], hide_task = True, max_symbols = -1):
+    def getMsgs(self, except_task = [], hide_task = True, max_symbols = -1, inparam = {}):
         # print(f"Get msgs from {self.getName()}")
         rres, rparam = self.getParamStruct("response")
         if rres and "restricted_index" in rparam and rparam["restricted_index"]:
@@ -489,7 +495,7 @@ class TextTask(BaseTask):
         out = []
         mres, mparam = self.getParamStruct("message")
         while(index < 1000):
-            res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols)
+            res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols, inparam)
             if res and task.getName() not in except_task:
                 if mres and mparam["autoconnect"] and len(out) and len(msg) and out[0]["role"] == msg[-1]["role"]:
                         # print(index, " ", task.getName(),"give", len(msg), "msgs") 

@@ -124,7 +124,7 @@ class ReadBranchTask(TextTask):
                     pass
         return []
 
-    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1) -> list[bool, list, BaseTask]:
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}) -> list[bool, list, BaseTask]:
         if hide_task:
             res, pparam = self.getParamStruct('hidden', only_current=True)
             if res and pparam['hidden']:

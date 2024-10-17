@@ -19,6 +19,6 @@ class ExternalInput(RqTask.RequestTask):
         else:
             super().stdProcessUnFreeze(input)
 
-    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}):
         return False, [], self.parent
  

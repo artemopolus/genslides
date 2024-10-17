@@ -2699,7 +2699,20 @@ class Projecter:
             gr.Dropdown(choices=branchnames, interactive=True)
             )
         return out
- 
+    
+    def convertMsgsToChat(self, task : BaseTask, param = {}):
+        hide_tasks = self.actioner.hide_task
+        msgs = task.getMsgs(hide_task=hide_tasks, max_symbols=10000, inparam=param)
+        for msg in msgs:
+            if msg['role'] not in ['user','assistant','system']:
+                msg['role'] = 'user'
+            if 'attach' in msg and msg['attach']['category'] == 'image_url':
+                image_url = Loader.Loader.getUniPath(task.findKeyParam(msg['attach']['content']))
+                msg['content'] = gr.Image(value=image_url,label=msg['content'])
+                del msg['attach']
+        return msgs
+
+
     def updateUIelements(self, prompt = ''):
         hide_tasks = False
 
@@ -2732,9 +2745,12 @@ class Projecter:
         stepgraph = self.actioner.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
         rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
+        workspace_msgs = self.convertMsgsToChat(self.actioner.manager.getCurrentTask(),{"attach":True})
+        stepiteration_msgs = self.convertMsgsToChat(self.actioner.manager.getBranchEndTask(),{"attach":True})
+
 
         out = self.convToGradioUI(
-                r_msgs, 
+                workspace_msgs, 
                 mancurtaskgetname, 
                 res_params, 
                 set_prompt, 
@@ -2754,7 +2770,7 @@ class Projecter:
                 mangetname,
                 mangetcolor,
                 multitasks,
-                bud_msgs,
+                stepiteration_msgs,
                 sel_task,
                 sel_cont
         )

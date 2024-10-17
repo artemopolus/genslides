@@ -500,10 +500,16 @@ class Manager:
 
     def getBranchEndTask(self)-> BaseTask:
         task = None
+        trg = self.getCurrentTask()
         try:
             if len(self.endes) == 0:
                 self.iterateOnBranchEnd()
             task = self.endes[self.endes_idx]
+            if trg not in task.getAllParents():
+                for idx, end in enumerate(self.endes):
+                    if trg in task.getAllParents():
+                        self.endes_idx = idx
+                        return end
         except Exception as e:
             print('Error on get branch end:',e)
             task = self.curr_task
