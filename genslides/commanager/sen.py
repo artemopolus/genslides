@@ -615,6 +615,24 @@ class Projecter:
     def clearTaskRecords( self ):
         self.actioner.manager.curr_task.clearRecordParam()
         return self.updateMainUIelements()
+    
+    def getRecordBranchTasks( self, actioner_path ):
+        out = []
+        act = self.getActionerFromLoadedOrTask( actioner_path)
+        if act:
+            for task in act.manager.task_list:
+                if task.checkType("WriteBranch"):
+                    out.append(task.getName())
+        return gr.CheckboxGroup(label="Write Branch Tasks",choices=out,value=out), gr.Button(value="Clear Branch Tasks",interactive=True)
+
+    def clearRecordBranchTasks( self, act_path : str, names : list[str]):
+        act = self.getActionerFromLoadedOrTask( act_path)
+        if act:
+            for name in names:
+                task = act.manager.getTaskByName( name)
+                if task:
+                    task.clearRecordParam()
+        return gr.CheckboxGroup(label="None", choices=[],value=None), gr.Button(value="None", interactive=False)
 
     
     def goToNextBranch(self):

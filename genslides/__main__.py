@@ -693,18 +693,26 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     
                     with gr.Row():
                         ia_source_drd = gr.Dropdown(label='Source ExtTreeTask')
+                    with gr.Tab("Create tasks"):
                         ia_target_drd = gr.CheckboxGroup(label='Target ExtTreeTask')
-                    # interactlist_drd = gr.Dropdown(choices=[],label='Actioners list')
-                    gr.Button('Update actioners&exttreetask info').click(fn=projecter.getActionerSources, outputs=[ia_source_drd, ia_target_drd])
-                    interact_rad = gr.Radio(label='Copy Type', choices=['Current children','Act diffs'])
-                    compareacts_btn = gr.Button('Get tasks to create')
-                    iaeditparam_chck = gr.CheckboxGroup(label='Edit task parameters',choices=projecter.getParamListForEdit())
-                    interact_jsn = gr.JSON(label='Tasks to create')
-                    compareacts_btn.click(fn=projecter.interCompareActioners, inputs=[ia_source_drd, ia_target_drd, interact_rad, iaeditparam_chck], outputs=interact_jsn)
-                    gr.Button('Create Task(s)').click(fn=projecter.copyTasksFromActionerToActioner, inputs=[interact_jsn, ia_target_drd], outputs=interact_jsn)
+                        # interactlist_drd = gr.Dropdown(choices=[],label='Actioners list')
+                        gr.Button('Update actioners&exttreetask info').click(fn=projecter.getActionerSources, outputs=[ia_source_drd, ia_target_drd])
+                        interact_rad = gr.Radio(label='Copy Type', choices=['Current children','Act diffs'])
+                        compareacts_btn = gr.Button('Get tasks to create')
+                        iaeditparam_chck = gr.CheckboxGroup(label='Edit task parameters',choices=projecter.getParamListForEdit())
+                        interact_jsn = gr.JSON(label='Tasks to create')
+                        compareacts_btn.click(fn=projecter.interCompareActioners, inputs=[ia_source_drd, ia_target_drd, interact_rad, iaeditparam_chck], outputs=interact_jsn)
+                        gr.Button('Create Task(s)').click(fn=projecter.copyTasksFromActionerToActioner, inputs=[interact_jsn, ia_target_drd], outputs=interact_jsn)
+                    with gr.Tab("Special tasks"):
 
-
-
+                        ia_records = gr.CheckboxGroup(label='None')
+                        with gr.Row():
+                            ia_getrecords_btn = gr.Button('Get Branch Records')
+                            ia_getautocommands_btn = gr.Button('Get Auto Commands')
+                            ia_getresponses_btn = gr.Button('Get Responses')
+                        ia_exetask_btn = gr.Button(value='None', interactive=False)
+                        ia_getrecords_btn.click(fn=projecter.getRecordBranchTasks, inputs=[ia_source_drd], outputs=[ia_records, ia_exetask_btn])
+                        ia_exetask_btn.click(fn=projecter.clearRecordBranchTasks, inputs=[ia_source_drd, ia_records], outputs=[ia_records, ia_exetask_btn])
 
 
             with gr.Tab('ExtProject'):

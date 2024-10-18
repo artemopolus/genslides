@@ -1553,3 +1553,6 @@ class BaseTask():
     def is_blocking(self):
         return False
     
+    def clearRecordParam(self):
+        pass
+ 
