@@ -1,6 +1,7 @@
 from genslides.task.base import TaskManager, BaseTask
 # from genslides.commanager.jun import Manager
 import genslides.commanager.jun as Manager
+import genslides.commanager.man as BaseMan
 
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
@@ -41,11 +42,21 @@ class Actioner():
         self.setCurrentManager(manager)
 
     def setCurrentManager(self, manager : Manager.Manager):
+        if manager.is_executing:
+            return
         self.manager = manager
+        if manager != self.std_manager:
+            if manager not in self.tmp_managers:
+                self.tmp_managers.append(manager)
+
+    def removeManager( self, manager : BaseMan.Jun):
+        if manager in self.tmp_managers:
+            manager.beforeRemove()
+            self.tmp_managers.remove(manager)
 
     def reset(self):
         self.setManager(self.std_manager)
-        self.tmp_managers = []
+        self.tmp_managers : list[BaseMan.Jun] = []
         self.clearTmp()
 
     def setPath(self, path: str):
@@ -1563,3 +1574,96 @@ class Actioner():
     
     def getCurrentManager(self) -> Manager.Manager:
         return self.manager
+
+
+    def updateManagerStepInternal(self, man: Manager.Manager, update_task = True):
+        start = self.manager.curr_task
+        next = man.updateSteppedSelectedInternal(update_task=update_task)
+        if next is None:
+            self.update_state = 'next tree'
+        elif self.root_task_tree == next:
+            self.update_state = 'next tree'
+        else:
+            self.update_state = 'step'
+            self.update_processed_chain.append(next.getName())
+        if next:
+            if len(next.getChilds()) == 0:
+                print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
+
+    def updateManager(self, man : Manager.Manager, update_task = True):
+        # print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
+        if self.update_state == 'init':
+            man.sortTreeOrder(True)
+            self.update_state = 'start tree'
+            self.update_tree_idx = 0
+        elif self.update_state == 'start tree':
+            task = man.tree_arr[self.update_tree_idx]
+            print('Start tree', task.getName(),'[',self.update_tree_idx,']')
+            self.setStartParamsForUpdate(man, task)
+            self.updateManagerStepInternal(man, update_task=update_task)
+        elif self.update_state == 'step':
+            self.updateManagerStepInternal(man, update_task=update_task)
+                # self.root_task_tree = next
+        elif self.update_state == 'next tree':
+            if self.update_tree_idx + 1 < len(man.tree_arr):
+                self.update_tree_idx += 1
+                self.update_state = 'start tree'
+            else:
+                self.update_state = 'done'
+                self.update_tree_idx = 0
+
+    def resetUpdateManager(self, man : Manager.Manager, param = {}):
+        self.update_state = 'init'
+        if len(man.tree_arr) == 0:
+            # if not force_check and man == self.std_manager:
+                # man.updateTreeArr()
+            # else:
+                man.updateTreeArr(check_list=True)
+        if len(man.tree_arr) == 0:
+            return
+        man.curr_task = man.tree_arr[0]
+        for task in man.tree_arr:
+            task.resetTreeQueue()
+ 
+    def updateManagerAll(self, params = {
+                          'force_check' : False, 'update_task' : True, 'max_update_idx' : 10000
+                          }):
+        if self.is_updating:
+            print('Abort',self.getPath,'cause: already updating')
+            return
+        else:
+            self.is_updating = True
+        man = self.manager
+        man.is_executing = True
+        exe_manager = BaseMan.Jun(None, None, None)
+        man.syncManager(exe_manager)
+        self.setCurrentManager(exe_manager)
+        print(f"Update all tasks of {man.getName()}")
+        start_task = man.curr_task
+        self.resetUpdateManager(man, params)
+        if len(man.tree_arr) == 0:
+            self.is_updating = False
+            return
+        idx = 0
+        project_chain = [{'idx':idx, 'task': man.getCurrentTask()}]
+        while(idx < params['max_update_idx']):
+            self.updateManager(man, update_task=params['update_task'])
+            project_chain.append({'idx':idx, 'task': man.getCurrentTask()})
+            if self.update_state == 'done':
+                break
+            idx += 1
+
+        cnt = man.getFrozenTasksCount()
+        print(f"Act [{man.getName()}] made {idx} step(s)\nFrozen: {cnt} of {len(man.task_list)} task(s)")
+        man.saveInfo()
+        man.curr_task = start_task
+
+        self.updateallcounter += 1
+        # out = man.getCurrTaskPrompts()
+        # return out
+        self.is_updating = False
+        man.is_executing = False
+        self.removeManager(exe_manager)
+        self.setCurrentManager(man)
+        return project_chain
+

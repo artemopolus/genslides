@@ -2174,3 +2174,9 @@ class Manager(Man.Jun):
             branch['created'].append(self.getCurrentTask().getName())
             branch['convert'].append({'from': task_info["trgtaskname"], 'to': self.getCurrentTask().getName()})
 
+    def syncManager( self, manager : Man.Jun):
+        manager.task_list = self.task_list
+        manager.setCurrentTask(self.getCurrentTask())
+        manager.setSelectedTaskByName(self.getSelectedTask().getName())
+        for task in self.getMultiSelectedTasks():
+            manager.addTaskToMultiSelected(task)

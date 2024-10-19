@@ -44,6 +44,7 @@ class Jun():
         self.multiselect_tasks = []
         self.is_loaded = False
         self.renamed_parent = []
+        self.is_executing = False
 
     def setName(self, name : str):
         self.name = name
