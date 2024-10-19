@@ -1,4 +1,6 @@
 from openai import OpenAI
+import base64
+import genslides.utils.loader as Loader
 
 import tiktoken
 import json
@@ -165,3 +167,28 @@ def openai_decode_token(token : int, model ="gpt-3.5-turbo-0613"):
         print("Warning: model not found. Using cl100k_base encoding.")
         encoding = tiktoken.get_encoding("cl100k_base")
     return encoding.decode_single_token_bytes(token)
+
+def encode_image(image_path):
+  with open(image_path, "rb") as image_file:
+    return base64.b64encode(image_file.read()).decode('utf-8')
+
+def convertMsgsWithImages(msgs: list[dict]):
+    for msg in msgs:
+        if 'attach' in msg and msg['attach']['category'] == 'image_url':
+            image_url = Loader.Loader.getUniPath(msg['attach']['content'])
+            base64_image = encode_image(image_url)
+            msg = { "role": msg["role"], "content": [
+                    {
+                        "type": "text",
+                        "text": msg['content'],
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                        "url":  f"data:image/jpeg;base64,{base64_image}"
+                        },
+                    },
+                    ] 
+                }
+    return msg
+ 
