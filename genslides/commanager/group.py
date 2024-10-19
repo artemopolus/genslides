@@ -38,6 +38,9 @@ class Actioner():
             manager.loadTasksListFileBased()
             manager.enableOutput2()
  
+        self.setCurrentManager(manager)
+
+    def setCurrentManager(self, manager : Manager.Manager):
         self.manager = manager
 
     def reset(self):
@@ -83,7 +86,7 @@ class Actioner():
                     self.tmp_managers.append(manager)
 
     def loadStdManagerTasks(self):
-        self.manager = self.std_manager
+        self.setCurrentManager(self.std_manager)
         man = self.manager
         if not man.is_loaded:
             man.disableOutput2()
@@ -286,7 +289,7 @@ class Actioner():
         tmpman = self.addEmptyScript(tmpman_json)
         start = man.getCurrentTask()
         if tmpman != None:
-            self.manager = tmpman
+            self.setCurrentManager(tmpman)
             project_chain = self.updateAll(update_task=False)
             print('Chain:')
             for elem in project_chain:
@@ -1507,3 +1510,6 @@ class Actioner():
                 out.append(task.getName())
                 out_paths.append(task.getTargetActionerPath())
         return out, out_paths
+    
+    def getCurrentManager(self) -> Manager.Manager:
+        return self.manager
