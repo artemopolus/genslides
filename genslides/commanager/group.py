@@ -830,6 +830,56 @@ class Actioner():
 
         man.curr_task = init_task
         return 
+    def updateAllnTimes(self, n, check = False):
+        self.getCurrentManager().disableOutput2()
+        for i in range(n):
+            print('UAT:', i)
+            self.updateAll(force_check=check)
+        self.getCurrentManager().enableOutput2()
+
+    def updateChildTasks(self, force_check = False):
+        man = self.getCurrentManager()
+        act = self
+        start_task = man.curr_task
+        if force_check:
+            targets = [t for t in man.curr_task.getAllChildChains() if t in man.task_list]
+        else:
+            targets = man.curr_task.getAllChildChains()
+        start_task.resetTreeQueue()
+        idx = 0
+        act.update_state = 'step'
+        act.setStartParamsForUpdate(man, start_task)
+        while(idx < 1000):
+            if act.update_state == 'done' or act.update_state == 'next tree' or man.curr_task not in targets:
+                break
+            act.update()
+            idx += 1
+        print('Frozen tasks cnt:', man.getFrozenTasksCount())
+        man.curr_task = start_task
+
+    def updateFromFork(self, force_check = False):
+        man = self.getCurrentManager()
+        start_task = man.curr_task
+        fork_root = None
+        trg = start_task
+        idx = 0
+        while(idx < 1000):
+            par = trg.getParent()
+            if par == None:
+                return
+            if len(par.getChilds()) > 1:
+                fork_root = trg
+                break
+            elif par.isRootParent():
+                fork_root = par
+                break
+            else:
+                trg = par
+            idx +=1
+        man.curr_task = fork_root
+        self.updateChildTasks(force_check)
+        man.curr_task = start_task
+
 
     def updateAll(self, force_check = False, update_task = True, max_update_idx = 10000):
         if self.is_updating:
