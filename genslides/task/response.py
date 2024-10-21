@@ -1,32 +1,37 @@
 from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
 import pprint
-
 from genslides.utils.llmodel import LLModel
-
-
-
+import threading
+import queue
 class ResponseTask(TextTask):
-    def __init__(self, task_info : TaskDescription, type = "Response") -> None:
-        super().__init__(task_info, type)
+    # Class-wide attributes
+    task_queue = queue.Queue()  # Shared queue for tasks
+    worker_thread = None  # Shared worker thread
 
+
+
+
+    def __init__(self, task_info: TaskDescription, type="Response") -> None:
+        super().__init__(task_info, type)
 
         tmp_msg_list = self.msg_list.copy()
         msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
         del tmp_msg_list
-        # print("Response\n==================>>>>>>>>>>>\n", pprint.pformat( self.msg_list))
-
 
         self.freezeTask()
-        
 
         if len(msg_list_from_file) == 0:
             self.onEmptyMsgListAction()
         else:
             self.onExistedMsgListAction(msg_list_from_file)
-        # print("name=", self.getName())
-        # print("path=", self.path)
+
         self.saveJsonToFile(self.msg_list)
+        
+        # Start the worker thread if it hasn't been started yet
+        if ResponseTask.worker_thread is None:
+            ResponseTask.worker_thread = threading.Thread(target=self.run_worker)
+            ResponseTask.worker_thread.start()
 
 
     def onEmptyMsgListAction(self):
@@ -71,22 +76,44 @@ class ResponseTask(TextTask):
             if res:
                 self.updateParam(name, temperature)
 
-    def executeResponseInternal(self, chat : LLModel):
-        # input_msg_list = self.msg_list.copy()
-        # input_msg_list = [] 
-        # for msg in self.msg_list:
-        #     input_msg_list.append(msg.copy())
-        # for msg in input_msg_list:
-        #     msg["content"] = self.findKeyParam(msg["content"])
 
-        # input_msg_list = self.getMsgs()
-        # input_msg_list.pop()
-        input_msg_list = self.getParent().getMsgs()
+    def run_worker(self):
+        while True:
+            task = ResponseTask.task_queue.get()
+            if task is None:  # Check for signal to stop the worker
+                break
+            chat, callback = task
+            result = self.executeResponseInternal(chat)
+            callback(result)
+            ResponseTask.task_queue.task_done()
 
-        return chat.createChatCompletion(input_msg_list)
+    @classmethod
+    def stop_worker(cls):
+        if cls.worker_thread is not None:
+            cls.task_queue.put(None)  # Send signal to stop the worker
+            cls.worker_thread.join()  # Wait for the worker to finish
+            cls.worker_thread = None  # Reset the worker thread reference
 
- 
+
+    def process_response(self, output):
+        res, out, out_params = output
+        self.updateParam2(out_params)
+        if res:
+            pair = {}
+            pair["role"] = "assistant"  # Replace chat.getAssistTag() with "assistant"
+            pair["content"] = out
+            self.prompt = out
+            self.msg_list.append(pair)
+            print('Update response for', self.getName())
+            self.stdProcessUnFreeze()  # Call stdProcessUnFreeze if res is true
+        else:
+            self.freezeTask()
+            self.msg_list.append({"role": "assistant", "content": ""})
+
+
     def executeResponse(self):
+        self.freezeTask()  # Freeze the task at the beginning
+        
         res, param = self.getParamStruct('model')
 
         if res:
@@ -94,27 +121,25 @@ class ResponseTask(TextTask):
             chat = LLModel(param)
         else:
             print('Init with default option')
-            res, model_name =  self.reqhelper.getValue(self.getType(), "model")
+            res, model_name = self.reqhelper.getValue(self.getType(), "model")
             if res:
                 print('Init with default params')
-                param = {'type':'model','model':model_name}
+                param = {'type': 'model', 'model': model_name}
             chat = LLModel(param)
-        res, out, out_params = self.executeResponseInternal(chat)
-        self.updateParam2(out_params)
-        if res:
-            # print("out=", out)
-            pair = {}
-            pair["role"] = chat.getAssistTag()
-            pair["content"] = out
-            self.prompt = out
-            self.msg_list.append(pair)
-            print('Update response for', self.getName())
-        else:
-            self.freezeTask()
-            self.msg_list.append({"role": "assistant", "content": ""})
-            # print('Response=',out)
-        # print('Msg list=',self.msg_list)
 
+        # Submit task to the queue with a callback for processing the response
+        ResponseTask.task_queue.put((chat, self.process_response))
+
+
+    def executeResponseInternal(self, chat: LLModel):
+        input_msg_list = self.getMsgs()
+        input_msg_list.pop()  # Remove last message
+        return chat.createChatCompletion(input_msg_list)
+
+
+    def getResponseTag(self):
+        # This function returns the response role/tag used in the chat messages.
+        return "assistant"  # You can replace this with the appropriate logic if needed.
 
 
     def update(self, input : TaskDescription = None):
@@ -136,7 +161,7 @@ class ResponseTask(TextTask):
         if self.is_freeze and self.parent:
             # print("frozen=",self.getName())
             if not self.parent.is_freeze:
-                self.is_freeze = False
+                # self.is_freeze = False
                 tmp_msg_list = self.getRawParentMsgs()
                 # print(pprint.pformat(tmp_msg_list))
                 msg_list_from_file = self.getResponseFromFile(tmp_msg_list)
@@ -285,4 +310,6 @@ class ResponseTask(TextTask):
             self.msg_list = []
             # self.msg_list.append(last)
         self.freezeTask()
+
+
 
