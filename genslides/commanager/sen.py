@@ -3091,3 +3091,10 @@ class Projecter:
                     trg_man.makeLink(task_in, task_out)
         return {}
 
+    def forceUnFreezeParentTasks( self ):
+        man = self.actioner.getCurrentManager()
+        for task in man.getCurrentTask().getAllParents():
+            man.forceUnFreezeTask(task)
+        return self.updateMainUIelements()
+
+
