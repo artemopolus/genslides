@@ -44,6 +44,7 @@ class Jun():
         self.multiselect_tasks = []
         self.is_loaded = False
         self.renamed_parent = []
+        self.is_executing = False
 
     def setName(self, name : str):
         self.name = name
@@ -1143,5 +1144,8 @@ class Jun():
         pass
     
     def copyBranchPartByInfo(self, branch, start_parent: Task.BaseTask):
+        pass
+
+    def forceUnFreezeParentTasks( self, task : Task.BaseTask ):
         pass
     

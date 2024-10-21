@@ -460,6 +460,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     reparup_btn = gr.Button(value='ReparentUP')
                     unparent_btn = gr.Button(value='Unparent')
                     unlink_btn = gr.Button(value='Unlink')
+                    forceunfrzpars_btn = gr.Button('Force unfreeze Parents')
                 with gr.Tab('Selected'):
                     with gr.Row():
                         relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
@@ -981,6 +982,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_prompt
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
+
+            forceunfrzpars_btn.click(fn=projecter.forceUnFreezeParentTasks, outputs=std_output_list)
 
             inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, inputs=inexttreeactparam_jsn, outputs=std_output_list)
             outexttreeactcreate_btn.click(fn=projecter.createOutExtTreeTaskByParam, inputs=outexttreeactparam_jsn, outputs=std_output_list)
