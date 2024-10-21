@@ -3040,7 +3040,7 @@ class Projecter:
         trg_man = self.actioner.getCurrentManager()
         if gettype == 'Current children':
             
-            out["trees"].append( self.getBranchInfoFromManager( trg_man.getCurrentTask(), trg_man), checks )
+            out["trees"].append( self.getBranchInfoFromManager( trg_man.getCurrentTask(), trg_man, checks ))
         elif gettype == 'Act diffs':
             src_act = self.getActionerFromLoadedOrTask(actioner_path)
             if src_act == None:
