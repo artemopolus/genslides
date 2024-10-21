@@ -1555,8 +1555,11 @@ class Actioner():
         task_manager.clearTasksCache()
 
     def autoUpdateExtTreeTaskActs(self, actioners: list):
-        print(f"Auto load ext tree act for {self.getPath()}")
+        # print(f"Auto load ext tree act for {self.getPath()}")
         man = self.std_manager
+        if not isinstance(man, Manager.Manager):
+            print("Current manager is temporary: target manager is executing")
+            return
         for task in man.getTasks():
             if task.isExternalProjectTask():
                 print(f"Load for task {task.getName()}")

@@ -2180,3 +2180,7 @@ class Manager(Man.Jun):
         manager.setSelectedTaskByName(self.getSelectedTask().getName())
         for task in self.getMultiSelectedTasks():
             manager.addTaskToMultiSelected(task)
+
+    def forceUnFreezeTask( self, task : BaseTask ):
+        task.unfreezeTask()
+    

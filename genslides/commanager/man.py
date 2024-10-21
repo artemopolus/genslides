@@ -1145,4 +1145,7 @@ class Jun():
     
     def copyBranchPartByInfo(self, branch, start_parent: Task.BaseTask):
         pass
+
+    def forceUnFreezeParentTasks( self, task : Task.BaseTask ):
+        pass
     
