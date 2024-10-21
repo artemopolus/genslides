@@ -1316,11 +1316,7 @@ class Projecter:
     
     def updateAllnTimes(self, n, check = False):
         print('Update All trees stepped',n,'times')
-        self.actioner.getCurrentManager().disableOutput2()
-        for i in range(n):
-            print('UAT:', i)
-            self.actioner.updateAll(force_check=check)
-        self.actioner.getCurrentManager().enableOutput2()
+        self.actioner.updateAllnTimes(n, check)
         return self.updateMainUIelements()
 
     
@@ -1338,24 +1334,7 @@ class Projecter:
         return self.updateMainUIelements()
     
     def updateChildTasks(self, force_check = False):
-        man = self.actioner.getCurrentManager()
-        act = self.actioner
-        start_task = man.curr_task
-        if force_check:
-            targets = [t for t in man.curr_task.getAllChildChains() if t in man.task_list]
-        else:
-            targets = man.curr_task.getAllChildChains()
-        start_task.resetTreeQueue()
-        idx = 0
-        act.update_state = 'step'
-        act.setStartParamsForUpdate(man, start_task)
-        while(idx < 1000):
-            if act.update_state == 'done' or act.update_state == 'next tree' or man.curr_task not in targets:
-                break
-            act.update()
-            idx += 1
-        print('Frozen tasks cnt:', man.getFrozenTasksCount())
-        man.curr_task = start_task
+        self.actioner.updateChildTasks(force_check)
         return self.updateMainUIelements()
         
     def updateMultiSelectedTasks(self, force_check = False):
@@ -1380,27 +1359,7 @@ class Projecter:
         return self.updateMainUIelements()
     
     def updateFromFork(self, force_check = False):
-        man = self.actioner.getCurrentManager()
-        start_task = man.curr_task
-        fork_root = None
-        trg = start_task
-        idx = 0
-        while(idx < 1000):
-            par = trg.getParent()
-            if par == None:
-                return
-            if len(par.getChilds()) > 1:
-                fork_root = trg
-                break
-            elif par.isRootParent():
-                fork_root = par
-                break
-            else:
-                trg = par
-            idx +=1
-        man.curr_task = fork_root
-        self.updateChildTasks(force_check)
-        man.curr_task = start_task
+        self.actioner.updateFromFork(force_check)
         return self.updateMainUIelements()
         
  
