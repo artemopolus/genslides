@@ -103,7 +103,10 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             elif len(arr) > 3 and arr[2] == 'json_list':
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 try:
-                    jtrg_val = jjson[arr[3]]
+                    if arr[3] == "_":
+                        jtrg_val = jjson
+                    else:
+                        jtrg_val = jjson[arr[3]]
                     if isinstance(jtrg_val, list):
                         text  = ''
                         if len(arr) > 4 and arr[4] == "index" and index < len(arr):
