@@ -343,6 +343,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         vizprompt_list = gr.Radio(choices=["None","markdown","python","json"], label="Visualization", value="None", interactive=True, visible=False)
                     with gr.Column(scale = 19):
                         prompt = gr.Textbox(label="Prompt", lines=4, value=request)
+                        with gr.Accordion('Examples'):
+                            with gr.Row():
+                                examples_dst = gr.Radio(label='Examples')
+                            with gr.Row():
+                                add_examples_btn = gr.Button('Append')
+                            add_examples_btn.click(fn=projecter.onExamplesClick, inputs=[examples_dst,prompt], outputs=[prompt])
                         with gr.Row():
                             request_btn = gr.Button(value='Request')
                             response_btn = gr.Button(value='Response',interactive=False)
@@ -363,7 +369,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
                 
             
-            base_action_list.change(fn=projecter.actionTypeChanging, inputs=[base_action_list,  vizprompt_list], outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck])
+            base_action_list.change(fn=projecter.actionTypeChanging, inputs=[base_action_list,  prompt], outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck, examples_dst])
             vizprompt_list.change(fn=projecter.changeVizType, inputs=[base_action_list,  vizprompt_list], outputs=prompt)
             with gr.Tab('Params'):
                 with gr.Row():

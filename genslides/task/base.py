@@ -815,6 +815,12 @@ class BaseTask():
             index += 1
         return out
 
+    def getIdxAncestorTaskByName(self, name : str):
+        for idx, task in enumerate(self.getAllParents()):
+            if task.getName() == name:
+                return idx, task
+        return 0, None
+
     def getAncestorByName(self, trg_name):
         if self.getName() == trg_name:
             return self

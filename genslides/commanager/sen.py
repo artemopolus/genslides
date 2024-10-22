@@ -1084,40 +1084,52 @@ class Projecter:
                 out =  gr.Code(value=self.actioner.getCurrentManager().getCurTaskLstMsgRaw(),language=vizualisation)
         return out
 
+    def onExamplesClick(self, text, prompt):
+        print('Click', text)
+        return prompt + text
 
-    def actionTypeChanging(self, action, vizualisation):
+    def actionTypeChanging(self, action, prompt):
         print('Action switch to=', action)
         # highlighttext = []
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        eres, eparam = task.getParamStruct("choices")
+        examples = ['Test', 'Value']
+        if eres:
+            examples = task.findKeyParam(eparam['source']).split(',')
         if action == 'New':
-            return ("", 
+            return [prompt, 
                     gr.Button(value='Request'), 
                     gr.Button(value='Response', interactive=False), 
                     gr.Button(value='Custom',interactive=True), 
                     gr.Radio(interactive=False),
-                    gr.CheckboxGroup(choices=[])
-                    )
+                    gr.CheckboxGroup(choices=[]),
+                    gr.Radio(choices=examples)
+            ]
         elif action == 'SubTask' or action == 'Insert':
-            return ("", 
+            return [prompt, 
                     gr.Button(value='Request'), 
                     gr.Button(value='Response', interactive=True), 
                     gr.Button(value='Custom',interactive=True), 
                     gr.Radio(interactive=False),
-                    gr.CheckboxGroup(choices=[])
-                    )
+                    gr.CheckboxGroup(choices=[]),
+                    gr.Radio(choices=examples)
+            ]
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
-            print('Get text from',self.actioner.getCurrentManager().curr_task.getName(),'(',self.actioner.getCurrentManager().getName(),')')
-            _,role,_ = self.actioner.getCurrentManager().curr_task.getMsgInfo()
+            print('Get text from',task.getName(),'(',self.actioner.getCurrentManager().getName(),')')
+            _,role,_ = task.getMsgInfo()
             # out = gr.Code(value=self.actioner.getCurrentManager().getCurTaskLstMsgRaw(), language=None)
             out = gr.Textbox(value=self.actioner.getCurrentManager().getCurTaskLstMsgRaw())
             # if vizualisation != 'None':
                 # out =  gr.Code(value=self.actioner.getCurrentManager().getCurTaskLstMsgRaw(),language=vizualisation)
-            return (out, 
+            return [out, 
                     gr.Button(value='Apply'), 
                     gr.Button(value='Divide',interactive=True), 
                     gr.Button(value='',interactive=False), 
                     gr.Radio(interactive=True,value=role),
-                    gr.CheckboxGroup(choices=self.getParamListForEdit(), interactive=True)
-                    )
+                    gr.CheckboxGroup(choices=self.getParamListForEdit(), interactive=True),
+                    gr.Radio(choices=examples)
+            ]
+        
     def getTextInfo(self, notgood, bad):
         param = {'notgood': notgood, 'bad':bad}
         pairs, log, vector = self.actioner.getCurrentManager().curr_task.getTextInfo(param)

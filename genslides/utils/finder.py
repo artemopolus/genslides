@@ -46,7 +46,7 @@ def getMngTag()-> str:
 def getBranchCodeTag(name: str) -> str:
     return '[[' + name + ':' + 'branch_code' + ']]'
 
-def getFromTask(arr : list, res : str, rep_text, task, manager):
+def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
         # print('Get from task', task.getName())
         if len(arr) > 5 and 'type' == arr[1]:
                 bres, pparam = task.getParamStruct(arr[2])
@@ -106,15 +106,25 @@ def getFromTask(arr : list, res : str, rep_text, task, manager):
                     jtrg_val = jjson[arr[3]]
                     if isinstance(jtrg_val, list):
                         text  = ''
-                        for p in range(len(jtrg_val)):
-                            if isinstance(jtrg_val[p], dict):
-                                if len(arr) > 4 and arr[4] in jtrg_val[p]:
-                                    text_p = jtrg_val[p][arr[4]]
-                                else:
-                                    text_p = json.dumps(jtrg_val[p])
+                        if len(arr) > 4 and arr[4] == "index" and index < len(arr):
+                            val_index = jtrg_val[index]
+                            if len(arr) > 5 and arr[5] == "str" and isinstance(val_index, list):
+                                text = ','.join([json.dumps(v) for v in val_index])
+                            elif len(arr) > 5 and arr[5] == "str" and isinstance(val_index, dict):
+                                text = ','.join([json.dumps(v) for k,v in val_index.items()])
+
                             else:
-                                text_p = jtrg_val[p]
-                            text += str(p+1) + '. ' + str(text_p) + '\n'
+                                text = json.dumps(val_index)
+                        else:
+                            for p in range(len(jtrg_val)):
+                                if isinstance(jtrg_val[p], dict):
+                                    if len(arr) > 4 and arr[4] in jtrg_val[p]:
+                                        text_p = jtrg_val[p][arr[4]]
+                                    else:
+                                        text_p = json.dumps(jtrg_val[p])
+                                else:
+                                    text_p = jtrg_val[p]
+                                text += str(p+1) + '. ' + str(text_p) + '\n'
                         rep_text = rep_text.replace(res, text)
                     else:
                         rep_text = rep_text.replace(res, str(jtrg_val))
@@ -378,19 +388,25 @@ def findByKey2(text, manager , base):
                     rep_text = getFromTask(arr, res, rep_text, base, manager)
                     base.freeTaskByParentCode()
                 else:
-                    task = base.getAncestorByName(arr[0])
+                    pass
                 if task:
+                    index = 0
                     while( arr[1] == 'parent'):
                         task = task.getParentForFinder()
                         if task is None:
                              return text, out_target_task, out_results_cnt
                         arr.pop(0)
+                        index +=1
                     out_target_task = task
-                    rep_text = getFromTask(arr, res, rep_text, task, manager)
+                    rep_text = getFromTask(arr, res, rep_text, task, manager, index)
                     task.freeTaskByParentCode()
                 else:
                     #  print("No task", arr[0])
-                     pass
+                    index, task = base.getIdxAncestorTaskByName(arr[0])
+                    if task:
+                        rep_text = getFromTask(arr, res, rep_text, task, manager, index)
+                        task.freeTaskByParentCode()
+
             elif len(arr) == 1:
                 if arr[0] == 'name':
                     rep_text = rep_text.replace(res, base.getName())
