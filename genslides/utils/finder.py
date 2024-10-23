@@ -325,6 +325,7 @@ def getExtTaskSpecialKeys():
     return ['input', 'output', 'stopped', 'check']
 
 def findByKey2(text, manager , base):
+        print('find key in',text)
         reqhelper = manager.helper
         results = re.findall(r"\[\[.*?\]\]", text)
         n_res = []
@@ -405,8 +406,10 @@ def findByKey2(text, manager , base):
                     task.freeTaskByParentCode()
                 else:
                     #  print("No task", arr[0])
+                    print(text, 'Try to find ', arr[0])
                     index, task = base.getIdxAncestorTaskByName(arr[0])
                     if task:
+                        print('Task', task.getName())
                         rep_text = getFromTask(arr, res, rep_text, task, manager, index)
                         task.freeTaskByParentCode()
 

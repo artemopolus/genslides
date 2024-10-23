@@ -340,7 +340,7 @@ class Jun():
         # print('Go to next branch end')
         self.iterateOnBranchEnd()
         self.branch_code = self.curr_task.getBranchCodeTag()
-        print('Get new branch code:', self.branch_code)
+        # print('Get new branch code:', self.branch_code)
     
     def getBranchEndTasksList(self) -> list[Task.BaseTask]:
         self.iterateOnBranchEnd()

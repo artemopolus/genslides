@@ -740,7 +740,7 @@ class Projecter:
             mnl_value = True
         # print('Set task key value:','|'.join([param_name,key,str(mnl_value)]))
         self.makeTaskAction('','','SetParamValue','', {'name':param_name,'key':key,'manual':mnl_value})
-        return self.updateTaskManagerUI()
+        return self.updateMainUIelements()
     
     def setSelectOptionToValue(self, name, key, option):
         return option
@@ -1087,6 +1087,7 @@ class Projecter:
 
     def onExamplesClick(self, text, prompt):
         # print('Click', text)
+
         return prompt + text
 
     def actionTypeChanging(self, action, prompt):
@@ -2740,7 +2741,7 @@ class Projecter:
         ] = self.actioner.getCurrTaskPrompts2(set_prompt=prompt, hide_tasks=self.actioner.hide_task)
 
         maingraph = self.actioner.drawGraph(hide_tasks=True, out_childtask_max=1)
-        stepgraph = self.actioner.drawGraph(max_index= 1, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
+        stepgraph = self.actioner.drawGraph(max_index = 3, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
         rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
         workspace_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getCurrentTask(),{"attach":True,"max_symbols":10000})

@@ -1,3 +1,4 @@
+import json
 
 def find_json(text : str):
     brackets="[]{}"
@@ -74,6 +75,16 @@ def searchJsonTemplate(json_input, lookup_key):
     elif isinstance(json_input, list):
         for item in json_input:
             yield from searchJsonTemplate(item, lookup_key)
+
+def parseJsonKeys( args : list[str], jval) -> str:
+    jtrg = jval
+    for arg in args:
+        try:
+            index = int(arg)
+            jtrg = jtrg[index]
+        except Exception as e:
+            jtrg = searchJsonTemplate(jtrg, arg)
+    return json.dumps(jtrg, ensure_ascii=False)
 
 def getJsonByKey(json_input, lookup_key : list):
     if len(lookup_key) == 0:
