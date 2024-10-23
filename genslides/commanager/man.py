@@ -337,7 +337,7 @@ class Jun():
             self.curr_task = self.endes[self.endes_idx]
 
     def goToNextBranchEnd(self):
-        print('Go to next branch end')
+        # print('Go to next branch end')
         self.iterateOnBranchEnd()
         self.branch_code = self.curr_task.getBranchCodeTag()
         print('Get new branch code:', self.branch_code)

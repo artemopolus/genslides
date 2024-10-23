@@ -34,36 +34,37 @@ class Loader:
             if not os.path.exists(path):
                 return False, pp
         return True, pp
+    
+    def convertJsonTextPartToMsg(md_text : str, index = 1):
+        code_pattern = r'```json(.*?)```'
+        parts = re.split(code_pattern, md_text, flags=re.DOTALL)
+        text = ""
+        for i, part in enumerate(parts):
+            if i % 2 == 0:  # Non-code parts treated as comments
+                pass
+            else:  # Code parts
+                if i == index:
+                # print("parts", part)
+                    return part.strip()
+        return md_text
 
+    def convJsonToText(val):
+        return json.dumps(val, ensure_ascii=False)
 
     def loadJsonFromText(text : str):
-        # print(text)
-        # results = re.findall(r'\{.*?\}', text)
-
-
-        # print(results)
-        # for res in results:
-        prop = text
-        arr = prop.split("{",1)
-        if len(arr) > 1:
-            prop = "{" + arr[1]
-            for i in range(len(prop)):
-                val = len(prop) - 1 - i
-                if prop[val] == "}":
-                    prop = prop[:val] + "}"
-                    break
-        else:
-            # print('Can\'t find json object in txt', arr)
-            return False, None
-        # print(prop)
         try:
+            val = json.loads(text, strict=False)
+            return True, val
+        except Exception as e:
+            pass
+
+        try:
+            prop = Loader.convertJsonTextPartToMsg(text)
             val = json.loads(prop, strict=False)
             return True, val
         except Exception as e:
-            # print('Raise err:', e,'\nInput:\n', prop)
             pass
 
-        # print('Can\'t find json object in txt', arr)
         return False, None
     
     def convertFilePathToTag(path, manager_path):

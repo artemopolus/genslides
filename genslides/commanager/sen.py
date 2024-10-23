@@ -662,7 +662,7 @@ class Projecter:
         return self.updateMainUIelements()
     
     def goToNextTree(self):
-        print('Go to next tree')
+        # print('Go to next tree')
         # if self.actioner.getCurrentManager() != self.actioner.std_manager:
         #     self.actioner.getCurrentManager().sortTreeOrder(check_list=True)
         # else:
@@ -718,7 +718,8 @@ class Projecter:
  
     def appendNewParamToTask(self, param_name):
         self.makeTaskAction('','','AppendNewParam','', {'name':param_name})
-        return self.updateTaskManagerUI()
+        return self.updateMainUIelements()
+    
     
     def removeParamFromTask(self, param_name):
         self.makeTaskAction('','','RemoveTaskParam','', {'name':param_name})
@@ -1085,17 +1086,17 @@ class Projecter:
         return out
 
     def onExamplesClick(self, text, prompt):
-        print('Click', text)
+        # print('Click', text)
         return prompt + text
 
     def actionTypeChanging(self, action, prompt):
-        print('Action switch to=', action)
+        # print('Action switch to=', action)
         # highlighttext = []
         task = self.actioner.getCurrentManager().getCurrentTask()
         eres, eparam = task.getParamStruct("choices")
         examples = ['Test', 'Value']
         if eres:
-            examples = task.findKeyParam(eparam['source']).split(',')
+            examples = task.findKeyParam(eparam['source']).split('[[,]]')
         if action == 'New':
             return [prompt, 
                     gr.Button(value='Request'), 

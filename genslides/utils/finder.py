@@ -112,12 +112,12 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                         if len(arr) > 4 and arr[4] == "index" and index < len(arr):
                             val_index = jtrg_val[index]
                             if len(arr) > 5 and arr[5] == "str" and isinstance(val_index, list):
-                                text = ','.join([json.dumps(v) for v in val_index])
+                                text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for v in val_index])
                             elif len(arr) > 5 and arr[5] == "str" and isinstance(val_index, dict):
-                                text = ','.join([json.dumps(v) for k,v in val_index.items()])
+                                text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for k,v in val_index.items()])
 
                             else:
-                                text = json.dumps(val_index)
+                                text = Loader.Loader.convJsonToText(val_index)
                         else:
                             for p in range(len(jtrg_val)):
                                 if isinstance(jtrg_val[p], dict):
