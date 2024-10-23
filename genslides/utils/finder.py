@@ -101,7 +101,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     # print("Error:", e,"\nFind json in", task.getName(),':\nTrg json:',param, '\nRes json:',jjson)
                     pass
             elif len(arr) > 3 and arr[2] == 'json_list':
-                bres, jjson = Loader.Loader.loadJsonFromText(param)
+                bres, jjson = Loader.Loader.loadJsonFromText(param, report = True)
                 try:
                     if arr[3] == "_":
                         jtrg_val = jjson
@@ -110,7 +110,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     if isinstance(jtrg_val, list):
                         text  = ''
                         if len(arr) > 4 and arr[4] == "index" and index < len(arr):
-                            val_index = jtrg_val[index]
+                            val_index = jtrg_val[index - 1]
                             if len(arr) > 5 and arr[5] == "str" and isinstance(val_index, list):
                                 text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for v in val_index])
                             elif len(arr) > 5 and arr[5] == "str" and isinstance(val_index, dict):
@@ -124,13 +124,13 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                                     if len(arr) > 4 and arr[4] in jtrg_val[p]:
                                         text_p = jtrg_val[p][arr[4]]
                                     else:
-                                        text_p = json.dumps(jtrg_val[p])
+                                        text_p = Loader.Loader.convJsonToText(jtrg_val[p])
                                 else:
                                     text_p = jtrg_val[p]
                                 text += str(p+1) + '. ' + str(text_p) + '\n'
                         rep_text = rep_text.replace(res, text)
                     else:
-                        rep_text = rep_text.replace(res, str(jtrg_val))
+                        rep_text = rep_text.replace(res, Loader.Loader.convJsonToText(jtrg_val))
                 except Exception as e:
                     print("Erorr find json list in", task.getName(),':',e)
             elif len(arr) > 3 and arr[2] == 'filenamesbypath':
@@ -325,7 +325,6 @@ def getExtTaskSpecialKeys():
     return ['input', 'output', 'stopped', 'check']
 
 def findByKey2(text, manager , base):
-        print('find key in',text)
         reqhelper = manager.helper
         results = re.findall(r"\[\[.*?\]\]", text)
         n_res = []
@@ -406,10 +405,8 @@ def findByKey2(text, manager , base):
                     task.freeTaskByParentCode()
                 else:
                     #  print("No task", arr[0])
-                    print(text, 'Try to find ', arr[0])
                     index, task = base.getIdxAncestorTaskByName(arr[0])
                     if task:
-                        print('Task', task.getName())
                         rep_text = getFromTask(arr, res, rep_text, task, manager, index)
                         task.freeTaskByParentCode()
 

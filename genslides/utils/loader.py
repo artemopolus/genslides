@@ -51,19 +51,22 @@ class Loader:
     def convJsonToText(val):
         return json.dumps(val, ensure_ascii=False)
 
-    def loadJsonFromText(text : str):
+    def loadJsonFromText(text : str, report = False):
         try:
             val = json.loads(text, strict=False)
             return True, val
         except Exception as e:
-            pass
+            if report:
+                print("error:",e)
 
         try:
             prop = Loader.convertJsonTextPartToMsg(text)
             val = json.loads(prop, strict=False)
             return True, val
         except Exception as e:
-            pass
+            if report:
+                print("error:",e)
+
 
         return False, None
     

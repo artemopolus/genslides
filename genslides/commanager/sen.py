@@ -1088,7 +1088,7 @@ class Projecter:
     def onExamplesClick(self, text, prompt):
         # print('Click', text)
 
-        return prompt + text
+        return prompt + text[1:-1]
 
     def actionTypeChanging(self, action, prompt):
         # print('Action switch to=', action)
