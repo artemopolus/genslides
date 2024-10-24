@@ -386,25 +386,28 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 param_apnd = gr.Button('Append new')
                         # param_info = gr.Textbox(label="Params", lines=10, max_lines=20)
                         param_info = gr.JSON(label="Params")
+                        addkey_key_txt = gr.Textbox(label='New key to add')
+                        addkey_val_txt = gr.Textbox(label='New key value')
+                        addkey_apd_btn = gr.Button('Add new key, value')
+                        setrecords_btn = gr.Button('Set recording') 
+                        clrrecords_btn = gr.Button('Clear records')
+                        with gr.Row():
+                            savemanact2currtask_drd = gr.Dropdown(choices=projecter.getFullCmdList(True), interactive=True)
+                            savemanact2currtask_btn = gr.Button('Save actions to task')
+
                     with gr.Column():
                         param_key = gr.Dropdown(choices=[],label="Key")
                         param_type.select(fn=projecter.getTaskKeys, inputs=param_type, outputs=param_key)
                         param_slcval = gr.Dropdown(choices=[],label="Options")
                         paramslctset_btn = gr.Button('Set option to value')
                         param_mnlval = gr.Textbox(label='Value',info='manual',lines=4, interactive=True)
-                        param_edit = gr.Button("Edit param")
+                        param_edit = gr.Button("Apply new value to param")
+                        param_jsonval_cod = gr.Code(label='Json',language='json')
+                        param_jsonedit_btn = gr.Button("Apply new value to param")
 
-                        paramslctset_btn.click(fn=projecter.setSelectOptionToValue, inputs=[param_type, param_key,param_slcval], outputs=[param_mnlval])
-
-                        addkey_key_txt = gr.Textbox(label='New key to add')
-                        addkey_val_txt = gr.Textbox(label='New key value')
-                        addkey_apd_btn = gr.Button('Add new key, value')
+                        paramslctset_btn.click(fn=projecter.setSelectOptionToValue, inputs=[param_type, param_key,param_slcval], outputs=[param_mnlval, param_jsonval_cod])
                         param_key.select(fn=projecter.getTaskKeyValue, inputs=[param_type, param_key], outputs=[param_slcval, param_mnlval])
-                        setrecords_btn = gr.Button('Set recording') 
-                        clrrecords_btn = gr.Button('Clear records')
-                        with gr.Row():
-                            savemanact2currtask_drd = gr.Dropdown(choices=projecter.getFullCmdList(True), interactive=True)
-                            savemanact2currtask_btn = gr.Button('Save actions to task')
+
             with gr.Tab('Select'):
                 with gr.Row():
                     selected_tasks_list = gr.Textbox(label='Selected:',value=','.join(manager.getSelectList()))
@@ -1140,6 +1143,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             param_apnd.click(fn=parameters_manager.appendNewParamToTask, inputs=[param_opt], outputs=std_output_list)
             param_rmve.click(fn=parameters_manager.removeParamFromTask, inputs=[param_type], outputs=std_output_list)
             param_edit.click(fn=parameters_manager.setTaskKeyValue, inputs=[param_type, param_key, param_mnlval], outputs=std_output_list)
+            param_jsonedit_btn.click(fn=parameters_manager.setTaskKeyValue, inputs=[param_type, param_key, param_jsonval_cod], outputs=std_output_list)
             addkey_apd_btn.click(fn=parameters_manager.addTaskNewKeyValue, inputs=[param_type, addkey_key_txt, addkey_val_txt], outputs=std_output_list)
 
 

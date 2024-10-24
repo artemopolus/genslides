@@ -743,7 +743,7 @@ class Projecter:
         return self.updateMainUIelements()
     
     def setSelectOptionToValue(self, name, key, option):
-        return option
+        return option, option
     
     def addTaskNewKeyValue(self, param_name, key, value):
         # print('Set task key value:','|'.join([param_name,key,str(value)]))
@@ -1117,7 +1117,7 @@ class Projecter:
                     gr.Radio(choices=examples)
             ]
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
-            print('Get text from',task.getName(),'(',self.actioner.getCurrentManager().getName(),')')
+            # print('Get text from',task.getName(),'(',self.actioner.getCurrentManager().getName(),')')
             _,role,_ = task.getMsgInfo()
             # out = gr.Code(value=self.actioner.getCurrentManager().getCurTaskLstMsgRaw(), language=None)
             out = gr.Textbox(value=self.actioner.getCurrentManager().getCurTaskLstMsgRaw())

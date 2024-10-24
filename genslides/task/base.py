@@ -816,7 +816,7 @@ class BaseTask():
         return out
 
     def getIdxAncestorTaskByName(self, name : str):
-        for idx, task in enumerate(self.getAllParents()):
+        for idx, task in enumerate(self.getAllParents(revert_dir=True)):
             if task.getName() == name:
                 return idx, task
         return 0, None

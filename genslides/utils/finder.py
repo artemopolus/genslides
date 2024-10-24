@@ -2,6 +2,7 @@ import re
 import genslides.utils.loader as Loader
 import genslides.utils.reqhelper as Helper
 import genslides.utils.filemanager as FileMan
+import genslides.utils.parser as Parser
 import json
 import genslides.task_tools.records as rd
 import genslides.task_tools.array as toolarr
@@ -80,6 +81,29 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                         text =  verticaldiv[i_vert]
                 rep_text = rep_text.replace(res, text)
 
+            elif len(arr) > 3 and arr[2] == 'json2':
+                text = res
+                bres, jjson = Loader.Loader.loadJsonFromText(param, report=True)
+                if bres:
+                    # print('arr',arr)
+                    tmparg = arr.copy()
+                    tmparg.pop(0) # - link
+                    tmparg.pop(0) # - msg
+                    tmparg.pop(0) # - json2
+                    conv = tmparg.pop(0)
+                    for i, arg in enumerate(tmparg):
+                        if arg == 'index':
+                            tmparg[i] = str(index)
+                    # print('tmp arg',tmparg)
+                    trgjson = Parser.parseJsonKeys(tmparg, jjson)
+
+                    if conv == 'dict_v' and isinstance(trgjson, dict):
+                        text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for k,v in trgjson.items()])
+                    elif conv == 'list' and isinstance(trgjson, list):
+                        text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for v in trgjson])
+                    else:
+                        text = Loader.Loader.convJsonToText(trgjson)
+                rep_text = rep_text.replace(res, text)
             elif len(arr) > 3 and arr[2] == 'json':
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 try:
@@ -107,9 +131,15 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                         jtrg_val = jjson
                     else:
                         jtrg_val = jjson[arr[3]]
+                    # print("json:", jtrg_val)
+                    # print("arg:", len(arr))
+                    # print("arg:", arr)
+                    # print("Index", index)
+
                     if isinstance(jtrg_val, list):
                         text  = ''
-                        if len(arr) > 4 and arr[4] == "index" and index < len(arr):
+                        index_max = len(jtrg_val)
+                        if len(arr) > 4 and arr[4] == "index" and index < index_max:
                             val_index = jtrg_val[index - 1]
                             if len(arr) > 5 and arr[5] == "str" and isinstance(val_index, list):
                                 text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for v in val_index])

@@ -78,13 +78,18 @@ def searchJsonTemplate(json_input, lookup_key):
 
 def parseJsonKeys( args : list[str], jval) -> str:
     jtrg = jval
-    for arg in args:
-        try:
-            index = int(arg)
-            jtrg = jtrg[index]
-        except Exception as e:
-            jtrg = searchJsonTemplate(jtrg, arg)
-    return json.dumps(jtrg, ensure_ascii=False)
+    try:
+        for arg in args:
+            if isinstance(jtrg, list):
+                index = int(arg)
+                jtrg = jtrg[index]
+            elif isinstance(jtrg, dict):
+                jtrg = jtrg[arg]
+            else:
+                break
+    except Exception as e:
+        jtrg = jval
+    return jtrg
 
 def getJsonByKey(json_input, lookup_key : list):
     if len(lookup_key) == 0:
