@@ -11,6 +11,7 @@ def llamacppGetChatCompletion(msgs, params):
         )
         if 'response_format' in params and params['response_format'] != "":
             jformat = json.loads(params['response_format'], strict=False)
+            print("With reponse format:",jformat)
             completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=msgs,

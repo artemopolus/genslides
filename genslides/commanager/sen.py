@@ -2700,7 +2700,7 @@ class Projecter:
         out = []
         for msg in msgs:
             pack = None
-            if msg['role'] not in ['user','assistant','system']:
+            if msg['role'] not in ['user','assistant']:
                 msg['role'] = 'user'
             if 'attach' in msg and msg['attach']['category'] == 'image_url':
                 image_url = Loader.Loader.getUniPath(msg['attach']['content'])
