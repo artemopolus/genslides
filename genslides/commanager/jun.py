@@ -1767,7 +1767,7 @@ class Manager(Man.Jun):
 
 
     def copyTasksByInfo(self, tasks_chains, change_prompt = False, edited_prompt = '', switch = [], new_parent = None, ignore_conv = [], param = {}):
-        print('Copy tasks by info')
+        # print('Copy tasks by info')
         self.copyTasksByInfoStart(tasks_chains, change_prompt, edited_prompt, switch, new_parent, ignore_conv, param)
         self.copyTasksByInfoExe()
         return self.copyTasksByInfoStop()
@@ -1829,12 +1829,12 @@ class Manager(Man.Jun):
                 self.copyTaskByInfoInternal()
 
     def copyTasksByInfoStop(self):
-        for branch in self.tc_tasks_chains:
-            print('branch convert results:[[from, to]]')
-            print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
-        print('Links list:')
-        print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
-        print('Inserting order:', [[i,link['in'].getName()] for i,link in enumerate(self.tc_links_chain)])
+        # for branch in self.tc_tasks_chains:
+        #     print('branch convert results:[[from, to]]')
+        #     print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
+        # print('Links list:')
+        # print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
+        # print('Inserting order:', [[i,link['in'].getName()] for i,link in enumerate(self.tc_links_chain)])
 
         for link in self.tc_links_chain:
             outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])

@@ -227,7 +227,7 @@ class Jun():
             else:
                 trg = trg.parent
             idx += 1
-        print('Find branching on',idx,'step')
+        # print('Find branching on',idx,'step')
         self.branch_code = self.curr_task.getBranchCodeTag()
         j = 0
         trg = self.curr_task

@@ -681,7 +681,7 @@ class BaseTask():
                         childs = trg.getChilds(True)
                     else:
                         childs = trg.getChilds()
-                    print(f"Task {trg.getName()} has {len(childs)} child(ren)")
+                    # print(f"Task {trg.getName()} has {len(childs)} child(ren)")
                     trg.getLinkCopyInfo(branch['links'], pparam)
                     if len(childs) == 1:
                         if childs[0].getName() not in trg_task_names:
@@ -1341,7 +1341,7 @@ class BaseTask():
        
     def removeChild(self,child) -> bool:
         if child in self.childs:
-            print("Remove child", child.getName(),"from", self.getName())
+            # print("Remove child", child.getName(),"from", self.getName())
             self.childs.remove(child)
             trg = None
             for q in self.queue:

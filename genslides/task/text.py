@@ -155,14 +155,14 @@ class TextTask(BaseTask):
 
     
     def removeChild(self,child) -> bool:
-        print('Remove child', child.getName())
+        # print('Remove child', child.getName())
         if super().removeChild(child):
             self.syncQueueToParam()
             trg =  None
             for param in self.params:
                 if "type" in param and "name" in param and param['type'] == 'child' and param['name'] == child.getName():
                     trg = param
-            print("Remove from param", trg)
+            # print("Remove from param", trg)
             if trg is not None and trg in self.params:
                 self.params.remove(trg)
             # self.printQueueInit()

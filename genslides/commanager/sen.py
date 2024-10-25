@@ -358,7 +358,7 @@ class Projecter:
 
 
     def makeCustomAction(self, prompt, selected_action, custom_action):
-        print('Make custom action:', selected_action, custom_action, 'with prompt:\n', prompt)
+        # print('Make custom action:', selected_action, custom_action, 'with prompt:\n', prompt)
         if custom_action in self.getStdCmdList():
             self.makeTaskAction(prompt, custom_action, selected_action, "assistant")
         elif custom_action in self.getCustomCmdList():
@@ -423,7 +423,7 @@ class Projecter:
 
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
-        print('Make',selected_action,'Request\n', prompt)
+        # print('Make',selected_action,'Request\n', prompt)
         act_type = ""
         param = {}
         if selected_action == "New" or selected_action == "SubTask" or selected_action == "Insert":
@@ -434,7 +434,7 @@ class Projecter:
             act_type = "Request"
         if len(checks) > 0:
             param = self.setEditChecks(checks=checks)
-        print('Action param=', param)
+        # print('Action param=', param)
         return self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= selected_tag, param=param)
 
     def createGarlandOnSelectedTasks(self, action_type):

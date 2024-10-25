@@ -186,7 +186,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             viewhiddenmsgs_chck = gr.Checkbox(label='Hide task(s)', value=True)
                         with gr.Row():
-                            sec_msg = gr.Chatbot(height=700, bubble_full_width=True, rtl=False, show_copy_button=True, render_markdown=False,type='messages')
+                            sec_msg = gr.Chatbot(height=700, bubble_full_width=True, rtl=False, render_markdown=False,type='messages')
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):
@@ -234,7 +234,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 acttask_exe_btn = gr.Button('Execute actions')
                                 acttask_get_btn.click(fn=projecter.getTasksWithActions, outputs=[acttask_names_chk])
                 with gr.Row():
-                    dial_block = gr.Chatbot(height=800, layout='panel',type='messages')
+                    dial_block = gr.Chatbot(height=800, layout='panel',type='messages',show_copy_button=True)
 
             with gr.Tab('Raw graph'):
                 with gr.Row():
