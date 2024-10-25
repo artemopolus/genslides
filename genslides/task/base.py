@@ -1313,7 +1313,7 @@ class BaseTask():
 
 
     def beforeRemove(self):
-        print('Before remove')
+        # print('Before remove')
         self.removeLinkToTask()
         if self.isRootParent():
             print('Task',self.getName(),'is Root')
@@ -1321,7 +1321,7 @@ class BaseTask():
             pass #Только проектер решает об удалении менеджера
         else:
             self.parent.removeChild(self)
-        print('Task',self.getName(),'have',len(self.childs),'childs')
+        # print('Task',self.getName(),'have',len(self.childs),'childs')
         for child in self.childs:
             child.whenParentRemoved()
 

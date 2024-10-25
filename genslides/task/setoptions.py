@@ -120,7 +120,7 @@ class SetOptionsTask(WriteToFileTask):
                 # self.parent = input.parent
                 # self.parent.addChild(self)
                 self.setParent(input.parent)
-                print("New parent=", self.parent)
+                # print("New parent=", self.parent)
 
  
             self.saveJsonToFile(self.msg_list)
@@ -272,7 +272,7 @@ class GeneratorTask(SetOptionsTask):
                 acts = pparam['info']['actions'].copy()
                 for act in acts:
                     if str(act['id']) == str(gparam['cmd_id']):
-                        print('Check',act['id'],'with', gparam['cmd_id'], 'to apply', gparam['cmd_type'], 'with ', iter)
+                        # print('Check',act['id'],'with', gparam['cmd_id'], 'to apply', gparam['cmd_type'], 'with ', iter)
                         act.update({gparam['cmd_type']:iter})
                 done = True if idx in gparam['ignore_iter'] else False
                 res_acts.append({'var':iter,'done': done,'actions': copy.deepcopy(acts)})

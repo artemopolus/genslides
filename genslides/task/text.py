@@ -926,7 +926,7 @@ class TextTask(BaseTask):
                 # self.parent = input.parent
                 # self.parent.addChild(self)
                 self.setParent(input.parent)
-                print("New parent=", self.parent)
+                # print("New parent=", self.parent)
 
             self.saveJsonToFile(self.msg_list)
 

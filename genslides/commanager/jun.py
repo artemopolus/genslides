@@ -905,7 +905,7 @@ class Manager(Man.Jun):
             return self.runIteration(prompt)
         elif creation_type == "Parent":
             for t in self.selected_tasks:
-                print("Make ", t.getName()," parent of ", self.curr_task.getName())
+                # print("Make ", t.getName()," parent of ", self.curr_task.getName())
                 info = TaskDescription( )
                 info.target = self.curr_task
                 info.parent = t 
