@@ -61,9 +61,9 @@
 
 ### Документы
 
- - [Основные моменты](./documents/ru/modules/basics.md)
- - [Примеры](./documents/ru/modules/examples.md)
- - [Ветвление](./documents/ru/modules/branches.md)
+ - [Основные моменты](./modules/basics.md)
+ - [Примеры](./modules/examples.md)
+ - [Ветвление](./modules/branches.md)
 
 
 
