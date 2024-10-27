@@ -990,7 +990,7 @@ class TextTask(BaseTask):
         if self.manager.allowUpdateInternalArrayParam():
             ares, aparam = self.getParamStruct(param_name='array', only_current=True)
             if ares:
-                naparam = ar.checkArrayIteration(self.getLastMsgContent2(), aparam)
+                naparam = ar.checkArrayIteration(self, aparam)
                 self.updateParam2(naparam)
         self.updateAutoCommand()
 
@@ -1086,7 +1086,7 @@ class TextTask(BaseTask):
                     if key in param:
                         if param_name == 'array' and key == 'parse':
                             param[key] = val
-                            nparam = ar.updateArrayParam(self.getLastMsgContent2(), param)
+                            nparam = ar.updateArrayParam(self, param)
                             param.update(nparam)
                         elif isinstance(val, str) and isinstance(param[key], list):
                             success = True

@@ -201,7 +201,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 elif arr[2] == 'array' and len(arr) > 4 and arr[3] == "array":
                     try:
                         value = int(arr[4])
-                        text = toolarr.getArrayByIndex(pparam["array"], value, pparam, task.getLastMsgContent())
+                        text = toolarr.getArrayByIndex(pparam["array"], value, pparam, task)
                         rep_text = rep_text.replace(res, text)
                     except:
                         pass
