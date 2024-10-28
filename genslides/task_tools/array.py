@@ -59,19 +59,21 @@ def checkCurrentArrayElem(array : list, index : int, param : dict, current, task
         return current != array[index]
     return True
 
-def saveArrayToParams(task  , param : dict):
-    print('Save array to params', param)
+def getSHAfromTask(task, param):
+    data = ''
     if param['parse'] == 'std' or param['parse'] == 'text_split':
         data = task.getLastMsgContent2()
     elif param['parse'] == 'msgs':
         messages = task.getMsgs()
-        data = ''
         for msg in messages:
             data += msg['content'] 
-    else:
-        return False, param
-    
-    param ['src_data' ]= TextTool.compute_sha256_hash(data)
+    return TextTool.compute_sha256_hash(data)
+ 
+
+def saveArrayToParams(task  , param : dict):
+    print('Save array to params', param)
+   
+    param ['src_data' ]= getSHAfromTask(task, param)
 
     if 'parse' in param:
         res, arr = divideArray(task, param)
@@ -121,7 +123,7 @@ def iterateOverArrayFromParam(task  , param: dict):
 
 def checkArrayIteration(task  , param : dict):
     if 'type' in param and param['type'] == 'array':
-        if 'src_data' in param and param['src_data'] == TextTool.compute_sha256_hash( task ) :
+        if 'src_data' in param and param['src_data'] == getSHAfromTask(task, param) :
             return iterateOverArrayFromParam(task, param)
         else:
             res, out = saveArrayToParams(task, param)
