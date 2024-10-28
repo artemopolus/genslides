@@ -2,7 +2,7 @@ import genslides.task_tools.text as TextTool
 # import genslides.task.text as Txt
 
 def divideArray(task  , param):
-    print('Divide array')
+    # print('Divide array')
     parse_type = param['parse']
     if parse_type == 'std':
         data = task.getLastMsgContent2()

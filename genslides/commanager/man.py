@@ -152,7 +152,7 @@ class Jun():
                         # Перебираем коды потомков
                         ch_tag = ch.getBranchCodeTag()
                         # Если код совпал с кодом в памяти
-                        print('Check', ch_tag,'with',self.branch_code)
+                        # print('Check', ch_tag,'with',self.branch_code)
                         if ch_tag.startswith(self.branch_code) and ch in self.task_list:
                             # Установить новую текущую
                             self.curr_task = ch

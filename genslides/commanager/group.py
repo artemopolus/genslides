@@ -1418,7 +1418,7 @@ class Actioner():
    
     def getTaskKeyValueInternal(self, param_name, param_key):
         man = self.manager
-        print('Get task key value:',param_name,'|', param_key)
+        # print('Get task key value:',param_name,'|', param_key)
         interacttive_drd = True
         multiselect_drd = False
         choices = []
@@ -1464,7 +1464,7 @@ class Actioner():
            
         task_man = TaskManager()
         res, data = man.getCurrentTask().getParamStruct(param_name, only_current=True)
-        print('Get param',param_name,' struct', res, data)
+        # print('Get param',param_name,' struct', res, data)
         if res and param_key in data:
             cur_val = data[param_key]
             print('cur val:',cur_val)
