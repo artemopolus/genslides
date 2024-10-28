@@ -272,7 +272,7 @@ class ResponseTask(TextTask):
                 "task": self.getName()
                 }
         rres, rparam = self.getParamStruct('response', only_current=True)
-        if rres:
+        if rres and "logprobs" in rparam:
             pack["logprobs"] = rparam["logprobs"]
         val = [pack]
         if self.parent != None:
