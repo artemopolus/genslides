@@ -108,7 +108,7 @@ def updateArrayParam(task  , param :dict):
     return param
 
 def iterateOverArrayFromParam(task  , param: dict):
-    print('Iterate over array from param', param)
+    # print('Iterate over array from param', param)
     if 'type' in param and param['type'] == 'array':
         if 'array' in param and 'curr' in param and 'idx' in param:
             idx = param["idx"]

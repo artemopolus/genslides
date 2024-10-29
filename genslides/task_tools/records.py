@@ -23,7 +23,6 @@ def getDataFromRecordParam( param : dict ):
 def getRecordsRow( rparam : dict, cparam : dict ) -> str:
     # TODO: Сделать аналог для возврата массивом строк
     if 'type' in rparam and rparam['type'] == 'records' and 'data' in rparam:
-        out = cparam['header']
         idx = cparam['idx']
         trg_chat_msgs = []
         if 'range' in cparam:
@@ -38,19 +37,21 @@ def getRecordsRow( rparam : dict, cparam : dict ) -> str:
                     if len(str_end) == 2 and str_end[0].isdigit() and str_end[1].isdigit():
                         msgrange = list( range(int(str_end[0]), int(str_end[1]) + 1))
                         trg_chat_msgs.extend(msgrange)
-        for i, pack in enumerate(rparam['data']):
-            chat = pack['chat']
-            if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
-                    (idx < len(chat) and i in trg_chat_msgs)):
-                if cparam['enum']:
-                    out += cparam['prefix'].replace('[[number]]',str(i))
-                else:
-                    out += cparam['prefix']
-                out += chat[idx]['content']
-                out += cparam['suffix']
-        cparam['count'] = len(rparam['data'])
-        out += cparam['footer']
-        return out
+        if 'form' in cparam and cparam['form'] == 'alone':
+            out = cparam['header']
+            for i, pack in enumerate(rparam['data']):
+                chat = pack['chat']
+                if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                        (idx < len(chat) and i in trg_chat_msgs)):
+                    if cparam['enum']:
+                        out += cparam['prefix'].replace('[[number]]',str(i))
+                    else:
+                        out += cparam['prefix']
+                    out += chat[idx]['content']
+                    out += cparam['suffix']
+            cparam['count'] = len(rparam['data'])
+            out += cparam['footer']
+            return out
     return ""
 
 def getRecordsChat( rparam : dict, cparam : dict ) -> list:
@@ -140,3 +141,53 @@ def getTrgInfoInRecords(param : dict, info_type = "chat"):
 
     return out
 
+def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
+    # TODO: Сделать аналог для возврата массивом строк
+    if 'type' in rparam and rparam['type'] == 'records' and 'data' in rparam:
+        idx = cparam['idx']
+        trg_chat_msgs = []
+        if 'range' in cparam:
+            chat_range = cparam['range']
+            # print('chat range:',chat_range)
+            nums = chat_range.split(',')
+            for num in nums:
+                if num.isdigit():
+                    trg_chat_msgs.append(int(num))
+                else:
+                    str_end = num.split('-')
+                    if len(str_end) == 2 and str_end[0].isdigit() and str_end[1].isdigit():
+                        msgrange = list( range(int(str_end[0]), int(str_end[1]) + 1))
+                        trg_chat_msgs.extend(msgrange)
+        if 'form' in cparam:
+            if cparam['form'] == 'alone':
+                out = cparam['header']
+                for i, pack in enumerate(rparam['data']):
+                    chat = pack['chat']
+                    if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                            (idx < len(chat) and i in trg_chat_msgs)):
+                        if cparam['enum']:
+                            out += cparam['prefix'].replace('[[number]]',str(i))
+                        else:
+                            out += cparam['prefix']
+                        out += chat[idx]['content']
+                        out += cparam['suffix']
+                cparam['count'] = len(rparam['data'])
+                out += cparam['footer']
+                return[{"content" : out, "role" : role}]
+            elif cparam['form'] == 'msgs':
+                out = []
+                for i, pack in enumerate(rparam['data']):
+                    chat = pack['chat']
+                    text = ""
+                    if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                            (idx < len(chat) and i in trg_chat_msgs)):
+                        if cparam['enum']:
+                            text += cparam['prefix'].replace('[[number]]',str(i))
+                        else:
+                            text += cparam['prefix']
+                        text += chat[idx]['content']
+                        text += cparam['suffix']
+                    out.append({"content": text, "role": role})    
+                cparam['count'] = len(rparam['data'])
+                return out
+    return []

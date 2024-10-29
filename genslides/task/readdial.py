@@ -4,6 +4,7 @@ from genslides.task.readfile import ReadFileTask
 import os
 import json
 import genslides.task_tools.records as rd
+import genslides.task_tools.actions as Actions
 import genslides.utils.loader as ld
 from os import listdir
 from os.path import isfile, join
@@ -30,6 +31,25 @@ class ReadBranchTask(TextTask):
     def updateIternal(self, input: TaskDescription = None):
         self.readBranch()
         return super().updateIternal(input)
+    
+    def getParamStructChoices(self, param_name, param_key):
+        if param_name == 'autocommander' and param_key == 'input':
+            eres, eparam = self.getParamStruct("ReadBranch")
+            if eres:
+                packs = []
+                msgs = self.getJsonDial(eparam)
+                for i_m, message in enumerate(msgs):
+                    pack = Actions.createActionPack(i_m,"SubTask",prompt=message['content'],
+                                             tag = message['role'],
+                                             act_type='Request', 
+                                             param={},
+                                             current_task_name=self.getName())
+                    packs.append(pack)
+                value =  ld.Loader.convJsonToText(packs)
+                return value, [value, "[[current:msg_content]]"]
+
+
+        return super().getParamStructChoices(param_name, param_key)
     
     def readBranch(self):
         # print(self.getName(), 'Get read branch chat')
@@ -62,10 +82,11 @@ class ReadBranchTask(TextTask):
                         if eparam['input'] == 'row':
                             range_val = eparam['range']
                             eparam['range'] = self.findKeyParam(range_val)
-                            content = rd.getRecordsRow(rq, eparam)
+                            # content = rd.getRecordsRow(rq, eparam)
+                            out = rd.getMsgsRecordsRow(rq,eparam, self.prompt_tag)
                             eparam['range'] = range_val
                             self.setParamStruct(eparam)
-                            return [{"content" : content, "role" : self.prompt_tag}]
+                            return out
                         elif eparam['input'] == 'chat':
                             range_val = eparam['range']
                             eparam['range'] = self.findKeyParam(range_val)

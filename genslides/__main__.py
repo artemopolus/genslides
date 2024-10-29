@@ -343,11 +343,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         vizprompt_list = gr.Radio(choices=["None","markdown","python","json"], label="Visualization", value="None", interactive=True, visible=False)
                     with gr.Column(scale = 19):
                         prompt = gr.Textbox(label="Prompt", lines=4, value=request)
-                        with gr.Accordion('Examples'):
+                        with gr.Accordion('Proposals', open=False):
                             with gr.Row():
-                                examples_dst = gr.Radio(label='Examples')
+                                examples_dst = gr.Radio(label='Choices')
                             with gr.Row():
-                                add_examples_btn = gr.Button('Append')
+                                add_examples_btn = gr.Button('Append to prompt')
                             add_examples_btn.click(fn=projecter.onExamplesClick, inputs=[examples_dst,prompt], outputs=[prompt])
                         with gr.Row():
                             request_btn = gr.Button(value='Request')

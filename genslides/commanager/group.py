@@ -1272,7 +1272,7 @@ class Actioner():
                     for task in chain['branch']:
                         if task not in self.manager.multiselect_tasks and task not in ignore_conv:
                             ignore_conv.append(task)
-        print('Ignore list:', [t.getName() for t in ignore_conv])
+        # print('Ignore list:', [t.getName() for t in ignore_conv])
         if 'step' in param and param['step']:
             self.manager.copyTasksByInfoStart(
                                     tasks_chains=tasks_chains,
@@ -1439,6 +1439,9 @@ class Actioner():
             return filename, filename, interacttive_drd, multiselect_drd, str(filename), True
             # return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
             #         gr.Textbox(str(filename)))
+        elif param_name == 'autocommander':
+            value, choices = self.getCurrentManager().getCurrentTask().getParamStructChoices(param_name, param_key)
+            return choices, value, interacttive_drd, multiselect_drd, value, True
 
         elif param_key == 'path_to_write':
             filename = Loader.Loader.getDirPathFromSystem(man.getPath())

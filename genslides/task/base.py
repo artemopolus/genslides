@@ -1398,6 +1398,9 @@ class BaseTask():
     def updateParam2(self, param_vals : dict):
         pass
 
+    def getParamStructChoices(self, param_name, param_key):
+        return "", []
+
     def getParamStruct(self, param_name, only_current = False):
         return False, None
     
@@ -1561,4 +1564,3 @@ class BaseTask():
     
     def clearRecordParam(self):
         pass
- 

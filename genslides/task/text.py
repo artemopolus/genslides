@@ -31,8 +31,7 @@ import ast
 import genslides.utils.finder as finder
 import genslides.task_tools.array as ar
 import genslides.task_tools.records as rd
-import genslides.task_tools.actions as actions
-import genslides.task_tools.text as txt
+import genslides.task_tools.actions as Actions
 import copy
 
 class TextTask(BaseTask):
@@ -1162,7 +1161,13 @@ class TextTask(BaseTask):
             self.saveJsonToFile(self.msg_list)
         except Exception as e:
             print('Error on remove param:',e)
- 
+    
+    def getParamStructChoices(self, param_name, param_key):
+        pres, pparam = self.getParamStruct(param_name, True)
+        if pres and param_key in pparam:
+            value = Loader.convJsonToText(pparam[param_key])
+            return value, [value,""]
+        return super().getParamStructChoices(param_name, param_key)
 
     def getParamStruct(self, param_name, only_current = False):
         if not isinstance(param_name, str):
@@ -1329,10 +1334,11 @@ class TextTask(BaseTask):
 
     def getAutoCommand(self):
         tres, tparam = self.getParamStruct("autocommander", only_current=True)
-        if tres and 'packs' in tparam and len(tparam['packs']):
-            actions = tparam['packs'].pop()['actions']
-            self.setParamStruct( tparam )       
-            return True, actions
+        if tres:
+            ares, actions, tparam = Actions.getActionsFromPack(tparam)
+            if ares:
+                self.setParamStruct( tparam )     
+            return ares, actions  
         return super().getAutoCommand()
     
     def setAutoCommand(self, type_name, actions: list):
@@ -1342,39 +1348,16 @@ class TextTask(BaseTask):
 
         tres, tparam = self.getParamStruct("autocommander", only_current=True)
         if tres:
+            input_value = self.findKeyParam(tparam['input'])
             try:
-                actions = json.loads(self.findKeyParam(tparam['input']), strict=False)
-                packs = tparam['packs']
-                hash = txt.compute_sha256_hash(json.dumps(actions))
-                if len(packs) == 0:
-                    pack = {
-                        'hash': hash,
-                        'actions':actions
-                        }
-                    tparam['packs'].append(pack)
-
-                else:
-                    for pack in packs:
-                        if hash == pack['hash']:
-                            return
-                    pack = {
-                        'hash': hash,
-                        'actions':actions
-                        }
-                    tparam['packs'].append(pack)
+                tparam = Actions.updateActionsInPack(tparam, input_value)
             except json.JSONDecodeError as e:
                 print(f"Error loading JSON: {e}")
             except Exception as e:
                 print("Auto command add error:", e)
-                tparam = {
-                    "type": "autocommander",
-                    "packs": []
-                }
-
+                tparam = Actions.createEmptyActionsPack() 
                 pass
-        else:
-            return
-        self.setParamStruct( tparam )       
+            self.setParamStruct( tparam )       
 
     def is_blocking(self):
         bres, bparam = self.getParamStruct('block')
@@ -1390,3 +1373,4 @@ class TextTask(BaseTask):
             else:
                 return True
         return super().is_blocking()
+    
