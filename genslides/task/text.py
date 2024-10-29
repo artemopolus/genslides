@@ -403,6 +403,12 @@ class TextTask(BaseTask):
  
     def copyParentMsg(self):
         self.msg_list = self.getRawParentMsgs()
+
+    def correctContentBySymbols(self, param, content):
+        if "Default" in param['max_per_task']:
+            if len(content) > param['max_per_task']['Default']:
+                return content[0: param['max_per_task']['Default']] + "\n..."
+        return content
         
     def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}) -> (bool, list, BaseTask):
         if hide_task:
@@ -411,7 +417,9 @@ class TextTask(BaseTask):
                 return False, [], self.parent
         # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         content = self.findKeyParam(self.getLastMsgContent())
-        if max_symbols > -1 and len(content) > max_symbols:
+        if "max_per_task" in param:
+            content = self.correctContentBySymbols(param, content)
+        elif max_symbols > -1 and len(content) > max_symbols:
             text = content[0: max_symbols]
             text += "\n\n\n...\nText length: " + str(len(content)) + " symbol(s)"
             content = text

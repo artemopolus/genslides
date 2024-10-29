@@ -61,3 +61,10 @@ class RequestTask(TextTask):
     def getMsgInfo(self):
         out = self.msg_list[len(self.msg_list) - 1]
         return out["content"], out["role"], ""
+    
+    def correctContentBySymbols(self, param, content):
+        target = 'Request'
+        if target in param['max_per_task']:
+            if len(content) > param['max_per_task'][target]:
+                return content[0: param['max_per_task'][target]] + "\n..."
+        return super().correctContentBySymbols(param, content)

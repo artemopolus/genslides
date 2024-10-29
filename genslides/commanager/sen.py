@@ -87,7 +87,30 @@ class Projecter:
         self.actions_info = []
         self.actions_source = ""
 
-        
+        self.task_viz_symbols = {"Request":5000,"Response":5000,"Default":10000}
+
+    def getRequestTaskSymVizCount(self):
+        return self.task_viz_symbols['Request']
+    
+
+    def getResponseTaskSymVizCount(self):
+        return self.task_viz_symbols['Response']
+ 
+    def getDefaultTaskSymVizCount(self):
+        return self.task_viz_symbols['Default']
+
+    def setRequestTaskSymVizCount(self, number):
+        self.task_viz_symbols['Request'] = number
+        return self.updateMainUIelements()
+    
+
+    def setResponseTaskSymVizCount(self, number):
+        self.task_viz_symbols['Response'] = number
+        return self.updateMainUIelements()
+    
+    def setDefaultTaskSymVizCount(self, number):
+        self.task_viz_symbols['Default'] = number
+        return self.updateMainUIelements()
 
     def getSessionNameList(self):
         return self.session_names_list
@@ -2692,6 +2715,7 @@ class Projecter:
         return out
     
     def convertMsgsToChat(self, task : BaseTask, param = {}):
+        print('param', param)
         hide_tasks = self.actioner.hide_task
         if "max_symbols" in param:
             msgs = task.getMsgs(hide_task=hide_tasks, max_symbols=param["max_symbols"], inparam=param)
@@ -2744,7 +2768,7 @@ class Projecter:
         stepgraph = self.actioner.drawGraph(max_index = 3, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
         rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
-        workspace_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getCurrentTask(),{"attach":True,"max_symbols":10000})
+        workspace_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getCurrentTask(),{"attach":True,"max_symbols":10000,"max_per_task":self.task_viz_symbols})
         stepiteration_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getBranchEndTask(),{"attach":True})
 
 

@@ -286,3 +286,9 @@ class ResponseTask(TextTask):
             # self.msg_list.append(last)
         self.freezeTask()
 
+    def correctContentBySymbols(self, param, content):
+        target = 'Response'
+        if target in param['max_per_task']:
+            if len(content) > param['max_per_task'][target]:
+                return content[0: param['max_per_task'][target]] + "\n..."
+        return super().correctContentBySymbols(param, content)

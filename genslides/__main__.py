@@ -183,10 +183,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             go_brchfrk_btn = gr.Button(value='Go to fork')
                             go_taskbud_btn = gr.Button(value='Go to Task Bud')
 
-                        with gr.Row():
+                        with gr.Accordion(label='Options', open=False):
                             viewhiddenmsgs_chck = gr.Checkbox(label='Hide task(s)', value=True)
+                            wo_request_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getRequestTaskSymVizCount(), label='Request Symbols')
+                            wo_response_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getResponseTaskSymVizCount(), label='Response Symbols')
+                            wo_default_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getResponseTaskSymVizCount(), label='Default Symbols')
+
                         with gr.Row():
-                            sec_msg = gr.Chatbot(height=700, bubble_full_width=True, rtl=False, render_markdown=False,type='messages')
+                            sec_msg = gr.Chatbot(height=1000, bubble_full_width=True, rtl=False, render_markdown=False,type='messages')
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):
@@ -991,6 +995,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_prompt
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
+
+            wo_request_sld.release(fn=projecter.setRequestTaskSymVizCount, inputs=[wo_request_sld], outputs=std_output_list)
+            wo_response_sld.release(fn=projecter.setResponseTaskSymVizCount, inputs=[wo_response_sld], outputs=std_output_list)
+            wo_default_sld.release(fn=projecter.setDefaultTaskSymVizCount, inputs=[wo_default_sld], outputs=std_output_list)
 
             forceunfrzpars_btn.click(fn=projecter.forceUnFreezeParentTasks, outputs=std_output_list)
 
