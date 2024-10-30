@@ -87,31 +87,61 @@ class Projecter:
         self.actions_info = []
         self.actions_source = ""
 
-        self.task_viz_symbols = {"Request":5000,"Response":5000,"Default":10000}
+        self.params = {}
+
+        self.params['workgraph'] = {"Request":5000,"Response":5000,"Default":10000,'on':True}
+        self.params['stepgraph'] = {"Request":5000,"Response":5000,"Default":10000,'on':False}
+
+        self.show_workgraph = True
 
     def getRequestTaskSymVizCount(self):
-        return self.task_viz_symbols['Request']
-    
+        return self.params['workgraph']['Request']
 
     def getResponseTaskSymVizCount(self):
-        return self.task_viz_symbols['Response']
+        return self.params['workgraph']['Response']
  
     def getDefaultTaskSymVizCount(self):
-        return self.task_viz_symbols['Default']
+        return self.params['workgraph']['Default']
+
+    def getStepRequestTaskSymVizCount(self):
+        return self.params['stepgraph']['Request']
+
+    def getStepResponseTaskSymVizCount(self):
+        return self.params['stepgraph']['Response']
+ 
+    def getStepDefaultTaskSymVizCount(self):
+        return self.params['stepgraph']['Default']
 
     def setRequestTaskSymVizCount(self, number):
-        self.task_viz_symbols['Request'] = number
+        self.params['workgraph']['Request'] = number
         return self.updateMainUIelements()
-    
 
     def setResponseTaskSymVizCount(self, number):
-        self.task_viz_symbols['Response'] = number
-        return self.updateMainUIelements()
-    
-    def setDefaultTaskSymVizCount(self, number):
-        self.task_viz_symbols['Default'] = number
+        self.params['workgraph']['Response'] = number
         return self.updateMainUIelements()
 
+    def setDefaultTaskSymVizCount(self, number):
+        self.params['workgraph']['Default'] = number
+        return self.updateMainUIelements()
+
+
+    def setStepRequestTaskSymVizCount(self, number):
+        self.params['stepgraph']['Request'] = number
+        return self.updateMainUIelements()
+
+    def setStepResponseTaskSymVizCount(self, number):
+        self.params['stepgraph']['Response'] = number
+        return self.updateMainUIelements()
+    
+    def setStepDefaultTaskSymVizCount(self, number):
+        self.params['stepgraph']['Default'] = number
+        return self.updateMainUIelements()
+    
+    def setStepTaskSymCount(self, value):
+        self.params['stepgraph']['on'] = value
+        return self.updateMainUIelements()
+
+   
     def getSessionNameList(self):
         return self.session_names_list
 
@@ -588,7 +618,7 @@ class Projecter:
         return self.updateMainUIelements()
     
     def getComparisonTypes(self):
-        return ['MultiSelect','Buds']
+        return ['Selected','MultiSelect','Buds']
     
     def getBudMsgs(self, select_type):
         buds_chat = []
@@ -596,16 +626,27 @@ class Projecter:
         if select_type == 'Buds':
             iterate_array = self.actioner.getCurrentManager().getBranchEndTasksList()
         elif select_type == 'MultiSelect':
-            iterate_array = self.actioner.getCurrentManager().multiselect_tasks
-        for bud in iterate_array:
+            iterate_array = self.actioner.getCurrentManager().getMultiSelectedTasks()
+        elif select_type == 'Selected':
+            iterate_array = [self.actioner.getCurrentManager().getSelectedTask()]
+        for idx, bud in enumerate(iterate_array):
             name = bud.getName()
             res, contents, _ = bud.getLastMsgAndParent()
             if res:
                 content = contents.pop()
                 content['content'] = name + '\n\n---\n\n' + content['content']
+                if idx % 2:
+                    content['role'] = 'user'
+                else:
+                    content['role'] = 'assistant'
+
                 buds_chat.append(content)
+
+        res, contents, _ = self.actioner.getCurrentManager().getCurrentTask().getLastMsgAndParent()
+        curr_chat = [ contents.pop()]
         
-        return self.actioner.getCurrentManager().convertMsgsToChat(buds_chat)
+        return [self.actioner.getCurrentManager().convertMsgsToChat(curr_chat), 
+                    self.actioner.getCurrentManager().convertMsgsToChat(buds_chat)]
 
     def getCopyBranch(self, id_branch):
         print('Get copy id:', id_branch)
@@ -2572,6 +2613,10 @@ class Projecter:
     def setHideTaskStatus(self, value):
         self.actioner.hide_task = value
         return self.updateMainUIelements() 
+    
+    def setShowWorkGraph(self, value):
+        self.show_workgraph = value
+        return self.updateMainUIelements() 
 
 
     def getByTaskNameParamList(self, task_name):
@@ -2715,7 +2760,6 @@ class Projecter:
         return out
     
     def convertMsgsToChat(self, task : BaseTask, param = {}):
-        print('param', param)
         hide_tasks = self.actioner.hide_task
         if "max_symbols" in param:
             msgs = task.getMsgs(hide_task=hide_tasks, max_symbols=param["max_symbols"], inparam=param)
@@ -2768,8 +2812,12 @@ class Projecter:
         stepgraph = self.actioner.drawGraph(max_index = 3, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
         rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
-        workspace_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getCurrentTask(),{"attach":True,"max_symbols":10000,"max_per_task":self.task_viz_symbols})
-        stepiteration_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getBranchEndTask(),{"attach":True})
+        workspace_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getCurrentTask(),{"attach":True,"max_symbols":10000,"max_per_task":self.params['workgraph']})
+        step_params = {"attach":True}
+        if self.params['stepgraph']['on']:
+            step_params['max_per_task'] = self.params['stepgraph']
+
+        stepiteration_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getBranchEndTask(),step_params)
 
 
         out = self.convToGradioUI(
@@ -2799,7 +2847,7 @@ class Projecter:
         )
 
 
-        out += (self.actioner.getCurrentManager().getTreesList(True), maingraph, stepgraph, rawgraph)
+        out += (self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), stepgraph, rawgraph)
         # print('act:',out)
         return out
         # else:

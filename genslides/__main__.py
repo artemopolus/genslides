@@ -166,31 +166,33 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     with gr.Column(scale=1):
                         with gr.Row():
-                            name_info = gr.Text(value="None", label="Task")
-                        with gr.Row():
                             graph_img = gr.Image(
                             # tool="sketch", 
                             # interactive=True, 
                             # source="upload", type="pil", 
                             # height=700
                             )
-                    with gr.Column(scale=3):
-                        with gr.Row():
-                            go_lnkback_btn = gr.Button(value='Go BackLnk')
-                            go_lnkfrwd_rad = gr.Radio(label='Targets')
-                            go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
-                            go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
-                            go_brchfrk_btn = gr.Button(value='Go to fork')
-                            go_taskbud_btn = gr.Button(value='Go to Task Bud')
+                    with gr.Column(scale=4):
+                        with gr.Accordion(label='Extra move', open=True):
+                            with gr.Row():
+                                go_lnkback_btn = gr.Button(value='Go BackLnk')
+                            with gr.Row():
+                                go_lnkfrwd_rad = gr.Radio(label='Targets')
+                                go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
+                            with gr.Row():
+                                go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
+                                go_brchfrk_btn = gr.Button(value='Go to fork')
+                                go_taskbud_btn = gr.Button(value='Go to Task Bud')
 
                         with gr.Accordion(label='Options', open=False):
                             viewhiddenmsgs_chck = gr.Checkbox(label='Hide task(s)', value=True)
+                            workgraph_chck = gr.Checkbox(label='Show graph', value=True)
                             wo_request_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getRequestTaskSymVizCount(), label='Request Symbols')
                             wo_response_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getResponseTaskSymVizCount(), label='Response Symbols')
                             wo_default_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getResponseTaskSymVizCount(), label='Default Symbols')
 
                         with gr.Row():
-                            sec_msg = gr.Chatbot(height=1000, bubble_full_width=True, rtl=False, render_markdown=False,type='messages')
+                            sec_msg = gr.Chatbot(height=1000, bubble_full_width=True, rtl=False,type='messages')
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):
@@ -206,6 +208,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             upd2cur_step_btn = gr.Button(value='UAT to cur')
                             updbrnc_step_btn = gr.Button(value='Update Tree + Linked')
                             updateforktasks_btn = gr.Button('UAT fork')
+                        with gr.Accordion(label='Options', open=False):
+                            so_symcount_chck = gr.Checkbox(label='Check symbols', value=False)
+                            so_request_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getStepRequestTaskSymVizCount(), label='Request Symbols')
+                            so_response_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getStepResponseTaskSymVizCount(), label='Response Symbols')
+                            so_default_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getStepDefaultTaskSymVizCount(), label='Default Symbols')
                         with gr.Accordion("Additional",open=False):
                             with gr.Row():
                                 updateall_stepNs_sld = gr.Slider(label='UAT N times',value=0,minimum=0, maximum=50,step=1)
@@ -257,6 +264,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     comparison_btn = gr.Button('Compare')
                 with gr.Row():
+                    with gr.Column(scale=1):
+                        gr.Label("A")
+                        current_chat = gr.Chatbot(height=500, label='Current',type='messages',layout='panel')
+                    with gr.Column(scale=1):
+                        gr.Label("B")
+                        comparison_chat = gr.Chatbot(height=500, label='Comparison',type='messages',layout='panel')
+                with gr.Row():
                     fullchatrecords_btn = gr.Button('Get full chat')
                     fullchatrecords_sld = gr.Slider(interactive=True)
                 with gr.Row():
@@ -266,8 +280,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     infochatrecords_txt = gr.Textbox()
                 with gr.Row():
                     infochatrecords_btn = gr.Button('Update')
-                with gr.Row():
-                    comparison_chat = gr.Chatbot(height=500, label='Comparison chat',type='messages')
                 with gr.Column():
                     headercontent_txt = gr.Textbox(label='Header',lines=4)
                     prefixcontent_txt = gr.Textbox(label='Prefix',lines=4)
@@ -292,7 +304,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 rowchatrecords_btn.click(fn=projecter.getCopyBranchRow, inputs = [rowchatrecords_sld], 
                                           outputs=[comparison_chat, infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
                 infochatrecords_btn.click(fn=projecter.getCopyBranchesInfo, outputs=[infochatrecords_txt, fullchatrecords_sld, rowchatrecords_sld])
-                comparison_btn.click(fn=projecter.getBudMsgs, inputs=comparison_rad, outputs=comparison_chat)
+                comparison_btn.click(fn=projecter.getBudMsgs, inputs=comparison_rad, outputs=[current_chat, comparison_chat])
             with gr.Tab('Plain Text', visible=False):
                 with gr.Row():
                     treeplaintexttype_rad = gr.Radio(choices=['Tree','Current Task Tree', 'MultiSelected'])
@@ -467,13 +479,16 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     
             with gr.Tab('Cmds'):
                 with gr.Tab('Current'):
-                # with gr.Row():
-                    moveup_btn = gr.Button(value='MoveUP')
-                    switchup_btn = gr.Button(value='SwitchUP')
-                    reparup_btn = gr.Button(value='ReparentUP')
-                    unparent_btn = gr.Button(value='Unparent')
-                    unlink_btn = gr.Button(value='Unlink')
-                    forceunfrzpars_btn = gr.Button('Force unfreeze Parents')
+                    with gr.Row():
+                        name_info = gr.Text(value="None", label="Task")
+     # with gr.Row():
+                    with gr.Row():
+                        moveup_btn = gr.Button(value='MoveUP')
+                        switchup_btn = gr.Button(value='SwitchUP')
+                        reparup_btn = gr.Button(value='ReparentUP')
+                        unparent_btn = gr.Button(value='Unparent')
+                        unlink_btn = gr.Button(value='Unlink')
+                        forceunfrzpars_btn = gr.Button('Force unfreeze Parents')
                 with gr.Tab('Selected'):
                     with gr.Row():
                         relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
@@ -1000,6 +1015,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             wo_response_sld.release(fn=projecter.setResponseTaskSymVizCount, inputs=[wo_response_sld], outputs=std_output_list)
             wo_default_sld.release(fn=projecter.setDefaultTaskSymVizCount, inputs=[wo_default_sld], outputs=std_output_list)
 
+            so_request_sld.release(fn=projecter.setStepRequestTaskSymVizCount, inputs=[so_request_sld], outputs=std_output_list)
+            so_response_sld.release(fn=projecter.setStepResponseTaskSymVizCount, inputs=[so_response_sld], outputs=std_output_list)
+            so_default_sld.release(fn=projecter.setStepDefaultTaskSymVizCount, inputs=[so_default_sld], outputs=std_output_list)
+            so_symcount_chck.change(fn=projecter.setStepTaskSymCount, inputs=[so_symcount_chck], outputs=std_output_list)
+            
             forceunfrzpars_btn.click(fn=projecter.forceUnFreezeParentTasks, outputs=std_output_list)
 
             inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, inputs=inexttreeactparam_jsn, outputs=std_output_list)
@@ -1021,6 +1041,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                                )
             
             viewhiddenmsgs_chck.input(fn=projecter.setHideTaskStatus, inputs=[viewhiddenmsgs_chck], outputs=std_output_list)
+            workgraph_chck.input(fn=projecter.setShowWorkGraph,inputs=[workgraph_chck], outputs=std_output_list)
 
             acttask_exe_btn.click(fn=projecter.exeTasksByName,inputs=[acttask_names_chk], outputs=std_output_list)
             updselinexttreetasks_btn.click(fn=projecter.updateInExtTreeTasksByName, inputs=[inexttretasklist_chk], outputs=std_output_list)
