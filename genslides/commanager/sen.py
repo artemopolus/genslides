@@ -2908,17 +2908,36 @@ class Projecter:
         return self.updateSecActUI()
 
 
+    def setTextWindowToCurrTask(self, minval,maxval):
+        man = self.actioner.getCurrentManager()
+        task = man.getCurrentTask()
+        task.setParamStruct({
+            "type":"attention",
+            "start":minval,
+            "end":maxval
+        })
+
  
     def getTextWindowFromCurrTask(self):
         man = self.actioner.getCurrentManager()
-        text = man.curr_task.getLastMsgContent()
+        text = man.getCurrentTask().getLastMsgContent()
+
+        hres, hparam = man.getCurrentTask().getParamStruct('attention', only_current=True)
+        min_smbls = 0
+        max_smbls = len(text)
         text_len = len(text)
-        wintext = min(200, text_len)
-        slider_size = text_len - wintext
-        out_text = text[0:wintext]
+        if hres:
+            if hparam['end'] == -1:
+                max_smbls = len(text)
+            else:
+                max_smbls = min(len(text), hparam['end'])
+            min_smbls = min(max_smbls, hparam['start'])
+        wintext = max_smbls - min_smbls
+        out_text = text[min_smbls:max_smbls]
         return [
             gr.Number(value=wintext,maximum=text_len, interactive=True),
-            gr.Slider(value=0, minimum=0,maximum=slider_size, interactive=True),
+            gr.Slider(value=min_smbls, minimum=0,maximum=text_len, interactive=True),
+            gr.Slider(value=max_smbls, minimum=0,maximum=text_len, interactive=True),
             gr.Textbox(value=out_text)
         ]
     
@@ -2932,16 +2951,15 @@ class Projecter:
             gr.Textbox(value=out_text)
         )
  
-    def changeTextWindowFromCurrTask( self, winsz, slider_str ):
+    def changeTextWindowFromCurrTask( self, minval, maxval ):
         man = self.actioner.getCurrentManager()
-        text = man.curr_task.getLastMsgContent()
+        text = man.getCurrentTask().getLastMsgContent()
         text_len = len(text)
-        wintext = min(winsz, text_len)
-        out_text = text[slider_str:slider_str + wintext]
-        slider_size = text_len - wintext
+        text_end = min(text_len, maxval)
+        text_start = min(minval, maxval)
+        out_text = "```\n" + text[0:text_start] + "\n```\n" + text[text_start:text_end] + "\n```\n" + text[text_end:text_len] + "\n```"
         return (
-            gr.Textbox(value=out_text),
-            gr.Slider(value=slider_str, minimum=0,maximum=slider_size, interactive=True),
+            out_text
         )
 
     def createMessageBasedOnRecords( self, chat, header : str , prefix : str, suffix : str, post : str):

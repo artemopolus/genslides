@@ -260,7 +260,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             raw_dial = gr.Chatbot(height=500, type='messages')
             with gr.Tab('Comparing'):
                 with gr.Row():
-                    comparison_rad = gr.Radio(choices=projecter.getComparisonTypes())
+                    comparison_rad = gr.Radio(label='Comparing type',choices=projecter.getComparisonTypes())
                 with gr.Row():
                     comparison_btn = gr.Button('Compare')
                 with gr.Row():
@@ -325,7 +325,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 moveupplaintext_btn.click(fn=projecter.moveUpTree3PlainText, outputs=plaintext_output)
                 movedwplaintext_btn.click(fn=projecter.moveDwTree3PlainText, outputs=plaintext_output)
                 saveplaintextcontent_btn.click(fn=projecter.editPromptTree3PlainText, inputs=[curtext_txt], outputs=plaintext_output)
-            with gr.Tab('Attention window',visible=False):
+            with gr.Tab('Attention window',visible=True):
                 with gr.Column():
                     UI.textslider(projecter)
             

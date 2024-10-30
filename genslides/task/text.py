@@ -417,6 +417,14 @@ class TextTask(BaseTask):
                 return False, [], self.parent
         # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         content = self.findKeyParam(self.getLastMsgContent())
+        hres, hparam = self.getParamStruct('attention', only_current=True)
+        if hres:
+            if hparam['end'] == -1:
+                max_smbls = len(content)
+            else:
+                max_smbls = min(len(content), hparam['end'])
+            min_smbls = min(max_smbls, hparam['start'])
+            content = content[min_smbls : max_smbls]
         if "max_per_task" in param:
             content = self.correctContentBySymbols(param, content)
         elif max_symbols > -1 and len(content) > max_symbols:

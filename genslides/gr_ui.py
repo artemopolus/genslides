@@ -40,15 +40,19 @@ def exttreemanagerManipulator(projecter : Projecter):
 def textslider( projecter : Projecter):
     gettextwindow_btn = gr.Button('Get text window')
     windowsize_nbr = gr.Number(label='Window size', value=200,interactive=False)
-    movewindow_sld = gr.Slider(value=0, minimum=0, maximum=100, step=1,interactive=False)
-    windowtext_txt = gr.Textbox(label='Text Window', lines=4,interactive=False)
+    minsmbls_sld = gr.Slider(label='Upper border',value=0, minimum=0, maximum=100, step=1,interactive=False)
+    windowtext_txt = gr.Markdown(label='Window')
+    maxsmbls_sld = gr.Slider(label='Lower border',value=100, minimum=0, maximum=100, step=1,interactive=False)
+    windowapply_btn = gr.Button('Apply text window')
 
 
     winoutput = [
         windowsize_nbr,
-        movewindow_sld,
+        minsmbls_sld,
+        maxsmbls_sld,
         windowtext_txt
     ]
     gettextwindow_btn.click(fn=projecter.getTextWindowFromCurrTask, outputs=winoutput)
-    windowsize_nbr.change(fn=projecter.changeTextWindowFromCurrTask, inputs=[windowsize_nbr, movewindow_sld], outputs=[windowtext_txt, movewindow_sld])
-    movewindow_sld.input(fn=projecter.moveTextWindowFromCurrTask, inputs=[windowsize_nbr, movewindow_sld], outputs=windowtext_txt)
+    minsmbls_sld.release(fn=projecter.changeTextWindowFromCurrTask, inputs=[minsmbls_sld, maxsmbls_sld], outputs=[windowtext_txt])
+    maxsmbls_sld.release(fn=projecter.changeTextWindowFromCurrTask, inputs=[minsmbls_sld, maxsmbls_sld], outputs=[windowtext_txt])
+    windowapply_btn.click(fn=projecter.setTextWindowToCurrTask,inputs=[minsmbls_sld,maxsmbls_sld])
