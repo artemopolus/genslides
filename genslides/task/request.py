@@ -66,5 +66,5 @@ class RequestTask(TextTask):
         target = 'Request'
         if target in param['max_per_task']:
             if len(content) > param['max_per_task'][target]:
-                return content[0: param['max_per_task'][target]] + "\n..."
+                return content[0: param['max_per_task'][target]] + "..."
         return super().correctContentBySymbols(param, content)

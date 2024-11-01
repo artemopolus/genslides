@@ -407,7 +407,7 @@ class TextTask(BaseTask):
     def correctContentBySymbols(self, param, content):
         if "Default" in param['max_per_task']:
             if len(content) > param['max_per_task']['Default']:
-                return content[0: param['max_per_task']['Default']] + "\n..."
+                return content[0: param['max_per_task']['Default']] + "..."
         return content
         
     def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}) -> (bool, list, BaseTask):

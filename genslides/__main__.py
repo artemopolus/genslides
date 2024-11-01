@@ -245,7 +245,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 acttask_exe_btn = gr.Button('Execute actions')
                                 acttask_get_btn.click(fn=projecter.getTasksWithActions, outputs=[acttask_names_chk])
                 with gr.Row():
-                    dial_block = gr.Chatbot(height=800, layout='panel',type='messages',show_copy_button=True)
+                    dial_block = gr.Chatbot(height=800, layout='panel',type='messages')
 
             with gr.Tab('Raw graph'):
                 with gr.Row():
@@ -330,21 +330,22 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     UI.textslider(projecter)
             
             with gr.Accordion('Tools', open=False):
-                
-                tmp_code_txt = gr.Textbox(label="KeyCode", value="None", show_copy_button=True, lines=1)
-                tmp_content_txt = gr.Textbox(  value="None", show_copy_button=True, lines=3, max_lines=5)
-                # with gr.Row():
-                    # gr.Button("Copy raw dial").click(fn=projecter.copyToClickBoardDialRaw)
-                    # gr.Button("Copy raw reqs").click(fn=projecter.copyToClickBoardReqListRaw)
-                    # gr.Button("Copy tokens").click(fn=projecter.copyToClickBoardTokens)
-                    # gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
-                with gr.Column():
-                    gr.Button("Copy dial").click(fn=projecter.copyToClickBoardDial, outputs=[tmp_code_txt, tmp_content_txt])
-                    gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg, outputs=[tmp_code_txt, tmp_content_txt])
-                    # gr.Button("[ [parent:msg_content] ]").click(fn=projecter.copyToClickBoardParentContent)
-                    gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg, outputs=[tmp_code_txt, tmp_content_txt])
-                    gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode, outputs=[tmp_code_txt, tmp_content_txt])
-                    gr.Button("paths").click(fn=projecter.copyToClickBoardPaths, outputs=[tmp_code_txt, tmp_content_txt])
+                with gr.Row():
+                    with gr.Column():
+                        tmp_code_txt = gr.Textbox(label="KeyCode", show_label=True, value="None", show_copy_button=True, lines=1, interactive=True)
+                        tmp_content_txt = gr.Textbox( label="Text", show_label=True, value="None", show_copy_button=True, lines=3, max_lines=5, interactive=True)
+                    # with gr.Row():
+                        # gr.Button("Copy raw dial").click(fn=projecter.copyToClickBoardDialRaw)
+                        # gr.Button("Copy raw reqs").click(fn=projecter.copyToClickBoardReqListRaw)
+                        # gr.Button("Copy tokens").click(fn=projecter.copyToClickBoardTokens)
+                        # gr.Button("Cp branch code").click(fn=projecter.getCurrentTaskBranchCodeTag)
+                    with gr.Column():
+                        gr.Button("Copy dial").click(fn=projecter.copyToClickBoardDial, outputs=[tmp_code_txt, tmp_content_txt])
+                        gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg, outputs=[tmp_code_txt, tmp_content_txt])
+                        # gr.Button("[ [parent:msg_content] ]").click(fn=projecter.copyToClickBoardParentContent)
+                        gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg, outputs=[tmp_code_txt, tmp_content_txt])
+                        gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode, outputs=[tmp_code_txt, tmp_content_txt])
+                        gr.Button("paths").click(fn=projecter.copyToClickBoardPaths, outputs=[tmp_code_txt, tmp_content_txt])
  
             # with gr.Row():
                 # with gr.Column():
