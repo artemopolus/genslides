@@ -166,6 +166,7 @@ actpacks/*
 .DS_Store
 .tt
 session/
+instructions/
 actpacks/
 tt_temp
 .gradio/*
