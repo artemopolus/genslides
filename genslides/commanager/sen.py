@@ -1037,7 +1037,7 @@ class Projecter:
         return act
 
     def loadInstructionDicitionaryByBrowsing(self):
-        path = Loader.Loader.getDirPathFromSystem()
+        path = Loader.Loader.getFilePathFromSystem()
         print('Load manager by path',path)
         if 'instructions' in self.params:
             if path not in self.params['instructions']:
@@ -1066,8 +1066,10 @@ class Projecter:
                 insructions = Reader.ReadFileMan.readJson(Loader.Loader.getUniPath(path))
                 try:
                     for group in insructions['instructions']:
-                        examples.extend(group['collection'])
-                        text_info += group['description'] + '\n'
+                        if group['group'] == group_name:
+                            examples.extend(group['collection'])
+                            text_info += group['description'] + '\n'
+                            break
                 except:
                     pass
         return gr.Radio(choices=examples, info=text_info)
