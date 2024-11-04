@@ -126,8 +126,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     # project_manLoad = gr.Button(value='Default project location')
                     # project_manBrow = gr.Button(value='Select project location')
                 with gr.Column():
-                    actaddbybrow_btn = gr.Button('Load actioner from location')
-                    instructaddbybrow_btn = gr.Button('Add instructions from location').click(fn=projecter.loadInstructionDicitionaryByBrowsing)
+                    with gr.Row():
+                        actaddbybrow_btn = gr.Button('Load actioner from location')
+                        instructaddbybrow_btn = gr.Button('Add instructions from location').click(fn=projecter.loadInstructionDicitionaryByBrowsing)
                     actionerlist_rad = gr.Radio(label='Actioners')
                     updactlist_btn = gr.Button('Update')
                     updactlist_btn.click(fn=projecter.getActionerPathsList, outputs=[actionerlist_rad])

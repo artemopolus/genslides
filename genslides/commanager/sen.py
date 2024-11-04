@@ -1059,7 +1059,7 @@ class Projecter:
         return gr.Dropdown(choices=out, value=None)
 
     def getProposalsFromInstructions(self, group_name):
-        text_info = 'Examples fromm task\n'
+        text_info = 'Examples from task\n'
         examples = self.getProposalsFromTask()
         if 'instructions' in self.params:
             for path in self.params['instructions']:
@@ -1193,12 +1193,12 @@ class Projecter:
     def onExamplesClick(self, text, prompt):
         # print('Click', text)
 
-        return prompt + text[1:-1]
+        return prompt + text
     
     def getProposalsFromTask(self):
         task = self.actioner.getCurrentManager().getCurrentTask()
         eres, eparam = task.getParamStruct("choices")
-        examples = ['Test', 'Value']
+        examples = []
         if eres:
             examples = task.findKeyParam(eparam['source']).split('[[,]]')
         return examples
