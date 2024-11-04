@@ -946,7 +946,7 @@ class Projecter:
         self.actioners_list.clear()
 
 
-    def saveSession(self):
+    def saveSession(self, params = {}):
         act_data = []
         for act in self.actioners_list:
             act_info = {
@@ -960,6 +960,8 @@ class Projecter:
         session_data = {
             'actioners': act_data
         }
+        session_data.update(self.params)
+        session_data.update(params)
         path = FileManager.addFolderToPath(self.session_name_path,[self.session_name_curr + ".json"])
         Writer.writeJsonToFile(Loader.Loader.getUniPath(path), session_data)
    
@@ -991,6 +993,8 @@ class Projecter:
 
         for act in self.actioners_list:
             act['act'].afterLoading()
+        if 'instructions' in session_data:
+            self.params['instructions'] = session_data['instructions']
 
 
 
@@ -1032,6 +1036,41 @@ class Projecter:
         print('Actioner was created by:\t',(dt2-dt1).seconds,'second(s)')    
         return act
 
+    def loadInstructionDicitionaryByBrowsing(self):
+        path = Loader.Loader.getDirPathFromSystem()
+        print('Load manager by path',path)
+        if 'instructions' in self.params:
+            if path not in self.params['instructions']:
+                self.params['instructions'].append(path)
+        else:
+            self.params['instructions'] = [path]
+        self.saveSession()
+
+    def getGroupsForInstructions(self):
+        out = []
+        if 'instructions' in self.params:
+            for path in self.params['instructions']:
+                insructions = Reader.ReadFileMan.readJson(Loader.Loader.getUniPath(path))
+                try:
+                    for group in insructions['instructions']:
+                        out.append(group['group'])
+                except:
+                    pass
+        return gr.Dropdown(choices=out, value=None)
+
+    def getProposalsFromInstructions(self, group_name):
+        text_info = 'Examples fromm task\n'
+        examples = self.getProposalsFromTask()
+        if 'instructions' in self.params:
+            for path in self.params['instructions']:
+                insructions = Reader.ReadFileMan.readJson(Loader.Loader.getUniPath(path))
+                try:
+                    for group in insructions['instructions']:
+                        examples.extend(group['collection'])
+                        text_info += group['description'] + '\n'
+                except:
+                    pass
+        return gr.Radio(choices=examples, info=text_info)
 
     def loadActionerByBrowsing(self):
         path = Loader.Loader.getDirPathFromSystem()
@@ -1047,9 +1086,9 @@ class Projecter:
         if len(man.task_list) == 0:
             self.createNewTree()
         print('Load manager from browser is complete')
-        python_path = Finder.findByKey("[[project:RunScript:python]]", man, man.curr_task, man.helper)
-        fld = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper)
-        spc = Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper)
+        # python_path = Finder.findByKey("[[project:RunScript:python]]", man, man.curr_task, man.helper)
+        # fld = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper)
+        # spc = Finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper)
         # print("Vars for manager")
         # print(f"Python path: { Loader.Loader.getUniPath( python_path )}")
         # print(f"Manager folder: {Loader.Loader.getUniPath( fld )}")
@@ -1153,15 +1192,20 @@ class Projecter:
         # print('Click', text)
 
         return prompt + text[1:-1]
-
-    def actionTypeChanging(self, action, prompt):
-        # print('Action switch to=', action)
-        # highlighttext = []
+    
+    def getProposalsFromTask(self):
         task = self.actioner.getCurrentManager().getCurrentTask()
         eres, eparam = task.getParamStruct("choices")
         examples = ['Test', 'Value']
         if eres:
             examples = task.findKeyParam(eparam['source']).split('[[,]]')
+        return examples
+
+    def actionTypeChanging(self, action, prompt):
+        # print('Action switch to=', action)
+        # highlighttext = []
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        examples = self.getProposalsFromTask()
         if action == 'New':
             return [prompt, 
                     gr.Button(value='Request'), 

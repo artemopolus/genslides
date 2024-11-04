@@ -127,6 +127,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     # project_manBrow = gr.Button(value='Select project location')
                 with gr.Column():
                     actaddbybrow_btn = gr.Button('Load actioner from location')
+                    instructaddbybrow_btn = gr.Button('Add instructions from location').click(fn=projecter.loadInstructionDicitionaryByBrowsing)
                     actionerlist_rad = gr.Radio(label='Actioners')
                     updactlist_btn = gr.Button('Update')
                     updactlist_btn.click(fn=projecter.getActionerPathsList, outputs=[actionerlist_rad])
@@ -365,6 +366,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 examples_dst = gr.Radio(label='Choices')
                             with gr.Row():
                                 add_examples_btn = gr.Button('Append to prompt')
+                            with gr.Row():
+                                update_instructions_btn = gr.Button('Get Instructions Group')
+                                instructiongroup_drd = gr.Dropdown(label='Instructions Group')
+                                addinstruction_btn = gr.Button("Add Group Instruction")
+
+                            update_instructions_btn.click(fn=projecter.getGroupsForInstructions, outputs=[instructiongroup_drd])
+                            addinstruction_btn.click(fn=projecter.getProposalsFromInstructions, inputs=[instructiongroup_drd], outputs=[examples_dst])
                             add_examples_btn.click(fn=projecter.onExamplesClick, inputs=[examples_dst,prompt], outputs=[prompt])
                         with gr.Row():
                             request_btn = gr.Button(value='Request')
