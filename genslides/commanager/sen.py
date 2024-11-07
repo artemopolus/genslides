@@ -433,7 +433,7 @@ class Projecter:
     
     def getParamListForEdit(self):
         return ['copy_editbranch', #Копировать ветвь
-                'resp2req','coll2req','read2req', #конвертировать задачи этого типа в другой
+                'resp2req','coll2req','read2req','run2req', #конвертировать задачи этого типа в другой
                 'in','out','link','av_cp', #Параметры ветвления
                 # 'step','chckresp',
                 'sel2par', # Копировать и ветвиться от выбранной задачи
@@ -472,6 +472,9 @@ class Projecter:
             param['switch'].append({'src':'Garland','trg':'Request'})
         if 'read2req' in checks:
             param['switch'].append({'src':'ReadFileParam','trg':'Request'})
+        if 'run2req' in checks:
+            param['switch'].append({'src':'RunScript','trg':'Request'})
+            param['switch'].append({'src':'SaveScriptRun','trg':'Request'})
         return param
 
     
