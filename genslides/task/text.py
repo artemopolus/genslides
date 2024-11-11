@@ -565,6 +565,13 @@ class TextTask(BaseTask):
             out =  self.parent.msg_list.copy()
             return out
         
+    def appendMessage(self, message : dict):
+        if "role" in message and "content" in message:
+            parent_msgs = self.getRawParentMsgs()
+            parent_msgs.append(message)
+            self.setMsgList(parent_msgs)
+
+        
     def forceCleanChildsChat(self):
         chs4clean = self.childs
         index = 0

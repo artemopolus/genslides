@@ -220,8 +220,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 updateall_stepNs_sld = gr.Slider(label='UAT N times',value=0,minimum=0, maximum=50,step=1)
                                 updateall_stepNs_btn = gr.Button('UAT N times')
                             with gr.Row():
-                                clnresp_btn = gr.Button(value='Clean Response')
-                            with gr.Row():
                                 maxupdateidx_num = gr.Number(value=10000, label='Max steps to update', minimum=1)
                                 updatecheckown_chk = gr.Checkbox(label='Check tasks manager', value=False)
                                 reset_step_btn = gr.Button(value="Reset steps")
@@ -376,13 +374,16 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             addinstruction_btn.click(fn=projecter.getProposalsFromInstructions, inputs=[instructiongroup_drd], outputs=[examples_dst])
                             add_examples_btn.click(fn=projecter.onExamplesClick, inputs=[examples_dst,prompt], outputs=[prompt])
                         with gr.Row():
-                            request_btn = gr.Button(value='Request')
-                            response_btn = gr.Button(value='Response',interactive=False)
-                            custom_list_data = projecter.getFullCmdList()
-                            custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
-                            custom_btn = gr.Button(value='Custom')
+                            # with gr.Column():
+                                request_btn = gr.Button(value='Request')
+                                response_btn = gr.Button(value='Response',interactive=False)
+                                custom_list_data = projecter.getFullCmdList()
+                            # with gr.Column():
+                                custom_list = gr.Dropdown(label='Custom actions', choices=custom_list_data, value=custom_list_data[0])
+                                custom_btn = gr.Button(value='Custom')
                         with gr.Row():
-                            extcopy_chck = gr.CheckboxGroup(label='Edit task parameters')
+                                extcopy_chck = gr.CheckboxGroup(label='Edit task parameters')
+                        # with gr.Column():
                 with gr.Row():
                     oldtexttochange_txt = gr.Textbox(label='Old text to change')
                     newtexttochange_txt = gr.Textbox(label='New text for replacing')
@@ -499,6 +500,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         unparent_btn = gr.Button(value='Unparent')
                         unlink_btn = gr.Button(value='Unlink')
                         forceunfrzpars_btn = gr.Button('Force unfreeze Parents')
+                        clnresp_btn = gr.Button(value='Clean Response')
                 with gr.Tab('Selected'):
                     with gr.Row():
                         relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
@@ -530,6 +532,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                     inputs=parammultikey_dd, 
                                                     outputs=[parammulti_json, parammultilog_txt])
                     with gr.Column():
+                        multicleanresp_btn = gr.Button('Clean Task')
                         set_multi_child_btn = gr.Button('Set Multiselected as Child')
                         garlandmulti_btn = gr.Button('Garland from multi')
                         collectmulti_btn = gr.Button('Collect from multi')
@@ -1069,6 +1072,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             setrecords_btn.click(fn=projecter.makeTaskRecordable, outputs=std_output_list)
             clrrecords_btn.click(fn=projecter.clearTaskRecords, outputs=std_output_list)
             clnresp_btn.click(fn=projecter.cleanLastMessage, outputs=std_output_list)
+            multicleanresp_btn.click(fn=projecter.cleanLastMessageForMulti, outputs=std_output_list)
 
             addmultitotmp_btn.click(fn=projecter.addMultiSelectTasksFromStdMan, outputs=std_output_list) 
             rmvmultifrtmp_btn.click(fn=projecter.rmvMultiSelectTasksFromTmpMan, outputs=std_output_list)  

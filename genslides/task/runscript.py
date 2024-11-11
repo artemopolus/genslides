@@ -25,7 +25,7 @@ class RunScriptTask(ResponseTask):
                     src_path_trgs_tmp = self.findKeyParam(pparam['parent_task_cmd'])
                     # path_trgs_tmp = self.findKeyParam(src_path_trgs_tmp)
                     path_trgs_tmp = src_path_trgs_tmp
-                    print('init:', path_trgs_tmp)
+                    # print('init:', path_trgs_tmp)
                     if path_trgs_tmp.rfind(';') == -1:
                         path_tmp = path_trgs_tmp.split(';')
                     else:
@@ -171,7 +171,8 @@ class RunScriptTask(ResponseTask):
 
         if len(data) > 0:
             # print('Script output len=', len(data))
-            self.msg_list.append({"role": "user", "content": data})
+            # self.msg_list.append({"role": "user", "content": data})
+            self.appendMessage({"role": "user", "content": data})
         else:
             print("No data is getted from")
         
@@ -208,7 +209,7 @@ class RunScriptTask(ResponseTask):
             src_path_trgs_tmp = self.findKeyParam(pparam['parent_task_cmd'])
             # path_trgs_tmp = self.findKeyParam(src_path_trgs_tmp)
             path_trgs_tmp = src_path_trgs_tmp
-            print('init:', path_trgs_tmp)
+            # print('init:', path_trgs_tmp)
             if path_trgs_tmp.rfind(';') == -1:
                 path_tmp = path_trgs_tmp.split(';')
             else:

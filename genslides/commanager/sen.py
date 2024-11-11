@@ -1901,6 +1901,11 @@ class Projecter:
         task = man.curr_task
         task.forceCleanChat()
         return self.updateMainUIelements()
+    
+    def cleanLastMessageForMulti(self):
+        for task in self.actioner.getCurrentManager().getMultiSelectedTasks():
+            task.forceCleanChat()
+        return self.updateMainUIelements()
 
     def getCurrentTaskBranchCodeTag(self):
         man = self.actioner.getCurrentManager()
