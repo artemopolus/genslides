@@ -809,7 +809,27 @@ class Jun():
                     self.endes_idx = i
         self.curr_task = task
 
+    def getGlobalKeys(self):
+        if 'global_vars' in self.info:
+            return [t['key'] for t in self.info['global_vars']]
+        return []
+    
+    def getGlobalValue(self, key : str):
+        if 'global_vars' in self.info:
+            for t in self.info['global_vars']:
+                if t['key'] == key:
+                    return True, t['value']
+        return False, ""
+
+
 # --------------------------------------------------------------------------------------------
+    
+    def appendGlobalVariables(self, key : str, value : str):
+        pass
+
+    def deleteGlobalVariable(self, key : str):
+        pass
+    
     def enableOutput2(self):
         pass
 

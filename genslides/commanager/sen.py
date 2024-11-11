@@ -2011,6 +2011,24 @@ class Projecter:
         self.actioner.getCurrentManager().saveInfo()
         return self.updateTaskManagerUI()
     
+    def getCurManagerGlobalKeys(self):
+        out = self.actioner.getCurrentManager().getGlobalKeys()
+        return gr.Dropdown(choices=out)
+    
+    def geCurManagerGlobalValue(self, key):
+        res, out = self.actioner.getCurrentManager().getGlobalValue(key)
+        return out
+    
+    def setCurManagerGlobalValue(self, key, value):
+        self.actioner.getCurrentManager().appendGlobalVariables(key, value)
+        self.actioner.getCurrentManager().saveInfo()
+        return self.getCurManagerGlobalKeys()
+    
+    def delCurManagerGlobalKey(self, key):
+        self.actioner.getCurrentManager().deleteGlobalVariable( key )
+        self.actioner.getCurrentManager().saveInfo()
+        return self.getCurManagerGlobalKeys()
+    
     def addMultiSelectTasksFromStdMan(self):
         if self.actioner.getCurrentManager() != self.actioner.std_manager:
             self.actioner.addExtTasksForManager(self.actioner.getCurrentManager(), self.actioner.std_manager.multiselect_tasks)

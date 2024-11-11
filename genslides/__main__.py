@@ -610,16 +610,30 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 # get_tempman = gr.Dropdown(label='Temp managers', interactive=True)
                                 get_tempman = gr.Radio(label='Managers list')
                             with gr.Row():
+                                updt_prman_btn = gr.Button(value='Updt managers list')
+                            with gr.Row():
+                                gr.Button('Save Cur Tmp man info files').click(fn=projecter.saveCurrManInfo)
+                                gr.Button('Save Cur Tmp Man to location').click(fn=projecter.saveTmpMan)
+                        with gr.Tab('Edit'):
+                            with gr.Row():
                                 tmpmanname_txt = gr.Textbox(label='Current manager name')
                             with gr.Row():
                                 tmpman_clrpck = gr.ColorPicker()
                                 load_tempman_btn = gr.Button(value='Set man tasks color').click(fn=projecter.setCurManagerColor, 
                                                                                         inputs=[tmpman_clrpck])
                             with gr.Row():
-                                updt_prman_btn = gr.Button(value='Updt managers list')
+                                megetglobal_btn = gr.Button('Get globals')
                             with gr.Row():
-                                gr.Button('Save Cur Tmp man info files').click(fn=projecter.saveCurrManInfo)
-                                gr.Button('Save Cur Tmp Man to location').click(fn=projecter.saveTmpMan)
+                                meglobalkeys_drd = gr.Dropdown(label='Global keys', allow_custom_value=True, choices=[])
+                                meglobalval_txt = gr.Textbox(label='Global value',lines=1)
+                            with gr.Row():
+                                meglobaladd_btn = gr.Button('Append')
+                                meglobaldel_btn = gr.Button('Delete')
+                            megetglobal_btn.click(fn=projecter.getCurManagerGlobalKeys, outputs=meglobalkeys_drd)
+                            meglobalkeys_drd.change(fn=projecter.geCurManagerGlobalValue,inputs=meglobalkeys_drd, outputs=meglobalval_txt)
+                            meglobaladd_btn.click(fn=projecter.setCurManagerGlobalValue, inputs=[meglobalkeys_drd, meglobalval_txt], outputs=meglobalkeys_drd)
+                            meglobaldel_btn.click(fn=projecter.delCurManagerGlobalKey, inputs=[meglobalkeys_drd], outputs=meglobalkeys_drd)
+ 
                         with gr.Tab('Create'):
                             with gr.Row():
                                 name_prman = gr.Text(value='None', label = 'Manager')

@@ -2184,3 +2184,21 @@ class Manager(Man.Jun):
     def forceUnFreezeTask( self, task : BaseTask ):
         task.unfreezeTask()
     
+    def appendGlobalVariables(self, key, value):
+        if 'global_vars' in self.info:
+            for idx, t in enumerate(self.info['global_vars']):
+                if t['key'] == key:
+                    self.info['global_vars'][idx]['value'] = value
+                    return super().appendGlobalVariables(key, value)
+        else:
+            self.info['global_vars'] = []
+        self.info['global_vars'].append({'key': key, 'value': value})
+        return super().appendGlobalVariables(key, value)
+    
+    def deleteGlobalVariable(self, key):
+        if 'global_vars' in self.info:
+            for idx, t in enumerate(self.info['global_vars']):
+                if t['key'] == key:
+                    self.info['global_vars'].remove(t)
+                    return super().deleteGlobalVariable(key)
+        return super().deleteGlobalVariable(key)
