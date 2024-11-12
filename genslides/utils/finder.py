@@ -400,8 +400,9 @@ def findByKey2(text, manager , base):
                             trg_text = FileMan.getFileName(trg_text)
                         rep_text = rep_text.replace(res, trg_text)
                     elif len(arr) > 2 and arr[1] == 'global':
-                        trg_text = manager.getGlobalValue(arr[2])
-                        rep_text = rep_text.replace(res, trg_text)
+                        gres, trg_text = manager.getGlobalValue(arr[2])
+                        if gres:
+                            rep_text = rep_text.replace(res, trg_text)
 
                     elif arr[1] == 'path':
                         trg_text = manager.getPath()
