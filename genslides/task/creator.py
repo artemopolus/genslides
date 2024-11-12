@@ -36,6 +36,7 @@ import genslides.task.external as ex
 
 import genslides.commands.create as cr
 import genslides.task.link as lk
+import genslides.task.entry as ey
 
 def checkTypeFromName(name : str, type :str) -> bool:
     stype = ''.join([i for i in name if not i.isdigit()])
@@ -149,6 +150,9 @@ def createTaskByType(type : str, info : TaskDescription):
     if stype.endswith("Searcher"):
         info.method = ep.SearcherTask
         return cr.CreateCommand(info)    
+    if stype.endswith("Entry"):
+        info.method = ey.EntryTask
+        return cr.CreateCommand(info)    
     else:
     	return None
     
@@ -177,4 +181,5 @@ def getTasksDict() -> list:
     out.append({"type":"InExtTree","short":"Ie","creation":ep.InExtTreeTask})
     out.append({"type":"OutExtTree","short":"Oe","creation":ep.InExtTreeTask})
     out.append({"type":"Searcher","short":"Se","creation":ep.SearcherTask})
+    out.append({"type":"Entry","short":"Ey","creation":ey.EntryTask})
     return out

@@ -1417,15 +1417,20 @@ class Actioner():
             task.saveAllParams()
    
     def getTaskKeyValueInternal(self, param_name, param_key):
-        man = self.manager
+        man = self.getCurrentManager()
         # print('Get task key value:',param_name,'|', param_key)
         interacttive_drd = True
         multiselect_drd = False
         choices = []
         cur_val = 'None'
         if param_key == 'path_to_read':
-            filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-            return [filename], filename, interacttive_drd, multiselect_drd, str(filename), True
+            fnames = man.getCurrentTask().getPathToRead()
+            if len(fnames) == 0:
+                filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
+                return [filename], filename, interacttive_drd, multiselect_drd, str(filename), True
+            else:
+                filename = fnames[0]
+                return fnames, filename, interacttive_drd, multiselect_drd, filename, True
             # return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
                     # gr.Textbox(str(filename)))
         elif param_name == 'script' and param_key == 'path_to_trgs':

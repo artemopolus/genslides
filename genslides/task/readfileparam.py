@@ -201,3 +201,9 @@ class ReadFileParamTask(ReadFileTask):
 
         self.executeResponse()
         self.saveJsonToFile(self.msg_list)
+
+    def getPathToRead(self):
+        return self.getChoicesByParentTask({
+            'target': 'entry',
+            'value':'file'
+        })

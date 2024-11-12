@@ -465,7 +465,7 @@ class BaseTask():
                 return task, idx
             idx += 1
         return self, idx
-
+    
     def getAllParents(self, max_index = -1, revert_dir = False):
         par = self
         index = 0
@@ -1526,6 +1526,26 @@ class BaseTask():
         if self.is_freeze:
             return 0
         return 1
+    
+    def getPathToRead(self):
+        return []
+
+    def getChoicesByParentTask(self, param : dict ):
+        task = self
+        index = 0
+        while(index < 1000):
+            res, content = task.getTaskParamChoices(param)
+            if res:
+                return res, content
+            task = task.getParent()
+            if task == None:
+                break
+            index += 1
+        return False, []
+
+
+    def getTaskParamChoices(self, param = {}):
+        return False, []
 
     def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}):
         return False, [], self.parent
