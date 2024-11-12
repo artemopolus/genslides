@@ -167,7 +167,7 @@ class Loader:
         
         
     
-    def getManRePath(trgpath, man_path):
+    def getManRePath(trgpath, man_path, prefix = 'manager'):
         spath = Path(trgpath)
         mpath = Path(man_path)
         idx = 0
@@ -175,7 +175,10 @@ class Loader:
             try:
                 rpath = spath.relative_to(mpath)
                 str_rel_path = str(PurePosixPath(rpath))
-                filename = '[[manager:path:sub_'+ str(idx) +']]/'+ str_rel_path
+                if prefix == 'manager':
+                    filename = '[[manager:path:sub_'+ str(idx) +']]/'+ str_rel_path
+                else:
+                    filename = prefix + str_rel_path
                 return filename
             except Exception as e:
                 npath = mpath.parent

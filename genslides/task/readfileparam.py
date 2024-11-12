@@ -205,5 +205,6 @@ class ReadFileParamTask(ReadFileTask):
     def getPathToRead(self):
         return self.getChoicesByParentTask({
             'target': 'entry',
-            'value':'file'
+            'value':'file',
+            'name_type':'parent'
         })

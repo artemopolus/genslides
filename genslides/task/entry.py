@@ -16,14 +16,14 @@ class EntryTask(SvT.SaveTextTask):
                 out += (f"{dirtag}: {item}\n")
         return out
     
-    def listEntry(self, getdir = True, getfile = True):
+    def listEntry(self, target_name: str, getdir = True, getfile = True):
         out = []
         eres, eparam = self.getParamStruct("entry", only_current=True)
         if eres:
             path = self.findKeyParam(eparam['path_to_read'])
             for item in os.listdir(path):
                 item_path = os.path.join(path, item)
-                item_pathcode = Ld.Loader.getManRePath(item_path, self.manager.getPath())
+                item_pathcode = Ld.Loader.getManRePath(item_path, path, prefix=f"[[{target_name}:param:entry:path_to_read]]/")
                 if os.path.isfile(item_path) and getfile:
                     out.append(item_pathcode)
                 elif os.path.isdir(item_path) and getdir:
@@ -33,7 +33,9 @@ class EntryTask(SvT.SaveTextTask):
     def getRichPrompt(self):
         eres, eparam = self.getParamStruct("entry", only_current=True)
         if eres:
-            return self.list_files_and_directories(self.findKeyParam(eparam['path_to_read']), eparam['filetag'], eparam['dirtag'])
+            path = self.findKeyParam(eparam['path_to_read'])
+            # print(f"Target path: {path}")
+            return self.list_files_and_directories(path, eparam['filetag'], eparam['dirtag'])
         return ""
     
     def updateIternal(self, input = None):
@@ -44,15 +46,20 @@ class EntryTask(SvT.SaveTextTask):
     def getTaskParamChoices(self, param={}):
         if 'target' in param and param['target'] == 'entry':
             if 'value' in param:
+                if 'name_type' in param and param['name_type'] == 'parent':
+                    target_name = 'parent_' + str(param['index']+1)
+                else:
+                    target_name = self.getName()
                 if param['value'] == 'dir':
-                    return True, self.listEntry(getdir=True, getfile=False)
+                    return True, self.listEntry(target_name, getdir=True, getfile=False)
                 elif param['value'] == 'file':
-                    return True, self.listEntry(getdir=False, getfile=True)
+                    return True, self.listEntry(target_name, getdir=False, getfile=True)
             return True, self.listEntry()
         return super().getTaskParamChoices(param)
     
     def getPathToRead(self):
         return self.getChoicesByParentTask({
             'target': 'entry',
-            'value':'dir'
+            'value':'dir',
+            'name_type':'parent'
         })

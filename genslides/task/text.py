@@ -1269,9 +1269,11 @@ class TextTask(BaseTask):
          manager = self.manager
          base = self
          idx = 0
+        #  print(f"Task: {self.getName()}")
          while idx < 10000:
              n_text, task, ress = finder.findByKey2(text, manager, base)
              idx +=1
+            #  print(f"Conditions: t=b: {task == base} r: {ress}")
              if task == base:
                  break
              elif ress == 0:

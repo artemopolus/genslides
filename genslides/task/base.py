@@ -1538,6 +1538,7 @@ class BaseTask():
             if task == None:
                 break
             else:
+                param['index'] = index
                 res, content = task.getTaskParamChoices(param)
                 if res:
                     return res, content

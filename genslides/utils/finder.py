@@ -444,6 +444,7 @@ def findByKey2(text, manager , base):
                     if task:
                         rep_text = getFromTask(arr, res, rep_text, task, manager, index)
                         task.freeTaskByParentCode()
+                        out_target_task = task
 
             elif len(arr) == 1:
                 if arr[0] == 'name':
