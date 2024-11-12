@@ -1424,8 +1424,8 @@ class Actioner():
         choices = []
         cur_val = 'None'
         if param_key == 'path_to_read':
-            fnames = man.getCurrentTask().getPathToRead()
-            if len(fnames) == 0:
+            res, fnames = man.getCurrentTask().getPathToRead()
+            if not res and len(fnames) == 0:
                 filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
                 return [filename], filename, interacttive_drd, multiselect_drd, str(filename), True
             else:

@@ -18,6 +18,8 @@ class SaveTextTask(Txt.TextTask):
             self.onEmptyMsgListAction()
         else:
             self.onExistedMsgListAction(msg_list_from_file)
+        
+        self.saveAllParams()
 
     def onEmptyMsgListAction(self):
         self.saveJsonToFile(self.msg_list)

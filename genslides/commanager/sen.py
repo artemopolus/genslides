@@ -1848,6 +1848,7 @@ class Projecter:
         # return self.getTaskKeyValue(param_name, param_key)
     
     def setTaskKeyValueUI(self, choices, value, interactive, multiselect, text, text_interactive):
+        print(f"Print {choices} - {value}")
         return (
             gr.Dropdown(choices=choices, value=value, interactive=interactive, multiselect=multiselect),
             gr.Textbox(text, interactive=text_interactive)

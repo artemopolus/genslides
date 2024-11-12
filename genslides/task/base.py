@@ -1534,12 +1534,13 @@ class BaseTask():
         task = self
         index = 0
         while(index < 1000):
-            res, content = task.getTaskParamChoices(param)
-            if res:
-                return res, content
             task = task.getParent()
             if task == None:
                 break
+            else:
+                res, content = task.getTaskParamChoices(param)
+                if res:
+                    return res, content
             index += 1
         return False, []
 

@@ -1,8 +1,9 @@
 import genslides.task.savetext as SvT
-import os, sys
+import os
+import genslides.utils.loader as Ld
 
 class EntryTask(SvT.SaveTextTask):
-    def __init__(self, task_info : SvT.TaskDescription, type='Entry'):
+    def __init__(self, task_info : SvT.Txt.TaskDescription, type='Entry'):
         super().__init__(task_info, type)
 
     def list_files_and_directories(self,path, filetag = "File", dirtag= "Directory"):
@@ -21,10 +22,12 @@ class EntryTask(SvT.SaveTextTask):
         if eres:
             path = self.findKeyParam(eparam['path_to_read'])
             for item in os.listdir(path):
-                if os.path.isfile(os.path.join(path, item)) and getfile:
-                    out.append(item)
-                elif os.path.isdir(os.path.join(path, item)) and getdir:
-                    out.append(item)
+                item_path = os.path.join(path, item)
+                item_pathcode = Ld.Loader.getManRePath(item_path, self.manager.getPath())
+                if os.path.isfile(item_path) and getfile:
+                    out.append(item_pathcode)
+                elif os.path.isdir(item_path) and getdir:
+                    out.append(item_pathcode)
         return out
     
     def getRichPrompt(self):
@@ -35,6 +38,7 @@ class EntryTask(SvT.SaveTextTask):
     
     def updateIternal(self, input = None):
         self.appendMessage({"content":self.getRichPrompt(),"role":self.prompt_tag})
+        self.saveAllParams()
         return super().updateIternal(input)
     
     def getTaskParamChoices(self, param={}):
