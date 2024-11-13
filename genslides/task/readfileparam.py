@@ -140,10 +140,16 @@ class ReadFileParamTask(ReadFileTask):
     def updateReadedText(self, text):
         rres, rparam = self.getParamStruct("path_to_read")
         if rres:
-            if 'header' in rparam:
-                text = rparam['header'] + text
-            if 'footer' in rparam:
-                text += rparam['footer']
+            try:
+                if 'title' in rparam and rparam['title']:
+                    title = os.path.basename( self.findKeyParam(rparam['path_to_read']))
+                    text = rparam['prefix'] + title + rparam['suffix'] + text
+                elif 'header' in rparam:
+                    text = rparam['header'] + text
+                if 'footer' in rparam:
+                    text += rparam['footer']
+            except:
+                pass
         return text
 
     def executeResponse(self):

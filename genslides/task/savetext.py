@@ -3,6 +3,7 @@ import genslides.task.text as Txt
 class SaveTextTask(Txt.TextTask):
     def __init__(self, task_info : Txt.TextTask, type='SaveText'):
         super().__init__(task_info, type)
+        self.prompt_tag = 'user'
         pair = {
             "role" : self.prompt_tag,
             "content" : self.getRichPrompt()

@@ -89,6 +89,8 @@ class ResponseTask(TextTask):
     def executeResponse(self):
         res, param = self.getParamStruct('model')
 
+        param = self.convParamStruct(param)
+
         if res:
             print('Get options from task')
             chat = LLModel(param)

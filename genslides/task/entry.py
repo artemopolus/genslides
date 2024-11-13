@@ -8,12 +8,12 @@ class EntryTask(SvT.SaveTextTask):
 
     def list_files_and_directories(self,path, filetag = "File", dirtag= "Directory"):
         """Lists files and directories within a given path and prints their names."""
-        out = ""
+        out = f"In {dirtag} {os.path.basename(path)}:\n"
         for item in os.listdir(path):
             if os.path.isfile(os.path.join(path, item)):
-                out += f"{filetag}: {item}\n"
+                out += f" - {filetag}: {item}\n"
             elif os.path.isdir(os.path.join(path, item)):
-                out += (f"{dirtag}: {item}\n")
+                out += f" - {dirtag}: {item}\n"
         return out
     
     def listEntry(self, target_name: str, getdir = True, getfile = True):

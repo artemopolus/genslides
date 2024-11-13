@@ -1321,6 +1321,13 @@ class TextTask(BaseTask):
                 if isinstance(value, str):
                     value = self.findKeyParam(value)
         return params
+    
+    def convParamStruct(self, param :dict):
+        for key, value in param.items():
+            if isinstance(value, str):
+                param[key] = self.findKeyParam(value)
+        return param
+
         
 
     def getAllParams(self):
