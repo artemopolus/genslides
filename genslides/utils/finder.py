@@ -97,8 +97,15 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     # print('tmp arg',tmparg)
                     trgjson = Parser.parseJsonKeys(tmparg, jjson)
 
-                    if conv == 'dict_v' and isinstance(trgjson, dict):
-                        text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for k,v in trgjson.items()])
+                    if conv == 'dict_v':
+                        if isinstance(trgjson, dict):
+                            text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for k,v in trgjson.items()])
+                        elif isinstance(trgjson, list):
+                            text_arr = []
+                            for dd in trgjson:
+                                if isinstance(dd, dict):
+                                    text_arr.extend([Loader.Loader.convJsonToText(v) for k,v in dd.items()])
+                            text = '[[,]]'.join(text_arr)
                     elif conv == 'list' and isinstance(trgjson, list):
                         text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for v in trgjson])
                     else:

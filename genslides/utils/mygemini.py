@@ -1,4 +1,5 @@
 import google.generativeai as genai
+import json 
 
 def geminiGetChatCompletion(msgs, params):
     try:
@@ -16,7 +17,13 @@ def geminiGetChatCompletion(msgs, params):
             history.append({'role': role, 'parts': msg})
         question = history.pop()['parts']
         chat = model.start_chat(history=history)
-        response = chat.send_message(question)
+        if 'response_format' in params and params['response_format'] != "":
+            config = genai.GenerationConfig(
+                response_mime_type="application/json",
+                response_schema=json.loads(params['response_format'], strict=False))
+            response = chat.send_message(question, generation_config=config)
+        else:
+            response = chat.send_message(question)
         out_param = {
                 'intok': response.usage_metadata.prompt_token_count,
                 'outtok':response.usage_metadata.candidates_token_count

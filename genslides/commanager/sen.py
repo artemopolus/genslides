@@ -403,12 +403,11 @@ class Projecter:
         mypath = 'tools'
         return [f.split('.')[0] for f in listdir(mypath) if isfile(join(mypath, f))]
     
-    def getFullCmdList(self, full = False):
+    def getFullCmdList(self, full = False) -> list[str]:
         a = self.getCustomCmdList()
         p = self.getStdCmdList(full=full)
         a.extend(p)
         return a
-
 
     def makeCustomAction(self, prompt, selected_action, custom_action):
         # print('Make custom action:', selected_action, custom_action, 'with prompt:\n', prompt)
@@ -1199,11 +1198,13 @@ class Projecter:
         return prompt + text
     
     def getProposalsFromTask(self):
-        task = self.actioner.getCurrentManager().getCurrentTask()
-        eres, eparam = task.getParamStruct("choices")
+        trg = self.actioner.getCurrentManager().getCurrentTask()
+        tasks = trg.getAllParents()
         examples = []
-        if eres:
-            examples = task.findKeyParam(eparam['source']).split('[[,]]')
+        for task in tasks:
+            eres, eparam = task.getParamStruct("choices", only_current=True)
+            if eres:
+                examples.extend( task.findKeyParam(eparam['source']).split('[[,]]'))
         return examples
 
     def actionTypeChanging(self, action, prompt):
