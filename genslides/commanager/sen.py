@@ -1069,12 +1069,12 @@ class Projecter:
                 try:
                     for group in insructions['instructions']:
                         if group['group'] == group_name:
-                            examples.extend(group['collection'])
+                            examples.extend((group['collection'],group['collection']))
                             text_info += group['description'] + '\n'
                             break
                 except:
                     pass
-        return gr.Radio(choices=examples, info=text_info)
+        return gr.CheckboxGroup(choices=examples, info=text_info)
 
     def loadActionerByBrowsing(self):
         path = Loader.Loader.getDirPathFromSystem()
@@ -1195,16 +1195,34 @@ class Projecter:
     def onExamplesClick(self, text, prompt):
         # print('Click', text)
 
-        return prompt + text
+        return prompt + " ".join(text)
     
     def getProposalsFromTask(self):
         trg = self.actioner.getCurrentManager().getCurrentTask()
         tasks = trg.getAllParents()
         examples = []
+        pairs = []
         for task in tasks:
             eres, eparam = task.getParamStruct("choices", only_current=True)
             if eres:
-                examples.extend( task.findKeyParam(eparam['source']).split('[[,]]'))
+                split_words = task.findKeyParam(eparam['source']).split('[[,]]')
+                for i in range(int(len(split_words)/2)):
+                    first = split_words[2*i]
+                    sec = split_words[2*i+1]
+                    if sec[0] == '\"' and sec[-1] == '\"':
+                        sec = sec[1:-1]
+                    if first[0] == '\"' and first[-1] == '\"':
+                        first = first[1:-1]
+                    
+                    if not all(char.isdigit() for char in first):
+                        tmp = first
+                        first = sec
+                        sec = tmp
+                    pairs.append([first, sec])
+                # examples.extend( )
+        sorted_pairs = sorted(pairs, key=lambda pair: pair[0])
+        for pair in sorted_pairs:
+            examples.append((".".join(pair), pair[1]))
         return examples
 
     def actionTypeChanging(self, action, prompt):

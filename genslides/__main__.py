@@ -362,7 +362,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                         with gr.Accordion('Proposals', open=False):
                             with gr.Row():
-                                examples_dst = gr.Radio(label='Choices')
+                                examples_dst = gr.CheckboxGroup(label='Choices')
                             with gr.Row():
                                 add_examples_btn = gr.Button('Append to prompt')
                             with gr.Row():
