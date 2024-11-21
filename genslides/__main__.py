@@ -396,7 +396,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
                 
             
-            base_action_list.change(fn=projecter.actionTypeChanging, inputs=[base_action_list,  prompt], outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck, examples_dst])
+            base_action_list.change(fn=projecter.actionTypeChanging, inputs=[base_action_list,  prompt], 
+                        outputs=[prompt, request_btn, response_btn, custom_btn, roles_list,extcopy_chck, examples_dst])
             vizprompt_list.change(fn=projecter.changeVizType, inputs=[base_action_list,  vizprompt_list], outputs=prompt)
             with gr.Tab('Params'):
                 with gr.Row():
@@ -501,6 +502,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         unlink_btn = gr.Button(value='Unlink')
                         forceunfrzpars_btn = gr.Button('Force unfreeze Parents')
                         clnresp_btn = gr.Button(value='Clean Response')
+                        unite_btn = gr.Button(value='Unite')
                 with gr.Tab('Selected'):
                     with gr.Row():
                         relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
@@ -531,7 +533,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         getparamamulti_btn.click(fn=projecter.getParamFromMultiSelected, 
                                                     inputs=parammultikey_dd, 
                                                     outputs=[parammulti_json, parammultilog_txt])
-                    with gr.Column():
+                    with gr.Row():
                         multicleanresp_btn = gr.Button('Clean Task')
                         set_multi_child_btn = gr.Button('Set Multiselected as Child')
                         garlandmulti_btn = gr.Button('Garland from multi')
@@ -553,7 +555,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
 
                     with gr.Row(visible=False):
-                        unite_btn = gr.Button(value='Unite')
                         copy_chain_btn = gr.Button(value='Copy ch step')
                         update_task_btn = gr.Button(value="Update")
                         updatecur_task_btn = gr.Button(value='Update current')

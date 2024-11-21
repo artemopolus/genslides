@@ -1074,7 +1074,7 @@ class Projecter:
                             break
                 except:
                     pass
-        return gr.CheckboxGroup(choices=examples, info=text_info)
+        return gr.CheckboxGroup(choices=examples, info=text_info, value=None)
 
     def loadActionerByBrowsing(self):
         path = Loader.Loader.getDirPathFromSystem()
@@ -1218,11 +1218,15 @@ class Projecter:
                         tmp = first
                         first = sec
                         sec = tmp
+                    try:
+                        first = int(first)
+                    except:
+                        pass
                     pairs.append([first, sec])
                 # examples.extend( )
         sorted_pairs = sorted(pairs, key=lambda pair: pair[0])
         for pair in sorted_pairs:
-            examples.append((".".join(pair), pair[1]))
+            examples.append((f"{pair[0]}. \"{pair[1]}\"", pair[1]))
         return examples
 
     def actionTypeChanging(self, action, prompt):
@@ -1237,7 +1241,7 @@ class Projecter:
                     gr.Button(value='Custom',interactive=True), 
                     gr.Radio(interactive=False),
                     gr.CheckboxGroup(choices=[]),
-                    gr.Radio(choices=examples)
+                    gr.CheckboxGroup(choices=examples)
             ]
         elif action == 'SubTask' or action == 'Insert':
             return [prompt, 
@@ -1246,7 +1250,7 @@ class Projecter:
                     gr.Button(value='Custom',interactive=True), 
                     gr.Radio(interactive=False),
                     gr.CheckboxGroup(choices=[]),
-                    gr.Radio(choices=examples)
+                    gr.CheckboxGroup(choices=examples)
             ]
         elif action == 'Edit' or action == 'EditCopy' or action.startswith('EdCp'):
             # print('Get text from',task.getName(),'(',self.actioner.getCurrentManager().getName(),')')
@@ -1261,7 +1265,7 @@ class Projecter:
                     gr.Button(value='',interactive=False), 
                     gr.Radio(interactive=True,value=role),
                     gr.CheckboxGroup(choices=self.getParamListForEdit(), interactive=True),
-                    gr.Radio(choices=examples)
+                    gr.CheckboxGroup(choices=examples)
             ]
         
     def getTextInfo(self, notgood, bad):
