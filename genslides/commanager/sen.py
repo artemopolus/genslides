@@ -1195,7 +1195,7 @@ class Projecter:
     def onExamplesClick(self, text, prompt):
         # print('Click', text)
 
-        return prompt + " ".join(text)
+        return prompt + "\n\n[[---]]\n\n".join(text)
     
     def getProposalsFromTask(self):
         trg = self.actioner.getCurrentManager().getCurrentTask()
