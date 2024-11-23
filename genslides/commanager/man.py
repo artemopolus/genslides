@@ -80,6 +80,8 @@ class Jun():
 
     def getTreeNamesForRadio(self):
         names = []
+        if len(self.tree_arr) == 0:
+            self.sortTreeOrder()
         for task in self.tree_arr:
             names.append(self.getTreeName(task))
         trg = self.getTreeName(self.curr_task)
@@ -87,13 +89,21 @@ class Jun():
         # print('Trg tree:', trg,'out of', names)
         # return gr.Radio(choices=names, value=trg, interactive=True)
     
-    
+    def setInitTreeTask(self, tree_task : Task.BaseTask) -> Task.BaseTask:
+        target = tree_task
+        res, pparam = tree_task.getParamStruct('tree_step')
+        if res and 'target' in pparam:
+            task = self.getTaskByName(pparam['target'])
+            if task != None:
+                target = task
+        return target
+
     def goToTreeByName(self, name):
         # print('Go to tree by name', name)
         for i in range(len(self.tree_arr)):
             trg = self.getTreeName(self.tree_arr[i])
             if trg == name:
-                self.curr_task = self.tree_arr[i]
+                self.curr_task = self.setInitTreeTask(self.tree_arr[i])
                 self.tree_idx = i
                 break
         # return self.getCurrTaskPrompts()
@@ -107,7 +117,7 @@ class Jun():
                 self.tree_idx += 1
             else:
                 self.tree_idx = 0
-            self.curr_task = self.tree_arr[self.tree_idx]
+            self.curr_task = self.setInitTreeTask(self.tree_arr[self.tree_idx])
         # return self.getCurrTaskPrompts()
 
     def takeFewSteps(self, dir:str, times : int):
@@ -497,7 +507,13 @@ class Jun():
             res, pparam = task.getParamStruct('tree_step', only_current = True)
             if not res:
                 self.curr_task = task
-                self.appendNewParamToTask('tree_step')    
+                self.setParamStruct({
+                    'type':'tree_step',
+                    'idx': 6,
+                    'target': self.getCurrentTask().getName()
+                })
+                # self.appendNewParamToTask('tree_step') 
+                   
         self.tree_arr.sort(key=self.sortKey)
 
         i = 0
@@ -981,7 +997,12 @@ class Jun():
         pass
     
     def getTaskByName(self, name : str) -> Task.BaseTask:
-        pass
+        for task in self.task_list:
+            if task.getName() == name:
+                return task
+        # print('Can\'t get task by name', name)
+        return None
+    
     def updateSetOption(self, task_name, param_name, key, value):
         pass
     def getFromSetOptions(self, task : Task.BaseTask):

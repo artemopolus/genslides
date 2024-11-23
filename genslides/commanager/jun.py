@@ -1002,13 +1002,7 @@ class Manager(Man.Jun):
 
 
 
-    def getTaskByName(self, name : str) -> BaseTask:
-        for task in self.task_list:
-            if task.getName() == name:
-                return task
-        # print('Can\'t get task by name', name)
-        return None
-    
+   
     def updateSetOption(self, task_name, param_name, key, value):
         print("Update set options")
         task = self.getTaskByName(task_name)
