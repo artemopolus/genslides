@@ -507,7 +507,7 @@ class Jun():
             res, pparam = task.getParamStruct('tree_step', only_current = True)
             if not res:
                 self.curr_task = task
-                self.setParamStruct({
+                task.setParamStruct({
                     'type':'tree_step',
                     'idx': 6,
                     'target': self.getCurrentTask().getName()
