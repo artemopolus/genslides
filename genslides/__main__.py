@@ -174,8 +174,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # source="upload", type="pil", 
                             # height=700
                             )
-                    with gr.Column(scale=4):
-                        with gr.Accordion(label='Extra move', open=True):
+                        with gr.Accordion(label='Extra move', open=False):
                             with gr.Row():
                                 go_lnkback_btn = gr.Button(value='Go BackLnk')
                             with gr.Row():
@@ -192,9 +191,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             wo_request_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getRequestTaskSymVizCount(), label='Request Symbols')
                             wo_response_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getResponseTaskSymVizCount(), label='Response Symbols')
                             wo_default_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getResponseTaskSymVizCount(), label='Default Symbols')
+                    with gr.Column(scale=4):
 
                         with gr.Row():
-                            sec_msg = gr.Chatbot(height=1000, bubble_full_width=True, rtl=False,type='messages')
+                            sec_msg = gr.Chatbot(height=600, bubble_full_width=True, rtl=False,type='messages')
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):
