@@ -1069,7 +1069,7 @@ class Projecter:
                 try:
                     for group in insructions['instructions']:
                         if group['group'] == group_name:
-                            examples.extend((group['collection'],group['collection']))
+                            examples.extend([ (v,v) for  v in group['collection']])
                             text_info += group['description'] + '\n'
                             break
                 except:
@@ -2792,7 +2792,7 @@ class Projecter:
             gr.Radio(value="SubTask"), 
             bud_msgs,
             # self.getCurrentExtTaskOptions(),
-            gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
+            gr.Radio(choices=gettreenameforradio_names, interactive=True),
             gr.Textbox(value=mancurtaskgetbranchsum, interactive=True),
             gr.Radio(choices=mangetbranchend, value = None, interactive=True),
             mangetbranchendname,
@@ -2849,7 +2849,7 @@ class Projecter:
             maingraph, 
             gr.Radio(choices=acts_list, value=cur_act, interactive=True),
             gr.Radio(choices=tmp_man, value=mangetname, interactive=True),
-            gr.Dropdown(choices=gettreenameforradio_names, value=gettreenameforradio_trg, interactive=True),
+            gr.Dropdown(choices=gettreenameforradio_names, interactive=True),
             gr.Dropdown(choices=mangetbranchend, interactive=True),
             gr.Dropdown(choices=branchnames, interactive=True)
             )

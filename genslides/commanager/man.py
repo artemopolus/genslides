@@ -117,7 +117,7 @@ class Jun():
                 self.tree_idx += 1
             else:
                 self.tree_idx = 0
-            self.curr_task = self.setInitTreeTask(self.tree_arr[self.tree_idx])
+            self.curr_task = self.tree_arr[self.tree_idx]
         # return self.getCurrTaskPrompts()
 
     def takeFewSteps(self, dir:str, times : int):
