@@ -99,7 +99,7 @@ class Jun():
         return target
 
     def goToTreeByName(self, name):
-        # print('Go to tree by name', name)
+        print('Go to tree by name', name)
         for i in range(len(self.tree_arr)):
             trg = self.getTreeName(self.tree_arr[i])
             if trg == name:
@@ -111,7 +111,7 @@ class Jun():
 
 
     def goToNextTree(self):
-        # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
+        print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
             if self.tree_idx + 1 < len(self.tree_arr):
                 self.tree_idx += 1

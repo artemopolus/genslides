@@ -1021,7 +1021,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                base_action_list, 
                                dial_block, 
                             #    exttaskopt_chgr, 
-                               tree_names_radio, 
+                            #    tree_names_radio, 
                                new_tree_name_txt,
                                end_names_radio, 
                                end_name_text, 
@@ -1102,11 +1102,21 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_full = std_output_list.copy()
             std_full.extend(std_output_man_list)
 
+            tree_outlist = std_output_list.copy()
+            tree_outlist.extend(std_output_man_list)
+            tree_outlist.extend([
+                tree_names_radio
+            ])
+
             applyautocmdtomulti_btn.click(projecter.applyAutoCommandsToMulti, outputs=std_full)
 
             exttreetaskaddact_btn.click(fn=projecter.addCurrentExtTreeTaskActioner, outputs=std_full)
 
-            setsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionname_drd], outputs=std_full)
+            setsessionname_btn.click(fn=projecter.getSessionNameFromList, inputs=[sessionname_drd], outputs=tree_outlist)
+            tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=tree_outlist)
+            next_tree_btn.click(fn=projecter.goToNextTree, outputs=tree_outlist)
+            new_tree_btn.click(fn=projecter.createNewTree, outputs=tree_outlist)
+
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
@@ -1159,7 +1169,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             delete_reltasks_btn.click(fn=projecter.removeMultiSelect, outputs=std_output_list)
             set_multi_child_btn.click(fn=projecter.makeMultiSelectedAsChilds, outputs=std_output_list)
             
-            tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=std_output_list)
             new_tree_name_txt.submit(fn=projecter.setTreeName,inputs=[new_tree_name_txt], outputs=std_output_list)
             end_names_radio.input(fn=projecter.setCurrTaskByBranchEndName, inputs=[end_names_radio], outputs=std_output_list)
             end_name_text.submit(fn=projecter.setBranchEndName, inputs=[end_name_text], outputs=std_output_list)
@@ -1229,8 +1238,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
            
 
-            new_tree_btn.click(fn=projecter.createNewTree, outputs=std_output_list)
-            next_tree_btn.click(fn=projecter.goToNextTree, outputs=std_output_list)
             go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=std_output_list)          
 
             sel_task_btn.click(fn=projecter.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )

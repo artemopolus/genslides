@@ -164,7 +164,7 @@ class Projecter:
             self.session_name_curr = name
             self.loadSession()
         
-        return self.updateTaskManagerUI()
+        return self.updateTreeAndAll()
     
 
     def getCurrentSessionName(self):
@@ -725,7 +725,7 @@ class Projecter:
     def createNewTree(self):
         self.makeTaskAction("","SetOptions","New","user",[])
         self.actioner.getCurrentManager().updateTreeArr()
-        return self.updateMainUIelements()
+        return self.updateTreeAndAll()
     
     def goToNextTree(self):
         # print('Go to next tree')
@@ -734,7 +734,7 @@ class Projecter:
         # else:
         #     self.actioner.getCurrentManager().sortTreeOrder(True)
         self.actioner.getCurrentManager().goToNextTree()
-        return self.updateMainUIelements()
+        return self.updateTreeAndAll()
     
     def goBackByLink(self):
         man = self.actioner.getCurrentManager()
@@ -1447,7 +1447,7 @@ class Projecter:
 
     def goToTreeByName(self, name):
         self.actioner.goToTreeByName(name)
-        return self.updateMainUIelements()
+        return self.updateTreeAndAll()
 
     def resetUpdate(self):
         self.actioner.resetUpdate()
@@ -2792,7 +2792,7 @@ class Projecter:
             gr.Radio(value="SubTask"), 
             bud_msgs,
             # self.getCurrentExtTaskOptions(),
-            gr.Radio(choices=gettreenameforradio_names, interactive=True),
+            # gr.Radio(choices=gettreenameforradio_names, interactive=True),
             gr.Textbox(value=mancurtaskgetbranchsum, interactive=True),
             gr.Radio(choices=mangetbranchend, value = None, interactive=True),
             mangetbranchendname,
@@ -2958,6 +2958,15 @@ class Projecter:
         #     out += (self.manager.getTreesList(True), maingraph, stepgraph, rawgraph)
         #     return out
 
+    def updateTreeAndAll(self):
+        man = self.actioner.getCurrentManager()
+        gettreenameforradio_names, gettreenameforradio_trg = man.getTreeNamesForRadio()
+        out = self.updateUIelements()
+        saved_man, tmp_man, mangetname, name, tmpmannames = self.actioner.getTmpManagerInfo()
+        out += self.convTmpManagerInfo(saved_man, tmp_man, mangetname, name, tmpmannames)
+        out += (gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg),)
+        return out
+     
     def updateTaskManagerUI(self):
         out = self.updateUIelements()
         saved_man, tmp_man, mangetname, name, tmpmannames = self.actioner.getTmpManagerInfo()
