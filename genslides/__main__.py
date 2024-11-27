@@ -151,6 +151,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 # with gr.Column():
             with gr.Row():
                 status_txt = gr.Textbox(label='Status')
+                status_col = gr.ColorPicker(label='Status', interactive=False)
+                updatealln_btn = gr.Button('Update All Trees N')
+                updatealln_num = gr.Number(value=projecter.getUAT_Times(), label='Repeat')
                     
             with gr.Accordion(label='Buds', open=False):
                 with gr.Row():
@@ -522,8 +525,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         garland_btn = gr.Button(value='Garland')
                 with gr.Tab('Multi'):
                     with gr.Column():
-                        parammultikey_dd = gr.Dropdown(choices=projecter.getAppendableParam(),label='Param keys')
-                        getparamamulti_btn = gr.Button('Get params from multi')
+                        with gr.Row():
+                            parammultikey_dd = gr.Dropdown(choices=projecter.getAppendableParam(),label='Param keys')
+                            getparamamulti_btn = gr.Button('Get params from multi')
                         parammulti_json = gr.Textbox(label='Parameters', interactive=True)
                         parammultilog_txt = gr.Textbox(label='log')
                         gr.Button(value='Update param struct').click(fn=projecter.setParamStructToMultiSelect, 
@@ -627,11 +631,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 meglobalkeys_drd = gr.Dropdown(label='Global keys', allow_custom_value=True, choices=[])
                                 meglobalval_txt = gr.Textbox(label='Global value',lines=1)
+                                meglobalcode_txt = gr.Textbox(label='Code',lines=1, show_copy_button=True)
                             with gr.Row():
                                 meglobaladd_btn = gr.Button('Append')
                                 meglobaldel_btn = gr.Button('Delete')
                             megetglobal_btn.click(fn=projecter.getCurManagerGlobalKeys, outputs=meglobalkeys_drd)
-                            meglobalkeys_drd.change(fn=projecter.geCurManagerGlobalValue,inputs=meglobalkeys_drd, outputs=meglobalval_txt)
+                            meglobalkeys_drd.change(fn=projecter.geCurManagerGlobalValue,inputs=meglobalkeys_drd, outputs=[meglobalval_txt, meglobalcode_txt])
                             meglobaladd_btn.click(fn=projecter.setCurManagerGlobalValue, inputs=[meglobalkeys_drd, meglobalval_txt], outputs=meglobalkeys_drd)
                             meglobaldel_btn.click(fn=projecter.delCurManagerGlobalKey, inputs=[meglobalkeys_drd], outputs=meglobalkeys_drd)
  
@@ -1029,6 +1034,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                branches_data, 
                                branch_msgs,
                                status_txt,
+                               status_col,
                                raw_dial, 
                                go_lnkfrwd_rad,
                                tmpmanname_txt,
@@ -1047,7 +1053,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             so_response_sld.release(fn=projecter.setStepResponseTaskSymVizCount, inputs=[so_response_sld], outputs=std_output_list)
             so_default_sld.release(fn=projecter.setStepDefaultTaskSymVizCount, inputs=[so_default_sld], outputs=std_output_list)
             so_symcount_chck.change(fn=projecter.setStepTaskSymCount, inputs=[so_symcount_chck], outputs=std_output_list)
-            
+            updatealln_num.change(fn=projecter.setUAT_Times, inputs=[updatealln_num], outputs=std_output_list)
+
             forceunfrzpars_btn.click(fn=projecter.forceUnFreezeParentTasks, outputs=std_output_list)
 
             inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, inputs=inexttreeactparam_jsn, outputs=std_output_list)
@@ -1259,6 +1266,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             update_step_btn.click(fn=projecter.update, outputs=std_output_list)
             updateall_step_btn.click(fn=projecter.updateAll, inputs=[updatecheckown_chk, maxupdateidx_num], outputs=std_output_list)
             updateall_stepNs_btn.click(fn=projecter.updateAllnTimes, inputs=[updateall_stepNs_sld, updatecheckown_chk], outputs=std_output_list)
+            updatealln_btn.click(fn=projecter.updateAllnTimes, inputs=[updatealln_num, updatecheckown_chk], outputs=std_output_list)
             upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, inputs=[updatecheckown_chk], outputs=std_output_list)
             updatechildtasks_btn.click(fn=projecter.updateChildTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
             updatemultitasks_btn.click(fn=projecter.updateMultiSelectedTasks, inputs=[updatecheckown_chk], outputs=std_output_list)

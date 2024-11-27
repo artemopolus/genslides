@@ -1347,6 +1347,10 @@ class Actioner():
 
         cnt = 0
         cnt = man.getFrozenTasksCount()
+        if cnt == 0:
+            status_color = '#a3ffa7'
+        else:
+            status_color = '#2d50ff'
         status_msg = 'Frozen tasks: ' + str(cnt) + '/' + str(len(man.task_list)) + ':' + str(self.updateallcounter)
 
         gettreenameforradio_names, gettreenameforradio_trg = man.getTreeNamesForRadio()
@@ -1381,6 +1385,7 @@ class Actioner():
                         mangetbranchlist,
                         mangetbranchmessages,
                         status_msg,
+                        status_color,
                         rawinfo_msgs,
                         manholdgarlands,
                         mangetname,

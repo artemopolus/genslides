@@ -91,8 +91,17 @@ class Projecter:
 
         self.params['workgraph'] = {"Request":5000,"Response":5000,"Default":10000,'on':True}
         self.params['stepgraph'] = {"Request":5000,"Response":5000,"Default":10000,'on':False}
+        self.params['uat'] = {'uat_times': 1}
 
         self.show_workgraph = True
+
+    def getUAT_Times(self):
+        return self.params['uat']['uat_times']
+    
+    def setUAT_Times(self, value):
+        self.params['uat']['uat_times'] = value
+        return self.updateMainUIelements()
+
 
     def getRequestTaskSymVizCount(self):
         return self.params['workgraph']['Request']
@@ -1711,7 +1720,7 @@ class Projecter:
         param = None
         difftasknames = []
         for task in man.multiselect_tasks:
-            res, t_param = task.getParamStruct(param_name=key)
+            res, t_param = task.getParamStruct(param_name=key, only_current=True)
             if param == None:
                 param = t_param
             else:
@@ -2041,7 +2050,7 @@ class Projecter:
     
     def geCurManagerGlobalValue(self, key):
         res, out = self.actioner.getCurrentManager().getGlobalValue(key)
-        return out
+        return out, f"[[manager:global:{key}]]"
     
     def setCurManagerGlobalValue(self, key, value):
         self.actioner.getCurrentManager().appendGlobalVariables(key, value)
@@ -2766,6 +2775,7 @@ class Projecter:
                         mangetbranchlist,
                         mangetbranchmessages,
                         status_msg,
+                        status_color,
                         rawinfo_msgs,
                         manholdgarlands,
                         mangetname,
@@ -2800,6 +2810,7 @@ class Projecter:
             mangetbranchlist,
             mangetbranchmessages,
             status_msg,
+            status_color,
             rawinfo_msgs,
             gr.Radio(choices=manholdgarlands, interactive=True),
             mangetname,
@@ -2894,6 +2905,7 @@ class Projecter:
         mangetbranchlist,
         mangetbranchmessages,
         status_msg,
+        status_color,
         rawinfo_msgs,
         manholdgarlands,
         mangetname,
@@ -2932,6 +2944,7 @@ class Projecter:
                 mangetbranchlist,
                 mangetbranchmessages,
                 status_msg,
+                status_color,
                 rawinfo_msgs,
                 manholdgarlands,
                 mangetname,
