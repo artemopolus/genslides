@@ -1012,8 +1012,11 @@ class Projecter:
 
         for act in self.actioners_list:
             act['act'].afterLoading()
-        if 'instructions' in session_data:
-            self.params['instructions'] = session_data['instructions']
+
+        values = ['instructions','uat','workgraph','stepgraph']
+        for v in values:
+            if v in session_data:
+                self.params[v] = session_data[v]
 
 
 
