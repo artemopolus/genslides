@@ -1128,11 +1128,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             tree_names_radio.input(fn=projecter.goToTreeByName, inputs=[tree_names_radio], outputs=tree_outlist)
             next_tree_btn.click(fn=projecter.goToNextTree, outputs=tree_outlist)
             new_tree_btn.click(fn=projecter.createNewTree, outputs=tree_outlist)
+            actionerlist_rad.input(fn=projecter.selectActionerByPath, inputs=[actionerlist_rad], outputs=tree_outlist)
 
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
-            actionerlist_rad.input(fn=projecter.selectActionerByPath, inputs=[actionerlist_rad], outputs=std_full)
 
             projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)
             movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)

@@ -938,7 +938,7 @@ class Projecter:
         for act in self.actioners_list:
             if act['act'].getPath() == path:
                 self.actioner = act['act']
-        return self.updateTaskManagerUI()
+        return self.updateTreeAndAll()
     
     def getActionerByPath(self, path) -> Actioner:
         for act in self.actioners_list:
