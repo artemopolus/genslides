@@ -150,10 +150,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             # with gr.Row() as r:
                 # with gr.Column():
             with gr.Row():
-                status_txt = gr.Textbox(label='Status')
-                status_col = gr.ColorPicker(label='Status', interactive=False)
-                updatealln_btn = gr.Button('Update All Trees N')
-                updatealln_num = gr.Number(value=projecter.getUAT_Times(), label='Repeat')
+                with gr.Column(scale=3):
+                    status_txt = gr.Textbox(label='Status')
+                with gr.Column(scale=1):
+                    status_col = gr.ColorPicker(label='Frozen', interactive=False)
+                with gr.Column(scale=4):
+                    with gr.Row():
+                        updatealln_btn = gr.Button('Update All Trees N')
+                        updatealln_num = gr.Number(value=projecter.getUAT_Times(), label='Repeat')
                     
             with gr.Accordion(label='Buds', open=False):
                 with gr.Row():
