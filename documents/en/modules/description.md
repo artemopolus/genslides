@@ -38,6 +38,6 @@ By strategically combining and ordering prompts, any code can be generated from 
 ## Example Use Cases
 
 * **Encryption Mapping Verification Tool:** Develop tools to verify mapping in encryption tasks.
-* **Automated Article Relevance Analysis:** Automate the analysis of articles for relevance to a specific topic.
-* **Text Enhancement & Editing:** Improve and edit text using LLMs.
+* [**Automated Article Relevance Analysis:**](articles.md) Automate the analysis of articles for relevance to a specific topic.
+* [**Text Enhancement & Editing:**](translator.md) Improve and edit text using LLMs.
 * [**No-Code Programming:**](no-code.md) Generate programs solely through LLM prompts, eliminating manual coding.

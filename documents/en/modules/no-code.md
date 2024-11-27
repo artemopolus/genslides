@@ -23,3 +23,29 @@ Our approach uses interactive blocks, like a construction set, to simplify devel
 ## Empowering Domain Experts
 
 This approach allows specialists from various fields (physicists, medical professionals, construction workers) to create their own tools using their professional knowledge. They can leverage their domain expertise to create software tailored to their specific needs *without* requiring programming skills.
+
+## Another style of Programming
+
+The core concept of Genslides stems from a story about Africans using smartphones for programming. This inspired the design of a mobile-first programming UI.  Smartphone programming presents unique challenges:
+
+* **Typing Difficulty:** Unusual words are harder to type.
+* **Obstructed View:**  The interface often covers parts of the screen.
+* **Block Text Handling:** Text is frequently manipulated in blocks.
+* **Touch-Based Interaction:**  Heavy reliance on touch gestures.
+
+On a PC, the keyboard and screen are separate entities, with text treated as a large canvas. This fundamental difference in interaction between smartphones and PCs necessitates distinct text editing approaches, tools, and techniques.  Constant scrolling on a small smartphone screen is cumbersome for lengthy texts. A hierarchical, tree-like structure, where navigation occurs between sections, offers a far superior user experience.
+
+Code organization—files containing classes, which in turn contain functions—perfectly embodies this hierarchical structure.  This tree-like structure is ideal for programming because it mirrors the natural hierarchy of code:
+
+* **File**
+* **Class**
+* **Function**
+
+This hierarchy simplifies understanding and navigation within complex codebases.  Leveraging Large Language Models (LLMs) allows for:
+
+* **Tracking Connections:**  Understanding relationships between different parts of the text.
+* **Automated Changes:**  Making necessary and consistent changes across the program. For example, renaming a variable used in multiple blocks becomes significantly easier when LLMs understand the relationships between code blocks within a tree structure.
+
+## Example of program structure
+
+![Alt text](../images/2024-11-27_14-42-33.png)
