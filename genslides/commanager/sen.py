@@ -100,6 +100,7 @@ class Projecter:
     
     def setUAT_Times(self, value):
         self.params['uat']['uat_times'] = value
+        self.saveSession()
         return self.updateMainUIelements()
 
 
@@ -123,31 +124,38 @@ class Projecter:
 
     def setRequestTaskSymVizCount(self, number):
         self.params['workgraph']['Request'] = number
+        self.saveSession()
         return self.updateMainUIelements()
 
     def setResponseTaskSymVizCount(self, number):
         self.params['workgraph']['Response'] = number
+        self.saveSession()
         return self.updateMainUIelements()
 
     def setDefaultTaskSymVizCount(self, number):
         self.params['workgraph']['Default'] = number
+        self.saveSession()
         return self.updateMainUIelements()
 
 
     def setStepRequestTaskSymVizCount(self, number):
         self.params['stepgraph']['Request'] = number
+        self.saveSession()
         return self.updateMainUIelements()
 
     def setStepResponseTaskSymVizCount(self, number):
         self.params['stepgraph']['Response'] = number
+        self.saveSession()
         return self.updateMainUIelements()
     
     def setStepDefaultTaskSymVizCount(self, number):
         self.params['stepgraph']['Default'] = number
+        self.saveSession()
         return self.updateMainUIelements()
     
     def setStepTaskSymCount(self, value):
         self.params['stepgraph']['on'] = value
+        self.saveSession()
         return self.updateMainUIelements()
 
    
@@ -2977,7 +2985,7 @@ class Projecter:
         out = self.updateUIelements()
         saved_man, tmp_man, mangetname, name, tmpmannames = self.actioner.getTmpManagerInfo()
         out += self.convTmpManagerInfo(saved_man, tmp_man, mangetname, name, tmpmannames)
-        out += (gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg),)
+        out += (gr.Radio(choices=gettreenameforradio_names, value=gettreenameforradio_trg),self.getUAT_Times())
         return out
      
     def updateTaskManagerUI(self):

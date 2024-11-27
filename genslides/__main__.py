@@ -1116,7 +1116,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             tree_outlist = std_output_list.copy()
             tree_outlist.extend(std_output_man_list)
             tree_outlist.extend([
-                tree_names_radio
+                tree_names_radio,
+                updatealln_num
             ])
 
             applyautocmdtomulti_btn.click(projecter.applyAutoCommandsToMulti, outputs=std_full)
