@@ -169,3 +169,4 @@ session/
 actpacks/
 .gradio/certificate.pem
 */tt_temp/*
+instructions/
