@@ -1,7 +1,7 @@
 from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
 import pprint
-
+import copy
 from genslides.utils.llmodel import LLModel
 
 
@@ -87,8 +87,8 @@ class ResponseTask(TextTask):
 
  
     def executeResponse(self):
-        res, param = self.getParamStruct('model')
-
+        res, mparam = self.getParamStruct('model')
+        param = copy.deepcopy(mparam)
         param = self.convParamStruct(param)
 
         if res:

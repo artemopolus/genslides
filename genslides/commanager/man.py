@@ -832,6 +832,7 @@ class Jun():
     
     def getGlobalValue(self, key : str):
         if 'global_vars' in self.info:
+            print("Global: ", self.info['global_vars'])
             for t in self.info['global_vars']:
                 if t['key'] == key:
                     return True, t['value']
@@ -841,7 +842,9 @@ class Jun():
 # --------------------------------------------------------------------------------------------
     
     def appendGlobalVariables(self, key : str, value : str):
-        pass
+        if 'global_vars' in self.info:
+            print("Global: ", self.info['global_vars'])
+        
 
     def deleteGlobalVariable(self, key : str):
         pass
