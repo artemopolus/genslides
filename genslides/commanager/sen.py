@@ -3049,7 +3049,7 @@ class Projecter:
  
     def getTextWindowFromCurrTask(self):
         man = self.actioner.getCurrentManager()
-        text = man.getCurrentTask().getLastMsgContent()
+        text = man.getCurrentTask().getLastMsgContent2()
 
         hres, hparam = man.getCurrentTask().getParamStruct('attention', only_current=True)
         min_smbls = 0
@@ -3072,7 +3072,7 @@ class Projecter:
     
     def moveTextWindowFromCurrTask( self, winsz, slider_str ):
         man = self.actioner.getCurrentManager()
-        text = man.curr_task.getLastMsgContent()
+        text = man.getCurrentTask().getLastMsgContent2()
         text_len = len(text)
         wintext = min(winsz, text_len)
         out_text = text[slider_str:slider_str + wintext]
@@ -3082,11 +3082,13 @@ class Projecter:
  
     def changeTextWindowFromCurrTask( self, minval, maxval ):
         man = self.actioner.getCurrentManager()
-        text = man.getCurrentTask().getLastMsgContent()
+        text = man.getCurrentTask().getLastMsgContent2()
         text_len = len(text)
         text_end = min(text_len, maxval)
         text_start = min(minval, maxval)
-        out_text = "```\n" + text[0:text_start] + "\n```\n" + text[text_start:text_end] + "\n```\n" + text[text_end:text_len] + "\n```"
+        cut_top = max(text_start - 100, 0)
+        cut_bottom = min( text_end + 100, text_len)
+        out_text = "```\n" + text[cut_top:text_start] + "\n```\n" + text[text_start:text_end] + "\n```\n" + text[text_end:cut_bottom] + "\n```"
         return (
             out_text
         )
