@@ -125,9 +125,13 @@ class ReadFileParamTask(ReadFileTask):
                         text = f.read()
                     return True, text
                 else:
-                    with open(s_path, 'r', encoding=encoding) as f:
-                        text = f.read()
-                    return True, text
+                    try:
+                        with open(s_path, 'r', encoding=encoding) as f:
+                            text = f.read()
+                        return True, text
+                    except Exception as e:
+                        print('read param:\n',pparam,'Read error:\n', e)
+                        
         return False, "No file found"
 
 
