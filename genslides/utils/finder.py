@@ -6,6 +6,7 @@ import genslides.utils.parser as Parser
 import json
 import genslides.task_tools.records as rd
 import genslides.task_tools.array as toolarr
+import genslides.task_tools.py_parser as pyparse
 
 def convertTextPartToMsg(md_text):
     code_pattern = r'```\n(.*?)\n```'
@@ -194,6 +195,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             rep_text = rep_text.replace(res, code_s)
         elif arr[1] == 'code':
             script_text = convertMdToScript(md_text=task.getLastMsgContent())
+            if len(arr) > 2:
+                script_text = pyparse.parse_text(script_text, arr[2])
             rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'text_ins':
             script_text = convertTextPartToMsg(md_text=task.getLastMsgContent())
