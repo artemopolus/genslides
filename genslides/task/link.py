@@ -181,6 +181,7 @@ class ListenerTask(LinkedTask):
 
 
     def updateIternal(self, input: TextTask.TaskDescription = None):
+        print('Update Internal')
         if not self.is_freeze:
             self.updateCollectedMsgList(self.checkParentsMsg())
         return super().updateIternal(input)
@@ -188,6 +189,7 @@ class ListenerTask(LinkedTask):
     def updateLinkedPrompts(self, input : TextTask.TaskDescription):
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
+                print('Upd by ', input.parent.getName())
                 hash = txt.compute_sha256_hash(input.prompt)
                 if tsk_info.type != hash:
                     tsk_info.enabled = input.enabled
@@ -197,10 +199,15 @@ class ListenerTask(LinkedTask):
                 return
 
     def getRichPrompt(self) -> str:
+        print('Get rich prompt', self.getName())
         lres, lparam = self.getParamStruct("listener")
+        if lres:
+            if lparam['hash'] != "":
+                return self.prompt
         prompt = ""
         params = []
         for tsk_info in self.by_ext_affected_list:
+            print(tsk_info.parent.getName())
             if 'combine' in lparam:
                 if lparam['combine'] == 'single':
                     if tsk_info.enabled:
@@ -216,7 +223,9 @@ class ListenerTask(LinkedTask):
             curr_hash = lparam['hash']
             if lparam['input'] == 'prompt':
                 input_hash = txt.compute_sha256_hash(prompt)
+                print('Check hash')
                 if curr_hash != input_hash:
+                    print('get prompt:', len(prompt))
                     self.prompt = prompt
                     lparam['hash'] = input_hash
             elif lparam['input'] == 'params':
@@ -241,6 +250,17 @@ class ListenerTask(LinkedTask):
                 for param in params:
                     if 'type' in param:
                         self.rmParamStructByName(param['type'])
+
+    def createLinkToTask(self, task) -> TextTask.TaskDescription:
+        lres, lparam = self.getParamStruct("listener")
+        if not lres:
+            self.setParamStruct({
+              "type": "listener",
+                "input": "prompt",
+                "hash": "",
+                "combine": "single"
+            })
+        return super().createLinkToTask(task)
 
 
  

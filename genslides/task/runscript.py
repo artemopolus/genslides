@@ -30,7 +30,7 @@ class RunScriptTask(ResponseTask):
                         path_tmp = path_trgs_tmp.split(';')
                     else:
                         path_tmp = [path_trgs_tmp]
-                    print('partask:',path_tmp)
+                    # print('partask:',path_tmp)
                 else:
                     path_trgs_tmp = pparam["path_to_trgs"]
                     if isinstance(path_trgs_tmp, str):
@@ -101,7 +101,7 @@ class RunScriptTask(ResponseTask):
         else:
             print('No params')
             return    
-        print("Trg proc=", onlyfiles)
+        # print("Trg proc=", onlyfiles)
         data = ""
         done = True
         if len(onlyfiles) == 0:
@@ -128,7 +128,7 @@ class RunScriptTask(ResponseTask):
                 for opt in file:
                     n_file.append(self.findKeyParam(opt))
                 file = n_file
-            print("Run script", file,'in', workspace)
+            # print("Run script", file,'in', workspace)
             result = subprocess.run(file, capture_output=True, text=True, cwd=workspace, shell=True)
             if result.returncode:
                 done = False
@@ -173,6 +173,7 @@ class RunScriptTask(ResponseTask):
             # print('Script output len=', len(data))
             # self.msg_list.append({"role": "user", "content": data})
             self.appendMessage({"role": "user", "content": data})
+            self.prompt = data
         else:
             print("No data is getted from")
         
