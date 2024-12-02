@@ -250,7 +250,7 @@ class SaveScriptRunTask(RunScriptTask):
             scriptpath = Loader.getUniPath( self.findKeyParam( sparam['path_to_write'] ))
             script_text = self.findKeyParam( sparam['script_content'] )
             l = min(16, len(script_text))
-            print('Save script:\n', script_text[0:l])
+            # print('Save script:\n', script_text[0:l])
             wr.writeToFile(scriptpath, script_text)
             if sparam['script_type'] == 'python':
                 path_to_python = Loader.getUniPath( self.findKeyParam(sparam['python_path']) )
@@ -258,10 +258,10 @@ class SaveScriptRunTask(RunScriptTask):
                     workspace = Loader.getUniPath( self.findKeyParam(sparam['cwd']))
                     args = self.findKeyParam(sparam['args'])
                     trg_proc = ' '.join([path_to_python, scriptpath, args])
-                    print("Run script:\n", trg_proc,'\nin', workspace)
+                    # print("Run script:\n", trg_proc,'\nin', workspace)
                     result = subprocess.run(trg_proc, capture_output=True, text=True, cwd=workspace, shell=True)
                     if result.returncode:
-                        data += sparam['on_error'] + result.stderr + "\n"
+                        data += sparam['on_error'] + "\n```\n" + result.stderr + "\n```\n"
                     else:
                         done = True
                         data += sparam['on_success'] + result.stdout + "\n"

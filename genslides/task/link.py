@@ -35,9 +35,8 @@ class LinkedTask(TextTask.TextTask):
     def updateCollectedMsgList(self, trg_list : list):
         # print("update collected msg list")
         last = {"content" : self.getRichPrompt(), "role" : self.prompt_tag}
-        trg_list.append(last)
-        self.setMsgList( trg_list.copy())
-        self.saveJsonToFile(self.msg_list)
+        self.appendMessage(last)
+        self.saveAllParams()
 
     def getRichPrompt(self) -> str:
         # TODO: Перенести сюда заполнение шаблона
@@ -179,6 +178,9 @@ class ListenerTask(LinkedTask):
     def haveMsgsAction(self, msgs):
         self.setMsgList(msgs)
 
+    def update(self, input: TextTask.TaskDescription = None):
+        out = super().update(input)
+        return out
 
     def updateIternal(self, input: TextTask.TaskDescription = None):
         print('Update Internal')
