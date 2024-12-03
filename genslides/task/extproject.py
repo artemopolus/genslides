@@ -710,7 +710,12 @@ class JumperTreeTask(InExtTreeTask):
         # if not self.checkParentMsgList(remove=False, update=True):
             self.intact.loadTmpManagerTasks()
             self.intact.manager.disableOutput2()
-            self.intact.updateAll(force_check=True)
+            eres, eparam = self.getParamStruct('external')
+            if eres and 'update_count' in eparam and isinstance(eparam['update_count'], int):
+                for i in range(eparam['update_count']):
+                    self.intact.updateAll(force_check=True)
+            else:
+                self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
         # elif self.intact.manager.getFrozenTasksCount():
         #     self.intact.loadTmpManagerTasks()

@@ -1014,7 +1014,7 @@ class Projecter:
         for act in self.actioners_list:
             act['act'].afterLoading()
 
-        values = ['instructions','uat','workgraph','stepgraph']
+        values = ['instructions','uat','workgraph','stepgraph','autoloadext']
         for v in values:
             if v in session_data:
                 # if v == 'instructions':
@@ -1022,6 +1022,10 @@ class Projecter:
                 # else:
                     self.params[v] = session_data[v]
         self.saveSession()
+
+        if 'autoloadext' in self.params:
+            for act_info in self.params['autoloadext']:
+                self.autoloadActionerInExtTreeTasks(act_info['path'])
 
 
 
@@ -2290,7 +2294,8 @@ class Projecter:
             'name':'',
             'exttreetask_path':actioner_path,
             'out_task_targets': out_tasks,
-            'inexttree':'fromact'
+            'inexttree':'fromact',
+            'update_count': 1
             }    
         return inexttreeparam
     
@@ -2707,6 +2712,16 @@ class Projecter:
     def fixCurManQtasks(self):
         self.actioner.getCurrentManager().fixTasks()
         return self.updateMainUIelements() 
+    
+    def autoloadActionerInExtTreeTasks(self, path : str):
+        act = self.getActionerByPath( path )
+        man = act.getCurrentManager()
+        out, out_paths = act.getCurManInExtTreeTasks()
+        for name in out:
+            task = man.getTaskByName(name)
+            if task != None:
+                self.loadActionerInExtTreeTask(task)
+
 
     def getCurManInExtTreeTasks(self):
         man = self.actioner.getCurrentManager()
