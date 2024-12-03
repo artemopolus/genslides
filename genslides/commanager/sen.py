@@ -92,6 +92,7 @@ class Projecter:
         self.params['workgraph'] = {"Request":5000,"Response":5000,"Default":10000,'on':True}
         self.params['stepgraph'] = {"Request":5000,"Response":5000,"Default":10000,'on':False}
         self.params['uat'] = {'uat_times': 1}
+        self.params['instructions'] = [] 
 
         self.show_workgraph = True
 
@@ -1016,7 +1017,11 @@ class Projecter:
         values = ['instructions','uat','workgraph','stepgraph']
         for v in values:
             if v in session_data:
-                self.params[v] = session_data[v]
+                # if v == 'instructions':
+                #     self.params[v].extend( [t for t in session_data[v]] )
+                # else:
+                    self.params[v] = session_data[v]
+        self.saveSession()
 
 
 

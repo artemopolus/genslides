@@ -795,6 +795,11 @@ class OutExtTreeTask(ExtProjectTask):
     def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}):
         return False, [], self.intch_trg
     
+    def getPromptContentForCopyConverted(self):
+        if self.intch_trg == None:
+            return ""
+        return self.intch_trg.getPromptContentForCopyConverted()
+
     def getLastMsgContent(self):
         if self.intch_trg == None:
             return ""

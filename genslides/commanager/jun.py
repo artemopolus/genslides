@@ -1326,13 +1326,13 @@ class Manager(Man.Jun):
     
     
     def getCurTaskLstMsg(self) -> str:
-        return self.curr_task.getMsgs()[-1]['content']
+        return self.getCurrentTask().getPromptContentForCopyConverted()
     
     def getCurTaskLstMsgRaw(self) -> str:
-        return self.curr_task.getLastMsgContentRaw()
+        return self.getCurrentTask().getLastMsgContentRaw()
     
     def getCurTaskRole(self) -> str:
-        _,role,_ = self.curr_task.getMsgInfo()
+        _,role,_ = self.getCurrentTask().getMsgInfo()
         return role
         
     
