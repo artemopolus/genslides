@@ -3216,8 +3216,11 @@ class Projecter:
                 elif task.checkType("OutExtTree"):
                     curr_trg_name = eparam['target']
                 trg_names =[t.getName() for t in act.getCurrentManager().task_list]
-                sel = act.getCurrentManager().getCurrentTask().getName()
-                cur = act.getCurrentManager().getSelectedTask().getName()
+                cur = act.getCurrentManager().getCurrentTask().getName()
+                if act.getCurrentManager().getSelectedTask():
+                    sel = act.getCurrentManager().getSelectedTask().getName()
+                else:
+                    sel = ""
         return (gr.Dropdown(value=curr_trg_name, choices=trg_names, interactive=True),
                 cur, 
                 sel, 
