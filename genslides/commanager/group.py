@@ -1449,6 +1449,11 @@ class Actioner():
             return filename, filename, interacttive_drd, multiselect_drd, str(filename), True
             # return (gr.Dropdown(choices=filename, value=filename,multiselect=True, interactive=True),
             #         gr.Textbox(str(filename)))
+        elif param_name == 'array' and param_key == 'array':
+            res, data = man.getCurrentTask().getParamStruct(param_name, only_current=True)
+            if res and param_key in data:
+                filename = Loader.Loader.convJsonToText(data[param_key], indent=1)
+            return [filename], filename, interacttive_drd, multiselect_drd, filename, True
         elif param_name == 'autocommander':
             value, choices = self.getCurrentManager().getCurrentTask().getParamStructChoices(param_name, param_key)
             return choices, value, interacttive_drd, multiselect_drd, value, True
@@ -1480,7 +1485,7 @@ class Actioner():
         # print('Get param',param_name,' struct', res, data)
         if res and param_key in data:
             cur_val = data[param_key]
-            print('cur val:',cur_val)
+            # print('cur val:',cur_val)
             if param_key == 'idx' and (param_name.startswith('child') or param_name == 'tree_step'):
                 values = range(50)
                 if cur_val not in values:

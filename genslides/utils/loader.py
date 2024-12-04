@@ -48,8 +48,8 @@ class Loader:
                     return part.strip()
         return md_text
 
-    def convJsonToText(val):
-        return json.dumps(val, ensure_ascii=False)
+    def convJsonToText(val, indent = None):
+        return json.dumps(val, ensure_ascii=False, indent=indent)
 
     def loadJsonFromText(text : str, report = False):
         try:

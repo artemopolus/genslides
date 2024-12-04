@@ -807,7 +807,7 @@ class Projecter:
     
     def removeParamFromTask(self, param_name):
         self.makeTaskAction('','','RemoveTaskParam','', {'name':param_name})
-        return self.updateTaskManagerUI()
+        return self.updateMainUIelements()
     
     def setTaskKeyValue(self, param_name, key, mnl_value):
         if mnl_value.isdigit():
@@ -1900,7 +1900,7 @@ class Projecter:
         # return self.getTaskKeyValue(param_name, param_key)
     
     def setTaskKeyValueUI(self, choices, value, interactive, multiselect, text, text_interactive):
-        print(f"Print {choices} - {value}")
+        # print(f"Print {choices} - {value}")
         return (
             gr.Dropdown(choices=choices, value=value, interactive=interactive, multiselect=multiselect),
             gr.Textbox(text, interactive=text_interactive)
@@ -2715,12 +2715,13 @@ class Projecter:
     
     def autoloadActionerInExtTreeTasks(self, path : str):
         act = self.getActionerByPath( path )
-        man = act.getCurrentManager()
-        out, out_paths = act.getCurManInExtTreeTasks()
-        for name in out:
-            task = man.getTaskByName(name)
-            if task != None:
-                self.loadActionerInExtTreeTask(task)
+        if act:
+            man = act.getCurrentManager()
+            out, out_paths = act.getCurManInExtTreeTasks()
+            for name in out:
+                task = man.getTaskByName(name)
+                if task != None:
+                    self.loadActionerInExtTreeTask(task)
 
 
     def getCurManInExtTreeTasks(self):

@@ -1,6 +1,6 @@
 from genslides.commands.simple import SimpleCommand
 from genslides.task.base import TaskDescription
-
+import genslides.utils.loader as Ld
 
 class EditCommand(SimpleCommand):
     def __init__(self, input) -> None:
@@ -59,7 +59,11 @@ class EditParamCommand(SimpleCommand):
         p = self.input.params
         res, val = task.getCurParamStructValue(p['name'], p['key'])
         value = p['select']
-        if isinstance(value, str) and value.isdigit():
+        if p['name'] == 'array' and p['key'] == 'array':
+            res, jopt = Ld.Loader.loadJsonFromText(value)
+            if res:
+                value = jopt
+        elif isinstance(value, str) and value.isdigit():
             print(value,'is int')
             value = int(value)
         elif isinstance(value, str) and value.replace('.', '', 1).isdigit():
