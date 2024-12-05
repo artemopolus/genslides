@@ -1203,8 +1203,11 @@ class TextTask(BaseTask):
             while(index < 1000):
                 if parent_task is None:
                     break
+                curr_partask = parent_task
                 res, parent_task, val = parent_task.getParamStructFromExtTask(param_name)
                 if res:
+                    cparam = copy.deepcopy(val)
+                    val = curr_partask.convParamStruct(cparam)
                     return True, val
         # print('Search in self params')
         if param_name.startswith('child'):

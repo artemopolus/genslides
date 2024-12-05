@@ -275,3 +275,4 @@ class SaveScriptRunTask(RunScriptTask):
             self.msg_list.append({"role": "user", "content": data})
         else:
             print(self.getName(), "no data to present")
+            self.msg_list.append({"role": "user", "content": "no data to present"})

@@ -87,9 +87,9 @@ class ResponseTask(TextTask):
 
  
     def executeResponse(self):
-        res, mparam = self.getParamStruct('model')
-        param = copy.deepcopy(mparam)
-        param = self.convParamStruct(param)
+        res, param = self.getParamStruct('model')
+        # param = copy.deepcopy(mparam)
+        # param = self.convParamStruct(param)
 
         if res:
             print('Get options from task')
