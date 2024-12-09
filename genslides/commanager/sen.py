@@ -3296,7 +3296,7 @@ class Projecter:
 
     def interCompareActioners(self, actioner_path, targets: list, gettype, checks):
         out = {"trees":[],"links": []}
-        trg_man = self.actioner.getCurrentManager()
+        trg_man = self.getActionerByPath(actioner_path).getCurrentManager()
         if gettype == 'Current children':
             
             out["trees"].append( self.getBranchInfoFromManager( trg_man.getCurrentTask(), trg_man, checks ))

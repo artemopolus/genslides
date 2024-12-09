@@ -99,7 +99,7 @@ class Jun():
         return target
 
     def goToTreeByName(self, name):
-        print('Go to tree by name', name)
+        # print('Go to tree by name', name)
         for i in range(len(self.tree_arr)):
             trg = self.getTreeName(self.tree_arr[i])
             if trg == name:
@@ -278,9 +278,12 @@ class Jun():
     
     def getFrozenTasksCount(self) -> int:
         cnt = 0
-        for t in self.task_list:
+        for t in self.getTasks():
             if t.is_freeze:
-                if t.getRootParent().checkType('ExternalInput'):
+                res, bparam = t.getParamStruct('block')
+                if res and bparam['block']:
+                    pass
+                elif t.getRootParent().checkType('ExternalInput'):
                     pass
                 else:
                     cnt += 1
