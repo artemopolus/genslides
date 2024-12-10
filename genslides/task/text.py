@@ -901,6 +901,9 @@ class TextTask(BaseTask):
         self.saveJsonToFile(self.msg_list)
 
     def getMsgInfo(self):
+        if len(self.msg_list):
+            out = self.msg_list[len(self.msg_list) - 1]
+            return "", out["role"],out["content"]
         return super().getMsgInfo()
 
     def preUpdate(self, input: TaskDescription = None):

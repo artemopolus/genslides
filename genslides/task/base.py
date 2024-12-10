@@ -1303,7 +1303,7 @@ class BaseTask():
         return None   
     
     def getMsgInfo(self):
-        return "","",""
+        return "",self.prompt_tag,""
     
     def replaceImMsgs(self, trg_old, trg_new):
         pass
@@ -1528,7 +1528,7 @@ class BaseTask():
         return 1
     
     def getPathToRead(self):
-        return []
+        return False, []
 
     def getChoicesByParentTask(self, param : dict ):
         task = self
