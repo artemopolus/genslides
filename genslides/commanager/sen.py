@@ -2239,28 +2239,34 @@ class Projecter:
         trg_act = self.actioner
         trg_man = trg_act.std_manager
         src_act = self.getActionerByPath(actioner_path)
-        src_man = src_act.std_manager
         if src_act == None:
             return {}
+        src_man = src_act.std_manager
         standart_taskname = ""
         actioner_path = Loader.Loader.getManRePath(actioner_path, trg_man.getPath())
+        inexttreeparam = {
+            'type':'external',
+            'dir':'Out',
+            'target': '',
+            'name':'',
+            'exttreetask_path':actioner_path,
+            'inexttree':'fromact'
+            }    
         try:
             if exttask_intype == 'Selected':
                 standart_taskname = src_man.getSelectedTask().getName()
             elif exttask_intype == 'Current':
                 standart_taskname = src_man.getCurrentTask().getName()
-
+            elif exttask_intype == 'Multi':
+                out = []
+                for task in src_man.getMultiSelectedTasks():
+                    inexttreeparam['target'] = task.getName()
+                    out.append(copy.deepcopy(inexttreeparam))
+                return out
         except Exception as e:
             print('On get task error:', e)
-        inexttreeparam = {
-            'type':'external',
-            'dir':'Out',
-            'target': standart_taskname,
-            'name':'',
-            'exttreetask_path':actioner_path,
-            'inexttree':'fromact'
-            }    
-        return inexttreeparam
+        inexttreeparam['target'] = standart_taskname
+        return [inexttreeparam]
     
     def createJSONparamInExtTree(self, exttask_intype, exttask_outtype, actioner_path):
         trg_act = self.actioner
@@ -2317,9 +2323,10 @@ class Projecter:
                 TaskDescription(prompt='', prompt_tag='user',parent=inxttreetask, params=[outexttreeparam]))
         return self.updateMainUIelements()
     
-    def createOutExtTreeTaskByParam(self, param):
+    def createOutExtTreeTaskByParam(self, parameters):
         man = self.actioner.getCurrentManager()
-        outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
+        for param in parameters:
+            outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
                 TaskDescription(prompt='', prompt_tag='user',parent=None, params=[param]))
         return self.updateMainUIelements()
     

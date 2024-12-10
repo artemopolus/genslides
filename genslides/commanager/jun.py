@@ -2050,7 +2050,7 @@ class Manager(Man.Jun):
 
         # print(self.info)
     def sortKey(self, task):
-        res, pparam = task.getParamStruct('tree_step')
+        res, pparam = task.getParamStruct('tree_step', only_current=True)
         if res:
             idx = pparam['idx']
         else:

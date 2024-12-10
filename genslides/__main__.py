@@ -798,7 +798,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 crparaminexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[ inexttree_intask_rad, inexttree_outtask_rad, inexttreeactlist_drd], outputs=inexttreeactparam_jsn)
                         with gr.Row():
                             with gr.Column():
-                                outexttree_intask_rad = gr.Radio(choices=['Current','Selected'], label='External Task Output')
+                                outexttree_intask_rad = gr.Radio(choices=['Current','Selected','Multi'], label='External Task Output')
                                 crparamoutexttree_btn = gr.Button('Create OutExtTree parameters')
                             with gr.Column():
                                 outexttreeactparam_jsn = gr.JSON(label='OutExtTree Parameters')
