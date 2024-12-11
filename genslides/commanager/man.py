@@ -843,7 +843,10 @@ class Jun():
 
 
 # --------------------------------------------------------------------------------------------
-    
+    def cleanTasksChat(self):
+        pass    
+
+
     def appendGlobalVariables(self, key : str, value : str):
         if 'global_vars' in self.info:
             # print("Global: ", self.info['global_vars'])

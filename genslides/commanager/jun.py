@@ -2196,3 +2196,8 @@ class Manager(Man.Jun):
                     self.info['global_vars'].remove(t)
                     return super().deleteGlobalVariable(key)
         return super().deleteGlobalVariable(key)
+    
+    def cleanTasksChat(self):
+        for task in self.getTasks():
+            task.forceCleanChat()
+        return super().cleanTasksChat()

@@ -107,6 +107,7 @@ class Actioner():
 
 
     def loadTmpManagerTasks(self):
+        print('Load Temporary Manager Tasks')
         for man in self.tmp_managers:
             if not man.is_loaded:
                 man.disableOutput2()
@@ -1689,3 +1690,39 @@ class Actioner():
         self.setCurrentManager(man)
         return project_chain
 
+    def getFrozenTasksCount(self) -> int:
+        return self.getCurrentManager().getFrozenTasksCount()
+
+    def cleanTasksChat(self):
+        print('Clean task chats')
+        self.manager.cleanTasksChat()
+
+    def getJsonCmd(self, json_cmds):
+        results = [] # list to hold results of each command
+        try:
+            cmds = json.loads(json_cmds) # parse the JSON array
+
+            if not isinstance(cmds, list):
+                return "Error: Input must be a JSON array."
+
+
+            for cmd in cmds:
+                action = cmd.get("action")
+                args = cmd.get("args", [])
+                kwargs = cmd.get("kwargs", {})
+
+                if action:
+                    method = getattr(self, action, None)
+                    if method and callable(method):
+                        result = method(*args, **kwargs)
+                        results.append(result)  # Append the result of each action
+                    else:
+                        results.append(f"Error: Action '{action}' not found or not callable.")
+
+                else:
+                    results.append("Error: Missing 'action' key in JSON.")
+            return results # return a list of results
+
+        except json.JSONDecodeError:
+            return "Error: Invalid JSON format."
+        

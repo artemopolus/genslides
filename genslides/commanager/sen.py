@@ -827,6 +827,8 @@ class Projecter:
         return self.updateMainUIelements()
     
     def setSelectOptionToValue(self, name, key, option):
+        if isinstance(option, bool):
+            return option, ""
         return option, option
     
     def addTaskNewKeyValue(self, param_name, key, value):
@@ -1951,7 +1953,7 @@ class Projecter:
     
     def cleanLastMessage(self):
         man = self.actioner.getCurrentManager()
-        task = man.curr_task
+        task = man.getCurrentTask()
         task.forceCleanChat()
         return self.updateMainUIelements()
     

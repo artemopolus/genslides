@@ -66,7 +66,9 @@ class WriteToFileTask(TextTask):
             trg_list = self.parent.msg_list.copy()
         else:
             return
-        if self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False or self.checkAnotherOptions():
+        if self.is_freeze:
+            pass
+        elif self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False or self.checkAnotherOptions():
             # print('Exe write file')
             self.msg_list = trg_list
             self.executeResponse()

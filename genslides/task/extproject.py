@@ -706,23 +706,32 @@ class JumperTreeTask(InExtTreeTask):
             print(f"No actioner for {self.getName()}")
             self.freezeTask()
             return
-        else:
-        # if not self.checkParentMsgList(remove=False, update=True):
-            self.intact.loadTmpManagerTasks()
-            self.intact.manager.disableOutput2()
+        elif not self.checkParentMsgList(remove=False, update=True):
             eres, eparam = self.getParamStruct('external')
-            if eres and 'update_count' in eparam and isinstance(eparam['update_count'], int):
-                for i in range(eparam['update_count']):
-                    self.intact.updateAll(force_check=True)
+            if eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
+                self.intact.getJsonCmd(eparam['updt_actions'])
             else:
-                self.intact.updateAll(force_check=True)
-            self.intact.manager.enableOutput2()
+                self.intact.loadTmpManagerTasks()
+                self.intact.manager.disableOutput2()
+                if eres and 'update_count' in eparam and isinstance(eparam['update_count'], int):
+                    for i in range(eparam['update_count']):
+                        self.intact.updateAll(force_check=True)
+                else:
+                    self.intact.updateAll(force_check=True)
+                self.intact.manager.enableOutput2()
         # elif self.intact.manager.getFrozenTasksCount():
         #     self.intact.loadTmpManagerTasks()
         #     print(f"Frozen tasks:{self.intact.manager.getFrozenTasksCount()}")
         #     self.intact.manager.disableOutput2()
         #     self.intact.updateAll(force_check=True)
         #     self.intact.manager.enableOutput2()
+        else:
+            print(f"No update for {self.getName()}")
+            eres, eparam = self.getParamStruct('external')
+            if eres and 'idle_actions' in eparam and eparam['idle_actions'] != "":
+                self.intact.getJsonCmd(eparam['idle_actions'])
+        if self.intact.getFrozenTasksCount() > 0:
+            self.freezeTask()
 
     def removeProject(self):
         pass

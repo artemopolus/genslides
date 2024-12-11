@@ -102,3 +102,7 @@ class WriteBranchTask(WriteToFileParamTask):
 
         return super().clearRecordParam()
     
+    def forceCleanChat(self):
+        self.clearRecordParam()
+        return super().forceCleanChat()
+    

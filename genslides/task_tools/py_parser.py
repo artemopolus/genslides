@@ -11,23 +11,17 @@ def get_function_info(node, function_name):
             parameters_text = parameters_node.text.decode() if parameters_node else "()"
             body_node = node.child_by_field_name('body')
 
-            # Calculate indents based on start_point's column
             def_indent = " " * node.start_point[1]
-            body_indent = " " * body_node.start_point[1] if body_node else ""  # Handle cases with no body
-
+            body_indent = " " * body_node.start_point[1] if body_node else ""
 
             body_text = ""
             if body_node:
                 body_lines = body_node.text.decode().splitlines()
-                if body_lines: # Check if there are lines in the body
+                if body_lines:
                     first_line = body_lines[0]
                     rest_of_the_lines = "\n".join(body_lines[1:])
-
-                    body_text = f"{first_line}\n{rest_of_the_lines}" if rest_of_the_lines else first_line  # Properly handle both single and multi-line bodies
-                
-                    body_text =  f"{body_indent}{body_text}"  # Indent the formatted body
-                
-
+                    body_text = f"{first_line}\n{rest_of_the_lines}" if rest_of_the_lines else first_line
+                    body_text =  f"{body_indent}{body_text}"  
 
             return f"{def_indent}def {function_name}{parameters_text}:\n{body_text}"
 
@@ -35,7 +29,7 @@ def get_function_info(node, function_name):
         info = get_function_info(child, function_name)
         if info:
             return info
-    return None
+    return ""  # Return empty string if function not found
 
 def parse_text(code_text, function_name, encoding="utf-8"):
     """
@@ -47,19 +41,21 @@ def parse_text(code_text, function_name, encoding="utf-8"):
         encoding: The encoding of the code text (default: utf-8).
 
     Returns:
-        The function information as a string, or None if the function is not found.
+        The function information as a string, or an error message if the function is not found or an error occurs.
     """
     try:
-        LANGUAGE = Language(tspython.language()) # Assuming tspython and Language are available in scope
+        LANGUAGE = Language(tspython.language())  # Assuming tspython and Language are available
         ts_parser = Parser(LANGUAGE)
         tree = ts_parser.parse(bytes(code_text, encoding))
         root_node = tree.root_node
 
-        function_info = get_function_info(root_node, function_name) # Assuming get_function_info is defined
-        return function_info
+        function_info = get_function_info(root_node, function_name)  # Assuming get_function_info is defined
+        if function_info:
+            return function_info
+        else:
+            return f"Function '{function_name}' not found."
 
     except (UnicodeDecodeError, Exception) as e:
-        print(f"Error during parsing: {e}")
-        return None
+        return f"Error during parsing: {e}"
 
 
