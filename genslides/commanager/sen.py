@@ -24,6 +24,7 @@ import os
 import json
 import gradio as gr
 import datetime
+import time
 
 import pyperclip
 import pathlib
@@ -1485,7 +1486,11 @@ class Projecter:
         return self.updateMainUIelements()
        
     def update(self):
+        dt1 = time.time()       
         self.actioner.update()
+        dt2 = time.time() 
+        delta = dt2 - dt1
+        print(f"Update step duration: {delta:.6f} s")
         return self.updateMainUIelements()
         
     def updateAll(self, check = False, max_idx = 10000):

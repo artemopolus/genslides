@@ -1691,7 +1691,12 @@ class Actioner():
         return project_chain
 
     def getFrozenTasksCount(self) -> int:
-        return self.getCurrentManager().getFrozenTasksCount()
+        frozen_tasks = self.getCurrentManager().getFrozenTasksCount()
+        for task in self.getCurrentManager().getTasks():
+            res, param = task.getParamStruct('array', only_current=True)
+            if res and param['idx'] < param['len'] - 1:
+                frozen_tasks += 1
+        return frozen_tasks
 
     def cleanTasksChat(self):
         print('Clean task chats')

@@ -161,7 +161,8 @@ def iterateOverArrayFromParam(task  , param: dict):
 def checkArrayIteration(task  , param : dict):
     if 'type' in param and param['type'] == 'array':
         if 'src_data' in param and param['src_data'] == getSHAfromTask(task, param) :
-            return iterateOverArrayFromParam(task, param)
+            if task.manager.allowUpdateInternalArrayParam():
+                return iterateOverArrayFromParam(task, param)
         else:
             res, out = saveArrayToParams(task, param)
             if res:

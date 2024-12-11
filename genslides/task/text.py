@@ -1012,11 +1012,10 @@ class TextTask(BaseTask):
             rres, rparam = rd.appendDataForRecord(param, self.getTasksContent())
             if rres:
                 self.setParamStruct(rparam)
-        if self.manager.allowUpdateInternalArrayParam():
-            ares, aparam = self.getParamStruct(param_name='array', only_current=True)
-            if ares:
-                naparam = ar.checkArrayIteration(self, aparam)
-                self.updateParam2(naparam)
+        ares, aparam = self.getParamStruct(param_name='array', only_current=True)
+        if ares:
+            naparam = ar.checkArrayIteration(self, aparam)
+            self.updateParam2(naparam)
         self.updateAutoCommand()
 
     def setRecordsParam(self):
