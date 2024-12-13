@@ -43,7 +43,7 @@
 	"RunScript":{
 		"Init":"",
 		"Endi":"",
-		"python": {"type":"path", "value":"J:\\WorkspaceFast\\genslides\\.env\\Scripts\\python.exe"}
+		"python": {"type":"path", "value":"enter_path_python_script"}
 	},
 	"WebSurfArray":{
 		"Init":"",
@@ -79,6 +79,10 @@
 		"Init":"",
 		"Endi":""
 	},
+	"ExternalInput":{
+		"Init":"",
+		"Endi":""
+	},
 	"Searcher":{
 		"Init":"",
 		"Endi":""
@@ -86,7 +90,7 @@
 	"SaveScriptRun":{
 		"Init":"",
 		"Endi":"",
-		"python": {"type":"path", "value":"J:\\WorkspaceFast\\genslides\\.env\\Scripts\\python.exe"},
+		"python": {"type":"path", "value":"[[project:RunScript:python]]"},
 		"params":[
 			{
 				"type":"savescriptrun_def",
@@ -104,7 +108,7 @@
 	"SimpleSaveScriptRun":{
 		"Init":"",
 		"Endi":"",
-		"python": {"type":"path", "value":"J:\\WorkspaceFast\\genslides\\.env\\Scripts\\python.exe"},
+		"python": {"type":"path", "value":"[[project:RunScript:python]]"},
 		"params":[
 			{
 				"type":"savescriptrun_def",
@@ -163,12 +167,13 @@
 				"input":"row",
 				"header": "",
 				"footer": "",
-				"prefix": "[[number]]\n",
+				"prefix": "\n[[number]]\n",
 				"suffix": "",
 				"range":"",
 				"idx":0,
 				"enum":true,
-				"update":"auto"
+				"update":"auto",
+				"form": "alone"
 			}
 		]
 	},
@@ -202,6 +207,28 @@
 			}
 		]
 	},
+	"OpenAIJsonSetOptions":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "model",
+				"model": "gpt-4o-mini-2024-07-18",
+				"response_format": "{\n\"type\": \"json_schema\",\n\"json_schema\": {\n    \"name\": \"json_creating\",\n    \"schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"sentences\": {\n                \"type\": \"array\",\n                \"items\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                        \"num\":{\"type\":\"number\",\"description\":\"Number of sentence\"},\n                        \"init\": {\"type\": \"string\",\"description\":\"Initial sentence from the Text\"},\n                        \"edit\": {\"type\": \"string\",\"description\":\"Edited sentence from your previous reply\"}\n                    },\n                    \"required\": [\"num\",\"init\", \"edit\"],\n                    \"additionalProperties\": false\n                }\n            }\n        },\n        \"required\": [\"sentences\"],\n        \"additionalProperties\": false\n    },\n    \"strict\": true\n}\n}"
+				}			
+			]
+	},
+	"GeminiJsonSetOptions":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "model",
+				"model": "gemini-1.5-flash",
+				"response_format": "{\n  \"type\": \"object\",\n  \"properties\": {\n      \"sentences\": {\n          \"type\": \"array\",\n          \"items\": {\n              \"type\": \"object\",\n              \"properties\": {\n                  \"idx\":{\"type\":\"string\",\"description\":\"Number of sentence\"},\n                  \"text\": {\"type\": \"string\",\"description\":\"Translation of sentence\"}\n              },\n              \"required\": [\"idx\",\"text\"]\n          }\n      }\n  },\n  \"required\": [\"sentences\"]\n}"
+				}			
+			]
+	},
 	"ScriptSetOptions":{
 		"Init":"",
 		"Endi":"",
@@ -223,6 +250,39 @@
 				"script_param": "[[manager:path:fld]]/init.py",
 				"cwd": "[[manager:path:spc]]/script",
 				"parent_task_cmd": "[[project:RunScript:python]] [[parent:msg_content]]"
+			}
+		]
+	},
+	"Listener":{
+		"Init":"",
+		"Endi":""
+	},
+	"Entry":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "entry",
+			    "filetag": "File",
+      			"dirtag":"Directory",
+      			"path_to_read": "[[manager:path:sub_2]]"
+			}
+		]
+	},
+	"TargetReadFileParam":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "path_to_read",
+				"path_to_read": "",
+				"read_dial": false,
+				"header": "\n```\n",
+				"footer": "\n```\n",
+				"prefix": "Content of `",
+				"title": true,
+				"suffix": "`file:\n```\n",
+				"del_msgs" :"None"
 			}
 		]
 	}

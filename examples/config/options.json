@@ -27,7 +27,8 @@
       "path_to_write": "[[manager:path:spc]]/dial/[[name]].json",
       "input": ["msgs", "records"],
       "excld_task": [],
-      "always_update": [true, false]
+      "always_update": [true, false],
+      "check_manager":[true, false]
    },
    {
       "type": "path_to_read",
@@ -39,7 +40,8 @@
    },
    {
       "type": "model",
-      "model": ["gpt-3.5-turbo","gpt-3.5-turbo-instruct","gpt-3.5-turbo-16k","text-davinci-003","gpt-4","gpt-4-32k","gpt-4-turbo-2024-04-09"]
+      "model": ["gpt-3.5-turbo","gpt-3.5-turbo-instruct","gpt-3.5-turbo-16k","text-davinci-003","gpt-4","gpt-4-32k","gpt-4-turbo-2024-04-09"],
+      "response_format":""
    },
    {
       "type": "updateable",
@@ -73,7 +75,10 @@
    },
    {
       "type": "block",
-      "block": [true, false]
+      "block": [true, false],
+      "reason":["None","Target"],
+      "target":"",
+      "value":""
    },
    {
       "type": "hidden",
@@ -81,7 +86,8 @@
    },
    {
       "type": "garland",
-      "insert": [true, false]
+      "insert": [true, false],
+      "option":["std","sub"]
    },
    {
       "type": "tree_step",
@@ -120,9 +126,13 @@
 	},
    {
       "type":"array",
-      "parse":["None", "std"],
+      "parse":["None", "std","text_split","msgs"],
       "idx":0,
-      "curr":""
+      "curr":"",
+      "parts":1,
+      "part_smbl_cnt":5000,
+      "smbl_before":0,
+      "smbl_after":0
    },
    {
       "type":"ReadBranch",
@@ -135,7 +145,8 @@
       "range":"",
       "idx":0,
       "enum":[false, true],
-      "update":["auto","manual"]
+      "update":["auto","manual"],
+      "form":["alone","msgs"]
    },
    {
       "type":"Collect",
@@ -147,5 +158,68 @@
       "suffix":"",
       "idx": 0,
       "range":""
+   },
+   {
+      "type":"Garland",
+      "input":["request","records"],
+      "header":"",
+      "footer":"",
+      "enum":[false, true],
+      "prefix":"",
+      "suffix":"",
+      "idx": 0,
+      "range":""
+   },
+   {
+      "type":"message",
+      "autoconnect":[true, false],
+      "header":"",
+      "footer":"",
+      "prefix":"",
+      "suffix":""
+   },
+   {
+      "type": "response",
+      "restricted_index": [true, false],
+      "index": 2,
+      "break":[false, true],
+      "excld_task": ""
+   },
+   {
+   "type": "external",
+   "dir": ["Out","In"],
+   "target": "",
+   "name": "",
+   "exttreetask_path": "",
+   "inexttree": ["None", "fromact"],
+   "prompt": ""
+  },
+   {
+      "type": "listener",
+      "input": ["prompt","params"],
+      "hash": "",
+      "combine": ["none","single"]
+   },
+   {
+      "type": "autocommander",
+      "packs":[],
+      "input":"[[current:msg_content]]"
+   },
+   {
+      "type": "choices",
+      "source":"[[current:msg_content]]",
+      "allexamples":"[[current:msg_content]]"
+   },
+   {
+      "type":"attention",
+      "start":0,
+      "end":-1
+   },
+   {
+      "type": "entry",
+      "filetag": "File",
+      "dirtag":"Directory",
+      "path_to_read": "[[manager:path:sub_2]]"
    }
+
 ]
