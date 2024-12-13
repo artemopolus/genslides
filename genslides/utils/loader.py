@@ -325,3 +325,21 @@ class Loader:
         else:
             return ""
         
+    def remove_additional_properties(json_data, property_to_remove="additionalProperties"):
+        """Recursively removes a specified property from a JSON object.
+
+        Args:
+            json_data: The JSON data (either a dict or a list) to process.
+            property_to_remove: The name of the property to remove. 
+                            Defaults to "additionalProperties".
+        """
+
+        if isinstance(json_data, dict):
+            if property_to_remove in json_data:
+                del json_data[property_to_remove]
+            for key, value in json_data.items():
+                json_data[key] = Loader.remove_additional_properties(value, property_to_remove)
+        elif isinstance(json_data, list):
+            for i in range(len(json_data)):
+                json_data[i] = Loader.remove_additional_properties(json_data[i], property_to_remove)
+        return json_data
