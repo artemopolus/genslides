@@ -255,3 +255,73 @@ class Loader:
         return True, filename
 
  
+    def filter_dicts(json_string, target_key_values):
+        """
+        Filters a JSON array of dictionaries based on key-value pairs, handling string to number conversion.
+
+        Args:
+            json_string: A JSON string representing an array of dictionaries.
+            target_key_values: A list of key-value pairs (keys at even indices, values at odd, always strings).
+
+        Returns:
+            A JSON string (encoded in cp1251) of the filtered dictionaries.
+            Returns an empty string if any errors occur or no matches are found.
+        """
+        try:
+            data = json.loads(json_string)
+        except json.JSONDecodeError:
+            return ""
+
+        if not isinstance(data, list):
+            return ""
+
+        filtered_dicts = []
+        for dictionary in data:
+            if not isinstance(dictionary, dict):
+                return ""
+
+            is_match = True
+            for i in range(0, len(target_key_values), 2):
+                key = target_key_values[i]
+                target_value_str = target_key_values[i + 1]  # Always a string
+
+                if key not in dictionary:
+                    is_match = False
+                    break
+
+                dict_value = dictionary[key]
+
+                try:
+                    # Attempt conversion to int or float if the dict value is a number and the target is a string
+                    if isinstance(dict_value, (int, float)):
+                        try:
+                            target_value = int(target_value_str)
+                        except ValueError:
+                            try:
+                                target_value = float(target_value_str)
+                            except ValueError:
+                                target_value = target_value_str  # Keep as string if conversion fails
+                    else:
+                        target_value = target_value_str
+
+                    if dict_value != target_value:
+                        is_match = False
+                        break
+                except Exception as e: # Handle any unexpected errors during comparison
+                    print(f"Error during comparison: {e}")
+                    return "" # Return empty in case of an unexpected error
+
+            if is_match:
+                filtered_dicts.append(dictionary)
+
+        if filtered_dicts:
+            try:
+                json_str = json.dumps(filtered_dicts, ensure_ascii=False, indent=2).encode('cp1251')
+                print(json_str.decode('cp1251'))
+                return json_str.decode('cp1251')
+            except UnicodeEncodeError:
+                print("Encoding error. String could not be encoded in cp1251.")
+                return ""
+        else:
+            return ""
+        

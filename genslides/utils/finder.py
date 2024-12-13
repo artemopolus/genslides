@@ -82,6 +82,17 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                         text =  verticaldiv[i_vert]
                 rep_text = rep_text.replace(res, text)
 
+            elif len(arr) > 3 and arr[2] == 'json_chck':
+                text = res
+                tmparg = arr.copy()
+                tmparg.pop(0) # - link
+                tmparg.pop(0) # - msg
+                tmparg.pop(0) # - json_chck
+                print('Json check:', tmparg)
+                filter_str = Loader.Loader.filter_dicts(param, tmparg)
+                if filter_str != "":
+                    text  = filter_str
+                rep_text = rep_text.replace(res, text)
             elif len(arr) > 3 and arr[2] == 'json2':
                 text = res
                 bres, jjson = Loader.Loader.loadJsonFromText(param, report=True)

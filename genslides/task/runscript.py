@@ -261,6 +261,7 @@ class SaveScriptRunTask(RunScriptTask):
                     # print("Run script:\n", trg_proc,'\nin', workspace)
                     result = subprocess.run(trg_proc, capture_output=True, text=True, cwd=workspace, shell=True)
                     if result.returncode:
+                        data +=  result.stdout + "\n"
                         data += sparam['on_error'] + "\n```\n" + result.stderr + "\n```\n"
                     else:
                         done = True
