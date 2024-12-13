@@ -33,6 +33,7 @@ import genslides.task_tools.array as ar
 import genslides.task_tools.records as rd
 import genslides.task_tools.actions as Actions
 import copy
+import tempfile
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
@@ -702,15 +703,28 @@ class TextTask(BaseTask):
     
     def removeJsonFile(self):
         os.remove(self.path)
-    
+
     def saveJsonToFile(self, msg_list):
         resp_json_out = self.getJsonMsg(msg_list)
-        # print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]")
+
         try:
-            with open(self.path, 'w') as f:
-                json.dump(resp_json_out, f, indent=1)
+            # Create a temporary file
+            with tempfile.NamedTemporaryFile(mode="w", dir=os.path.dirname(self.path), delete=False) as temp_file:
+                json.dump(resp_json_out, temp_file, indent=1)
+                temp_filename = temp_file.name
+
+            # Atomically rename the temporary file to the destination
+            os.replace(temp_filename, self.path)
+            # print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]") # Put print here
+
         except Exception as e:
-            print('Can\'t save json file:', e)
+            print(f"Can't save JSON file to '{self.path}': {e}")
+            # Clean up the temporary file if it exists.  Important for error handling.
+            try:
+                os.remove(temp_filename)
+            except (FileNotFoundError, OSError):
+                pass  # Ignore if it wasn't created
+            raise # Re-raise after cleanup (optional, but often a good idea)
 
     def getJsonFilePath(self):
         return self.path
