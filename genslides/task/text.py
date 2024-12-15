@@ -27,6 +27,7 @@ from os import listdir
 from os.path import isfile, join
 import pprint
 import re
+import time
 import ast
 import genslides.utils.finder as finder
 import genslides.task_tools.array as ar
@@ -705,26 +706,54 @@ class TextTask(BaseTask):
         os.remove(self.path)
 
     def saveJsonToFile(self, msg_list):
-        resp_json_out = self.getJsonMsg(msg_list)
+        resp_json_out = self.getJsonMsg(msg_list)  # Prepare JSON data
 
-        try:
-            # Create a temporary file
-            with tempfile.NamedTemporaryFile(mode="w", dir=os.path.dirname(self.path), delete=False) as temp_file:
-                json.dump(resp_json_out, temp_file, indent=1)
-                temp_filename = temp_file.name
+        retries = 5
+        delay = 1
 
-            # Atomically rename the temporary file to the destination
-            os.replace(temp_filename, self.path)
-            # print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]") # Put print here
-
-        except Exception as e:
-            print(f"Can't save JSON file to '{self.path}': {e}")
-            # Clean up the temporary file if it exists.  Important for error handling.
+        for attempt in range(retries):
             try:
-                os.remove(temp_filename)
-            except (FileNotFoundError, OSError):
-                pass  # Ignore if it wasn't created
-            raise # Re-raise after cleanup (optional, but often a good idea)
+                with tempfile.NamedTemporaryFile(mode="w", dir=os.path.dirname(self.path), delete=False) as temp_file:
+                    json.dump(resp_json_out, temp_file, indent=1)
+                    temp_filename = temp_file.name
+
+                # Try to acquire the lock (creating the file if it doesn't exist)
+                try:
+                    # with open(self.path, 'x') as lock_file:  # 'x' mode for exclusive creation
+                        os.replace(temp_filename, self.path)
+                        # print("Save json to", self.path,"msg[",len(msg_list),"] params[", len(self.params),"]") # Log success
+                        break  # Success! Exit retry loop
+
+                # Handle file exists error (likely lock by another process)
+                except FileExistsError:  # Specific to 'x' mode usage on Python 3.3+
+                    if attempt < retries - 1:
+                        time.sleep(delay)
+                        print(f"Retry {attempt + 1}/{retries} (file locked)")
+                    else:
+                        raise  # Give up after retries, reraise the last exception
+
+
+            except OSError as e:  # Handle other OS errors (e.g., permissions)
+                # Clean up the temporary file, even on error. Critical
+                try:
+                    os.remove(temp_filename)
+                except (FileNotFoundError, OSError):
+                    pass
+
+                if attempt < retries - 1:
+                    time.sleep(delay)
+                    print(f"Retry {attempt + 1}/{retries} (OSError: {e})")  # More informative error message
+                else:
+                    raise # Reraise the exception after retries
+
+            except Exception as e:
+                # Clean up the temporary file on general errors as well
+                try:
+                    os.remove(temp_filename)
+                except (FileNotFoundError, OSError):
+                    pass
+                print(f"Can't save JSON file: {e}")
+                raise # Reraise exception
 
     def getJsonFilePath(self):
         return self.path

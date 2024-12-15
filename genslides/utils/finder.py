@@ -88,7 +88,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 tmparg.pop(0) # - link
                 tmparg.pop(0) # - msg
                 tmparg.pop(0) # - json_chck
-                print('Json check:', tmparg)
+                # print('Json check:', tmparg)
                 filter_str = Loader.Loader.filter_dicts(param, tmparg)
                 if filter_str != "":
                     text  = filter_str
