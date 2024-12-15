@@ -66,6 +66,22 @@
 		"Endi":"",
 		"path_to_read":"saved\\read.txt"
 	},
+	"ReadReadFileParam":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "path_to_read",
+				"path_to_read": "saved\\saving\\conv_script.json",
+				"read_dial": false,
+				"header": "",
+				"footer": "",
+				"del_msgs" :"None",
+				"encoding" :"utf-8"
+			}
+		],
+		"path_to_read":"saved\\read.txt"
+	},
 	"WriteToFileParam":{
 		"Init":"",
 		"Endi":"",
@@ -80,6 +96,10 @@
 		"Endi":""
 	},
 	"ExternalInput":{
+		"Init":"",
+		"Endi":""
+	},
+	"JumperTree":{
 		"Init":"",
 		"Endi":""
 	},
@@ -173,7 +193,7 @@
 				"idx":0,
 				"enum":true,
 				"update":"auto",
-				"form": "alone"
+				"form":"alone"
 			}
 		]
 	},
@@ -207,7 +227,7 @@
 			}
 		]
 	},
-	"OpenAIJsonSetOptions":{
+	"LlamaCPPSetOptions":{
 		"Init":"",
 		"Endi":"",
 		"params":[
@@ -226,8 +246,8 @@
 				"type": "model",
 				"model": "gemini-1.5-flash",
 				"response_format": "{\n  \"type\": \"object\",\n  \"properties\": {\n      \"sentences\": {\n          \"type\": \"array\",\n          \"items\": {\n              \"type\": \"object\",\n              \"properties\": {\n                  \"idx\":{\"type\":\"string\",\"description\":\"Number of sentence\"},\n                  \"text\": {\"type\": \"string\",\"description\":\"Translation of sentence\"}\n              },\n              \"required\": [\"idx\",\"text\"]\n          }\n      }\n  },\n  \"required\": [\"sentences\"]\n}"
-				}			
-			]
+			}
+		]
 	},
 	"ScriptSetOptions":{
 		"Init":"",
@@ -255,19 +275,27 @@
 	},
 	"Listener":{
 		"Init":"",
-		"Endi":""
-	},
-	"Entry":{
-		"Init":"",
 		"Endi":"",
 		"params":[
 			{
-				"type": "entry",
-			    "filetag": "File",
-      			"dirtag":"Directory",
-      			"path_to_read": "[[manager:path:sub_2]]"
+				"type": "response",
+				"restricted_index": false,
+				"index": 2,
+				"break":true
 			}
 		]
+	},
+	"Entry":{
+	"Init":"",
+	"Endi":"",
+	"params":[
+		{
+		"type": "entry",
+			"filetag": "File",
+			"dirtag":"Directory",
+			"path_to_read": "[[manager:path:sub_2]]"
+		}
+	]
 	},
 	"TargetReadFileParam":{
 		"Init":"",
@@ -285,5 +313,5 @@
 				"del_msgs" :"None"
 			}
 		]
-	}
+  }
 }

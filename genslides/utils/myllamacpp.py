@@ -12,14 +12,31 @@ def llamacppGetChatCompletion(msgs, params):
         if 'response_format' in params and params['response_format'] != "":
             jformat = json.loads(params['response_format'], strict=False)
             print("With reponse format:",jformat)
-            completion = client.chat.completions.create(
+            if 'temperature' in params:
+                completion = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=msgs,
+                timeout=7200,
+                response_format=jformat,
+                temperature=params['temperature']
+            )
+            else:
+                completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=msgs,
                 timeout=7200,
                 response_format=jformat
             )
         else:
-            completion = client.chat.completions.create(
+            if 'temperature' in params:
+                completion = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=msgs,
+                timeout=7200,
+                temperature=params['temperature']
+            )
+            else:
+                completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=msgs,
                 timeout=7200
