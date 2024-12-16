@@ -469,6 +469,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     addchds2reltask_btn = gr.Button('Add childs')
                     addtree2reltask_btn = gr.Button('Add tree')
                 with gr.Row():
+                    getmultibytype_txt = gr.Textbox(label='Target type')
+                    getmultibytype_btn = gr.Button('Select by type')
+                with gr.Row():
                     relatedtask_btn = gr.Button('Relationship chain')
                     nearesttask_btn = gr.Button('Nearest tasks')
                     get_hold_garland_btn = gr.Button('Get Garland Holders')
@@ -542,7 +545,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                     inputs=parammultikey_dd, 
                                                     outputs=[parammulti_json, parammultilog_txt])
                     with gr.Row():
-                        multicleanresp_btn = gr.Button('Clean Task')
+                        multicleanresp_btn = gr.Button('Clean MultiTask Chats')
                         set_multi_child_btn = gr.Button('Set Multiselected as Child')
                         garlandmulti_btn = gr.Button('Garland from multi')
                         collectmulti_btn = gr.Button('Collect from multi')
@@ -1049,6 +1052,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
+
+
             wo_request_sld.release(fn=projecter.setRequestTaskSymVizCount, inputs=[wo_request_sld], outputs=std_output_list)
             wo_response_sld.release(fn=projecter.setResponseTaskSymVizCount, inputs=[wo_response_sld], outputs=std_output_list)
             wo_default_sld.release(fn=projecter.setDefaultTaskSymVizCount, inputs=[wo_default_sld], outputs=std_output_list)
@@ -1159,6 +1164,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             relatedfwrdchain_btn.click(fn=projecter.getRalationForward, inputs=relatedfwrdchain_sld, outputs=std_output_list)
             relatedbackchain_btn.click(fn=projecter.getRelationBack, inputs=relatedbackchain_sld, outputs=std_output_list)
 
+            getmultibytype_btn.click(fn=projecter.selectMultiByType, inputs=[getmultibytype_txt], outputs=std_output_list)
             relattaskcln_btn.click(fn=projecter.deselectRealtedChain, outputs=std_output_list)
             addtask2reltask_btn.click(fn=projecter.appendTaskToChain, outputs=std_output_list)
             addpart2reltask_btn.click(fn=projecter.appendBranchPartToChain, outputs=std_output_list)

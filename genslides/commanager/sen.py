@@ -1616,6 +1616,13 @@ class Projecter:
         man.addTaskToMultiSelected(man.curr_task)
         return self.updateMainUIelements()
     
+    def selectMultiByType(self, typename):
+        man = self.actioner.getCurrentManager()
+        for task in man.getTasks():
+            if task.checkType(typename):
+                man.addTaskToMultiSelected(task)
+        return self.updateMainUIelements()
+  
     def removeTaskFromChain(self):
         man = self.actioner.getCurrentManager()
         if man.curr_task in man.multiselect_tasks:
@@ -3369,5 +3376,8 @@ class Projecter:
         for task in man.getCurrentTask().getAllParents():
             man.forceUnFreezeTask(task)
         return self.updateMainUIelements()
+    
+       
+
 
 
