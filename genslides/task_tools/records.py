@@ -1,4 +1,5 @@
 import genslides.utils.savedata as savedata
+import genslides.utils.loader as Ld
 import json
 
 def getPackForRecord(role: str, content : str, task_name : str) -> dict:
@@ -190,4 +191,14 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                     out.append({"content": text, "role": role})    
                 cparam['count'] = len(rparam['data'])
                 return out
+            elif cparam['form'] == 'json_dicts':
+                out = []
+                for i, pack in enumerate(rparam['data']):
+                    chat = pack['chat']
+                    if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                            (idx < len(chat) and i in trg_chat_msgs)):
+                        res, jobj = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
+                        if res:
+                            out.append( jobj)
+                return[{"content" : Ld.Loader.convJsonToText(out), "role" : role}]
     return []

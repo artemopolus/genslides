@@ -254,10 +254,9 @@ class Loader:
             return False, filename
         return True, filename
 
- 
     def filter_dicts(json_string, target_key_values):
         """
-        Filters a JSON array of dictionaries based on key-value pairs, handling string to number conversion.
+        Filters a JSON array of dictionaries based on key-value pairs, handling string to number and boolean conversions.
 
         Args:
             json_string: A JSON string representing an array of dictionaries.
@@ -292,24 +291,36 @@ class Loader:
                 dict_value = dictionary[key]
 
                 try:
-                    # Attempt conversion to int or float if the dict value is a number and the target is a string
-                    if isinstance(dict_value, (int, float)):
+                    if isinstance(dict_value, bool):  # Handle boolean conversion
+                        if target_value_str.lower() == "true":
+                            target_value = True
+                        elif target_value_str.lower() == "false":
+                            target_value = False
+                        else:
+                            target_value = target_value_str #  Keeps target value as string if it is not "true" or "false"
+
+                    elif isinstance(dict_value, (int, float)): # Handle numeric conversion
                         try:
                             target_value = int(target_value_str)
                         except ValueError:
                             try:
                                 target_value = float(target_value_str)
                             except ValueError:
-                                target_value = target_value_str  # Keep as string if conversion fails
+                                target_value = target_value_str  # Keep as string
                     else:
                         target_value = target_value_str
+
+                    # print(dict_value,'=', target_value)
 
                     if dict_value != target_value:
                         is_match = False
                         break
-                except Exception as e: # Handle any unexpected errors during comparison
+
+
+                except Exception as e: # Handle unexpected errors during conversion or comparison
                     print(f"Error during comparison: {e}")
-                    return "" # Return empty in case of an unexpected error
+                    return "" # Or handle the error in a more specific way
+
 
             if is_match:
                 filtered_dicts.append(dictionary)
@@ -317,14 +328,15 @@ class Loader:
         if filtered_dicts:
             try:
                 json_str = json.dumps(filtered_dicts, ensure_ascii=False, indent=2).encode('cp1251')
-                print(json_str.decode('cp1251'))
-                return json_str.decode('cp1251')
+                # print(json_str.decode('cp1251'))
+                return json_str.decode('cp1251')  # Return the encoded string
             except UnicodeEncodeError:
-                print("Encoding error. String could not be encoded in cp1251.")
-                return ""
+                print("Encoding error.  String could not be encoded in cp1251.")
+                return "" # Return empty string in case of error
         else:
-            return ""
-        
+            return "" # Return empty string if no matches
+ 
+       
     def remove_additional_properties(json_data, property_to_remove="additionalProperties"):
         """Recursively removes a specified property from a JSON object.
 

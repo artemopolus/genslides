@@ -67,14 +67,17 @@ class WriteToFileTask(TextTask):
         else:
             return
         if self.is_freeze:
+            print(self.getName(),'is frozen')
             pass
-        elif self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False or self.checkAnotherOptions():
+        elif not self.checkParentMsgList(update=True) or self.checkAnotherOptions():
+        # elif self.msg_list != trg_list or os.path.isfile(self.getRichPrompt()) == False or self.checkAnotherOptions():
             # print('Exe write file')
-            self.msg_list = trg_list
+            # self.msg_list = trg_list
             self.executeResponse()
-            self.saveJsonToFile(self.msg_list)
+            self.saveAllParams()
+            # self.saveJsonToFile(self.msg_list)
         else:
-            print('Doing nothing')
+            print(self.getName(),'does nothing')
 
     def update(self, input : TaskDescription = None):
         super().update(input)

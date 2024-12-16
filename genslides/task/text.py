@@ -1450,6 +1450,14 @@ class TextTask(BaseTask):
                     value = self.findKeyParam(bparam['value'])
                     if target == value:
                         return True
+                elif bparam['reason'] == "TargetTrue":
+                    target = self.findKeyParam(bparam['target'])
+                    if target.lower() == 'true':
+                        return True
+                elif bparam['reason'] == "TargetFalse":
+                    target = self.findKeyParam(bparam['target'])
+                    if target.lower() == 'false':
+                        return True
             else:
                 return True
         return super().is_blocking()
