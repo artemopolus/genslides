@@ -60,6 +60,17 @@ Here are some ways you can utilize GenSlides:
 
 The following upcoming changes are scheduled for development:
 
+- Creating project templates for users: Program Creation, Translator, Article/Message Analysis
+
+- After creating project templates, the next step is to create detailed documentation on their use, which will provide users with the necessary information for their work.
+
+- The developed project templates and their documentation will be tested in a closed user group to identify potential problems and get feedback before the public release.
+
+- After successful testing in the closed group, we will publish a series of articles detailing the functionality and benefits of using the developed project templates.
+
+- In the long term, we plan to improve the process of working with project templates by developing a more user-friendly and intuitive editor based on a modern 3D interface.
+
+
 Please, check Issues
 
 ## License
