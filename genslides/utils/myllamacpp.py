@@ -2,19 +2,25 @@ from openai import OpenAI
 import json
 
 def llamacppGetChatCompletion(msgs, params):
-    print('OpenAI get Chat Completion')
+    # print('LlamaCPP openai api')
     try:
-        print('Input params:', params)
-        client = OpenAI(
+        # print('Input params:', params)
+        try:
+            client = OpenAI(
+            base_url=params['url'], # "http://<Your api-server IP>:port"
+            api_key = params['api_key']
+        )
+        except:
+            client = OpenAI(
             base_url="http://localhost:8080/v1", # "http://<Your api-server IP>:port"
             api_key = "sk-no-key-required"
         )
         if 'response_format' in params and params['response_format'] != "":
             jformat = json.loads(params['response_format'], strict=False)
-            print("With reponse format:",jformat)
+            # print("With reponse format:",jformat)
             if 'temperature' in params:
                 completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model=params['model'],
                 messages=msgs,
                 timeout=7200,
                 response_format=jformat,
@@ -22,7 +28,7 @@ def llamacppGetChatCompletion(msgs, params):
             )
             else:
                 completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model=params['model'],
                 messages=msgs,
                 timeout=7200,
                 response_format=jformat

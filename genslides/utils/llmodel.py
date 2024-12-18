@@ -6,6 +6,7 @@ import json
 import tiktoken
 import os
 import datetime
+import copy
 
 from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages, openai_decode_token, openai_get_tokens_from_message
 from genslides.utils.myollama import ollamaGetChatCompletion
@@ -75,14 +76,16 @@ class LLModel():
                         # self.input_price = option["input"]
                         # self.output_price = option["output"]
                         # TODO: выбирать случайный ключ для генерации запроса
-                        self.api_key = values['api_key']
-                        self.params['api_key'] = values['api_key']
+                        # self.api_key = values['api_key']
                         self.active = values['active']
                         self.path_to_file = os.path.join('output', name+'.json')
                         # if 'max_tokens' not in self.params:
                             # self.params['max_tokens'] = option['max_tokens']
                         self.params = option
                         self.params.update(params)
+                        if 'api_key' not in self.params:
+                            self.params['api_key'] = values['api_key']
+
 
 
     def createChatCompletion(self, messages) -> (bool, str, dict):
