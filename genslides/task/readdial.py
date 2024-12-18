@@ -57,12 +57,19 @@ class ReadBranchTask(TextTask):
         if not eres:
             return []
         if 'update' in eparam and eparam['update'] == 'auto':
-            self.setMsgList(self.getJsonDial(eparam))
+            trg_msgs = self.getJsonDial(eparam)
         elif 'update' in eparam and eparam['update'] == 'manual' and self.update_read_branch:
-            self.setMsgList(self.getJsonDial(eparam))
+            trg_msgs = self.getJsonDial(eparam)
             self.update_read_branch = False
         elif 'update' not in eparam:
-            self.setMsgList(self.getJsonDial(eparam))
+            trg_msgs = self.getJsonDial(eparam)
+        else:
+            return
+        # print(trg_msgs)
+        if len(trg_msgs) == 0:
+            print(self.getName(),'freeze cz empty dial')
+            self.freezeTask()
+        self.setMsgList(trg_msgs)
 
 
     def executeResponse(self):

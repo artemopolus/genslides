@@ -1597,6 +1597,13 @@ class Projecter:
             man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
     
+    def multiselectFrozenTasks(self):
+        man = self.actioner.getCurrentManager()
+        for task in man.getTasks():
+            if task.isFrozen():
+                man.addTaskToMultiSelected(task)
+        return self.updateMainUIelements()
+
     def applyAutoCommandsToMulti(self):
         self.actioner.createTmpManagerForCommandExe()
         return self.updateTaskManagerUI()

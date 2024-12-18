@@ -162,6 +162,7 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
         if 'form' in cparam:
             if cparam['form'] == 'alone':
                 out = cparam['header']
+                added_content = False
                 for i, pack in enumerate(rparam['data']):
                     chat = pack['chat']
                     if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
@@ -171,10 +172,14 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                         else:
                             out += cparam['prefix']
                         out += chat[idx]['content']
+                        added_content = True
                         out += cparam['suffix']
                 cparam['count'] = len(rparam['data'])
                 out += cparam['footer']
-                return[{"content" : out, "role" : role}]
+                if added_content:
+                    return[{"content" : out, "role" : role}]
+                else:
+                    return []
             elif cparam['form'] == 'msgs':
                 out = []
                 for i, pack in enumerate(rparam['data']):
