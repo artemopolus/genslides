@@ -129,8 +129,8 @@ class ReceiveTask(Ltask.LinkedTask):
 
    
     
-    def findNextFromQueue(self, trgtasknames = []):
-        res = super().findNextFromQueue(trgtasknames=trgtasknames)
+    def findNextFromQueue(self, only_check = False, trgtasknames = []):
+        res = super().findNextFromQueue(only_check=only_check,trgtasknames=trgtasknames)
         if res:
             return res
         # for cl in self.callback_link:

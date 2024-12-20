@@ -1282,6 +1282,26 @@ class BaseTask():
         # if self.isQueueComplete():
         #     return self.getNextFromQueueRe()
         # return None
+    
+    def checkNextFromQueue(self, trgtaskNames = []):
+        res = self.findNextFromQueue(trgtasknames=trgtaskNames, only_check=True)
+        if res:
+            return res
+        return self.checkNextFromQueueRe(trgtasknames=trgtaskNames)
+    
+    def checkNextFromQueueRe(self, trgtasknames = []):
+        trg = self
+        index = 0
+        while(index < 1000):
+            if trg.isRootParent() or trg.caretaker is not None:
+                return trg
+            else:
+                trg = trg.getParent()
+                res = trg.findNextFromQueue(trgtasknames=trgtasknames, only_check=True)
+                if res:
+                    return res
+            index +=1
+        return None   
         
     def getNextFromQueueRe(self, trgtasknames = []):
         # print("Get next recursevly", self.getName())
@@ -1459,6 +1479,9 @@ class BaseTask():
     
     def getExeCommands(self):
         return False, {}
+    
+    def getAutoCommand(self):
+        return False, []
     
     def getAutoCommand(self):
         return False, []

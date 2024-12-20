@@ -1488,10 +1488,11 @@ class Projecter:
     def update(self):
         dt1 = time.time()       
         self.actioner.update()
+        chain = self.actioner.getProcessedChain()
         dt2 = time.time() 
         delta = dt2 - dt1
-        print(f"Update step duration: {delta:.6f} s")
-        return self.updateMainUIelements()
+        print(f"Update {chain[0]}->{chain[1]} duration: {delta:.6f} s. Next: {chain[2]}")
+        return self.updateMainUIelements() + (chain[0], chain[1], chain[2])
         
     def updateAll(self, check = False, max_idx = 10000):
         print('Update All trees stepped')

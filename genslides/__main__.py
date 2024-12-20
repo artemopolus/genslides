@@ -213,8 +213,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Column(scale=3):
                         with gr.Row():
                             updateall_step_btn = gr.Button(value="Update all trees(UAT)")
-                            update_step_btn = gr.Button(value="UAT one step")
                             upd2cur_step_btn = gr.Button(value='UAT to cur')
+                        with gr.Row():
+                            prevtask_txt = gr.Textbox(label='Prev')
+                            currtask_txt = gr.Textbox(label='Curr')
+                            nexttask_txt = gr.Textbox(label='Next')
+                        with gr.Row():
+                            update_step_btn = gr.Button(value="UAT one step")
+                        with gr.Row():
                             updbrnc_step_btn = gr.Button(value='Update Tree + Linked')
                             updateforktasks_btn = gr.Button('UAT fork')
                         with gr.Accordion(label='Options', open=False):
@@ -1276,7 +1282,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             update_task_btn.click(fn=manager.update,outputs=std_output_list, api_name="update_task_btn")
             updatecur_task_btn.click(fn=manager.updateCurrent, outputs=std_output_list)
 
-            update_step_btn.click(fn=projecter.update, outputs=std_output_list)
+            update_list = std_output_list.copy()
+            update_list.extend([prevtask_txt, currtask_txt, nexttask_txt])
+            update_step_btn.click(fn=projecter.update, outputs=update_list)
             updateall_step_btn.click(fn=projecter.updateAll, inputs=[updatecheckown_chk, maxupdateidx_num], outputs=std_output_list)
             updateall_stepNs_btn.click(fn=projecter.updateAllnTimes, inputs=[updateall_stepNs_sld, updatecheckown_chk], outputs=std_output_list)
             updatealln_btn.click(fn=projecter.updateAllnTimes, inputs=[updatealln_num, updatecheckown_chk], outputs=std_output_list)

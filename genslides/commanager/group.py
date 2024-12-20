@@ -334,10 +334,13 @@ class Actioner():
     def exeTasksByName(self, names):
         for name in names:
             task = self.manager.getTaskByName(name)
-            res, actions = task.getAutoCommand()
-            if res:
-                for action in actions:
-                    self.makeSavedAction(action)
+            if task != None:
+                print('Exe commands by', task.getName())
+                res, actions = task.getAutoCommand2()
+                if res:
+                    self.getJsonCmd(actions)
+                # for action in actions:
+                    # self.makeSavedAction(action)
 
     def exeActions(self):
         if self.manager is not self.std_manager:
@@ -788,6 +791,23 @@ class Actioner():
         man.curr_task = task
         # man.curr_task.resetTreeQueue()
         self.update_processed_chain = [self.root_task_tree.getName()]
+
+    def getProcessedChain(self, count = 3, plus_next_task = True):
+        out = []
+        chain_len = len(self.update_processed_chain)
+        next_task = self.getCurrentManager().getCurrentTask().checkNextFromQueue()
+        count = count - 1
+        for idx in range(count):
+            pt = chain_len - count + idx
+            if pt < 0:
+                out.append("...")
+            else:
+                out.append( self.update_processed_chain[pt])
+        if plus_next_task and next_task == None:
+            out.append("...")
+        else:
+            out.append(next_task.getName())
+        return out
       
     def update(self, update_task = True):
         man = self.manager
@@ -1495,8 +1515,9 @@ class Actioner():
                 values = task_man.getOptionsBasedOptionsDict(param_name, param_key)
             # print('Update with [',cur_val,'] from', values)
             if len(values):
-                if cur_val in values:
-                    return values, cur_val, interacttive_drd, multiselect_drd, cur_val, True
+                if cur_val not in values:
+                    values.append(cur_val)
+                return values, cur_val, interacttive_drd, multiselect_drd, cur_val, True
                     # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=''))
             else:

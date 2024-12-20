@@ -33,6 +33,7 @@ import genslides.utils.finder as finder
 import genslides.task_tools.array as ar
 import genslides.task_tools.records as rd
 import genslides.task_tools.actions as Actions
+import genslides.task_tools.text as Txt
 import copy
 import tempfile
 
@@ -1426,6 +1427,17 @@ class TextTask(BaseTask):
             if ares:
                 self.setParamStruct( tparam )     
             return ares, actions  
+        return super().getAutoCommand()
+    
+    def getAutoCommand2(self):
+        tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+        if tres:
+            content = self.findKeyParam(tparam['input'])
+            hash = Txt.compute_sha256_hash( content )
+            if hash != tparam['hash']:
+                tparam['hash'] = hash
+                self.setParamStruct(tparam)
+                return True, content
         return super().getAutoCommand()
     
     def setAutoCommand(self, type_name, actions: list):
