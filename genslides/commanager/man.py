@@ -279,9 +279,8 @@ class Jun():
     def getFrozenTasksCount(self) -> int:
         cnt = 0
         for t in self.getTasks():
-            if t.is_freeze:
-                res, bparam = t.getParamStruct('block')
-                if res and bparam['block']:
+            if t.isFrozen():
+                if t.is_blocking():
                     pass
                 elif t.getRootParent().checkType('ExternalInput'):
                     pass

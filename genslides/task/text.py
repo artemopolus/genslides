@@ -1072,6 +1072,13 @@ class TextTask(BaseTask):
         #     np = rd.clearRecordData(param)
         #     self.setParamStruct(np)
 
+    def forceCleanChat(self):
+        res, param = self.getParamStruct('array', only_current=True)
+        if res:
+            print(self.getName(), 'reset array param')
+            self.updateParamStruct('array','src_data','')
+            # self.updateParam2(ar.resetArrayParam(self, param))
+        return super().forceCleanChat()
 
     def getChatRecords(self) ->list:
         res, param = self.getParamStruct(param_name='records', only_current=True)
@@ -1440,6 +1447,8 @@ class TextTask(BaseTask):
             self.setParamStruct( tparam )       
 
     def is_blocking(self):
+        if self.getParent() and self.getParent().is_blocking():
+            return True
         bres, bparam = self.getParamStruct('block')
         if bres and bparam['block']:
             if 'reason' in bparam:

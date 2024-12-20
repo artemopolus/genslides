@@ -2199,5 +2199,10 @@ class Manager(Man.Jun):
     
     def cleanTasksChat(self):
         for task in self.getTasks():
-            task.forceCleanChat()
+            res, param = task.getParamStruct('autoclean', only_current=True)
+            if res:
+                if param['clean']:
+                    task.forceCleanChat()
+            else:
+                task.forceCleanChat()
         return super().cleanTasksChat()

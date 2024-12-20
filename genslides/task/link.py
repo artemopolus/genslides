@@ -131,6 +131,12 @@ class LinkedTask(TextTask.TextTask):
         super().whenParentRemoved()
         self.removeLinkToTask()
 
+    def is_blocking(self):
+        for task in self.getGarlandPart():
+            if task.is_blocking():
+                return True
+        return super().is_blocking()
+
 class ListenerTask(LinkedTask):
     def __init__(self, task_info: TextTask.TaskDescription, type='Listener') -> None:
         super().__init__(task_info, type)    
@@ -252,6 +258,7 @@ class ListenerTask(LinkedTask):
                 for param in params:
                     if 'type' in param:
                         self.rmParamStructByName(param['type'])
+        return super().forceCleanChat()
 
     def createLinkToTask(self, task) -> TextTask.TaskDescription:
         lres, lparam = self.getParamStruct("listener")

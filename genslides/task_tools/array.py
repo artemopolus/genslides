@@ -114,6 +114,7 @@ def saveArrayToParams(task  , param : dict):
    
     param ['src_data' ]= getSHAfromTask(task, param)
 
+    # print('param',param)
     if 'parse' in param:
         res, arr = divideArray(task, param)
         if res:
@@ -168,4 +169,13 @@ def checkArrayIteration(task  , param : dict):
             if res:
                 return out
     return param
-        
+
+def resetArrayParam( task, param : dict):
+    print('Reset array params')
+    try:
+        param['src_data'] = ''
+    except:
+        pass
+    return param
+
+

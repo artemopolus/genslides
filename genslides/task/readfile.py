@@ -121,6 +121,7 @@ class ReadFileTask(ResponseTask):
         if len(self.msg_list) > 0:
             self.msg_list = []
         self.freezeTask()
+        return super().forceCleanChat()
 
 
 

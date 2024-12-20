@@ -290,6 +290,7 @@ class ResponseTask(TextTask):
             self.msg_list = []
             # self.msg_list.append(last)
         self.freezeTask()
+        return super().forceCleanChat()
 
     def correctContentBySymbols(self, param, content):
         target = 'Response'
