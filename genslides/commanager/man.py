@@ -94,7 +94,7 @@ class Jun():
         res, pparam = tree_task.getParamStruct('tree_step')
         if res and 'target' in pparam:
             task = self.getTaskByName(pparam['target'])
-            if task != None:
+            if task != None and task in tree_task.getAllChildChains():
                 target = task
         return target
 
@@ -111,7 +111,7 @@ class Jun():
 
 
     def goToNextTree(self):
-        print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
+        # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
         if len(self.tree_arr) > 0:
             if self.tree_idx + 1 < len(self.tree_arr):
                 self.tree_idx += 1
