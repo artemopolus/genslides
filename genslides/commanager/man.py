@@ -45,6 +45,10 @@ class Jun():
         self.is_loaded = False
         self.renamed_parent = []
         self.is_executing = False
+        self.actioner = None
+
+    def setActioner(self, actioner):
+        self.actioner = actioner
 
     def setName(self, name : str):
         self.name = name

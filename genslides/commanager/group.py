@@ -48,6 +48,7 @@ class Actioner():
         if manager != self.std_manager:
             if manager not in self.tmp_managers:
                 self.tmp_managers.append(manager)
+        manager.setActioner(self)
 
     def removeManager( self, manager : BaseMan.Jun):
         if manager in self.tmp_managers:

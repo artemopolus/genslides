@@ -233,8 +233,14 @@ class ListenerTask(LinkedTask):
                 input_hash = txt.compute_sha256_hash(prompt)
                 print('Check hash')
                 if curr_hash != input_hash:
-                    print('get prompt:', len(prompt))
-                    self.prompt = prompt
+                    print(self.getName(),'get prompt:', len(prompt))
+                    if 'output' in lparam:
+                        if lparam['output'] == 'prompt':
+                            self.prompt = prompt
+                        elif lparam['output'] == 'param':
+                            lparam['data'] = prompt
+                    else:
+                        self.prompt = prompt
                     lparam['hash'] = input_hash
             elif lparam['input'] == 'params':
                 input_hash = txt.compute_sha256_hash(json.dumps(params))
@@ -266,10 +272,84 @@ class ListenerTask(LinkedTask):
             self.setParamStruct({
               "type": "listener",
                 "input": "prompt",
+                "output":"prompt",
                 "hash": "",
                 "combine": "single"
             })
         return super().createLinkToTask(task)
+    
+    def getTrgLinkInfo(self, trg):
+        lres, lparam = self.getParamStruct("listener")
+        if lres and 'onedit' in lparam:
+            if lparam['onedit'] == 'collect':
+                if 'garland_opt' in lparam:
+                    if lparam['garland_opt'] == 'insert_move':
+                        return True, {'out': trg, 'in': self, 'dir': 'in','option':'move'}
+                return True, {'out': trg, 'in': self, 'dir': 'in'}
+            elif lparam['onedit'] == 'garland':
+                oparam = {'out': trg, 'in': self, 'dir':'out',
+                                   'insert':True,
+                                   'option':'std',
+                                   'type': self.getType(),
+                                   'tag': self.prompt_tag,
+                                   'prompt':'',
+                                   'parent': self.parent
+                                   }
+                if 'garland_opt' in lparam:
+                    if lparam['garland_opt'] == 'insert_sub':
+                        oparam['insert'] = True
+                        oparam['option'] = 'sub'
+                    elif lparam['garland_opt'] == 'insert_move':
+                        oparam['insert'] = True
+                        oparam['option'] = 'move'
+                elif 'garland_actions' in lparam:
+                    oparam['actions'] = self.findKeyParam(lparam['garland_actions'])
+                return True, oparam
 
 
+        return super().getTrgLinkInfo(trg)
+    
+
+    def stdProcessUnFreeze(self, input=None):        
+        if self.is_blocking():
+            self.is_freeze = True
+            return
+        lres, lparam = self.getParamStruct("listener")
+
+        if lres and 'onupdate' in lparam:
+            if lparam['onupdate'] == 'chck_link_chld':
+                self.unfreezeByCheckingLinkedAndChildren()
+            elif lparam['onupdate'] == 'none':
+                super().stdProcessUnFreeze(input)
+        else:
+            self.unfreezeByCheckingLinkedAndChildren()
+
+    def unfreezeByCheckingLinkedAndChildren(self):
+        if self.parent and self.parent.is_freeze:
+            self.freezeTask()
+            return
+        if self.is_freeze:
+            to_unfreeze = False
+            if self.parent and not self.parent.is_freeze:
+                to_unfreeze = True
+            elif not self.parent and self.is_freeze:
+                to_unfreeze = True
+            if to_unfreeze:
+                # print('Try unfreeze cz parent')
+                if len(self.by_ext_affected_list) == 0:
+                    return
+                for tsk_info in self.by_ext_affected_list:
+                    # print("\t\tLink input=", tsk_info.parent.getName(),"=",tsk_info.enabled)
+                    if not tsk_info.enabled:
+                        return
+                self.is_freeze = False
+            else:
+                pass
+
+        else:
+            for tsk_info in self.by_ext_affected_list:
+                if not tsk_info.enabled:
+                    print("Freeze from children")
+                    self.freezeTask()
+                    return
  

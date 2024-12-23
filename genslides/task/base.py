@@ -1389,6 +1389,7 @@ class BaseTask():
         # return out
     
     def removeLinkToTask(self):
+        print('Remove link for', self.getName())
         while len(self.by_ext_affected_list) > 0:
             input = self.by_ext_affected_list.pop()
             input.parent.resetLinkToTask(input)

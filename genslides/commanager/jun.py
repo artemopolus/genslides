@@ -1835,7 +1835,9 @@ class Manager(Man.Jun):
             if 'insert' in link and 'prompt' in link:
                 param_task = link['in'].copyAllParams(True)
                 self.curr_task = link['in']
-                if link['insert']:
+                if link['actions']:
+                    self.actioner.getJsonCmd(link['actions'])
+                elif link['insert']:
                     if 'option' in link:
                         if link['option'] == 'std':
                             self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'], params=param_task)
@@ -1861,6 +1863,12 @@ class Manager(Man.Jun):
                     self.makeLink( intask, outtask )
             else:
                 intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
+                print('out=',outtask.getName())
+                print('in=',intask.getName())
+                print('link',link)
+                if 'option' in link and link['option'] == 'move':
+                    self.setCurrentTask(intask)
+                    self.makeTaskAction("","","Unlink","")
                 self.makeLink( intask, outtask )
             
 
