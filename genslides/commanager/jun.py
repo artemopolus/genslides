@@ -1218,10 +1218,10 @@ class Manager(Man.Jun):
             # print('Next task is in task list')
             # if next.parent == None:
                 # next.resetTreeQueue()
-            # bres, bparam = next.is_blocking().getParamStruct('block')
+            # bres, bparam = next.checkBlock().getParamStruct('block')
             # if next.getParent() != None and next.getParent().isFrozen():
             #     pass
-            if next.is_blocking():
+            if next.checkBlock():
                 pass
             else:
                 # print('Set new current task', next.getName())

@@ -284,7 +284,7 @@ class Jun():
         cnt = 0
         for t in self.getTasks():
             if t.isFrozen():
-                if t.is_blocking():
+                if t.checkBlock():
                     pass
                 elif t.getRootParent().checkType('ExternalInput'):
                     pass

@@ -80,7 +80,7 @@ class ReceiveTask(Ltask.LinkedTask):
     def stdProcessUnFreeze(self, input=None):
         
         # res, pparam = self.getParamStruct('block')
-        if self.is_blocking():
+        if self.checkBlock():
             self.is_freeze = True
             return
 

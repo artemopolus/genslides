@@ -1139,7 +1139,7 @@ class Actioner():
                     f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", shape = shape, color = color)
                 else:
                     color = 'antiquewhite1'
-                    if task.is_blocking():
+                    if task.checkBlock():
                         color="gold2"
                     elif man.getTaskParamRes(task, "input"):
                         color="aquamarine"

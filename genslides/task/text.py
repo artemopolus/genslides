@@ -961,7 +961,7 @@ class TextTask(BaseTask):
 
     def stdProcessUnFreeze(self, input=None):
         # res, pparam = self.getParamStruct('block')
-        if self.is_blocking():
+        if self.checkBlock():
             self.is_freeze = True
             return
 
@@ -1458,28 +1458,32 @@ class TextTask(BaseTask):
                 pass
             self.setParamStruct( tparam )       
 
-    def is_blocking(self):
-        if self.getParent() and self.getParent().is_blocking():
-            return True
-        bres, bparam = self.getParamStruct('block')
+    def checkBlock(self):
+        # if self.getParent() and self.getParent().checkBlock():
+            # return True
+        bres, bparam = self.getParamStruct('block',only_current=True)
         if bres and bparam['block']:
+            block = False
             if 'reason' in bparam:
                 if bparam['reason'] == "None":
-                    return True
+                    block = True
                 elif bparam['reason'] == "Target":
                     target = self.findKeyParam(bparam['target'])
                     value = self.findKeyParam(bparam['value'])
                     if target == value:
-                        return True
+                        block = True
                 elif bparam['reason'] == "TargetTrue":
                     target = self.findKeyParam(bparam['target'])
                     if target.lower() == 'true':
-                        return True
+                        block = True
                 elif bparam['reason'] == "TargetFalse":
                     target = self.findKeyParam(bparam['target'])
                     if target.lower() == 'false':
-                        return True
+                        block = True
+            if block:
+                self.blockChildren()
             else:
-                return True
-        return super().is_blocking()
+                self.unBlockChildren()
+
+        return super().checkBlock()
     

@@ -132,12 +132,6 @@ class LinkedTask(TextTask.TextTask):
         super().whenParentRemoved()
         self.removeLinkToTask()
 
-    def is_blocking(self):
-        for task in self.getGarlandPart():
-            if task.is_blocking():
-                return True
-        return super().is_blocking()
-
 class ListenerTask(LinkedTask):
     def __init__(self, task_info: TextTask.TaskDescription, type='Listener') -> None:
         super().__init__(task_info, type)    
@@ -320,7 +314,7 @@ class ListenerTask(LinkedTask):
     
 
     def stdProcessUnFreeze(self, input=None):        
-        if self.is_blocking():
+        if self.checkBlock():
             self.is_freeze = True
             return
         lres, lparam = self.getParamStruct("listener")

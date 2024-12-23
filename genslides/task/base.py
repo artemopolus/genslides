@@ -348,6 +348,8 @@ class BaseTask():
         self.target = task_info.target
         self.filename = task_info.filename
 
+        self.block_on = False
+
 
     def getBranchCodeTag(self) -> str:
         p_tasks = self.getAllParents()
@@ -1608,8 +1610,29 @@ class BaseTask():
             "parent": parent_name
         }
 
-    def is_blocking(self):
-        return False
+    def checkBlock(self):
+        return self.block_on
+    
+    def blockTask(self):
+        self.block_on = True
+    
+    def unBlockTask(self):
+        self.block_on = False
+    
+    def blockChildren(self):
+        self.blockTask()
+        for task in self.getAllChildChains():
+            task.blockTask()
+            for linked in task.getHoldGarlands():
+                linked.blockChildren()
+
+
+    def unBlockChildren(self):
+        self.unBlockTask()
+        for task in self.getAllChildChains():
+            task.unBlockTask()
+            for linked in task.getHoldGarlands():
+                linked.unBlockChildren()
     
     def clearRecordParam(self):
         pass
