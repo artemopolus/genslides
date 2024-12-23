@@ -121,6 +121,7 @@ class LinkedTask(TextTask.TextTask):
         #     self.update()
  
     def removeLinkToTask(self):
+        # print(self.getName(), 'remove links to task')
         self.prompt = ""
         # self.update()
         self.freezeTask()
@@ -277,6 +278,14 @@ class ListenerTask(LinkedTask):
                 "combine": "single"
             })
         return super().createLinkToTask(task)
+    
+    def getInLinkInfo(self, trg):
+        lres, lparam = self.getParamStruct("listener")
+        if lres and 'onedit' in lparam:
+            if lparam['onedit'] == 'collect':
+                if 'garland_opt' in lparam:
+                    return {'out': trg, 'in': self, 'dir': 'out','option':'move'}
+        return super().getInLinkInfo(trg)
     
     def getTrgLinkInfo(self, trg):
         lres, lparam = self.getParamStruct("listener")

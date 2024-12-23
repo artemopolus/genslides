@@ -1778,16 +1778,21 @@ class Manager(Man.Jun):
                   branch['i_par'])
 
             for link in branch['links']:
-                found = False
+                found = None
+                print(i,'|' ,link['out'].getName(),'->',link['in'].getName())
                 for sv in links_chain:
                     if (sv['dir'] == 'in' or sv['dir'] == 'out') and (
                         sv['in'] == link['in'] 
                         and sv['out'] == link['out']):
-                        found = True
+                        found = sv
                 if 'insert' in link:
                     insert_tasks.append(link)
                 if not found:
                     links_chain.append(link)
+                else:
+                    if sv['dir'] == 'out':
+                        links_chain.remove(sv)
+                        links_chain.append(link)
             i+= 1
 
         self.tc_tasks_chains = tasks_chains
@@ -1863,11 +1868,11 @@ class Manager(Man.Jun):
                     self.makeLink( intask, outtask )
             else:
                 intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
-                print('out=',outtask.getName())
-                print('in=',intask.getName())
-                print('link',link)
+                print('old link:',link['out'].getName(),'->',link['in'].getName())
+                print('new link:',outtask.getName(),'->',intask.getName())
+                print('param', link)
                 if 'option' in link and link['option'] == 'move':
-                    self.setCurrentTask(intask)
+                    self.setCurrentTask(link['in'])
                     self.makeTaskAction("","","Unlink","")
                 self.makeLink( intask, outtask )
             

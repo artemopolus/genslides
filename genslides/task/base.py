@@ -629,6 +629,9 @@ class BaseTask():
     
     def getTrgLinkInfo(self, trg):
         return False, {'out': trg, 'in': self, 'dir': 'in'}
+    
+    def getInLinkInfo(self, trg):
+        return {'out': trg, 'in': self, 'dir':'out'}
 
     # Копирует информацию о связях между задачами в переменную trg_links, 
     # переменная copy_in запрашивает информацию о входящих
@@ -643,7 +646,7 @@ class BaseTask():
                 copy_out = bparam['cp_out']
         copy_in = param['in']
         copy_out = param['out']
-        # print('Get link copy info from',self.getName())
+        print('Get link copy info from',self.getName())
         if len(self.getHoldGarlands()) and copy_out:
             for ll in self.getHoldGarlands():
                 res, val = ll.getTrgLinkInfo(self)
@@ -658,9 +661,9 @@ class BaseTask():
             for ll in self.getGarlandPart():
                 if 'check_man' in param and param['check_man']:
                     if ll.manager == self.manager:
-                        trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
+                        trg_links.append(self.getInLinkInfo(ll))
                 else:
-                    trg_links.append( {'out': ll, 'in': self, 'dir':'out'})
+                    trg_links.append( self.getInLinkInfo(ll) )
 
     def getChildAndLinks(self, task, pparam, start_j = 0):
         # print('Get child and links for', task.getName(),'[',start_j,']')
