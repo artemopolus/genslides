@@ -238,14 +238,14 @@
 				}			
 			]
 	},
-	"GeminiJsonSetOptions":{
+	"JsonSetOptions":{
 		"Init":"",
 		"Endi":"",
 		"params":[
 			{
 				"type": "model",
 				"model": "gemini-1.5-flash",
-				"response_format": "{\n  \"type\": \"object\",\n  \"properties\": {\n      \"sentences\": {\n          \"type\": \"array\",\n          \"items\": {\n              \"type\": \"object\",\n              \"properties\": {\n                  \"idx\":{\"type\":\"string\",\"description\":\"Number of sentence\"},\n                  \"text\": {\"type\": \"string\",\"description\":\"Translation of sentence\"}\n              },\n              \"required\": [\"idx\",\"text\"]\n          }\n      }\n  },\n  \"required\": [\"sentences\"]\n}"
+				"response_format": "{\n\"type\": \"json_schema\",\n\"json_schema\": {\n    \"name\": \"json_creating\",\n    \"schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"sentences\": {\n                \"type\": \"array\",\n                \"items\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                        \"num\":{\"type\":\"number\",\"description\":\"Number of sentence\"},\n                        \"init\": {\"type\": \"string\",\"description\":\"Initial sentence from the Text\"},\n                        \"edit\": {\"type\": \"string\",\"description\":\"Edited sentence from your previous reply\"}\n                    },\n                    \"required\": [\"num\",\"init\", \"edit\"],\n                    \"additionalProperties\": false\n                }\n            }\n        },\n        \"required\": [\"sentences\"],\n        \"additionalProperties\": false\n    },\n    \"strict\": true\n}\n}"
 			}
 		]
 	},

@@ -192,13 +192,16 @@
    "name": "",
    "exttreetask_path": "",
    "inexttree": ["None", "fromact"],
-   "prompt": ""
+   "prompt": "",
+   "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
+   "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
   },
    {
       "type": "listener",
       "input": ["prompt","params"],
       "hash": "",
-      "combine": ["none","single"]
+      "combine": ["none","single"],
+      "garland_opt":["insert_move","insert_sub"]
    },
    {
       "type": "autocommander",
