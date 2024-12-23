@@ -22,15 +22,19 @@ class LinkedTask(TextTask.TextTask):
             return trg_list
         return []
 
-
-    def checkInput(self, input: TextTask.TaskDescription = None):
-        super().checkInput(input)
+    def checkInputInternal(self, input :TextTask.TaskDescription = None):
         if input:
             if self.parent:
                 trg_list = self.checkParentsMsg()
             else:
                 trg_list = []
             self.updateCollectedMsgList(trg_list)
+
+
+
+    def checkInput(self, input: TextTask.TaskDescription = None):
+        super().checkInput(input)
+        self.checkInputInternal(input)
 
     def updateCollectedMsgList(self, trg_list : list):
         # print("update collected msg list")
@@ -95,7 +99,7 @@ class LinkedTask(TextTask.TextTask):
                 # print('New prompt:', tsk_info.prompt)
 
     def affectedTaskCallback(self, input : TextTask.TaskDescription):
-        # print("From ", input.parent.getName(), " to ", self.getName())
+        print("From ", input.parent.getName(), " to ", self.getName())
         if input and input.stepped:
             found = False
             for cl in self.callback_link:
@@ -184,15 +188,19 @@ class ListenerTask(LinkedTask):
         return out
 
     def updateIternal(self, input: TextTask.TaskDescription = None):
-        print('Update Internal')
+        # print('Update Internal')
         if not self.is_freeze:
             self.updateCollectedMsgList(self.checkParentsMsg())
         return super().updateIternal(input)
  
+    def checkInputInternal(self, input = None):
+        pass
+
+
     def updateLinkedPrompts(self, input : TextTask.TaskDescription):
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
-                print('Upd by ', input.parent.getName())
+                # print('Upd by ', input.parent.getName())
                 hash = txt.compute_sha256_hash(input.prompt)
                 if tsk_info.type != hash:
                     tsk_info.enabled = input.enabled
@@ -202,31 +210,34 @@ class ListenerTask(LinkedTask):
                 return
 
     def getRichPrompt(self) -> str:
-        print('Get rich prompt', self.getName())
+        # print('Get rich prompt', self.getName())
         lres, lparam = self.getParamStruct("listener")
-        if lres:
-            if lparam['hash'] != "":
-                return self.prompt
+        # if lres:
+        #     if lparam['hash'] != "":
+        #         return self.prompt
         prompt = ""
         params = []
+        updated = False
         for tsk_info in self.by_ext_affected_list:
-            print(tsk_info.parent.getName())
+            # print('Upd listener from',tsk_info.parent.getName())
             if 'combine' in lparam:
                 if lparam['combine'] == 'single':
                     if tsk_info.enabled:
                         prompt = tsk_info.prompt
                         params.extend(tsk_info.params)
                         tsk_info.enabled = False
+                        updated = True
                         break
             else:
                 prompt += tsk_info.prompt
                 params.extend(tsk_info.params)
-
+        if not updated:
+            return self.prompt
         if lres:
             curr_hash = lparam['hash']
             if lparam['input'] == 'prompt':
                 input_hash = txt.compute_sha256_hash(prompt)
-                print('Check hash')
+                # print('Check hash')
                 if curr_hash != input_hash:
                     print(self.getName(),'get prompt:', len(prompt))
                     if 'output' in lparam:

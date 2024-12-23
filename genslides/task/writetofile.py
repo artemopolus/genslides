@@ -77,7 +77,8 @@ class WriteToFileTask(TextTask):
             self.saveAllParams()
             # self.saveJsonToFile(self.msg_list)
         else:
-            print(self.getName(),'does nothing')
+            pass
+            # print(self.getName(),'does nothing')
 
     def update(self, input : TaskDescription = None):
         super().update(input)

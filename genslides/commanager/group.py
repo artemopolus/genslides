@@ -549,7 +549,7 @@ class Actioner():
         return 
 
     def fromActionToScript(self, trg: Manager, src : Manager):
-        print('From',src.info['task'], 'to', trg.info['task'])
+        # print('From',src.info['task'], 'to', trg.info['task'])
         script = trg.info['script']['managers']
         man2 = src.info.copy()
         found = None
