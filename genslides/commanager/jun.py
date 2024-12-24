@@ -1840,7 +1840,7 @@ class Manager(Man.Jun):
             if 'insert' in link and 'prompt' in link:
                 param_task = link['in'].copyAllParams(True)
                 self.curr_task = link['in']
-                if link['actions']:
+                if 'actions' in link and link['actions']:
                     self.actioner.getJsonCmd(link['actions'])
                 elif link['insert']:
                     if 'option' in link:

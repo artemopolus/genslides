@@ -1432,9 +1432,11 @@ class TextTask(BaseTask):
     def getAutoCommand2(self):
         tres, tparam = self.getParamStruct("autoactioner", only_current=True)
         if tres:
+            print('Get auto actioner for',self.getName())
             content = self.findKeyParam(tparam['input'])
             hash = Txt.compute_sha256_hash( content )
             if hash != tparam['hash']:
+                print('HASH is different')
                 tparam['hash'] = hash
                 self.setParamStruct(tparam)
                 return True, content

@@ -99,7 +99,7 @@ class LinkedTask(TextTask.TextTask):
                 # print('New prompt:', tsk_info.prompt)
 
     def affectedTaskCallback(self, input : TextTask.TaskDescription):
-        print("From ", input.parent.getName(), " to ", self.getName())
+        # print("From ", input.parent.getName(), " to ", self.getName())
         if input and input.stepped:
             found = False
             for cl in self.callback_link:

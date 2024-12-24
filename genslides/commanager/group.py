@@ -327,18 +327,19 @@ class Actioner():
     def getTasksWithActions(self):
         names = []
         for task in self.manager.getTasks():
-            res, _ = task.getParamStruct("autocommander", True)
+            res, _ = task.getParamStruct("autoactioner", True)
             if res:
                 names.append(task.getName())
         return names
     
     def exeTasksByName(self, names):
         for name in names:
-            task = self.manager.getTaskByName(name)
+            task = self.getCurrentManager().getTaskByName(name)
             if task != None:
                 print('Exe commands by', task.getName())
                 res, actions = task.getAutoCommand2()
                 if res:
+                    self.getCurrentManager().setCurrentTask(task)
                     self.getJsonCmd(actions)
                 # for action in actions:
                     # self.makeSavedAction(action)
@@ -403,6 +404,7 @@ class Actioner():
         return out
  
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
+        print(f"Make task action:\nprompt={prompt}\n{type1}\n{creation_type}\n{creation_tag}\n{param}\n{save_action}")
         onlysave = False
         if 'dont' in param and param['dont']:
             onlysave = True
@@ -1389,7 +1391,7 @@ class Actioner():
         manholdgarlands = [t.getName() for t in man.curr_task.getHoldGarlands()]
         mangetname = man.getName()
         mangetcolor = man.getColor()
-        multitasks = ','.join([t.getName() for t in man.multiselect_tasks])
+        multitasks = ', '.join(["\""+t.getName() + "\"" for t in man.multiselect_tasks])
         # return self.convToGradioUI(
         return (
                         r_msgs, 
@@ -1725,6 +1727,7 @@ class Actioner():
         self.manager.cleanTasksChat()
 
     def getJsonCmd(self, json_cmds):
+        print('Get json command:', json_cmds)
         results = [] # list to hold results of each command
         try:
             cmds = json.loads(json_cmds) # parse the JSON array
@@ -1734,6 +1737,7 @@ class Actioner():
 
 
             for cmd in cmds:
+                print('Run cmd', cmd)
                 action = cmd.get("action")
                 args = cmd.get("args", [])
                 kwargs = cmd.get("kwargs", {})
@@ -1741,6 +1745,9 @@ class Actioner():
                 if action:
                     method = getattr(self, action, None)
                     if method and callable(method):
+                        print('Args:', args)
+                        print('Kwargs', kwargs)
+                        print('Method', method)
                         result = method(*args, **kwargs)
                         results.append(result)  # Append the result of each action
                     else:
