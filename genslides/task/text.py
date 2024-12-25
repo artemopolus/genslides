@@ -177,7 +177,7 @@ class TextTask(BaseTask):
         trg = None
         for p in self.params:
             if p['type'] == 'link' and p['name'] == info.target.getName():
-                print('Remove link to',info.target.getName())
+                # print('Remove link to',info.target.getName())
                 trg = p
                 break
         if trg is not None:

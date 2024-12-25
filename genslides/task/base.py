@@ -991,7 +991,7 @@ class BaseTask():
         return True
 
     def resetLinkToTask(self, info : TaskDescription) -> None:
-        print('Reset link to task by', self.getName())
+        # print('Reset link to task by', self.getName())
         # print(self.queue)
         self.affect_to_ext_list.remove(info)
 
@@ -1394,7 +1394,7 @@ class BaseTask():
         # return out
     
     def removeLinkToTask(self):
-        print('Remove link for', self.getName())
+        # print('Remove link for', self.getName())
         while len(self.by_ext_affected_list) > 0:
             input = self.by_ext_affected_list.pop()
             input.parent.resetLinkToTask(input)

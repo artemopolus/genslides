@@ -780,26 +780,26 @@ class Manager(Man.Jun):
                 task2.saveAllParams()
                 task_12.saveAllParams()
             # self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
-            try:
+            # try:
             # if task1 is not None:
-                print('Parents\nFirst', task1.parent.getName() if task1.parent is not None else 'None','=',task1.getName())
+                # print('Parents\nFirst', task1.parent.getName() if task1.parent is not None else 'None','=',task1.getName())
                 # print('Childs')
                 # for ch in task1.getChilds():
                 #     print(ch.getName())
             
                 # print(task1.queue)
             # if self.slct_task is not None:
-                print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
+                # print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
                 # print('Childs')
                 # for ch in self.slct_task.getChilds():
                 #     print(ch.getName())
                 # print(self.slct_task.queue)
-                print('Last', self.curr_task.parent.getName() if self.curr_task.parent is not None else 'None','=', self.curr_task.getName())
+                # print('Last', self.curr_task.parent.getName() if self.curr_task.parent is not None else 'None','=', self.curr_task.getName())
                 # print('Childs')
                 # for ch in self.curr_task.getChilds():
                 #     print(ch.getName())
-            except Exception as e:
-                print('Error', creation_type,':', e)
+            # except Exception as e:
+                # print('Error', creation_type,':', e)
             # print(self.curr_task.queue)
             # if task1 is not None:
             #     task1.update()
@@ -807,8 +807,8 @@ class Manager(Man.Jun):
             #     self.slct_task.update()
             # self.curr_task = self.slct_task
             self.curr_task = task2
-            print('Selected',self.slct_task.getName())
-            print('Current', self.curr_task.getName())
+            # print('Selected',self.slct_task.getName())
+            # print('Current', self.curr_task.getName())
 
         elif creation_type == "Remove":
             task2 = self.curr_task
@@ -1785,13 +1785,14 @@ class Manager(Man.Jun):
                         sv['in'] == link['in'] 
                         and sv['out'] == link['out']):
                         found = sv
+                        break
                 if 'insert' in link:
                     insert_tasks.append(link)
-                if not found:
+                if found == None:
                     links_chain.append(link)
                 else:
-                    if sv['dir'] == 'out':
-                        links_chain.remove(sv)
+                    if found['dir'] == 'out':
+                        links_chain.remove(found)
                         links_chain.append(link)
             i+= 1
 
@@ -1870,7 +1871,7 @@ class Manager(Man.Jun):
                 intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
                 print('old link:',link['out'].getName(),'->',link['in'].getName())
                 print('new link:',outtask.getName(),'->',intask.getName())
-                print('param', link)
+                # print('param', link)
                 if 'option' in link and link['option'] == 'move':
                     self.setCurrentTask(link['in'])
                     self.makeTaskAction("","","Unlink","")
