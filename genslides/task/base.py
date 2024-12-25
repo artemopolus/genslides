@@ -648,16 +648,16 @@ class BaseTask():
                 copy_out = bparam['cp_out']
         copy_in = param['in']
         copy_out = param['out']
-        print('Get link copy info from',self.getName())
+        # print('Get link copy info from',self.getName())
         if len(self.getHoldGarlands()) and copy_out:
             for ll in self.getHoldGarlands():
                 res, val = ll.getTrgLinkInfo(self)
                 if 'check_man' in param and param['check_man']:
                     if res and ll.manager == self.manager:
-                        print('Append:',val['out'].getName(),'->', val['in'].getName())
+                        # print('Append:',val['out'].getName(),'->', val['in'].getName())
                         trg_links.append(val)
                 elif res:
-                    print('Append:',val['out'].getName(),'->', val['in'].getName())
+                    # print('Append:',val['out'].getName(),'->', val['in'].getName())
                     trg_links.append(val)
         if len(self.getGarlandPart()) and copy_in:
             for ll in self.getGarlandPart():

@@ -404,7 +404,7 @@ class Actioner():
         return out
  
     def makeTaskAction(self, prompt, type1, creation_type, creation_tag, param = {}, save_action = True):
-        print(f"Make task action:\nprompt={prompt}\n{type1}\n{creation_type}\n{creation_tag}\n{param}\n{save_action}")
+        # print(f"Make task action:\nprompt={prompt}\n{type1}\n{creation_type}\n{creation_tag}\n{param}\n{save_action}")
         onlysave = False
         if 'dont' in param and param['dont']:
             onlysave = True
@@ -1727,7 +1727,7 @@ class Actioner():
         self.manager.cleanTasksChat()
 
     def getJsonCmd(self, json_cmds):
-        print('Get json command:', json_cmds)
+        # print('Get json command:', json_cmds)
         results = [] # list to hold results of each command
         try:
             cmds = json.loads(json_cmds) # parse the JSON array
@@ -1737,7 +1737,7 @@ class Actioner():
 
 
             for cmd in cmds:
-                print('Run cmd', cmd)
+                # print('Run cmd', cmd)
                 action = cmd.get("action")
                 args = cmd.get("args", [])
                 kwargs = cmd.get("kwargs", {})
@@ -1745,9 +1745,9 @@ class Actioner():
                 if action:
                     method = getattr(self, action, None)
                     if method and callable(method):
-                        print('Args:', args)
-                        print('Kwargs', kwargs)
-                        print('Method', method)
+                        # print('Args:', args)
+                        # print('Kwargs', kwargs)
+                        # print('Method', method)
                         result = method(*args, **kwargs)
                         results.append(result)  # Append the result of each action
                     else:
