@@ -67,6 +67,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             param = task.getLastMsgContent()
             if len(arr) == 3 and arr[2] == 'json_dump':
                 jdump = json.dumps(param)
+                if len(jdump) > 3:
+                    jdump = jdump[1:-1]
                 rep_text = rep_text.replace(res, jdump)
 
             elif len(arr) == 3 and arr[2] == 'json':
@@ -377,10 +379,44 @@ def getKayArray():
 def getExtTaskSpecialKeys():
     return ['input', 'output', 'stopped', 'check']
 
+
+def extract_values(text):
+    """
+    Extracts all innermost values enclosed in double brackets [[...]] from a string,
+    handling multiple occurrences, nested brackets, and ignoring brackets with spaces.
+    """
+    results = []
+    matches = re.finditer(r"\[\[.*?\]\]", text)
+
+    for match in matches:
+        start, end = match.span()
+        inner_text = text[start:end]
+
+        if " " in inner_text[2:-2]:
+            continue
+
+        nested_start = inner_text.find("[[", 2)
+
+        if nested_start != -1:
+            innermost_start = inner_text.rfind("[[")
+            innermost_end = inner_text.find("]]", innermost_start + 2)
+            innermost_text = inner_text[innermost_start + 2:innermost_end]
+            if " " in innermost_text:
+                continue
+            results.append('[['+ innermost_text + ']]')
+        else:
+            results.append('[[' + inner_text[2:-2] + ']]')
+
+    return results
+
 def findByKey2(text, manager , base):
         reqhelper = manager.helper
-        results = re.findall(r"\[\[.*?\]\]", text)
+        # pattern = r"\[\[((?:(?!\[\[|\]\]).)*?)\]\]"
+        # pattern = r"\[\[.*?\]\]"
+        # results = re.findall(pattern, text)
+        results = extract_values(text)
         n_res = []
+        repeat = False
         for res in results:
             arr = res[2:-2].split(":")
             tmp_ress = []
@@ -455,10 +491,14 @@ def findByKey2(text, manager , base):
                     while( arr[1] == 'parent'):
                         task = task.getParentForFinder()
                         if task is None:
-                             return text, out_target_task, out_results_cnt
+                             return text, out_target_task, out_results_cnt, repeat
                         arr.pop(0)
                         index +=1
-                    out_target_task = task
+                    if arr[1] == 'rpt':
+                        arr.remove('rpt')
+                        repeat = True
+                    else:
+                        out_target_task = task
                     rep_text = getFromTask(arr, res, rep_text, task, manager, index)
                     task.freeTaskByParentCode()
                 else:
@@ -475,5 +515,5 @@ def findByKey2(text, manager , base):
             else:
                 # print("Incorrect len")
                 pass
-        return rep_text, out_target_task, out_results_cnt
+        return rep_text, out_target_task, out_results_cnt, repeat
 

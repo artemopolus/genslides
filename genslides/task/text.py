@@ -1327,10 +1327,12 @@ class TextTask(BaseTask):
          idx = 0
         #  print(f"Task: {self.getName()}")
          while idx < 10000:
-             n_text, task, ress = finder.findByKey2(text, manager, base)
+             n_text, task, ress, repeat = finder.findByKey2(text, manager, base)
              idx +=1
             #  print(f"Conditions: t=b: {task == base} r: {ress}")
-             if task == base:
+             if repeat:
+                 text = n_text
+             elif task == base:
                  break
              elif ress == 0:
                  break
@@ -1473,6 +1475,11 @@ class TextTask(BaseTask):
                     target = self.findKeyParam(bparam['target'])
                     value = self.findKeyParam(bparam['value'])
                     if target == value:
+                        block = True
+                elif bparam['reason'] == "TargetInv":
+                    target = self.findKeyParam(bparam['target'])
+                    value = self.findKeyParam(bparam['value'])
+                    if target != value:
                         block = True
                 elif bparam['reason'] == "TargetTrue":
                     target = self.findKeyParam(bparam['target'])

@@ -76,7 +76,7 @@
    {
       "type": "block",
       "block": [true, false],
-      "reason":["None","Target"],
+      "reason":["None","Target","TargetInv","TargetTrue","TargetFalse"],
       "target":"",
       "value":""
    },
@@ -100,7 +100,8 @@
    },
    {
       "type": "bud",
-      "summary": "summary" 
+      "summary": "summary",
+      "text": ""
    },
    {
       "type":"search",
