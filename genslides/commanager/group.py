@@ -1760,3 +1760,11 @@ class Actioner():
         except json.JSONDecodeError:
             return "Error: Invalid JSON format."
         
+    def goToChildTaskbyTag( self, tags : str ):
+        man = self.getCurrentManager()
+        tasks = man.getCurrentTask().getAllChildChains()
+        tags_list =[t.replace(" ","") for t in tags.split(',')]
+        for task in tasks:
+            if task.checkTags( tags_list ):
+                man.setCurrentTask( task )
+                break

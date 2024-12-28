@@ -1496,3 +1496,11 @@ class TextTask(BaseTask):
 
         return super().checkBlock()
     
+    def checkTags( self, tags : list[str]):
+        res, param = self.getParamStruct('tag', True)
+        if res:
+            text = self.findKeyParam( param['text'] )
+            if all(word in text for word in tags):
+                return True
+        return super().checkTags(tags)
+    

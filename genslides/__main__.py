@@ -577,6 +577,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         update_task_btn = gr.Button(value="Update")
                         updatecur_task_btn = gr.Button(value='Update current')
                         clean_task_btn = gr.Button(value='Clean')
+                with gr.Tab('Custom json cmd'):
+                    customjsoncmd_cod = gr.Code(label='Json cmd',language='json', interactive=True)
+                    customjsoncmd_btn = gr.Button('Exe JSON cmd')
+
             with gr.Tab('Delete'):
                     with gr.Row():
                         delete_btn = gr.Button(value='Delete')
@@ -1059,7 +1063,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                ]
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
 
-
+            customjsoncmd_btn.click(fn=projecter.executeJsonCmd, inputs=customjsoncmd_cod, outputs=std_output_list)
 
             wo_request_sld.release(fn=projecter.setRequestTaskSymVizCount, inputs=[wo_request_sld], outputs=std_output_list)
             wo_response_sld.release(fn=projecter.setResponseTaskSymVizCount, inputs=[wo_response_sld], outputs=std_output_list)

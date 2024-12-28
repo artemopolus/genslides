@@ -3386,6 +3386,8 @@ class Projecter:
         return self.updateMainUIelements()
     
        
-
-
+    def executeJsonCmd( self, cmds ):
+        # print(' Exe json cmd ')
+        self.actioner.getJsonCmd( cmds )
+        return self.updateMainUIelements()
 

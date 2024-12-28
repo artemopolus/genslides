@@ -1636,3 +1636,18 @@ class BaseTask():
     
     def clearRecordParam(self):
         pass
+
+    def checkTags( self, tags : list[str]):
+        return False
+    
+    def getParentByTags( self, tags : list[str]):
+        for task in self.getAllParents(revert_dir=True):
+            if task.checkTags( tags):
+                return task
+        return None
+    
+    def getChildByTags( self, tags : list[str]):
+        for task in self.getAllChildChains():
+            if task.checkTags( tags):
+                return task
+        return None

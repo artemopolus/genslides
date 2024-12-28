@@ -472,6 +472,18 @@ def findByKey2(text, manager , base):
                         arr.pop(0)
                 elif arr[0] == 'parent':
                     task = base.getParent()
+                    if len(arr) > 2 and arr[1] == 'tag':
+                        tags_list =arr[2].split(',')
+                        task = base.getParentByTags( tags_list)
+                        arr.remove(arr[1])
+                        arr.remove(arr[1])
+                elif arr[0] == 'child':
+                    if len(arr) > 2 and arr[1] == 'tag':
+                        tags_list =arr[2].split(',')
+                        task = base.getChildByTags( tags_list)
+                        arr[0] = 'parent'
+                        arr.remove(arr[1])
+                        arr.remove(arr[1])
                 elif arr[0] == 'project':
                     if len(arr) > 2:
                         rres, rvalue = reqhelper.getValue(arr[1], arr[2])
