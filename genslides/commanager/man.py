@@ -831,6 +831,8 @@ class Jun():
         return treetasks
 
     def setCurrentTask(self, task : Task.BaseTask):
+        if task == None:
+            return
         buds = task.getAllBuds()
         if self.endes_idx < len(self.endes) and self.endes[self.endes_idx] not in buds:
             for i, end in enumerate(self.endes):

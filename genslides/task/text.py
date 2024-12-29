@@ -148,7 +148,7 @@ class TextTask(BaseTask):
     
     def setPrio(self, idx : int):
         if self.parent is None:
-            return super().setPrio()
+            return super().setPrio(idx)
         for p in self.getParent().params:
             if 'type' in p and p['type'] == 'child' and p['name'] == self.getName():
                 p['idx'] = idx

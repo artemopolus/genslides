@@ -15,6 +15,7 @@ import os
 import json
 import shutil
 import graphviz
+import copy
 
 class Actioner():
     def __init__(self, manager : Manager.Manager) -> None:
@@ -1768,3 +1769,46 @@ class Actioner():
             if task.checkTags( tags_list ):
                 man.setCurrentTask( task )
                 break
+
+    def switchCurrentTaskType( self, trg_type : str, toraw = False ):
+        man = self.getCurrentManager()
+        task = man.getCurrentTask()
+        parent = task.getParent()
+        children = copy.deepcopy( task.getChilds() )
+        inlinks = task.getHoldGarlands()
+        outlinks = task.getGarlandPart()
+        if toraw:
+            prompt=task.getPromptContentForCopyConverted() 
+        else:
+            prompt=task.getPromptContentForCopy() 
+        prompt_tag=task.getLastMsgRole()
+        param_task = task.copyAllParams(True)
+        prio = task.getPrio()
+        man.setCurrentTask( parent )
+        self.makeTaskAction(prompt, trg_type, "SubTask", prompt_tag, param_task)
+        # man.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
+
+        cr_task = man.getCurrentTask()
+        cr_task.setPrio(prio)
+
+        print(task.getName())
+        print(cr_task.getName())
+
+        for child in children:
+            man.addTaskToSelectList( cr_task)
+            param = {'curr':child.getName(),'select': cr_task.getName()}
+            print(param)
+            man.setCurrentTask( child )
+            self.makeTaskAction("","","Parent","", param)
+            # child.setParent( cr_task)
+        
+        man.setCurrentTask( task )
+        self.makeTaskAction("","","Delete","")
+        man.setCurrentTask( cr_task )
+
+        for link in inlinks:
+            man.makeLink( link, cr_task )
+        
+        for link in outlinks:
+            man.makeLink( cr_task, link )
+

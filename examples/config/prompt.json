@@ -24,6 +24,24 @@
 		"Init":"",
 		"Endi":""
 	},
+	"Listener":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "listener",
+				"input": "prompt",
+				"output": "param",
+				"hash": "",
+				"combine": "single",
+				"data": "",
+				"onedit": "none",
+				"onupdate": "none",
+				"garland_opt": "",
+				"garland_actions": ""
+			}
+		]
+	},
 	"Group":{
 		"Init":"",
 		"Endi":""
@@ -270,18 +288,6 @@
 				"script_param": "[[manager:path:fld]]/init.py",
 				"cwd": "[[manager:path:spc]]/script",
 				"parent_task_cmd": "[[project:RunScript:python]] [[parent:msg_content]]"
-			}
-		]
-	},
-	"Listener":{
-		"Init":"",
-		"Endi":"",
-		"params":[
-			{
-				"type": "response",
-				"restricted_index": false,
-				"index": 2,
-				"break":true
 			}
 		]
 	},

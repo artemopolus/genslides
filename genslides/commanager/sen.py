@@ -276,24 +276,7 @@ class Projecter:
 
 
 
-    def load(self):
-        self.actioner.setManager(self.actioner.std_manager)
-        self.clearFiles()
-        path = self.actioner.getCurrentManager().getPath()
-        path = Loader.Loader.getUniPath(path)
-        print('Load files to',path)
-        project_path = Loader.Loader.getUniPath(self.mypath)
-        ppath = Loader.Loader.getFilePathFromSystemRaw()
-        project_path = Loader.Loader.getUniPath(ppath.parent)
-        filename = str(ppath.stem)
-
-        Archivator.extractFiles(project_path, filename, path)
-        self.resetManager(self.actioner.getCurrentManager(), path=self.actioner.getPath())
-        self.current_project_name = filename
-        self.actioner.getCurrentManager().setParam("current_project_name",self.current_project_name)
-        self.updateSessionName()
-        return filename
-    
+   
     def appendProjectTasks(self):
         ppath = Loader.Loader.getFilePathFromSystemRaw()
         project_path = Loader.Loader.getUniPath(ppath.parent)
@@ -356,7 +339,22 @@ class Projecter:
         trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp",name + "_" + suffix + ".7z"]))
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
+    def load(self):
+        self.actioner.setManager(self.actioner.std_manager)
+        man = self.actioner.getCurrentManager()
+        path = man.getPath()
+        path = Loader.Loader.getUniPath(path)
+        print('Load files to',path)
+        project_path = Loader.Loader.getUniPath(self.mypath)
+        ppath = Loader.Loader.getFilePathFromSystemRaw()
+        # ppath = Loader.Loader.getFilePathArrayFromSysten(self.actioner.getCurrentManager().getPath())
+        project_path = Loader.Loader.getUniPath(ppath.parent)
+        filename = str(ppath.stem)
 
+        FileManager.deleteFiles(man.getPath())
+        self.loadInternal(project_path, filename, path)
+        return filename
+ 
     def loadFromTmp(self):
         print('Load from temporary')
         self.actioner.setManager(self.actioner.std_manager)
@@ -369,15 +367,19 @@ class Projecter:
 
         # self.clearFiles()
         # man.beforeRemove()
-        FileManager.deleteFiles(man.getPath())
 
         project_path = fld_path
 
         filename += "_reserved"
+        
 
+        FileManager.deleteFiles(man.getPath())
+        self.loadInternal(project_path, filename, path)
+        return self.updateTaskManagerUI()
+    
+    def loadInternal( self, project_path, filename, path ):
         Archivator.extractFiles(project_path, filename, path)
         self.resetManager(self.actioner.getCurrentManager(), path=self.actioner.getPath())
-        return self.updateTaskManagerUI()
 
     def save(self, name):
         self.current_project_name = name
