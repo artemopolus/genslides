@@ -1857,6 +1857,9 @@ class Manager(Man.Jun):
                             self.makeTaskAction("","","Unlink","")
                             intask = self.curr_task
                             self.makeLink( intask, outtask )
+                        elif link['option'] == 'none':
+                            intask = self.curr_task
+                            self.makeLink( intask, outtask )
                         else:
                             pass
                     else:

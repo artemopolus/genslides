@@ -310,12 +310,9 @@ class ListenerTask(LinkedTask):
                                    'parent': self.parent
                                    }
                 if 'garland_opt' in lparam:
-                    if lparam['garland_opt'] == 'insert_sub':
+                    if lparam['garland_opt'].startswith('insert_'):
                         oparam['insert'] = True
-                        oparam['option'] = 'sub'
-                    elif lparam['garland_opt'] == 'insert_move':
-                        oparam['insert'] = True
-                        oparam['option'] = 'move'
+                        oparam['option'] = lparam['garland_opt'][7:]
                 elif 'garland_actions' in lparam:
                     oparam['actions'] = self.findKeyParam(lparam['garland_actions'])
                 return True, oparam
