@@ -63,6 +63,19 @@ class TextTask(BaseTask):
         self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
         self.stdProcessUnFreeze()
 
+        self.onMsgDiffCallbacks = []
+
+    def registerOnMsgDiffCallback ( self, callback):
+        if callable(callback):  # Проверяем, что callback является вызываемой функцией
+            self.onMsgDiffCallbacks.append(callback)
+        else:
+            raise TypeError("Callback должен быть вызываемой функцией")
+
+    def unRegisterOnMsgDiffCallback ( self, callback):
+        """Метод для удаления зарегистрированной функции обратного вызова."""
+        if callback in self.onMsgDiffCallbacks:
+            self.onMsgDiffCallbacks.remove(callback)
+
     def setCheckParentForce(self, val : bool):
         self.checkparentsettrue = val
 
@@ -350,14 +363,16 @@ class TextTask(BaseTask):
             if len(src) > 0 and remove:
                 last = src.pop()
             if trg != src:
-                diff = [t for t in trg if t not in src]
-                dif2 = [t for t in src if t not in trg]
+                diff = [{"name":self.getName(),"idx": idx,"msg":t} for idx, t in enumerate( trg ) if t not in src]
+                # dif2 = [t for t in src if t not in trg]
                 # print('Diff:', diff)
                 # print('Diff:', dif2)
                 if update:
                     if last and save_curr:
                         trg.append(last)
                     self.setMsgList( trg )
+                for callback in self.onMsgDiffCallbacks:
+                    callback(diff)
                 return False
         return True
     

@@ -34,6 +34,8 @@ class Actioner():
 
         self.is_updating = False
 
+        self.force_update_stop = False
+
     def setManager(self, manager : Manager.Manager):
         if manager != self.std_manager and not manager.is_loaded:
             manager.disableOutput2()
@@ -831,7 +833,7 @@ class Actioner():
                 self.update_tree_idx += 1
                 self.update_state = 'start tree'
             else:
-                self.update_state = 'done'
+                self.stopUpdate()
                 self.update_tree_idx = 0
 
         # cnt = 0
@@ -842,6 +844,9 @@ class Actioner():
 
         # out = self.updateUIelements()
         # return out
+
+    def stopUpdate( self ):
+        self.update_state = 'done'
 
     def updateCurrentTree(self):
         man = self.manager
@@ -866,11 +871,15 @@ class Actioner():
 
         man.curr_task = init_task
         return 
+    
     def updateAllnTimes(self, n, check = False):
         self.getCurrentManager().disableOutput2()
         for i in range(n):
             print('UAT:', i)
             self.updateAll(force_check=check)
+            if self.force_update_stop:
+                print(f"Force stop on {i} time")
+                break
         self.getCurrentManager().enableOutput2()
 
     def updateChildTasks(self, force_check = False):
@@ -935,7 +944,7 @@ class Actioner():
         while(idx < max_update_idx):
             self.update(update_task=update_task)
             project_chain.append({'idx':idx, 'task': man.getCurrentTask()})
-            if self.update_state == 'done':
+            if self.update_state == 'done' or self.force_update_stop:
                 break
             idx += 1
 
@@ -1657,7 +1666,7 @@ class Actioner():
                 self.update_tree_idx += 1
                 self.update_state = 'start tree'
             else:
-                self.update_state = 'done'
+                self.stopUpdate()
                 self.update_tree_idx = 0
 
     def resetUpdateManager(self, man : Manager.Manager, param = {}):

@@ -320,6 +320,11 @@ class ListenerTask(LinkedTask):
 
         return super().getTrgLinkInfo(trg)
     
+    def blockLinked(self):
+        lres, lparam = self.getParamStruct("listener")
+        if lres and 'onupdate' in lparam and lparam['onupdate'] == 'none':
+            return
+        return super().blockLinked()
 
     def stdProcessUnFreeze(self, input=None):        
         if self.checkBlock():

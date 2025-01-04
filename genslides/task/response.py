@@ -191,6 +191,7 @@ class ResponseTask(TextTask):
                     self.msg_list.pop()
                     self.executeResponse()
                     self.saveJsonToFile(self.msg_list)
+                    self.onMsgDiffCallbacks([{'idx':0,'msg':'empty'}])
 
         # super().update(input)
 

@@ -1507,8 +1507,24 @@ class Projecter:
         print('Update All trees stepped',n,'times')
         self.actioner.updateAllnTimes(n, check)
         return self.updateMainUIelements()
-
     
+    def onMsgDiffCallback(self, info):
+        print('Msg diff callback:\n', info)
+        self.actioner.force_update_stop = True
+        self.actioner.stopUpdate()
+
+    def updateAllnTimesCheckDiff(self, n, check = False):
+        print(f"Update All trees stepped{n}times while check diffs")
+        for task in self.actioner.getCurrentManager().getTasks():
+            task.registerOnMsgDiffCallback( self.onMsgDiffCallback )
+        self.actioner.updateAllnTimes(n, check)
+
+        for task in self.actioner.getCurrentManager().getTasks():
+            task.unRegisterOnMsgDiffCallback( self.onMsgDiffCallback)
+        self.actioner.force_update_stop = False
+        return self.updateMainUIelements()
+
+   
     def updateCurrentTree(self):
         self.actioner.getCurrentManager().disableOutput2()
         self.actioner.updateCurrentTree()
