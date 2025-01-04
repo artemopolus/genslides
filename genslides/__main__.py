@@ -484,6 +484,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     nearesttask_btn = gr.Button('Nearest tasks')
                     get_hold_garland_btn = gr.Button('Get Garland Holders')
                     get_frozentasks_btn = gr.Button('Get frozen')
+                    getmsgdifftasks_btn = gr.Button('Get msg diff tasks')
                 with gr.Row():
                     relatedfwrdchain_btn = gr.Button('Forward relation')
                     relatedfwrdchain_sld = gr.Slider(minimum=0, maximum=20,step=1,value=1,label='Range')
@@ -1174,6 +1175,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             nearesttask_btn.click(fn=projecter.selectNearestTasks, outputs=std_output_list)
             get_hold_garland_btn.click(fn=projecter.selectGarlandHolders, outputs=std_output_list)
             get_frozentasks_btn.click(fn=projecter.multiselectFrozenTasks, outputs=std_output_list)
+            getmsgdifftasks_btn.click(fn=projecter.multiselectMsgDiffTasks, outputs=std_output_list)
 
             relatedfwrdchain_btn.click(fn=projecter.getRalationForward, inputs=relatedfwrdchain_sld, outputs=std_output_list)
             relatedbackchain_btn.click(fn=projecter.getRelationBack, inputs=relatedbackchain_sld, outputs=std_output_list)

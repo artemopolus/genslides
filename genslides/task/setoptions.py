@@ -160,6 +160,8 @@ class SetOptionsTask(WriteToFileTask):
         return ""
     def getPromptContentForCopyConverted(self):
         return ""
+    def checkParentMsgList(self, update=False, remove=True, save_curr=True):
+        return True
 
 
 class GeneratorTask(SetOptionsTask):
@@ -304,6 +306,4 @@ class GeneratorTask(SetOptionsTask):
             if len(cur_iter) > 0:
                 return True
         return super().readyToGenerate()
-
-
 

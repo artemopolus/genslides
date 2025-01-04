@@ -1659,3 +1659,6 @@ class BaseTask():
             if task.checkTags( tags):
                 return task
         return None
+    
+    def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
+        return True
