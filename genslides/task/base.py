@@ -349,6 +349,11 @@ class BaseTask():
         self.filename = task_info.filename
 
         self.block_on = False
+    
+    def registerOnMsgDiffCallback ( self, callback):
+        pass
+    def unRegisterOnMsgDiffCallback ( self, callback):
+        pass
 
 
     def getBranchCodeTag(self) -> str:
@@ -1624,7 +1629,10 @@ class BaseTask():
         for task in self.getAllChildChains():
             task.blockTask()
             for linked in task.getHoldGarlands():
-                linked.blockChildren()
+                linked.blockLinked()
+
+    def blockLinked( self ):
+        return self.blockChildren()
 
 
     def unBlockChildren(self):
