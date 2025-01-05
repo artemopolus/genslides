@@ -20,8 +20,26 @@ def divideArray(task  , param):
         if len(arr) > 0:
             return True, out
     elif parse_type == 'json':
-        res, arr = Ld.Loader.loadJsonFromText(task.getLastMsgContent2())
-        if res:
+        res, targets = Ld.Loader.loadJsonFromText(task.getLastMsgContent2())
+        if res and isinstance(targets, list):
+            arr = []
+            for idx, content in enumerate( targets ):
+                trg_idx  = idx
+                chck = False
+                if 'idx' in content:
+                    trg_idx = content['idx']
+                    del content['idx']
+                if 'chck' in content:
+                    chck = content['chck']
+                    del content['chck']
+                arr.append(
+                    {
+                        'idx' : trg_idx,
+                        'chck':chck,
+                        'content': Ld.Loader.convJsonToText( content )
+                    }
+                )
+                
             return True, arr
     elif parse_type == 'text_split' and 'parts' in param and 'smbl_before' in param and 'smbl_after' in param:
         data = task.getLastMsgContent2()
