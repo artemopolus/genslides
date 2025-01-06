@@ -32,11 +32,15 @@ def divideArray(task  , param):
                 if 'chck' in content:
                     chck = content['chck']
                     del content['chck']
+                if 'content' in content:
+                    text = content['content']
+                else:
+                    text = Ld.Loader.convJsonToText( content )
                 arr.append(
                     {
                         'idx' : trg_idx,
                         'chck':chck,
-                        'content': Ld.Loader.convJsonToText( content )
+                        'content': text
                     }
                 )
                 

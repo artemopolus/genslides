@@ -215,6 +215,9 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'text_ins':
             script_text = convertTextPartToMsg(md_text=task.getLastMsgContent())
+            if len(arr) > 2:
+                if arr[2] == 'json_dumps':
+                    script_text = Loader.Loader.convJsonToText( script_text )
             rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'param' and len(arr) > 3:
             pres, pparam = task.getParamStruct(arr[2])
