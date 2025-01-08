@@ -193,9 +193,10 @@ def checkArrayIteration(task  , param : dict):
     return param
 
 def resetArrayParam( task, param : dict):
-    print('Reset array params')
+    print('Reset array params for', task.getName())
     try:
         param['src_data'] = ''
+        param['idx'] = 0
     except:
         pass
     return param

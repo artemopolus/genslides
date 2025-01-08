@@ -1732,7 +1732,7 @@ class Actioner():
         frozen_tasks = self.getCurrentManager().getFrozenTasksCount()
         for task in self.getCurrentManager().getTasks():
             res, param = task.getParamStruct('array', only_current=True)
-            if res and param['idx'] < param['len'] - 1:
+            if res and isinstance(param['idx'], int) and param['idx'] < param['len'] - 1:
                 frozen_tasks += 1
         return frozen_tasks
 

@@ -1092,8 +1092,7 @@ class TextTask(BaseTask):
         res, param = self.getParamStruct('array', only_current=True)
         if res:
             print(self.getName(), 'reset array param')
-            self.updateParamStruct('array','src_data','')
-            # self.updateParam2(ar.resetArrayParam(self, param))
+            self.updateParam2( ar.resetArrayParam(self, param) )
         return super().forceCleanChat()
 
     def getChatRecords(self) ->list:
