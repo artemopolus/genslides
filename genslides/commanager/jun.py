@@ -1860,6 +1860,9 @@ class Manager(Man.Jun):
                         elif link['option'] == 'none':
                             intask = self.curr_task
                             self.makeLink( intask, outtask )
+                        elif link['option'] == 'keep':
+                            intask = self.getCopyedTask(self.tc_tasks_chains, link['in'])
+                            self.makeLink( intask, outtask )
                         else:
                             pass
                     else:
