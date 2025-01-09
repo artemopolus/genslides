@@ -200,9 +200,12 @@
    {
       "type": "listener",
       "input": ["prompt","params"],
+      "output": ["prompt","param"],
       "hash": "",
       "combine": ["none","single"],
-      "garland_opt":["insert_move","insert_sub"]
+      "onedit":["none","collect","garland"],
+      "onupdate":["none","chck_link_chld"],
+      "garland_opt":["insert_std","insert_move","insert_sub","insert_none"]
    },
    {
       "type": "autocommander",
@@ -212,7 +215,8 @@
    {
       "type": "choices",
       "source":"[[current:msg_content]]",
-      "allexamples":"[[current:msg_content]]"
+      "allexamples":"[[current:msg_content]]",
+      "keys":["txt","text","idx,text","content"]
    },
    {
       "type":"attention",
@@ -224,6 +228,12 @@
       "filetag": "File",
       "dirtag":"Directory",
       "path_to_read": "[[manager:path:sub_2]]"
+   },
+   {
+      "type":"autoactioner",
+      "input":["[[current:msg_content]]","[[current:param:name:key]]","[[parent:msg_content]]"],
+      "hash": ""
    }
+
 
 ]
