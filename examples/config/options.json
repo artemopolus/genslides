@@ -205,7 +205,8 @@
       "combine": ["none","single"],
       "onedit":["none","collect","garland"],
       "onupdate":["none","chck_link_chld"],
-      "garland_opt":["insert_std","insert_move","insert_sub","insert_none"]
+      "garland_opt":["insert_sub", "insert_move","insert_std","insert_none","insert_keep"],
+      "garland_actions": ""
    },
    {
       "type": "autocommander",
@@ -227,13 +228,20 @@
       "type": "entry",
       "filetag": "File",
       "dirtag":"Directory",
-      "path_to_read": "[[manager:path:sub_2]]"
+      "path_to_read": "[[manager:path:sub_2]]",
+      "output":["std","list","json"],
+      "type_out":["all","file","dir"]
    },
    {
       "type":"autoactioner",
       "input":["[[current:msg_content]]","[[current:param:name:key]]","[[parent:msg_content]]"],
       "hash": ""
+   },
+   {
+      "type":"tag",
+      "text": ""
    }
+
 
 
 ]
