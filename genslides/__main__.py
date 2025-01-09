@@ -118,13 +118,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             parameters_manager = projecter
             with gr.Accordion(label='Session information'):
                 with gr.Row():
-                    sessionname_drd = gr.Dropdown(label='Session names list',choices=projecter.getSessionNameList())
-                    setsessionname_btn = gr.Button('Select from list')
-                    sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
-                    newsessionname_btn = gr.Button('New name for session')
+                    with gr.Column():
+                        sessionname_drd = gr.Dropdown(label='Session names list',choices=projecter.getSessionNameList())
+                        setsessionname_btn = gr.Button('Select from list')
+                        sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
+                        newsessionname_btn = gr.Button('New name for session')
+                    with gr.Column():
+                        sessioninfo_txt = gr.Textbox(label='Session info')
+                    sessionname_drd.select(fn=projecter.readSessionInfo, inputs=sessionname_drd, outputs=sessioninfo_txt )
                 # with gr.Row():
                     # project_manLoad = gr.Button(value='Default project location')
                     # project_manBrow = gr.Button(value='Select project location')
+            with gr.Accordion(label='Actioners'):
                 with gr.Column():
                     with gr.Row():
                         actaddbybrow_btn = gr.Button('Load actioner from location')

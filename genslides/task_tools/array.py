@@ -45,6 +45,8 @@ def divideArray(task  , param):
                 )
                 
             return True, arr
+        else:
+            print('No list in target json key')
     elif parse_type == 'text_split' and 'parts' in param and 'smbl_before' in param and 'smbl_after' in param:
         data = task.getLastMsgContent2()
         if 'part_smbl_cnt' in param and param['parts'] == 0:
@@ -133,21 +135,24 @@ def getSHAfromTask(task, param):
  
 
 def saveArrayToParams(task  , param : dict):
+    print('Save array for', task.getName())
    
-    param ['src_data' ]= getSHAfromTask(task, param)
-
     # print('param',param)
+    idx = param ['idx']
     if 'parse' in param:
         res, arr = divideArray(task, param)
         if res:
             curr = getArrayByIndex(arr, 0, param, task)
             idx = 0
         else:
+            print('Cant divide into array')
             return False, param
     else:
+        print('No parse parameter')
         return False, param
     out = {}
     setArrayParamValues(out, arr, curr, idx)
+    param ['src_data' ]= getSHAfromTask(task, param)
     param.update(out)
     return True, param
 
@@ -194,11 +199,11 @@ def checkArrayIteration(task  , param : dict):
 
 def resetArrayParam( task, param : dict):
     print('Reset array params for', task.getName())
-    try:
-        param['src_data'] = ''
-        param['idx'] = 0
-    except:
-        pass
+    param['idx'] = 0
+    param['src_data'] = ''
+    # res, out = saveArrayToParams(task, param)
+    # if res:
+        # return out
     return param
 
 

@@ -989,7 +989,16 @@ class Projecter:
         session_data.update(params)
         path = FileManager.addFolderToPath(self.session_name_path,[self.session_name_curr + ".json"])
         Writer.writeJsonToFile(Loader.Loader.getUniPath(path), session_data)
-   
+
+    def readSessionInfo( self, name : str ):
+        path = FileManager.addFolderToPath(self.session_name_path,[name + ".json"])
+        session_data = Reader.ReadFileMan.readJson(path)
+        text = ""
+        if 'actioners' in session_data:
+            text ='\n\n'.join( [str(idx) + ") " + info['act_path'] for idx, info in enumerate(session_data['actioners'] ) ] )
+        return text
+
+  
     def loadSession(self):
         path = FileManager.addFolderToPath(self.session_name_path,[self.session_name_curr + ".json"])
         session_data = Reader.ReadFileMan.readJson(path)
@@ -2781,7 +2790,12 @@ class Projecter:
     def getCurManInExtTreeTasks(self):
         man = self.actioner.getCurrentManager()
         out, out_paths = self.actioner.getCurManInExtTreeTasks()
-        return gr.CheckboxGroup(choices=out, value=out, interactive=True), '\n'.join(out_paths)
+        checks = []
+        for name in out:
+            task = man.getTaskByName(name)
+            if task.getActioner() == None:
+                checks.append( name )
+        return gr.CheckboxGroup(choices=out, value=checks, interactive=True), '\n'.join(out_paths)
     
     def updateInExtTreeTasksByName(self, names : list[str]):
         man = self.actioner.getCurrentManager()
