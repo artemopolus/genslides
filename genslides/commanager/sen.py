@@ -1245,31 +1245,35 @@ class Projecter:
         tasks = trg.getAllParents()
         examples = []
         pairs = []
+        keys = []
         for task in tasks:
             eres, eparam = task.getParamStruct("choices", only_current=True)
             if eres:
-                split_words = task.findKeyParam(eparam['source']).split('[[,]]')
-                for i in range(int(len(split_words)/2)):
-                    first = split_words[2*i]
-                    sec = split_words[2*i+1]
-                    if sec[0] == '\"' and sec[-1] == '\"':
-                        sec = sec[1:-1]
-                    if first[0] == '\"' and first[-1] == '\"':
-                        first = first[1:-1]
-                    
-                    if not all(char.isdigit() for char in first):
-                        tmp = first
-                        first = sec
-                        sec = tmp
-                    try:
-                        first = int(first)
-                    except:
-                        pass
-                    pairs.append([first, sec])
-                # examples.extend( )
-        sorted_pairs = sorted(pairs, key=lambda pair: pair[0])
+                split_words = task.findKeyParam(eparam['source'])
+                jres, jobj = Loader.Loader.loadJsonFromText( split_words )
+                if jres:
+                    pairs.extend( jobj )
+                if 'keys' in eparam:
+                    inkeys = eparam['keys'].split(',')
+                    for key in inkeys:
+                        if key not in keys:
+                            keys.append( key)
+
+
+        sorted_pairs = sorted(pairs, key=lambda x: int(x['idx']))
+        if len(keys) == 0:
+            keys = ['txt']
         for pair in sorted_pairs:
-            examples.append((f"{pair[0]}. \"{pair[1]}\"", pair[1]))
+            content = ""
+            for key in keys:
+                if key in pair:
+                    if isinstance(pair[key], str):
+                        content += " " + pair[key]
+                    else:
+                        content += " " + str(pair[key])
+
+            examples.append((f"{pair['idx']}. \"{content}\"", content))
+                
         return examples
 
     def actionTypeChanging(self, action, prompt):
