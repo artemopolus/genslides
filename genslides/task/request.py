@@ -32,8 +32,9 @@ class RequestTask(TextTask):
         return super().onExistedMsgListAction(msg_list_from_file)
 
     def update(self, input : TaskDescription = None):
-        if self.parent:
-            trg_list = self.parent.msg_list.copy()
+        if self.getParent():
+            trg_list = self.getParentMsgList()
+            # trg_list = self.parent.msg_list.copy()
         else:
             trg_list = []
         if input == None:

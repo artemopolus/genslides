@@ -418,6 +418,25 @@ class TextTask(BaseTask):
 
     def getMsgList(self):
         return copy.deepcopy(self.msg_list)
+    
+    def getParentMsgList( self ):
+        parent = self.getParent()
+        if parent:
+            if parent.checkType("SetOptions") and parent.getParent():
+                return parent.getParent().getMsgList()
+            return parent.getMsgList()
+        return []
+
+    def getRawMsgs(self):
+        return self.msg_list.copy()
+    
+   
+    def getRawParentMsgs(self):
+        if self.parent is None:
+            return []
+        else:
+            out =  self.parent.msg_list.copy()
+            return out
  
     def copyParentMsg(self):
         self.msg_list = self.getRawParentMsgs()
@@ -572,17 +591,7 @@ class TextTask(BaseTask):
         return out
 
    
-    def getRawMsgs(self):
-        return self.msg_list.copy()
-    
-   
-    def getRawParentMsgs(self):
-        if self.parent is None:
-            return []
-        else:
-            out =  self.parent.msg_list.copy()
-            return out
-        
+       
     def appendMessage(self, message : dict):
         if "role" in message and "content" in message:
             parent_msgs = self.getRawParentMsgs()

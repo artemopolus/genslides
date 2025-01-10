@@ -162,7 +162,7 @@ class ResponseTask(TextTask):
         if len(self.msg_list) == 0:
             print('Empty msg list', self.getName())
             if self.getParent():
-                trg = self.getParent().getMsgList()
+                trg = self.getParentMsgList()
                 self.setMsgList(trg)
             self.executeResponse()
             self.saveJsonToFile(self.msg_list)
