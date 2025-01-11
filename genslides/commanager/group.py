@@ -1300,6 +1300,7 @@ class Actioner():
             trg_parent = self.manager.getSelectedTask()
         if 'trg_tasks' in param:
             if 'AllTasks' in param['trg_tasks']:
+                print('Get all tasks key code')
                 param['trg_tasks'] = [t.getName() for t in man.getTasks()]
         tasks_chains = self.manager.getTasksChainsFromCurrTask(param)
         if len(self.manager.multiselect_tasks) > 0:
@@ -1751,8 +1752,8 @@ class Actioner():
 
 
             for cmd in cmds:
-                # print('Run cmd', cmd)
                 action = cmd.get("action")
+                print('Run cmd', action)
                 args = cmd.get("args", [])
                 kwargs = cmd.get("kwargs", {})
 

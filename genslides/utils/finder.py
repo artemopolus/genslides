@@ -66,7 +66,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
         elif arr[1] == getMsgTag():
             param = task.getLastMsgContent()
             if len(arr) == 3 and arr[2] == 'json_dump':
-                jdump = json.dumps(param)
+                jdump = Loader.Loader.convJsonToText(param)
                 if len(jdump) > 3:
                     jdump = jdump[1:-1]
                 rep_text = rep_text.replace(res, jdump)

@@ -1778,26 +1778,39 @@ class Manager(Man.Jun):
                   branch['i_par'])
 
             for link in branch['links']:
-                found = None
-                print(i,'|' ,link['out'].getName(),'->',link['in'].getName())
-                for sv in links_chain:
-                    if (sv['dir'] == 'in' or sv['dir'] == 'out') and (
-                        sv['in'] == link['in'] 
-                        and sv['out'] == link['out']):
-                        found = sv
-                        break
+                print(i,'| link:' ,link['out'].getName(),'->',link['in'].getName())
                 if 'insert' in link:
                     insert_tasks.append(link)
-                if found == None:
-                    links_chain.append(link)
-                else:
-                    if found['dir'] == 'out':
-                        links_chain.remove(found)
-                        links_chain.append(link)
+                links_chain.append(link)
+                    
             i+= 1
+        result_task_links = []
+        for i, link in enumerate(links_chain):
+            print(i,'>>' ,link['out'].getName(),'->',link['in'].getName(),':',link['dir'])
+            if link['dir'] == 'out':
+                found = None
+                for j, sv in enumerate( links_chain ):
+                    if ( i != j
+                        and
+                        sv['dir'] == 'in' 
+                        and (
+                        sv['in'] == link['in'] and sv['out'] == link['out']
+                        )
+                        ):
+                        found = sv
+                        break
+                if found == None:
+                    res, link_info = link['in'].getTrgLinkInfo( link['out'] )
+                    if res and link_info not in result_task_links:
+                        result_task_links.append( link_info )
+            else:
+                result_task_links.append(link)
+
+        for i, link in enumerate( result_task_links ):
+            print(i,'>>' ,link['out'].getName(),'->',link['in'].getName(),':',link['dir'])
 
         self.tc_tasks_chains = tasks_chains
-        self.tc_links_chain = links_chain
+        self.tc_links_chain = result_task_links
         self.tc_insert_tasks = insert_tasks
         self.tc_ij_list = []
         self.tc_ij_list_idx = 0
@@ -1854,14 +1867,29 @@ class Manager(Man.Jun):
                             intask = self.curr_task
                             self.makeLink( intask, outtask )
                         elif link['option'] == 'move':
+                            intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
+                            outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
+                            self.setCurrentTask( outtask )
                             self.makeTaskAction("","","Unlink","")
-                            intask = self.curr_task
+                            # intask = link['in']
                             self.makeLink( intask, outtask )
                         elif link['option'] == 'none':
-                            intask = self.curr_task
+                            # old out -> old in
+                            # new out -> old in
+                            intask = link['in']
+                            outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
                             self.makeLink( intask, outtask )
                         elif link['option'] == 'keep':
+                            # old out -> old in
+                            # new out -> new in
                             intask = self.getCopyedTask(self.tc_tasks_chains, link['in'])
+                            outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
+                            self.makeLink( intask, outtask )
+                        elif link['option'] == 'oldout':
+                            # old out -> old in
+                            # old out -> new in
+                            intask = self.getCopyedTask(self.tc_tasks_chains, link['in'])
+                            outtask = link['out']
                             self.makeLink( intask, outtask )
                         else:
                             pass
@@ -1874,6 +1902,7 @@ class Manager(Man.Jun):
                     intask = self.curr_task
                     self.makeLink( intask, outtask )
             else:
+                print("link\n",link)
                 intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
                 print('old link:',link['out'].getName(),'->',link['in'].getName())
                 print('new link:',outtask.getName(),'->',intask.getName())

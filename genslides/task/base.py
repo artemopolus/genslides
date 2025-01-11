@@ -593,8 +593,9 @@ class BaseTask():
                 start_idx = len(branches)
                 # print('Get childs and links for linked branch', task.getName())
                 new_b = self.getChildAndLinks(task, pparam, start_j=start_idx)
+                print('Initial links')
                 self.printBranchesInfo(branches)
-                print('Add by links')
+                print(f"Add branch using links of {task.getName()} task")
                 self.printBranchesInfo(new_b)
                 if 'av_cp' in pparam and pparam['av_cp']:
                     add_branch = []

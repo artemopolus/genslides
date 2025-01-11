@@ -301,7 +301,7 @@ class ListenerTask(LinkedTask):
                         return True, {'out': trg, 'in': self, 'dir': 'in','option':'move'}
                 return True, {'out': trg, 'in': self, 'dir': 'in'}
             elif lparam['onedit'] == 'garland':
-                oparam = {'out': trg, 'in': self, 'dir':'out',
+                oparam = {'out': trg, 'in': self, 'dir':'in',
                                    'insert':True,
                                    'option':'std',
                                    'type': self.getType(),
