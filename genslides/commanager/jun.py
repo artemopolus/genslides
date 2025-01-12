@@ -1867,11 +1867,19 @@ class Manager(Man.Jun):
                             intask = self.curr_task
                             self.makeLink( intask, outtask )
                         elif link['option'] == 'move':
+                            # new out -> new in
                             intask = self.getCopyedTask(self.tc_tasks_chains,link['in'])
                             outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
                             self.setCurrentTask( outtask )
                             self.makeTaskAction("","","Unlink","")
                             # intask = link['in']
+                            self.makeLink( intask, outtask )
+                        elif link['option'] == 'oldin':
+                            # new out -> old in
+                            outtask = self.getCopyedTask(self.tc_tasks_chains, link['out'])
+                            self.setCurrentTask(link['out'])
+                            self.makeTaskAction("","","Unlink","")
+                            intask = link['in']
                             self.makeLink( intask, outtask )
                         elif link['option'] == 'none':
                             # old out -> old in

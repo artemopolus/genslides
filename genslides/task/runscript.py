@@ -128,7 +128,7 @@ class RunScriptTask(ResponseTask):
                 for opt in file:
                     n_file.append(self.findKeyParam(opt))
                 file = n_file
-            # print("Run script", file,'in', workspace)
+            print("Run script", file,'in', workspace)
             result = subprocess.run(file, capture_output=True, text=True, cwd=workspace, shell=True)
             if result.returncode:
                 done = False
@@ -258,7 +258,7 @@ class SaveScriptRunTask(RunScriptTask):
                     workspace = Loader.getUniPath( self.findKeyParam(sparam['cwd']))
                     args = self.findKeyParam(sparam['args'])
                     trg_proc = ' '.join([path_to_python, scriptpath, args])
-                    # print("Run script:\n", trg_proc,'\nin', workspace)
+                    print("Run script:\n", trg_proc,'\nin', workspace)
                     result = subprocess.run(trg_proc, capture_output=True, text=True, cwd=workspace, shell=True)
                     if result.returncode:
                         data +=  result.stdout + "\n"

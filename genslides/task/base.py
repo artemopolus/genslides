@@ -556,7 +556,8 @@ class BaseTask():
         linked_task = []
         for branch in branches:
             for link in branch['links']:
-                if link['dir'] == 'in':
+                if link['in'].isLinkForCopy():
+                # if link['dir'] == 'in':
                     linked_task.extend([link['in']])
         return linked_task
     

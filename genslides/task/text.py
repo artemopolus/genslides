@@ -1139,7 +1139,7 @@ class TextTask(BaseTask):
                 param.update(param_vals)
                 return
         if param_vals['type'] == 'array':
-            res, np = ar.saveArrayToParams(self.getLastMsgContent2(),param_vals)
+            res, np = ar.saveArrayToParams(self,param_vals)
             if res:
                 param_vals = np
         self.params.append(param_vals)

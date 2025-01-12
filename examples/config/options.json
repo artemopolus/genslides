@@ -205,7 +205,7 @@
       "combine": ["none","single"],
       "onedit":["none","collect","garland"],
       "onupdate":["none","chck_link_chld"],
-      "garland_opt":["insert_sub", "insert_move","insert_std","insert_none","insert_keep"],
+      "garland_opt":["insert_sub", "insert_move","insert_std","insert_none","insert_keep","insert_oldout","insert_oldin"],
       "garland_actions": ""
    },
    {

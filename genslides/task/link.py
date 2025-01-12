@@ -292,6 +292,15 @@ class ListenerTask(LinkedTask):
                     return {'out': trg, 'in': self, 'dir': 'out','option':'move'}
         return super().getInLinkInfo(trg)
     
+    def isLinkForCopy(self):
+        lres, lparam = self.getParamStruct("listener")
+        if lres and 'onedit' in lparam:
+            if lparam['onedit'] == 'collect':
+                return True
+            elif lparam['onedit'] == 'garland':
+                return False
+        return super().isLinkForCopy()
+    
     def getTrgLinkInfo(self, trg):
         lres, lparam = self.getParamStruct("listener")
         if lres and 'onedit' in lparam:
