@@ -64,6 +64,7 @@ class TextTask(BaseTask):
         self.stdProcessUnFreeze()
 
         self.onMsgDiffCallbacks = []
+        self.update_info : str = ""
 
     def registerOnMsgDiffCallback ( self, callback):
         if callable(callback):  # Проверяем, что callback является вызываемой функцией
@@ -1085,6 +1086,14 @@ class TextTask(BaseTask):
             naparam = ar.checkArrayIteration(self, aparam)
             self.updateParam2(naparam)
         self.updateAutoCommand()
+        self.setParamStruct({
+            "type":"onupdate_result",
+            "time": savedata.getTimeForSaving(),
+            "frozen": self.is_freeze,
+            "blocked": self.block_on,
+            "info": self.update_info
+        })
+        self.update_info = ""
 
     def setRecordsParam(self):
         print('Set',self.getName(),'to recording')

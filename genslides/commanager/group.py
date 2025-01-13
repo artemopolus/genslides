@@ -7,6 +7,7 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 
+import genslides.utils.savedata as SaveData
 import genslides.utils.filemanager as FileManager
 import genslides.utils.finder as finder
 import genslides.utils.loader as Loader
@@ -1323,7 +1324,7 @@ class Actioner():
                                         param= param
             )
         else:
-            self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
+            branches_info = self.manager.copyTasksByInfo(tasks_chains=tasks_chains,
                                         edited_prompt=prompt, 
                                         change_prompt=param['copy_editbranch'],
                                         switch=param['switch'],
@@ -1331,6 +1332,28 @@ class Actioner():
                                         ignore_conv=ignore_conv,
                                         param = param
                                         )
+            # print("Edit results:", branches_info)
+            try:
+                task_by_edit = branches_info[0]['created'][0]
+                convert_branch_info = []
+                for idx, info in enumerate(branches_info):
+                    convert_branch_info.append(
+                        {
+                            "idx": idx,
+                            "source":[t.getName() for t in info['branch']],
+                            "created":[t.getName() for t in info['created']]
+                        }
+                    )
+                edit_parameter =    {
+                        "type":"onedit_result",
+                        "time": SaveData.getTimeForSaving(),
+                        "branches": convert_branch_info
+                    }
+
+                man.setCurrentTask( task_by_edit )
+                task_by_edit.setParamStruct( edit_parameter )
+            except:
+                pass
             
     def divideActions(self, prompt, param):
         text = prompt
