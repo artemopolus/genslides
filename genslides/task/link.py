@@ -305,10 +305,7 @@ class ListenerTask(LinkedTask):
         lres, lparam = self.getParamStruct("listener")
         if lres and 'onedit' in lparam:
             if lparam['onedit'] == 'collect':
-                if 'garland_opt' in lparam:
-                    if lparam['garland_opt'] == 'insert_move':
-                        return True, {'out': trg, 'in': self, 'dir': 'in','option':'move'}
-                return True, {'out': trg, 'in': self, 'dir': 'in'}
+                oparam = {'out': trg, 'in': self, 'dir': 'in','prompt':''}
             elif lparam['onedit'] == 'garland':
                 oparam = {'out': trg, 'in': self, 'dir':'in',
                                    'insert':True,
@@ -318,13 +315,13 @@ class ListenerTask(LinkedTask):
                                    'prompt':'',
                                    'parent': self.parent
                                    }
-                if 'garland_opt' in lparam:
-                    if lparam['garland_opt'].startswith('insert_'):
-                        oparam['insert'] = True
-                        oparam['option'] = lparam['garland_opt'][7:]
-                elif 'garland_actions' in lparam:
-                    oparam['actions'] = self.findKeyParam(lparam['garland_actions'])
-                return True, oparam
+            if 'garland_opt' in lparam:
+                if lparam['garland_opt'].startswith('insert_'):
+                    oparam['insert'] = True
+                    oparam['option'] = lparam['garland_opt'][7:]
+            elif 'garland_actions' in lparam:
+                oparam['actions'] = self.findKeyParam(lparam['garland_actions'])
+            return True, oparam
 
 
         return super().getTrgLinkInfo(trg)
