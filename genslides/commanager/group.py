@@ -1801,6 +1801,7 @@ class Actioner():
     def goToChildTaskbyTag( self, tags : str ):
         man = self.getCurrentManager()
         tasks = man.getCurrentTask().getAllChildChains()
+        tasks.remove(man.getCurrentTask())
         tags_list =[t.replace(" ","") for t in tags.split(',')]
         for task in tasks:
             if task.checkTags( tags_list ):
@@ -1857,3 +1858,73 @@ class Actioner():
     def cleanLastMessageForMulti(self):
         for task in self.getCurrentManager().getMultiSelectedTasks():
             task.forceCleanChat()
+
+    def branchingAction( self, prompt ):
+        print ("Execute branching action")
+        self.makeTaskAction( 
+            prompt=prompt,
+            type1='Request',
+            creation_type='Edit',
+            creation_tag='user',
+            param={
+                "extedit": True,
+                "copy_editbranch": False,
+                "resp2req": False,
+                "coll2req": False,
+                "read2req": False,
+                "run2req": False,
+                "in": True,
+                "out": True,
+                "link": True,
+                "av_cp": True,
+                "sel2par": False,
+                "ignrlist": False,
+                "wishlist": False,
+                "upd_cp": False,
+                "onlymulti": False,
+                "reqSraw": False,
+                "forcecopyresp": False,
+                "check_man": False,
+                "dont": False,
+                "switch": [],
+                "trg_tasks": [
+                "AllTasks"
+                ]
+                },
+            save_action=True                
+            )
+
+    def editingAction( self, prompt ):
+        print ("Execute editing action")
+        self.makeTaskAction( 
+            prompt=prompt,
+            type1='Request',
+            creation_type='Edit',
+            creation_tag='user',
+            param={
+                "extedit": False,
+                "copy_editbranch": False,
+                "resp2req": False,
+                "coll2req": False,
+                "read2req": False,
+                "run2req": False,
+                "in": False,
+                "out": False,
+                "link": False,
+                "av_cp": False,
+                "sel2par": False,
+                "ignrlist": False,
+                "wishlist": False,
+                "upd_cp": False,
+                "onlymulti": False,
+                "reqSraw": False,
+                "forcecopyresp": False,
+                "check_man": False,
+                "dont": False,
+                "switch": [],
+                "trg_tasks": [
+                "AllTasks"
+                ]
+                },
+            save_action=True                
+            )
