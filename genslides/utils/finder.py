@@ -74,7 +74,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             elif len(arr) == 3 and arr[2] == 'json':
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 if bres:
-                    rep_text = rep_text.replace(res, json.dumps(jjson, indent=1))
+                    rep_text = rep_text.replace(res, Loader.Loader.convJsonToText(jjson))
             elif len(arr) > 3 and arr[2] == '---':
                 text = str(param)
                 if arr[3].isdigit():

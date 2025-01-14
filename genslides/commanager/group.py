@@ -1849,3 +1849,11 @@ class Actioner():
         for link in outlinks:
             man.makeLink( cr_task, link )
 
+    def cleanLastMessageCurrentTask(self):
+        man = self.getCurrentManager()
+        task = man.getCurrentTask()
+        task.forceCleanChat()
+    
+    def cleanLastMessageForMulti(self):
+        for task in self.getCurrentManager().getMultiSelectedTasks():
+            task.forceCleanChat()

@@ -57,12 +57,15 @@ class EditParamCommand(SimpleCommand):
     def execute(self) -> None:
         task = self.input.target
         p = self.input.params
-        res, val = task.getCurParamStructValue(p['name'], p['key'])
+        res, old_value = task.getCurParamStructValue(p['name'], p['key'])
         value = p['select']
         if p['name'] == 'array' and p['key'] == 'array':
             res, jopt = Ld.Loader.loadJsonFromText(value)
             if res:
                 value = jopt
+        elif isinstance( value, dict):
+            if res and isinstance (old_value, str):
+                value = Ld.Loader.convJsonToText( value )
         elif isinstance(value, str) and value.isdigit():
             print(value,'is int')
             value = int(value)
@@ -72,7 +75,7 @@ class EditParamCommand(SimpleCommand):
         # print('Update', p['key'],'for',p['name'],'with', value,'[', task.getName(),']')
         task.updateParamStruct(p['name'], p['key'], value)
         if res:
-            value = val
+            value = old_value
         return super().execute()
     
     def unexecute(self) -> None:

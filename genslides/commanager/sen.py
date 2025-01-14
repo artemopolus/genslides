@@ -2010,14 +2010,11 @@ class Projecter:
         return self.getActionsList()
     
     def cleanLastMessage(self):
-        man = self.actioner.getCurrentManager()
-        task = man.getCurrentTask()
-        task.forceCleanChat()
+        self.actioner.cleanLastMessageCurrentTask()
         return self.updateMainUIelements()
     
     def cleanLastMessageForMulti(self):
-        for task in self.actioner.getCurrentManager().getMultiSelectedTasks():
-            task.forceCleanChat()
+        self.actioner.cleanLastMessageForMulti()
         return self.updateMainUIelements()
 
     def getCurrentTaskBranchCodeTag(self):
