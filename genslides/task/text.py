@@ -1499,33 +1499,37 @@ class TextTask(BaseTask):
         # if self.getParent() and self.getParent().checkBlock():
             # return True
         bres, bparam = self.getParamStruct('block',only_current=True)
-        if bres and bparam['block']:
-            block = False
-            if 'reason' in bparam:
-                if bparam['reason'] == "None":
-                    block = True
-                elif bparam['reason'] == "Target":
-                    target = self.findKeyParam(bparam['target'])
-                    value = self.findKeyParam(bparam['value'])
-                    if target == value:
+        if bres and 'block' in bparam:
+            if bparam['block']:
+                block = False
+                if 'reason' in bparam:
+                    if bparam['reason'] == "None":
                         block = True
-                elif bparam['reason'] == "TargetInv":
-                    target = self.findKeyParam(bparam['target'])
-                    value = self.findKeyParam(bparam['value'])
-                    if target != value:
-                        block = True
-                elif bparam['reason'] == "TargetTrue":
-                    target = self.findKeyParam(bparam['target'])
-                    if target.lower() == 'true':
-                        block = True
-                elif bparam['reason'] == "TargetFalse":
-                    target = self.findKeyParam(bparam['target'])
-                    if target.lower() == 'false':
-                        block = True
-            if block:
-                self.blockChildren()
+                    elif bparam['reason'] == "Target":
+                        target = self.findKeyParam(bparam['target'])
+                        value = self.findKeyParam(bparam['value'])
+                        if target == value:
+                            block = True
+                    elif bparam['reason'] == "TargetInv":
+                        target = self.findKeyParam(bparam['target'])
+                        value = self.findKeyParam(bparam['value'])
+                        if target != value:
+                            block = True
+                    elif bparam['reason'] == "TargetTrue":
+                        target = self.findKeyParam(bparam['target'])
+                        if target.lower() == 'true':
+                            block = True
+                    elif bparam['reason'] == "TargetFalse":
+                        target = self.findKeyParam(bparam['target'])
+                        if target.lower() == 'false':
+                            block = True
+                if block:
+                    self.blockChildren()
+                else:
+                    self.unBlockChildren()
             else:
-                self.unBlockChildren()
+                if self.block_on:
+                    self.unBlockChildren()
 
         return super().checkBlock()
     
