@@ -354,6 +354,21 @@ class TextTask(BaseTask):
         return False
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
+        res, param = self.getParamStruct("check", only_current=True)
+        if res and self.getParent() and param['check'] != 'std':
+            input_msgs = self.getParent().getMsgs()
+            text_msgs = ' '.join( [m['content'] for m in input_msgs] ) 
+            # text_msgs = Loader.convJsonToText(input_msgs)
+            hash_msgs = Txt.compute_sha256_hash( text_msgs )
+            if param['hash'] != hash_msgs:
+                res, msg, par = self.getParent().getLastMsgAndParent()
+                diff = [{"name":self.getParent().getName(),"idx": 0,"msg":msg}]
+                for callback in self.onMsgDiffCallbacks:
+                    callback(diff)
+                self.updateParamStruct("check","hash",hash_msgs)
+                return False
+            else:
+                return True
         if self.checkparentsettrue:
             return True
         if self.parent:

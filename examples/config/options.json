@@ -240,8 +240,10 @@
    {
       "type":"tag",
       "text": ""
+   },
+   {
+      "type":"check",
+      "check":["std","hash"],
+      "hash":""
    }
-
-
-
 ]
