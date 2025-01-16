@@ -39,6 +39,7 @@ class WriteBranchTask(WriteToFileParamTask):
         
 
     def executeResponse(self):
+        self.updateUpdationInfo(f"Execute response")
         res, param = self.getParamStruct(param_name='write_branch')
         if not res:
             return
@@ -52,6 +53,7 @@ class WriteBranchTask(WriteToFileParamTask):
                 wr.writeJsonToFile(path, content)
 
             elif self.checkRecordsOption(param):
+                self.updateUpdationInfo( f"Open dial file by path: {path}" )
                 if fm.checkExistPath(path):
                     with open(path, 'r',encoding='utf8') as f:
                         content = json.load(f)
@@ -65,6 +67,7 @@ class WriteBranchTask(WriteToFileParamTask):
                     else:
                         naparam = rd.createRecordParam(self.getTasksContent())
                 else:
+                    self.updateUpdationInfo( f"Create file for msgs with path: {path}" )
                     naparam = rd.createRecordParam(self.getTasksContent())
 
                 wr.writeJsonToFile(path, naparam)

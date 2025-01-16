@@ -66,6 +66,12 @@ class TextTask(BaseTask):
         self.onMsgDiffCallbacks = []
         self.update_info : str = ""
 
+    def resetUpdationInfo( self ):
+        self.update_info = ""
+
+    def updateUpdationInfo( self, info : str ):
+        self.update_info += info
+
     def registerOnMsgDiffCallback ( self, callback):
         if callable(callback):  # Проверяем, что callback является вызываемой функцией
             self.onMsgDiffCallbacks.append(callback)
@@ -1108,7 +1114,7 @@ class TextTask(BaseTask):
             "blocked": self.block_on,
             "info": self.update_info
         })
-        self.update_info = ""
+        self.resetUpdationInfo()
 
     def setRecordsParam(self):
         print('Set',self.getName(),'to recording')
