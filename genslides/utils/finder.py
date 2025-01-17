@@ -208,6 +208,37 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 for i in range(len(p_tasks)-1):
                     code_s += p_tasks[i].getBranchCode( p_tasks[i+1])
             rep_text = rep_text.replace(res, code_s)
+        elif arr[1] == 'code2':
+            script_text = convertMdToScript(md_text=task.getLastMsgContent())
+            if len(arr) > 2:
+                if len(arr) > 4 and arr[2] == 'class_method':
+                    script_text = pyparse.get_class_function_body(script_text, arr[3], arr[4])
+                elif arr[2] == 'imports':
+                    script_text = pyparse.get_import_statements(script_text)
+                elif arr[2] == 'globvars':
+                    script_text = pyparse.get_global_variable_lines( script_text )
+                else:
+                    if len(arr) > 4:
+                        methods, classes = pyparse.get_class_info(script_text, arr[3])
+                        if arr[2] == 'class_allmethods':
+                            array_data = methods
+                        if arr[2] == 'class_allnested':
+                            array_data = classes
+                    elif arr[2] == 'allmethods':
+                        array_data = pyparse.get_global_functions(script_text)
+                    elif arr[2] == 'allclasses':
+                        array_data = pyparse.get_class_names(script_text)
+                    else:
+                        array_data = []
+
+                    
+                    if arr[-1] == 'text':
+                        script_text = ', '.join(array_data)
+                    elif arr[-1] == 'json':
+                        script_text = Loader.Loader.convJsonToText([{'idx':i,'content':t, 'chck':False} for i,t in enumerate(array_data)])
+                    else:
+                        script_text = ""
+            rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'code':
             script_text = convertMdToScript(md_text=task.getLastMsgContent())
             if len(arr) > 2:
