@@ -212,7 +212,9 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             script_text = convertMdToScript(md_text=task.getLastMsgContent())
             if len(arr) > 2:
                 if len(arr) > 4 and arr[2] == 'class_method':
-                    script_text = pyparse.get_class_function_body(script_text, arr[3], arr[4])
+                    print( arr )
+                    parsed = pyparse.get_class_function_body(script_text, arr[3], arr[4])
+                    script_text = "" if parsed == None else parsed
                 elif arr[2] == 'imports':
                     script_text = pyparse.get_import_statements(script_text)
                 elif arr[2] == 'globvars':
