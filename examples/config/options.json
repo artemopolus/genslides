@@ -18,8 +18,11 @@
    {
       "type": "path_to_write",
       "path_to_write": "[[parent_2:msg_content]]",
-      "write_dial": [false, true],
-      "excld_task": [],
+      "write": ["std","append","replace"],
+      "input": ["[[parent:ms_content]]",""],
+      "text_to_replace":["","[[parent_2:ms_content]]","[[parent_2:param:array:curr]]","{\"start\": 0, \"stop\": 0}"],
+      "source_to_edit":["","[[parent_2:ms_content]]","[[parent_2:param:array:curr]]"],
+      "replace_type":["std","json"],
       "always_update": [true, false]
    },
    {
@@ -187,16 +190,16 @@
       "excld_task": ""
    },
    {
-   "type": "external",
-   "dir": ["Out","In"],
-   "target": "",
-   "name": "",
-   "exttreetask_path": "",
-   "inexttree": ["None", "fromact"],
-   "prompt": "",
-   "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
-   "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
-  },
+      "type": "external",
+      "dir": ["Out","In"],
+      "target": "",
+      "name": "",
+      "exttreetask_path": "",
+      "inexttree": ["None", "fromact"],
+      "prompt": "",
+      "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
+      "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
+   },
    {
       "type": "listener",
       "input": ["prompt","params"],
