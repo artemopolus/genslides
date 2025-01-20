@@ -1,5 +1,6 @@
 import genslides.utils.savedata as savedata
 import genslides.utils.loader as Ld
+import genslides.task_tools.text as Txt
 import json
 
 def getPackForRecord(role: str, content : str, task_name : str) -> dict:
@@ -159,6 +160,21 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                     if len(str_end) == 2 and str_end[0].isdigit() and str_end[1].isdigit():
                         msgrange = list( range(int(str_end[0]), int(str_end[1]) + 1))
                         trg_chat_msgs.extend(msgrange)
+        packs = rparam['data']
+        dialogs = []
+        msgs = 0
+        for i, pack in enumerate(packs):
+            chat = pack['chat']
+            msgs = max(len(chat), msgs)
+            dialogs.append( '\\n'.join([m['content'] for m in chat]) )
+
+        hash = Txt.compute_sha256_hash( '\\n'.join( dialogs ) )
+        if 'hash' not in cparam or \
+              ('hash' in cparam and hash != cparam['hash']):
+                cparam['hash'] = hash
+                cparam['count'] = len( packs )
+                cparam['msgs_count'] = msgs
+                
         if 'form' in cparam:
             if cparam['form'] == 'alone':
                 out = cparam['header']

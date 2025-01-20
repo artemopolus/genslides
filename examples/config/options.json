@@ -150,7 +150,8 @@
       "idx":0,
       "enum":[false, true],
       "update":["auto","manual"],
-      "form":["alone","msgs"]
+      "form":["alone","msgs"],
+      "hash":""
    },
    {
       "type":"Collect",
