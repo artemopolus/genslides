@@ -190,7 +190,6 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                         out += chat[idx]['content']
                         added_content = True
                         out += cparam['suffix']
-                cparam['count'] = len(rparam['data'])
                 out += cparam['footer']
                 if added_content:
                     return[{"content" : out, "role" : role}]
@@ -210,7 +209,6 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                         text += chat[idx]['content']
                         text += cparam['suffix']
                     out.append({"content": text, "role": role})    
-                cparam['count'] = len(rparam['data'])
                 return out
             elif cparam['form'] == 'json_dicts':
                 out = []
@@ -218,8 +216,25 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                     chat = pack['chat']
                     if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
                             (idx < len(chat) and i in trg_chat_msgs)):
-                        res, jobj = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
-                        if res:
-                            out.append( jobj)
+                        res, recjson = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
+                        icc_keys = []
+                        if 'icc_keys' in cparam and cparam['icc_keys']:
+                            icc_keys = [t.replace(' ','') for t in cparam['icc_keys'].split(',')]
+                        if len(icc_keys) == 3:
+                            try:
+                                out.append(
+                                    {
+                                        'idx':recjson[icc_keys[0]],
+                                        'content': recjson[icc_keys[1]],
+                                        'chck': recjson[icc_keys[2]]
+                                    }
+                                )
+                            except Exception as e:
+                                print('Error replacing keys idx, content, chck:', e)
+                        elif 'trgjsonkey' in cparam and isinstance(recjson, dict) and cparam['trgjsonkey'] in recjson:
+                            out.append({'idx':i, 'content': recjson[cparam['trgjsonkey']], 'chck':False})
+                        else:
+                            if res:
+                                out.append( recjson)
                 return[{"content" : Ld.Loader.convJsonToText(out), "role" : role}]
     return []

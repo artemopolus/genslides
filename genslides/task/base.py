@@ -1110,6 +1110,7 @@ class BaseTask():
         pass
 
     def resetQueue(self):
+        # print('Reset Q for',self.getName())
         if self.queue:
             for info in self.queue:
                 self.onQueueReset(info)
@@ -1217,7 +1218,7 @@ class BaseTask():
             except Exception as e:
                 print("Some go wrong:", e)
                 return False
-        # print("React on condition:",param)
+        # print(self.getName(),"React on condition:",param['name'])
         param["used"] = True
         return True
     

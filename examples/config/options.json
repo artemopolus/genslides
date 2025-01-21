@@ -151,7 +151,9 @@
       "enum":[false, true],
       "update":["auto","manual"],
       "form":["alone","msgs"],
-      "hash":""
+      "hash":"",
+      "trgjsonkey": "",
+      "icc_keys": ["","index,text,checked"]
    },
    {
       "type":"Collect",

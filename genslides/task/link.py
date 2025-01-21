@@ -100,18 +100,19 @@ class LinkedTask(TextTask.TextTask):
 
     def affectedTaskCallback(self, input : TextTask.TaskDescription):
         # print("From ", input.parent.getName(), " to ", self.getName())
-        if input and input.stepped:
-            found = False
-            for cl in self.callback_link:
-                if cl["pt"] == input.parent:
-                    cl["used"] = False
-                    found = True
-                    break
-            if not found:
-                self.callback_link.append({"pt":input.parent,"used": False})
-                found = True
-            if found:
-                self.resetTreeQueue()
+        # if input and input.stepped:
+        #     found = False
+        #     for cl in self.callback_link:
+        #         if cl["pt"] == input.parent:
+        #             cl["used"] = False
+        #             found = True
+        #             break
+        #     if not found:
+        #         self.callback_link.append({"pt":input.parent,"used": False})
+        #         found = True
+        #     if found:
+        #         print('Reset tree Q')
+                # self.resetTreeQueue()
 
         self.updateLinkedPrompts(input=input)
 
@@ -198,6 +199,13 @@ class ListenerTask(LinkedTask):
 
 
     def updateLinkedPrompts(self, input : TextTask.TaskDescription):
+        lres, lparam = self.getParamStruct("listener")
+        if lres and 'onlink' in lparam:
+            if lparam['onlink'] == 'none':
+                pass
+            elif lparam['onlink'] == 'check':
+                if input.parent.is_freeze:
+                    return
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
                 # print('Upd by ', input.parent.getName())
@@ -280,7 +288,10 @@ class ListenerTask(LinkedTask):
                 "input": "prompt",
                 "output":"prompt",
                 "hash": "",
-                "combine": "single"
+                "combine": "single",
+                "onedit":"",
+                "onupdate":"",
+                "onlink":"none"
             })
         return super().createLinkToTask(task)
     
