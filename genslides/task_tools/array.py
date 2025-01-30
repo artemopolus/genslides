@@ -19,6 +19,8 @@ def divideArray(task  , param):
             out.append({"content": arr[idx], "idx": idx, "chck": False})
         if len(arr) > 0:
             return True, out
+    elif parse_type == 'manual':
+        return True, []
     elif parse_type == 'json':
         res, targets = Ld.Loader.loadJsonFromText(task.getLastMsgContent2())
         if res and isinstance(targets, list):
@@ -67,6 +69,14 @@ def divideArray(task  , param):
 def getArrayByIndexPlusPlus( param, task  ):
     index = param['idx']
     array = param['array']
+    if param['parse'] == 'manual':
+        out =  getPartByParam(task,param)
+        if index < param['len']:
+            index +=1
+        print('manual', out)
+        param['idx'] = index
+        return out
+        
 
     if index < len(array) - 1:
         if not array[index]['chck']:
@@ -85,6 +95,9 @@ def getArrayByIndexPlusPlus( param, task  ):
 def getPartByParam(task, param):
     parse_type = param['parse']
     index = param['idx']
+    if parse_type == 'manual' and 'manual_format' in param:
+        param['curr'] = task.findKeyParam( param['manual_format'] )
+        return param
     array = param['array']
     array[index]['chck'] = True
     if parse_type in ['std','json','msgs']:
@@ -127,6 +140,9 @@ def getSHAfromTask(task, param):
     data = ''
     if param['parse'] == 'std' or param['parse'] == 'text_split':
         data = task.getLastMsgContent2()
+    elif param['parse'] == 'manual':
+        if 'manual_target' in param:
+            data = task.findKeyParam( param['manual_target'] )
     elif param['parse'] == 'msgs':
         messages = task.getMsgs()
         for msg in messages:
@@ -150,17 +166,18 @@ def saveArrayToParams(task  , param : dict):
     else:
         print('No parse parameter')
         return False, param
-    out = {}
-    setArrayParamValues(out, arr, curr, idx)
+    # out = {}
+    setArrayParamValues(param, arr, curr, idx)
     param ['src_data' ]= getSHAfromTask(task, param)
-    param.update(out)
+    # param.update(out)
     return True, param
 
 def setArrayParamValues(param, array, current, idx):
     param['array'] = array
     param['curr'] = current 
     param['idx'] = idx
-    param['len'] = len(array)
+    if param['parse'] != 'manual':
+        param['len'] = len(array)
 
 
 def updateArrayParam(task  , param :dict):
@@ -186,9 +203,19 @@ def iterateOverArrayFromParam(task  , param: dict):
             param = getArrayByIndexPlusPlus(param, task)
     return param
 
+def needToUpdate( task ,param):
+    if 'parse' in param and param['parse'] == 'manual' \
+        and param['src_data'] == getSHAfromTask(task, param):
+        return True
+    elif 'src_data' in param and param['src_data'] == getSHAfromTask(task, param) :
+        return True
+    return False
+
+
+
 def checkArrayIteration(task  , param : dict):
     if 'type' in param and param['type'] == 'array':
-        if 'src_data' in param and param['src_data'] == getSHAfromTask(task, param) :
+        if needToUpdate( task, param):
             if task.manager.allowUpdateInternalArrayParam():
                 return iterateOverArrayFromParam(task, param)
         else:
