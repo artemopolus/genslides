@@ -7,6 +7,7 @@ import tiktoken
 import os
 import datetime
 import copy
+import genslides.utils.loader as Ld
 
 from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages, openai_decode_token, openai_get_tokens_from_message
 from genslides.utils.myollama import ollamaGetChatCompletion
@@ -99,11 +100,22 @@ class LLModel():
             return False, '', {}
         # print('Input Chat=', [[msg['role'], len(msg['content'])] for msg in messages])
         out = {
-            'type' : 'response',
             'model': self.params['model'],
             'messages': messages
             }
         res, response, p = self.method(messages, self.params)
+        mparam = self.params
+        out['result'] = response
+        out['think'] = ""
+
+        if res and 'output_format' in mparam:
+            if mparam['output_format'] != 'none':
+                print('There is think process')
+                outtext, tagged = Ld.Loader.replaceTag(text = response)
+                out['result'] = outtext
+                out['think'] = tagged
+                response = outtext
+
         if res and 'intok' in p and 'outtok' in p:
             intok = p['intok']
             outtok = p['outtok']

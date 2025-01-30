@@ -2153,9 +2153,14 @@ class Manager(Man.Jun):
                 cur_man.rmvTask(task)
 
     def allowUpdateInternalArrayParam(self):
-        cnt = self.getFrozenTasksCount()
-        if cnt == 0:
-            return True
+        if 'upd_array' in self.info:
+            if self.info['upd_array'] == 'check_frozen':
+                if self.getFrozenTasksCount() == 0:
+                    return True
+        else:
+            cnt = self.getFrozenTasksCount()
+            if cnt == 0:
+                return True
         return False
     
    
@@ -2234,6 +2239,14 @@ class Manager(Man.Jun):
 
     def forceUnFreezeTask( self, task : BaseTask ):
         task.unfreezeTask()
+
+    def appendManagerParemeter(self, key, value):
+        self.info[key] = value
+        return super().appendManagerParemeter(key, value)
+    
+    def deleteManagerParemeter(self, key):
+        del self.info[key]
+        return super().deleteManagerParemeter(key)
     
     def appendGlobalVariables(self, key, value):
         if 'global_vars' in self.info:
@@ -2254,8 +2267,8 @@ class Manager(Man.Jun):
                     return super().deleteGlobalVariable(key)
         return super().deleteGlobalVariable(key)
     
-    def cleanTasksChat(self):
-        for task in self.getTasks():
+    def cleanTasksChat(self, tasks ):
+        for task in tasks:
             res, param = task.getParamStruct('autoclean', only_current=True)
             if res:
                 if param['clean']:

@@ -19,6 +19,18 @@ def convertTextPartToMsg(md_text):
             text += part.strip()
     return text
 
+def removeCodeFromMd( md_text : str, keyword: str = 'python' ):
+    code_pattern = rf"```{keyword}\n(.*?)\n```"
+    parts = re.split(code_pattern, md_text, flags=re.DOTALL)
+    text = ""
+    for i, part in enumerate(parts):
+        if i % 2 == 0:  # Non-code parts treated as comments
+            text += part.strip() + "\n"
+            pass
+        else:  # Code parts
+            pass
+    return text
+
 def convertMdToScript(md_text):
     # print('convert md to script')
     code_pattern = r'```python\n(.*?)\n```'
@@ -245,6 +257,9 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             script_text = convertMdToScript(md_text=task.getLastMsgContent())
             if len(arr) > 2:
                 script_text = pyparse.parse_text(script_text, arr[2])
+            rep_text = rep_text.replace(res, script_text)
+        elif arr[1] == 'remove_code':
+            script_text = removeCodeFromMd( md_text= task.getLastMsgContent())
             rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'text_ins':
             script_text = convertTextPartToMsg(md_text=task.getLastMsgContent())

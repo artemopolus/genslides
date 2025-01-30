@@ -2123,7 +2123,21 @@ class Projecter:
     
     def getCurManagerGlobalKeys(self):
         out = self.actioner.getCurrentManager().getGlobalKeys()
-        return gr.Dropdown(choices=out)
+        return gr.Dropdown(choices=out), gr.Dropdown(choices=self.actioner.getCurrentManager().getManagerParameters())
+    
+    def getManagerParameter (self, key : str):
+        return self.actioner.getCurrentManager().getManagerParameterValue ( key )
+    
+    def setManagerParameter( self, key : str, value : str):
+        self.actioner.getCurrentManager().appendManagerParemeter( key, value )
+        self.actioner.getCurrentManager().saveInfo()
+        return self.getCurManagerGlobalKeys()
+    
+    def deleteManagerParameter (self, key : str):
+        self.actioner.getCurrentManager().deleteManagerParemeter( key )
+        self.actioner.getCurrentManager().saveInfo()
+        return self.getCurManagerGlobalKeys()
+
     
     def geCurManagerGlobalValue(self, key):
         res, out = self.actioner.getCurrentManager().getGlobalValue(key)

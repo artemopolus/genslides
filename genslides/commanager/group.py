@@ -1531,6 +1531,7 @@ class Actioner():
         elif param_key == 'model':
             res, data = man.curr_task.getParamStruct(param_name)
             if res:
+                manager_keys = [f"[[manager:global:{t}]]" for t in man.getGlobalKeys() if t.endswith('odel')]
                 cur_val = data[param_key]
                 path_to_config = os.path.join('config','models.json')
                 values = []
@@ -1538,6 +1539,7 @@ class Actioner():
                     models = json.load(config)
                     for _, vals in models.items():
                         values.extend([opt['name'] for opt in vals['prices']])
+                values.extend( manager_keys )
                 return values, cur_val, interacttive_drd, multiselect_drd, "", True
                 # return (gr.Dropdown(choices=values, value=cur_val, interactive=True, multiselect=False),
                         #  gr.Textbox(value=''))
@@ -1760,9 +1762,15 @@ class Actioner():
                 frozen_tasks += 1
         return frozen_tasks
 
-    def cleanTasksChat(self):
-        print('Clean task chats')
-        self.manager.cleanTasksChat()
+    def cleanTasksChat(self, task_names = ""):
+        print('Clean task chats for', task_names)
+        man = self.getCurrentManager()
+        if task_names == "":
+            tasks = man.getTasks()
+        else:
+            tasks_list = task_names.split(",")
+            tasks = [man.getTaskByName(name.replace(" ","")) for name in tasks_list]
+        man.cleanTasksChat(tasks)
 
     def getJsonCmd(self, json_cmds):
         # print('Get json command:', json_cmds)

@@ -362,7 +362,7 @@ class TextTask(BaseTask):
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
         res, param = self.getParamStruct("check", only_current=True)
         if res and self.getParent() and param['check'] != 'std':
-            input_msgs = self.getParent().getMsgs()
+            input_msgs = self.getParent().getMsgs(inparam={'goal':'check'})
             text_msgs = ' '.join( [m['content'] for m in input_msgs] ) 
             # text_msgs = Loader.convJsonToText(input_msgs)
             hash_msgs = Txt.compute_sha256_hash( text_msgs )
@@ -474,6 +474,10 @@ class TextTask(BaseTask):
             res, pparam = self.getParamStruct('hidden', only_current=True)
             if res and pparam['hidden']:
                 return False, [], self.parent
+        if 'goal' in param and param['goal'] == 'check':
+            cres, cparam = self.getParamStruct('hidden', only_current=True)
+            if cres and 'check' in cparam and not cparam['check']:
+                return False, [], self.getParent()
         # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         content = self.findKeyParam(self.getLastMsgContent())
         hres, hparam = self.getParamStruct('attention', only_current=True)

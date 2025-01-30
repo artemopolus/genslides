@@ -4,7 +4,7 @@ import pprint
 import copy
 from genslides.utils.llmodel import LLModel
 
-
+import genslides.utils.loader as Ld
 
 class ResponseTask(TextTask):
     def __init__(self, task_info : TaskDescription, type = "Response") -> None:
@@ -87,21 +87,22 @@ class ResponseTask(TextTask):
 
  
     def executeResponse(self):
-        res, param = self.getParamStruct('model')
+        mres, mparam = self.getParamStruct('model')
         # param = copy.deepcopy(mparam)
         # param = self.convParamStruct(param)
 
-        if res:
+        if mres:
             print('Get options from task')
-            chat = LLModel(param)
+            chat = LLModel(mparam)
         else:
             print('Init with default option')
-            res, model_name =  self.reqhelper.getValue(self.getType(), "model")
-            if res:
+            mres, model_name =  self.reqhelper.getValue(self.getType(), "model")
+            if mres:
                 print('Init with default params')
-                param = {'type':'model','model':model_name}
-            chat = LLModel(param)
+                mparam = {'type':'model','model':model_name}
+            chat = LLModel(mparam)
         res, out, out_params = self.executeResponseInternal(chat)
+        out_params['type'] = self.getType()
         self.updateParam2(out_params)
         if res:
             # print("out=", out)
@@ -241,7 +242,7 @@ class ResponseTask(TextTask):
     
     
     def getTextInfo(self, param):
-        res, p = self.getParamStruct('response', only_current=True)
+        res, p = self.getParamStruct(self.getType(), only_current=True)
         if res and 'logprobs' in p:
             out = []
             max_log = -1000
@@ -279,7 +280,7 @@ class ResponseTask(TextTask):
                 "content": self.findKeyParam(self.getLastMsgContent()),
                 "task": self.getName()
                 }
-        rres, rparam = self.getParamStruct('response', only_current=True)
+        rres, rparam = self.getParamStruct(self.getType(), only_current=True)
         if rres and "logprobs" in rparam:
             pack["logprobs"] = rparam["logprobs"]
         val = [pack]

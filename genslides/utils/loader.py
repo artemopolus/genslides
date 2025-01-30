@@ -10,6 +10,16 @@ from pathlib import PureWindowsPath, Path, PurePosixPath
 
 class Loader:
 
+    def replaceTag( text: str, keyword : str = 'think', replacement : str = ''):
+        pattern = rf"<\s*{keyword}[^>]*\s*>(.*?)<\s*/\s*{keyword}\s*>"
+        matches = re.findall(pattern, text, flags=re.DOTALL)
+        tagged = ''
+        outtext = text
+        for match in matches:
+            outtext = outtext.replace(rf"<{keyword}>" + match + rf"</{keyword}>", "")
+            tagged += match
+        return  outtext, tagged
+
     def stringToList(text: str) -> list:
         output_paths = text.strip('][').split(',')
         out = []

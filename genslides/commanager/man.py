@@ -853,9 +853,23 @@ class Jun():
                     return True, t['value']
         return False, ""
 
+    def getManagerParameters( self ):
+        return [k for k, v in self.info.items() if k not in ['actions','trees']]
+    
+    def getManagerParameterValue ( self, param : str ):
+        if param in self.info:
+            return self.info[param]
+        return ""
 
 # --------------------------------------------------------------------------------------------
-    def cleanTasksChat(self):
+    
+    def deleteManagerParemeter ( self, key: str ):
+        pass
+
+    def appendManagerParemeter ( self, key: str, value : str ):
+        pass
+    
+    def cleanTasksChat(self, tasks):
         pass    
 
 

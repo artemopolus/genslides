@@ -277,7 +277,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     # with gr.Column(scale=1):
             with gr.Tab('Raw dial'):
                 with gr.Row():
-                            raw_dial = gr.Chatbot(height=500, type='messages')
+                    raw_dial = gr.Chatbot(height=500, type='messages',render_markdown=False)
             with gr.Tab('Comparing'):
                 with gr.Row():
                     comparison_rad = gr.Radio(label='Comparing type',choices=projecter.getComparisonTypes())
@@ -653,7 +653,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 load_tempman_btn = gr.Button(value='Set man tasks color').click(fn=projecter.setCurManagerColor, 
                                                                                         inputs=[tmpman_clrpck])
                             with gr.Row():
-                                megetglobal_btn = gr.Button('Get globals')
+                                megetglobal_btn = gr.Button('Update manager parameters')
                             with gr.Row():
                                 meglobalkeys_drd = gr.Dropdown(label='Global keys', allow_custom_value=True, choices=[])
                                 meglobalval_txt = gr.Textbox(label='Global value',lines=1)
@@ -661,11 +661,23 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 meglobaladd_btn = gr.Button('Append')
                                 meglobaldel_btn = gr.Button('Delete')
-                            megetglobal_btn.click(fn=projecter.getCurManagerGlobalKeys, outputs=meglobalkeys_drd)
+                            with gr.Row():
+                                meoptions_drd = gr.Dropdown(label='Manager parameters', allow_custom_value=True, choices=[])
+                                meoptvalue_txt = gr.Textbox(label='Parameter value', lines=1)
+                            with gr.Row():
+                                meoptadd_btn = gr.Button('Append')
+                                meoptdel_btn = gr.Button('Delete')
+                            
+                            megetglobal_btn.click(fn=projecter.getCurManagerGlobalKeys, outputs=[meglobalkeys_drd, meoptions_drd])
                             meglobalkeys_drd.change(fn=projecter.geCurManagerGlobalValue,inputs=meglobalkeys_drd, outputs=[meglobalval_txt, meglobalcode_txt])
-                            meglobaladd_btn.click(fn=projecter.setCurManagerGlobalValue, inputs=[meglobalkeys_drd, meglobalval_txt], outputs=meglobalkeys_drd)
-                            meglobaldel_btn.click(fn=projecter.delCurManagerGlobalKey, inputs=[meglobalkeys_drd], outputs=meglobalkeys_drd)
- 
+                            meglobaladd_btn.click(fn=projecter.setCurManagerGlobalValue, inputs=[meglobalkeys_drd, meglobalval_txt], outputs=[meglobalkeys_drd, meoptions_drd])
+                            meglobaldel_btn.click(fn=projecter.delCurManagerGlobalKey, inputs=[meglobalkeys_drd], outputs=[meglobalkeys_drd, meoptions_drd])
+
+                            
+                            meoptions_drd.change(fn=projecter.getManagerParameter,inputs=meoptions_drd, outputs=[meoptvalue_txt])
+                            meoptadd_btn.click(fn=projecter.setManagerParameter, inputs=[meoptions_drd, meoptvalue_txt], outputs=[meglobalkeys_drd, meoptions_drd])
+                            meoptdel_btn.click(fn=projecter.deleteManagerParameter, inputs=[meoptions_drd], outputs=[meglobalkeys_drd, meoptions_drd])
+
                         with gr.Tab('Create'):
                             with gr.Row():
                                 name_prman = gr.Text(value='None', label = 'Manager')
