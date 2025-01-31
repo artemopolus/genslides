@@ -11,6 +11,8 @@ from pathlib import PureWindowsPath, Path, PurePosixPath
 class Loader:
 
     def replaceTag( text: str, keyword : str = 'think', replacement : str = ''):
+        if rf"<{keyword}>" not in text:
+            text = rf"<{keyword}>" + text
         pattern = rf"<\s*{keyword}[^>]*\s*>(.*?)<\s*/\s*{keyword}\s*>"
         matches = re.findall(pattern, text, flags=re.DOTALL)
         tagged = ''

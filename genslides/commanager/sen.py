@@ -1874,7 +1874,8 @@ class Projecter:
         for task in man.multiselect_tasks:
             man.addTaskToSelectList(task)
             man.curr_task = trg
-            self.createCollectTreeOnSelectedTasks('SubTask')
+            self.createShootTreeOnSelectedTasks('SubTask')
+            # self.createCollectTreeOnSelectedTasks('SubTask')
             trg = man.curr_task
         man.curr_task = start
         return self.updateMainUIelements()

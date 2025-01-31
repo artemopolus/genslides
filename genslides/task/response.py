@@ -92,7 +92,7 @@ class ResponseTask(TextTask):
         # param = self.convParamStruct(param)
 
         if mres:
-            print('Get options from task')
+            print(self.getName(),' run with options for', mparam['model'])
             chat = LLModel(mparam)
         else:
             print('Init with default option')
