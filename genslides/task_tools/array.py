@@ -72,7 +72,10 @@ def getArrayByIndexPlusPlus( param, task  ):
     if param['parse'] == 'manual':
         out =  getPartByParam(task,param)
         if index < param['len']:
-            index +=1
+            if 'step' in param and param['step']:
+                index += int(param['step'])
+            else:
+                index +=1
         print('manual', out)
         param['idx'] = index
         return out
@@ -159,6 +162,8 @@ def saveArrayToParams(task  , param : dict):
         res, arr = divideArray(task, param)
         if res:
             curr = getArrayByIndex(arr, 0, param, task)
+            if param['parse'] == 'manual' and 'start' in param:
+                idx = param['start']
             idx = 0
         else:
             print('Cant divide into array')
