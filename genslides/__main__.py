@@ -117,15 +117,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             manipulate_manager = projecter
             parameters_manager = projecter
             with gr.Accordion(label='Session information'):
-                with gr.Row():
-                    with gr.Column():
-                        sessionname_drd = gr.Dropdown(label='Session names list',choices=projecter.getSessionNameList())
-                        setsessionname_btn = gr.Button('Select from list')
-                        sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
-                        newsessionname_btn = gr.Button('New name for session')
-                    with gr.Column():
-                        sessioninfo_txt = gr.Textbox(label='Session info')
-                    sessionname_drd.select(fn=projecter.readSessionInfo, inputs=sessionname_drd, outputs=sessioninfo_txt )
+                with gr.Tab(label='Loading'):
+                    with gr.Row():
+                        with gr.Column():
+                            sessionname_drd = gr.Dropdown(label='Session names list',choices=projecter.getSessionNameList())
+                            setsessionname_btn = gr.Button('Load from list')
+                        with gr.Column():
+                            sessioninfo_txt = gr.Textbox(label='Session info', lines=6)
+                        sessionname_drd.select(fn=projecter.readSessionInfo, inputs=sessionname_drd, outputs=sessioninfo_txt )
+                with gr.Tab(label='Create'):
+                    sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
+                    newsessionname_btn = gr.Button('New name for session')
                 # with gr.Row():
                     # project_manLoad = gr.Button(value='Default project location')
                     # project_manBrow = gr.Button(value='Select project location')
@@ -528,6 +530,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         forceunfrzpars_btn = gr.Button('Force unfreeze Parents')
                         clnresp_btn = gr.Button(value='Clean Response')
                         unite_btn = gr.Button(value='Unite')
+                        breakforlink = gr.Button(value='Make uniq link')
                 with gr.Tab('Selected'):
                     with gr.Row():
                         relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
@@ -1241,6 +1244,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             disunselectchild_btn.click(fn=projecter.setMultiselectedTasksChainToMainTrack, outputs=std_output_list)
             enablemultichilds_btn.click(fn=projecter.resetMultiselectedTasksChainToMainTrack, outputs=std_output_list)
 
+            breakforlink.click(fn=manipulate_manager.breakLinkToChildren, outputs=std_output_list)
             moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
             switchup_btn.click(fn=manipulate_manager.swicthCurTaskUP, outputs=std_output_list)
             reparup_btn.click(fn=manipulate_manager.reparentCurTaskChildsUP, outputs=std_output_list)

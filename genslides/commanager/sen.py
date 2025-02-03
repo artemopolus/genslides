@@ -588,6 +588,28 @@ class Projecter:
     def makeActionUnParent(self):
         return self.makeTaskAction("","","Unparent","")
     
+    def breakLinkToChildren(self):
+        man = self.actioner.getCurrentManager()
+        trg = man.getCurrentTask()
+        par = trg.getParent()
+        linkedtasks = trg.getHoldGarlands()
+        for idx, task in enumerate( linkedtasks ):
+            if idx != 0:
+                _,role,_ = task.getMsgInfo()
+                prompt = self.actioner.getCurrentManager().getCurTaskLstMsgRaw()
+                man.setCurrentTask( par )
+                selected_action = "SubTask"
+                act_type = "Request"
+                self.makeTaskAction(prompt=prompt,type1= act_type,creation_type= selected_action,creation_tag= role)
+                created = man.getCurrentTask()
+                man.setCurrentTask( task )
+                self.makeTaskAction("","","Unlink","")
+                man.setCurrentTask( created )
+                param = {'curr': task.getName()}
+                self.makeTaskAction("","","Link","", param)
+        return self.updateMainUIelements()
+
+    
 
     def makeActionLink(self):
         man = self.actioner.getCurrentManager()
@@ -3036,7 +3058,10 @@ class Projecter:
         stepgraph = self.actioner.drawGraph(max_index = 3, path = "output/img2", hide_tasks=True, max_childs=-1,add_linked=True, out_childtask_max=4)
         rawgraph = self.actioner.drawGraph(hide_tasks=True, max_childs=1, path="output/img3", all_tree_task=True, add_garlands=True, out_childtask_max=4)
 
-        workspace_msgs = self.convertMsgsToChat(self.actioner.getCurrentManager().getCurrentTask(),{"attach":True,"max_symbols":10000,"max_per_task":self.params['workgraph']})
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        tres, tparam = task.getParamStruct('draw_wrk')
+        task_param = tparam if tres else self.params['workgraph']
+        workspace_msgs = self.convertMsgsToChat(task,{"attach":True,"max_symbols":10000,"max_per_task":task_param})
         step_params = {"attach":True}
         if self.params['stepgraph']['on']:
             step_params['max_per_task'] = self.params['stepgraph']
