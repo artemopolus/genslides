@@ -43,7 +43,8 @@ def geminiGetChatCompletion(msgs, params):
         out_param = {
                 'intok': response.usage_metadata.prompt_token_count,
                 'outtok':response.usage_metadata.candidates_token_count,
-                'gemini_system': system_instruction
+                'gemini_system': system_instruction,
+                'response_format': params['response_format']
                             }
         msg = response.text
         return True, msg, out_param

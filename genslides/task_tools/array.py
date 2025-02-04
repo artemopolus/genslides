@@ -231,7 +231,11 @@ def checkArrayIteration(task  , param : dict):
 
 def resetArrayParam( task, param : dict):
     print('Reset array params for', task.getName())
-    param['idx'] = 0
+    if param['parse'] == 'manual' and 'start' in param:
+        idx = param['start']
+    else:
+        idx = 0
+    param['idx'] = idx
     param['src_data'] = ''
     # res, out = saveArrayToParams(task, param)
     # if res:
