@@ -217,24 +217,40 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                     if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
                             (idx < len(chat) and i in trg_chat_msgs)):
                         res, recjson = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
-                        icc_keys = []
-                        if 'icc_keys' in cparam and cparam['icc_keys']:
-                            icc_keys = [t.replace(' ','') for t in cparam['icc_keys'].split(',')]
-                        if len(icc_keys) == 3:
-                            try:
-                                out.append(
-                                    {
-                                        'idx':recjson[icc_keys[0]],
-                                        'content': recjson[icc_keys[1]],
-                                        'chck': recjson[icc_keys[2]]
-                                    }
-                                )
-                            except Exception as e:
-                                print('Error replacing keys idx, content, chck:', e)
-                        elif 'trgjsonkey' in cparam and isinstance(recjson, dict) and cparam['trgjsonkey'] in recjson:
-                            out.append({'idx':i, 'content': recjson[cparam['trgjsonkey']], 'chck':False})
-                        else:
-                            if res:
-                                out.append( recjson)
+                        out.append( jsonConvertation(cparam, recjson, res, i) )
+                return[{"content" : Ld.Loader.convJsonToText(out), "role" : role}]
+            elif cparam['form'] == 'json_dict_list':
+                out = []
+                i = 0
+                for pack in rparam['data']:
+                    chat = pack['chat']
+                    if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                            (idx < len(chat) and i in trg_chat_msgs)):
+                        res, recjson = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
+                        if res and isinstance( recjson, list ):
+                            for trgjson in recjson:
+                                out.append( jsonConvertation(cparam, trgjson, res, i) )
+                                i += 1
                 return[{"content" : Ld.Loader.convJsonToText(out), "role" : role}]
     return []
+
+def jsonConvertation(cparam, recjson, recres, index):
+    icc_keys = []
+    if 'icc_keys' in cparam and cparam['icc_keys']:
+        icc_keys = [t.replace(' ','') for t in cparam['icc_keys'].split(',')]
+    if len(icc_keys) == 3:
+        try:
+            return                {
+                    'idx':recjson[icc_keys[0]],
+                    'content': recjson[icc_keys[1]],
+                    'chck': recjson[icc_keys[2]]
+                }
+        except Exception as e:
+            print('Error replacing keys idx, content, chck:', e)
+    elif 'trgjsonkey' in cparam and isinstance(recjson, dict) and cparam['trgjsonkey'] in recjson:
+        return {'idx':index, 'content': recjson[cparam['trgjsonkey']], 'chck':False}
+    else:
+        if recres:
+            recjson['idx'] = index
+            return recjson
+
