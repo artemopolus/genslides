@@ -2158,8 +2158,10 @@ class Manager(Man.Jun):
                 if self.getFrozenTasksCount() == 0:
                     return True
         else:
+            # print('Check for updation')
             cnt = self.getFrozenTasksCount()
             if cnt == 0:
+                # print('Tasks is unfrozen')
                 if task:
                     for child in task.getAllChildChains():
                         if child != task:

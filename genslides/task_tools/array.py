@@ -164,7 +164,9 @@ def saveArrayToParams(task  , param : dict):
             curr = getArrayByIndex(arr, 0, param, task)
             if param['parse'] == 'manual' and 'start' in param:
                 idx = param['start']
-            idx = 0
+                param['len'] = idx + int(task.findKeyParam(param['manual_len']))
+            else:
+                idx = 0
         else:
             print('Cant divide into array')
             return False, param
@@ -174,6 +176,7 @@ def saveArrayToParams(task  , param : dict):
     # out = {}
     setArrayParamValues(param, arr, curr, idx)
     param ['src_data' ]= getSHAfromTask(task, param)
+    param = getPartByParam( task, param )
     # param.update(out)
     return True, param
 
@@ -221,7 +224,7 @@ def needToUpdate( task ,param):
 def checkArrayIteration(task  , param : dict):
     if 'type' in param and param['type'] == 'array':
         if needToUpdate( task, param):
-            if task.manager.allowUpdateInternalArrayParam():
+            if task.manager.allowUpdateInternalArrayParam(task):
                 return iterateOverArrayFromParam(task, param)
         else:
             res, out = saveArrayToParams(task, param)

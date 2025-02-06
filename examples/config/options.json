@@ -128,6 +128,7 @@
       "smbl_before":0,
       "smbl_after":0,
       "src_data":"",
+      "manual_len" : ["0", "[[current:msg_content]]", "[[current:param:array:idx]]","[[parent:msg_content:json:key]]"],
       "manual_format":["","[[current:param:array:idx]]"],
       "manual_target":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "len": 0,
