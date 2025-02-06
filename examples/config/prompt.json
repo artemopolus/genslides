@@ -24,24 +24,6 @@
 		"Init":"",
 		"Endi":""
 	},
-	"Listener":{
-		"Init":"",
-		"Endi":"",
-		"params":[
-			{
-				"type": "listener",
-				"input": "prompt",
-				"output": "param",
-				"hash": "",
-				"combine": "single",
-				"data": "",
-				"onedit": "none",
-				"onupdate": "none",
-				"garland_opt": "",
-				"garland_actions": ""
-			}
-		]
-	},
 	"Group":{
 		"Init":"",
 		"Endi":""
@@ -61,7 +43,7 @@
 	"RunScript":{
 		"Init":"",
 		"Endi":"",
-		"python": {"type":"path", "value":"enter_path_python_script"}
+		"python": {"type":"path", "value":"C:\\Users\\artem\\Documents\\SyncFolder\\WorkspaceFast\\genslides\\.env\\Scripts\\python.exe"}
 	},
 	"WebSurfArray":{
 		"Init":"",
@@ -84,26 +66,27 @@
 		"Endi":"",
 		"path_to_read":"saved\\read.txt"
 	},
-	"ReadReadFileParam":{
-		"Init":"",
-		"Endi":"",
-		"params":[
-			{
-				"type": "path_to_read",
-				"path_to_read": "saved\\saving\\conv_script.json",
-				"read_dial": false,
-				"header": "",
-				"footer": "",
-				"del_msgs" :"None",
-				"encoding" :"utf-8"
-			}
-		],
-		"path_to_read":"saved\\read.txt"
-	},
 	"WriteToFileParam":{
 		"Init":"",
 		"Endi":"",
 		"path_to_write":"saved\\write.txt"
+	},
+	"WriteWriteToFileParam":{
+		"Init":"",
+		"Endi":"",
+		"path_to_write":"saved\\write.txt",
+		"params":[
+			{
+				"type": "path_to_write",
+				"path_to_write": "[[parent_2:msg_content]]",
+				"write": "std",
+				"input": "[[parent:ms_content]]",
+				"text_to_replace":"",
+				"source_to_edit":"",
+				"replace_type":"std",
+				"always_update": true
+   			}
+		]
 	},
 	"ExtProject":{
 		"Init":"",
@@ -114,10 +97,6 @@
 		"Endi":""
 	},
 	"ExternalInput":{
-		"Init":"",
-		"Endi":""
-	},
-	"JumperTree":{
 		"Init":"",
 		"Endi":""
 	},
@@ -263,9 +242,9 @@
 			{
 				"type": "model",
 				"model": "gemini-1.5-flash",
-				"response_format": "{\n\"type\": \"json_schema\",\n\"json_schema\": {\n    \"name\": \"json_creating\",\n    \"schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"sentences\": {\n                \"type\": \"array\",\n                \"items\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                        \"num\":{\"type\":\"number\",\"description\":\"Number of sentence\"},\n                        \"init\": {\"type\": \"string\",\"description\":\"Initial sentence from the Text\"},\n                        \"edit\": {\"type\": \"string\",\"description\":\"Edited sentence from your previous reply\"}\n                    },\n                    \"required\": [\"num\",\"init\", \"edit\"],\n                    \"additionalProperties\": false\n                }\n            }\n        },\n        \"required\": [\"sentences\"],\n        \"additionalProperties\": false\n    },\n    \"strict\": true\n}\n}"
-			}
-		]
+				"response_format": "{\n  \"type\": \"object\",\n  \"properties\": {\n      \"sentences\": {\n          \"type\": \"array\",\n          \"items\": {\n              \"type\": \"object\",\n              \"properties\": {\n                  \"idx\":{\"type\":\"string\",\"description\":\"Number of sentence\"},\n                  \"text\": {\"type\": \"string\",\"description\":\"Translation of sentence\"}\n              },\n              \"required\": [\"idx\",\"text\"]\n          }\n      }\n  },\n  \"required\": [\"sentences\"]\n}"
+				}			
+			]
 	},
 	"ScriptSetOptions":{
 		"Init":"",
@@ -291,17 +270,35 @@
 			}
 		]
 	},
+	"Listener":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "listener",
+				"input": "prompt",
+				"output": "prompt",
+				"hash": "",
+				"combine": "single",
+				"data": "",
+				"onedit": "garland",
+				"onupdate": "chck_link_chld",
+				"garland_opt": "",
+				"garland_actions": ""
+			}
+		]
+	},
 	"Entry":{
-	"Init":"",
-	"Endi":"",
-	"params":[
-		{
-		"type": "entry",
-			"filetag": "File",
-			"dirtag":"Directory",
-			"path_to_read": "[[manager:path:sub_2]]"
-		}
-	]
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "entry",
+			    "filetag": "File",
+      			"dirtag":"Directory",
+      			"path_to_read": "[[manager:path:sub_2]]"
+			}
+		]
 	},
 	"TargetReadFileParam":{
 		"Init":"",
@@ -319,5 +316,5 @@
 				"del_msgs" :"None"
 			}
 		]
-  }
+	}
 }

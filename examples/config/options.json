@@ -54,19 +54,9 @@
    },
    {
       "type": "script",
-      "path_to_trgs": ["[[project:RunScript:python]] [[manager:path:spc]]/script/test.py"],
-      "path_to_python": "[[project:python]]",
-      "remove_script": [false, true],
-      "init_phrase": "None",
-      "on_success": "",
-      "on_error": "I have error:\n",
-      "on_final": "",
-      "output_files": "[]",
-      "exe_type": "py",
-      "targets_type": ["args","single", "files"],
-      "script_param": "[[manager:path:fld]]/init.py",
       "cwd":"[[manager:path:spc]]/script",
-      "parent_task_cmd":"[[project:RunScript:python]] [[parent:msg_content]]"
+      "parent_task_cmd":"[[project:RunScript:python]] [[parent:msg_content]]",
+      "format":["[[current:param:script:out]]"]
    },
    {
       "type": "folder_to_write",
@@ -94,7 +84,8 @@
    },
    {
       "type": "tree_step",
-      "idx": 6
+      "idx": 6,
+      "target":""
    },
    {
       "type": "collecting",
@@ -103,8 +94,7 @@
    },
    {
       "type": "bud",
-      "summary": "summary",
-      "text": ""
+      "summary": "summary" 
    },
    {
       "type":"search",
@@ -130,13 +120,19 @@
 	},
    {
       "type":"array",
-      "parse":["None", "std","text_split","msgs"],
+      "parse":["None", "std","text_split","msgs","manual"],
       "idx":0,
       "curr":"",
       "parts":1,
       "part_smbl_cnt":5000,
       "smbl_before":0,
-      "smbl_after":0
+      "smbl_after":0,
+      "src_data":"",
+      "manual_format":["","[[current:param:array:idx]]"],
+      "manual_target":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "len": 0,
+      "step": 1,
+      "start": 0
    },
    {
       "type":"ReadBranch",
@@ -150,7 +146,7 @@
       "idx":0,
       "enum":[false, true],
       "update":["auto","manual"],
-      "form":["alone","msgs"],
+      "form":["alone","msgs","json_dicts", "json_dict_list"],
       "hash":"",
       "trgjsonkey": "",
       "icc_keys": ["","index,text,checked"]
@@ -193,16 +189,16 @@
       "excld_task": ""
    },
    {
-      "type": "external",
-      "dir": ["Out","In"],
-      "target": "",
-      "name": "",
-      "exttreetask_path": "",
-      "inexttree": ["None", "fromact"],
-      "prompt": "",
-      "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
-      "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
-   },
+   "type": "external",
+   "dir": ["Out","In"],
+   "target": "",
+   "name": "",
+   "exttreetask_path": "",
+   "inexttree": ["None", "fromact"],
+   "prompt": "",
+   "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
+   "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
+  },
    {
       "type": "listener",
       "input": ["prompt","params"],
@@ -211,7 +207,8 @@
       "combine": ["none","single"],
       "onedit":["none","collect","garland"],
       "onupdate":["none","chck_link_chld"],
-      "garland_opt":["insert_sub", "insert_move","insert_std","insert_none","insert_keep","insert_oldout","insert_oldin"],
+      "onlink":["none","check"],
+      "garland_opt":["insert_sub", "insert_move","insert_std","insert_none","insert_keep","insert_oldout"],
       "garland_actions": ""
    },
    {
@@ -249,7 +246,19 @@
    },
    {
       "type":"check",
-      "check":["std","hash"],
+      "check":["hash","std"],
       "hash":""
+   },
+   {
+      "type":"label",
+      "text": ""
+   },
+   {
+      "type": "draw_wrk",
+      "Request": 5000,
+      "Response": 400,
+      "Default": 10000,
+      "on": true
    }
+
 ]
