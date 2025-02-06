@@ -1540,7 +1540,11 @@ class Projecter:
     
     def updateAllnTimes(self, n, check = False):
         print('Update All trees stepped',n,'times')
+        dt1 = time.time()       
         self.actioner.updateAllnTimes(n, check)
+        dt2 = time.time() 
+        delta = dt2 - dt1
+        print(f"Update duration: {delta:.6f} s. ")
         return self.updateMainUIelements()
     
     def onMsgDiffCallback(self, info):
