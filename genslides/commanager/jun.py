@@ -2152,7 +2152,7 @@ class Manager(Man.Jun):
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
 
-    def allowUpdateInternalArrayParam(self):
+    def allowUpdateInternalArrayParam(self, task : BaseTask = None):
         if 'upd_array' in self.info:
             if self.info['upd_array'] == 'check_frozen':
                 if self.getFrozenTasksCount() == 0:
@@ -2160,6 +2160,12 @@ class Manager(Man.Jun):
         else:
             cnt = self.getFrozenTasksCount()
             if cnt == 0:
+                if task:
+                    for child in task.getAllChildChains():
+                        if child != task:
+                            res, param = child.getParamStruct('array', True)
+                            if res and param['idx'] < param['len']:
+                                return False
                 return True
         return False
     

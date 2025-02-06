@@ -1213,7 +1213,7 @@ class Jun():
    
     def copyTasksIntoManager(self, tasks : list[ Task.BaseTask]):
         pass
-    def allowUpdateInternalArrayParam(self):
+    def allowUpdateInternalArrayParam(self, task : Task.BaseTask = None):
         pass
     
    
