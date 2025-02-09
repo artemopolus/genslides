@@ -1941,3 +1941,21 @@ class Actioner():
                 },
             save_action=True                
             )
+        
+    def createGarlandTree(self, prompt, out_prompt = "[[parent:code]]", root_type = "SetOptions", receivroot_type = "SetOptions", receiver_type = "Listener"):
+        man = self.getCurrentManager()
+        # trg = man.getCurrentTask()
+        role = "user"
+        self.makeTaskAction("",root_type,"New",role)
+        tree_root_task = man.getCurrentTask()
+        task_type = "Request"
+        child_action = "SubTask"
+        self.makeTaskAction(prompt=prompt,type1= task_type,creation_type= child_action,creation_tag= role)
+        self.makeTaskAction(prompt= out_prompt,type1= task_type,creation_type= child_action,creation_tag= role)
+        output_task = man.getCurrentTask()
+        man.addTaskToSelectList(man.getCurrentTask())
+        man.setCurrentTask(tree_root_task)
+        self.makeTaskAction("",receivroot_type,child_action,role)
+        man.createTreeOnSelectedTasks(child_action, receiver_type)
+        man.setCurrentTask(output_task)
+
