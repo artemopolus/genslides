@@ -120,7 +120,7 @@
 	},
    {
       "type":"array",
-      "parse":["None", "std","text_split","msgs","manual"],
+      "parse":["None", "std","text_split","msgs","manual","json"],
       "idx":0,
       "curr":"",
       "parts":1,

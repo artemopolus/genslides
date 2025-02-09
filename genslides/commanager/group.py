@@ -1521,12 +1521,17 @@ class Actioner():
             return choices, value, interacttive_drd, multiselect_drd, value, True
 
         elif param_key == 'path_to_write':
-            filename = Loader.Loader.getDirPathFromSystem(man.getPath())
-            choices.append(filename)
-            res, data = man.curr_task.getParamStruct(param_name)
-            if res and param_key in data:
-                choices.append(str(data[param_key]))
-            return choices, os.path.join(filename,'insert_name'), interacttive_drd, multiselect_drd, filename, True
+            res, fnames = man.getCurrentTask().getPathToRead()
+            if res and len(fnames) > 0:
+                filename = fnames[0]
+                return fnames, filename, interacttive_drd, multiselect_drd, filename, True
+            else:
+                filename = Loader.Loader.getDirPathFromSystem(man.getPath())
+                choices.append(filename)
+                res, data = man.curr_task.getParamStruct(param_name)
+                if res and param_key in data:
+                    choices.append(str(data[param_key]))
+                return choices, os.path.join(filename,'insert_name'), interacttive_drd, multiselect_drd, filename, True
             # return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
         elif param_key == 'model':
             res, data = man.curr_task.getParamStruct(param_name)

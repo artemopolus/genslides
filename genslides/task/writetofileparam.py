@@ -123,3 +123,9 @@ class WriteToFileParamTask(WriteToFileTask):
         return self.getName()
     
 
+    def getPathToRead(self):
+        return self.getChoicesByParentTask({
+            'target': 'entry',
+            'value':'file',
+            'name_type':'parent'
+        })
