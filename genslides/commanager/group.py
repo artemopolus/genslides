@@ -1957,5 +1957,5 @@ class Actioner():
         man.setCurrentTask(tree_root_task)
         self.makeTaskAction("",receivroot_type,child_action,role)
         man.createTreeOnSelectedTasks(child_action, receiver_type)
-        man.setCurrentTask(output_task)
+        # man.setCurrentTask(output_task)
 

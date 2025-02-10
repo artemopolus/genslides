@@ -80,7 +80,7 @@
 				"type": "path_to_write",
 				"path_to_write": "[[parent_2:msg_content]]",
 				"write": "std",
-				"input": "[[parent:ms_content]]",
+				"input": "[[parent:msg_content]]",
 				"text_to_replace":"",
 				"source_to_edit":"",
 				"replace_type":"std",
