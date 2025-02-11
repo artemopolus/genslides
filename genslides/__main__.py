@@ -1547,7 +1547,7 @@ def main() -> None:
     else:
         print("Unknown app type = ", mode)
 
-    print("End of main")
+    print("End")
 
 
     del manager, projecter
@@ -1555,5 +1555,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    print("Done")
+    print("I was glad to serve!")
     sys.exc_info()

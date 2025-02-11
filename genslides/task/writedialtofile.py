@@ -10,26 +10,30 @@ class WriteBranchTask(WriteToFileParamTask):
     def __init__(self, task_info: TaskDescription, type="WriteBranch") -> None:
         super().__init__(task_info, type)
 
+    def getRecordedContentInfo( self, s_path ):
+        content = "Path to file: " + s_path + "\n"
+        with open(s_path, 'r') as f:
+            rq = json.load(f)
+            if rq["type"] == "records":
+                content += "Records count: " + str(len(rq["data"])) + "\n"
+                min_chat_len = 100
+                max_chat_len = 0
+                for pack in rq["data"]:
+                    min_chat_len = min(min_chat_len,len(pack["chat"]))
+                    max_chat_len = max(max_chat_len, len(pack["chat"]))
+                if min_chat_len > max_chat_len:
+                    min_chat_len = max_chat_len
+                content += "Min msgs in chat: " + str(min_chat_len) +"\n"
+                content += "Max msgs in chat: " + str(max_chat_len) +"\n"
+        return content
+
     def getLastMsgContentForRawDial(self):
         content = ""
         res, param = self.getParamStruct(param_name='write_branch')
         if res:
             try:
                 s_path = ld.Loader.getUniPath( self.findKeyParam( param['path_to_write'] ) )
-                content += "Path to file: " + s_path + "\n"
-                with open(s_path, 'r') as f:
-                    rq = json.load(f)
-                    if rq["type"] == "records":
-                        content += "Records count: " + str(len(rq["data"])) + "\n"
-                        min_chat_len = 100
-                        max_chat_len = 0
-                        for pack in rq["data"]:
-                            min_chat_len = min(min_chat_len,len(pack["chat"]))
-                            max_chat_len = max(max_chat_len, len(pack["chat"]))
-                        if min_chat_len > max_chat_len:
-                            min_chat_len = max_chat_len
-                        content += "Min msgs in chat: " + str(min_chat_len) +"\n"
-                        content += "Max msgs in chat: " + str(max_chat_len) +"\n"
+                content += self.getRecordedContentInfo( s_path )
             except Exception as e:
                 content += "Error: "+ str(e)
         else:
@@ -39,7 +43,7 @@ class WriteBranchTask(WriteToFileParamTask):
         
 
     def executeResponse(self):
-        self.updateUpdationInfo(f"Execute response")
+        self.updateUpdationInfo(f"Execute response\n")
         res, param = self.getParamStruct(param_name='write_branch')
         if not res:
             return
@@ -70,10 +74,15 @@ class WriteBranchTask(WriteToFileParamTask):
                     self.updateUpdationInfo( f"Create file for msgs with path: {path}" )
                     naparam = rd.createRecordParam(self.getTasksContent())
 
+
                 wr.writeJsonToFile(path, naparam)
 
+                self.updateUpdationInfo( self.getRecordedContentInfo( path ) )
+
         except Exception as e:
-            print(self.getName(), 'got err:', e)
+            error_out = f"{self.getName()} got write branch dial error: {e}"
+            print(error_out)
+            self.updateUpdationInfo( error_out )
 
     def checkRecordsOption(self, param):
         if 'check_manager' in param:

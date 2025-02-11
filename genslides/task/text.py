@@ -1396,6 +1396,7 @@ class TextTask(BaseTask):
                  break
              else:
                  base = task
+                 manager = base.manager
                  text = n_text
          return n_text
     
