@@ -164,7 +164,10 @@ def saveArrayToParams(task  , param : dict):
             curr = getArrayByIndex(arr, 0, param, task)
             if param['parse'] == 'manual' and 'start' in param:
                 idx = param['start']
-                param['len'] = idx + int(task.findKeyParam(param['manual_len']))
+                try:
+                    param['len'] = idx + int(task.findKeyParam(param['manual_len']))
+                except Exception as e:
+                    param['len'] = 0
             else:
                 idx = 0
         else:
