@@ -153,7 +153,8 @@
 				"path_to_write": "[[manager:path:spc]]/dial/[[name]].json",
 				"input": "records",
 				"excld_task": [],
-				"always_update": true
+				"always_update": true,
+      			"check_manager":false
 			}
 		]
 	},
@@ -283,8 +284,10 @@
 				"data": "",
 				"onedit": "garland",
 				"onupdate": "chck_link_chld",
+      			"onlink":"std",
 				"garland_opt": "",
-				"garland_actions": ""
+				"garland_actions": "",
+      			"init_prompt":""
 			}
 		]
 	},
@@ -296,7 +299,10 @@
 				"type": "entry",
 			    "filetag": "File",
       			"dirtag":"Directory",
-      			"path_to_read": "[[manager:path:sub_2]]"
+      			"path_to_read": "[[manager:path:sub_2]]",
+	      		"output":"std",
+ 	     		"type_out":"all",
+				"ext":""
 			}
 		]
 	},

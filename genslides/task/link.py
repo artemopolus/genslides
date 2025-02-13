@@ -18,6 +18,7 @@ class LinkedTask(TextTask.TextTask):
                 self.setMsgList( trg_list)
                 self.saveJsonToFile(self.msg_list)
                 # print("Freeze => parents msgs not equal target")
+                self.updateUpdationInfo("Freeze on check parent msg\n")
                 self.freezeTask()
             return trg_list
         return []
@@ -99,6 +100,7 @@ class LinkedTask(TextTask.TextTask):
                 # print('New prompt:', tsk_info.prompt)
 
     def affectedTaskCallback(self, input : TextTask.TaskDescription):
+        self.updateUpdationInfo(f"Update from {input.parent.getName()}\n")
         # print("From ", input.parent.getName(), " to ", self.getName())
         # if input and input.stepped:
         #     found = False
@@ -191,7 +193,7 @@ class ListenerTask(LinkedTask):
     def updateIternal(self, input: TextTask.TaskDescription = None):
         # print('Update Internal')
         if not self.is_freeze:
-            self.updateCollectedMsgList(self.checkParentsMsg())
+            self.updateCollectedMsgList([])
         return super().updateIternal(input)
  
     def checkInputInternal(self, input = None):
@@ -199,13 +201,14 @@ class ListenerTask(LinkedTask):
 
 
     def updateLinkedPrompts(self, input : TextTask.TaskDescription):
-        lres, lparam = self.getParamStruct("listener")
-        if lres and 'onlink' in lparam:
-            if lparam['onlink'] == 'none':
-                pass
-            elif lparam['onlink'] == 'check':
-                if input.parent.is_freeze:
-                    return
+        # lres, lparam = self.getParamStruct("listener")
+        # if lres and 'onlink' in lparam:
+        #     if lparam['onlink'] == 'none':
+        #         pass
+        #     elif lparam['onlink'] == 'check':
+        #         parent_hash = self.calculateMsgsHash()
+        #         if input.parent.is_freeze:
+        #             return
         for tsk_info in self.by_ext_affected_list:
             if input.id == tsk_info.id:
                 # print('Upd by ', input.parent.getName())
@@ -218,28 +221,58 @@ class ListenerTask(LinkedTask):
                 return
 
     def getRichPrompt(self) -> str:
+        self.updateUpdationInfo("Get prompt\n")
         # print('Get rich prompt', self.getName())
         lres, lparam = self.getParamStruct("listener")
+        if not lres:
+            return self.prompt
+
         # if lres:
         #     if lparam['hash'] != "":
         #         return self.prompt
         prompt = ""
         params = []
         updated = False
-        for tsk_info in self.by_ext_affected_list:
-            # print('Upd listener from',tsk_info.parent.getName())
-            if 'combine' in lparam:
-                if lparam['combine'] == 'single':
-                    if tsk_info.enabled:
-                        prompt = tsk_info.prompt
-                        params.extend(tsk_info.params)
-                        tsk_info.enabled = False
-                        updated = True
-                        break
+        # if lres and 'init_prompt' in lparam:
+        #     self.prompt = self.findKeyParam(lparam['init_prompt'])
+        check_links = False
+        if 'onlink' not in lparam:
+            check_links = True
+        else:
+            if lparam['onlink'] == 'std':
+                check_links = True
+            elif lparam['onlink'] == 'check':
+                parent_hash = self.calculateMsgsHash()
+                if 'msgs_hash' not in lparam:
+                    check_links = True
+                elif parent_hash != lparam['msgs_hash']:
+                    self.updateUpdationInfo("Parent hash is updated\n")
+                    check_links = True
+                elif parent_hash == lparam['msgs_hash']:
+                    self.updateUpdationInfo("Parent hash is same\n")
+                else:
+                    self.updateUpdationInfo("Unknown\n")
+                lparam['msgs_hash'] = parent_hash
             else:
-                prompt += tsk_info.prompt
-                params.extend(tsk_info.params)
+                self.updateUpdationInfo("Unknown reaction on linking\n")
+        if check_links:
+            for tsk_info in self.by_ext_affected_list:
+                # print('Upd listener from',tsk_info.parent.getName())
+                if 'combine' in lparam:
+                    if lparam['combine'] == 'single':
+                        if tsk_info.enabled:
+                            prompt = tsk_info.prompt
+                            params.extend(tsk_info.params)
+                            tsk_info.enabled = False
+                            updated = True
+                            break
+                else:
+                    prompt += tsk_info.prompt
+                    params.extend(tsk_info.params)
+        else:
+            self.updateUpdationInfo("Checks not pass\n")
         if not updated:
+            self.updateUpdationInfo("No updates from linked\n")
             return self.prompt
         if lres:
             curr_hash = lparam['hash']
@@ -250,6 +283,7 @@ class ListenerTask(LinkedTask):
                     print(self.getName(),'get prompt:', len(prompt))
                     if 'output' in lparam:
                         if lparam['output'] == 'prompt':
+                            self.updateUpdationInfo(f"Update prompt with new{len(prompt)}\n")
                             self.prompt = prompt
                         elif lparam['output'] == 'param':
                             lparam['data'] = prompt
@@ -266,11 +300,19 @@ class ListenerTask(LinkedTask):
             self.setParamStruct(lparam)
         return self.prompt
     
+    def resetLinkedUpdation(self):
+        for tsk_info in self.by_ext_affected_list:
+            tsk_info.enabled = False
+
+    
     def forceCleanChat(self):
         self.prompt = ""
         lres, lparam = self.getParamStruct("listener")
         if lres:
+            if 'init_prompt' in lparam:
+                self.prompt = self.findKeyParam(lparam['init_prompt'])
             lparam['hash'] = ""
+            self.resetLinkedUpdation()
             if lparam['input'] == 'params':
                 params = []
                 for tsk_info in self.by_ext_affected_list:
@@ -343,7 +385,8 @@ class ListenerTask(LinkedTask):
             return
         return super().blockLinked()
 
-    def stdProcessUnFreeze(self, input=None):        
+    def stdProcessUnFreeze(self, input=None):    
+        self.updateUpdationInfo("Std process unfreeze\n")    
         if self.checkBlock():
             self.is_freeze = True
             return

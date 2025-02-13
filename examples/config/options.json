@@ -208,9 +208,10 @@
       "combine": ["none","single"],
       "onedit":["none","collect","garland"],
       "onupdate":["none","chck_link_chld"],
-      "onlink":["none","check"],
+      "onlink":["std","check"],
       "garland_opt":["insert_sub", "insert_move","insert_std","insert_none","insert_keep","insert_oldout"],
-      "garland_actions": ""
+      "garland_actions": "",
+      "init_prompt":""
    },
    {
       "type": "autocommander",
@@ -249,6 +250,10 @@
       "type":"check",
       "check":["hash","std"],
       "hash":""
+   },
+   {
+      "type": "keycraft",
+      "input" :""
    },
    {
       "type":"label",

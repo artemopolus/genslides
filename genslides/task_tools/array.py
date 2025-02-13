@@ -70,14 +70,13 @@ def getArrayByIndexPlusPlus( param, task  ):
     index = param['idx']
     array = param['array']
     if param['parse'] == 'manual':
-        out =  getPartByParam(task,param)
         if index < param['len']:
             if 'step' in param and param['step']:
                 index += int(param['step'])
             else:
                 index +=1
-        print('manual', out)
         param['idx'] = index
+        out =  getPartByParam(task,param)
         return out
         
 
