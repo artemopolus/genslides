@@ -39,6 +39,7 @@ import tempfile
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
+        self.update_info : str = ""
         self.checkparentsettrue = False
         self.msg_list = []
         self.params = task_info.params
@@ -64,7 +65,6 @@ class TextTask(BaseTask):
         self.stdProcessUnFreeze()
 
         self.onMsgDiffCallbacks = []
-        self.update_info : str = ""
 
     def resetUpdationInfo( self ):
         self.update_info = ""
@@ -358,14 +358,19 @@ class TextTask(BaseTask):
             self.syncQueueToParam()
             return True
         return False
+    
+    def calculateMsgsHash( self ):
+        input_msgs = self.getParent().getMsgs(inparam={'goal':'check'})
+        text_msgs = ' '.join( [m['content'] for m in input_msgs] ) 
+        return Txt.compute_sha256_hash( text_msgs )
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
         res, param = self.getParamStruct("check", only_current=True)
         if res and self.getParent() and param['check'] != 'std':
-            input_msgs = self.getParent().getMsgs(inparam={'goal':'check'})
-            text_msgs = ' '.join( [m['content'] for m in input_msgs] ) 
-            # text_msgs = Loader.convJsonToText(input_msgs)
-            hash_msgs = Txt.compute_sha256_hash( text_msgs )
+            # input_msgs = self.getParent().getMsgs(inparam={'goal':'check'})
+            # text_msgs = ' '.join( [m['content'] for m in input_msgs] ) 
+            # hash_msgs = Txt.compute_sha256_hash( text_msgs )
+            hash_msgs = self.calculateMsgsHash()
             if param['hash'] != hash_msgs:
                 res, msg, par = self.getParent().getLastMsgAndParent()
                 diff = [{"name":self.getParent().getName(),"idx": 0,"msg":msg}]
