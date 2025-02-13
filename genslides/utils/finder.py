@@ -223,14 +223,14 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
         elif arr[1] == 'code2':
             script_text = convertMdToScript(md_text=task.getLastMsgContent())
             if len(arr) > 2:
+                array_data = []
                 if len(arr) > 4 and arr[2] == 'class_method':
-                    print( arr )
                     parsed = pyparse.get_class_function_body(script_text, arr[3], arr[4])
                     script_text = "" if parsed == None else parsed
                 elif arr[2] == 'imports':
-                    script_text = pyparse.get_import_statements(script_text)
+                    array_data = pyparse.get_import_statements(script_text)
                 elif arr[2] == 'globvars':
-                    script_text = pyparse.get_global_variable_lines( script_text )
+                    array_data = pyparse.get_global_variable_lines( script_text )
                 else:
                     if len(arr) > 4:
                         methods, classes = pyparse.get_class_info(script_text, arr[3])
@@ -246,13 +246,18 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                         array_data = []
 
                     
-                    if arr[-1] == 'text':
-                        script_text = ', '.join(array_data)
-                    elif arr[-1] == 'json':
-                        script_text = Loader.Loader.convJsonToText([{'idx':i,'content':t, 'chck':False} for i,t in enumerate(array_data)])
-                    else:
-                        script_text = ""
-            rep_text = rep_text.replace(res, script_text)
+                if len(array_data) == 0:
+                    pass
+                elif arr[-1] == 'lines':
+                    script_text = '\n'.join(array_data)
+                elif arr[-1] == 'text':
+                    script_text = ', '.join(array_data)
+                elif arr[-1] == 'json':
+                    script_text = Loader.Loader.convJsonToText([{'idx':i,'content':t, 'chck':False} for i,t in enumerate(array_data)])
+                else:
+                    script_text = ""
+            if isinstance(script_text, str):
+                rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'code':
             script_text = convertMdToScript(md_text=task.getLastMsgContent())
             if len(arr) > 2:
