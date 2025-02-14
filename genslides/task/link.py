@@ -192,7 +192,7 @@ class ListenerTask(LinkedTask):
 
     def updateIternal(self, input: TextTask.TaskDescription = None):
         # print('Update Internal')
-        if not self.is_freeze:
+        if not self.is_freeze or input != None:
             self.updateCollectedMsgList([])
         return super().updateIternal(input)
  

@@ -36,6 +36,8 @@ import genslides.task_tools.actions as Actions
 import genslides.task_tools.text as Txt
 import copy
 import tempfile
+from datetime import datetime
+
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
@@ -70,7 +72,10 @@ class TextTask(BaseTask):
         self.update_info = ""
 
     def updateUpdationInfo( self, info : str ):
-        self.update_info += info
+        # print(info)
+        now = datetime.now()
+        now_str = "(" + now.strftime("%Y-%m-%d %H:%M:%S.%f") + ")"
+        self.update_info += info + now_str
 
     def registerOnMsgDiffCallback ( self, callback):
         if callable(callback):  # Проверяем, что callback является вызываемой функцией

@@ -1069,8 +1069,8 @@ class BaseTask():
             # print('Input no stepped')
             self.is_freeze = True
             self.useLinksToTask()
-            for child in self.childs:
-                child.update()
+            # for child in self.childs:
+            #     child.update()
 
         return "","",""
     
