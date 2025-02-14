@@ -1060,8 +1060,8 @@ class BaseTask():
         if input is None:
             # print('No input')
             self.useLinksToTask()
-            for child in self.childs:
-                child.update()
+            # for child in self.childs:
+            #     child.update()
         elif input and input.stepped:
             # print('Input stepped')
             self.useLinksToTask(stepped=True)
@@ -1071,6 +1071,9 @@ class BaseTask():
             self.useLinksToTask()
             # for child in self.childs:
             #     child.update()
+
+        for child in self.getChilds():
+            child.freezeTask()
 
         return "","",""
     

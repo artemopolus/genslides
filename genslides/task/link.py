@@ -320,6 +320,7 @@ class ListenerTask(LinkedTask):
                 for param in params:
                     if 'type' in param:
                         self.rmParamStructByName(param['type'])
+            self.updateCollectedMsgList([])
         return super().forceCleanChat()
 
     def createLinkToTask(self, task) -> TextTask.TaskDescription:
