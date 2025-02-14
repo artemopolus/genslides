@@ -2283,4 +2283,4 @@ class Manager(Man.Jun):
                     task.forceCleanChat()
             else:
                 task.forceCleanChat()
-        return super().cleanTasksChat()
+        return super().cleanTasksChat( tasks )

@@ -3475,3 +3475,7 @@ class Projecter:
         self.actioner.getJsonCmd( cmds )
         return self.updateMainUIelements()
 
+    def cleanTasksChat(self):
+        self.actioner.cleanTasksChat()
+        return self.updateMainUIelements()
+

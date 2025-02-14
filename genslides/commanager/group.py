@@ -1767,16 +1767,6 @@ class Actioner():
                 frozen_tasks += 1
         return frozen_tasks
 
-    def cleanTasksChat(self, task_names = ""):
-        print('Clean task chats for', task_names)
-        man = self.getCurrentManager()
-        if task_names == "":
-            tasks = man.getTasks()
-        else:
-            tasks_list = task_names.split(",")
-            tasks = [man.getTaskByName(name.replace(" ","")) for name in tasks_list]
-        man.cleanTasksChat(tasks)
-
     def getJsonCmd(self, json_cmds):
         # print('Get json command:', json_cmds)
         results = [] # list to hold results of each command
@@ -1871,6 +1861,17 @@ class Actioner():
     def cleanLastMessageForMulti(self):
         for task in self.getCurrentManager().getMultiSelectedTasks():
             task.forceCleanChat()
+
+    def cleanTasksChat(self, task_names = ""):
+        print('Clean task chats for', task_names)
+        man = self.getCurrentManager()
+        if task_names == "":
+            tasks = man.getTasks()
+        else:
+            tasks_list = task_names.split(",")
+            tasks = [man.getTaskByName(name.replace(" ","")) for name in tasks_list]
+        man.cleanTasksChat(tasks)
+
 
     def branchingAction( self, prompt ):
         print ("Execute branching action")

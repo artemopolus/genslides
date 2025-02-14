@@ -1160,6 +1160,8 @@ class TextTask(BaseTask):
         self.checkInput(input)
         out = super().update(input)
         self.internalUpdateParams()
+        for child in self.getChilds():
+            child.freezeTask()
         # self.updateParamStruct(param_name='branch', key='code', val=self.getBranchCodeTag())
         return out
 

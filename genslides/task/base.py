@@ -1072,9 +1072,6 @@ class BaseTask():
             # for child in self.childs:
             #     child.update()
 
-        for child in self.getChilds():
-            child.freezeTask()
-
         return "","",""
     
     def setupQueue(self):
