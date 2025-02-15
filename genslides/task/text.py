@@ -1256,7 +1256,10 @@ class TextTask(BaseTask):
         self.saveJsonToFile(self.msg_list)
 
     def getCurParamStructValue(self, param_name, key):
-        for param in self.params:
+        return self.getParamValueByKey(self.params, param_name, key)
+   
+    def getParamValueByKey(self, params : list, param_name : str, key : str):
+        for param in params:
             if "type" in param and param["type"] == param_name:
                 if key in param:
                     return True, param[key]

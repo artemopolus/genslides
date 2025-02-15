@@ -2,6 +2,7 @@ import genslides.task.text as TextTask
 import genslides.task_tools.records as rd
 import genslides.task_tools.text as txt
 import json
+import genslides.utils.loader as Ld
 
 class LinkedTask(TextTask.TextTask):
     def __init__(self, task_info: TextTask.TaskDescription, type='Linked') -> None:
@@ -231,6 +232,10 @@ class ListenerTask(LinkedTask):
         #     if lparam['hash'] != "":
         #         return self.prompt
         prompt = ""
+        if lparam['combine'] == 'json_list':
+            prompts_data = []
+        elif lparam['combine'] == 'json_dict':
+            prompts_data = {}
         params = []
         updated = False
         # if lres and 'init_prompt' in lparam:
@@ -266,15 +271,29 @@ class ListenerTask(LinkedTask):
                             tsk_info.enabled = False
                             updated = True
                             break
+                    elif lparam['combine'].startswith("json"):
+                        if tsk_info.enabled:
+                            if isinstance(tsk_info.params, list):
+                                kres, key = self.getParamValueByKey('tag','key')
+                                if kres:
+                                    if lparam['combine'] == 'json_list':
+                                        prompts_data.append({key: tsk_info.prompt})
+                                    elif lparam['combine'] == 'json_dict':
+                                        prompts_data.update({key: tsk_info.prompt})
+                            tsk_info.enabled = False
+                            updated = True
                 else:
                     prompt += tsk_info.prompt
                     params.extend(tsk_info.params)
+                    updated = True
         else:
             self.updateUpdationInfo("Checks not pass\n")
         if not updated:
             self.updateUpdationInfo("No updates from linked\n")
             return self.prompt
         if lres:
+            if lparam['combine'].startswith("json"):
+                prompt = Ld.Loader.convJsonToText(prompts_data)
             curr_hash = lparam['hash']
             if lparam['input'] == 'prompt':
                 input_hash = txt.compute_sha256_hash(prompt)

@@ -205,7 +205,7 @@
       "input": ["prompt","params"],
       "output": ["prompt","param"],
       "hash": "",
-      "combine": ["none","single"],
+      "combine": ["none","single","json_list","json_dict"],
       "onedit":["none","collect","garland"],
       "onupdate":["none","chck_link_chld"],
       "onlink":["std","check"],
@@ -244,7 +244,8 @@
    },
    {
       "type":"tag",
-      "text": ""
+      "text": "",
+      "key": ""
    },
    {
       "type":"check",
