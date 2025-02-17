@@ -131,6 +131,7 @@
       "manual_len" : ["0", "[[current:msg_content]]", "[[current:param:array:idx]]","[[parent:msg_content:json:key]]"],
       "manual_format":["","[[current:param:array:idx]]"],
       "manual_target":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "manual_excl":["","[[parent_2:msg_content]]","1,5"],
       "len": 0,
       "step": 1,
       "start": 0

@@ -70,11 +70,14 @@ def getArrayByIndexPlusPlus( param, task  ):
     index = param['idx']
     array = param['array']
     if param['parse'] == 'manual':
-        if index < param['len']:
+        idx_excld = param.get('idx_excl', [])
+        while( index < param['len']):
             if 'step' in param and param['step']:
                 index += int(param['step'])
             else:
                 index +=1
+            if index not in idx_excld:
+                break
         param['idx'] = index
         out =  getPartByParam(task,param)
         return out
@@ -162,11 +165,25 @@ def saveArrayToParams(task  , param : dict):
         if res:
             curr = getArrayByIndex(arr, 0, param, task)
             if param['parse'] == 'manual' and 'start' in param:
-                idx = param['start']
+                exclude = param.get("manual_excl","")
                 try:
-                    param['len'] = idx + int(task.findKeyParam(param['manual_len']))
+                    if isinstance(exclude, int):
+                        param['idx_excl'] = [exclude]
+                    else:
+                        param['idx_excl'] = [int(num) for num in exclude.split(",")]
                 except Exception as e:
-                    param['len'] = 0
+                    print("Error for idx excl:", e)
+                    param['idx_excl'] = []
+                idx = param['start']
+                array_len = 0
+                try:
+                    if isinstance(param['manual_len'], int):
+                        array_len = idx + param['manual_len']
+                    else:
+                        array_len = idx + int(task.findKeyParam(param['manual_len']))
+                except Exception as e:
+                    print("Error for len:", e)
+                param['len'] = array_len
             else:
                 idx = 0
         else:
@@ -182,10 +199,17 @@ def saveArrayToParams(task  , param : dict):
     # param.update(out)
     return True, param
 
+def getArrayIdx( param, idx):
+    if 'idx_excl' in param:
+        while(idx in param['idx_excl']):
+            idx += 1
+    return idx
+
 def setArrayParamValues(param, array, current, idx):
     param['array'] = array
     param['curr'] = current 
-    param['idx'] = idx
+    param['idx'] = getArrayIdx( param, idx)
+
     if param['parse'] != 'manual':
         param['len'] = len(array)
 
@@ -238,6 +262,7 @@ def resetArrayParam( task, param : dict):
     print('Reset array params for', task.getName())
     if param['parse'] == 'manual' and 'start' in param:
         idx = param['start']
+        idx = getArrayIdx( param, idx)
     else:
         idx = 0
     param['idx'] = idx
