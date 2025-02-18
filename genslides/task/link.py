@@ -273,7 +273,11 @@ class ListenerTask(LinkedTask):
                             break
                     elif lparam['combine'].startswith("json"):
                         if tsk_info.enabled:
-                            if isinstance(tsk_info.params, list):
+                            if lparam['combine'] == 'json_update':
+                                jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
+                                if jres:
+                                    prompts_data.update( jobj)
+                            elif isinstance(tsk_info.params, list):
                                 kres, key = self.getParamValueByKey('tag','key')
                                 if kres:
                                     if lparam['combine'] == 'json_list':

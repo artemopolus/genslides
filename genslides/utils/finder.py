@@ -70,8 +70,17 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
         elif arr[1] == 'allmsgs':
             msgs = task.getMsgs()
             out_text = ""
-            for msg in msgs:
-                out_text += msg['content'] + '\n\n'
+            if len(arr) > 2 and 'json_update' == arr[2]:
+                json_out = {}
+                for msg in msgs:
+                    jres, jobj = Loader.Loader.loadJsonFromText( msg['content'])
+                    if jres:
+                        # print('Update with', jobj)
+                        json_out.update(jobj)
+                out_text = Loader.Loader.convJsonToText(json_out)
+            else:
+                for msg in msgs:
+                    out_text += msg['content'] + '\n\n'
             rep_text = rep_text.replace(res, out_text)
         elif arr[1] == 'name':
             rep_text = rep_text.replace(res, task.getName())
