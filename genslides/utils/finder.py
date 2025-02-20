@@ -17,6 +17,8 @@ def convertTextPartToMsg(md_text):
             pass
         else:  # Code parts
             text += part.strip()
+    if text == "":
+        return md_text
     return text
 
 def removeCodeFromMd( md_text : str, keyword: str = 'python' ):
