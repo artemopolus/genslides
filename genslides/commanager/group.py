@@ -883,6 +883,16 @@ class Actioner():
                 break
         self.getCurrentManager().enableOutput2()
 
+    def updateToUnFreeze(self, max_times = 1000, check = False ):
+        for index in range( max_times ):
+            self.updateAll(force_check=check)
+            frozen_tasks_cnt = self.getFrozenTasksCount() 
+            if self.force_update_stop:
+                break
+            if frozen_tasks_cnt == 0:
+                break
+        return index, self.getFrozenTaskNames()
+
     def updateChildTasks(self, force_check = False):
         man = self.getCurrentManager()
         act = self
@@ -1766,6 +1776,19 @@ class Actioner():
             if res and isinstance(param['idx'], int) and param['idx'] < param['len'] - 1:
                 frozen_tasks += 1
         return frozen_tasks
+    
+    def getFrozenTaskNames(self) -> list:
+        man = self.getCurrentManager()
+        names = []
+        for task in man.getTasks():
+            if task.isFrozen():
+                names.append(task.getName())
+        for task in self.getCurrentManager().getTasks():
+            res, param = task.getParamStruct('array', only_current=True)
+            if res and isinstance(param['idx'], int) and param['idx'] < param['len'] - 1:
+                names.append(task.getName())
+        return names
+ 
 
     def getJsonCmd(self, json_cmds):
         # print('Get json command:', json_cmds)
@@ -1959,4 +1982,9 @@ class Actioner():
         self.makeTaskAction("",receivroot_type,child_action,role)
         man.createTreeOnSelectedTasks(child_action, receiver_type)
         # man.setCurrentTask(output_task)
+
+    def iterrateArrayForced( self ):
+        man = self.getCurrentManager()
+        task = man.getCurrentTask()
+        task.iterrateArrayForced()
 

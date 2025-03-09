@@ -452,7 +452,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         paramslctset_btn = gr.Button('Set option to value')
                         param_mnlval = gr.Textbox(label='Value',info='manual',lines=4, interactive=True)
                         param_edit = gr.Button("Apply new value to param")
+                with gr.Row():
                         param_jsonval_cod = gr.Code(label='Json',language='json')
+                with gr.Row():
                         param_jsonedit_btn = gr.Button("Apply new value to param")
 
                         paramslctset_btn.click(fn=projecter.setSelectOptionToValue, inputs=[param_type, param_key,param_slcval], outputs=[param_mnlval, param_jsonval_cod])

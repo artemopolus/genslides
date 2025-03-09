@@ -67,6 +67,7 @@ def divideArray(task  , param):
     return False, []
 
 def getArrayByIndexPlusPlus( param, task  ):
+    # print('Get array index ++')
     index = param['idx']
     array = param['array']
     if param['parse'] == 'manual':
@@ -143,7 +144,7 @@ def checkCurrentArrayElem(param : dict, task  ):
 
 def getSHAfromTask(task, param):
     data = ''
-    if param['parse'] == 'std' or param['parse'] == 'text_split':
+    if param['parse'] in ['std','text_split','json']:
         data = task.getLastMsgContent2()
     elif param['parse'] == 'manual':
         if 'manual_target' in param:
