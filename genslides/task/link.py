@@ -247,7 +247,7 @@ class ListenerTask(LinkedTask):
             if lparam['onlink'] == 'std':
                 check_links = True
             elif lparam['onlink'] == 'check':
-                parent_hash = self.calculateMsgsHash()
+                parent_hash, text_hash = self.calculateMsgsHash()
                 if 'msgs_hash' not in lparam:
                     check_links = True
                 elif parent_hash != lparam['msgs_hash']:
