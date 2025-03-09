@@ -56,7 +56,8 @@
       "type": "script",
       "cwd":"[[manager:path:spc]]/script",
       "parent_task_cmd":"[[project:RunScript:python]] [[parent:msg_content]]",
-      "format":["[[current:param:script:out]]"]
+      "format":["[[current:param:script:out]]"],
+      "onupdate":["none","check"]
    },
    {
       "type": "folder_to_write",
@@ -75,7 +76,8 @@
    },
    {
       "type": "hidden",
-      "hidden": [true, false]
+      "hidden": [true, false],
+      "hide_from_hash":[false, true]
    },
    {
       "type": "garland",
@@ -148,7 +150,7 @@
       "idx":0,
       "enum":[false, true],
       "update":["auto","manual"],
-      "form":["alone","msgs","json_dicts", "json_dict_list"],
+      "form":["alone","msgs","json_dicts", "json_dict_list","json_dictionary", "json_filt_list"],
       "hash":"",
       "trgjsonkey": "",
       "icc_keys": ["","index,text,checked"]
@@ -198,9 +200,10 @@
    "exttreetask_path": "",
    "inexttree": ["None", "fromact"],
    "prompt": "",
+   "actions_on": [true, false],
    "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
    "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
-  },
+   },
    {
       "type": "listener",
       "input": ["prompt","params"],
@@ -267,6 +270,10 @@
       "Response": 400,
       "Default": 10000,
       "on": true
+   },
+   {
+      "type":"finder",
+      "suffix": ["","\n"],
+      "prefix": ["", "- "]
    }
-
 ]

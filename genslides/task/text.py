@@ -45,6 +45,7 @@ class TextTask(BaseTask):
         self.checkparentsettrue = False
         self.msg_list = []
         self.params = task_info.params
+        self.updateUpdationInfo('Initiate task\n')
         # print('Get params', self.params)
         super().__init__(task_info, type)
 
@@ -367,7 +368,7 @@ class TextTask(BaseTask):
     def calculateMsgsHash( self ):
         input_msgs = self.getParent().getMsgs(inparam={'goal':'check'})
         text_msgs = ' '.join( [m['content'] for m in input_msgs] ) 
-        return Txt.compute_sha256_hash( text_msgs )
+        return Txt.compute_sha256_hash( text_msgs ), text_msgs
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
         res, param = self.getParamStruct("check", only_current=True)
@@ -375,15 +376,25 @@ class TextTask(BaseTask):
             # input_msgs = self.getParent().getMsgs(inparam={'goal':'check'})
             # text_msgs = ' '.join( [m['content'] for m in input_msgs] ) 
             # hash_msgs = Txt.compute_sha256_hash( text_msgs )
-            hash_msgs = self.calculateMsgsHash()
+            hash_msgs, text_msgs = self.calculateMsgsHash()
             if param['hash'] != hash_msgs:
                 res, msg, par = self.getParent().getLastMsgAndParent()
                 diff = [{"name":self.getParent().getName(),"idx": 0,"msg":msg}]
                 for callback in self.onMsgDiffCallbacks:
                     callback(diff)
+                if 'track_hash' in param and param['track_hash']:
+                    if 'old_text_hash' in param:
+                        self.updateParamStruct("check","old_text_hash",param['curr_text_hash'])
+                        pass
+                    else:
+                        self.updateParamStruct("check","old_text_hash","")
+                    self.updateParamStruct("check","curr_text_hash",text_msgs)
+
                 self.updateParamStruct("check","hash",hash_msgs)
+                self.updateUpdationInfo("HASH not same")
                 return False
             else:
+                self.updateUpdationInfo("HASH is same")
                 return True
         if self.checkparentsettrue:
             return True
@@ -484,6 +495,8 @@ class TextTask(BaseTask):
             res, pparam = self.getParamStruct('hidden', only_current=True)
             if res and pparam['hidden']:
                 return False, [], self.parent
+            elif res and 'hide_from_hash' in pparam and pparam['hide_from_hash'] and 'goal' in param and param['goal'] == 'hash':
+                return False, [], self.parent
         if 'goal' in param and param['goal'] == 'check':
             cres, cparam = self.getParamStruct('hidden', only_current=True)
             if cres and 'check' in cparam and not cparam['check']:
@@ -504,6 +517,9 @@ class TextTask(BaseTask):
             text = content[0: max_symbols]
             text += "\n\n\n...\nText length: " + str(len(content)) + " symbol(s)"
             content = text
+        cres, cparam = self.getParamStruct("finder")
+        if cres:
+            content = cparam.get("prefix","") + content + cparam.get("suffix","")
         pack = {"role":self.getLastMsgRole(), 
                 "content": content}
         val = [pack]
@@ -1108,6 +1124,12 @@ class TextTask(BaseTask):
         if self.parent != None:
             self.parent.setActiveBranch(self)
         return True, val, self.parent
+    
+    def iterrateArrayForced( self ):
+        ares, aparam = self.getParamStruct(param_name='array', only_current=True)
+        if ares:
+            naparam = ar.iterateOverArrayFromParam(self, aparam)
+            self.updateParam2(naparam)
 
     def internalUpdateParams(self):
         self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
@@ -1395,11 +1417,11 @@ class TextTask(BaseTask):
         return False, None
     
     def findKeyParam(self, text: str)->str:
-         manager = self.manager
-         base = self
-         idx = 0
+        manager = self.manager
+        base = self
+        idx = 0
         #  print(f"Task: {self.getName()}")
-         while idx < 10000:
+        while idx < 10000:
              n_text, task, ress, repeat = finder.findByKey2(text, manager, base)
              idx +=1
             #  print(f"Conditions: t=b: {task == base} r: {ress}")
@@ -1413,7 +1435,7 @@ class TextTask(BaseTask):
                  base = task
                  manager = base.manager
                  text = n_text
-         return n_text
+        return n_text
     
     def copyAllParams(self, copy_info = False) -> list[dict]:
         pparams = self.getAllParams()
