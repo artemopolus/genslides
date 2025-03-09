@@ -27,6 +27,7 @@ class RunScriptTask(ResponseTask):
             workspace = Loader.getUniPath(workspace)
             fm.createFolder(workspace)
             print("Run script", file,'in', workspace)
+            self.updateUpdationInfo(f"Run script:\n{file}\n in \n{workspace}")
             result = subprocess.run(file, capture_output=True, text=True, cwd=workspace, shell=True)
             self.execute_success = True
             pparam['return'] = result.returncode
@@ -36,7 +37,7 @@ class RunScriptTask(ResponseTask):
         res, pparam = self.getParamStruct("script")
         if res:
             data = self.findKeyParam(pparam['format'])
-            self.appendMessage({"role": "user", "content": data})
+            self.appendMessage({"role": self.prompt_tag, "content": data})
             self.prompt = data
         else:
             print("No data is getted from")
@@ -64,8 +65,24 @@ class RunScriptTask(ResponseTask):
                 # super().update(input)
                 return "","user",""
 
-        self.executeResponse()
+        res, pparam = self.getParamStruct("script")
+        if res:
+            if "onupdate" in pparam and pparam["onupdate"] == "check" \
+                and self.checkParentMsgList(update=True, save_curr=False):
+                    pass
+            else:
+                self.executeResponse()
+        else:
+            self.executeResponse()
         self.saveJsonToFile(self.msg_list)
+
+    def forceCleanChat(self):
+        res, pparam = self.getParamStruct("script")
+        if res and "onupdate" in pparam and pparam["onupdate"] == "check":
+            cres, cparam = self.getParamStruct("check")
+            if cres:
+                self.updateParamStruct("check","hash","")
+        return super().forceCleanChat()
     
     def getLastMsgAndParentRaw(self, idx : int) -> list[bool, list, BaseTask]:
         ores,oval,opar = super().getLastMsgAndParentRaw(idx)
