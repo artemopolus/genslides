@@ -210,6 +210,26 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                         text += cparam['suffix']
                     out.append({"content": text, "role": role})    
                 return out
+            elif cparam['form'] == 'json_filt_list':
+                out = []
+                for i, pack in enumerate(rparam['data']):
+                    chat = pack['chat']
+                    if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                            (idx < len(chat) and i in trg_chat_msgs)):
+                        res, recjson = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
+                        if res and isinstance(recjson, list):
+                            out = list(set(out + recjson))
+                return[{"content" : Ld.Loader.convJsonToText(out), "role" : role}]
+            elif cparam['form'] == 'json_dictionary':
+                out = {}
+                for i, pack in enumerate(rparam['data']):
+                    chat = pack['chat']
+                    if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                            (idx < len(chat) and i in trg_chat_msgs)):
+                        res, recjson = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
+                        if res:
+                            out.update( recjson )
+                return[{"content" : Ld.Loader.convJsonToText(out), "role" : role}]
             elif cparam['form'] == 'json_dicts':
                 out = []
                 for i, pack in enumerate(rparam['data']):
