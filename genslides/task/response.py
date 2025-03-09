@@ -9,6 +9,7 @@ import genslides.utils.loader as Ld
 class ResponseTask(TextTask):
     def __init__(self, task_info : TaskDescription, type = "Response") -> None:
         super().__init__(task_info, type)
+        self.updateUpdationInfo("Create response task\n")
 
 
         tmp_msg_list = self.msg_list.copy()
@@ -30,6 +31,7 @@ class ResponseTask(TextTask):
 
 
     def onEmptyMsgListAction(self):
+        self.updateUpdationInfo("On empty msg list\n")
         # print('On empty msg list action', self.getName())
         self.setChatPram("temperature")
         self.setChatPram("model")
@@ -48,6 +50,7 @@ class ResponseTask(TextTask):
         return super().onEmptyMsgListAction()
 
     def onExistedMsgListAction(self, msg_list_from_file):
+        self.updateUpdationInfo("On existed msg list\n")
         # print('On existed msg list action', self.getName())
         res, val = self.getParam("model")
         if not res:
@@ -58,10 +61,12 @@ class ResponseTask(TextTask):
                 self.updateParam("model", "gpt-3.5-turbo")
 
         self.msg_list = msg_list_from_file
-        if self.checkParentMsgList(update=True, save_curr=False):
-            res, content, _ =  self.getLastMsgAndParent()
-            if res and content[0]['content'] != "":
-                self.stdProcessUnFreeze()
+        if not self.is_freeze:
+            self.updateUpdationInfo(f"Check parent msg list\n")
+            if self.checkParentMsgList(update=True, save_curr=False):
+                res, content, _ =  self.getLastMsgAndParent()
+                if res and content[0]['content'] != "":
+                    self.stdProcessUnFreeze()
         # print("Get list from file=", self.path)
         return super().onExistedMsgListAction(msg_list_from_file)
 
