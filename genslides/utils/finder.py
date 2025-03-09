@@ -95,6 +95,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     jdump = jdump[1:-1]
                 rep_text = rep_text.replace(res, jdump)
 
+            elif len(arr) == 3 and arr[2] == 'filename':
+                rep_text = rep_text.replace(res, FileMan.getFileName( param ))
             elif len(arr) == 3 and arr[2] == 'json':
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 if bres:
