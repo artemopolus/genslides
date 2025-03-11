@@ -694,6 +694,10 @@ class JumperTreeTask(InExtTreeTask):
                         self.intact = actioner
                         self.intman = man
                         jumper.setParent(self.getParent())
+                        for key in self.manager.getGlobalKeys():
+                            res, value = self.manager.getGlobalValue( key )
+                            if res:
+                                self.intman.appendGlobalVariables( key, value )
                         self.intact.autoUpdateExtTreeTaskActs(actioners)
                         return None
                     else:

@@ -501,6 +501,11 @@ class TextTask(BaseTask):
             cres, cparam = self.getParamStruct('hidden', only_current=True)
             if cres and 'check' in cparam and not cparam['check']:
                 return False, [], self.getParent()
+        if 'exclude' in param and isinstance(param['exclude'], list):
+            for task_type in param['exclude']:
+                if self.checkType(task_type) or \
+                    self.getName() == task_type:
+                    return False, [], self.getParent()
         # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         content = self.findKeyParam(self.getLastMsgContent())
         hres, hparam = self.getParamStruct('attention', only_current=True)

@@ -70,9 +70,21 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     jtrg_val = pparam[arr[5]]
                     rep_text = rep_text.replace(res, str(jtrg_val))
         elif arr[1] == 'allmsgs':
-            msgs = task.getMsgs()
+            tmparg = arr.copy()
+            excluded_task_names = []
+            while( len(tmparg) > 3 and 'excl' == tmparg[2] ):
+                excluded_task_names.append(tmparg[3])
+                tmparg.pop(0)
+                tmparg.pop(0)
+            msgs = task.getMsgs(inparam={"exclude": excluded_task_names})
             out_text = ""
-            if len(arr) > 2 and 'json_update' == arr[2]:
+            if len(tmparg) > 3 and 'count' == tmparg[2] and tmparg[3].isalnum():
+                count = int(tmparg[3])
+                while( len(msgs) > count):
+                    msgs.pop(0)
+                tmparg.pop(0)
+                tmparg.pop(0)
+            if len(tmparg) > 2 and 'json_update' == tmparg[2]:
                 json_out = {}
                 for msg in msgs:
                     jres, jobj = Loader.Loader.loadJsonFromText( msg['content'])
@@ -530,7 +542,7 @@ def findByKey2(text, manager , base):
                         rep_text = rep_text.replace(res, trg_text)
                     elif len(arr) > 2 and arr[1] == 'global':
                         gres, trg_text = manager.getGlobalValue(arr[2])
-                        if gres:
+                        if gres and isinstance(trg_text, str):
                             rep_text = rep_text.replace(res, trg_text)
 
                     elif arr[1] == 'path':
