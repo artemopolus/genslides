@@ -13,6 +13,7 @@ from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompl
 from genslides.utils.myollama import ollamaGetChatCompletion
 from genslides.utils.myllamacpp import llamacppGetChatCompletion
 from genslides.utils.mygemini import geminiGetChatCompletion
+from genslides.utils.mytabbyapi import tabbyApiGetChatCompletion
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
 
 model_to_method = {
@@ -28,6 +29,9 @@ model_to_method = {
     },
     "google":{
         'default':geminiGetChatCompletion
+    },
+    "tabbyapi":{
+        'default':tabbyApiGetChatCompletion
     }
 }
 
