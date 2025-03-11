@@ -2381,6 +2381,8 @@ class Projecter:
                 standart_taskname = src_man.getSelectedTask().getName()
             elif exttask_intype == 'Current':
                 standart_taskname = src_man.getCurrentTask().getName()
+            elif exttask_intype == 'Default':
+                standart_taskname = src_man.getTaskByTag("external, input, default").getName()
 
             if exttask_outtype == 'Current Bud(s)':
                 buds = src_man.getCurrentTask().getAllChildChains()
@@ -2389,6 +2391,8 @@ class Projecter:
                 out_tasks = [src_man.getSelectedTask().getName()]
             elif exttask_outtype == 'Multi':
                 out_tasks = [m.getName() for m in src_man.getMultiSelectedTasks()]
+            elif exttask_intype == 'Default':
+                out_tasks = [src_man.getTaskByTag("external, output, default").getName()]
         except Exception as e:
             print('On get task error:', e)
         inexttreeparam = {
@@ -2401,6 +2405,12 @@ class Projecter:
             'inexttree':'fromact',
             'update_count': 1
             }    
+        update_commands_task = src_man.getTaskByTag("external, updt_actions, default")
+        idle_commands_task = src_man.getTaskByTag("external, idle_actions, default")
+        if update_commands_task:
+            inexttreeparam['updt_actions'] = update_commands_task.getLastMsgContentRaw()
+        if idle_commands_task:
+            inexttreeparam['idle_actions'] = idle_commands_task.getLastMsgContentRaw()
         return inexttreeparam
     
     def createInExtTreeTaskByParam(self, param):

@@ -1502,10 +1502,11 @@ class Actioner():
         cur_val = 'None'
         if param_key == 'path_to_read':
             res, fnames = man.getCurrentTask().getPathToRead()
-            if not res and len(fnames) == 0:
-                filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-                return [filename], filename, interacttive_drd, multiselect_drd, str(filename), True
-            else:
+            # if not res and len(fnames) == 0:
+            #     filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
+            #     return [filename], filename, interacttive_drd, multiselect_drd, str(filename), True
+            # else:
+            if res and len(fnames):
                 filename = fnames[0]
                 return fnames, filename, interacttive_drd, multiselect_drd, filename, True
             # return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
@@ -1535,13 +1536,13 @@ class Actioner():
             if res and len(fnames) > 0:
                 filename = fnames[0]
                 return fnames, filename, interacttive_drd, multiselect_drd, filename, True
-            else:
-                filename = Loader.Loader.getDirPathFromSystem(man.getPath())
-                choices.append(filename)
-                res, data = man.curr_task.getParamStruct(param_name)
-                if res and param_key in data:
-                    choices.append(str(data[param_key]))
-                return choices, os.path.join(filename,'insert_name'), interacttive_drd, multiselect_drd, filename, True
+            # else:
+            #     filename = Loader.Loader.getDirPathFromSystem(man.getPath())
+            #     choices.append(filename)
+            #     res, data = man.curr_task.getParamStruct(param_name)
+            #     if res and param_key in data:
+            #         choices.append(str(data[param_key]))
+            #     return choices, os.path.join(filename,'insert_name'), interacttive_drd, multiselect_drd, filename, True
             # return gr.Dropdown(choices=[filename], value=os.path.join(filename,'insert_name'), interactive=True), gr.Textbox(value=filename, interactive=True)
         elif param_key == 'model':
             res, data = man.curr_task.getParamStruct(param_name)

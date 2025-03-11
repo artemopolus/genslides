@@ -281,6 +281,14 @@ class Jun():
     def getCurrentTask(self) -> Task.BaseTask:
         return self.curr_task
     
+    def getTaskByTag(self, tags : str)-> Task.BaseTask:
+        tags_list =[t.replace(" ","") for t in tags.split(',')]
+        for task in self.getTasks():
+            if task.checkTags( tags_list ):
+                return task
+        return None
+
+
     def getFrozenTasksCount(self) -> int:
         cnt = 0
         for t in self.getTasks():
@@ -860,6 +868,7 @@ class Jun():
         if param in self.info:
             return self.info[param]
         return ""
+    
 
 # --------------------------------------------------------------------------------------------
     

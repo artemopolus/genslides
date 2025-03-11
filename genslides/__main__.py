@@ -830,8 +830,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             with gr.Column():
                                 gr.Button('Get actioners list').click(fn=projecter.getActionerPathsList, outputs=inexttreeactlist_drd)
-                                inexttree_intask_rad = gr.Radio(choices=['Current','Selected'], label='External Task Input')
-                                inexttree_outtask_rad = gr.Radio(choices=['Current Bud(s)','Selected','Multi','None'], label='External Task Output(s)')
+                                inexttree_intask_rad = gr.Radio(choices=['Current','Selected','Default'],value='Default' label='External Task Input')
+                                inexttree_outtask_rad = gr.Radio(choices=['Current Bud(s)','Selected','Multi','Default','None'], value='Default', label='External Task Output(s)')
                                 crparaminexttree_btn = gr.Button('Create InExtTree parameters')
                             with gr.Column():
                                 inexttreeactparam_jsn = gr.JSON(label='InExtTree Parameters')
