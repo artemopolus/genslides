@@ -1583,6 +1583,22 @@ class TextTask(BaseTask):
                         value = self.findKeyParam(bparam['value'])
                         if target != value:
                             block = True
+                    elif bparam['reason'] == "TargetMoreValue":
+                        target = self.findKeyParam(bparam['target'])
+                        value = self.findKeyParam(bparam['value'])
+                        try:
+                            if float(target) >= float(value):
+                                block = True
+                        except:
+                            pass
+                    elif bparam['reason'] == "TargetLessValue":
+                        target = self.findKeyParam(bparam['target'])
+                        value = self.findKeyParam(bparam['value'])
+                        try:
+                            if float(target) < float(value):
+                                block = True
+                        except:
+                            pass
                     elif bparam['reason'] == "TargetTrue":
                         target = self.findKeyParam(bparam['target'])
                         if target.lower() == 'true':
