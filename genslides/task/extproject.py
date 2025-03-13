@@ -658,18 +658,30 @@ class JumperTreeTask(InExtTreeTask):
 
         return super().setParentInternal(parent)
 
+    def updateInternalGlobalKeys(self):
+        if not self.intman:
+            return
+        for key in self.manager.getGlobalKeys():
+            self.updateUpdationInfo(f"Update new key: {key}\n")
+            res, value = self.manager.getGlobalValue( key )
+            if res:
+                self.intman.appendGlobalVariables( key, value )
 
     def loadActionerTasks(self, actioners: list):
+        self.updateUpdationInfo("Load actioner task")
         eres, eparam = self.getParamStruct('external')
         if not eres:
             return None
         if 'inexttree' not in eparam:
             return None
+        if self.intact != None:
+            self.updateUpdationInfo(f"Task {self.getName()} already loaded\n")
+            self.updateInternalGlobalKeys()
+            self.intact.autoUpdateExtTreeTaskActs(actioners)
+            return None
+        
         if eparam['inexttree'] == 'None':
-            if self.intact != None:
-                print(f"Task {self.getName()} already loaded")
-                return
-            
+           
             task_actioner = self.getActioner()
             if self.intpar == None:
                 jumper = task_actioner.manager.getTaskByName(eparam['jumper'])
@@ -684,7 +696,7 @@ class JumperTreeTask(InExtTreeTask):
             # str_trg_path, task, cnt = Finder.findByKey2(eparam['exttreetask_path'], self.manager, self)
             str_trg_path = self.findKeyParam(eparam['exttreetask_path'])
             trg_path = Loader.Loader.getUniPath(str_trg_path)
-            print("Try to find", trg_path)
+            self.updateUpdationInfo(f"Try to find {trg_path} ")
             for actioner in actioners:
                 # print("Check",actioner.getPath())
                 if actioner.getPath() == trg_path:
@@ -694,15 +706,13 @@ class JumperTreeTask(InExtTreeTask):
                         self.intact = actioner
                         self.intman = man
                         jumper.setParent(self.getParent())
-                        for key in self.manager.getGlobalKeys():
-                            res, value = self.manager.getGlobalValue( key )
-                            if res:
-                                self.intman.appendGlobalVariables( key, value )
+                        self.updateInternalGlobalKeys()
                         self.intact.autoUpdateExtTreeTaskActs(actioners)
                         return None
                     else:
-                        print("No task with name", eparam['jumper'], "with path", trg_path)
-            print("No actioners for", trg_path)
+                        jumper_name = eparam['jumper']
+                        self.updateUpdationInfo(f"No task with name {jumper_name} with path { trg_path}")
+            self.updateUpdationInfo(f"No actioners for {trg_path}")
         return None
  
     def updateIternal(self, input : TaskDescription = None):
