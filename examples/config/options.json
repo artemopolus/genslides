@@ -70,7 +70,7 @@
    {
       "type": "block",
       "block": [true, false],
-      "reason":["None","Target","TargetInv","TargetTrue","TargetFalse"],
+      "reason":["None","Target","TargetInv","TargetMoreValue","TargetLessValue","TargetTrue","TargetFalse"],
       "target":"",
       "value":""
    },
