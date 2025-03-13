@@ -75,7 +75,7 @@ class TextTask(BaseTask):
     def updateUpdationInfo( self, info : str ):
         # print(info)
         now = datetime.now()
-        now_str = "(" + now.strftime("%Y-%m-%d %H:%M:%S.%f") + ")"
+        now_str = "(" + now.strftime("%Y-%m-%d %H:%M:%S.%f") + ")\n"
         self.update_info += info + now_str
 
     def registerOnMsgDiffCallback ( self, callback):

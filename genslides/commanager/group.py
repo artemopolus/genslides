@@ -1662,7 +1662,7 @@ class Actioner():
             return
         for task in man.getTasks():
             if task.isExternalProjectTask():
-                print(f"Load for task {task.getName()}")
+                # print(f"Load for task {task.getName()}")
                 task.loadActionerTasks(actioners)
  
     def getCurManInExtTreeTasks(self):

@@ -93,6 +93,11 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                         # print('Update with\n', json_out)
                         json_out.update(jobj)
                 out_text = Loader.Loader.convJsonToText(json_out)
+            elif len(tmparg) > 2 and 'smpl_format' == tmparg[2]:
+                for idx, msg in enumerate(msgs):
+                    out_text += f"Message #{idx}\n"
+                    out_text += 'ROLE: ' + msg['role'] + '\n---\n'
+                    out_text += msg['content'] + '\n---\n'
             else:
                 for msg in msgs:
                     out_text += msg['content'] + '\n\n'
