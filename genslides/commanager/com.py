@@ -4,6 +4,9 @@ import genslides.utils.filemanager as FileManager
 import genslides.utils.loader as Loader
 import genslides.utils.writer as Writer
 import genslides.utils.readfileman as Reader
+from genslides.utils.reqhelper import RequestHelper
+from genslides.utils.testrequest import TestRequester
+from genslides.utils.searcher import GoogleApiSearcher
 
 class Commander:
     def __init__(self, path = "session"):
@@ -133,7 +136,7 @@ class Commander:
     def createActioner(self, eparam) -> Act.Actioner:
         dt1 = datetime.datetime.now()        
         path = eparam['exttreetask_path']
-        manager = Act.Manager.Manager(Act.Manager.RequestHelper(), Act.Manager.TestRequester(), Act.Manager.GoogleApiSearcher())
+        manager = Act.Manager.Manager(RequestHelper(), TestRequester(), GoogleApiSearcher())
         manager.onStart()
         manager.initInfo(self.loadExtProject, path = path)
         if 'retarget' in eparam:
