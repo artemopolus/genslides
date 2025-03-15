@@ -67,8 +67,11 @@ class ReadBranchTask(TextTask):
             return
         # print(trg_msgs)
         if len(trg_msgs) == 0:
-            print(self.getName(),'freeze cz empty dial')
-            self.freezeTask()
+            if eres and "onempty" in eparam and eparam["onempty"] == "std":
+                pass
+            else:
+                self.updateUpdationInfo('freeze cz empty dial')
+                self.freezeTask()
         self.setMsgList(trg_msgs)
 
 

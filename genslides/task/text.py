@@ -441,7 +441,11 @@ class TextTask(BaseTask):
 
     def getLastMsgContent2(self):
         if len(self.msg_list) > 0:
-            return self.findKeyParam ( self.getRawMsgs()[-1]['content'] )
+            content = self.findKeyParam ( self.getRawMsgs()[-1]['content'] )
+            cres, cparam = self.getParamStruct("finder")
+            if cres:
+                content = cparam.get("prefix","") + content + cparam.get("suffix","")
+            return content
         else:
             return ""
 

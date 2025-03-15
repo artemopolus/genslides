@@ -252,31 +252,10 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     code_s += p_tasks[i].getBranchCode( p_tasks[i+1])
             rep_text = rep_text.replace(res, code_s)
         elif arr[1] == 'code2':
-            script_text = convertMdToScript(md_text=task.getLastMsgContent())
+            script_text = convertMdToScript(md_text=task.getLastMsgContent2())
             if len(arr) > 2:
-                array_data = []
-                if len(arr) > 4 and arr[2] == 'class_method':
-                    parsed = pyparse.get_class_function_body(script_text, arr[3], arr[4])
-                    script_text = "" if parsed == None else parsed
-                elif arr[2] == 'imports':
-                    array_data = pyparse.get_import_statements(script_text)
-                elif arr[2] == 'globvars':
-                    array_data = pyparse.get_global_variable_lines( script_text )
-                else:
-                    if len(arr) > 4:
-                        methods, classes = pyparse.get_class_info(script_text, arr[3])
-                        if arr[2] == 'class_allmethods':
-                            array_data = methods
-                        if arr[2] == 'class_allnested':
-                            array_data = classes
-                    elif arr[2] == 'allmethods':
-                        array_data = pyparse.get_global_functions(script_text)
-                    elif arr[2] == 'allclasses':
-                        array_data = pyparse.get_class_names(script_text)
-                    else:
-                        array_data = []
+                array_data = pyparse.getCodeParsingByArgs(arr, script_text)
 
-                    
                 if len(array_data) == 0:
                     pass
                 elif arr[-1] == 'lines':
@@ -290,7 +269,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             if isinstance(script_text, str):
                 rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'code':
-            script_text = convertMdToScript(md_text=task.getLastMsgContent())
+            script_text = convertMdToScript(md_text=task.getLastMsgContent2())
             if len(arr) > 2:
                 script_text = pyparse.parse_text(script_text, arr[2])
             rep_text = rep_text.replace(res, script_text)

@@ -255,3 +255,27 @@ def get_class_names(code):
 
     return class_names
 
+def getCodeParsingByArgs(arr : list, script_text):
+    array_data = []
+    if len(arr) > 2:
+        if len(arr) > 4 and arr[2] == 'class_method':
+            parsed = get_class_function_body(script_text, arr[3], arr[4])
+            script_text = "" if parsed == None else parsed
+        elif arr[2] == 'imports':
+            array_data = get_import_statements(script_text)
+        elif arr[2] == 'globvars':
+            array_data = get_global_variable_lines( script_text )
+        else:
+            if len(arr) > 4:
+                methods, classes = get_class_info(script_text, arr[3])
+                if arr[2] == 'class_allmethods':
+                    array_data = methods
+                if arr[2] == 'class_allnested':
+                    array_data = classes
+            elif arr[2] == 'allmethods':
+                array_data = get_global_functions(script_text)
+            elif arr[2] == 'allclasses':
+                array_data = get_class_names(script_text)
+            else:
+                array_data = []
+    return array_data

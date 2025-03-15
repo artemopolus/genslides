@@ -99,3 +99,21 @@ def convert_text_with_names_to_list( text : str, delimiter = ',') -> list[str]:
     for name in names:
         name.replace(" ","")
     return names
+
+def convertJsonDictToText( args : list[str], trg : dict):
+    tmpargs = args.copy()
+    text = ""
+    if isinstance(trg, dict):
+        while(len(tmpargs) > 1):
+            if tmpargs[0].startswith("header") and tmpargs[1] in trg:
+                shift = 1
+                num_str = tmpargs[0].split("_")
+                if len(num_str) and num_str[1].isalnum():
+                    shift = int(shift)
+                text += shift*"#" + " " + trg[tmpargs[1]] + "\n"
+            elif tmpargs[0].startswith("section") and tmpargs[1] in trg:
+                text += trg[tmpargs[1]] + "\n"
+            tmpargs.pop(0)
+            tmpargs.pop(0)
+
+    return text

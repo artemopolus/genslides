@@ -153,7 +153,9 @@
       "form":["alone","msgs","json_dicts", "json_dict_list","json_dictionary", "json_filt_list"],
       "hash":"",
       "trgjsonkey": "",
-      "icc_keys": ["","index,text,checked"]
+      "icc_keys": ["","index,text,checked"],
+      "code":["","header_1:name:section:name"],
+      "onempty": ["std","freeze"]
    },
    {
       "type":"Collect",

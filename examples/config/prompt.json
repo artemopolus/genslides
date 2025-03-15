@@ -181,7 +181,7 @@
 		"params":[
 			{
 				"type":"ReadBranch",
-				"path_to_read": "[[manager:path:spc]]/dial/[[name]].json",
+				"path_to_read": "[[parent:msg_content]]",
 				"input":"row",
 				"header": "",
 				"footer": "",
@@ -191,7 +191,8 @@
 				"idx":0,
 				"enum":true,
 				"update":"auto",
-				"form":"alone"
+				"form":"alone",
+				"onempty":"std"
 			}
 		]
 	},

@@ -239,6 +239,23 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                         res, recjson = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
                         out.append( jsonConvertation(cparam, recjson, res, i) )
                 return[{"content" : Ld.Loader.convJsonToText(out), "role" : role}]
+            elif cparam['form'] == 'json_dict2text':
+                out = []
+                for i, pack in enumerate(rparam['data']):
+                    chat = pack['chat']
+                    if ((len(trg_chat_msgs) == 0 and idx < len(chat)) or 
+                            (idx < len(chat) and i in trg_chat_msgs)):
+                        res, recjson = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
+                        if res:
+                            out.append( recjson )
+                out = fill_missing_indices(out)
+                outtext = ""
+                if "code" in cparam:
+                    args = cparam["code"].split(":")
+                    if len(args):
+                        for out_pack in out:
+                            outtext += Txt.convertJsonDictToText(args, out_pack)
+                return[{"content" : outtext, "role" : role}]
             elif cparam['form'] == 'json_dict_list':
                 out = []
                 i = 0
@@ -273,4 +290,41 @@ def jsonConvertation(cparam, recjson, recres, index):
         if recres:
             recjson['idx'] = index
             return recjson
+
+def fill_missing_indices(data, default=None):
+    """
+    Given a list of dictionaries with an "idx" key, this function returns a new list
+    that covers the range from 0 to the max "idx". Missing ranges are filled with a single
+    default dictionary.
+    
+    Args:
+        data (list): List of dictionaries, each with an "idx" key.
+        default (dict, optional): Default dictionary to insert in gaps.
+                                  If None, uses {"default": True}.
+    
+    Returns:
+        list: Sorted list with missing index ranges filled.
+    """
+    if default is None:
+        default = {"default": True}
+    
+    # Sort the list by the "idx" key.
+    sorted_data = sorted(data, key=lambda x: x["idx"])
+    result = []
+    
+    # Start at expected index 0.
+    expected = 0
+    
+    for item in sorted_data:
+        # If the current item's idx is greater than expected,
+        # there is a gap. Insert a single default dict for that gap.
+        if item["idx"] > expected:
+            result.append(default)
+        
+        # Append the current item.
+        result.append(item)
+        # Update expected to one more than the current idx.
+        expected = item["idx"] + 1
+    
+    return result
 
