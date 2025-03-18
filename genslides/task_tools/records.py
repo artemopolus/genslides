@@ -79,10 +79,12 @@ def getRecordsChat( rparam : dict, cparam : dict ) -> list:
             chat = rparam['data'][chat_idx]['chat']
             cparam['curr_chat_len'] = len(chat)
             for i, msg in enumerate(chat):
+                content = cparam['prefix'] + msg['content'] + cparam['suffix']
+                content = content.replace('[[number]]',str(i))
                 if len(trg_chat_msgs) and i in trg_chat_msgs:
-                    out.append({'role':msg['role'],'content': cparam['prefix'] + msg['content'] + cparam['suffix']})
+                    out.append({'role':msg['role'],'content': content})
                 elif len(trg_chat_msgs) == 0:
-                    out.append({'role':msg['role'],'content': cparam['prefix'] + msg['content'] + cparam['suffix']})
+                    out.append({'role':msg['role'],'content': content})
         if len(out):
             out[-1]['content'] = out[-1]['content'] + cparam['footer']
         return out
