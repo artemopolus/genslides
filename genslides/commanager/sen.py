@@ -476,6 +476,7 @@ class Projecter(Commander.Commander):
             param['switch'].append({'src':'Collect','trg':'Request'})
             param['switch'].append({'src':'GroupCollect','trg':'Request'})
             param['switch'].append({'src':'Garland','trg':'Request'})
+            param['switch'].append({'src':'Listener','trg':'Request'})
         if 'read2req' in checks:
             param['switch'].append({'src':'ReadFileParam','trg':'Request'})
         if 'run2req' in checks:

@@ -505,6 +505,8 @@ class TextTask(BaseTask):
             cres, cparam = self.getParamStruct('hidden', only_current=True)
             if cres and 'check' in cparam and not cparam['check']:
                 return False, [], self.getParent()
+            elif cres and 'hide_from_hash' in cparam and cparam['hide_from_hash']:
+                return False, [], self.getParent()
         if 'exclude' in param and isinstance(param['exclude'], list):
             for task_type in param['exclude']:
                 if self.checkType(task_type) or \

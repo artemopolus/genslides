@@ -35,11 +35,12 @@
    },
    {
       "type": "path_to_read",
-      "path_to_read": "saved\\saving\\conv_script.json",
+      "path_to_read": ["[[parent:msg_content]]","saved\\saving\\conv_script.json"],
       "read_dial": [false, true],
       "header": "",
       "footer": "",
-      "del_msgs" :"None"
+      "del_msgs" :"None",
+      "onupdate":["None","Freeze"]
    },
    {
       "type": "model",

@@ -17,7 +17,7 @@ class ReadFileParamTask(ReadFileTask):
         pass
 
     def readContentInternal(self):
-        print(self.getName(), 'Read content from file by params')
+        self.updateUpdationInfo('Read content from file by params')
         param_name = "read_folder"
         res, read_folder = self.getParam(param_name)
         encoding = 'utf-8'
@@ -46,7 +46,7 @@ class ReadFileParamTask(ReadFileTask):
         res, s_path = self.getParam(param_name)
         s_path = self.findKeyParam(s_path)
         s_path = Loader.getUniPath(s_path)
-        print('Target path to read:', s_path)
+        self.updateUpdationInfo(f"Target path to read: {s_path}")
         if not os.path.exists(s_path):
             pres, paths = Loader.stringToPathList(s_path)
             # print('Paths:', paths)
@@ -56,12 +56,12 @@ class ReadFileParamTask(ReadFileTask):
                 if rres and 'header' in pparam:
                     text = self.findKeyParam( pparam['header'] )
                 for t_path in paths:
-                    print('Read file by path:', t_path)
+                    self.updateUpdationInfo(f"Read file by path:{t_path}")
                     header = 'Content of file by path ' + t_path +'\n'
                     text += ReadFileMan.readWithHeader(t_path, header)
                 return True, text
             else:
-                print("Can\'t read files using paths:" + s_path)
+                self.updateUpdationInfo(f"Can\'t read files using paths: {s_path}")
                 if res:
                     rres, pparam = self.getParamStruct(param_name)
                     if rres and "read_dial" in pparam and pparam["read_dial"]:
@@ -80,14 +80,15 @@ class ReadFileParamTask(ReadFileTask):
                     hres, hparam = self.getParamStruct(param_name=hparamname, only_current=True)
                     if hres:
                         if 'hash' in hparam and hparam['hash'] == readable_hash:
-                            print(self.getName(),'Hash is same')
+                            self.updateUpdationInfo('Hash is same')
                         else:
-                            self.freezeTask()
+                            if 'onupdate' in pparam and pparam['onupdate'] == 'Freeze':
+                                self.freezeTask()
                         self.updateParamStruct(hparamname,'hash', readable_hash)
                     else:
                         self.setParamStruct({'type':hparamname,'hash':readable_hash})
                 except Exception as e:
-                    print('Error while getting hash',e)
+                    self.updateUpdationInfo(f"Error while getting hash: {e}")
                     return False, ""
                 
                 if "role" in pparam:
