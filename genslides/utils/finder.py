@@ -7,6 +7,7 @@ import json
 import genslides.task_tools.records as rd
 import genslides.task_tools.array as toolarr
 import genslides.task_tools.py_parser as pyparse
+import genslides.task_tools.text as Txt
 
 def convertTextPartToMsg(md_text):
     code_pattern = r'```\n(.*?)\n```'
@@ -148,6 +149,14 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     tmparg.pop(0) # - msg
                     tmparg.pop(0) # - json2
                     conv = tmparg.pop(0)
+                    md_code = []
+                    if conv == 'md':
+                        while len(tmparg):
+                            if tmparg[0] == '00':
+                                tmparg.pop(0)
+                                break
+                            else:
+                                md_code.append(tmparg.pop(0))
                     for i, arg in enumerate(tmparg):
                         if arg == 'index':
                             tmparg[i] = str(index)
@@ -167,6 +176,15 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                         text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for v in trgjson])
                     elif conv == 'dumps':
                         text = Loader.Loader.convJsonToText(trgjson)[1:-1]
+                    elif conv == 'md':
+                        if isinstance( trgjson, dict):
+                            text = Txt.convertJsonDictToText(md_code, trgjson)
+                        elif isinstance( trgjson, list):
+                            text = ""
+                            for value in trgjson:
+                                text += Txt.convertJsonDictToText(md_code, value)
+                        else:
+                            text = "md\n" + Loader.Loader.convJsonToText(trgjson) + "\n\n" + Loader.Loader.convJsonToText(md_code)
                     else:
                         text = Loader.Loader.convJsonToText(trgjson)
                 rep_text = rep_text.replace(res, text)
@@ -205,8 +223,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     if isinstance(jtrg_val, list):
                         text  = ''
                         index_max = len(jtrg_val)
-                        if len(arr) > 4 and arr[4] == "index" and index < index_max:
-                            val_index = jtrg_val[index - 1]
+                        if len(arr) > 4 and arr[4] == "index" and int(arr[5]) < index_max:
+                            val_index = jtrg_val[int(arr[5]) - 1]
                             if len(arr) > 5 and arr[5] == "str" and isinstance(val_index, list):
                                 text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for v in val_index])
                             elif len(arr) > 5 and arr[5] == "str" and isinstance(val_index, dict):

@@ -108,7 +108,7 @@ def convertJsonDictToText( args : list[str], trg : dict):
             if tmpargs[0].startswith("header") and tmpargs[1] in trg:
                 shift = 1
                 num_str = tmpargs[0].split("_")
-                if len(num_str) and num_str[1].isalnum():
+                if len(num_str) > 1 and num_str[1].isalnum():
                     shift = int(shift)
                 text += shift*"#" + " " + trg[tmpargs[1]] + "\n"
             elif tmpargs[0].startswith("section") and tmpargs[1] in trg:
