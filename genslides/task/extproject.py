@@ -29,6 +29,13 @@ class ExtProjectTask(CollectTask):
         self.intch_trg = None
         self.intman = None
         self.intact = None
+        self.allow_child_update = False
+
+    def canChildUpdate(self) -> bool:
+        return self.allow_child_update
+    
+    def setChildUpdateState(self, state : bool):
+        self.allow_child_update = state
 
     def afterFileLoading(self, trg_files = []):
         # print('Init external project task')
@@ -714,14 +721,39 @@ class JumperTreeTask(InExtTreeTask):
                         self.updateUpdationInfo(f"No task with name {jumper_name} with path { trg_path}")
             self.updateUpdationInfo(f"No actioners for {trg_path}")
         return None
- 
+    
+    def updateJumperTask(self):
+        eres, eparam = self.getParamStruct('external', True)
+        actioner = self.intact
+        if eres and actioner:
+            str_trg_path = self.findKeyParam(eparam['exttreetask_path'])
+            trg_path = Loader.Loader.getUniPath(str_trg_path)
+            if actioner.getPath() == trg_path:
+                man = actioner.std_manager
+                jumper = man.getTaskByName(eparam['jumper'])
+                if jumper and jumper.checkType('ExternalInput') and self.getParent() != jumper.getParent():
+                    jumper.setParent(self.getParent())
+
     def updateIternal(self, input : TaskDescription = None):
+        self.setChildUpdateState(False)
+        eres, eparam = self.getParamStruct('external',True)
         if self.intact is None:
-            self.updateUpdationInfo(f"No actioner for {self.getName()}")
-            self.freezeTask()
+            self.updateUpdationInfo(f"No actioner")
+            if eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_ignore":
+                if not self.checkParentMsgList(remove=False, update=True):
+                    self.updateUpdationInfo(f"Parent Msgs is not same")
+                    self.freezeTask()
+                # else:
+                    # self.stdProcessUnFreeze()
+            elif eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_check":
+                self.freezeTask()
+            else:
+                self.freezeTask()
             return
         elif not self.checkParentMsgList(remove=False, update=True):
-            eres, eparam = self.getParamStruct('external')
+            self.updateUpdationInfo(f"Acioner is loaded but Parent Msgs is not same")
+            self.updateJumperTask()
+            self.setChildUpdateState(True)
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
                 pass
             elif eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
@@ -743,25 +775,39 @@ class JumperTreeTask(InExtTreeTask):
         #     self.intact.updateAll(force_check=True)
         #     self.intact.manager.enableOutput2()
         else:
-            print(f"No update for {self.getName()}")
-            eres, eparam = self.getParamStruct('external')
+            self.updateUpdationInfo(f"No update")
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
                 pass
             elif eres and 'idle_actions' in eparam and eparam['idle_actions'] != "":
                 results = self.intact.getJsonCmd(eparam['idle_actions'])
                 self.updateUpdationInfo(f"IDLE Actions with results:{results}")
-        if self.intact.getFrozenTasksCount() > 0:
-            self.freezeTask()
+        if eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_check":
+            if self.intact.getFrozenTasksCount() > 0:
+                self.updateUpdationInfo(f"Freeze cz internal tasks")
+                self.freezeTask()
 
     def removeProject(self):
         pass
 
+    def forceCleanChat(self):
+        eres, eparam = self.getParamStruct('external',True)
+        if eres and 'reset_actions' in eparam and eparam['reset_actions'] != "":
+            results = self.intact.getJsonCmd(eparam['reset_actions'])
+            self.updateUpdationInfo(f"RESET Actions with results:{results}")
+        return super().forceCleanChat()
 
 
 class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
         super().__init__(task_info, type)
-    
+        self.readbranchmsg_idx = 0
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        self.updateUpdationInfo(f"msg_list_old:\n{msg_list_from_file}")
+        self.setMsgList(msg_list_from_file)
+        self.saveJsonToFile(self.msg_list)
+
+
     def afterFileLoading(self, trg_files=[]):
         if self.getParent():
             # print(f"Parent [{self.getName()}]:{self.getParent().getName()}")
@@ -827,9 +873,9 @@ class OutExtTreeTask(ExtProjectTask):
         return False, [], self.intch_trg
     
     def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}):
-        if self.intch_trg == None:
-            return False,[],None
-        return self.intch_trg.getLastMsgAndParent(hide_task, max_symbols, param )
+        # if self.intch_trg == None:
+            return True,self.getMsgList(),None
+        # return self.intch_trg.getLastMsgAndParent(hide_task, max_symbols, param )
         # return False, [], self.intch_trg
     
     def getPromptContentForCopyConverted(self):
@@ -837,17 +883,39 @@ class OutExtTreeTask(ExtProjectTask):
             return ""
         return self.intch_trg.getPromptContentForCopyConverted()
 
+    def getParentForFinder(self):
+        # if self.intch_trg == None:
+            self.readbranchmsg_idx += 1
+            return self
+        # return self.intch_trg.getParentForFinder()
+
+    def freeTaskByParentCode(self):
+        self.readbranchmsg_idx = 0
+        return super().freeTaskByParentCode()
+    
+
+
     def getLastMsgContent(self):
-        if self.intch_trg == None:
-            return ""
-        return self.intch_trg.getLastMsgContent()
+        # if self.intch_trg == None:
+            msgs = self.getMsgList()
+            length = len(msgs)
+            if length > 0 and self.readbranchmsg_idx < length:
+                return msgs[length - 1 - self.readbranchmsg_idx]["content"]
+            else:
+                return ""
+        # return self.intch_trg.getLastMsgContent()
 
     def updateIternal(self, input : TaskDescription = None):
+        if not self.getParent():
+            return
         if self.intact == None:
             self.updateOutExtActMan()
         if self.intact == None:
-            print(f"No internal actioner for {self.getName()}")
-            self.freezeTask()
+            self.updateUpdationInfo(f"No internal actioner for {self.getName()}")
+            # self.freezeTask()
+            return
+        if not self.getParent().canChildUpdate():
+            self.updateUpdationInfo(f"Block by {self.getParent().getName()}")
             return
         if self.intch_trg == None:
             eres, eparam = self.getParamStruct('external')
@@ -855,11 +923,14 @@ class OutExtTreeTask(ExtProjectTask):
                 self.intch_trg = self.intman.getTaskByName(eparam['target'])
         try:
             if self.intch_trg.is_freeze:
-                print(f"Target for {self.getName()} is frozen")
+                self.updateUpdationInfo(f"Target is frozen")
                 self.freezeTask()
                 if self.isExternalProjectTask():
                     self.updateInternalActioners()
             else:
+                self.updateUpdationInfo(f"Update Msgs list")
+                self.setMsgList(self.intch_trg.getMsgs())
+                self.saveAllParams()
                 self.stdProcessUnFreeze()
             bres, bparam = self.intch_trg.getParamStruct('bud')
             if bres:
@@ -871,11 +942,9 @@ class OutExtTreeTask(ExtProjectTask):
  
             
         except Exception as e:
-            print(f"Abort updating of {self.getName()}: {e}")
-            self.freezeTask()
+            self.updateUpdationInfo(f"Abort updating: {e}")
+            self.stdProcessUnFreeze()
 
-    def getParentForFinder(self):
-        return self.intch_trg
     
     def getParentForRaw(self):
         return self.intch_trg

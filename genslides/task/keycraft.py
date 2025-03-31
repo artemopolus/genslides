@@ -43,11 +43,9 @@ class KeyCraftTask(Txt.TextTask):
         if cres:
             codes = cparam['input'].split(',')
             median = []
-            print(codes)
             for code in codes:
                 median.append( self.findKeyParam(code.replace(" ","")) )
             text = "[[" + ":".join(median) + "]]"
-            print(text)
             return self.findKeyParam( text )
         return ""
     
