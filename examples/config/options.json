@@ -141,7 +141,7 @@
    },
    {
       "type":"ReadBranch",
-      "path_to_read": "saved\\saving\\conv_script.json",
+      "path_to_read": ["[[parent:msg_content]]","saved\\saving\\conv_script.json"],
       "input":["row","chat"],
       "header": "",
       "footer": "",
@@ -253,7 +253,7 @@
    },
    {
       "type":"tag",
-      "text": "",
+      "text": ["","external input default","external output default","external updt_actions default","external idle_actions default"],
       "key": ""
    },
    {
@@ -278,7 +278,7 @@
    },
    {
       "type":"finder",
-      "suffix": ["","\n"],
-      "prefix": ["", "- "]
+      "suffix": ["","\n","\n```\n","\n# header\n"],
+      "prefix": ["", "- ","   - ","\n```python\n","\n```json\n"]
    }
 ]
