@@ -136,7 +136,7 @@ class LLModel():
 
     def addCounterToPromts(self, token_num = 1, price = 0.002):
         sum_price = token_num*price/1000
-        print('price= ',sum_price)
+        # print('price= ',sum_price)
 
         # with open(self.path,'r') as f:
         #     val = json.load(f)

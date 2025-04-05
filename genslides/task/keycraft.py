@@ -51,7 +51,6 @@ class KeyCraftTask(Txt.TextTask):
     
     def updateIternal(self, input = None):
         content = self.getRichPrompt()
-        print(content)
         self.appendMessage({"role":self.prompt_tag,"content": content})
         self.saveAllParams()
         return super().updateIternal(input)

@@ -94,6 +94,17 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                         # print('Update with\n', json_out)
                         json_out.update(jobj)
                 out_text = Loader.Loader.convJsonToText(json_out)
+            elif len(tmparg) > 2 and 'json' == tmparg[2]:
+                tmparg.pop(0)
+                tmparg.pop(0)
+                tmparg.pop(0)
+                md_code, tmparg = Txt.getMDcode(tmparg)
+                for msg in msgs:
+                    jres, jobj = Loader.Loader.loadJsonFromText( msg['content'])
+                    if jres:
+                        trgjson = Parser.parseJsonKeys(tmparg, jobj)
+                        out_text += Txt.convertJsonDictToText(md_code, trgjson)
+
             elif len(tmparg) > 2 and 'smpl_format' == tmparg[2]:
                 for idx, msg in enumerate(msgs):
                     out_text += f"Message #{idx}\n"
@@ -149,14 +160,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     tmparg.pop(0) # - msg
                     tmparg.pop(0) # - json2
                     conv = tmparg.pop(0)
-                    md_code = []
-                    if conv == 'md':
-                        while len(tmparg):
-                            if tmparg[0] == '00':
-                                tmparg.pop(0)
-                                break
-                            else:
-                                md_code.append(tmparg.pop(0))
+                    md_code, tmparg = Txt.getMDcode(tmparg)
                     for i, arg in enumerate(tmparg):
                         if arg == 'index':
                             tmparg[i] = str(index)

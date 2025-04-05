@@ -1,4 +1,5 @@
 import hashlib
+import genslides.utils.loader as Loader
 
 def compute_sha256_hash(input_text: str) -> str:
     """
@@ -106,25 +107,61 @@ def getNumberBySplitting( text : str):
         return int(values[1])
     return 1
 
-def convertJsonDictToText( args : list[str], trg : dict):
+def getMDcode( tmparg ):
+    md_code = []
+    conv = tmparg.pop(0)
+    if conv == 'md':
+        while len(tmparg):
+            if tmparg[0] == '00':
+                tmparg.pop(0)
+                break
+            else:
+                md_code.append(tmparg.pop(0))
+    return md_code, tmparg
+
+
+def convertJsonDictToText( args : list[str], trg ):
     tmpargs = args.copy()
     text = ""
     idx = 0
+    keys = ["header","section","point","number"]
     if isinstance(trg, dict):
         while(len(tmpargs) > 1):
             if tmpargs[0].startswith("header") and tmpargs[1] in trg:
                 shift = getNumberBySplitting(tmpargs[0])
                 text += shift*"#" + " " + trg[tmpargs[1]] + "\n"
             elif tmpargs[0].startswith("section") and tmpargs[1] in trg:
-                text += trg[tmpargs[1]] + "\n"
+                value = trg[tmpargs[1]]
+                if isinstance(value, dict):
+                    y = 2
+                    while( y < len(tmpargs) ):
+                        if isinstance(value, dict) and tmpargs[y] in value and tmpargs[y] not in keys:
+                            value = value[tmpargs[y]]
+                            y += 1
+                        else:
+                            break
+                    if y > 2:
+                        while( y > 2) :
+                            tmpargs.pop(0)
+                            y -= 1
+                if isinstance(value, str):
+                    text +=  value + "\n\n"
+                elif isinstance(value, dict):
+                    text += Loader.Loader.convJsonToText(value)
+                
             elif tmpargs[0].startswith("point") and tmpargs[1] in trg:
                 shift = getNumberBySplitting(tmpargs[0])
                 text += (shift-1)*" " + "- " + trg[tmpargs[1]] + "\n"
             elif tmpargs[0].startswith("number") and tmpargs[1] in trg:
                 shift = getNumberBySplitting(tmpargs[0])
                 text += (shift-1)*" " + f"{idx}. " + trg[tmpargs[1]] + "\n"
+            else:
+                text += "\n"
             tmpargs.pop(0)
             tmpargs.pop(0)
             idx += 1
+    elif isinstance(trg, list):
+        for part in trg:
+            text += convertJsonDictToText(args, part) + "\n"
 
     return text
