@@ -90,9 +90,14 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 for msg in msgs:
                     jres, jobj = Loader.Loader.loadJsonFromText( msg['content'])
                     if jres and isinstance(jobj, dict):
-                        # print('Update with ____', jobj)
-                        # print('Update with\n', json_out)
                         json_out.update(jobj)
+                out_text = Loader.Loader.convJsonToText(json_out)
+            elif len(tmparg) > 2 and 'json_list' == tmparg[2]:
+                json_out = []
+                for msg in msgs:
+                    jres, jobj = Loader.Loader.loadJsonFromText( msg['content'])
+                    if jres and isinstance(jobj, dict):
+                        json_out.append(jobj)
                 out_text = Loader.Loader.convJsonToText(json_out)
             elif len(tmparg) > 2 and 'json' == tmparg[2]:
                 tmparg.pop(0)

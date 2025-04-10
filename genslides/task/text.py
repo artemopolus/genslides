@@ -1153,6 +1153,21 @@ class TextTask(BaseTask):
         if ares:
             naparam = ar.checkArrayIteration(self, aparam)
             self.updateParam2(naparam)
+        fres, fparam = self.getParamStruct("format",True)
+        if fres:
+            ores, options = Loader.loadJsonFromText( self.findKeyParam( fparam.get("description","") ) )
+            tres, trg = Loader.loadJsonFromText( self.findKeyParam( fparam.get("target","")))
+            if ores and tres and isinstance( trg, dict ):
+                fparam["result"] = Txt.convertJsonDictToText2(trg, options)
+                self.setParamStruct(fparam)
+            elif ores and tres and isinstance( trg, list ):
+                res_text = ""
+                for value in trg:
+                    res_text += Txt.convertJsonDictToText2( value , options)
+                fparam["result"] = res_text
+                self.setParamStruct(fparam)
+            else:
+                self.updateUpdationInfo(f"Error on jsondict to text convert")
         self.updateAutoCommand()
         self.setParamStruct({
             "type":"onupdate_result",

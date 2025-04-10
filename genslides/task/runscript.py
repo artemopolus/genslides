@@ -140,7 +140,7 @@ class SaveScriptRunTask(RunScriptTask):
                     workspace = Loader.getUniPath( self.findKeyParam(sparam['cwd']))
                     args = self.findKeyParam(sparam['args'])
                     trg_proc = ' '.join([path_to_python, scriptpath, args])
-                    print("Run script:\n", trg_proc,'\nin', workspace)
+                    self.updateUpdationInfo(f"Run script:\n{ trg_proc}\nin {workspace}")
                     result = subprocess.run(trg_proc, capture_output=True, text=True, cwd=workspace, shell=True)
                     if result.returncode:
                         data +=  result.stdout + "\n"
@@ -151,11 +151,11 @@ class SaveScriptRunTask(RunScriptTask):
 
 
         except Exception as e:
-            print('Task', self.getName(),'with param:\n', sparam,'\nerror:', e)
+            self.updateUpdationInfo(f"Run script with:\n {sparam}\n result with error:\n {e}")
         self.execute_success = done
 
         if len(data) > 0:
-            self.msg_list.append({"role": "user", "content": data})
+            pass
         else:
-            print(self.getName(), "no data to present")
-            self.msg_list.append({"role": "user", "content": "no data to present"})
+            self.updateUpdationInfo("No data to present")
+        self.appendMessage({"role": self.prompt_tag, "content": data})
