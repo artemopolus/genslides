@@ -38,6 +38,7 @@ import genslides.commands.create as cr
 import genslides.task.link as lk
 import genslides.task.entry as ey
 import genslides.task.keycraft as cg
+import genslides.task.json as jn
 
 def checkTypeFromName(name : str, type :str) -> bool:
     stype = ''.join([i for i in name if not i.isdigit()])
@@ -157,6 +158,9 @@ def createTaskByType(type : str, info : TaskDescription):
     if stype.endswith("KeyCraft"):
         info.method = cg.KeyCraftTask
         return cr.CreateCommand(info)    
+    if stype.endswith("Json"):
+        info.method =  jn.JsonTask
+        return cr.CreateCommand(info)    
     else:
     	return None
     
@@ -187,4 +191,5 @@ def getTasksDict() -> list:
     out.append({"type":"Searcher","short":"Se","creation":ep.SearcherTask})
     out.append({"type":"Entry","short":"Ey","creation":ey.EntryTask})
     out.append({"type":"KeyCraft","short":"Cg","creation":cg.KeyCraftTask})
+    out.append({"type":"Json","short":"Jn","creation":jn.JsonTask})
     return out

@@ -241,7 +241,7 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                         res, recjson = Ld.Loader.loadJsonFromText( chat[idx]['content'] )
                         out.append( jsonConvertation(cparam, recjson, res, i) )
                 return[{"content" : Ld.Loader.convJsonToText(out), "role" : role}]
-            elif cparam['form'] == 'json_dict2text':
+            elif cparam['form'] in ['json_dict2text','json_format']:
                 out = []
                 for i, pack in enumerate(rparam['data']):
                     chat = pack['chat']
@@ -252,11 +252,18 @@ def getMsgsRecordsRow( rparam : dict, cparam : dict, role : str ) -> list[dict]:
                             out.append( recjson )
                 out = fill_missing_indices(out)
                 outtext = ""
-                if "code" in cparam:
-                    args = cparam["code"].split(":")
-                    if len(args):
+                if cparam['form'] == 'json_dict2text':
+                    if "code" in cparam:
+                        args = cparam["code"].split(":")
+                        if len(args):
+                            for out_pack in out:
+                                outtext += Txt.convertJsonDictToText(args, out_pack)
+                elif cparam['form'] == 'json_format':
+                    res, options = Ld.Loader.loadJsonFromText( ( cparam.get("format","") ) )
+                    if res:
                         for out_pack in out:
-                            outtext += Txt.convertJsonDictToText(args, out_pack)
+                            outtext += Txt.convertJsonDictToText2( out_pack, options )
+
                 return[{"content" : outtext, "role" : role}]
             elif cparam['form'] == 'json_dict_list':
                 out = []

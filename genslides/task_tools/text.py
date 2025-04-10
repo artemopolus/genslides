@@ -119,6 +119,74 @@ def getMDcode( tmparg ):
                 md_code.append(tmparg.pop(0))
     return md_code, tmparg
 
+def convertJsonDictToText2(trg: dict, opt: dict) -> str:
+    """
+    Converts a JSON dictionary to Markdown text based on the provided options.
+
+    Args:
+        trg: The JSON dictionary to convert.
+        opt: A dictionary specifying how to handle different keys.
+
+    Returns:
+        A Markdown string representation of the JSON dictionary.
+    """
+    text = ""
+    for key, value in trg.items():
+        text += convertJsonDictToText2internal(key, value, 0, opt) # Pass key to internal function
+    return text
+
+
+def convertJsonDictToText2internal(key: str, value, idx: int, opt: dict) -> str:
+    """
+    Recursively processes a nested dictionary or list based on the provided options.
+
+    Args:
+        key: The key of the current value.
+        value: The value to process (can be a dictionary, list, or primitive).
+        idx: The indentation level or header level.
+        opt: A dictionary specifying how to handle different keys.
+
+    Returns:
+        A Markdown string representation of the value.
+    """
+    text = ""
+
+    if key in opt:
+        option = opt[key]
+        option_type = option.get("type", "text")  # Default to "text" if type is missing
+
+        if option_type == "header":
+            level = option.get("level", 1)
+            text += f"{'#' * level} {value}\n"  # Create header
+        elif option_type == "text":
+            text += f"{value}\n"  # Add plain text
+        elif option_type == "list":
+            indent = option.get("indent", 2)
+            indent_str = " " * indent
+            if isinstance(value, list):
+                for item in value:
+                    text += f"{indent_str}- {item}\n"  # Create list item
+            else:
+                text += f"{indent_str}- {value}\n" # Create list item if value is not a list.
+
+        elif option_type == "ignore":
+            return ""  # Ignore this key-value pair
+    else:
+        # If no option is specified, handle based on value type
+        if isinstance(value, dict):
+            for k, v in value.items():
+                text += convertJsonDictToText2internal(k, v, idx + 1, opt) # recursive call
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    for k, v in item.items():
+                        text += convertJsonDictToText2internal(k, v, idx+1, opt) #recursive call
+                else:
+                    text += f"{' ' * (idx+1)}- {item}\n"  # Default list formatting
+        else:
+            text += f"{value}\n" #Default text formatting
+
+    return text
 
 def convertJsonDictToText( args : list[str], trg ):
     tmpargs = args.copy()
