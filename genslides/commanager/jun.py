@@ -1140,11 +1140,11 @@ class Manager(Man.Jun):
                 else:
                     print("task complete=",str(task))
 
-        if self.curr_task:
-            tokens, price = self.curr_task.getCountPrice()
-            out += "Tokens=" + str(tokens) +"\n"
-            out += "Price=" + str(price) + "\n"
-            out += pprint.pformat(self.curr_task.msg_list)
+        # if self.curr_task:
+        #     tokens, price = self.curr_task.getCountPrice()
+        #     out += "Tokens=" + str(tokens) +"\n"
+        #     out += "Price=" + str(price) + "\n"
+        #     out += pprint.pformat(self.curr_task.msg_list)
 
 
         if all_task_completed:
