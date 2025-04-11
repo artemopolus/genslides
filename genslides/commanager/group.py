@@ -1127,22 +1127,24 @@ class Actioner():
                     shape = 'house'
                 elif task.checkType('SetOption'):
                     shape = 'doubleoctagon'
+                elif len(task.getAffectedTasks()) > 0:
+                    shape = 'polygon'
                 if task in trgs_rsm:
-                    if task == man.curr_task:
+                    if task == man.getCurrentTask():
                         f.node( task.getIdStr(), task.getNameForDrawing(),style="filled",color="blueviolet")
                     else:
                         f.node( task.getIdStr(), task.getNameForDrawing(),style="filled",color="darkmagenta")
                 elif task.readyToGenerate():
                     color = 'darkmagenta'
                     f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", color = color, shape = shape)
-                elif task in man.multiselect_tasks:
+                elif task in man.getMultiSelectedTasks():
                     color = "lightsalmon3"
-                    if task == man.curr_task:
+                    if task == man.getCurrentTask():
                         color = "lightsalmon1"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'crimson'
                     f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", color = color, shape = shape)
-                elif task == man.curr_task:
+                elif task == man.getCurrentTask():
                     color = "skyblue"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'skyblue4'
@@ -1168,14 +1170,14 @@ class Actioner():
                         color="aquamarine"
                     elif man.getTaskParamRes(task, "output"):
                         color="darkgoldenrod1"
-                    elif man.getTaskParamRes(task, "check"):
-                        color="darkorchid1"
+                    # elif man.getTaskParamRes(task, "check"):
+                        # color="darkorchid1"
                     elif task.is_freeze:
                         color="cornflowerblue"
-                        if len(task.getAffectedTasks()) > 0:
-                            color = 'teal'
-                    elif len(task.getAffectedTasks()) > 0:
-                        color="aquamarine2"
+                    #     if len(task.getAffectedTasks()) > 0:
+                    #         color = 'teal'
+                    # elif len(task.getAffectedTasks()) > 0:
+                    #     color="aquamarine2"
                     else:
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":

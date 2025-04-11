@@ -8,6 +8,7 @@ import genslides.task_tools.records as rd
 import genslides.task_tools.array as toolarr
 import genslides.task_tools.py_parser as pyparse
 import genslides.task_tools.text as Txt
+import textwrap
 
 def convertTextPartToMsg(md_text):
     code_pattern = r'```\n(.*?)\n```'
@@ -135,6 +136,19 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 if bres:
                     rep_text = rep_text.replace(res, Loader.Loader.convJsonToText(jjson))
+            elif len(arr) > 3 and arr[2] == 'short':
+                try:
+                    row_length = int(arr[3])
+                    symbols_to_show = int(arr[4])
+                    text = param if len(param) < symbols_to_show else param[0:symbols_to_show] + "..."
+                    if row_length < symbols_to_show:
+                        rows = textwrap.wrap(text, row_length)
+
+                    text = "\n".join(rows)
+
+                    rep_text = rep_text.replace(res, text )
+                except:
+                    pass
             elif len(arr) > 3 and arr[2] == '---':
                 text = str(param)
                 if arr[3].isdigit():

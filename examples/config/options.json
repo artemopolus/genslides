@@ -280,5 +280,11 @@
       "type":"finder",
       "suffix": ["","\n","\n```\n","\n# header\n"],
       "prefix": ["", "- ","   - ","\n```python\n","\n```json\n"]
+   },
+   {
+      "type":"format",
+      "target":"",
+      "description":""
    }
+
 ]
