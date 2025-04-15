@@ -1131,39 +1131,71 @@ class Projecter(Commander.Commander):
         return prompt + "\n\n[[---]]\n\n".join(text)
     
     def getProposalsFromTask(self):
-        trg = self.actioner.getCurrentManager().getCurrentTask()
-        tasks = trg.getAllParents()
         examples = []
-        pairs = []
-        keys = []
-        for task in tasks:
-            eres, eparam = task.getParamStruct("choices", only_current=True)
-            if eres:
+        trg = self.actioner.getCurrentManager().getCurrentTask()
+        eres, eparam = trg.getParamStruct("choices", only_current=True)
+        if not eres:
+            return examples
+        
+        split_type = eparam.get("split_type","")
+        sort_key = eparam.get("sortby","idx")
+        if split_type == "key_comma":
+            tasks = trg.getAllParents()
+            pairs = []
+            keys = []
+            for task in tasks:
                 split_words = task.findKeyParam(eparam['source'])
-                jres, jobj = Loader.Loader.loadJsonFromText( split_words )
+                jres, infos = Loader.Loader.loadJsonFromText( split_words )
                 if jres:
-                    pairs.extend( jobj )
+                    pairs.extend( infos )
                 if 'keys' in eparam:
                     inkeys = eparam['keys'].split(',')
                     for key in inkeys:
                         if key not in keys:
                             keys.append( key)
 
-
-        sorted_pairs = sorted(pairs, key=lambda x: int(x['idx']))
-        if len(keys) == 0:
-            keys = ['txt']
-        for pair in sorted_pairs:
-            content = ""
-            for key in keys:
-                if key in pair:
-                    if isinstance(pair[key], str):
-                        content += " " + pair[key]
-                    else:
-                        content += " " + str(pair[key])
-
-            examples.append((f"{pair['idx']}. \"{content}\"", content))
-                
+            try:
+                sorted_pairs = sorted(pairs, key=lambda x: int(x[sort_key]))
+            except:
+                sorted_pairs = pairs
+            if len(keys) == 0:
+                keys = ['txt']
+            for idx_pair, pair in enumerate(sorted_pairs):
+                content = ""
+                for key in keys:
+                    if key in pair:
+                        if isinstance(pair[key], str):
+                            content += " " + pair[key]
+                        else:
+                            content += " " + str(pair[key])
+                example_idx = idx_pair if sort_key not in pair else pair[sort_key]
+                examples.append((f"{example_idx}. \"{content}\"", content))
+        elif split_type == "smpl_comma":
+            data = trg.findKeyParam(eparam["source"])
+            keys =  data.split(",")
+            for idx_key, key in enumerate(keys):
+                content = key
+                examples.append((f"{idx_key}. \"{content}\"", content))
+        elif split_type == "key_dict_list":
+            data = trg.findKeyParam(eparam["source"])
+            inkeys = eparam.get("keys","")
+            keys = [trg.findKeyParam(k) for k in inkeys.split(",")]
+            jres, infos = Loader.Loader.loadJsonFromText( data )
+            if jres and len(keys) and isinstance( infos, list ):
+                try:
+                    sorted_pairs = sorted(infos, key=lambda x: int(x[sort_key]))
+                except:
+                    sorted_pairs = pairs
+                for idx_info, info in enumerate(infos):
+                    content = ""
+                    for key in keys:
+                        if key in info:
+                            if isinstance(pair[key], str):
+                               content += " " + pair[key]
+                            else:
+                               content += " " + Loader.Loader.convJsonToText(info[key])
+                example_idx = idx_info if sort_key not in info else info[sort_key]
+                examples.append((f"{example_idx}. \"{content}\"", content))
         return examples
 
     def actionTypeChanging(self, action, prompt):

@@ -1435,7 +1435,7 @@ class BaseTask():
     def getParamStructChoices(self, param_name, param_key):
         return "", []
 
-    def getParamStruct(self, param_name, only_current = False):
+    def getParamStruct(self, param_name, only_current = False) -> tuple[bool, dict]:
         return False, None
     
     def copyAllParams(self, copy_info = False):
