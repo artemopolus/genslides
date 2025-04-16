@@ -119,82 +119,86 @@ def getMDcode( tmparg ):
                 md_code.append(tmparg.pop(0))
     return md_code, tmparg
 
-def convertJsonDictToText2(trg: dict, opt: dict) -> str:
-    """
-    Converts a JSON dictionary to Markdown text based on the provided options.
 
-    Args:
-        trg: The JSON dictionary to convert.
-        opt: A dictionary specifying how to handle different keys.
-
-    Returns:
-        A Markdown string representation of the JSON dictionary.
-    """
+def convertJsonDictToText2(trg: dict, opt):
+    idx = 0
     text = ""
     for key, value in trg.items():
-        text += convertJsonDictToText2internal(key, value, 0, opt) # Pass key to internal function
+        text += convertJsonDictToText2internal(value, key, 0, opt, 0)
     return text
 
 
-def convertJsonDictToText2internal(key: str, value, idx: int, opt: dict) -> str:
-    """
-    Recursively processes a nested dictionary or list based on the provided options.
-
-    Args:
-        key: The key of the current value.
-        value: The value to process (can be a dictionary, list, or primitive).
-        idx: The indentation level or header level.
-        opt: A dictionary specifying how to handle different keys.
-
-    Returns:
-        A Markdown string representation of the value.
-    """
+def convertJsonDictToText2internal(trg, key: str, idx: int, opt: dict, list_index: int):
     text = ""
 
-    if key in opt:
-        option = opt[key]
-        option_type = option.get("type", "text")  # Default to "text" if type is missing
-
-        if option_type == "header":
-            level = option.get("level", 1)
-            text += f"{'#' * level} {value}\n"  # Create header
-        elif option_type == "text":
-            text += f"{value}\n"  # Add plain text
-        elif option_type == "list":
-            indent = option.get("indent", 2)
-            indent_str = " " * indent
-            if isinstance(value, list):
-                for item in value:
-                    text += f"{indent_str}- {item}\n"  # Create list item
-            else:
-                text += f"{indent_str}- {value}\n" # Create list item if value is not a list.
-
-        elif option_type == "ignore":
-            return ""  # Ignore this key-value pair
-    else:
-        # If no option is specified, handle based on value type
-        if isinstance(value, dict):
-            for k, v in value.items():
-                text += convertJsonDictToText2internal(k, v, idx + 1, opt) # recursive call
-        elif isinstance(value, list):
-            for item in value:
-                if isinstance(item, dict):
-                    for k, v in item.items():
-                        text += convertJsonDictToText2internal(k, v, idx+1, opt) #recursive call
-                else:
-                    text += f"{' ' * (idx+1)}- {item}\n"  # Default list formatting
+    if key in opt and opt[key].startswith("header"):
+        level = int(opt[key][6:])  # Extract header level (e.g., "header1" -> 1)
+        header = "#" * level
+        text += f"{header} {key}\n"
+        if isinstance(trg, dict):
+            idx += 1
+            for k, v in trg.items():
+                text += convertJsonDictToText2internal(v, k, idx, opt, 0)
+            return text
+        elif isinstance(trg, list):
+            for i, item in enumerate(trg):
+                text += convertJsonDictToText2internal(item, f"{key}[{i}]", idx, opt, i)
+            return text
         else:
-            text += f"{value}\n" #Default text formatting
+            text += f"{trg}\n"
+            return text
 
-    return text
+    elif key in opt and opt[key] == "text":
+        text += f"{key}: {trg}\n"
+        return text
+
+    elif key in opt and opt[key] == "list":
+        if isinstance(trg, list):
+            for i, item in enumerate(trg):
+                if isinstance(item, dict):
+                    item_text = ""
+                    for k, v in item.items():
+                        item_text += f"  - {k}: {v}\n"
+                    text += item_text
+                else:
+                    text += f"- {item}\n"
+        return text
+
+    elif key in opt and opt[key] == "numerical_list":
+        if isinstance(trg, list):
+            for i, item in enumerate(trg):
+                if isinstance(item, dict):
+                    item_text = ""
+                    for k, v in item.items():
+                        item_text += f"  {i+1}. {k}: {v}\n"
+                    text += item_text
+                else:
+                    text += f"{i+1}. {item}\n"
+        return text
+
+    if isinstance(trg, dict):
+        idx += 1
+        for k, v in trg.items():
+            text += convertJsonDictToText2internal(v, k, idx, opt, 0)
+        return text
+
+    elif isinstance(trg, list):
+        for i, item in enumerate(trg):
+            text += convertJsonDictToText2internal(item, f"{key}[{i}]", idx, opt, i)
+        return text
+    else:
+        return ""
+
 
 def convertJsonDictToText( args : list[str], trg ):
     tmpargs = args.copy()
-    text = ""
+    text = f"{args}"
     idx = 0
     keys = ["header","section","point","number"]
     if isinstance(trg, dict):
+        text += "dict\n"
         while(len(tmpargs) > 1):
+            text += str(tmpargs[0]) + "," + str(tmpargs[1]) + ":" + str(trg)
             if tmpargs[0].startswith("header") and tmpargs[1] in trg:
                 shift = getNumberBySplitting(tmpargs[0])
                 text += shift*"#" + " " + trg[tmpargs[1]] + "\n"
@@ -229,7 +233,10 @@ def convertJsonDictToText( args : list[str], trg ):
             tmpargs.pop(0)
             idx += 1
     elif isinstance(trg, list):
+        text += "list\n"
         for part in trg:
             text += convertJsonDictToText(args, part) + "\n"
+    else:
+        text = f"Target is not list or dict. Arguments: {args}"
 
     return text

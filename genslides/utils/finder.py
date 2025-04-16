@@ -200,14 +200,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     elif conv == 'dumps':
                         text = Loader.Loader.convJsonToText(trgjson)[1:-1]
                     elif conv == 'md':
-                        if isinstance( trgjson, dict):
-                            text = Txt.convertJsonDictToText(md_code, trgjson)
-                        elif isinstance( trgjson, list):
-                            text = ""
-                            for value in trgjson:
-                                text += Txt.convertJsonDictToText(md_code, value)
-                        else:
-                            text = "md\n" + Loader.Loader.convJsonToText(trgjson) + "\n\n" + Loader.Loader.convJsonToText(md_code)
+                        text = Txt.convertJsonDictToText(md_code, trgjson)
                     else:
                         text = Loader.Loader.convJsonToText(trgjson)
                 rep_text = rep_text.replace(res, text)
