@@ -131,7 +131,9 @@ def convertJsonDictToText2(trg: dict, opt):
 def convertJsonDictToText2internal(trg, key: str, idx: int, opt: dict, list_index: int):
     text = ""
 
-    if key in opt and opt[key].startswith("header"):
+    if key in opt and not isinstance( opt[key], str ):
+        return ""
+    elif key in opt and opt[key].startswith("header"):
         level = int(opt[key][6:])  # Extract header level (e.g., "header1" -> 1)
         header = "#" * level
         text += f"{header} {key}\n"
