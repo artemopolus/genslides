@@ -101,9 +101,9 @@ class WriteToFileParamTask(WriteToFileTask):
                 #         resp_json_out = self.getMsgs()
                 #         text = json.dumps(resp_json_out, indent=1)
         else:
-            print("No struct param=",self.getName())
+            self.updateUpdationInfo("No struct param")
 
-        print(self.getName(),"write to", path)
+        self.updateUpdationInfo(f"write to{path}")
         task_param = {
             "type":self.getType(),
             "resfilepath": path,

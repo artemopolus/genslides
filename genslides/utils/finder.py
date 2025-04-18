@@ -171,7 +171,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 rep_text = rep_text.replace(res, text)
             elif len(arr) > 3 and arr[2] == 'json2':
                 text = res
-                bres, jjson = Loader.Loader.loadJsonFromText(param, report=True)
+                bres, jjson = Loader.Loader.loadJsonFromText(param, report=False)
                 if bres:
                     # print('arr',arr)
                     tmparg = arr.copy()
@@ -225,7 +225,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     # print("Error:", e,"\nFind json in", task.getName(),':\nTrg json:',param, '\nRes json:',jjson)
                     pass
             elif len(arr) > 3 and arr[2] == 'json_list':
-                bres, jjson = Loader.Loader.loadJsonFromText(param, report = True)
+                bres, jjson = Loader.Loader.loadJsonFromText(param, report = False)
                 try:
                     if arr[3] == "_":
                         jtrg_val = jjson

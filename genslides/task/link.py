@@ -303,7 +303,7 @@ class ListenerTask(LinkedTask):
                 input_hash = txt.compute_sha256_hash(prompt)
                 # print('Check hash')
                 if curr_hash != input_hash:
-                    print(self.getName(),'get prompt:', len(prompt))
+                    self.updateUpdationInfo(f"get prompt: {len(prompt)} s")
                     if 'output' in lparam:
                         if lparam['output'] == 'prompt':
                             self.updateUpdationInfo(f"Update prompt with new{len(prompt)}\n")
@@ -449,7 +449,7 @@ class ListenerTask(LinkedTask):
         else:
             for tsk_info in self.by_ext_affected_list:
                 if not tsk_info.enabled:
-                    print("Freeze from children")
+                    self.updateUpdationInfo(f"Freeze from children")
                     self.freezeTask()
                     return
  

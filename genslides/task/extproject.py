@@ -293,7 +293,7 @@ class ExtProjectTask(CollectTask):
         else:
             for tsk_info in self.by_ext_affected_list:
                 if not tsk_info.enabled:
-                    print("Freeze from children")
+                    self.updateUpdationInfo(f"Freeze from children")
                     self.freezeTask()
                     return
  

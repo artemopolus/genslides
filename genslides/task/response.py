@@ -97,7 +97,8 @@ class ResponseTask(TextTask):
         # param = self.convParamStruct(param)
 
         if mres:
-            print(self.getName(),' run with options for', mparam['model'])
+            model_name = mparam['model']
+            self.updateUpdationInfo(f"Run with options for {model_name}")
             chat = LLModel(mparam)
         else:
             print('Init with default option')
@@ -166,7 +167,7 @@ class ResponseTask(TextTask):
 
         # Если список сообщений пустой, за-за чего?
         if len(self.msg_list) == 0:
-            print('Empty msg list', self.getName())
+            self.updateUpdationInfo('Empty msg list')
             if self.getParent():
                 trg = self.getParentMsgList()
                 self.setMsgList(trg)
@@ -181,7 +182,7 @@ class ResponseTask(TextTask):
             # Проверка сообщений родителя
             if not self.checkParentMsgList(update=True, save_curr=False) or exe_always:
                 # Список сообщений родителя отличается
-                print('Parent msg differs', self.getName())
+                self.updateUpdationInfo(f"Parent msg differs")
                 self.executeResponse()
                 self.saveJsonToFile(self.msg_list)
             else:
@@ -192,7 +193,7 @@ class ResponseTask(TextTask):
                 # Если сообщение пустое, то делаем вывод, что задача была морожена
                 if len(msg) == 0:
                     # Запрашиваем сообщение
-                    print('Last msg is empty', self.getName())
+                    self.updateUpdationInfo(f"Last msg is empty")
                     # Если сообщение пустое, то убираем его
                     self.msg_list.pop()
                     self.executeResponse()

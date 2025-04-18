@@ -120,76 +120,75 @@ def getMDcode( tmparg ):
     return md_code, tmparg
 
 
-def convertJsonDictToText2(trg: dict, opt):
-    idx = 0
-    text = ""
-    for key, value in trg.items():
-        text += convertJsonDictToText2internal(value, key, 0, opt, 0)
+def convertJsonDictToText2( trg : dict, opt : dict) -> str:
+    """
+    Converts a JSON-like dictionary to Markdown text based on provided options.
+
+    Args:
+        trg (dict): The JSON-like dictionary to convert.
+        opt (dict): A dictionary specifying conversion options for each key.
+
+    Returns:
+        str: The Markdown representation of the JSON data.
+    """
+    text= f""
+    # for key, value in trg.items():
+    #     if isinstance(value, dict):
+    text += convertJsonDictToText2internal(trg, opt)
+        #No recursion needed here since top level keys are not processed based on type
     return text
 
+def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
+    """
+    Recursively converts a JSON-like dictionary to Markdown text based on provided options.
 
-def convertJsonDictToText2internal(trg, key: str, idx: int, opt: dict, list_index: int):
+    Args:
+        trg (dict): The JSON-like dictionary to convert.
+        opt (dict): A dictionary specifying conversion options for each key.
+
+    Returns:
+        str: The Markdown representation of the JSON data.
+    """
     text = ""
+    for key, value in trg.items():
+        if key in opt:
+            option = opt[key]
+            prefix = option.get("prefix", "")
+            suffix = option.get("suffix", "")
+            value_type = option.get("type", "text")
 
-    if key in opt and not isinstance( opt[key], str ):
-        return ""
-    elif key in opt and opt[key].startswith("header"):
-        level = int(opt[key][6:])  # Extract header level (e.g., "header1" -> 1)
-        header = "#" * level
-        text += f"{header} {key}\n"
-        if isinstance(trg, dict):
-            idx += 1
-            for k, v in trg.items():
-                text += convertJsonDictToText2internal(v, k, idx, opt, 0)
-            return text
-        elif isinstance(trg, list):
-            for i, item in enumerate(trg):
-                text += convertJsonDictToText2internal(item, f"{key}[{i}]", idx, opt, i)
-            return text
-        else:
-            text += f"{trg}\n"
-            return text
-
-    elif key in opt and opt[key] == "text":
-        text += f"{key}: {trg}\n"
-        return text
-
-    elif key in opt and opt[key] == "list":
-        if isinstance(trg, list):
-            for i, item in enumerate(trg):
-                if isinstance(item, dict):
-                    item_text = ""
-                    for k, v in item.items():
-                        item_text += f"  - {k}: {v}\n"
-                    text += item_text
+            if value_type == "text":
+                text += f"{prefix}{value}{suffix}"
+            elif value_type == "list":
+                if isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, dict):
+                            item_text = convertJsonDictToText2internal(item, opt)
+                        else:
+                            item_text = str(item)
+                        text += f"{prefix}{item_text}{suffix}"
                 else:
-                    text += f"- {item}\n"
-        return text
-
-    elif key in opt and opt[key] == "numerical_list":
-        if isinstance(trg, list):
-            for i, item in enumerate(trg):
-                if isinstance(item, dict):
-                    item_text = ""
-                    for k, v in item.items():
-                        item_text += f"  {i+1}. {k}: {v}\n"
-                    text += item_text
+                    # Handle the case where the value isn't a list but should be treated as one
+                    text += f"{prefix}{value}{suffix}"  # Treat the single value as a list item
+            elif value_type == "numerical_list":
+                if isinstance(value, list):
+                    for i, item in enumerate(value):
+                        if isinstance(item, dict):
+                            item_text = convertJsonDictToText2internal(item, opt)
+                        else:
+                            item_text = str(item)
+                        text += f"{i}{prefix}{item_text}{suffix}"
                 else:
-                    text += f"{i+1}. {item}\n"
-        return text
+                    # Handle the case where the value isn't a list but should be treated as one
+                    text += f"{prefix}{value}{suffix}"  # Treat the single value as a numerical list item
 
-    if isinstance(trg, dict):
-        idx += 1
-        for k, v in trg.items():
-            text += convertJsonDictToText2internal(v, k, idx, opt, 0)
-        return text
-
-    elif isinstance(trg, list):
-        for i, item in enumerate(trg):
-            text += convertJsonDictToText2internal(item, f"{key}[{i}]", idx, opt, i)
-        return text
-    else:
-        return ""
+        elif isinstance(value, dict):
+            text += convertJsonDictToText2internal(value, opt)
+        elif isinstance(value, list):
+            for point in value:
+                if isinstance(point, dict):
+                    text += convertJsonDictToText2internal(point, opt)
+    return text
 
 
 def convertJsonDictToText( args : list[str], trg ):

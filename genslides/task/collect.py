@@ -116,7 +116,7 @@ class ReceiveTask(Ltask.LinkedTask):
             for tsk_info in self.by_ext_affected_list:
                 # print("Inp par=", tsk_info.parent.getName(),"=",tsk_info.enabled)
                 if not tsk_info.enabled:
-                    print("Freeze from children")
+                    self.updateUpdationInfo(f"Freeze from children")
                     self.freezeTask()
                     return
             # print("1 frozen=", self.is_freeze)
