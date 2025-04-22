@@ -236,6 +236,8 @@ class ListenerTask(LinkedTask):
             prompts_data = []
         elif lparam['combine'] == 'json_dict':
             prompts_data = {}
+        elif lparam['combine'].endswith('append'):
+            prompt = self.prompt
         params = []
         updated = False
         # if lres and 'init_prompt' in lparam:
@@ -264,13 +266,16 @@ class ListenerTask(LinkedTask):
             for tsk_info in self.by_ext_affected_list:
                 # print('Upd listener from',tsk_info.parent.getName())
                 if 'combine' in lparam:
-                    if lparam['combine'] == 'single':
+                    if lparam['combine'].startswith ('single'):
                         if tsk_info.enabled:
-                            prompt = tsk_info.prompt
+                            prompt += tsk_info.prompt
                             params.extend(tsk_info.params)
                             tsk_info.enabled = False
                             updated = True
                             break
+                    elif lparam['combine'].startswith ('multi'):
+                        prompt += tsk_info.prompt
+                        updated = True
                     elif lparam['combine'].startswith("json"):
                         if tsk_info.enabled:
                             if lparam['combine'] == 'json_update':
