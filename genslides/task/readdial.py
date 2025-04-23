@@ -106,8 +106,7 @@ class ReadBranchTask(TextTask):
                             return msgs
 
         except Exception as e:
-            # print("json error type=", e)
-            pass
+            self.updateUpdationInfo(f"get json dial error:\n:{e}")
         return []
 
 

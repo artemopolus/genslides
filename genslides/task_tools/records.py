@@ -60,7 +60,6 @@ def getRecordsChat( rparam : dict, cparam : dict ) -> list:
     if 'type' in rparam and rparam['type'] == 'records' and 'data' in rparam:
         out = []
         trg_chat_msgs = []
-        chat_idx = cparam['idx']
         cparam['chat_count'] = len(rparam['data'])
         if 'range' in cparam:
             chat_range = cparam['range']
@@ -75,6 +74,7 @@ def getRecordsChat( rparam : dict, cparam : dict ) -> list:
                     if len(str_end) == 2 and str_end[0].isdigit() and str_end[1].isdigit():
                         msgrange = list( range(int(str_end[0]), int(str_end[1]) + 1))
                         trg_chat_msgs.extend(msgrange)
+        chat_idx = cparam['idx'] if isinstance(cparam['idx'], int) else (len(rparam['data']) - 1)
         if len(rparam['data']):
             chat = rparam['data'][chat_idx]['chat']
             cparam['curr_chat_len'] = len(chat)

@@ -263,18 +263,20 @@ class ListenerTask(LinkedTask):
             else:
                 self.updateUpdationInfo("Unknown reaction on linking\n")
         if check_links:
+            prefix = lparam.get("prefix","")
+            suffix = lparam.get("suffix","")
             for tsk_info in self.by_ext_affected_list:
                 # print('Upd listener from',tsk_info.parent.getName())
                 if 'combine' in lparam:
                     if lparam['combine'].startswith ('single'):
                         if tsk_info.enabled:
-                            prompt += tsk_info.prompt
+                            prompt += prefix + tsk_info.prompt + suffix
                             params.extend(tsk_info.params)
                             tsk_info.enabled = False
                             updated = True
                             break
                     elif lparam['combine'].startswith ('multi'):
-                        prompt += tsk_info.prompt
+                        prompt += prefix + tsk_info.prompt + suffix
                         updated = True
                     elif lparam['combine'].startswith("json"):
                         if tsk_info.enabled:
@@ -292,7 +294,7 @@ class ListenerTask(LinkedTask):
                             tsk_info.enabled = False
                             updated = True
                 else:
-                    prompt += tsk_info.prompt
+                    prompt += prefix + tsk_info.prompt + suffix
                     params.extend(tsk_info.params)
                     updated = True
         else:

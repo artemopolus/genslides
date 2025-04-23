@@ -215,12 +215,15 @@
       "output": ["prompt","param"],
       "hash": "",
       "combine": ["none","single","json_list","json_dict","single_append","multi","multi_append"],
+      "data": "",
       "onedit":["none","collect","garland"],
       "onupdate":["none","chck_link_chld"],
       "onlink":["std","check"],
       "garland_opt":["insert_sub", "insert_move","insert_std","insert_none","insert_keep","insert_oldout"],
       "garland_actions": "",
-      "init_prompt":""
+      "init_prompt":"",
+      "prefix":"",
+      "suffix":""
    },
    {
       "type": "autocommander",
