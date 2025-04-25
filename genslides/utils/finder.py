@@ -323,22 +323,25 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     records = rd.getTrgInfoInRecordsByOptions(pparam, arr)
                     if records != "":
                         rep_text = rep_text.replace(res, records)
+                    else:
+                        rep_text = rep_text.replace(res, f"Record error")
                 elif arr[2] == 'array' and len(arr) > 4 and arr[3] == "array":
                     try:
                         value = int(arr[4])
                         text = toolarr.getArrayByIndex(pparam["array"], value, pparam, task)
                         rep_text = rep_text.replace(res, text)
                     except:
-                        pass
+                        rep_text = rep_text.replace(res, f"Array error")
                 elif arr[3] in pparam:
                     value = pparam[arr[3]]
                     if isinstance(value, str):
                         rep_text = rep_text.replace(res, pparam[arr[3]])
                     else:
                         rep_text = rep_text.replace(res, str(pparam[arr[3]]))
+                else:
+                    rep_text = rep_text.replace(res, f"In {arr[2]} there is no {arr[3]}")
             else:
-                # print("No param")
-                pass
+                rep_text = rep_text.replace(res, f"No target param: {arr[2]}")
         return rep_text
 
 def shiftParentTags( text : str, shift : int ):
