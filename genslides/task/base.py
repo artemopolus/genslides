@@ -356,6 +356,9 @@ class BaseTask():
         pass
 
 
+    def getShortName( self ) -> str:
+        return self.manager.getShortName(self.getType(), self.getName())
+
     def getBranchCodeTag(self) -> str:
         p_tasks = self.getAllParents()
         # print('Get branch code',[t.getName() for t in p_tasks])

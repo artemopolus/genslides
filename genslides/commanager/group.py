@@ -504,9 +504,9 @@ class Actioner():
             if 'select' in param:
                 self.manager.selected_tasks = []
                 self.manager.selected_tasks.append(self.manager.getTaskByName(param['select']))
-            return self.manager.makeTaskActionBase(prompt, type1, creation_type, creation_tag, [])
+            return self.manager.makeTaskActionBase(prompt, type1, creation_type, creation_tag, param.get("task_params",[]))
         elif creation_type in self.manager.getSecdCommandList():
-            return self.manager.makeTaskActionPro(prompt, type1, creation_type, creation_tag, [])
+            return self.manager.makeTaskActionPro(prompt, type1, creation_type, creation_tag, param.get("task_params",[]))
         elif creation_type == "MoveCurrTaskUP":
             return self.manager.moveTaskUP(self.manager.curr_task)
         elif creation_type == "EdCp1":
@@ -1990,4 +1990,205 @@ class Actioner():
         man = self.getCurrentManager()
         task = man.getCurrentTask()
         task.iterrateArrayForced()
+
+    def getMainOutput( self, task : BaseTask ) -> BaseTask:
+        if len(task.getHoldGarlands()):
+            return task
+        return None
+    
+    def checkOnSrcMarkerToChoiser( self, break_task : BaseTask, target : BaseTask) -> bool:
+        # if break_task.checkType("Listener"):
+        #     return False
+        for task in target.getAllParents():
+            if task.checkType("ExternalInput"):
+                return True
+        return False
+
+    def breakBranchOnParts(self, taskname : str, treestarttask = "SetOptions", listener = "Listener", summary = "summary", marker="marker", node = "node"):
+        man = self.getCurrentManager()
+        trg = man.getTaskByName( taskname )
+
+        mainoutputtasktree = None
+
+        for task in man.getTasks():
+            if task.checkType("ExternalInput"):
+                mainoutputtasktree = task
+        if not mainoutputtasktree:
+            return
+
+        tree_param = {"task_params":[]}
+        srctree = trg.getRootParent()
+        tres, tparam = srctree.getParamStruct("tree_step", True)
+        if tres:
+            trg_idx = tparam.get("idx", 6)
+            eres, eparam = mainoutputtasktree.getParamStruct("tree_step", True)
+            if eres and eparam["idx"] < (trg_idx + 3):
+                mainoutputtasktree.updateParamStruct(param_name='tree_step',key='idx', val=(trg_idx + 3))
+
+            srcdoctree_idx = { "type": "tree_step", "idx": trg_idx, "target": ""}
+            intertree_idx = { "type": "tree_step", "idx": trg_idx + 1, "target": ""}
+            intertree2_idx = { "type": "tree_step", "idx": trg_idx + 2, "target": ""}
+
+ 
+        trg_childs = trg.getAllChildChains()
+        summary_task = man.getTaskByTagFromTasks(summary, trg_childs)
+        marker_task = man.getTaskByTagFromTasks(marker, trg_childs)
+        node_task = man.getTaskByTagFromTasks(node, trg_childs)
+
+        if not summary_task or not marker_task or not node_task:
+            return
+
+        
+
+        newbud = trg.getParent()
+        outtask = self.getMainOutput(marker_task)
+        if not outtask:
+            # or check summary task
+            outtask = self.getMainOutput(summary_task)
+            if not outtask:
+                return
+            if trg.checkType("Listener"):
+                tree_param['task_params'].append({ "type":"tag","text": "intertree","key": ""})
+                tree_param['task_params'].append(intertree_idx)
+            else:
+                tree_param['task_params'].append({ "type":"tag","text": "srcdoctree","key": ""})
+                tree_param['task_params'].append(srcdoctree_idx)
+
+            self.makeTaskAction(prompt="", type1=treestarttask, creation_type="New",creation_tag="user", param=tree_param, save_action=True)
+            man.addCurrTaskToSelectList()
+            man.setCurrentTask(trg)
+            self.makeTaskAction("","","Parent","",{"select": man.getSelectedTask().getName()})
+            man.setCurrentTask(newbud)
+            man.addCurrTaskToSelectList()
+            man.setCurrentTask(node_task)
+            self.copyBranchToSelectedTask()
+            return
+        
+        intask = None
+        for task in outtask.getHoldGarlands():
+            intask = task
+            break
+        if self.checkOnSrcMarkerToChoiser( trg, intask ):
+            tree_param['task_params'].append(intertree2_idx)
+            tree_param['task_params'].append({ "type":"tag","text": "intertree","key": ""})
+            self.makeTaskAction(prompt="", type1=treestarttask, creation_type="New",creation_tag="user", param=tree_param, save_action=True)
+            intertree = man.getCurrentTask()
+            self.makeTaskAction(prompt="", type1=listener, creation_type="SubTask",creation_tag="user", param={}, save_action=True)
+            interINtask = man.getCurrentTask()
+            
+            man.addCurrTaskToSelectList()
+
+            man.setCurrentTask(node_task)
+
+            self.makeTaskAction( 
+                prompt="",
+                type1='Request',
+                creation_type='Edit',
+                creation_tag='user',
+                param={
+                    "extedit": True,
+                    "copy_editbranch": False,
+                    "resp2req": False,
+                    "coll2req": False,
+                    "read2req": False,
+                    "run2req": False,
+                    "in": False,
+                    "out": False,
+                    "link": False,
+                    "av_cp": False,
+                    "sel2par": True,
+                    "ignrlist": False,
+                    "wishlist": False,
+                    "upd_cp": False,
+                    "onlymulti": False,
+                    "reqSraw": False,
+                    "forcecopyresp": False,
+                    "check_man": False,
+                    "dont": False,
+                    "switch": [],
+                    "trg_tasks": [
+                    "AllTasks"
+                    ]
+                    },
+                save_action=True                
+                )
+
+
+            # self.makeTaskAction(prompt="", type1=request, creation_type="SubTask",creation_tag="user", param={}, save_action=True)
+
+            interOUTtask = man.getTaskByTagFromTasks(marker, interINtask.getAllChildChains())
+
+            man.setCurrentTask(intask)
+
+            self.makeTaskAction("","","Unlink","")
+
+            self.makeTaskAction(prompt="", type1="", creation_type="Link", creation_tag= "" , param={
+                "select":summary_task.getName(),
+                "curr":interINtask.getName()}, save_action=True)
+
+            self.makeTaskAction(prompt="", type1="", creation_type="Link", creation_tag= "", param={
+                "select":interOUTtask.getName(),
+                "curr":intask.getName()}, save_action=True)
+            
+            man.setCurrentTask(interOUTtask)
+
+            tst_param = {"task_params":[]}
+            if trg.checkType("Listener"):
+                tree_param['task_params'].append({ "type":"tag","text": "intertree","key": ""})
+                tst_param['task_params'].append(intertree_idx)
+            else:
+                tree_param['task_params'].append({ "type":"tag","text": "srcdoctree","key": ""})
+                tst_param['task_params'].append(srcdoctree_idx)
+
+            self.makeTaskAction(prompt="", type1=treestarttask, creation_type="New",creation_tag="user", param=tst_param, save_action=True)
+            
+            # newparttree = man.getCurrentTask()
+
+            man.addCurrTaskToSelectList()
+
+            man.setCurrentTask(trg)
+
+            self.makeTaskAction("","","Parent","",{"select": man.getSelectedTask().getName()})
+
+            man.addTaskToSelectList(newbud)
+
+            man.setCurrentTask(node_task)
+
+            self.copyBranchToSelectedTask()
+
+    def copyBranchToSelectedTask( self ):
+        self.makeTaskAction( 
+                prompt="",
+                type1='Request',
+                creation_type='Edit',
+                creation_tag='user',
+                param={
+                    "extedit": True,
+                    "copy_editbranch": False,
+                    "resp2req": False,
+                    "coll2req": False,
+                    "read2req": False,
+                    "run2req": False,
+                    "in": True,
+                    "out": True,
+                    "link": True,
+                    "av_cp": True,
+                    "sel2par": True,
+                    "ignrlist": False,
+                    "wishlist": False,
+                    "upd_cp": False,
+                    "onlymulti": False,
+                    "reqSraw": False,
+                    "forcecopyresp": False,
+                    "check_man": False,
+                    "dont": False,
+                    "switch": [],
+                    "trg_tasks": [
+                    "AllTasks"
+                    ]
+                    },
+                save_action=True                
+                )
+
+
 

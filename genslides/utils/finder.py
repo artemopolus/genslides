@@ -78,7 +78,12 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 excluded_task_names.append(tmparg[3])
                 tmparg.pop(0)
                 tmparg.pop(0)
-            msgs = task.getMsgs(inparam={"exclude": excluded_task_names})
+            if ( len(tmparg) > 3 and 'prefix' == tmparg[2] ):
+                msgs = task.getMsgs(inparam={"exclude": excluded_task_names, "prefix":tmparg[3]})
+                tmparg.pop(0)
+                tmparg.pop(0)
+            else:
+                msgs = task.getMsgs(inparam={"exclude": excluded_task_names})
             out_text = ""
             if len(tmparg) > 3 and 'count' == tmparg[2] and tmparg[3].isalnum():
                 count = int(tmparg[3])
@@ -122,6 +127,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             rep_text = rep_text.replace(res, out_text)
         elif arr[1] == 'name':
             rep_text = rep_text.replace(res, task.getName())
+        elif arr[1] == 'short_name':
+            rep_text = rep_text.replace(res, task.getShortName())
         elif arr[1] == getMsgTag():
             param = task.getLastMsgContent()
             if len(arr) == 3 and arr[2] == 'json_dump':

@@ -530,7 +530,17 @@ class TextTask(BaseTask):
             content = text
         cres, cparam = self.getParamStruct("finder")
         if cres:
-            content = cparam.get("prefix","") + content + cparam.get("suffix","")
+            content = self.findKeyParam(cparam.get("prefix","")) + content + self.findKeyParam(cparam.get("suffix",""))
+
+        if "prefix" in param:
+            if param["prefix"] == "name":
+                prefix = self.getName()
+            elif param["prefix"] == "short_name":
+                prefix = f"[{self.getShortName()}] "
+            else:
+                prefix = ""
+            content = prefix + content
+
         pack = {"role":self.getLastMsgRole(), 
                 "content": content}
         val = [pack]

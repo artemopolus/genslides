@@ -288,6 +288,21 @@ class Jun():
                 return task
         return None
 
+    def getTaskByTagFromTasks(self, tags : str, tasks : list[Task.BaseTask])-> Task.BaseTask:
+        tags_list =[t.replace(" ","") for t in tags.split(',')]
+        for task in tasks:
+            if task.checkTags( tags_list ):
+                return task
+        return None
+
+    def getAllTasksByTagFromTaskList(self, tags : str, tasks : list[Task.BaseTask])-> Task.BaseTask:
+        tags_list =[t.replace(" ","") for t in tags.split(',')]
+        out = []
+        for task in tasks:
+            if task.checkTags( tags_list ):
+                out.append( task )
+        return out
+
 
     def getFrozenTasksCount(self) -> int:
         cnt = 0
