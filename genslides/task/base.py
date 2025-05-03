@@ -1589,6 +1589,9 @@ class BaseTask():
     def getTaskParamChoices(self, param = {}):
         return False, []
 
+    def getLastMsgAndParentMessage(self, hide_task = True, max_symbols = -1, param = {}):
+        return ""
+    
     def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}):
         return False, [], self.parent
     

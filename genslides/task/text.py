@@ -493,6 +493,10 @@ class TextTask(BaseTask):
             if len(content) > param['max_per_task']['Default']:
                 return content[0: param['max_per_task']['Default']] + "..."
         return content
+    
+    def getLastMsgAndParentMessage(self, hide_task = True, max_symbols = -1, param = {}):
+        res, content, parent = self.getLastMsgAndParent(hide_task, max_symbols, param)
+        return content[0]["content"]
         
     def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}) -> (bool, list, BaseTask):
         if hide_task:

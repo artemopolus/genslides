@@ -2191,4 +2191,54 @@ class Actioner():
                 )
 
 
+    def updateTaskAndTravel( self, info_tag = "travel_summary", answer_tag = "travel_answer", add_json_list_tag = "add", add_marker = "marker", edit_json_list_tag = "add", edit_marker = "marker", 
+                            command = "[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]" ):
+        man = self.getCurrentManager()
+        mainoutputtasktree = None
+
+        for task in man.getTasks():
+            if task.checkType("ExternalInput"):
+                mainoutputtasktree = task
+        if not mainoutputtasktree:
+            return
+        
+        
+        info_task = man.getTaskByTag( info_tag )
+        init_info_task = man.getTaskByTag( info_tag )
+        answer_task = man.getTaskByTag ( answer_tag )
+
+        # if mainoutputtasktree not in init_info_task.getAllParents():
+            # return
+
+        if len(init_info_task.getGarlandPart()) == 0:
+            return
+        
+        currentlink_task = None
+        
+        for task in init_info_task.getGarlandPart():
+            currentlink_task = task
+            break
+
+        if not currentlink_task:
+            return
+    
+        self.getJsonCmd(command)
+
+        ares, answer_result = Loader.Loader.loadJsonFromText( answer_task.getLastMsgAndParentMessage() )
+        if not ares:
+            return
+        
+        add_task_names = []
+        if add_json_list_tag in answer_result and isinstance( answer_result[add_json_list_tag], list ):
+            for answer_pack in answer_result[add_json_list_tag]:
+                if add_marker in answer_pack:
+                    short_name = answer_pack[add_marker]
+                    fres, full_name = man.getAndCheckLongName( short_name )
+                    if fres:
+                        add_task_names.append(full_name)
+
+    def travelAndLink( self, taskname : str, man : Manager.Manager):
+        linked = man.getTaskByName( taskname )
+
+
 
