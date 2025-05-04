@@ -2003,8 +2003,76 @@ class Actioner():
             if task.checkType("ExternalInput"):
                 return True
         return False
+    
+    def extendQuestionRoute( self, man : Manager.Manager, question_tree : BaseTask, input_summary = "input_summary", input_dir = "input_dir" ):
+        print("Start Extending")
+        target = None
+        for task in man.getAllTasksByTagFromTaskList(input_dir, question_tree.getAllChildChains() ):
+            if len(task.getChilds()) == 0:
+                target = task
+        if not target:
+            print(f"No target for {question_tree.getName()}:\n{[t.getName() for t in man.getAllTasksByTagFromTaskList(input_dir, question_tree.getAllChildChains() )]}")
+            return
+        summary_task = None
+        inputs = man.getAllTasksByTagFromTaskList( input_summary, target.getAllParents())
+        if len(inputs) == 1:
+            summary_task = inputs[0]
+        elif len(inputs) == 0:
+            print("No input")
+            return
+        else:
+            summary_task = inputs[0]
+            distance = summary_task.getDistance( target )
+            for task in inputs:
+                temp_d = task.getDistance( target )
+                if distance > temp_d:
+                    distance = temp_d
+                    summary_task = task
+                print(f"{task.getName()}: {distance} node(s)")
 
-    def breakBranchOnParts(self, taskname : str, treestarttask = "SetOptions", listener = "Listener", summary = "summary", marker="marker", node = "node"):
+        print(f"Select {target.getName()}")
+
+        man.setCurrentTask(target)
+        man.addCurrTaskToSelectList()
+        print(f"Select {summary_task.getName()}")
+        man.setCurrentTask( summary_task )
+        self.makeTaskAction( 
+                prompt="",
+                type1='Request',
+                creation_type='Edit',
+                creation_tag='user',
+                param={
+                    "extedit": True,
+                    "copy_editbranch": False,
+                    "resp2req": False,
+                    "coll2req": False,
+                    "read2req": False,
+                    "run2req": False,
+                    "in": False,
+                    "out": False,
+                    "link": False,
+                    "av_cp": False,
+                    "sel2par": True,
+                    "ignrlist": False,
+                    "wishlist": False,
+                    "upd_cp": False,
+                    "onlymulti": False,
+                    "reqSraw": False,
+                    "forcecopyresp": False,
+                    "check_man": False,
+                    "dont": False,
+                    "switch": [],
+                    "trg_tasks": [
+                    "AllTasks"
+                    ]
+                    },
+                save_action=True                
+                )
+
+
+
+    def breakBranchOnParts(self, taskname : str, treestarttask = "SetOptions", listener = "Listener", 
+                           summary = "summary", marker="marker", node = "node", input_summary = "input_summary", input_dir = "input_dir"):
         man = self.getCurrentManager()
         trg = man.getTaskByName( taskname )
 
@@ -2062,6 +2130,8 @@ class Actioner():
             man.addCurrTaskToSelectList()
             man.setCurrentTask(node_task)
             self.copyBranchToSelectedTask()
+            if trg.checkType("Listener"):
+                self.extendQuestionRoute(man, mainoutputtasktree, input_summary, input_dir)
             return
         
         intask = None
@@ -2156,6 +2226,8 @@ class Actioner():
 
             self.copyBranchToSelectedTask()
 
+            self.extendQuestionRoute(man, mainoutputtasktree, input_summary, input_dir)
+
     def copyBranchToSelectedTask( self ):
         self.makeTaskAction( 
                 prompt="",
@@ -2237,8 +2309,58 @@ class Actioner():
                     if fres:
                         add_task_names.append(full_name)
 
-    def travelAndLink( self, taskname : str, man : Manager.Manager):
-        linked = man.getTaskByName( taskname )
+    def createSecondStageLink ( self, taskname : str, summary = "marker", input_summary = "input_summary" ):
+        man = self.getCurrentManager()
+        mainoutputtasktree = None
+
+        for task in man.getTasks():
+            if task.checkType("ExternalInput"):
+                mainoutputtasktree = task
+        if not mainoutputtasktree:
+            return
+        
+        self.travelAndLink(taskname, mainoutputtasktree, man, summary, input_summary)
+ 
+
+    def travelAndLink( self, taskname : str, previous_summary_task : BaseTask, man : Manager.Manager, 
+                      summary = "summary", input_summary = "input_summary" 
+                      ):
+        linked_task = man.getTaskByName( taskname )
+
+        output_task = None
+
+        for task in linked_task.getGarlandPart():
+            output_task = task
+            break
+
+        if not output_task:
+            print(f"No output task")
+            return
+        
+        output_tree = output_task.getRootParent()
+
+        summary_output_task = man.getTaskByTagFromTasks(summary, output_tree.getAllChildChains())
+
+        summary_input_task = None
+
+        for task in man.getAllTasksByTagFromTaskList(input_summary, previous_summary_task.getAllChildChains()):
+            if len(task.getGarlandPart()) == 0:
+                summary_input_task = task
+                break
+
+        if not summary_input_task:
+            print(f"No summary task")
+            return
+        
+        print(f"Link form {summary_output_task.getName()} to {summary_input_task.getName()}")
+
+        self.makeTaskAction(prompt="", type1="", creation_type="Link", creation_tag= "" , param={
+                "select":summary_output_task.getName(),
+                "curr":summary_input_task.getName()}, save_action=True)
+        
+        man.setCurrentTask(summary_output_task)
+
+
 
 
 

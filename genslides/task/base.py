@@ -476,6 +476,17 @@ class BaseTask():
             idx += 1
         return self, idx
     
+    def getDistance( self, target) -> int:
+        if target in self.getAllParents():
+            for idx, task in enumerate(self.getAllParents(revert_dir=True)):
+                if task == target:
+                    return idx
+        elif self in target.getAllParents():
+            for idx, task in enumerate(target.getAllParents(revert_dir=True)):
+                if task == self:
+                    return idx
+        return -1
+    
     def getAllParents(self, max_index = -1, revert_dir = False):
         par = self
         index = 0

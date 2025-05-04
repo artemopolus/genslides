@@ -295,7 +295,7 @@ class Jun():
                 return task
         return None
 
-    def getAllTasksByTagFromTaskList(self, tags : str, tasks : list[Task.BaseTask])-> Task.BaseTask:
+    def getAllTasksByTagFromTaskList(self, tags : str, tasks : list[Task.BaseTask])-> list[Task.BaseTask]:
         tags_list =[t.replace(" ","") for t in tags.split(',')]
         out = []
         for task in tasks:
