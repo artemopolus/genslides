@@ -753,7 +753,7 @@ class Projecter(Commander.Commander):
 
     
     def createNewTree(self):
-        self.makeTaskAction("","SetOptions","New","user",[])
+        self.makeTaskAction("","SetOptions","New","user",{})
         self.actioner.getCurrentManager().updateTreeArr()
         return self.updateTreeAndAll()
     
