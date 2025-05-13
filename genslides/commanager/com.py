@@ -7,6 +7,7 @@ import genslides.utils.readfileman as Reader
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
+import genslides.utils.savedata as SaveData
 
 class Commander:
     def __init__(self, path = "session"):
@@ -80,6 +81,7 @@ class Commander:
         }
         session_data.update(self.params)
         session_data.update(params)
+        session_data['modified'] = SaveData.getTimeForSaving()
         path = FileManager.addFolderToPath(self.session_name_path,[self.session_name_curr + ".json"])
         Writer.writeJsonToFile(Loader.Loader.getUniPath(path), session_data)
 

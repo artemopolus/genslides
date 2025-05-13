@@ -151,7 +151,10 @@ class Projecter(Commander.Commander):
 
    
     def getSessionNameList(self):
-        return self.session_names_list
+        names = self.session_names_list.copy()
+        names.sort(key=self.getModificationTimeOfSession, reverse=True)
+        return names
+        # return self.session_names_list
 
     def getSessionName(self):
         session_names = self.getSessionNameList()
@@ -955,14 +958,19 @@ class Projecter(Commander.Commander):
                 self.actioner = act['act']
         return self.updateTreeAndAll()
     
-   
+    def getModificationTimeOfSession(self, name : str ):
+        path = FileManager.addFolderToPath(self.getPathToSession(),[name + ".json"])
+        session_data = Reader.ReadFileMan.readJson(path)
+        return "" if "modified" not in session_data else session_data["modified"]
 
     def readSessionInfo( self, name : str ):
         path = FileManager.addFolderToPath(self.getPathToSession(),[name + ".json"])
         session_data = Reader.ReadFileMan.readJson(path)
         text = ""
+        if 'modified' in session_data:
+            text += "Last modification: " + session_data["modified"]
         if 'actioners' in session_data:
-            text ='\n\n'.join( [str(idx) + ") " + info['act_path'] for idx, info in enumerate(session_data['actioners'] ) ] )
+            text +='\n\n'.join( [str(idx) + ") " + info['act_path'] for idx, info in enumerate(session_data['actioners'] ) ] )
         return text
 
   
