@@ -1968,7 +1968,22 @@ class Actioner():
                 },
             save_action=True                
             )
-        
+
+    def getTaskByTag( self, tags : str):
+        man = self.getCurrentManager()
+        man.getTaskByTagFromTasks(tags, man.getTasks())
+
+    def insertingAction( self, prompt ):
+        print (f"Execute inserting action")
+        self.makeTaskAction( 
+            prompt=prompt,
+            type1='Request',
+            creation_type='Insert',
+            creation_tag='user',
+            param={} ,
+            save_action=True                
+            )
+
     def createGarlandTree(self, prompt, out_prompt = "[[parent:code]]", root_type = "SetOptions", receivroot_type = "SetOptions", receiver_type = "Listener"):
         man = self.getCurrentManager()
         # trg = man.getCurrentTask()

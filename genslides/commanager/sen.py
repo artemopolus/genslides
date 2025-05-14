@@ -1029,6 +1029,31 @@ class Projecter(Commander.Commander):
         man_path = Loader.Loader.getUniPath(path)
         self.loadActionerByPath(man_path)
         return self.updateTaskManagerUI()
+    
+    def loadActionerWithTemplate(self, template_path : str, projectfile_path : str, save_path : str):
+        # Archivator.extractFiles(templates_path, template_name, save_path)
+        Archivator.extract7zFileToFolder( template_path, save_path)
+        actioner = self.createActioner({'exttreetask_path':save_path,'load':True})
+        self.addActionerTolist(actioner)
+        man = self.actioner.getCurrentManager()
+        if len(man.getTasks()) == 0:
+            self.createNewTree()
+
+        projectfile = Reader.ReadFileMan.readJson(projectfile_path)
+        target_tag = "targets"
+        packdata_tag = "function_info"
+        command_json = [
+            {"action":"getTaskByTag","kwargs":{"tags":"insert,autogenerate"}},
+            {"action":"insertingAction","kwargs":{"prompt":"[[TEXT]]"}}
+            ]
+        command_str = json.dumps(command_json)
+        if isinstance(projectfile, dict) and target_tag in projectfile and isinstance(projectfile[target_tag], list):
+            for pack in projectfile[target_tag]:
+                packdata = pack.get(packdata_tag, "")
+                pack_cmd = command_str.replace("[[TEXT]]", packdata)
+                actioner.getJsonCmd(pack_cmd)
+        return self.updateTaskManagerUI()
+
 
     def loadActionerByPath(self, man_path : str):
         actioner = self.createActioner({'exttreetask_path':man_path,'load':True})

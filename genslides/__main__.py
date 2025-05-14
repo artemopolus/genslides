@@ -138,6 +138,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Row():
                         actaddbybrow_btn = gr.Button('Load actioner from location')
                         instructaddbybrow_btn = gr.Button('Add instructions from location').click(fn=projecter.loadInstructionDicitionaryByBrowsing)
+                    with gr.Row():
+                        loadactwithtemplate_btn = gr.Button("Load actioner with template")
+                        projectfolderpath_txt = gr.Textbox(value="",label="Path to project folder")
+                        templatepath_txt = gr.Textbox(value="", label="Path to template")
+                        projectfilepath_txt = gr.Textbox(value="", label="Path to project file")
                     actionerlist_rad = gr.Radio(label='Actioners')
                     updactlist_btn = gr.Button('Update')
                     updactlist_btn.click(fn=projecter.getActionerPathsList, outputs=[actionerlist_rad])
@@ -1179,6 +1184,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
+            loadactwithtemplate_btn.click(fn=projecter.loadActionerWithTemplate, inputs=[templatepath_txt, projectfilepath_txt, projectfolderpath_txt])
 
             projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)
             movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)

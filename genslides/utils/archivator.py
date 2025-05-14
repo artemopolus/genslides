@@ -1,7 +1,7 @@
 import py7zr
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, isdir
 
 from tkinter import Tk     # from tkinter import Tk for Python 3.x
 from tkinter.filedialog import asksaveasfilename
@@ -55,3 +55,13 @@ class Archivator():
             archive.extractall(path=path_to_extract)
         print(f"Extract files of {filename} from {trg_path} to {path_to_extract}")
         return True
+    
+    def extract7zFileToFolder( path_to_file : str, path_to_folder : str ) -> bool:
+        if not isdir(path_to_folder):
+            return False
+        if isfile(path_to_file) and path_to_file.endswith(".7z"):
+            with py7zr.SevenZipFile(path_to_file, 'r') as archive:
+                archive.extractall(path=path_to_folder)
+            return True
+        return False
+
