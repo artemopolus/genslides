@@ -172,8 +172,11 @@ class Projecter(Commander.Commander):
     
     def getSessionNameFromList(self, name):
         if name in self.session_names_list:
+            print(f"Load session \"{name}\"")
             self.setCurrentSessionMame( name )
             self.loadSession()
+        else:
+            print(f"Can\'t find {name} in {self.session_names_list}")
         
         return self.updateTreeAndAll()
     

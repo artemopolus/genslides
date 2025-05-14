@@ -362,6 +362,8 @@ class Loader:
         if isinstance(json_data, dict):
             if property_to_remove in json_data:
                 del json_data[property_to_remove]
+                if "required" in json_data:
+                    json_data["propertyOrdering"] = json_data["required"]
             for key, value in json_data.items():
                 json_data[key] = Loader.remove_additional_properties(value, property_to_remove)
         elif isinstance(json_data, list):

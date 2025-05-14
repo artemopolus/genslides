@@ -120,10 +120,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Tab(label='Loading'):
                     with gr.Row():
                         with gr.Column():
-                            sessionname_drd = gr.Dropdown(label='Session names list',choices=projecter.getSessionNameList())
+                            session_names_list = projecter.getSessionNameList()
+                            start_session_name = "None" if len(session_names_list) == 0 else session_names_list[0]
+                            sessionname_drd = gr.Dropdown(label='Session names list',choices=session_names_list, value= start_session_name)
                             setsessionname_btn = gr.Button('Load from list')
                         with gr.Column():
-                            sessioninfo_txt = gr.Textbox(label='Session info', lines=6)
+                            sessioninfo_txt = gr.Textbox(label='Session info', lines=6, value=projecter.readSessionInfo(start_session_name))
                         sessionname_drd.select(fn=projecter.readSessionInfo, inputs=sessionname_drd, outputs=sessioninfo_txt )
                 with gr.Tab(label='Create'):
                     sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
