@@ -100,8 +100,21 @@ class Loader:
         filepath = asksaveasfilename(defaultextension='.7z', initialfile='untitled.7z', confirmoverwrite=True, filetypes = [('Project archive','*.7z')]) 
         app.destroy()
         return filepath
-
     
+    def getFilePathsByBrowsing() -> list[str]:
+        app = Tk()
+        app.withdraw()  
+        app.attributes('-topmost', True)
+        filename_src = list( askopenfilenames() )
+        app.destroy()
+        return filename_src
+
+    def convertFilePathsToRelative( filename_src : list[str], manager_path : str) -> list[str]:
+        out_filenames = []
+        for filepath in filename_src:
+            out_filenames.append(Loader.getManRePath(filepath, manager_path))
+        return out_filenames
+   
     def getFilePathArrayFromSysten(manager_path = '') ->list[str]:
         app = Tk()
         app.withdraw()  
@@ -217,6 +230,14 @@ class Loader:
                 return mfilename
         return str(filename)
     
+    def getDirPathByBrowsing() -> str:
+        app = Tk()
+        app.withdraw() # we don't want a full GUI, so keep the root window from appearing
+        app.attributes('-topmost', True)
+        dirpath = askdirectory() # show an "Open" dialog box and return the path to the selected file
+        app.destroy()
+        return dirpath
+   
     def getDirPathFromSystem(manager_path = '') -> str:
         print('Get dir path from mpath',manager_path)
         app = Tk()

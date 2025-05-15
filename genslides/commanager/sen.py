@@ -1050,8 +1050,11 @@ class Projecter(Commander.Commander):
         if isinstance(projectfile, dict) and target_tag in projectfile and isinstance(projectfile[target_tag], list):
             for pack in projectfile[target_tag]:
                 packdata = pack.get(packdata_tag, "")
-                pack_cmd = command_str.replace("[[TEXT]]", packdata)
+                pack_cmd = command_str.replace("[[TEXT]]", json.dumps(packdata)[1:-1])
+                print(pack_cmd)
                 actioner.getJsonCmd(pack_cmd)
+        else:
+            print(f"Error reading project file: {projectfile_path}")
         return self.updateTaskManagerUI()
 
 
@@ -2593,10 +2596,19 @@ class Projecter(Commander.Commander):
     def copyToClickBoardParentCode(self):
         self.copyToClickBoard("[[parent:code]]")
         return "[[parent:code]]", ""
+    
+    def copyToClipDirPath(self):
+
+        path = Loader.Loader.getDirPathByBrowsing()
+        relpath = Loader.Loader.getManRePath(path, self.actioner.getCurrentManager().getPath())
+        return Loader.Loader.getUniPath( path ), relpath
+
     def copyToClickBoardPaths(self):
-        paths = Loader.Loader.getFilePathArrayFromSysten(self.actioner.getCurrentManager().getPath())
-        self.copyToClickBoard(' '.join(paths))
-        return paths, ""
+        paths = Loader.Loader.getFilePathsByBrowsing()
+        relpaths = Loader.Loader.convertFilePathsToRelative( paths, self.actioner.getCurrentManager().getPath())
+        # relpaths = Loader.Loader.getFilePathArrayFromSysten(self.actioner.getCurrentManager().getPath())
+        # self.copyToClickBoard(' '.join(relpaths))
+        return " ".join([Loader.Loader.getUniPath(p) for p in paths]), " ".join(relpaths)
 
     def copyToClickBoardDialRaw(self):
         msgs = self.actioner.getCurrentManager().curr_task.getRawMsgs()
@@ -2618,10 +2630,11 @@ class Projecter(Commander.Commander):
    
 
     def copyToClickBoardLstMsg(self):
+        coded =self.actioner.getCurrentManager().getCurTaskLstMsgRaw() 
         msg = self.actioner.getCurrentManager().getCurTaskLstMsg()
         pyperclip.copy(msg)
         pyperclip.paste()
-        return "[[parent:msg_content]]", msg
+        return coded, msg
 
     
 

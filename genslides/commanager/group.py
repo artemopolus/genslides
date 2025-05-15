@@ -1971,7 +1971,10 @@ class Actioner():
 
     def getTaskByTag( self, tags : str):
         man = self.getCurrentManager()
-        man.getTaskByTagFromTasks(tags, man.getTasks())
+        task = man.getTaskByTagFromTasks(tags, man.getTasks())
+        if task:
+            print(f"Select {task.getName()} by {tags}")
+            man.setCurrentTask(task)
 
     def insertingAction( self, prompt ):
         print (f"Execute inserting action")

@@ -215,7 +215,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Column(scale=4):
 
                         with gr.Row():
-                            sec_msg = gr.Chatbot(height=600, bubble_full_width=True, rtl=False,type='messages')
+                            sec_msg = gr.Chatbot(height=600, rtl=False,type='messages')
                     # sec_msg.style(height=500)
                 # graph_img.style(height=500)
             with gr.Tab('Step navigation'):
@@ -372,9 +372,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         gr.Button("Copy dial").click(fn=projecter.copyToClickBoardDial, outputs=[tmp_code_txt, tmp_content_txt])
                         gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg, outputs=[tmp_code_txt, tmp_content_txt])
                         # gr.Button("[ [parent:msg_content] ]").click(fn=projecter.copyToClickBoardParentContent)
-                        gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg, outputs=[tmp_code_txt, tmp_content_txt])
-                        gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode, outputs=[tmp_code_txt, tmp_content_txt])
-                        gr.Button("paths").click(fn=projecter.copyToClickBoardPaths, outputs=[tmp_code_txt, tmp_content_txt])
+                        # gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg, outputs=[tmp_code_txt, tmp_content_txt])
+                        # gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode, outputs=[tmp_code_txt, tmp_content_txt])
+                        
+                        gr.Button("Get path to file").click(fn=projecter.copyToClickBoardPaths, outputs=[tmp_code_txt, tmp_content_txt])
+                        gr.Button("Get path to dir").click(fn=projecter.copyToClipDirPath, outputs=[tmp_code_txt, tmp_content_txt])
  
             # with gr.Row():
                 # with gr.Column():
@@ -1184,7 +1186,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
-            loadactwithtemplate_btn.click(fn=projecter.loadActionerWithTemplate, inputs=[templatepath_txt, projectfilepath_txt, projectfolderpath_txt])
+            loadactwithtemplate_btn.click(fn=projecter.loadActionerWithTemplate, inputs=[templatepath_txt, projectfilepath_txt, projectfolderpath_txt], outputs=std_full)
 
             projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)
             movetmp2tmp_btn.click(fn=projecter.moveTaskTmpToTmp,inputs=[tempman_drp], outputs=std_full)
