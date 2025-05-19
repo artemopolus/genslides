@@ -1682,3 +1682,6 @@ class BaseTask():
     
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
         return True
+    
+    def afterActionerUpdateStep( self, opt = {}):
+        pass

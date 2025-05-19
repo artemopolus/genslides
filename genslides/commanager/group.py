@@ -12,11 +12,13 @@ import genslides.utils.filemanager as FileManager
 import genslides.utils.finder as finder
 import genslides.utils.loader as Loader
 import genslides.task_tools.text as TextTool
+import genslides.utils.llmodel as LlmModel
 import os
 import json
 import shutil
 import graphviz
 import copy
+import datetime
 
 class Actioner():
     def __init__(self, manager : Manager.Manager) -> None:
@@ -36,6 +38,8 @@ class Actioner():
         self.is_updating = False
 
         self.force_update_stop = False
+        
+        self.time_marker = datetime.datetime.now()        
 
     def setManager(self, manager : Manager.Manager):
         if manager != self.std_manager and not manager.is_loaded:
@@ -751,7 +755,7 @@ class Actioner():
         self.update_tree_idx = 0
 
 
-    def updateStepInternal(self, update_task = True):
+    def updateStepInternal(self, update_task = True, step_options = {}):
         man = self.manager
         start = self.manager.curr_task
         # print('Update step internal',start.getName())
@@ -778,8 +782,10 @@ class Actioner():
                 print('End execution')
                 self.setManager(self.executing_man)
              
-
+        prev = man.getCurrentTask()
         next = man.updateSteppedSelectedInternal(update_task=update_task)
+
+        prev.afterActionerUpdateStep(step_options)
         # if next:
             # print('Next task', next.getName(),'cur task', man.curr_task.getName())
 
@@ -836,20 +842,25 @@ class Actioner():
             out.append(next_task.getName())
         return out
       
-    def update(self, update_task = True):
+    def update(self, update_task = True, step_options = {}):
         man = self.manager
         # print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
         if self.update_state == 'init':
             self.updateInit()
         elif self.update_state == 'start tree':
+            self.time_marker = datetime.datetime.now()
             task = man.tree_arr[self.update_tree_idx]
             print('Start tree', task.getName(),'[',self.update_tree_idx,']')
             self.setStartParamsForUpdate(man, task)
-            self.updateStepInternal(update_task=update_task)
+            self.updateStepInternal(update_task=update_task, step_options=step_options)
         elif self.update_state == 'step':
-            self.updateStepInternal(update_task=update_task)
-                # self.root_task_tree = next
+            dt2 = datetime.datetime.now()  
+            delta = dt2 - self.time_marker
+            milisec += delta.microseconds / 1000
+            step_options["time"] = milisec
+            self.updateStepInternal(update_task=update_task, step_options=step_options)
         elif self.update_state == 'next tree':
+            self.time_marker = datetime.datetime.now()
             if self.update_tree_idx + 1 < len(man.tree_arr):
                 self.update_tree_idx += 1
                 self.update_state = 'start tree'
@@ -972,8 +983,10 @@ class Actioner():
             return
         idx = 0
         project_chain = [{'idx':idx, 'task': man.getCurrentTask()}]
+        tasks_chain = []
         while(idx < max_update_idx):
-            self.update(update_task=update_task)
+            self.update(update_task=update_task, step_options={"tasks_chain":tasks_chain})
+            tasks_chain.append(man.getCurrentTask().getName())
             project_chain.append({'idx':idx, 'task': man.getCurrentTask()})
             if self.update_state == 'done' or self.force_update_stop:
                 break
@@ -2500,6 +2513,16 @@ class Actioner():
         man.setCurrentTask(summary_output_task)
 
 
+    def updateDocTrees( self, doc_tag = "full_doc"):
+        man = self.getCurrentManager()
+        tasks = man.getAllTasksByTagFromTaskList(doc_tag, man.getTasks())
+        for task in tasks:
+            mres, mparam = task.getParamStruct("model")
+            if mres:
+                model = LlmModel.LLModel(mparam)
+                nres, tokens = model.getTokensNum( task.getMsgsText() )
+                if nres:
+                    print(f"Tokens: {tokens}")
 
 
 

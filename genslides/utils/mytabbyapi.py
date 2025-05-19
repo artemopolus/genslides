@@ -48,3 +48,86 @@ def tabbyApiGetChatCompletion(msgs, params):
     except Exception as e:
         print('tabby API error=', e)
         return False, '', {}
+
+def tabbyapi_num_tokens_from_text( text, params ):
+    TABBY_API_URL = params.get('url', "http://localhost:5001/v1/token/encode")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {params['api_key']}" if 'api_key' in params else ""
+    }
+
+    # Define the payload for the request
+    payload = {
+        "add_bos_token": True,
+        "encode_special_tokens": True,
+        "decode_special_tokens": True,
+        "text": text
+    }
+    response = requests.post(TABBY_API_URL, json=payload, headers=headers)
+    
+    if response.status_code == 200:
+        completion = response.json()
+        msg = completion["length"]
+        return True, msg
+    else:
+        print(f"API request failed: {response.status_code}, {response.text}")
+        return False, 0
+
+def tabbyapi_get_model( params ):
+    TABBY_API_URL = params.get('url', "http://localhost:5001/v1/model")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {params['api_key']}" if 'api_key' in params else ""
+    }
+    response = requests.get(TABBY_API_URL, headers=headers)
+    if response.status_code == 200:
+        completion = response.json()
+        return True, completion
+    else:
+        print(f"API request failed: {response.status_code}, {response.text}")
+        return False, {}
+
+def tabbyapi_switch_model( params ):
+    if tabbyapi_unload_model(params):
+        return tabbyapi_load_model( params )
+    return False, {}
+
+def tabbyapi_load_model( params ):
+    TABBY_API_URL = params.get('url', "http://localhost:5001/v1/model/load")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {params['api_key']}" if 'api_key' in params else ""
+    }
+
+    # Define the payload for the request
+    payload = {
+        "model_name": params.get("id", ""),
+        "max_seq_len": params.get("max_seq_len", 4096),
+        "cache_size": params.get("cache_size", 4096),
+        "vision": False
+    }
+    response = requests.post(TABBY_API_URL, json=payload, headers=headers)
+    
+    if response.status_code == 200:
+        completion = response.json()
+        return True, completion
+    else:
+        print(f"API request failed: {response.status_code}, {response.text}")
+        return False, {}
+
+
+def tabbyapi_unload_model( params ):
+    TABBY_API_URL = params.get('url', "http://localhost:5001/v1/model/unload")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {params['api_key']}" if 'api_key' in params else ""
+    }
+    response = requests.get(TABBY_API_URL, headers=headers)
+    
+    if response.status_code == 200:
+        return True
+    else:
+        print(f"API request failed: {response.status_code}, {response.text}")
+        return False
+
+

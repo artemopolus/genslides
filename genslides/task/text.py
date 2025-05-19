@@ -365,9 +365,12 @@ class TextTask(BaseTask):
             return True
         return False
     
-    def calculateMsgsHash( self ):
+    def getMsgsText ( self ):
         input_msgs = self.getParent().getMsgs(inparam={'goal':'check'})
-        text_msgs = ' '.join( [m['content'] for m in input_msgs] ) 
+        return ' '.join( [m['content'] for m in input_msgs] ) 
+   
+    def calculateMsgsHash( self ):
+        text_msgs = self.getMsgsText()
         return Txt.compute_sha256_hash( text_msgs ), text_msgs
 
     def checkParentMsgList(self, update = False, remove = True, save_curr = True) -> bool:
@@ -1677,4 +1680,17 @@ class TextTask(BaseTask):
             if all(word in text for word in tags):
                 return True
         return super().checkTags(tags)
+    
+    def afterActionerUpdateStep(self, opt = {}):
+        bres, bparam = self.getParamStruct("bud",True)
+        if bres:
+            if "time" in opt:
+                bparam["time"] = opt["time"]
+            if "tasks_chain" in opt:
+                bparam["tasks_chain"] = opt["tasks_chain"]
+            bparam["branch_len"] = len(self.getAllParents())
+            bparam["symbols"] = len(self.getMsgsText())
+
+            self.setParamStruct(bparam)
+        return super().afterActionerUpdateStep(opt)
     

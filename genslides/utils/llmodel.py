@@ -13,7 +13,7 @@ from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompl
 from genslides.utils.myollama import ollamaGetChatCompletion
 from genslides.utils.myllamacpp import llamacppGetChatCompletion
 from genslides.utils.mygemini import geminiGetChatCompletion
-from genslides.utils.mytabbyapi import tabbyApiGetChatCompletion
+from genslides.utils.mytabbyapi import tabbyApiGetChatCompletion, tabbyapi_num_tokens_from_text, tabbyapi_get_model, tabbyapi_switch_model
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
 
 model_to_method = {
@@ -35,6 +35,13 @@ model_to_method = {
     }
 }
 
+server_functions = {
+    "tabbyapi": {
+        "encode": tabbyapi_num_tokens_from_text,
+        "load":tabbyapi_switch_model
+    }
+}
+
 
 class LLModel():
     def __init__(self, params = None) -> None:
@@ -51,6 +58,9 @@ class LLModel():
         self.get_tokens_from_message = None
         self.tokenizer = None
         self.vendor = ""
+
+        self.get_tokens_function = None
+        self.load_model_function = None
 
 
         model_name = params['model']
@@ -74,6 +84,10 @@ class LLModel():
                         else:
                             self.method = model_to_method[name]['default']
 
+                        if model_name in server_functions:
+                            self.get_tokens_function = server_functions[model_name]['encode']
+                            self.load_model_function = server_functions[model_name]['load']
+
                            
                         self.vendor = name
                         self.model = model_name
@@ -91,6 +105,16 @@ class LLModel():
                         if 'api_key' not in self.params:
                             self.params['api_key'] = values['api_key']
 
+
+    def getTokensNum( self, text):
+        if self.get_tokens_function:
+            return self.get_tokens_function( text, self.params )
+        return False, 0
+    
+    def loadModel( self ):
+        if self.load_model_function:
+            return self.load_model_function( self.params)
+        return False, {}
 
 
     def createChatCompletion(self, messages) -> (bool, str, dict):
