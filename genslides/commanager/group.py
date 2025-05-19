@@ -336,13 +336,33 @@ class Actioner():
                 names.append(task.getName())
         return names
     
+    def checkChildExeTasks( self, task : BaseTask ) -> bool:
+        for child in task.getAllChildChains():
+            if child != task:
+                res, param = child.getParamStruct("autoactioner", True)
+                if res and "idx" in param and "len" in param and param['idx'] < param['len']:
+                    return True
+        return False
+    
+    def exeTasks(self):
+        man = self.getCurrentManager()
+        cnt = man.getFrozenTasksCount()
+        if cnt > 0:
+            return
+        for task in man.getTasks():
+            res, actions = task.getAutoCommand2()
+            if res and self.checkChildExeTasks(task):
+                print('Exe commands by', task.getName())
+                self.getCurrentManager().setCurrentTask(task)
+                self.getJsonCmd(actions)
+    
     def exeTasksByName(self, names):
         for name in names:
             task = self.getCurrentManager().getTaskByName(name)
             if task != None:
-                print('Exe commands by', task.getName())
                 res, actions = task.getAutoCommand2()
                 if res:
+                    print('Exe commands by', task.getName())
                     self.getCurrentManager().setCurrentTask(task)
                     self.getJsonCmd(actions)
                 # for action in actions:
@@ -1976,13 +1996,25 @@ class Actioner():
             print(f"Select {task.getName()} by {tags}")
             man.setCurrentTask(task)
 
-    def insertingAction( self, prompt ):
+    def insertingToTaskAction( self, prompt : str, taskname : str, task_type = "Request", role = "user" ):
+        man = self.getCurrentManager()
+        task = man.getTaskByName(taskname)
+        if task:
+            self.insertingAction(prompt, task_type, role)
+
+    def editingToTaskAction( self, prompt : str, taskname : str ):
+        man = self.getCurrentManager()
+        task = man.getTaskByName(taskname)
+        if task:
+            self.editingAction(prompt)
+ 
+    def insertingAction( self, prompt, task_type = "Request", role = "user" ):
         print (f"Execute inserting action")
         self.makeTaskAction( 
             prompt=prompt,
-            type1='Request',
+            type1=task_type,
             creation_type='Insert',
-            creation_tag='user',
+            creation_tag = role,
             param={} ,
             save_action=True                
             )
@@ -2021,6 +2053,86 @@ class Actioner():
             if task.checkType("ExternalInput"):
                 return True
         return False
+    
+    def updateTreeUsingAnswer( self, input_cmd = "input_cmd", input_answer = "input_answer", input_cmd2 = "input_cmd2" ):
+        print("Update tree using answer")
+        man = self.getCurrentManager()
+
+        exttree = self.getMainExternalTree()
+
+        target = exttree
+
+        answer_task = None
+        answers = man.getAllTasksByTagFromTaskList( input_answer, target.getAllChildChains())
+        if len(answers) == 1:
+            answer_task = answers[0]
+        elif len(answers) == 0:
+            print(f"No task with tag {input_answer} for {target.getName()}")
+            return
+        else:
+            answer_task = answers[0]
+            distance = answer_task.getDistance( target )
+            for task in answers:
+                if not task.is_freeze:
+                    temp_d = task.getDistance( target )
+                    if distance > temp_d:
+                        distance = temp_d
+                        answer_task = task
+        if not answer_task:
+            print("No answers")
+            return
+        try:
+            # answer_data = json.loads( answer_task.getLastMsgContent() )
+            ares, answer_data = Loader.Loader.loadJsonFromText( answer_task.getLastMsgContent2() )
+            if not ares:
+                print(f"Break:\n{answer_task.getLastMsgContent2()}")
+                return
+        except:
+            print(f"Break:\n{answer_task.getLastMsgContent2()}")
+            return
+        command_to_execute = []
+        listener_to_up = []
+        if isinstance(answer_data, dict) and "text_edits" in answer_data and isinstance(answer_data["text_edits"], list):
+            print("Check updates in document")
+            for update in answer_data["text_edits"]:
+                if "edit_type" in update and "proposed_text_batch" in update  and "reference_marker" in update:
+                    edit_type = update["edit_type"]
+                    batch = update["proposed_text_batch"]
+                    shortname = update["reference_marker"][1:-1]
+                    res, targettaskname = man.getLongNameUsingShortName( shortname )
+                    if res:
+                        updatetask = man.getTaskByName( targettaskname)
+                        if updatetask and updatetask.checkType("Request"):
+                            if edit_type == "Insertion":
+                                command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                            elif edit_type == "Replacement":
+                                command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                        elif updatetask and updatetask.checkType("Listener"):
+                            listener_to_up.append({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
+                        else:
+                            print("Unknown action")
+                    else:
+                        print(f"No task with {shortname} name")
+        else:
+            print(f"No json data in {answer_task.getName()}:\n{answer_data}")
+        cmd_task = man.getTaskByTagFromTasks(input_cmd, answer_task.getAllChildChains())    
+        if cmd_task:
+            man.setCurrentTask(cmd_task)
+            self.editingAction(json.dumps(command_to_execute))
+        else:
+            print(f"No task with tag {input_cmd}")
+        cmd_task2 = man.getTaskByTagFromTasks(input_cmd2, answer_task.getAllChildChains())    
+        if cmd_task2:
+            man.setCurrentTask(cmd_task2)
+            self.editingAction(json.dumps(listener_to_up))
+        else:
+            print(f"No task with tag {input_cmd2}")
+
+    # def createSecondStageLink ( self, taskname : str, summary = "marker", input_summary = "input_summary" ):
+                            # pass
+                            # write extended command
+
+    
     
     def extendQuestionRoute( self, man : Manager.Manager, question_tree : BaseTask, input_summary = "input_summary", input_dir = "input_dir" ):
         print("Start Extending")
@@ -2279,6 +2391,15 @@ class Actioner():
                     },
                 save_action=True                
                 )
+
+    def getMainExternalTree( self ):
+        man = self.getCurrentManager()
+        mainoutputtasktree = None
+
+        for task in man.getTasks():
+            if task.checkType("ExternalInput"):
+                mainoutputtasktree = task
+        return mainoutputtasktree
 
 
     def updateTaskAndTravel( self, info_tag = "travel_summary", answer_tag = "travel_answer", add_json_list_tag = "add", add_marker = "marker", edit_json_list_tag = "add", edit_marker = "marker", 

@@ -157,6 +157,8 @@ def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
             suffix = option.get("suffix", "")
             value_type = option.get("type", "text")
 
+
+
             if value_type == "text":
                 text += f"{prefix}{value}{suffix}"
             elif value_type == "list":
@@ -187,7 +189,12 @@ def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
         elif isinstance(value, list):
             for point in value:
                 if isinstance(point, dict):
-                    text += convertJsonDictToText2internal(point, opt)
+                    if "target_field_key" in opt:
+                        for tkey, tvalue in opt["target_field_key"].items():
+                            if tkey in point and point[tkey] == tvalue:
+                                text += convertJsonDictToText2internal(point, opt)
+                    else:
+                        text += convertJsonDictToText2internal(point, opt)
     return text
 
 

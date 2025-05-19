@@ -22,7 +22,11 @@ def divideArray(task  , param):
     elif parse_type == 'manual':
         return True, []
     elif parse_type == 'json':
-        res, targets = Ld.Loader.loadJsonFromText(task.getLastMsgContent2())
+        if 'manual_target' in param and param['manual_target'] != "":
+            msg_content = task.findKeyParam( param['manual_target'] )
+        else:
+            msg_content = task.getLastMsgContent2()
+        res, targets = Ld.Loader.loadJsonFromText(msg_content)
         if res and isinstance(targets, list):
             arr = []
             for idx, content in enumerate( targets ):
@@ -145,7 +149,10 @@ def checkCurrentArrayElem(param : dict, task  ):
 def getSHAfromTask(task, param):
     data = ''
     if param['parse'] in ['std','text_split','json']:
-        data = task.getLastMsgContent2()
+        if 'manual_target' in param and param['manual_target'] != "":
+            data = task.findKeyParam( param['manual_target'] )
+        else:
+            data = task.getLastMsgContent2()
     elif param['parse'] == 'manual':
         if 'manual_target' in param:
             data = task.findKeyParam( param['manual_target'] )
@@ -274,3 +281,23 @@ def resetArrayParam( task, param : dict):
     return param
 
 
+def createArrayParam(manual_target = ""):
+    param = {
+      "type":"array",
+      "parse":"None",
+      "idx":0,
+      "curr":"",
+      "parts":1,
+      "part_smbl_cnt":5000,
+      "smbl_before":0,
+      "smbl_after":0,
+      "src_data":"",
+      "manual_len" : "0",
+      "manual_format":"",
+      "manual_target": manual_target,
+      "manual_excl":"",
+      "len": 0,
+      "step": 1,
+      "start": 0
+    }
+    return param

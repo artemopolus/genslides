@@ -1573,14 +1573,29 @@ class TextTask(BaseTask):
     def getAutoCommand2(self):
         tres, tparam = self.getParamStruct("autoactioner", only_current=True)
         if tres:
-            print('Get auto actioner for',self.getName())
+            self.updateUpdationInfo(f"Get commands for auto actioner")
+            exe_type = tparam.get("exe_type","all")
             content = self.findKeyParam(tparam['input'])
             hash = Txt.compute_sha256_hash( content )
-            if hash != tparam['hash']:
-                print('HASH is different')
-                tparam['hash'] = hash
-                self.setParamStruct(tparam)
-                return True, content
+            if exe_type == "all":
+                if hash != tparam['hash']:
+                    print('HASH is different')
+                    tparam['hash'] = hash
+                    self.setParamStruct(tparam)
+                    return True, content
+            elif exe_type == "single":
+                cres, cmds = Loader.loadJsonFromText(content)
+                if cres and isinstance(cmds, list):
+                    if hash != tparam.get('hash',''):
+                        tparam['len'] = len(cmds)
+                        tparam['idx'] = 0
+                        tparam['hash'] = hash
+                    elif tparam['len'] < tparam['idx'] + 1:
+                        return super().getAutoCommand()
+                    idx = tparam['idx']
+                    tparam['idx'] += 1
+                    self.setParamStruct(tparam)
+                    return True, Loader.convJsonToText([cmds[idx]])
         return super().getAutoCommand()
     
     def setAutoCommand(self, type_name, actions: list):

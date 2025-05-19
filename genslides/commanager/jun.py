@@ -1409,6 +1409,24 @@ class Manager(Man.Jun):
             if t['short']== short_name:
                 return True, t['type']
         return False, ''
+    
+    def getLongNameUsingShortName( self, short_name : str):
+        match = re.match(r'^([A-Za-z]+)(\d+)$', short_name)
+        if match:
+            letters = match.group(1)
+            numbers = match.group(2)
+            tasks_dict  = cr.getTasksDict()
+            for t in tasks_dict:
+                if t['short']== letters:
+                    return True, t['type'] + numbers
+        else:
+            return False, ''
+
+        tasks_dict  = cr.getTasksDict()
+        for t in tasks_dict:
+            if t['short']== short_name:
+                return True, t['type']
+        return False, ''
   
     
    
@@ -2152,7 +2170,7 @@ class Manager(Man.Jun):
                 task.setManager(next_man)
                 cur_man.rmvTask(task)
 
-    def allowUpdateInternalArrayParam(self, task : BaseTask = None):
+    def allowUpdateInternalArrayParam(self, task : BaseTask = None, check_paramname = "array"):
         if 'upd_array' in self.info:
             if self.info['upd_array'] == 'check_frozen':
                 if self.getFrozenTasksCount() == 0:
@@ -2165,8 +2183,8 @@ class Manager(Man.Jun):
                 if task:
                     for child in task.getAllChildChains():
                         if child != task:
-                            res, param = child.getParamStruct('array', True)
-                            if res and param['idx'] < param['len']:
+                            res, param = child.getParamStruct(check_paramname, True)
+                            if res and "idx" in param and "len" in param and param['idx'] < param['len']:
                                 return False
                 return True
         return False
