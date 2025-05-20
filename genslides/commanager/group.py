@@ -2067,7 +2067,7 @@ class Actioner():
                 return True
         return False
     
-    def updateTreeUsingAnswer( self, input_cmd = "input_cmd", input_answer = "input_answer", input_cmd2 = "input_cmd2" ):
+    def updateTreeUsingAnswer( self, input_cmd = "input_cmd", input_answer = "input_answer", input_addlink = "input_addlink" ):
         print("Update tree using answer")
         man = self.getCurrentManager()
 
@@ -2134,12 +2134,12 @@ class Actioner():
             self.editingAction(json.dumps(command_to_execute))
         else:
             print(f"No task with tag {input_cmd}")
-        cmd_task2 = man.getTaskByTagFromTasks(input_cmd2, answer_task.getAllChildChains())    
-        if cmd_task2:
-            man.setCurrentTask(cmd_task2)
+        cmd_link = man.getTaskByTagFromTasks(input_addlink, answer_task.getAllChildChains())    
+        if cmd_link:
+            man.setCurrentTask(cmd_link)
             self.editingAction(json.dumps(listener_to_up))
         else:
-            print(f"No task with tag {input_cmd2}")
+            print(f"No task with tag {input_addlink}")
 
     # def createSecondStageLink ( self, taskname : str, summary = "marker", input_summary = "input_summary" ):
                             # pass
@@ -2461,7 +2461,7 @@ class Actioner():
                     if fres:
                         add_task_names.append(full_name)
 
-    def createSecondStageLink ( self, taskname : str, summary = "marker", input_summary = "input_summary" ):
+    def createSecondStageLink ( self, taskname : str, summary = "marker", input_summary = "input_addlink" ):
         man = self.getCurrentManager()
         mainoutputtasktree = None
 
@@ -2475,7 +2475,7 @@ class Actioner():
  
 
     def travelAndLink( self, taskname : str, previous_summary_task : BaseTask, man : Manager.Manager, 
-                      summary = "summary", input_summary = "input_summary" 
+                      marker = "marker", input_summary = "input_summary" 
                       ):
         linked_task = man.getTaskByName( taskname )
 
@@ -2491,7 +2491,7 @@ class Actioner():
         
         output_tree = output_task.getRootParent()
 
-        summary_output_task = man.getTaskByTagFromTasks(summary, output_tree.getAllChildChains())
+        marker_output_task = man.getTaskByTagFromTasks(marker, output_tree.getAllChildChains())
 
         summary_input_task = None
 
@@ -2504,25 +2504,34 @@ class Actioner():
             print(f"No summary task")
             return
         
-        print(f"Link form {summary_output_task.getName()} to {summary_input_task.getName()}")
+        print(f"Link form {marker_output_task.getName()} to {summary_input_task.getName()}")
 
         self.makeTaskAction(prompt="", type1="", creation_type="Link", creation_tag= "" , param={
-                "select":summary_output_task.getName(),
+                "select":marker_output_task.getName(),
                 "curr":summary_input_task.getName()}, save_action=True)
         
-        man.setCurrentTask(summary_output_task)
+        man.setCurrentTask(marker_output_task)
 
 
-    def updateDocTrees( self, doc_tag = "full_doc"):
+    def updateDocTrees( self, input_cmd = "input_cmd", doc_tag = "full_doc"):
         man = self.getCurrentManager()
-        tasks = man.getAllTasksByTagFromTaskList(doc_tag, man.getTasks())
+        exttree = self.getMainExternalTree()
+
+        tasks = man.getAllTasksByTagFromTaskList(input_cmd, exttree.getAllChildChains())
         for task in tasks:
-            mres, mparam = task.getParamStruct("model")
-            if mres:
-                model = LlmModel.LLModel(mparam)
-                nres, tokens = model.getTokensNum( task.getMsgsText() )
-                if nres:
-                    print(f"Tokens: {tokens}")
+            print(f"Get cmds from {task.getName()}")
+            cmds_text = task.getLastMsgContent2()
+            self.getJsonCmd(cmds_text)
+
+
+        # tasks = man.getAllTasksByTagFromTaskList(doc_tag, man.getTasks())
+        # for task in tasks:
+        #     mres, mparam = task.getParamStruct("model")
+        #     if mres:
+        #         model = LlmModel.LLModel(mparam)
+        #         nres, tokens = model.getTokensNum( task.getMsgsText() )
+        #         if nres:
+        #             print(f"Tokens: {tokens}")
 
 
 
