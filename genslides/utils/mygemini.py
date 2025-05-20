@@ -12,7 +12,7 @@ def geminiGetChatCompletion(msgs, params):
 
         history = []
         system_instruction = ""
-        for message in msgs:
+        for idx, message in enumerate(msgs):
             role = message['role']
             if message['role'] == 'system':
                 system_instruction += message['content']
@@ -20,8 +20,10 @@ def geminiGetChatCompletion(msgs, params):
                 if message['role'] == 'assistant':
                     role = 'model'
                 msg = message['content']
-                history.append({'role': role, 'parts': msg})
-        question = history.pop()['parts']
+                if idx < len(msgs) - 1:
+                    history.append(types.Content(parts=[types.Part(text=msg)], role=role))
+                else:
+                    question = msg
         # if system_instruction == "":
             # model = genai.GenerativeModel(model_name=params['model'])
         # else:
@@ -42,8 +44,7 @@ def geminiGetChatCompletion(msgs, params):
                     system_instruction=system_instruction,
                     response_mime_type="application/json",
                     response_schema=gemini_schema)
-
-            response = chat.send_message(message=[question], config=config)
+            response = chat.send_message(message=types.Part(text=question), config=config)
         else:
             response = chat.send_message(question)
         out_param = {
