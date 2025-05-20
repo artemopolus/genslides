@@ -31,12 +31,8 @@ def geminiGetChatCompletion(msgs, params):
         if 'response_format' in params and params['response_format'] != "":
 
             json_schema_init = json.loads(params['response_format'], strict=True)
-            try:
-                gemini_schema = json_schema_init['json_schema']['schema']
-                gemini_schema = Ld.Loader.remove_additional_properties(gemini_schema, "additionalProperties")
-            except Exception as e:
-                print("Error schema:", e)
-                return False, '', {}
+            gemini_schema = json_schema_init['json_schema']['schema']
+            gemini_schema = Ld.Loader.remove_additional_properties(gemini_schema, "additionalProperties")
             if system_instruction == "":
                 config = types.GenerateContentConfig(
                     response_mime_type="application/json",
@@ -47,7 +43,7 @@ def geminiGetChatCompletion(msgs, params):
                     response_mime_type="application/json",
                     response_schema=gemini_schema)
 
-            response = chat.send_message(question, config=config)
+            response = chat.send_message(message=[question], config=config)
         else:
             response = chat.send_message(question)
         out_param = {

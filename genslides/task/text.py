@@ -1573,6 +1573,29 @@ class TextTask(BaseTask):
             return ares, actions  
         return super().getAutoCommand()
     
+    def updateAutoCommand2param( self, cmd : dict):
+        if "action" in cmd:
+            tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+            if tres:
+                content = self.findKeyParam(tparam['input'])
+                jres, jobj = Loader.loadJsonFromText( content )
+                if jres:
+                    jobj.append( cmd)
+                    tparam['input'] = Loader.convJsonToText( jobj )
+                    self.setParamStruct(tparam)
+                    return
+                else:
+                    return
+            tparam = {
+            "type":"autoactioner",
+            "input": Loader.convJsonToText([cmd]),
+            "hash": ""
+            }
+            self.setParamStruct(tparam)
+
+                
+
+    
     def getAutoCommand2(self):
         tres, tparam = self.getParamStruct("autoactioner", only_current=True)
         if tres:

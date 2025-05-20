@@ -856,7 +856,7 @@ class Actioner():
         elif self.update_state == 'step':
             dt2 = datetime.datetime.now()  
             delta = dt2 - self.time_marker
-            milisec += delta.microseconds / 1000
+            milisec = delta.microseconds / 1000
             step_options["time"] = milisec
             self.updateStepInternal(update_task=update_task, step_options=step_options)
         elif self.update_state == 'next tree':
@@ -2103,8 +2103,8 @@ class Actioner():
         except:
             print(f"Break:\n{answer_task.getLastMsgContent2()}")
             return
-        command_to_execute = []
-        listener_to_up = []
+        # command_to_execute = []
+        # listener_to_up = []
         if isinstance(answer_data, dict) and "text_edits" in answer_data and isinstance(answer_data["text_edits"], list):
             print("Check updates in document")
             for update in answer_data["text_edits"]:
@@ -2117,29 +2117,35 @@ class Actioner():
                         updatetask = man.getTaskByName( targettaskname)
                         if updatetask and updatetask.checkType("Request"):
                             if edit_type == "Insertion":
-                                command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                                updatetask.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                                # command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                             elif edit_type == "Replacement":
-                                command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                                updatetask.updateAutoCommand2param({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                                # command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                         elif updatetask and updatetask.checkType("Listener"):
-                            listener_to_up.append({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
+                            updatetask.updateAutoCommand2param({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
+                            # listener_to_up.append({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
                         else:
                             print("Unknown action")
                     else:
                         print(f"No task with {shortname} name")
         else:
             print(f"No json data in {answer_task.getName()}:\n{answer_data}")
-        cmd_task = man.getTaskByTagFromTasks(input_cmd, answer_task.getAllChildChains())    
-        if cmd_task:
-            man.setCurrentTask(cmd_task)
-            self.editingAction(json.dumps(command_to_execute))
-        else:
-            print(f"No task with tag {input_cmd}")
-        cmd_link = man.getTaskByTagFromTasks(input_addlink, answer_task.getAllChildChains())    
-        if cmd_link:
-            man.setCurrentTask(cmd_link)
-            self.editingAction(json.dumps(listener_to_up))
-        else:
-            print(f"No task with tag {input_addlink}")
+        # cmd_task = man.getTaskByTagFromTasks(input_cmd, answer_task.getAllChildChains())    
+        # if cmd_task:
+        #     man.setCurrentTask(cmd_task)
+        #     eres, existing_commands = Loader.Loader.loadJsonFromText(cmd_task.getLastMsgContent2())
+        #     if eres and isinstance(existing_commands, list):
+        #         command_to_execute.extend(existing_commands)
+        #     self.editingAction( Loader.Loader.convJsonToText(command_to_execute))
+        # else:
+        #     print(f"No task with tag {input_cmd}")
+        # cmd_link = man.getTaskByTagFromTasks(input_addlink, answer_task.getAllChildChains())    
+        # if cmd_link:
+        #     man.setCurrentTask(cmd_link)
+        #     self.editingAction(json.dumps(listener_to_up))
+        # else:
+        #     print(f"No task with tag {input_addlink}")
 
     # def createSecondStageLink ( self, taskname : str, summary = "marker", input_summary = "input_summary" ):
                             # pass
