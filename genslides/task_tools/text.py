@@ -189,7 +189,7 @@ def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
         elif isinstance(value, list):
             for point in value:
                 if isinstance(point, dict):
-                    if "target_field_key" in opt:
+                    if "target_field_key" in opt and opt["target_field_key"] != "":
                         for tkey, tvalue in opt["target_field_key"].items():
                             if tkey in point and point[tkey] == tvalue:
                                 text += convertJsonDictToText2internal(point, opt)

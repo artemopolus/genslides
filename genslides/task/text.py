@@ -1573,6 +1573,32 @@ class TextTask(BaseTask):
             return ares, actions  
         return super().getAutoCommand()
     
+    def clearDictBuffer( self):
+        dres, dparam = self.getParamStruct("dictbuffer", only_current=True)
+        if dres:
+            dparam['buffer'] = ""
+            self.setParamStruct(dparam)
+
+    def saveDictBuffer( self, cmd : dict):
+        dres, dparam = self.getParamStruct("dictbuffer", only_current=True)
+        if dres:
+            jres, jobj = Loader.loadJsonFromText( dparam["buffer"] )
+            if jres:
+                jobj.append( cmd)
+                dparam['buffer'] = Loader.convJsonToText( jobj )
+                self.setParamStruct(dparam)
+                return
+            else:
+                return
+        else:
+            dparam = {
+            "type":"dictbuffer",
+            "buffer": Loader.convJsonToText([cmd]),
+            }
+            self.setParamStruct(dparam)
+
+
+    
     def updateAutoCommand2param( self, cmd : dict):
         if "action" in cmd:
             tres, tparam = self.getParamStruct("autoactioner", only_current=True)
@@ -1593,7 +1619,12 @@ class TextTask(BaseTask):
             }
             self.setParamStruct(tparam)
 
-                
+    def clearAutoCommand2param(self):
+        tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+        if tres:
+            tparam['input'] = "" 
+            self.setParamStruct(tparam)
+        return super().clearAutoCommand2param()                
 
     
     def getAutoCommand2(self):

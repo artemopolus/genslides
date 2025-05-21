@@ -287,7 +287,8 @@
    {
       "type":"format",
       "target":"",
-      "description":""
+      "description":"",
+      "target_field_key":""
    }
 
 ]

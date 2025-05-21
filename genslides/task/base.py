@@ -1685,5 +1685,12 @@ class BaseTask():
     
     def afterActionerUpdateStep( self, opt = {}):
         pass
+
     def updateAutoCommand2param( self, cmd : dict):
+        pass
+    def clearAutoCommand2param( self ):
+        pass
+    def saveDictBuffer( self, cmd : dict):
+        pass
+    def clearDictBuffer( self):
         pass

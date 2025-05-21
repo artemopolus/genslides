@@ -281,6 +281,14 @@ class Jun():
     def getCurrentTask(self) -> Task.BaseTask:
         return self.curr_task
     
+    def getTaskByType( self, typename : str) -> list[Task.BaseTask]:
+        tasks = []
+        for task in self.getTasks():
+            if task.checkType(typename):
+                tasks.append(task)
+        return tasks
+
+    
     def getTaskByTag(self, tags : str)-> Task.BaseTask:
         tags_list =[t.replace(" ","") for t in tags.split(',')]
         for task in self.getTasks():

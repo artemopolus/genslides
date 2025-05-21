@@ -372,11 +372,61 @@ class Actioner():
                 # for action in actions:
                     # self.makeSavedAction(action)
 
+    def exeCmdsOfTasks(self, range = "all"):
+        man = self.getCurrentManager()
+        if range == "all":
+            tasks = man.getTasks()
+        elif range == "multi":
+            tasks = man.getMultiSelectedTasks()
+        elif range == "selected":
+            tasks = [man.getSelectedTask()]
+        elif range == "current":
+            tasks = [man.getCurrentTask()]
+        else:
+            tasks = man.getTaskByType( range )
+        for task in tasks:
+            if task:
+                res, actions = task.getAutoCommand2()
+                if res:
+                    print('Exe commands by', task.getName())
+                    self.getCurrentManager().setCurrentTask(task)
+                    self.getJsonCmd(actions)
+
+    def clearCmdsOfTasks(self, range = "all"):
+        man = self.getCurrentManager()
+        if range == "all":
+            tasks = man.getTasks()
+        elif range == "multi":
+            tasks = man.getMultiSelectedTasks()
+        elif range == "selected":
+            tasks = [man.getSelectedTask()]
+        elif range == "current":
+            tasks = [man.getCurrentTask()]
+        else:
+            tasks = man.getTaskByType( range )
+        for task in tasks:
+            task.clearAutoCommand2param()
+
+    def clearDictBuffers(self, range = "all"):
+        man = self.getCurrentManager()
+        if range == "all":
+            tasks = man.getTasks()
+        elif range == "multi":
+            tasks = man.getMultiSelectedTasks()
+        elif range == "selected":
+            tasks = [man.getSelectedTask()]
+        elif range == "current":
+            tasks = [man.getCurrentTask()]
+        else:
+            tasks = man.getTaskByType( range )
+        for task in tasks:
+            task.clearDictBuffer()
+
+
     def exeActions(self):
         if self.manager is not self.std_manager:
             return self.exeComList(self.manager.info['actions'])
         return False
-        
 
     def exeComList(self, pack) -> bool:
        # return True
@@ -2117,10 +2167,10 @@ class Actioner():
                         updatetask = man.getTaskByName( targettaskname)
                         if updatetask and updatetask.checkType("Request"):
                             if edit_type == "Insertion":
-                                updatetask.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                                updatetask.saveDictBuffer({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                                 # command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                             elif edit_type == "Replacement":
-                                updatetask.updateAutoCommand2param({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                                updatetask.saveDictBuffer({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                                 # command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                         elif updatetask and updatetask.checkType("Listener"):
                             updatetask.updateAutoCommand2param({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
