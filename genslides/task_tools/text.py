@@ -144,9 +144,9 @@ def checkTargetField(opt : dict):
     return False
 
 def checkValueInDict(opt : dict, point : dict):
-    print("search in", point)
+    # print("search in", point)
     for tkey, tvalue in opt["target_field_key"].items():
-        print(f"search {tkey} : {tvalue}")
+        # print(f"search {tkey} : {tvalue}")
         if tkey in point and point[tkey] == tvalue:
             return True
     return False

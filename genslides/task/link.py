@@ -287,12 +287,18 @@ class ListenerTask(LinkedTask):
                                 if jres:
                                     prompts_data.update( jobj)
                             elif isinstance(tsk_info.params, list):
-                                kres, key = self.getParamValueByKey('tag','key')
+                                kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
                                 if kres:
                                     if lparam['combine'] == 'json_list':
                                         prompts_data.append({key: tsk_info.prompt})
                                     elif lparam['combine'] == 'json_dict':
                                         prompts_data.update({key: tsk_info.prompt})
+                                elif lparam['combine'] == 'json_list':
+                                    jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
+                                    if jres:
+                                        prompts_data.append(jobj)
+                                    else:
+                                        prompts_data.append(tsk_info.prompt)
                             tsk_info.enabled = False
                             updated = True
                 else:

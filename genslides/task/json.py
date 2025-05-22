@@ -6,7 +6,7 @@ class JsonTask(Request.RequestTask):
     def __init__(self, task_info, type="Json"):
         super().__init__(task_info, type)
 
-    def getJsonObject( self , inparams :dict):
+    def getJsonObject( self , inparams :dict, root = False):
         jres, jobj = self.getParamStruct("json_create", True)
         if jres:
             key = self.findKeyParam( jobj["key"] )
@@ -41,7 +41,10 @@ class JsonTask(Request.RequestTask):
                     elif jtype == "list":
                         return { key : {"type": "object","items":out}}
                 else:
-                    return out
+                    if jtype in ["list","dict"] and root:
+                        return out
+                    else:
+                        return {key : out}
             elif jtype == "str":
                 if "schema" in inparams and inparams["schema"]:
                     return { key :{"type":"string", "description": self.findKeyParam( jobj["value"] ) }}
@@ -49,13 +52,22 @@ class JsonTask(Request.RequestTask):
                     return { key :self.findKeyParam( jobj["value"] ) }
         return None
 
+    def updateInternalJsonValue( self ):
+        jres, inparams = self.getParamStruct("json_create", True)
+        if jres:
+            trg = self.getJsonObject(inparams, True)
+            if trg != None:
+                self.updateParamStruct("json_create","result", Ld.Loader.convJsonToText(trg))
 
     def update(self, input = None):
         out = super().update(input)
-        jres, inparams = self.getParamStruct("json_create", True)
-        if jres:
-
-            trg = self.getJsonObject(inparams)
-            if trg != None:
-                self.updateParamStruct("json_create","result", Ld.Loader.convJsonToText(trg))
+        if len(self.getChilds()):
+            for task in self.getAllChildChains():
+                if task != self and task.checkType("Json"):
+                    return out
+        for task in self.getAllParents(revert_dir=True):
+            if task.checkType("Json"):
+                self.updateUpdationInfo(f"Update json for {task.getName()}")
+                task.updateInternalJsonValue ()
+                # return out
         return out

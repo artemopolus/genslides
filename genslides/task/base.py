@@ -1694,3 +1694,5 @@ class BaseTask():
         pass
     def clearDictBuffer( self):
         pass
+    def checkDictBuffer ( self ):
+        return False

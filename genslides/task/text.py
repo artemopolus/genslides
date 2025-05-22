@@ -1573,29 +1573,43 @@ class TextTask(BaseTask):
             return ares, actions  
         return super().getAutoCommand()
     
+    def checkDictBuffer ( self ):
+        dres, dparam = self.getParamStruct("dictbuffer", only_current=True)
+        if dres and 'status' in dparam and dparam['status'] == "Ready":
+            return True
+        elif dres:
+            return True
+        return False
+        
+    
     def clearDictBuffer( self):
         dres, dparam = self.getParamStruct("dictbuffer", only_current=True)
         if dres:
-            dparam['buffer'] = ""
+            dparam['status'] = "Done"
             self.setParamStruct(dparam)
+
+    
 
     def saveDictBuffer( self, cmd : dict):
         dres, dparam = self.getParamStruct("dictbuffer", only_current=True)
-        if dres:
+        if dres and 'status' in dparam and dparam['status'] == "Done":
+            pass
+        elif dres:
             jres, jobj = Loader.loadJsonFromText( dparam["buffer"] )
             if jres:
                 jobj.append( cmd)
                 dparam['buffer'] = Loader.convJsonToText( jobj )
+                dparam['status'] = "Ready"
                 self.setParamStruct(dparam)
                 return
             else:
                 return
-        else:
-            dparam = {
+        dparam = {
             "type":"dictbuffer",
             "buffer": Loader.convJsonToText([cmd]),
+            "status": "Ready"
             }
-            self.setParamStruct(dparam)
+        self.setParamStruct(dparam)
 
 
     

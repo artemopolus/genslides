@@ -372,8 +372,9 @@ class Actioner():
                 # for action in actions:
                     # self.makeSavedAction(action)
 
-    def exeCmdsOfTasks(self, range = "all"):
+    def getCurrentMangerTasksByRange( self, range = "all") -> list[BaseTask]:
         man = self.getCurrentManager()
+        tasks = []
         if range == "all":
             tasks = man.getTasks()
         elif range == "multi":
@@ -382,9 +383,15 @@ class Actioner():
             tasks = [man.getSelectedTask()]
         elif range == "current":
             tasks = [man.getCurrentTask()]
+        elif range == "childs":
+            tasks = man.getCurrentTask().getAllChildChains()
         else:
             tasks = man.getTaskByType( range )
-        for task in tasks:
+        return tasks
+
+
+    def exeCmdsOfTasks(self, range = "all"):
+        for task in self.getCurrentMangerTasksByRange( range ):
             if task:
                 res, actions = task.getAutoCommand2()
                 if res:
@@ -393,33 +400,11 @@ class Actioner():
                     self.getJsonCmd(actions)
 
     def clearCmdsOfTasks(self, range = "all"):
-        man = self.getCurrentManager()
-        if range == "all":
-            tasks = man.getTasks()
-        elif range == "multi":
-            tasks = man.getMultiSelectedTasks()
-        elif range == "selected":
-            tasks = [man.getSelectedTask()]
-        elif range == "current":
-            tasks = [man.getCurrentTask()]
-        else:
-            tasks = man.getTaskByType( range )
-        for task in tasks:
+        for task in self.getCurrentMangerTasksByRange( range ):
             task.clearAutoCommand2param()
 
     def clearDictBuffers(self, range = "all"):
-        man = self.getCurrentManager()
-        if range == "all":
-            tasks = man.getTasks()
-        elif range == "multi":
-            tasks = man.getMultiSelectedTasks()
-        elif range == "selected":
-            tasks = [man.getSelectedTask()]
-        elif range == "current":
-            tasks = [man.getCurrentTask()]
-        else:
-            tasks = man.getTaskByType( range )
-        for task in tasks:
+        for task in self.getCurrentMangerTasksByRange( range ):
             task.clearDictBuffer()
 
 
@@ -2572,15 +2557,32 @@ class Actioner():
         man.setCurrentTask(marker_output_task)
 
 
-    def updateDocTrees( self, input_cmd = "input_cmd", doc_tag = "full_doc"):
+    def updateDocTrees( self, input_cmd = "srcdoctree", doc_tag = "full_doc", summary_task_tag = "insert, edit, summary, command"):
         man = self.getCurrentManager()
-        exttree = self.getMainExternalTree()
+        cmdsummary_task = man.getTaskByTag( summary_task_tag )
+        if not cmdsummary_task:
+            return
 
-        tasks = man.getAllTasksByTagFromTaskList(input_cmd, exttree.getAllChildChains())
-        for task in tasks:
-            print(f"Get cmds from {task.getName()}")
-            cmds_text = task.getLastMsgContent2()
-            self.getJsonCmd(cmds_text)
+        doctrees = man.getAllTasksByTagFromTaskList(input_cmd, man.getTasks())
+        for start in doctrees:
+            print(f"Get branch from {start.getName()}")
+            init_tasks = start.getAllChildChains()
+            full_doc_task = man.getTaskByTagFromTasks(doc_tag, init_tasks).getParent()
+            for task in full_doc_task.getAllChildChains():
+                if task != full_doc_task and task in init_tasks:
+                    init_tasks.remove( task )
+            print(f"Process tasks: {[t.getName() for t in init_tasks]}")
+            for task in init_tasks:
+                print(f"For {task.getName()} task")
+                if task.checkDictBuffer():
+                    man.setCurrentTask(task)
+                    self.makeTaskAction("","","Parent","",{"select": cmdsummary_task.getName()})
+                    man.setCurrentTask( cmdsummary_task )
+                    self.updateFromFork()
+                    self.exeCmdsOfTasks(range = "childs")
+                    task.clearDictBuffer()
+                    return
+
 
 
         # tasks = man.getAllTasksByTagFromTaskList(doc_tag, man.getTasks())
