@@ -138,6 +138,21 @@ def convertJsonDictToText2( trg : dict, opt : dict) -> str:
         #No recursion needed here since top level keys are not processed based on type
     return text
 
+def checkTargetField(opt : dict):
+    if "target_field_key" in opt and opt["target_field_key"] != "":
+        return True
+    return False
+
+def checkValueInDict(opt : dict, point : dict):
+    print("search in", point)
+    for tkey, tvalue in opt["target_field_key"].items():
+        print(f"search {tkey} : {tvalue}")
+        if tkey in point and point[tkey] == tvalue:
+            return True
+    return False
+
+
+
 def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
     """
     Recursively converts a JSON-like dictionary to Markdown text based on provided options.
@@ -159,19 +174,22 @@ def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
 
 
 
-            if value_type == "text":
+            if checkTargetField(opt):
+                if checkValueInDict( opt , trg):
+                    text += f"{prefix}{value}{suffix}"
+            elif value_type == "text":
                 text += f"{prefix}{value}{suffix}"
-            elif value_type == "list":
-                if isinstance(value, list):
-                    for item in value:
-                        if isinstance(item, dict):
-                            item_text = convertJsonDictToText2internal(item, opt)
-                        else:
-                            item_text = str(item)
-                        text += f"{prefix}{item_text}{suffix}"
-                else:
-                    # Handle the case where the value isn't a list but should be treated as one
-                    text += f"{prefix}{value}{suffix}"  # Treat the single value as a list item
+            # elif value_type == "list":
+            #     if isinstance(value, list):
+            #         for item in value:
+            #             if isinstance(item, dict):
+            #                 item_text = convertJsonDictToText2internal(item, opt)
+            #             else:
+            #                 item_text = str(item)
+            #             text += f"{prefix}{item_text}{suffix}"
+            #     else:
+            #         # Handle the case where the value isn't a list but should be treated as one
+            #         text += f"{prefix}{value}{suffix}"  # Treat the single value as a list item
             elif value_type == "numerical_list":
                 if isinstance(value, list):
                     for i, item in enumerate(value):
@@ -187,11 +205,16 @@ def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
         elif isinstance(value, dict):
             text += convertJsonDictToText2internal(value, opt)
         elif isinstance(value, list):
+            # print("List")
             for point in value:
                 if isinstance(point, dict):
-                    if "target_field_key" in opt and opt["target_field_key"] != "":
-                        for tkey, tvalue in opt["target_field_key"].items():
-                            if tkey in point and point[tkey] == tvalue:
+                    if checkTargetField(opt):
+                        if checkValueInDict( opt , point):
+                    # if "target_field_key" in opt and opt["target_field_key"] != "":
+                        # print("search for", opt["target_field_key"])
+                        # for tkey, tvalue in opt["target_field_key"].items():
+                            # if tkey in point and point[tkey] == tvalue:
+                                # print(f"Found {point[tkey]} == {tvalue}")
                                 text += convertJsonDictToText2internal(point, opt)
                     else:
                         text += convertJsonDictToText2internal(point, opt)

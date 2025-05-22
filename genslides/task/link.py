@@ -276,8 +276,10 @@ class ListenerTask(LinkedTask):
                             updated = True
                             break
                     elif lparam['combine'].startswith ('multi'):
-                        prompt += prefix + tsk_info.prompt + suffix
-                        updated = True
+                        if tsk_info.enabled:
+                            prompt += prefix + tsk_info.prompt + suffix
+                            tsk_info.enabled = False
+                            updated = True
                     elif lparam['combine'].startswith("json"):
                         if tsk_info.enabled:
                             if lparam['combine'] == 'json_update':

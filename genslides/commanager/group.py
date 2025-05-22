@@ -2167,10 +2167,10 @@ class Actioner():
                         updatetask = man.getTaskByName( targettaskname)
                         if updatetask and updatetask.checkType("Request"):
                             if edit_type == "Insertion":
-                                updatetask.saveDictBuffer({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                                updatetask.saveDictBuffer({"action":"insertingToTaskAction","taskname":targettaskname,"prompt":batch})
                                 # command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                             elif edit_type == "Replacement":
-                                updatetask.saveDictBuffer({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                                updatetask.saveDictBuffer({"action":"editingToTaskAction","taskname":targettaskname,"prompt":batch})
                                 # command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                         elif updatetask and updatetask.checkType("Listener"):
                             updatetask.updateAutoCommand2param({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
