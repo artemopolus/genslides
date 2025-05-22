@@ -323,5 +323,18 @@
 				"del_msgs" :"None"
 			}
 		]
+	},
+	"Json":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "json_create",
+				"jtype":"dict",
+				"key":"[[current:name]]",
+				"value": "",
+				"schema":false
+			}
+		]
 	}
 }
