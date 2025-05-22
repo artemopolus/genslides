@@ -2161,7 +2161,10 @@ class Actioner():
                 if "edit_type" in update and "proposed_text_batch" in update  and "reference_marker" in update:
                     edit_type = update["edit_type"]
                     batch = update["proposed_text_batch"]
-                    shortname = update["reference_marker"][1:-1]
+                    if len(update["reference_marker"]) and update["reference_marker"][0] == "[":
+                        shortname = update["reference_marker"][1:-1]
+                    else:
+                        shortname = update["reference_marker"]
                     res, targettaskname = man.getLongNameUsingShortName( shortname )
                     if res:
                         updatetask = man.getTaskByName( targettaskname)

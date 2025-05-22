@@ -191,16 +191,21 @@ def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
             #         # Handle the case where the value isn't a list but should be treated as one
             #         text += f"{prefix}{value}{suffix}"  # Treat the single value as a list item
             elif value_type == "numerical_list":
-                if isinstance(value, list):
-                    for i, item in enumerate(value):
-                        if isinstance(item, dict):
-                            item_text = convertJsonDictToText2internal(item, opt)
-                        else:
-                            item_text = str(item)
-                        text += f"{i}{prefix}{item_text}{suffix}"
-                else:
-                    # Handle the case where the value isn't a list but should be treated as one
-                    text += f"{prefix}{value}{suffix}"  # Treat the single value as a numerical list item
+                idx = option.get("idx", 0)
+                content = f"{prefix}{value}{suffix}".replace("[[number]]", str(idx))
+                option['idx'] = idx + 1
+                text += content
+
+                # if isinstance(value, list):
+                #     for i, item in enumerate(value):
+                #         if isinstance(item, dict):
+                #             item_text = convertJsonDictToText2internal(item, opt)
+                #         else:
+                #             item_text = str(item)
+                #         text += f"{i}{prefix}{item_text}{suffix}"
+                # else:
+                #     # Handle the case where the value isn't a list but should be treated as one
+                #     text += f"{prefix}{value}{suffix}"  # Treat the single value as a numerical list item
 
         elif isinstance(value, dict):
             text += convertJsonDictToText2internal(value, opt)
