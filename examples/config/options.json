@@ -285,10 +285,17 @@
       "prefix": ["", "- ","   - ","\n```python\n","\n```json\n"]
    },
    {
+      "type":"json_create",
+      "jtype":["dict","list","str"],
+      "key":["","key","[[parent:msg_content]]"],
+      "value": ["", "[[parent_2:msg_content"],
+      "schema":[false, true],
+      "result":[]
+   },
+   {
       "type":"format",
       "target":"",
       "description":"",
       "target_field_key":""
    }
-
 ]
