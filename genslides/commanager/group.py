@@ -981,7 +981,8 @@ class Actioner():
 
     def updateFromFork(self, force_check = False):
         man = self.getCurrentManager()
-        start_task = man.curr_task
+        start_task = man.getCurrentTask()
+        print(f"Update from fork {start_task.getName()}")
         fork_root = None
         trg = start_task
         idx = 0
@@ -998,9 +999,9 @@ class Actioner():
             else:
                 trg = par
             idx +=1
-        man.curr_task = fork_root
+        man.setCurrentTask( fork_root )
         self.updateChildTasks(force_check)
-        man.curr_task = start_task
+        man.setCurrentTask( start_task )
 
 
     def updateAll(self, force_check = False, update_task = True, max_update_idx = 10000):
@@ -2048,12 +2049,16 @@ class Actioner():
         man = self.getCurrentManager()
         task = man.getTaskByName(taskname)
         if task:
+            if len(task.getChilds()):
+                task = task.getChilds()[0]
+            man.setCurrentTask( task )
             self.insertingAction(prompt, task_type, role)
 
     def editingToTaskAction( self, prompt : str, taskname : str ):
         man = self.getCurrentManager()
         task = man.getTaskByName(taskname)
         if task:
+            man.setCurrentTask( task )
             self.editingAction(prompt)
  
     def insertingAction( self, prompt, task_type = "Request", role = "user" ):
@@ -2557,7 +2562,7 @@ class Actioner():
         man.setCurrentTask(marker_output_task)
 
 
-    def updateDocTrees( self, input_cmd = "srcdoctree", doc_tag = "full_doc", summary_task_tag = "insert, edit, summary, command"):
+    def updateDocTrees( self, input_cmd = "srcdoctree", doc_tag = "full_doc", summary_task_tag = "insert, edit, summary, command", result_task_tag = "result, summary, command"):
         man = self.getCurrentManager()
         cmdsummary_task = man.getTaskByTag( summary_task_tag )
         if not cmdsummary_task:
@@ -2575,11 +2580,18 @@ class Actioner():
             for task in init_tasks:
                 print(f"For {task.getName()} task")
                 if task.checkDictBuffer():
-                    man.setCurrentTask(task)
-                    self.makeTaskAction("","","Parent","",{"select": cmdsummary_task.getName()})
+                    print(f"Move task {cmdsummary_task.getName()} to {task.getName()} ")
+                    man.setCurrentTask(cmdsummary_task)
+                    self.makeTaskAction("","","Parent","",{"select": task.getName()})
                     man.setCurrentTask( cmdsummary_task )
                     self.updateFromFork()
-                    self.exeCmdsOfTasks(range = "childs")
+                    print(f"Apply commands")
+                    result_task = man.getTaskByTagFromTasks(result_task_tag, cmdsummary_task.getAllChildChains())
+                    jres, jcmd = Loader.Loader.loadJsonFromText(result_task.getLastMsgContent2())
+                    if jres and isinstance(jcmd, list):
+                        task.clearAutoCommand2param()
+                        for cmd in jcmd:
+                            task.updateAutoCommand2param(cmd)
                     task.clearDictBuffer()
                     return
 

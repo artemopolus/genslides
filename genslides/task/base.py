@@ -1496,6 +1496,9 @@ class BaseTask():
     def getLastMsgContentRaw(self):
         return "No any content"
     
+    def getLastMsgContent2(self):
+        return ""
+    
     def getLastMsgContent(self):
         return ""
     

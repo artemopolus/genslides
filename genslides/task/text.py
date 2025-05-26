@@ -1577,6 +1577,8 @@ class TextTask(BaseTask):
         dres, dparam = self.getParamStruct("dictbuffer", only_current=True)
         if dres and 'status' in dparam and dparam['status'] == "Ready":
             return True
+        elif dres and 'status' in dparam and dparam['status'] == "Done":
+            return False
         elif dres:
             return True
         return False
