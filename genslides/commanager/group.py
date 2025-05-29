@@ -2004,7 +2004,7 @@ class Actioner():
             )
 
     def editingAction( self, prompt ):
-        print ("Execute editing action")
+        print (f"Execute editing action for {self.getCurrentManager().getCurrentTask().getName()}")
         self.makeTaskAction( 
             prompt=prompt,
             type1='Request',
@@ -2062,7 +2062,7 @@ class Actioner():
             self.editingAction(prompt)
  
     def insertingAction( self, prompt, task_type = "Request", role = "user" ):
-        print (f"Execute inserting action")
+        print (f"Execute inserting action for {self.getCurrentManager().getCurrentTask().getName()}")
         self.makeTaskAction( 
             prompt=prompt,
             type1=task_type,
@@ -2563,6 +2563,7 @@ class Actioner():
 
 
     def updateDocTrees( self, input_cmd = "srcdoctree", doc_tag = "full_doc", summary_task_tag = "insert, edit, summary, command", result_task_tag = "result, summary, command"):
+        print(f"Update doc trees")
         man = self.getCurrentManager()
         cmdsummary_task = man.getTaskByTag( summary_task_tag )
         if not cmdsummary_task:
@@ -2592,19 +2593,9 @@ class Actioner():
                         task.clearAutoCommand2param()
                         for cmd in jcmd:
                             task.updateAutoCommand2param(cmd)
+                    else:
+                        print(f"No command")
                     task.clearDictBuffer()
-                    return
-
-
-
-        # tasks = man.getAllTasksByTagFromTaskList(doc_tag, man.getTasks())
-        # for task in tasks:
-        #     mres, mparam = task.getParamStruct("model")
-        #     if mres:
-        #         model = LlmModel.LLModel(mparam)
-        #         nres, tokens = model.getTokensNum( task.getMsgsText() )
-        #         if nres:
-        #             print(f"Tokens: {tokens}")
-
-
+                else:
+                    print(f"Ignore")
 
