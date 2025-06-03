@@ -14,6 +14,7 @@ import genslides.utils.filemanager as FileManager
 import genslides.utils.readfileman as Reader
 import genslides.utils.writer as Writer
 
+import genslides.task_tools.py_parser as pyparser
 import genslides.commanager.com as Commander
 
 import genslides.task_tools.text as TextTool
@@ -30,6 +31,7 @@ import time
 
 import pyperclip
 import pathlib
+from pathlib import Path
 import matplotlib.pyplot as plt
 import copy
 
@@ -3428,4 +3430,49 @@ class Projecter(Commander.Commander):
     def cleanTasksChat(self):
         self.actioner.cleanTasksChat()
         return self.updateMainUIelements()
-
+    
+    def getTaskCmdList( self ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        out = []
+        if task:
+            res, actions = task.getAutoCommand2(checkhash = False)
+            if res:
+                cres, cmds = Loader.Loader.loadJsonFromText( actions )
+                if cres and isinstance(cmds, list):
+                    for cmd in cmds:
+                        if "action" in cmd:
+                            out.append(cmd["action"])
+        return gr.CheckboxGroup(choices=out)
+    
+    def getTaskKwargsList ( self, cmdname, key ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        out = ""
+        if task:
+            res, actions = task.getAutoCommand2(checkhash = False)
+            if res:
+                cres, cmds = Loader.Loader.loadJsonFromText( actions )
+                if cres and isinstance(cmds, list):
+                    for cmd in cmds:
+                        if "action" in cmd and cmd["action"] in cmdname and "kwargs" in cmd:
+                            for k, value in cmd["kwargs"].items():
+                                if k == key:
+                                    out += value
+                    return out
+        return out
+ 
+ 
+    def getJsonCmdsMethods( self ):
+        target_file = Path("genslides/commanager/group.py")
+        with target_file.open("r", encoding="utf-8") as f:
+            text = f.read()
+        methods, classes = pyparser.get_class_info(text, "Actioner")
+        return methods
+    
+    def appendCmdToJson( self, cmds_str : str, cmd_name : str):
+        cres, cmds = Loader.Loader.loadJsonFromText( cmds_str )
+        if cres and isinstance(cmds, list):
+            cmds.append({"action":cmd_name,"kwargs":{}})
+            cmds_str = Loader.Loader.convJsonToText( cmds, indent=3 )
+        else:
+            cmds_str = Loader.Loader.convJsonToText( [ {"action":cmd_name,"kwargs":{}} ], indent=3 )
+        return cmds_str

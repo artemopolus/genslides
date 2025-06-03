@@ -1613,6 +1613,19 @@ class TextTask(BaseTask):
             }
         self.setParamStruct(dparam)
 
+    def removeAutoCommandFromparam( self, cmd : dict):
+        if "action" in cmd:
+            tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+            if tres:
+                content = self.findKeyParam(tparam['input'])
+                jres, jobj = Loader.loadJsonFromText( content )
+                if jres:
+                    try:
+                        jobj.remove( cmd)
+                        tparam['input'] = Loader.convJsonToText( jobj )
+                        self.setParamStruct(tparam)
+                    except Exception as e:
+                        pass
 
     
     def updateAutoCommand2param( self, cmd : dict):
@@ -1627,13 +1640,18 @@ class TextTask(BaseTask):
                     self.setParamStruct(tparam)
                     return
                 else:
-                    return
+                    print("No correct json")
+                    # return
+            else:
+                print("No param")
             tparam = {
             "type":"autoactioner",
             "input": Loader.convJsonToText([cmd]),
             "hash": ""
             }
             self.setParamStruct(tparam)
+        else:
+            print("No action")
 
     def clearAutoCommand2param(self):
         tres, tparam = self.getParamStruct("autoactioner", only_current=True)
@@ -1643,18 +1661,24 @@ class TextTask(BaseTask):
         return super().clearAutoCommand2param()                
 
     
-    def getAutoCommand2(self):
+    def getAutoCommand2(self, checkhash = True):
+        print("Get Auto Command2")
         tres, tparam = self.getParamStruct("autoactioner", only_current=True)
         if tres:
-            self.updateUpdationInfo(f"Get commands for auto actioner")
+            print(f"Get commands for auto actioner")
             exe_type = tparam.get("exe_type","all")
             content = self.findKeyParam(tparam['input'])
             hash = Txt.compute_sha256_hash( content )
             if exe_type == "all":
-                if hash != tparam['hash']:
-                    print('HASH is different')
-                    tparam['hash'] = hash
-                    self.setParamStruct(tparam)
+                if checkhash:
+                    if hash != tparam['hash']:
+                        print("Autoactioner hash is NOT SAME")
+                        tparam['hash'] = hash
+                        self.setParamStruct(tparam)
+                        return True, content
+                    else:
+                        print("Autoactioner hash is SAME")
+                else:
                     return True, content
             elif exe_type == "single":
                 cres, cmds = Loader.loadJsonFromText(content)
@@ -1669,6 +1693,10 @@ class TextTask(BaseTask):
                     tparam['idx'] += 1
                     self.setParamStruct(tparam)
                     return True, Loader.convJsonToText([cmds[idx]])
+            else:
+                print("Unknown exe type")
+        else:
+            print("No params for autocommand")
         return super().getAutoCommand()
     
     def setAutoCommand(self, type_name, actions: list):

@@ -18,9 +18,12 @@ def tabbyApiGetChatCompletion(msgs, params):
 
         # Add optional parameters to the payload if they are specified
         optional_params = ['max_tokens', 'temperature', 'repetition_penalty', 'top_k', 'top_p']
+        out_param = {}
         for param in optional_params:
             if param in params:
                 payload[param] = params[param]
+                
+                out_param[param] = params[param]
 
         # Include json_schema if specified and correctly structured
         if 'response_format' in params and params['response_format']:
@@ -35,7 +38,6 @@ def tabbyApiGetChatCompletion(msgs, params):
         if response.status_code == 200:
             completion = response.json()
             msg = completion['choices'][0]['message']['content']
-            out_param = {}
             try:
                 out_param['intok'] = completion['usage']['prompt_tokens']
                 out_param['outtok'] = completion['usage']['completion_tokens']
@@ -44,10 +46,10 @@ def tabbyApiGetChatCompletion(msgs, params):
             return True, msg, out_param
         else:
             print(f"API request failed: {response.status_code}, {response.text}")
-            return False, '', {}
+            return False, '', out_param
     except Exception as e:
         print('tabby API error=', e)
-        return False, '', {}
+        return False, '', out_param
 
 def tabbyapi_num_tokens_from_text( text, params ):
     TABBY_API_URL = params.get('url', "http://localhost:5001/v1/token/encode")

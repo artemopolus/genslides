@@ -604,6 +604,21 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Tab('Custom json cmd'):
                     customjsoncmd_cod = gr.Code(label='Json cmd',language='json', interactive=True)
                     customjsoncmd_btn = gr.Button('Exe JSON cmd')
+                    customjsoncmd_drp = gr.Dropdown(choices=projecter.getJsonCmdsMethods())
+                    customjsoncmdadd_btn = gr.Button('Add cmd')
+                    customjsoncmdadd_btn.click(fn=projecter.appendCmdToJson, inputs=[customjsoncmd_cod, customjsoncmd_drp], outputs=customjsoncmd_cod)
+
+                with gr.Tab('Task cmds'):
+                    gettaskcmds_btn = gr.Button("Get Task commands")
+                    taskcmds_chk = gr.CheckboxGroup(label="Commands")
+                    with gr.Row():
+                        rmtaskcmd_btn = gr.Button('Remove command')
+                        exetaskcmd_btn = gr.Button('Exe task command')
+                    cmdkwargskeys_drd = gr.Dropdown(label='kwargs', choices=["prompt"], value="prompt", allow_custom_value=True)
+                    cmdkwargkeyvalue_mrd = gr.Markdown(label='Value')
+                    taskcmds_chk.change(fn=projecter.getTaskKwargsList, inputs=[taskcmds_chk, cmdkwargskeys_drd], outputs=cmdkwargkeyvalue_mrd)
+
+                    gettaskcmds_btn.click(fn=projecter.getTaskCmdList, outputs=[taskcmds_chk])
 
             with gr.Tab('Delete'):
                     with gr.Row():

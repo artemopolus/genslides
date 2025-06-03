@@ -1691,6 +1691,8 @@ class BaseTask():
 
     def updateAutoCommand2param( self, cmd : dict):
         pass
+    def removeAutoCommandFromparam( self, cmd : dict):
+        pass
     def clearAutoCommand2param( self ):
         pass
     def saveDictBuffer( self, cmd : dict):

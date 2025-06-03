@@ -2107,7 +2107,9 @@ class Actioner():
                 return True
         return False
     
-    def updateTreeUsingAnswer( self, input_cmd = "input_cmd", input_answer = "input_answer", input_addlink = "input_addlink" ):
+    def updateTreeUsingAnswer( self, input_answer = "input_answer", cmd_list_key = "text_edits",
+                                text_batch_key = "proposed_text_batch", marker_key = "reference_marker", edit_key = "edit_type"
+                              ):
         print("Update tree using answer")
         man = self.getCurrentManager()
 
@@ -2145,16 +2147,16 @@ class Actioner():
             return
         # command_to_execute = []
         # listener_to_up = []
-        if isinstance(answer_data, dict) and "text_edits" in answer_data and isinstance(answer_data["text_edits"], list):
+        if isinstance(answer_data, dict) and cmd_list_key in answer_data and isinstance(answer_data[cmd_list_key], list):
             print("Check updates in document")
-            for update in answer_data["text_edits"]:
-                if "edit_type" in update and "proposed_text_batch" in update  and "reference_marker" in update:
-                    edit_type = update["edit_type"]
-                    batch = update["proposed_text_batch"]
-                    if len(update["reference_marker"]) and update["reference_marker"][0] == "[":
-                        shortname = update["reference_marker"][1:-1]
+            for update in answer_data[cmd_list_key]:
+                if edit_key in update and text_batch_key in update  and marker_key in update:
+                    edit_type = update[edit_key]
+                    batch = update[text_batch_key]
+                    if len(update[marker_key]) and update[marker_key][0] == "[":
+                        shortname = update[marker_key][1:-1]
                     else:
-                        shortname = update["reference_marker"]
+                        shortname = update[marker_key]
                     res, targettaskname = man.getLongNameUsingShortName( shortname )
                     if res:
                         updatetask = man.getTaskByName( targettaskname)
@@ -2562,7 +2564,7 @@ class Actioner():
         man.setCurrentTask(marker_output_task)
 
 
-    def updateDocTrees( self, input_cmd = "srcdoctree", doc_tag = "full_doc", summary_task_tag = "insert, edit, summary, command", result_task_tag = "result, summary, command"):
+    def updateDocTrees( self, single = False, input_cmd = "srcdoctree", doc_tag = "full_doc", summary_task_tag = "insert, edit, summary, command", result_task_tag = "result, summary, command"):
         print(f"Update doc trees")
         man = self.getCurrentManager()
         cmdsummary_task = man.getTaskByTag( summary_task_tag )
@@ -2586,16 +2588,20 @@ class Actioner():
                     self.makeTaskAction("","","Parent","",{"select": task.getName()})
                     man.setCurrentTask( cmdsummary_task )
                     self.updateFromFork()
-                    print(f"Apply commands")
                     result_task = man.getTaskByTagFromTasks(result_task_tag, cmdsummary_task.getAllChildChains())
                     jres, jcmd = Loader.Loader.loadJsonFromText(result_task.getLastMsgContent2())
                     if jres and isinstance(jcmd, list):
+                        print(f"Apply {len(jcmd)} commands")
                         task.clearAutoCommand2param()
                         for cmd in jcmd:
+                            print(f"Copy command")
                             task.updateAutoCommand2param(cmd)
                     else:
                         print(f"No command")
                     task.clearDictBuffer()
+                    if single:
+                        print(f"Single step was executed")
+                        return
                 else:
                     print(f"Ignore")
 
