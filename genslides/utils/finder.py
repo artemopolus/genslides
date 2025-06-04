@@ -130,7 +130,10 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
         elif arr[1] == 'short_name':
             rep_text = rep_text.replace(res, task.getShortName())
         elif arr[1] == getMsgTag():
-            param = task.getLastMsgContent()
+            if task.checkType("SetOptions"):
+                param = "\nEmpty\n"
+            else:
+                param = task.getLastMsgContent()
             if len(arr) == 3 and arr[2] == 'json_dump':
                 jdump = Loader.Loader.convJsonToText(param)
                 if len(jdump) > 3:
