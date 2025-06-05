@@ -295,8 +295,8 @@
    },
    {
       "type":"format",
-      "target":"",
-      "description":"",
+      "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "description":["","{\n\"target_json_key\":{\"prefix\":\"# Proposal\\n\",\"suffix\":\"\\n\"},\n  \"target_field_key\":{\"reference_key\":\"target_value\"}\n}"],
       "target_field_key":""
    }
 ]
