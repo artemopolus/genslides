@@ -102,7 +102,7 @@ class LinkedTask(TextTask.TextTask):
 
     def affectedTaskCallback(self, input : TextTask.TaskDescription):
         self.updateUpdationInfo(f"Update from {input.parent.getName()}\n")
-        # print("From ", input.parent.getName(), " to ", self.getName())
+        print("From ", input.parent.getName(), " to ", self.getName())
         # if input and input.stepped:
         #     found = False
         #     for cl in self.callback_link:
@@ -202,6 +202,7 @@ class ListenerTask(LinkedTask):
 
 
     def updateLinkedPrompts(self, input : TextTask.TaskDescription):
+        self.updateUpdationInfo(f"Update linked prompts")
         # lres, lparam = self.getParamStruct("listener")
         # if lres and 'onlink' in lparam:
         #     if lparam['onlink'] == 'none':
@@ -420,7 +421,9 @@ class ListenerTask(LinkedTask):
     
     def blockLinked(self):
         lres, lparam = self.getParamStruct("listener")
-        if lres and 'onupdate' in lparam and lparam['onupdate'] == 'none':
+        if lres and 'onupdate' in lparam and lparam['onupdate'] in ['none']:
+            if self.block_on:
+                self.unBlockChildren()
             return
         return super().blockLinked()
 
@@ -464,7 +467,7 @@ class ListenerTask(LinkedTask):
         else:
             for tsk_info in self.by_ext_affected_list:
                 if not tsk_info.enabled:
-                    self.updateUpdationInfo(f"Freeze from children")
+                    self.updateUpdationInfo(f"Freeze from links")
                     self.freezeTask()
                     return
  

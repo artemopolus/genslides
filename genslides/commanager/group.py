@@ -1572,16 +1572,11 @@ class Actioner():
         choices = []
         cur_val = 'None'
         if param_key == 'path_to_read':
+            # print("Get path to read")
             res, fnames = man.getCurrentTask().getPathToRead()
-            # if not res and len(fnames) == 0:
-            #     filename = Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())
-            #     return [filename], filename, interacttive_drd, multiselect_drd, str(filename), True
-            # else:
             if res and len(fnames):
                 filename = fnames[0]
                 return fnames, filename, interacttive_drd, multiselect_drd, filename, True
-            # return (gr.Dropdown(choices=[filename], value=filename, interactive=True, multiselect=False),
-                    # gr.Textbox(str(filename)))
         elif param_name == 'script' and param_key == 'path_to_trgs':
             filename = "[[project:RunScript:python]] "
             filename += Loader.Loader.getFilePathFromSystem(manager_path=man.getPath())

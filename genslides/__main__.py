@@ -1323,10 +1323,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
            
 
-            go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=std_output_list)          
+            go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=tree_outlist)          
 
             sel_task_btn.click(fn=projecter.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
-            go_lnkfrwd_btn.click(fn=projecter.setCurrentTaskByName, inputs=[go_lnkfrwd_rad], outputs= std_output_list )
+            go_lnkfrwd_btn.click(fn=projecter.setCurrentTaskByName, inputs=[go_lnkfrwd_rad], outputs= tree_outlist )
 
 
             project_clear.click(fn=projecter.clear)

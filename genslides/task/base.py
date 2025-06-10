@@ -1284,11 +1284,16 @@ class BaseTask():
                         input.id = task.id
                         task.method(input)
         else:
-            print('Use links',[t.getName() for t in self.getHoldGarlands()])
+            # print('Use links',[t.getName() for t in self.getHoldGarlands()])
             input = TaskDescription(prompt=self.getForLinkedPrompt(), parent=self)
             for task in self.affect_to_ext_list:
-                input.id = task.id
-                task.method(input)
+                self.transmitInfoToLinked( task, input )
+                # input.id = task.id
+                # task.method(input)
+
+    def transmitInfoToLinked( self, task : TaskDescription, input : TaskDescription ):
+        input.id = task.id
+        task.method(input)
 
     def getQueueList(self):
         return self.queue

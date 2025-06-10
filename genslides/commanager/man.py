@@ -679,7 +679,7 @@ class Jun():
         print('Done in', idx,'range:',[t for t in taskchain])
         return taskchain
 
-    def getBackwardRelatedTaskChain(self, trg_task : Task.BaseTask, max_idx : int):
+    def getBackwardRelatedTaskChainList(self, trg_task : Task.BaseTask, max_idx : int):
         related = [t for t in trg_task.getAllParents() if t in self.task_list]
         idx = 0
         trgs = related.copy()
@@ -697,6 +697,10 @@ class Jun():
             else:
                 break
             idx += 1
+        return related
+    
+    def getBackwardRelatedTaskChain(self, trg_task : Task.BaseTask, max_idx : int):
+        related = self.getBackwardRelatedTaskChainList( trg_task, max_idx)
         for task in related:
             self.addTaskToMultiSelected(task)
 

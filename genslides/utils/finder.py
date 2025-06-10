@@ -129,6 +129,9 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
             rep_text = rep_text.replace(res, task.getName())
         elif arr[1] == 'short_name':
             rep_text = rep_text.replace(res, task.getShortName())
+        elif arr[1] == 'chainnum':
+            numbr = len(manager.getBackwardRelatedTaskChainList( task, 1000))
+            rep_text = rep_text.replace(res, numbr)
         elif arr[1] == getMsgTag():
             if task.checkType("SetOptions"):
                 param = "\nEmpty\n"

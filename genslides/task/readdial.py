@@ -214,3 +214,9 @@ class ReadBranchTask(TextTask):
 
         return content
  
+    def getPathToRead(self):
+        return self.getChoicesByParentTask({
+            'target': 'entry',
+            'value':'file',
+            'name_type':'parent'
+        })

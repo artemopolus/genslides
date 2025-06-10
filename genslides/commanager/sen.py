@@ -777,7 +777,8 @@ class Projecter(Commander.Commander):
     def goBackByLink(self):
         man = self.actioner.getCurrentManager()
         man.goBackByLink()
-        return self.updateMainUIelements()
+        # return self.updateMainUIelements()
+        return self.updateTreeAndAll()
     
     def goToNextChild(self):
         self.actioner.getCurrentManager().goToNextChild()
@@ -1599,7 +1600,7 @@ class Projecter(Commander.Commander):
     def multiselectFrozenTasks(self):
         man = self.actioner.getCurrentManager()
         for task in man.getTasks():
-            if task.isFrozen():
+            if task.isFrozen() and not task.block_on:
                 man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
     
@@ -2076,7 +2077,7 @@ class Projecter(Commander.Commander):
     
     def setCurrentTaskByName(self, name):
         self.actioner.getCurrentManager().setCurrentTaskByName(name)
-        return self.updateMainUIelements()
+        return self.updateTreeAndAll()
     
 
     def setCurManagerColor(self, color):

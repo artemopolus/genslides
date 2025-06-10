@@ -1027,6 +1027,7 @@ class TextTask(BaseTask):
             input.parent = self
             input.stepped = stepped
             input.params = self.copyAllParamsConv()
+            self.updateUpdationInfo(f"transmit from {self.getName()} to {task.target.getName()}")
             # print(self.getName(),'[ frozen=', self.is_freeze,'] linked to')
             task.method(input)
 
@@ -1791,4 +1792,8 @@ class TextTask(BaseTask):
 
             self.setParamStruct(bparam)
         return super().afterActionerUpdateStep(opt)
+    
+    def transmitInfoToLinked(self, task : TaskDescription, input : TaskDescription):
+        self.updateUpdationInfo(f"transmit from {self.getName()} to {task.target.getName()}")
+        return super().transmitInfoToLinked(task, input)
     
