@@ -2559,7 +2559,7 @@ class Actioner():
         man.setCurrentTask(marker_output_task)
 
 
-    def updateDocTrees( self, single = False, input_cmd = "srcdoctree", doc_tag = "full_doc", summary_task_tag = "insert, edit, summary, command", result_task_tag = "result, summary, command"):
+    def updateDocTrees( self, single = False, update_copy = True, input_cmd = "srcdoctree", doc_tag = "full_doc", summary_task_tag = "insert, edit, summary, command", result_task_tag = "result, summary, command"):
         print(f"Update doc trees")
         man = self.getCurrentManager()
         cmdsummary_task = man.getTaskByTag( summary_task_tag )
@@ -2582,18 +2582,19 @@ class Actioner():
                     man.setCurrentTask(cmdsummary_task)
                     self.makeTaskAction("","","Parent","",{"select": task.getName()})
                     man.setCurrentTask( cmdsummary_task )
-                    self.updateFromFork()
-                    result_task = man.getTaskByTagFromTasks(result_task_tag, cmdsummary_task.getAllChildChains())
-                    jres, jcmd = Loader.Loader.loadJsonFromText(result_task.getLastMsgContent2())
-                    if jres and isinstance(jcmd, list):
-                        print(f"Apply {len(jcmd)} commands")
-                        task.clearAutoCommand2param()
-                        for cmd in jcmd:
-                            print(f"Copy command")
-                            task.updateAutoCommand2param(cmd)
-                    else:
-                        print(f"No command")
-                    task.clearDictBuffer()
+                    if update_copy:
+                        self.updateFromFork()
+                        result_task = man.getTaskByTagFromTasks(result_task_tag, cmdsummary_task.getAllChildChains())
+                        jres, jcmd = Loader.Loader.loadJsonFromText(result_task.getLastMsgContent2())
+                        if jres and isinstance(jcmd, list):
+                            print(f"Apply {len(jcmd)} commands")
+                            task.clearAutoCommand2param()
+                            for cmd in jcmd:
+                                print(f"Copy command")
+                                task.updateAutoCommand2param(cmd)
+                        else:
+                            print(f"No command")
+                        task.clearDictBuffer()
                     if single:
                         print(f"Single step was executed")
                         return

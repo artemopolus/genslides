@@ -735,6 +735,7 @@ class JumperTreeTask(InExtTreeTask):
                     jumper.setParent(self.getParent())
 
     def updateIternal(self, input : TaskDescription = None):
+        self.updateUpdationInfo("Update internal")
         self.setChildUpdateState(False)
         eres, eparam = self.getParamStruct('external',True)
         if self.intact is None:
@@ -755,11 +756,13 @@ class JumperTreeTask(InExtTreeTask):
             self.updateJumperTask()
             self.setChildUpdateState(True)
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
+                self.updateUpdationInfo("Disabled action execution")
                 pass
             elif eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
                 results = self.intact.getJsonCmd(eparam['updt_actions'])
                 self.updateUpdationInfo(f"UPDATE Actions with results:{results}")
             else:
+                self.updateUpdationInfo("Deafualt update")
                 self.intact.loadTmpManagerTasks()
                 self.intact.manager.disableOutput2()
                 if eres and 'update_count' in eparam and isinstance(eparam['update_count'], int):

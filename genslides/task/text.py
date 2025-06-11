@@ -388,7 +388,6 @@ class TextTask(BaseTask):
                 if 'track_hash' in param and param['track_hash']:
                     if 'old_text_hash' in param:
                         self.updateParamStruct("check","old_text_hash",param['curr_text_hash'])
-                        pass
                     else:
                         self.updateParamStruct("check","old_text_hash","")
                     self.updateParamStruct("check","curr_text_hash",text_msgs)
@@ -397,6 +396,9 @@ class TextTask(BaseTask):
                 self.updateUpdationInfo("HASH not same")
                 return False
             else:
+                if 'track_hash' in param and param['track_hash']:
+                    self.updateParamStruct("check","old_text_hash", text_msgs)
+                    self.updateParamStruct("check","curr_text_hash",text_msgs)
                 self.updateUpdationInfo("HASH is same")
                 return True
         if self.checkparentsettrue:
@@ -1226,12 +1228,14 @@ class TextTask(BaseTask):
 
 
     def update(self, input: TaskDescription = None):
+        self.updateUpdationInfo(f"Start update")
         self.checkInput(input)
+        if not input.update_on:
+            return "","",""
         out = super().update(input)
         self.internalUpdateParams()
         for child in self.getChilds():
             child.freezeTask()
-        # self.updateParamStruct(param_name='branch', key='code', val=self.getBranchCodeTag())
         return out
 
     def getInfo(self, short=True) -> str:

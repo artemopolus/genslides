@@ -8,7 +8,7 @@ class ParentCommand(SimpleCommand):
     def execute(self) -> None:
         input = self.input
         trg = input.target
-        info = TaskDescription( prompt=trg.getLastMsgContent(), prompt_tag=trg.getLastMsgRole())
+        info = TaskDescription( prompt=trg.getLastMsgContent(), prompt_tag=trg.getLastMsgRole(), update_on=False)
         info.parent = input.parent
         oldpar = trg.parent
         trg.update(info)
@@ -28,7 +28,7 @@ class RemoveParentCommand(SimpleCommand):
     def execute(self) -> None:
         trg = self.input.target
         oldpar = trg.parent
-        info = TaskDescription( prompt=trg.getLastMsgContent(), prompt_tag=trg.getLastMsgRole())
+        info = TaskDescription( prompt=trg.getLastMsgContent(), prompt_tag=trg.getLastMsgRole(), update_on=False)
         info.parent = oldpar
         trg.removeParent()
         trg.update()
