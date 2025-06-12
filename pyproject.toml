@@ -166,6 +166,7 @@ dependencies = [
     "openai>=1.86.0",
     "py7zr>=0.22.0",
     "matplotlib>=3.10.3",
+    "mcp>=1.9.4",
 ]
 
 [tool.uv]

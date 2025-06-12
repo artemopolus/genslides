@@ -13,17 +13,17 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.11'  # You can specify the Python version
+        python-version: '3.13'  # You can specify the Python version
+
+    - name: Install uv
+      run: /
+        curl -LsSf https://astral.sh/uv/install.sh | sh
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        # Assuming your requirements are in requirements.txt
-        pip install -r requirements.txt
-
-    - name: Download NLTK data
-      run: |
-        python -m nltk.downloader popular
+        uv venv
+        source .venv/bin/activate
+        uv sync
 
     - name: Install Graphviz
       run: |
