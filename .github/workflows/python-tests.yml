@@ -16,7 +16,7 @@ jobs:
         python-version: '3.13'  # You can specify the Python version
 
     - name: Install uv
-      run: /
+      run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
 
     - name: Install dependencies
