@@ -1,5 +1,5 @@
-from transformers import GPT2Tokenizer
-from transformers import AutoTokenizer
+# from transformers import GPT2Tokenizer
+# from transformers import AutoTokenizer
 # import openai
 # from openai import OpenAI
 import json
@@ -191,9 +191,9 @@ class LLModel():
 
 
     def getTokensCount(self, text) -> int:
-        tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-        token_cnt = len(tokenizer.encode(text))
-        return token_cnt
+        # tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+        # token_cnt = len(tokenizer.encode(text))
+        return 0
     
     def getPriceFromMsgs(self, msgs):
         tokens = 0
@@ -244,8 +244,9 @@ class LLModel():
                 self.get_tokens_from_message = openai_get_tokens_from_message
             else:
                 if 'pretrained_model_path' in self.params:
-                    self.tokenizer = AutoTokenizer.from_pretrained(
-                                    self.params['pretrained_model_path'], trust_remote_code=True)
+                    self.tokenizer = None
+                    # AutoTokenizer.from_pretrained(
+                                    # self.params['pretrained_model_path'], trust_remote_code=True)
                     self.get_tokens_from_message = self.internalGetTokensFromMessage
                 else:
                     return []

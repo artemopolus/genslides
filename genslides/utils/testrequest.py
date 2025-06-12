@@ -8,7 +8,7 @@ import genslides.utils.parser as pr
 class TestRequester(Requester):
     def __init__(self) -> None:
         super().__init__()
-        self.tokenizer = nltk.data.load('nltk:tokenizers/punkt/english.pickle')
+        # self.tokenizer = None nltk.data.load('nltk:tokenizers/punkt/english.pickle')
         self.path = "examples/"
 
     def getResponse(self, prompt : str):

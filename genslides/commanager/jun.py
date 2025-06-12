@@ -5,7 +5,6 @@ from genslides.task.base import BaseTask
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.request import Requester
 from genslides.utils.searcher import WebSearcher
-from genslides.utils.largetext import Summator
 
 from genslides.utils.savedata import SaveData, getTimeForSaving
 
@@ -15,7 +14,7 @@ import genslides.commands.create as create
 import genslides.commands.parent as parcmd
 import genslides.commands.link as lnkcmd
 
-from genslides.utils.largetext import SimpleChatGPT
+# from genslides.utils.largetext import SimpleChatGPT
 import genslides.utils.writer as writer
 import genslides.utils.loader as Loader
 import genslides.utils.searcher as Sr
@@ -1020,8 +1019,8 @@ class Manager(Man.Jun):
                 out = {"type":param["type"],"parameters":[]}
                 if "type" in param:
                     if param["type"] == "model":
-                        chat = SimpleChatGPT()
-                        val = {"ui":"listbox","key":"model","value":chat.getModelList()}
+                        # chat = SimpleChatGPT()
+                        val = {"ui":"listbox","key":"model","value":""}
                         
                     for k,p in param.items():
                         if k != "type" and k != "model":

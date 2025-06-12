@@ -5,13 +5,10 @@ import genslides.utils.reqhelper as ReqHelper
 import genslides.utils.request as Requester
 import genslides.utils.browser as Browser
 import genslides.utils.browser as WebBrowser
-import genslides.utils.largetext as Summator
 import genslides.utils.readfileman as Reader
 import genslides.utils.filemanager as FileMan
 
 from genslides.utils.searcher import GoogleApiSearcher
-from genslides.utils.chatgptrequester import ChatGPTrequester
-from genslides.utils.chatgptrequester import ChatGPTsimple
 
 from genslides.utils.llmodel import LLModel
 

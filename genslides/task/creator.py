@@ -1,6 +1,6 @@
-from genslides.task.base import BaseTask
+# from genslides.task.base import BaseTask
 from genslides.task.base import TaskDescription
-from genslides.task.richtext import RichTextTask
+# from genslides.task.richtext import RichTextTask
 from genslides.task.request import RequestTask
 from genslides.task.response import ResponseTask
 from genslides.task.collect import CollectTask, GarlandTask, ReceiveTask
@@ -9,19 +9,19 @@ from genslides.task.readfile import ReadFileTask
 from genslides.task.writetofile import WriteToFileTask
 from genslides.task.websurf import WebSurfTask
 from genslides.task.readpage import ReadPageTask
-from genslides.task.largetextresponse import LargeTextResponseTask
+# from genslides.task.largetextresponse import LargeTextResponseTask
 
 from genslides.task.writedialtofile import WriteBranchTask
 from genslides.task.readdial import ReadBranchTask
 
 from genslides.task.gettime import GetTimeTask
 
-from genslides.task.iteration import IterationTask, IterationEndTask
+# from genslides.task.iteration import IterationTask, IterationEndTask
 # from genslides.task.runscript import RunScriptTask
 from genslides.task.websurfarray import WebSurfArrayTask
 from genslides.task.writejsontofile import WriteJsonToFileTask
 
-from genslides.task.largedialresponse import LargeDialResponseTask
+# from genslides.task.largedialresponse import LargeDialResponseTask
 
 import genslides.task.setoptions as so
 from genslides.task.writetofileparam import WriteToFileParamTask
@@ -50,18 +50,18 @@ def createTaskByType(type : str, info : TaskDescription):
     info.type = stype
     info.filename = type
     # print('Create task',type,'-', stype)
-    if stype.endswith("Text"):
-        info.method = RichTextTask
-        return cr.CreateCommand(info)
+    # if stype.endswith("Text"):
+        # info.method = RichTextTask
+        # return cr.CreateCommand(info)
     if stype.endswith("Request"):
         info.method = RequestTask
         return cr.CreateCommand(info)
-    if stype.endswith("LargeTextResponse"):
-        info.method = LargeTextResponseTask
-        return cr.CreateCommand(info)
-    if stype.endswith("LargeDialResponseTask"):
-        info.method = LargeDialResponseTask
-        return cr.CreateCommand(info)
+    # if stype.endswith("LargeTextResponse"):
+        # info.method = LargeTextResponseTask
+        # return cr.CreateCommand(info)
+    # if stype.endswith("LargeDialResponseTask"):
+        # info.method = LargeDialResponseTask
+        # return cr.CreateCommand(info)
     if stype.endswith("Response"):
         info.method = ResponseTask
         return cr.CreateCommand(info)
@@ -104,12 +104,12 @@ def createTaskByType(type : str, info : TaskDescription):
     if stype.endswith("WriteBranch"):
         info.method = WriteBranchTask
         return cr.CreateCommand(info)
-    if stype.endswith("Iteration"):
-        info.method = IterationTask
+    # if stype.endswith("Iteration"):
+        # info.method = IterationTask
         return cr.CreateCommand(info)
-    if stype.endswith("IterationEnd"):
-        info.method = IterationEndTask
-        return cr.CreateCommand(info)
+    # if stype.endswith("IterationEnd"):
+        # info.method = IterationEndTask
+        # return cr.CreateCommand(info)
     if stype.endswith("RunScript"):
         info.method = rs.RunScriptTask
         return cr.CreateCommand(info)
