@@ -1,10 +1,12 @@
-import distutils.dir_util
+# import distutils.dir_util
 import os
 from os import listdir
 from os.path import isfile, join, isdir
 import shutil
 from pathlib import Path
-import distutils
+# import distutils
+
+import setuptools
 
 def deleteFolder( mypath ):
     shutil.rmtree( mypath )
@@ -24,7 +26,9 @@ def deleteFiles(mypath):
 
 def copyDirToDir(src_path : str, trg_path : str):
     createFolder(trg_path)
-    files = distutils.dir_util.copy_tree(src=src_path, dst=trg_path)
+    files = setuptools.dist.Command.copy_tree(infile=src_path, outfile=trg_path)
+    
+    # files = distutils.dir_util.copy_tree(src=src_path, dst=trg_path)
     # print('Copy:\n', files)
 
 def copyFile(filepath, folderpath):

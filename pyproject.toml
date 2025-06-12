@@ -167,6 +167,7 @@ dependencies = [
     "py7zr>=0.22.0",
     "matplotlib>=3.10.3",
     "mcp>=1.9.4",
+    "setuptools>=80.9.0",
 ]
 
 [tool.uv]
