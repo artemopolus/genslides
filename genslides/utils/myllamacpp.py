@@ -15,6 +15,7 @@ def llamacppGetChatCompletion(msgs, params):
             base_url="http://localhost:8080/v1", # "http://<Your api-server IP>:port"
             api_key = "sk-no-key-required"
         )
+        out_param = {}
         if 'response_format' in params and params['response_format'] != "":
             jformat = json.loads(params['response_format'], strict=False)
             # print("With reponse format:",jformat)
@@ -52,7 +53,6 @@ def llamacppGetChatCompletion(msgs, params):
         # print('Openai completion=',completion)
         msg = completion.choices[0].message.content
         # print('Out:', msg)
-        out_param = {}
         try:
             out_param ['intok'] = completion.usage.prompt_tokens,
             out_param ['outtok'] = completion.usage.completion_tokens

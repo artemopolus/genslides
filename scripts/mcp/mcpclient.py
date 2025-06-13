@@ -4,6 +4,7 @@ from contextlib import AsyncExitStack
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+# from mcp.client.sse import sse_client
 
 # from anthropic import Anthropic
 from dotenv import load_dotenv
@@ -15,7 +16,6 @@ class MCPClient:
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
-        # self.anthropic = Anthropic()
 
     async def connect_to_server(self, server_script_path: str):
         """Connect to an MCP server
@@ -62,6 +62,8 @@ class MCPClient:
             "input_schema": tool.inputSchema
         } for tool in response.tools]
 
+        print(f"Messages:\n{messages}\nTools:{available_tools}")
+
         # Initial Claude API call
         # response = self.anthropic.messages.create(
         #     model="claude-3-5-sonnet-20241022",
@@ -73,36 +75,47 @@ class MCPClient:
         # Process response and handle tool calls
         final_text = []
 
-        for content in response.content:
-            if content.type == 'text':
-                final_text.append(content.text)
-            elif content.type == 'tool_use':
-                tool_name = content.name
-                tool_args = content.input
+        if True:
+                tool_name = "get_alerts"
+                tool_args = {"state":"NY"}
                 
                 # Execute tool call
                 result = await self.session.call_tool(tool_name, tool_args)
                 final_text.append(f"[Calling tool {tool_name} with args {tool_args}]")
+                print(f"Result:{result}")
 
-                # Continue conversation with tool results
-                if hasattr(content, 'text') and content.text:
-                    messages.append({
-                      "role": "assistant",
-                      "content": content.text
-                    })
-                messages.append({
-                    "role": "user", 
-                    "content": result.content
-                })
 
-                # Get next response from Claude
-                # response = self.anthropic.messages.create(
-                #     model="claude-3-5-sonnet-20241022",
-                #     max_tokens=1000,
-                #     messages=messages,
-                # )
 
-                final_text.append(response.content[0].text)
+        # for content in response.content:
+        #     if content.type == 'text':
+        #         final_text.append(content.text)
+        #     elif content.type == 'tool_use':
+        #         tool_name = content.name
+        #         tool_args = content.input
+                
+        #         # Execute tool call
+        #         result = await self.session.call_tool(tool_name, tool_args)
+        #         final_text.append(f"[Calling tool {tool_name} with args {tool_args}]")
+
+        #         # Continue conversation with tool results
+        #         if hasattr(content, 'text') and content.text:
+        #             messages.append({
+        #               "role": "assistant",
+        #               "content": content.text
+        #             })
+        #         messages.append({
+        #             "role": "user", 
+        #             "content": result.content
+        #         })
+
+        #         # Get next response from Claude
+        #         # response = self.anthropic.messages.create(
+        #         #     model="claude-3-5-sonnet-20241022",
+        #         #     max_tokens=1000,
+        #         #     messages=messages,
+        #         # )
+
+        #         final_text.append(response.content[0].text)
 
         return "\n".join(final_text)
 
@@ -144,4 +157,3 @@ if __name__ == "__main__":
     import sys
     asyncio.run(main())
 
-    

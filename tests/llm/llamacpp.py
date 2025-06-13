@@ -1,7 +1,7 @@
 import openai
 
 client = openai.OpenAI(
-    base_url="http://localhost:8080/v1", # "http://<Your api-server IP>:port"
+    base_url="http://localhost:5000/v1", # "http://<Your api-server IP>:port"
     api_key = "sk-no-key-required"
 )
 
