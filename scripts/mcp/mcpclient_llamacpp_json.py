@@ -41,6 +41,87 @@ def getToolResponse ( request : str, tools : list):
  
 
 
+
+# def getSimpleResponse( request : str):
+#     try:
+#         client = OpenAI(
+#                 base_url="http://localhost:5000/v1", # "http://<Your api-server IP>:port"
+#                 api_key = "sk-no-key-required"
+#             )
+        
+#         system_prompt = f"""
+#             You're a helpful assistant. Analyze my request and choose if you need to use the tool.
+#         """
+
+#         msgs = []
+#         msgs.append({"role":"system","content":system_prompt})
+#         msgs.append({"role":"user","content":request})
+#         schema = {
+#             "type": "json_schema",
+#             "json_schema": {
+#                 "name": "json_creating",
+#                 "schema": {
+#                     "type": "object",
+#                     "properties": {
+#                         "thinking_process":{"type":"string"},
+#                         "use_tool":{"type":"boolean"},
+#                         "tool_name":{"type":"string"},
+#                         "tool_arguments": {
+#                             "type": "array",
+#                             "items": {
+#                                 "type": "object",
+#                                 "properties": {
+#                                     "argument_name":{"type":"string"},
+#                                     "argument_value": {"type": "string"}
+#                                 },
+#                                 "required": ["argument_name","argument_value"],
+#                                 "additionalProperties": False
+#                             }
+#                         }
+#                     },
+#                     "required": ["thinking_process","use_tool","tool_name","tool_arguments"],
+#                     "additionalProperties": False
+#                 },
+#                 "strict": True
+#             }
+#         }
+
+#         completion = client.chat.completions.create(
+#                     model='model',
+#                     messages=msgs,
+#                     timeout=7200,
+#                     response_format=schema,
+#                     temperature=0.6
+#                 )
+
+#         result = completion.choices[0].message.content
+
+#         return result
+#     except Exception as e:
+#         print(f"llama server api error:\n{e}") 
+#         return ""
+
+
+def getStateFromResponse ( response , scheme : str = "tool"):
+    if scheme == "tool":
+        if hasattr(response, 'finish_reason'):
+            if response.finish_reason == "tool_calls":
+                tool_name = response.message.tool_calls[0].function.name
+                tool_args = json.loads( response.message.tool_calls[0].function.arguments )
+                return "Tool", {"name":tool_name, "args": tool_args, "thinking":""}
+            elif response.finish_reason == "stop":
+                return "Message", {"thinking": response.message.content}
+    elif scheme == "json":
+        message = response.message.content
+        json_response = json.loads( message )
+        if json_response["use_tool"]:
+            tool_name = json_response["tool_name"]
+            tool_args = json_response["tool_arguments"]
+            return "Tool", {"name":tool_name, "args": tool_args, "thinking":json_response["thinking_process"]}
+        else:
+            return "Message", {"thinking": response.message.content}
+    return "None", {}
+
 class MCPClient:
     def __init__(self):
         # Initialize session and client objects
@@ -96,15 +177,18 @@ class MCPClient:
         # Process response and handle tool calls
         final_text = []
 
-        if hasattr(result, 'finish_reason'):
-            if result.finish_reason == "tool_calls":
-                tool_name = result.message.tool_calls[0].function.name
-                tool_args = json.loads( result.message.tool_calls[0].function.arguments )
-                tool_output = await self.session.call_tool(tool_name, tool_args)
-                final_text.append(f"Call tool \"{tool_name}\" with arguments:\n{tool_args}\nResult:\n{tool_output.content[0].text}")
+        state, pack = getStateFromResponse( result )
 
-            elif result.finish_reason == "stop":
-                final_text.append(f"Message:\n{result.message.content}")
+        if state == "Tool":
+            tool_name = pack["name"]
+            tool_args = pack["args"]
+            tool_output = await self.session.call_tool(tool_name, tool_args)
+            final_text.append(f"Call tool \"{tool_name}\" with arguments:\n{tool_args}\n \
+                              Result:\n{tool_output.content[0].text} \
+                              \nThinking:{pack["thinking"]}")
+        elif state == "Message":
+            final_text.append(f"Message:\n{pack["thinking"]}")
+
 
         return "\n".join(final_text)
 
