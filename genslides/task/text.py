@@ -1335,8 +1335,8 @@ class TextTask(BaseTask):
                     return True, param[key]
         return False, ''
 
-    def setParamStruct(self, param):
-        self.updateParam2(param)
+    def setParamStruct(self, param : dict):
+        self.updateParam2(param.copy())
         # print('Init params=',self.params)
         # if 'type' in param:
             # self.params.append(param)

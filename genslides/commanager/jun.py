@@ -118,6 +118,7 @@ class Manager(Man.Jun):
         trg = self.curr_task
         task_list = self.selected_tasks.copy()
         for task in task_list:
+            print(f"Link to {task.getName()}")
             self.curr_task = trg
             role = task.getLastMsgRole()
             self.makeTaskAction("",task_type, action_type, role,[])

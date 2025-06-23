@@ -2601,3 +2601,81 @@ class Actioner():
                 else:
                     print(f"Ignore")
 
+    def createDocTreeTags( self, target = "current_task" ):
+        print("Create Doc Tree")
+        if target == "current_task":
+            param_template = {"type":"tag","text":"","key":""}
+            task = self.getCurrentManager().getCurrentTask()
+            initial_node_task = task
+
+            root = task.getRootParent()
+
+            param_template["text"] = "srcdoctree"
+            root.setParamStruct(param_template)
+
+            param_template["text"] = "insert,autogenerate"
+            task.setParamStruct(param_template)
+
+            self.makeTaskAction("","SetOptions","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "full_doc"
+            task.setParamStruct(param_template)
+            start_doc_task = task
+
+            self.makeTaskAction("","Request","SubTask","user")
+            end_doc_task = self.getCurrentManager().getCurrentTask()
+
+            self.getCurrentManager().setCurrentTask(initial_node_task)
+            self.makeTaskAction("","SetOptions","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "node"
+            task.setParamStruct(param_template)
+            start_marker_task = task
+
+            self.makeTaskAction("","Request","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "marker"
+            task.setParamStruct(param_template)
+            end_marker_task = task
+
+
+            self.makeTaskAction("","ExternalInput","New","user")
+
+            self.getCurrentManager().addTaskToSelectList(end_marker_task)
+
+            self.getCurrentManager().createTreeOnSelectedTasks("SubTask","Listener")
+
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "input_summary"
+            task.setParamStruct(param_template)
+            input_summary_task = task
+            
+            
+            self.makeTaskAction("","Request","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "input_dir"
+            task.setParamStruct(param_template)
+            input_dir_task = task
+
+            self.getCurrentManager().setCurrentTask(input_summary_task)
+
+            # self.getCurrentManager().setCurrentTask(input_dir_task)
+
+            self.makeTaskAction("","Request","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "input_answer"
+            task.setParamStruct(param_template)
+ 
+            self.makeTaskAction("[[current:param:format:result]]","Request","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            task.setParamStruct({
+                    "type":"format",
+                    "target":"[[parent_2:msg_content]]",
+                    "description":"{ \"proposed_text_batch\":{\"prefix\":\"# Proposal\n\",\"suffix\":\"\n\"}, \"justification_for_edit\":{\"prefix\":\"# Reason\n\",\"suffix\":\"\n\"}, \"target_field_key\":{\"reference_marker\":\"[Rq1637]\"} }"
+                    })
+
+            self.makeTaskAction("","Request","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "input_cmd"
+            task.setParamStruct(param_template)
+ 
