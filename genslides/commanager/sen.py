@@ -3432,27 +3432,90 @@ class Projecter(Commander.Commander):
         self.actioner.cleanTasksChat()
         return self.updateMainUIelements()
     
+    def getTasksWithCmds ( self ):
+        out = []
+        for task in self.actioner.getCurrentManager().getTasks():
+            res, actions = task.getAutoActCmds(checkhash = False)
+            if res:
+                out.append( task.getName()) 
+        return gr.Radio(choices=out)
+    
+    def setTaskCmdStatus ( self, name, idxs, status ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            for i in idxs:
+                task.setAutoActCmdStatus(i, status)
+        return self.getTaskCmdList()
+    
+    def removeCmdFromTask (self, name, idxs):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            for i in idxs:
+                task.removeAutoActCmdByIndex( idxs )
+        return self.getTasksWithCmds()
+    
+    def exeTaskCmdsByStatus( self, name, status ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        cmds = []
+        if task:
+            cmds = task.getAutoActCmdByStatus(status)
+            # self.actioner.getJsonCustomCmd( cmds )
+            # return cmds
+        return Loader.Loader.convJsonToText(cmds, indent = 3)
+
+
+ 
+   
+    def acceptTaskCmd( self, name, idxs ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            cmds = []
+            for i in idxs:
+                cmds.append( task.getAutoActCmdAndSetStatus(aa_idx=i, status="accepted") )
+            self.actioner.getJsonCustomCmd(cmds)
+        return self.updateMainUIelements()
+
+    def declineTaskCmd( self, name, idxs ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            cmds = []
+            for i in idxs:
+                cmds.append( task.getAutoActCmdAndSetStatus(aa_idx=i, status="declined") )
+        # return self.updateMainUIelements()
+
+    def sendToRevisionTaskCmd( self, name, idxs ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            cmds = []
+            for i in idxs:
+                cmds.append( task.getAutoActCmdAndSetStatus(aa_idx=i, status="needreview") )
+        # return self.updateMainUIelements()
+    
     def getTaskCmdList( self ):
         task = self.actioner.getCurrentManager().getCurrentTask()
         out = []
         if task:
-            res, actions = task.getAutoCommand2(checkhash = False)
+            res, cmds = task.getAutoActCmds(checkhash = False)
             if res:
-                cres, cmds = Loader.Loader.loadJsonFromText( actions )
-                if cres and isinstance(cmds, list):
+                # cres, cmds = Loader.Loader.loadJsonFromText( actions )
+                if isinstance(cmds, list):
                     for cmd in cmds:
                         if "action" in cmd:
-                            out.append(cmd["action"])
+                            out.append([Loader.Loader.convJsonToText(cmd), cmd["aa_idx"]])
+            else:
+                print("No act")
+        else:
+            print("No task")
         return gr.CheckboxGroup(choices=out)
     
     def getTaskKwargsList ( self, cmdname, key ):
         task = self.actioner.getCurrentManager().getCurrentTask()
         out = ""
         if task:
-            res, actions = task.getAutoCommand2(checkhash = False)
+            res, cmds = task.getAutoActCmds(checkhash = False)
             if res:
-                cres, cmds = Loader.Loader.loadJsonFromText( actions )
-                if cres and isinstance(cmds, list):
+                # cres, cmds = Loader.Loader.loadJsonFromText( actions )
+                if isinstance(cmds, list):
                     for cmd in cmds:
                         if "action" in cmd and cmd["action"] in cmdname and "kwargs" in cmd:
                             for k, value in cmd["kwargs"].items():
