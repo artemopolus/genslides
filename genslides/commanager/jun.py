@@ -765,55 +765,27 @@ class Manager(Man.Jun):
             else:
                 self.makeTaskActionBase(prompt, type, "New", creation_tag, params)
             task_12 = self.curr_task
-            self.slct_task = self.curr_task
-            self.selected_tasks = [self.curr_task]
-            self.curr_task = task2
-            if task1 is not None:
-                task1.addChild(task_12)
-                task2.removeParent()
-                task_12.addChild(task2)
-                task1.saveAllParams()
-                task2.saveAllParams()
-                task_12.saveAllParams()
-            else:
-                task_12.addChild(task2)
-                task2.saveAllParams()
-                task_12.saveAllParams()
-            # self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
-            # try:
-            # if task1 is not None:
-                # print('Parents\nFirst', task1.parent.getName() if task1.parent is not None else 'None','=',task1.getName())
-                # print('Childs')
-                # for ch in task1.getChilds():
-                #     print(ch.getName())
             
-                # print(task1.queue)
-            # if self.slct_task is not None:
-                # print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
-                # print('Childs')
-                # for ch in self.slct_task.getChilds():
-                #     print(ch.getName())
-                # print(self.slct_task.queue)
-                # print('Last', self.curr_task.parent.getName() if self.curr_task.parent is not None else 'None','=', self.curr_task.getName())
-                # print('Childs')
-                # for ch in self.curr_task.getChilds():
-                #     print(ch.getName())
-            # except Exception as e:
-                # print('Error', creation_type,':', e)
-            # print(self.curr_task.queue)
-            # if task1 is not None:
-            #     task1.update()
-            # else:
-            #     self.slct_task.update()
-            # self.curr_task = self.slct_task
-            self.curr_task = task2
-            # print('Selected',self.slct_task.getName())
-            # print('Current', self.curr_task.getName())
+            info = TaskDescription(target=task_12, parent=task2)
+            cmd = edit.InsertTaskCommand(info)
+            self.cmd_list.append(cmd)
+            self.runIteration('')
+
+            self.setCurrentTask( task2 )
+
+            return
+
 
         elif creation_type == "Remove":
             task2 = self.curr_task
-            self.curr_task.extractTask()
-            self.curr_task = task2
+
+            info = TaskDescription(target=task2)
+            cmd = edit.ExtractTaskCommand(info)
+            self.cmd_list.append(cmd)
+            self.runIteration('')
+
+            self.setCurrentTask( task2 )
+
             self.makeTaskActionBase(prompt, type, "Delete", creation_tag, params)
            
         elif creation_type == "ReqResp":

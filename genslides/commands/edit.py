@@ -1,5 +1,5 @@
 from genslides.commands.simple import SimpleCommand
-from genslides.task.base import TaskDescription
+from genslides.task.base import TaskDescription, BaseTask
 import genslides.utils.loader as Ld
 
 class EditCommand(SimpleCommand):
@@ -163,5 +163,86 @@ class MoveUpTaskCommand(SimpleCommand):
         # print('Task B:',[t.getName() for t in task_B.getAllParents()])
         # print('ChildB:',[t.getName() for t in task_B.getChilds()])
 
+class InsertTaskCommand(SimpleCommand):
+    def __init__(self, input):
+        super().__init__(input)
+        self.name = "insert_task"
+        self.task = input.target
+        self.parent = self.task.getParent()
+        self.task2 = input.parent
 
+        print(f"{self.parent.getName()} - {self.task.getName()} - {self.task2.getName()}")
     
+    def execute(self):
+        self.insertTaskInChain( self.parent, self.task2, self.task )
+        return super().execute()
+    
+    def unexecute(self):
+        self.revertInserting( self.parent, self.task2, self.task )
+        return super().unexecute()
+    
+    def insertTaskInChain( self, task1 : BaseTask, task2 : BaseTask, task_12 : BaseTask ):
+        if task1 == task2 or task2 == task_12 or task1 == task_12:
+            return
+        if task1 is not None:
+            task1.addChild(task_12)
+            task2.removeParent()
+            task_12.addChild(task2)
+            task1.saveAllParams()
+            task2.saveAllParams()
+            task_12.saveAllParams()
+        else:
+            task_12.addChild(task2)
+            task2.saveAllParams()
+            task_12.saveAllParams()
+
+    def revertInserting( self, task1 : BaseTask, task2 : BaseTask, task_12 : BaseTask):
+        if task1 is not None:
+            task2.removeParent()
+            task1.addChild(task2)
+
+            task1.saveAllParams()
+            task2.saveAllParams()
+            task_12.saveAllParams()
+        else:
+            task2.removeParent()
+
+            task2.saveAllParams()
+            task_12.saveAllParams()
+
+class ExtractTaskCommand(SimpleCommand):
+    def __init__(self, input):
+        super().__init__(input)
+        self.name = "extract_task"
+        self.task = input.target
+        self.children = self.task.getChilds()
+        self.parent = self.task.getParent()
+
+
+    def execute(self):
+        self.extract ( self.parent, self.task, self.children )
+        return super().execute()
+    
+    def unexecute(self):
+        self.revertExtract ( self.parent, self.task, self.children )
+        return super().unexecute()
+    
+    def extract(self, task1 : BaseTask, task2 : BaseTask, task3_list : list[BaseTask]):
+        for task in task3_list:
+            task.removeParent()
+            if task1 is not None:
+                task1.removeChild(task2)
+                task1.addChild(task)
+            task.saveAllParams()
+        task1.saveAllParams()
+        task2.saveAllParams()
+
+    def revertExtract(self, task1 : BaseTask, task2 : BaseTask, task3_list : list[BaseTask]):
+        task1.addChild( task2 )
+        for task in task3_list:
+            task.removeParent()
+            task2.addChild(task)
+            task.saveAllParams()
+        
+        task1.saveAllParams()
+        task2.saveAllParams()
