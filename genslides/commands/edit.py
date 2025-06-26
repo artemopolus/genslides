@@ -5,6 +5,7 @@ import genslides.utils.loader as Ld
 class EditCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
+        self.name = "edit"
 
     def execute(self) -> None:
         input = self.input
@@ -22,6 +23,7 @@ class EditCommand(SimpleCommand):
 class AppendParamCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
+        self.name = "append_param"
 
     def execute(self) -> None:
         task = self.input.target
@@ -36,6 +38,7 @@ class RemoveParamCommand(SimpleCommand):
     def __init__(self, input: TaskDescription) -> None:
         super().__init__(input)
         self.old_param = None
+        self.name = "remove_param"
     
     def execute(self) -> None:
         task = self.input.target
@@ -53,6 +56,7 @@ class RemoveParamCommand(SimpleCommand):
 class EditParamCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
+        self.name = "edit_param"
     
     def execute(self) -> None:
         task = self.input.target
@@ -88,6 +92,7 @@ class EditParamCommand(SimpleCommand):
 class MoveUpTaskCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
+        self.name = "move_task_up"
 
     def execute(self) -> None:
         task = self.input.target

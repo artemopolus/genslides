@@ -464,34 +464,8 @@ class Projecter(Commander.Commander):
     def setEditChecks(self, checks):
         return self.setEditChecksByManager(checks, self.actioner.getCurrentManager())
 
-    def setEditChecksByManager(self, checks, manager):
-        param = {}
-        param['extedit'] = True
-        names = self.getParamListForEdit()
-        names.remove('resp2req')
-        for name in names:
-            if name =='onlymulti':
-                if 'onlymulti' in checks:
-                    param['trg_tasks'] = [t.getName() for t in manager.multiselect_tasks]
-                else:
-                    param['trg_tasks'] = [t.getName() for t in manager.task_list]
-            else:
-                param[name] = True if name in checks else False
-        param['switch'] = []
-        if 'resp2req' in checks:
-            param['switch'].append({'src':'Response','trg':'Request'})
-        if 'coll2req' in checks:
-            param['switch'].append({'src':'Collect','trg':'Request'})
-            param['switch'].append({'src':'GroupCollect','trg':'Request'})
-            param['switch'].append({'src':'Garland','trg':'Request'})
-            param['switch'].append({'src':'Listener','trg':'Request'})
-        if 'read2req' in checks:
-            param['switch'].append({'src':'ReadFileParam','trg':'Request'})
-        if 'run2req' in checks:
-            param['switch'].append({'src':'RunScript','trg':'Request'})
-            param['switch'].append({'src':'SaveScriptRun','trg':'Request'})
-        return param
-
+    def setEditChecksByManager(self, checks, manager : Manager):
+        return manager.getEditChecks( checks )
     
     def makeRequestAction(self, prompt, selected_action, selected_tag, checks):
         # print('Make',selected_action,'Request\n', prompt)
@@ -880,7 +854,7 @@ class Projecter(Commander.Commander):
         elif mannametype == 'Selected':
             param_json['name'] = man.getSelectedTask().getName()
         elif mannametype == '1st MultiS' and len(man.getMultiSelectedTasks()):
-            param_json['name'] = man.getMultiSelectedTasks()[0]
+            param_json['name'] = man.getMultiSelectedTasks()[0].getName()
         elif mannametype == 'Custom':
             param_json['name'] = custommanname
         
@@ -3053,8 +3027,14 @@ class Projecter(Commander.Commander):
                 sel_cont
         )
 
-
-        out += (self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), stepgraph, rawgraph)
+        cmdinfo = "Commands:\n"
+        cmds = self.actioner.getCurrentManager().getCommandList()
+        cmdinfo += "\n".join(cmds)
+        cmdinfo += f"\ncount: {len(cmds)}"
+        out += (
+            self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), 
+                stepgraph, rawgraph, cmdinfo
+                )
         # print('act:',out)
         return out
         # else:
@@ -3330,27 +3310,6 @@ class Projecter(Commander.Commander):
                 task.loadActionerTasks(self.getActionersList())
                 task.saveAllParams()
 
-    def getBranchInfoFromManager(self, trgtask : BaseTask, manager, checks = []):
-        param = self.setEditChecksByManager(checks, manager)
-        param['task_text'] = True
-        # manager.setCurrentTask(trgtask)
-        branch_infos = trgtask.getTasksFullLinks(param) 
-        for info in branch_infos:
-            tasks = info['branch']
-            print(f"For {trgtask.getName()} : {len(tasks)} task(s)")
-            task_info = []
-            for task in tasks:
-                task_info.append(task.getCopyInfo({}))
-            info['branch'] = task_info
-
-            info['parent_branch'] = info['i_par']
-            info['child_branches'] = info['idx']
-            del info['done']
-            del info['parent']
-            del info['i_par']
-            del info['idx']
-        return branch_infos
-
     def getActionerFromLoadedOrTask(self, name)-> Actioner:
         src_act = self.getActionerByPath( name )
         if src_act == None:
@@ -3364,8 +3323,7 @@ class Projecter(Commander.Commander):
         out = {"trees":[],"links": []}
         trg_man = self.getActionerByPath(actioner_path).getCurrentManager()
         if gettype == 'Current children':
-            
-            out["trees"].append( self.getBranchInfoFromManager( trg_man.getCurrentTask(), trg_man, checks ))
+            out["trees"].append( trg_man.getBranchInfo( trg_man.getCurrentTask(), checks ))
         elif gettype == 'Act diffs':
             src_act = self.getActionerFromLoadedOrTask(actioner_path)
             if src_act == None:
@@ -3391,7 +3349,7 @@ class Projecter(Commander.Commander):
                     diff_tasks.append(src_man.getTaskByName(name))
             rooottreetasks = src_man.getSeparateTreesFromTaskList(diff_tasks)
             for task in rooottreetasks:
-                out["trees"].append( self.getBranchInfoFromManager( task, src_man, checks ) )
+                out["trees"].append( src_man.getBranchInfo( task, checks ))
 
             srclinks = src_man.getLinksList()
             trglinks = trg_man.getLinksList()
@@ -3432,27 +3390,90 @@ class Projecter(Commander.Commander):
         self.actioner.cleanTasksChat()
         return self.updateMainUIelements()
     
+    def getTasksWithCmds ( self ):
+        out = []
+        for task in self.actioner.getCurrentManager().getTasks():
+            res, actions = task.getAutoActCmds(checkhash = False)
+            if res:
+                out.append( task.getName()) 
+        return gr.Radio(choices=out)
+    
+    def setTaskCmdStatus ( self, name, idxs, status ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            for i in idxs:
+                task.setAutoActCmdStatus(i, status)
+        return self.getTaskCmdList()
+    
+    def removeCmdFromTask (self, name, idxs):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            for i in idxs:
+                task.removeAutoActCmdByIndex( idxs )
+        return self.getTasksWithCmds()
+    
+    def exeTaskCmdsByStatus( self, name, status ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        cmds = []
+        if task:
+            cmds = task.getAutoActCmdByStatus(status)
+            # self.actioner.getJsonCustomCmd( cmds )
+            # return cmds
+        return Loader.Loader.convJsonToText(cmds, indent = 3)
+
+
+ 
+   
+    def acceptTaskCmd( self, name, idxs ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            cmds = []
+            for i in idxs:
+                cmds.append( task.getAutoActCmdAndSetStatus(aa_idx=i, status="accepted") )
+            self.actioner.getJsonCustomCmd(cmds)
+        return self.updateMainUIelements()
+
+    def declineTaskCmd( self, name, idxs ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            cmds = []
+            for i in idxs:
+                cmds.append( task.getAutoActCmdAndSetStatus(aa_idx=i, status="declined") )
+        # return self.updateMainUIelements()
+
+    def sendToRevisionTaskCmd( self, name, idxs ):
+        task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
+        if task:
+            cmds = []
+            for i in idxs:
+                cmds.append( task.getAutoActCmdAndSetStatus(aa_idx=i, status="needreview") )
+        # return self.updateMainUIelements()
+    
     def getTaskCmdList( self ):
         task = self.actioner.getCurrentManager().getCurrentTask()
         out = []
         if task:
-            res, actions = task.getAutoCommand2(checkhash = False)
+            res, cmds = task.getAutoActCmds(checkhash = False)
             if res:
-                cres, cmds = Loader.Loader.loadJsonFromText( actions )
-                if cres and isinstance(cmds, list):
+                # cres, cmds = Loader.Loader.loadJsonFromText( actions )
+                if isinstance(cmds, list):
                     for cmd in cmds:
                         if "action" in cmd:
-                            out.append(cmd["action"])
+                            out.append([Loader.Loader.convJsonToText(cmd), cmd["aa_idx"]])
+            else:
+                print("No act")
+        else:
+            print("No task")
         return gr.CheckboxGroup(choices=out)
     
     def getTaskKwargsList ( self, cmdname, key ):
         task = self.actioner.getCurrentManager().getCurrentTask()
         out = ""
         if task:
-            res, actions = task.getAutoCommand2(checkhash = False)
+            res, cmds = task.getAutoActCmds(checkhash = False)
             if res:
-                cres, cmds = Loader.Loader.loadJsonFromText( actions )
-                if cres and isinstance(cmds, list):
+                # cres, cmds = Loader.Loader.loadJsonFromText( actions )
+                if isinstance(cmds, list):
                     for cmd in cmds:
                         if "action" in cmd and cmd["action"] in cmdname and "kwargs" in cmd:
                             for k, value in cmd["kwargs"].items():
@@ -3477,3 +3498,13 @@ class Projecter(Commander.Commander):
         else:
             cmds_str = Loader.Loader.convJsonToText( [ {"action":cmd_name,"kwargs":{}} ], indent=3 )
         return cmds_str
+    
+    def undoCurrentManagerCommand( self ):
+        self.actioner.getCurrentManager().undoCmd()
+        return self.updateMainUIelements()
+    
+    def redoCurrentManagerCommand ( self ):
+        self.actioner.getCurrentManager().redoCmd()
+        return self.updateMainUIelements()
+        
+

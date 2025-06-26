@@ -4,6 +4,8 @@ from genslides.task.base import TaskDescription
 class ParentCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
+        self.name = "parent"
+
 
     def execute(self) -> None:
         input = self.input
@@ -24,6 +26,7 @@ class ParentCommand(SimpleCommand):
 class RemoveParentCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
+        self.name = "unparent"
 
     def execute(self) -> None:
         trg = self.input.target

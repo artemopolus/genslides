@@ -355,7 +355,7 @@ class Actioner():
         if cnt > 0:
             return
         for task in man.getTasks():
-            res, actions = task.getAutoCommand2()
+            res, actions = task.getAutoActCmds()
             if res and self.checkChildExeTasks(task):
                 print('Exe commands by', task.getName())
                 self.getCurrentManager().setCurrentTask(task)
@@ -365,7 +365,7 @@ class Actioner():
         for name in names:
             task = self.getCurrentManager().getTaskByName(name)
             if task != None:
-                res, actions = task.getAutoCommand2()
+                res, actions = task.getAutoActCmds()
                 if res:
                     print('Exe commands by', task.getName())
                     self.getCurrentManager().setCurrentTask(task)
@@ -394,7 +394,7 @@ class Actioner():
     def exeCmdsOfTasks(self, range = "all"):
         for task in self.getCurrentMangerTasksByRange( range ):
             if task:
-                res, actions = task.getAutoCommand2()
+                res, actions = task.getAutoActCmds()
                 if res:
                     print('Exe commands by', task.getName())
                     self.getCurrentManager().setCurrentTask(task)
@@ -1857,12 +1857,15 @@ class Actioner():
                 names.append(task.getName())
         return names
  
-
     def getJsonCmd(self, json_cmds):
+        cmds = json.loads(json_cmds) # parse the JSON array
+        return self.getJsonCustomCmd( cmds )
+
+    def getJsonCustomCmd(self, cmds : list):
+
         # print('Get json command:', json_cmds)
         results = [] # list to hold results of each command
         try:
-            cmds = json.loads(json_cmds) # parse the JSON array
 
             if not isinstance(cmds, list):
                 return "Error: Input must be a JSON array."
@@ -2703,6 +2706,31 @@ class Actioner():
                     for pack in data["targets"]:
                         if body_tag in pack:
                             self.makeTaskAction(pack[body_tag],"Request","SubTask","user")
+    def copyTaskFromManagerToManager( self, src : Manager.Manager, dst : Manager.Manager, tasks : list[BaseTask], param : dict ):
+        for task in tasks:
+            if param.get('reqSraw', False ):
+                prompt=task.getPromptContentForCopyConverted() 
+            else:
+                prompt=task.getPromptContentForCopy() 
+            prompt_tag=task.getLastMsgRole()
+            trg_type = task.getType()
+            param_task = task.copyAllParams(True)
+            prio = task.getPrio()
+
+            parent_name = task.getParent().getName()
+
+            parent = dst.getTaskByName ( parent_name )
+
+            start_task = dst.getCurrentTask()
+
+            dst.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
+
+            if start_task != dst.getCurrentTask():
+                dst.getCurrentTask().setPrio(prio)
+                if param.get('forcecopyresp', False ):
+                    if dst.getCurrentTask().checkType('Response'):
+                        dst.getCurrentTask().forceSetPrompt(prompt)
+
 
 
 

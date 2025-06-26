@@ -69,11 +69,13 @@ class TextTask(BaseTask):
     def resetUpdationInfo( self ):
         self.update_info = ""
 
+    def getTimeInfo ( self ):
+        now = datetime.now()
+        return "(" + now.strftime("%Y-%m-%d %H:%M:%S.%f") + ")"
+
     def updateUpdationInfo( self, info : str ):
         # print(info)
-        now = datetime.now()
-        now_str = "(" + now.strftime("%Y-%m-%d %H:%M:%S.%f") + ")\n"
-        self.update_info += info + now_str
+        self.update_info += info + self.getTimeInfo() + "\n"
 
     def registerOnMsgDiffCallback ( self, callback):
         if callable(callback):  # Проверяем, что callback является вызываемой функцией
@@ -1629,27 +1631,66 @@ class TextTask(BaseTask):
                     except Exception as e:
                         pass
 
-    
+    def updateAutoActCmdInput ( self, tparam ):
+        if 'input' not in tparam:
+            return
+        content = self.findKeyParam(tparam['input'])
+        jres, jobj = Loader.loadJsonFromText( content )
+        if jres:
+            tparam["input"] = Loader.convJsonToText( jobj )
+            tparam["cmds"] = []
+            timeinfo = self.getTimeInfo()
+            for idx, ncmd in enumerate(jobj):
+                print(f"Add {idx}")
+                ncmd["aa_idx"] = idx
+                ncmd["aa_time"] = timeinfo
+                tparam["cmds"].append(ncmd)
+        # else:
+            # print("Not dict")
+
+
+
     def updateAutoCommand2param( self, cmd : dict):
         if "action" in cmd:
+
+            cmd2 = copy.deepcopy( cmd )
+
+            cmd2["aa_idx"] = 0
+            cmd2["aa_time"] = self.getTimeInfo()
+
             tres, tparam = self.getParamStruct("autoactioner", only_current=True)
             if tres:
-                content = self.findKeyParam(tparam['input'])
-                jres, jobj = Loader.loadJsonFromText( content )
-                if jres:
-                    jobj.append( cmd)
-                    tparam['input'] = Loader.convJsonToText( jobj )
+                if "cmds" in tparam:
+                    cmd["aa_idx"] = len(tparam["cmds"])
+                    tparam["cmds"] = tparam["cmds"].append( cmd2 )
                     self.setParamStruct(tparam)
-                    return
                 else:
-                    print("No correct json")
+                    content = self.findKeyParam(tparam['input'])
+                    jres, jobj = Loader.loadJsonFromText( content )
+                    if jres:
+                        jobj.append( cmd)
+                        tparam["input"] = Loader.convJsonToText( jobj )
+                        tparam["cmds"] = []
+                        timeinfo = self.getTimeInfo()
+                        for idx,ncmd in enumerate(jobj):
+                            ncmd["aa_idx"] = idx
+                            ncmd["aa_time"] = timeinfo
+                            tparam["cmds"].append(ncmd)
+
+                        self.setParamStruct(tparam)
+                        return
+                    else:
+                        pass
+                        # print("No correct json")
                     # return
             else:
-                print("No param")
+                pass
+                # print("No param")
             tparam = {
             "type":"autoactioner",
             "input": Loader.convJsonToText([cmd]),
-            "hash": ""
+            "hash": "",
+            "cmds":[cmd2]
             }
             self.setParamStruct(tparam)
         else:
@@ -1660,45 +1701,121 @@ class TextTask(BaseTask):
         if tres:
             tparam['input'] = "" 
             self.setParamStruct(tparam)
-        return super().clearAutoCommand2param()                
+        return super().clearAutoCommand2param()       
 
+
+    def setStatusAutoActCmd ( self, cmds : list, status = "accepted"):
+        ares, aparam = self.getParamStruct("userchoices", only_current=True)
+        if ares:
+            if status in aparam and isinstance(aparam[status], list):
+                pass
+            else:
+                aparam[status] = []
+        else:
+            aparam = {"type":"userchoices","accepted":[], "declined":[], "needreview":[]}
+        for trg in cmds:
+            trg["uc_time"] = self.getTimeInfo()
+            aparam[status].append(trg)
+        self.setParamStruct(aparam)
+
+    def removeAutoActCmdByIndex(self, aa_idxs : list[int]):
+        tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+        if tres and "cmds" in tparam and isinstance(tparam["cmds"], list):
+            to_rem = []
+            for cmd in tparam["cmds"]:
+                if cmd["aa_idx"] in aa_idxs:
+                    to_rem.append(cmd)
+            for cmd in to_rem:
+                tparam["cmds"].remove(cmd)
+            self.setParamStruct(tparam)
+ 
+    def removeAutoActCmd( self, cmds : list, trg ):
+        cmds.remove(trg)
+        for idx, cmd in enumerate(cmds):
+            cmd["aa_idx"] = idx
+
+
+    def setAutoActCmdStatus( self, aa_idx : int, aa_status : int ):
+        tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+        if tres and "cmds" in tparam and isinstance(tparam["cmds"], list):
+            for cmd in tparam["cmds"]:
+                if cmd["aa_idx"] == aa_idx:
+                    cmd["aa_status"] = aa_status
+            self.setParamStruct(tparam)
+
+    def getAutoActCmdByStatus ( self, aa_status : int, remove = False ) -> list[dict]:
+        tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+        out = []
+        if tres and "cmds" in tparam and isinstance(tparam["cmds"], list):
+            for cmd in tparam["cmds"]:
+                if "aa_status" in cmd and cmd["aa_status"] > aa_status:
+                    out.append( cmd )
+        if remove:
+            for cmd in out:
+                tparam["cmds"].remove(cmd)
+            self.setParamStruct(tparam)
+            
+        return out
+ 
+    def getAutoActCmdAndSetStatus( self, aa_idx : int, status = "accepted"):
+        tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+        found = None
+        if tres and "cmds" in tparam and isinstance(tparam["cmds"], list):
+            for cmd in tparam["cmds"]:
+                if cmd["aa_idx"] == aa_idx:
+                    found = cmd
+                    break
+        if found:
+            self.setStatusAutoActCmd([cmd], status)
+            self.removeAutoActCmd( tparam["cmds"], cmd )
+            self.setParamStruct(tparam)
+            return cmd
+        return None
+
+ 
     
-    def getAutoCommand2(self, checkhash = True):
-        print("Get Auto Command2")
+    def getAutoActCmds(self, checkhash = True):
+        # print("Get Auto Command2")
         tres, tparam = self.getParamStruct("autoactioner", only_current=True)
         if tres:
-            print(f"Get commands for auto actioner")
+            # print(f"Get commands for auto actioner")
             exe_type = tparam.get("exe_type","all")
-            content = self.findKeyParam(tparam['input'])
-            hash = Txt.compute_sha256_hash( content )
+            # content = self.findKeyParam(tparam['input'])
+            # hash = Txt.compute_sha256_hash( content )
             if exe_type == "all":
-                if checkhash:
-                    if hash != tparam['hash']:
-                        print("Autoactioner hash is NOT SAME")
-                        tparam['hash'] = hash
-                        self.setParamStruct(tparam)
-                        return True, content
-                    else:
-                        print("Autoactioner hash is SAME")
-                else:
-                    return True, content
-            elif exe_type == "single":
-                cres, cmds = Loader.loadJsonFromText(content)
-                if cres and isinstance(cmds, list):
-                    if hash != tparam.get('hash',''):
-                        tparam['len'] = len(cmds)
-                        tparam['idx'] = 0
-                        tparam['hash'] = hash
-                    elif tparam['len'] < tparam['idx'] + 1:
-                        return super().getAutoCommand()
-                    idx = tparam['idx']
-                    tparam['idx'] += 1
+                if "cmds" not in tparam:
+                    self.updateAutoActCmdInput( tparam )
                     self.setParamStruct(tparam)
-                    return True, Loader.convJsonToText([cmds[idx]])
+                if "cmds" in tparam:
+                    outcmd = []
+                    for trg in tparam["cmds"]:
+                        # del outcmd["aa_idx"]
+                        # del outcmd["aa_time"]
+                        outcmd.append( trg )
+                    if checkhash:
+                        self.setStatusAutoActCmd(tparam["cmds"],"accepted")
+                        tparam["cmds"] = []
+                        self.setParamStruct(tparam)
+                    return True, outcmd
+            # elif exe_type == "single":
+            #     cres, cmds = Loader.loadJsonFromText(content)
+            #     if cres and isinstance(cmds, list):
+            #         if hash != tparam.get('hash',''):
+            #             tparam['len'] = len(cmds)
+            #             tparam['idx'] = 0
+            #             tparam['hash'] = hash
+            #         elif tparam['len'] < tparam['idx'] + 1:
+            #             return super().getAutoCommand()
+            #         idx = tparam['idx']
+            #         tparam['idx'] += 1
+            #         self.setParamStruct(tparam)
+            #         return True, Loader.convJsonToText([cmds[idx]])
             else:
-                print("Unknown exe type")
+                pass
+                # print("Unknown exe type")
         else:
-            print("No params for autocommand")
+            pass
+            # print("No params for autocommand")
         return super().getAutoCommand()
     
     def setAutoCommand(self, type_name, actions: list):

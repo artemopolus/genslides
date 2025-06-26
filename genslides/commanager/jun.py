@@ -1070,10 +1070,52 @@ class Manager(Man.Jun):
         self.cmd_list.append(curr_cmd)
         return self.runCmdList()
 
+    def updateTaskList(self, task, action ):
+        if action == 'create' and task != None:
+            self.addTask(task)
+            self.setCurrentTask( task )
+            return task
+        elif action == 'delete':
+            if task in self.task_list:
+                self.task_list.remove(task)
+            if self.curr_task == None:
+                self.setCurrentTask(self.task_list[0])
+   
+    def undoCmd( self ) -> BaseTask:
+        if len(self.execmd_list) == 0:
+            return None
+        cmd = self.execmd_list.pop()
+        task, action = cmd.unexecute()
+        self.unexecmd_list.append( cmd )
+        if len(self.unexecmd_list) > self.unexecmd_num:
+            self.unexecmd_list.pop(0)
+        self.updateTaskList(task, action )
+        return None
+       
+    def redoCmd( self ) -> BaseTask:
+        if len(self.unexecmd_list) == 0:
+            return None
+        cmd = self.unexecmd_list.pop()
+        task, action = cmd.execute()
+        self.execmd_list.append( cmd )
+        if len(self.execmd_list) > self.execmd_num:
+            self.execmd_list.pop(0)
+        self.updateTaskList(task, action )
+        return None
+ 
+    
+    def executeCommand( self ):
+        cmd = self.cmd_list.pop(0)
+        self.execmd_list.append( cmd )
+        if len(self.execmd_list) > self.execmd_num:
+            self.execmd_list.pop(0)
+        task, action = cmd.execute()
+        return task, action
+
+
     def runCmdList(self) ->BaseTask:
         if len(self.cmd_list) > 0:
-            cmd = self.cmd_list.pop(0)
-            task, action = cmd.execute()
+            task, action = self.executeCommand()
             if action == 'create' and task != None:
                 self.addTask(task)
                 self.curr_task = task
@@ -1096,11 +1138,7 @@ class Manager(Man.Jun):
         log = 'id[' + str(self.index) + '] '
         out = "Report:\n"
         if len(self.cmd_list) > 0:
-            cmd = self.cmd_list.pop(0)
-            log += 'Command executed: '
-            log += str(cmd) + '\n'
-            log += "Command to execute: " + str(len(self.cmd_list)) +"\n"
-            task, action = cmd.execute()
+            task, action = self.executeCommand()
             # print('[=]',action)
             if action == 'create' and task != None:
                 self.addTask(task)
@@ -2302,3 +2340,12 @@ class Manager(Man.Jun):
             else:
                 task.forceCleanChat()
         return super().cleanTasksChat( tasks )
+    
+    def copyTasksUsingInfo(self, infos):
+        for info in infos["trees"]:
+            self.copyTree(info)
+        for info in infos["links"]:
+            task_in = self.getTaskByName(info['to'])
+            task_out = self.getTaskByName(info['from'])
+            self.makeLink(task_in, task_out)
+        return super().copyTasksUsingInfo(infos)
