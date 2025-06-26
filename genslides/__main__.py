@@ -284,10 +284,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # height=800
                         )
                     # with gr.Column(scale=1):
-            with gr.Tab('Raw dial'):
+            with gr.Tab('Raw dial', visible=False):
                 with gr.Row():
                     raw_dial = gr.Chatbot(height=500, type='messages',render_markdown=False)
-            with gr.Tab('Comparing'):
+            with gr.Tab('Comparing', visible=False):
                 with gr.Row():
                     comparison_rad = gr.Radio(label='Comparing type',choices=projecter.getComparisonTypes())
                 with gr.Row():
@@ -354,7 +354,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 moveupplaintext_btn.click(fn=projecter.moveUpTree3PlainText, outputs=plaintext_output)
                 movedwplaintext_btn.click(fn=projecter.moveDwTree3PlainText, outputs=plaintext_output)
                 saveplaintextcontent_btn.click(fn=projecter.editPromptTree3PlainText, inputs=[curtext_txt], outputs=plaintext_output)
-            with gr.Tab('Attention window',visible=True):
+            with gr.Tab('Attention window',visible=False):
                 with gr.Column():
                     UI.textslider(projecter)
             
@@ -609,7 +609,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         rm_branch_btn = gr.Button(value='Remove Branch')
                         rm_tree_btn = gr.Button(value='Remove Tree')
                         delete_reltasks_btn = gr.Button('Delete multiselected')
-                        
+
                 with gr.Tab('Arrange'):
                     with gr.Row():
                         with gr.Column():
@@ -648,7 +648,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         # gr.Button('Update').click(fn=projecter.getBranchMessages, outputs=[branch_msgs])
 
 
-        
+                with gr.Tab('History'):
+                    with gr.Row():
+                        cmdlist_txt = gr.Textbox(label="Commands list", value="", lines=8)
+                    with gr.Row():
+                        undo_btn = gr.Button("Undo")
+                        redo_btn = gr.Button("Redo")
+
+ 
             with gr.Tab('Custom json cmd'):
                                     # with gr.Tab('Task cmds'):
                     with gr.Accordion(label="From task", open=False):
@@ -1142,7 +1149,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_tasks_list, 
                                 selected_prompt
                                ]
-            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
+            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt])
+
+            undo_btn.click(fn=projecter.undoCurrentManagerCommand, outputs=std_output_list)
+            redo_btn.click(fn=projecter.redoCurrentManagerCommand, outputs=std_output_list)
 
             cleanallchats_btn.click(fn=projecter.cleanTasksChat, outputs=std_output_list)
             customjsoncmd_btn.click(fn=projecter.executeJsonCmd, inputs=customjsoncmd_cod, outputs=std_output_list)

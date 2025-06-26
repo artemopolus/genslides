@@ -2604,3 +2604,31 @@ class Actioner():
                 else:
                     print(f"Ignore")
 
+    def copyTaskFromManagerToManager( self, src : Manager.Manager, dst : Manager.Manager, tasks : list[BaseTask], param : dict ):
+        for task in tasks:
+            if param.get('reqSraw', False ):
+                prompt=task.getPromptContentForCopyConverted() 
+            else:
+                prompt=task.getPromptContentForCopy() 
+            prompt_tag=task.getLastMsgRole()
+            trg_type = task.getType()
+            param_task = task.copyAllParams(True)
+            prio = task.getPrio()
+
+            parent_name = task.getParent().getName()
+
+            parent = dst.getTaskByName ( parent_name )
+
+            start_task = dst.getCurrentTask()
+
+            dst.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
+
+            if start_task != dst.getCurrentTask():
+                dst.getCurrentTask().setPrio(prio)
+                if param.get('forcecopyresp', False ):
+                    if dst.getCurrentTask().checkType('Response'):
+                        dst.getCurrentTask().forceSetPrompt(prompt)
+
+
+
+
