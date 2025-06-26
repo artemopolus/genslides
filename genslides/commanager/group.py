@@ -13,6 +13,7 @@ import genslides.utils.finder as finder
 import genslides.utils.loader as Loader
 import genslides.task_tools.text as TextTool
 import genslides.utils.llmodel as LlmModel
+import genslides.utils.readfileman as ReadFM
 import os
 import json
 import shutil
@@ -2661,10 +2662,11 @@ class Actioner():
 
             # self.getCurrentManager().setCurrentTask(input_dir_task)
 
-            self.makeTaskAction("","Request","SubTask","user")
-            task = self.getCurrentManager().getCurrentTask()
             param_template["text"] = "input_answer"
-            task.setParamStruct(param_template)
+            # self.makeTaskAction("","Request","SubTask","user")
+            self.makeTaskAction("","Request","SubTask","user", {"task_params":[param_template]})
+            task = self.getCurrentManager().getCurrentTask()
+            # task.setParamStruct(param_template)
  
             self.makeTaskAction("[[current:param:format:result]]","Request","SubTask","user")
             task = self.getCurrentManager().getCurrentTask()
@@ -2674,8 +2676,33 @@ class Actioner():
                     "description":"{ \"proposed_text_batch\":{\"prefix\":\"# Proposal\n\",\"suffix\":\"\n\"}, \"justification_for_edit\":{\"prefix\":\"# Reason\n\",\"suffix\":\"\n\"}, \"target_field_key\":{\"reference_marker\":\"[Rq1637]\"} }"
                     })
 
-            self.makeTaskAction("","Request","SubTask","user")
-            task = self.getCurrentManager().getCurrentTask()
             param_template["text"] = "input_cmd"
-            task.setParamStruct(param_template)
- 
+            self.makeTaskAction("","Request","SubTask","user", {"task_params":[param_template]})
+            task = self.getCurrentManager().getCurrentTask()
+            # task.setParamStruct(param_template)
+            
+            
+            self.makeTaskAction("","SetOptions","New","user")
+            self.getCurrentManager().addTaskToSelectList(end_doc_task)
+            self.getCurrentManager().createTreeOnSelectedTasks("SubTask","Listener")
+            param_template["text"] = "output_doc"
+            self.makeTaskAction("","Request","SubTask","user", {"task_params":[param_template]})
+
+    def createTaskTreeBasedOnJsonFile( self, jsonfiletype = "function"):
+
+        paths = Loader.Loader.getFilePathsByBrowsing()
+        for path in paths:
+            data = ReadFM.ReadFileMan.readJson( path )
+            if jsonfiletype == "function":
+                name_tag = "function_name"
+                body_tag = "function_info"
+                if "targets" in data and isinstance(data["targets"], list):
+                    param_template = {"type":"tag","text":"","key":""}
+                    param_template["text"] = ",".join(["srcdoctree",data.get("filename","")])
+                    self.makeTaskAction("","SetOptions","New","user", {"task_params":[param_template]})
+                    for pack in data["targets"]:
+                        if body_tag in pack:
+                            self.makeTaskAction(pack[body_tag],"Request","SubTask","user")
+
+
+
