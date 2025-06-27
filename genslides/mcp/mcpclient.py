@@ -4,6 +4,8 @@ from contextlib import AsyncExitStack
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+
+import genslides.utils.llmodel as Llmodel
 # from mcp.client.sse import sse_client
 
 # from anthropic import Anthropic
@@ -23,6 +25,7 @@ class MCPClient:
         Args:
             server_script_path: Path to the server script (.py or .js)
         """
+        print(f"Connect to server by path:{server_script_path}")
         is_python = server_script_path.endswith('.py')
         is_js = server_script_path.endswith('.js')
         if not (is_python or is_js):
@@ -46,8 +49,21 @@ class MCPClient:
         tools = response.tools
         print("\nConnected to server with tools:", [tool.name for tool in tools])
 
-    async def process_query(self, messages : list[dict]):
+    async def process_query(self, messages : list[dict], parameters : dict):
         """Process a query using Claude and available tools"""
+        print("Process query")
+        response = await self.session.list_tools()
+        available_tools = [{ 
+            "type":"function",
+            "function":{
+                "name": tool.name,
+                "description": tool.description,
+                "parameters": tool.inputSchema
+            }
+        } for tool in response.tools]
+
+        chat = Llmodel.LLModel(parameters)
+        return chat.createToolCalling( messages, available_tools )
         # return "\n".join(final_text)
 
     async def chat_loop(self):

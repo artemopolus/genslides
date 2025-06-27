@@ -11,7 +11,7 @@ import genslides.utils.loader as Ld
 
 from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages, openai_decode_token, openai_get_tokens_from_message
 from genslides.utils.myollama import ollamaGetChatCompletion
-from genslides.utils.myllamacpp import llamacppGetChatCompletion
+from genslides.utils.myllamacpp import llamacppGetChatCompletion, llamacppGetToolResponse
 from genslides.utils.mygemini import geminiGetChatCompletion
 from genslides.utils.mytabbyapi import tabbyApiGetChatCompletion, tabbyapi_num_tokens_from_text, tabbyapi_get_model, tabbyapi_switch_model
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
@@ -34,6 +34,13 @@ model_to_method = {
         'default':tabbyApiGetChatCompletion
     }
 }
+
+model_to_toolmethod = {
+    "llamacpp":{
+        'default':llamacppGetToolResponse
+    }
+}
+
 
 server_functions = {
     "tabbyapi": {
@@ -115,6 +122,18 @@ class LLModel():
         if self.load_model_function:
             return self.load_model_function( self.params)
         return False, {}
+    
+    def createToolCalling( self, messages, tools):
+        if self.model in model_to_toolmethod:
+            result, output, params = model_to_toolmethod[self.model]['default'](messages, tools, self.params)
+            out = {
+            'model': self.params['model'],
+            'messages': messages,
+            'result': output
+            }
+            out.update( params )
+            return result, output, out
+        return False, "", {}
 
 
     def createChatCompletion(self, messages) -> (bool, str, dict):

@@ -7,16 +7,36 @@
     иначе — вывод результатов, очистка, и возврат к начальному шагу.
 """
 from genslides.task.text import TextTask, TaskDescription
-from genslides.helpers.async_runner import AsyncRunner
 from genslides.mcp.mcpclient import MCPClient
+import copy
+import asyncio
 
 class MCPTask(TextTask):
     def __init__(self, task_info : TaskDescription):
         super().__init__(task_info, type="MCP")
-        self.runner = AsyncRunner()
-        self.client = MCPClient()
-        self._step = 0
-        self._futures = []
+        pair = {}
+        pair["role"] = task_info.prompt_tag
+        pair["content"] = self.getRichPrompt()
+
+        tmp_msg_list = self.msg_list.copy()
+        tmp_msg_list.append(pair)
+        msg_list_from_file = self.getResponseFromFile(tmp_msg_list, remove_last=False)
+        del tmp_msg_list
+        
+        if len(msg_list_from_file) == 0:
+            self.msg_list.append(pair)
+            self.onEmptyMsgListAction()
+        else:
+            self.onExistedMsgListAction(msg_list_from_file)
+
+    def onEmptyMsgListAction(self):
+        self.saveJsonToFile(self.msg_list)
+        return super().onEmptyMsgListAction()
+
+    def onExistedMsgListAction(self, msg_list_from_file):
+        self.msg_list = msg_list_from_file
+        return super().onExistedMsgListAction(msg_list_from_file)
+
 
     def updateIternal(self, input : TaskDescription =None):
         cres, cparam = self.getParamStruct("mcp_config", only_current=True)
@@ -26,29 +46,14 @@ class MCPTask(TextTask):
         if not cres or not mres:
             return None
         
+        cparam = self.convParamStruct(copy.deepcopy(cparam))
+        mparam = self.convParamStruct(copy.deepcopy(mparam))
+
         if cparam.get("block", False):
-            results = self._execute_block(messages, cparam, mparam)
-            # content = "; ".join(results)
-            # self.appendMessage({"role": self.prompt_tag, "content": content})
+            self._execute_block(messages, cparam, mparam)
             return super().updateIternal(input)
-
-        # Асинхронный режим
-        if self._step == 0:
-            self._execute_async(messages, cparam, mparam)
-            return super().updateIternal(input)
-
-        if self._step == 1:
-            if not all(fut.done() for _, fut in self._futures):
-                pending = [name for name, fut in self._futures if not fut.done()]
-                self.updateUpdationInfo( f"Still processing steps: {pending}." )
-                return super().updateIternal(input)
-            # Финализация
-            results = self._finalize_async(cparam)
-            content = "\n".join(results) + "\nCleanup done. Ready for new input."
-            self.updateUpdationInfo(f"Final:\n{content}")
-            # self.appendMessage({"role": self.prompt_tag, "content": content})
-            return super().updateIternal(input)
-
+        else:
+            self.updateUpdationInfo("No non-blocking task now")
         return None
 
 
@@ -56,69 +61,20 @@ class MCPTask(TextTask):
         """
         Блокирующее выполнение: подключение, обработка, очистка.
         """
-        results = []
-        # Подключение
-        try:
-            fut = self.runner.submit(
-                self.client.connect_to_server(mcp_params.get("path_to_server",""))
-            )
-            fut.result(timeout= mcp_params.get("connect_timeout",10))
-            self.updateUpdationInfo("'connect': OK")
-        except Exception as e:
-            self.updateUpdationInfo(f"'connect': Error: {e}")
-        # Обработка
-        try:
-            fut = self.runner.submit(
-                self.client.process_query(messages, model_params)
-            )
-            proc_res = fut.result(timeout=mcp_params.get("submit_timeout", 30))
-            self.updateUpdationInfo(f"'process': {proc_res}")
-        except Exception as e:
-            self.updateUpdationInfo(f"'process': Error: {e}")
-        # Очистка
-        try:
-            self.runner.submit(self.client.cleanup()).result(timeout=mcp_params.get("cleanup_timeout", 5))
-            self.updateUpdationInfo("'cleanup': OK")
-        except Exception as e:
-            self.updateUpdationInfo(f"'cleanup': Error: {e}")
-        # Остановка
-        self.runner.stop()
-        return results
-    
-    def _execute_async(self, messages : list[dict], mcp_params : dict, model_params : dict):
-        """
-        Неблокирующее выполнение: шаг соединения и обработки, сохранение futures.
-        """
-        conn_fut = self.runner.submit(
-            self.client.connect_to_server(mcp_params.get("path_to_server",""))
-        )
-        proc_fut = self.runner.submit(
-            self.client.process_query(messages, model_params)
-        )
-        self._futures = [("connect", conn_fut), ("process", proc_fut)]
-        self._step = 1
-        self.updateUpdationInfo(f"Started connection and message processing (count={len(messages)}).")
+        def _run_mcp_client_server():
+            async def blocking_mcp_main():
+                client = MCPClient()
+                await client.connect_to_server(mcp_params.get("path_to_server",""))
+                proc_res, response, outparams = await client.process_query(messages, model_params)
+                await client.cleanup()
+                return proc_res, response, outparams
+            return asyncio.run(blocking_mcp_main())
+        
+        self.updateUpdationInfo(f"Execute blocking call")
 
-    def _finalize_async(self, mcp_params : dict):
-        """
-        Финализирует асинхронный режим: ожидает futures, собирает результаты, выполняет cleanup и останавливает runner.
-        Возвращает список строк с результатами.
-        """
-        # results = []
-        # Ожидание и сбор результата
-        for name, fut in self._futures:
-            try:
-                res = fut.result()
-            except Exception as e:
-                res = f"Error: {e}"
-            self.updateUpdationInfo(f"{name!r}: {res}")
-        # Очистка клиента
-        try:
-            self.runner.submit(self.client.cleanup()).result(timeout=mcp_params.get("cleanup_timeout", 5))
-        except Exception:
-            pass
-        # Остановка runner
-        self.runner.stop()
-        # Сброс шага
-        self._step = 0
+        process_result, tool_call_output, tool_call_options = _run_mcp_client_server()
+        if process_result:
+            tool_call_options["type"] = self.getType()
+            tool_call_options["result"] = tool_call_output
+            self.setParamStruct(tool_call_options)
 

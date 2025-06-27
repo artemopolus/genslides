@@ -64,7 +64,7 @@ def llamacppGetChatCompletion(msgs, params):
         print('llama server api error=', e) 
         return False, '', {}
 
-def getToolResponse ( msgs : list[str], tools : list, params : dict):
+def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
     try:
         client = OpenAI(
                 base_url= params.get('url', "http://localhost:5000/v1"), # "http://<Your api-server IP>:port"
@@ -78,9 +78,24 @@ def getToolResponse ( msgs : list[str], tools : list, params : dict):
                     tools=tools,
                     temperature= params.get("temperature", 0.6)
                 )
-        print(f"Response:\n{completion.choices[0]}")
-        return completion.choices[0]
+        out = {}
+        result = completion.choices[0]
+        # print(f"Response:\n{completion.choices[0]}")
+        if hasattr(result, 'finish_reason'):
+            if result.finish_reason == "tool_calls":
+                out['finish_reason'] = "tool_call"
+                tool_name = result.message.tool_calls[0].function.name
+                tool_args = json.loads( result.message.tool_calls[0].function.arguments )
+                out['tools'] = [{"name": tool_name, "args": tool_args}]
+                response = f"Call {tool_name} tool with: {tool_args}"
+            elif result.finish_reason == "stop":
+                out['finish_reason'] = "message"
+                response = result.message.content
+            else:
+                return False, "", {}
+
+        return True, response, out
     except Exception as e:
         print(f"llama server api error:\n{e}") 
-        return ""
+        return False, "", {}
  
