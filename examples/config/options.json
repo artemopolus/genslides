@@ -298,5 +298,14 @@
       "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "description":["","{\n\"target_json_key\":{\"prefix\":\"# Proposal\\n\",\"suffix\":\"\\n\"},\n  \"target_field_key\":{\"reference_key\":\"target_value\"}\n}"],
       "target_field_key":""
+   },
+   {
+      "type": "mcp_config",
+      "path_to_server": "",
+      "result":"",
+      "block": true,
+      "connect_timeout": 10,
+      "submit_timeout": 30,
+      "cleanup_timeout": 5
    }
 ]

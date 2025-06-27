@@ -336,5 +336,20 @@
 				"schema":false
 			}
 		]
+	},
+	"MCP":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "mcp_config",
+				"path_to_server": "",
+				"result":"",
+				"block": true,
+				"connect_timeout": 10,
+				"submit_timeout": 30,
+				"cleanup_timeout": 5
+			}
+		]
 	}
 }

@@ -63,4 +63,24 @@ def llamacppGetChatCompletion(msgs, params):
     except Exception as e:
         print('llama server api error=', e) 
         return False, '', {}
-    
+
+def getToolResponse ( msgs : list[str], tools : list, params : dict):
+    try:
+        client = OpenAI(
+                base_url= params.get('url', "http://localhost:5000/v1"), # "http://<Your api-server IP>:port"
+                api_key = params.get('api_key', "sk-no-key-required")
+            )
+        
+        completion = client.chat.completions.create(
+                    model='model',
+                    messages=msgs,
+                    timeout=7200,
+                    tools=tools,
+                    temperature= params.get("temperature", 0.6)
+                )
+        print(f"Response:\n{completion.choices[0]}")
+        return completion.choices[0]
+    except Exception as e:
+        print(f"llama server api error:\n{e}") 
+        return ""
+ 
