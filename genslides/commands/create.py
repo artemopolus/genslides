@@ -4,6 +4,7 @@ from genslides.commands.simple import SimpleCommand
 class CreateCommand(SimpleCommand):
    def __init__(self, description ) -> None:
       super().__init__(description)
+      self.name = "create"
       self.task = None
    def execute(self):
       # print("execute: Create " + str(self.input.method))
@@ -11,11 +12,13 @@ class CreateCommand(SimpleCommand):
       return self.task, 'create'
    
    def unexecute(self):
+      self.task.beforeRemove()
       return self.task, 'delete'
 
 class RemoveCommand(SimpleCommand):
    def __init__(self, input) -> None:
       super().__init__(input)
+      self.name = "remove"
 
    def execute(self) -> None:
       task = self.input.target

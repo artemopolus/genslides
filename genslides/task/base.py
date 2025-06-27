@@ -1707,3 +1707,14 @@ class BaseTask():
         pass
     def checkDictBuffer ( self ):
         return False
+    
+    def getAutoActCmdAndSetStatus( self, aa_idx : int, status = "accepted"):
+        return None
+    
+    def getAutoActCmdByStatus ( self, aa_status : int, remove = False ) -> list[dict]:
+        return []
+
+    def setAutoActCmdStatus( self, aa_idx : int, aa_status : int ):
+        pass
+    def removeAutoActCmdByIndex(self, aa_idxs : list[int]):
+        pass

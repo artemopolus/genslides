@@ -4,6 +4,7 @@ from genslides.commands.simple import SimpleCommand
 class LinkCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
+        self.name = "link"
 
     def execute(self) -> None:
         task_in = self.input.target
@@ -19,6 +20,7 @@ class LinkCommand(SimpleCommand):
 class UnLinkCommand(SimpleCommand):
     def __init__(self, input) -> None:
         super().__init__(input)
+        self.name = "unlink"
 
     def execute(self) -> None:
         task = self.input.target

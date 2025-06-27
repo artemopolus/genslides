@@ -21,6 +21,12 @@ class Jun():
         self.curr_task = None
         self.slct_task = None
         self.cmd_list = []
+
+        self.execmd_list = []
+        self.execmd_num = 10
+        self.unexecmd_list = []
+        self.unexecmd_num = 10
+
         self.cmd_index = 0
         self.index = 0
         self.branch_idx = 0
@@ -47,6 +53,13 @@ class Jun():
         self.renamed_parent = []
         self.is_executing = False
         self.actioner = None
+
+    def getCommandList(self)->list[str]:
+        out = []
+        for idx, cmd in enumerate(self.execmd_list):
+            out.append(f"{idx}. {cmd.getName()}")
+        return out
+
 
     def setActioner(self, actioner):
         self.actioner = actioner
@@ -1262,3 +1275,72 @@ class Jun():
     def forceUnFreezeParentTasks( self, task : Task.BaseTask ):
         pass
     
+    def copyTasksUsingInfo( self, infos : dict ):
+        pass
+
+    def getEditChecks(self, checks) -> dict:
+        param = {}
+        param['extedit'] = True
+        names = ['copy_editbranch', #Копировать ветвь
+                'resp2req','coll2req','read2req','run2req', #конвертировать задачи этого типа в другой
+                'in','out','link','av_cp', #Параметры ветвления
+                # 'step','chckresp',
+                'sel2par', # Копировать и ветвиться от выбранной задачи
+                'ignrlist',
+                'wishlist', #
+                'upd_cp', #Обновить ветки, которые скопирован ранее через Edit
+                'onlymulti', #Копировать только мультивыбранные задачи
+                'reqSraw', #Конвертировать ссылки в сообщениях при копировании
+                'forcecopyresp', #Насильно вставлять промпт в Response,
+                'check_man', #проверять менеджера,
+                'dont' #нечего не делать просто сохранить 
+                ]
+        
+        names.remove('resp2req')
+        for name in names:
+            if name =='onlymulti':
+                if 'onlymulti' in checks:
+                    param['trg_tasks'] = [t.getName() for t in self.multiselect_tasks]
+                else:
+                    param['trg_tasks'] = [t.getName() for t in self.task_list]
+            else:
+                param[name] = True if name in checks else False
+        param['switch'] = []
+        if 'resp2req' in checks:
+            param['switch'].append({'src':'Response','trg':'Request'})
+        if 'coll2req' in checks:
+            param['switch'].append({'src':'Collect','trg':'Request'})
+            param['switch'].append({'src':'GroupCollect','trg':'Request'})
+            param['switch'].append({'src':'Garland','trg':'Request'})
+            param['switch'].append({'src':'Listener','trg':'Request'})
+        if 'read2req' in checks:
+            param['switch'].append({'src':'ReadFileParam','trg':'Request'})
+        if 'run2req' in checks:
+            param['switch'].append({'src':'RunScript','trg':'Request'})
+            param['switch'].append({'src':'SaveScriptRun','trg':'Request'})
+        return param
+
+    def getBranchInfo(self, trgtask : Task.BaseTask, checks = []):
+        param = self.getEditChecks( checks )
+        param['task_text'] = True
+        branch_infos = trgtask.getTasksFullLinks(param) 
+        for info in branch_infos:
+            tasks = info['branch']
+            print(f"For {trgtask.getName()} : {len(tasks)} task(s)")
+            task_info = []
+            for task in tasks:
+                task_info.append(task.getCopyInfo({}))
+            info['branch'] = task_info
+
+            info['parent_branch'] = info['i_par']
+            info['child_branches'] = info['idx']
+            del info['done']
+            del info['parent']
+            del info['i_par']
+            del info['idx']
+        return branch_infos
+
+    def undoCmd( self ) -> Task.BaseTask:
+        return None
+    def redoCmd( self ) -> Task.BaseTask:
+        return None

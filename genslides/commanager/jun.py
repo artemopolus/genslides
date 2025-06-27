@@ -118,6 +118,7 @@ class Manager(Man.Jun):
         trg = self.curr_task
         task_list = self.selected_tasks.copy()
         for task in task_list:
+            print(f"Link to {task.getName()}")
             self.curr_task = trg
             role = task.getLastMsgRole()
             self.makeTaskAction("",task_type, action_type, role,[])
@@ -764,55 +765,27 @@ class Manager(Man.Jun):
             else:
                 self.makeTaskActionBase(prompt, type, "New", creation_tag, params)
             task_12 = self.curr_task
-            self.slct_task = self.curr_task
-            self.selected_tasks = [self.curr_task]
-            self.curr_task = task2
-            if task1 is not None:
-                task1.addChild(task_12)
-                task2.removeParent()
-                task_12.addChild(task2)
-                task1.saveAllParams()
-                task2.saveAllParams()
-                task_12.saveAllParams()
-            else:
-                task_12.addChild(task2)
-                task2.saveAllParams()
-                task_12.saveAllParams()
-            # self.makeTaskActionBase(prompt, type, "Parent", creation_tag)
-            # try:
-            # if task1 is not None:
-                # print('Parents\nFirst', task1.parent.getName() if task1.parent is not None else 'None','=',task1.getName())
-                # print('Childs')
-                # for ch in task1.getChilds():
-                #     print(ch.getName())
             
-                # print(task1.queue)
-            # if self.slct_task is not None:
-                # print('Middle', self.slct_task.parent.getName() if self.slct_task.parent is not None else 'None','=',self.slct_task.getName())
-                # print('Childs')
-                # for ch in self.slct_task.getChilds():
-                #     print(ch.getName())
-                # print(self.slct_task.queue)
-                # print('Last', self.curr_task.parent.getName() if self.curr_task.parent is not None else 'None','=', self.curr_task.getName())
-                # print('Childs')
-                # for ch in self.curr_task.getChilds():
-                #     print(ch.getName())
-            # except Exception as e:
-                # print('Error', creation_type,':', e)
-            # print(self.curr_task.queue)
-            # if task1 is not None:
-            #     task1.update()
-            # else:
-            #     self.slct_task.update()
-            # self.curr_task = self.slct_task
-            self.curr_task = task2
-            # print('Selected',self.slct_task.getName())
-            # print('Current', self.curr_task.getName())
+            info = TaskDescription(target=task_12, parent=task2)
+            cmd = edit.InsertTaskCommand(info)
+            self.cmd_list.append(cmd)
+            self.runIteration('')
+
+            self.setCurrentTask( task2 )
+
+            return
+
 
         elif creation_type == "Remove":
             task2 = self.curr_task
-            self.curr_task.extractTask()
-            self.curr_task = task2
+
+            info = TaskDescription(target=task2)
+            cmd = edit.ExtractTaskCommand(info)
+            self.cmd_list.append(cmd)
+            self.runIteration('')
+
+            self.setCurrentTask( task2 )
+
             self.makeTaskActionBase(prompt, type, "Delete", creation_tag, params)
            
         elif creation_type == "ReqResp":
@@ -1069,10 +1042,52 @@ class Manager(Man.Jun):
         self.cmd_list.append(curr_cmd)
         return self.runCmdList()
 
+    def updateTaskList(self, task, action ):
+        if action == 'create' and task != None:
+            self.addTask(task)
+            self.setCurrentTask( task )
+            return task
+        elif action == 'delete':
+            if task in self.task_list:
+                self.task_list.remove(task)
+            if self.curr_task == None:
+                self.setCurrentTask(self.task_list[0])
+   
+    def undoCmd( self ) -> BaseTask:
+        if len(self.execmd_list) == 0:
+            return None
+        cmd = self.execmd_list.pop()
+        task, action = cmd.unexecute()
+        self.unexecmd_list.append( cmd )
+        if len(self.unexecmd_list) > self.unexecmd_num:
+            self.unexecmd_list.pop(0)
+        self.updateTaskList(task, action )
+        return None
+       
+    def redoCmd( self ) -> BaseTask:
+        if len(self.unexecmd_list) == 0:
+            return None
+        cmd = self.unexecmd_list.pop()
+        task, action = cmd.execute()
+        self.execmd_list.append( cmd )
+        if len(self.execmd_list) > self.execmd_num:
+            self.execmd_list.pop(0)
+        self.updateTaskList(task, action )
+        return None
+ 
+    
+    def executeCommand( self ):
+        cmd = self.cmd_list.pop(0)
+        self.execmd_list.append( cmd )
+        if len(self.execmd_list) > self.execmd_num:
+            self.execmd_list.pop(0)
+        task, action = cmd.execute()
+        return task, action
+
+
     def runCmdList(self) ->BaseTask:
         if len(self.cmd_list) > 0:
-            cmd = self.cmd_list.pop(0)
-            task, action = cmd.execute()
+            task, action = self.executeCommand()
             if action == 'create' and task != None:
                 self.addTask(task)
                 self.curr_task = task
@@ -1095,11 +1110,7 @@ class Manager(Man.Jun):
         log = 'id[' + str(self.index) + '] '
         out = "Report:\n"
         if len(self.cmd_list) > 0:
-            cmd = self.cmd_list.pop(0)
-            log += 'Command executed: '
-            log += str(cmd) + '\n'
-            log += "Command to execute: " + str(len(self.cmd_list)) +"\n"
-            task, action = cmd.execute()
+            task, action = self.executeCommand()
             # print('[=]',action)
             if action == 'create' and task != None:
                 self.addTask(task)
@@ -2301,3 +2312,12 @@ class Manager(Man.Jun):
             else:
                 task.forceCleanChat()
         return super().cleanTasksChat( tasks )
+    
+    def copyTasksUsingInfo(self, infos):
+        for info in infos["trees"]:
+            self.copyTree(info)
+        for info in infos["links"]:
+            task_in = self.getTaskByName(info['to'])
+            task_out = self.getTaskByName(info['from'])
+            self.makeLink(task_in, task_out)
+        return super().copyTasksUsingInfo(infos)

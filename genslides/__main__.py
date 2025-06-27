@@ -284,10 +284,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # height=800
                         )
                     # with gr.Column(scale=1):
-            with gr.Tab('Raw dial'):
+            with gr.Tab('Raw dial', visible=False):
                 with gr.Row():
                     raw_dial = gr.Chatbot(height=500, type='messages',render_markdown=False)
-            with gr.Tab('Comparing'):
+            with gr.Tab('Comparing', visible=False):
                 with gr.Row():
                     comparison_rad = gr.Radio(label='Comparing type',choices=projecter.getComparisonTypes())
                 with gr.Row():
@@ -354,7 +354,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 moveupplaintext_btn.click(fn=projecter.moveUpTree3PlainText, outputs=plaintext_output)
                 movedwplaintext_btn.click(fn=projecter.moveDwTree3PlainText, outputs=plaintext_output)
                 saveplaintextcontent_btn.click(fn=projecter.editPromptTree3PlainText, inputs=[curtext_txt], outputs=plaintext_output)
-            with gr.Tab('Attention window',visible=True):
+            with gr.Tab('Attention window',visible=False):
                 with gr.Column():
                     UI.textslider(projecter)
             
@@ -601,33 +601,16 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         clean_task_btn = gr.Button(value='Clean')
                 with gr.Tab('All'):
                     cleanallchats_btn = gr.Button('Clean chats')
-                with gr.Tab('Custom json cmd'):
-                    customjsoncmd_cod = gr.Code(label='Json cmd',language='json', interactive=True)
-                    customjsoncmd_btn = gr.Button('Exe JSON cmd')
-                    customjsoncmd_drp = gr.Dropdown(choices=projecter.getJsonCmdsMethods())
-                    customjsoncmdadd_btn = gr.Button('Add cmd')
-                    customjsoncmdadd_btn.click(fn=projecter.appendCmdToJson, inputs=[customjsoncmd_cod, customjsoncmd_drp], outputs=customjsoncmd_cod)
 
-                with gr.Tab('Task cmds'):
-                    gettaskcmds_btn = gr.Button("Get Task commands")
-                    taskcmds_chk = gr.CheckboxGroup(label="Commands")
-                    with gr.Row():
-                        rmtaskcmd_btn = gr.Button('Remove command')
-                        exetaskcmd_btn = gr.Button('Exe task command')
-                    cmdkwargskeys_drd = gr.Dropdown(label='kwargs', choices=["prompt"], value="prompt", allow_custom_value=True)
-                    cmdkwargkeyvalue_mrd = gr.Markdown(label='Value')
-                    taskcmds_chk.change(fn=projecter.getTaskKwargsList, inputs=[taskcmds_chk, cmdkwargskeys_drd], outputs=cmdkwargkeyvalue_mrd)
-
-                    gettaskcmds_btn.click(fn=projecter.getTaskCmdList, outputs=[taskcmds_chk])
-
-            with gr.Tab('Delete'):
+                with gr.Tab('Delete'):
                     with gr.Row():
                         delete_btn = gr.Button(value='Delete')
                         extract_btn = gr.Button(value='Extract')
                         rm_branch_btn = gr.Button(value='Remove Branch')
                         rm_tree_btn = gr.Button(value='Remove Tree')
                         delete_reltasks_btn = gr.Button('Delete multiselected')
-            with gr.Tab('Arrange'):
+
+                with gr.Tab('Arrange'):
                     with gr.Row():
                         with gr.Column():
                             branches_data = gr.Highlightedtext(label="Branches",
@@ -663,6 +646,60 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         #                 })
                         branch_msgs = gr.Markdown()
                         # gr.Button('Update').click(fn=projecter.getBranchMessages, outputs=[branch_msgs])
+
+
+                with gr.Tab('History'):
+                    with gr.Row():
+                        cmdlist_txt = gr.Textbox(label="Commands list", value="", lines=8)
+                    with gr.Row():
+                        undo_btn = gr.Button("Undo")
+                        redo_btn = gr.Button("Redo")
+
+ 
+            with gr.Tab('Custom json cmd'):
+                                    # with gr.Tab('Task cmds'):
+                    with gr.Accordion(label="From task", open=False):
+                        gettaskswithcmds_btn = gr.Button("Get Tasks with Cmds")
+                        gettaskswithcmds_rad = gr.Radio(label="Tasks with Cmds")
+                        gettaskswithcmds_btn.click(fn=projecter.getTasksWithCmds, outputs=gettaskswithcmds_rad)
+                        gettaskcmds_btn = gr.Button("Get Current Task commands")
+                        taskcmds_chk = gr.CheckboxGroup(label="Commands")
+                        with gr.Row():
+                            settaskcmdstatus_btn = gr.Button('Set status')
+                            cmdtaskstatus_sld = gr.Slider(label="Status", minimum=0, maximum=100, value= 50)
+                        with gr.Row():
+                            rmvcmdtask_btn = gr.Button('Remove command')
+                            rmvallcmds_btn = gr.Button('Remove all')
+                        with gr.Row():
+                            execmdsbystatus_btn = gr.Button('Get task cmds by status')
+                            selectcmdbystatus_sld = gr.Slider(label="Status", minimum=0, maximum=100, value= 50)
+                    with gr.Row():
+                        customjsoncmd_drp = gr.Dropdown( label="Default methods", choices=projecter.getJsonCmdsMethods())
+                    with gr.Row():
+                        customjsoncmdadd_btn = gr.Button('Add cmd from default')
+                    with gr.Row():
+                        customjsoncmd_cod = gr.Code(label='Json cmd', language='json', interactive=True)
+                    with gr.Row():
+                        customjsoncmd_btn = gr.Button('Exe JSON cmd')
+ 
+                    
+                    customjsoncmdadd_btn.click(fn=projecter.appendCmdToJson, inputs=[customjsoncmd_cod, customjsoncmd_drp], outputs=customjsoncmd_cod)
+                    settaskcmdstatus_btn.click(fn=projecter.setTaskCmdStatus,
+                                                   inputs = [gettaskswithcmds_rad, taskcmds_chk, cmdtaskstatus_sld],
+                                                   outputs=[taskcmds_chk])
+
+
+                    execmdsbystatus_btn.click(
+                            fn=projecter.exeTaskCmdsByStatus,
+                            inputs = [gettaskswithcmds_rad, selectcmdbystatus_sld],
+                            outputs=[customjsoncmd_cod]
+                        )
+
+                    cmdkwargskeys_drd = gr.Dropdown(label="kwargs", choices=["prompt"], value="prompt", allow_custom_value=True)
+                    cmdkwargkeyvalue_mrd = gr.Markdown(label='Value')
+                    taskcmds_chk.change(fn=projecter.getTaskKwargsList, inputs=[taskcmds_chk, cmdkwargskeys_drd], outputs=cmdkwargkeyvalue_mrd)
+
+                    gettaskcmds_btn.click(fn=projecter.getTaskCmdList, outputs=[taskcmds_chk])
 
                         
             with gr.Tab('Manager'):
@@ -768,7 +805,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                                 pathtotrgtmpman_txt
                                                                 ])
 
-                        with gr.Tab('Other'):
+                        with gr.Tab('Other', visible=False):
                             with gr.Row():
                                 get_savdman_btn = gr.Dropdown(label='Saved managers', interactive=True)
                             with gr.Row():
@@ -794,7 +831,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 # setname_prman_btn = gr.Button('Set name')
                                 # exttaskopt_chgr = gr.CheckboxGroup()
                     # with gr.Tab("Actions"):
-            with gr.Tab('Actions'):
+            with gr.Tab('Actions', visible=False):
                             actions_list = gr.CheckboxGroup(label='Action list')
                             actpack_load_btn.click(fn=projecter.loadActPack, inputs=[actpack_saved_lst], outputs=[actions_list])
                             with gr.Row():
@@ -1112,7 +1149,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_tasks_list, 
                                 selected_prompt
                                ]
-            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph])
+            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt])
+
+            undo_btn.click(fn=projecter.undoCurrentManagerCommand, outputs=std_output_list)
+            redo_btn.click(fn=projecter.redoCurrentManagerCommand, outputs=std_output_list)
 
             cleanallchats_btn.click(fn=projecter.cleanTasksChat, outputs=std_output_list)
             customjsoncmd_btn.click(fn=projecter.executeJsonCmd, inputs=customjsoncmd_cod, outputs=std_output_list)
@@ -1214,7 +1254,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             tmpmanname_txt.submit(fn=manipulate_manager.setCurManagerName, inputs = [tmpmanname_txt], outputs=std_full)
             
-            exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_full)
+            # exe_act_btn.click(fn=manipulate_manager.exeActions, outputs=std_full)
 
             stop_prman_btn.click(fn=manipulate_manager.stopPrivManager, outputs=std_full)
             rset_prman_btn.click(fn=manipulate_manager.rmvePrivManager, outputs=std_full)  
@@ -1326,6 +1366,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=tree_outlist)          
 
             sel_task_btn.click(fn=projecter.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
+            gettaskswithcmds_rad.input(fn=projecter.setCurrentTaskByName, inputs=[gettaskswithcmds_rad], outputs= tree_outlist )
             go_lnkfrwd_btn.click(fn=projecter.setCurrentTaskByName, inputs=[go_lnkfrwd_rad], outputs= tree_outlist )
 
 

@@ -13,6 +13,7 @@ import genslides.utils.finder as finder
 import genslides.utils.loader as Loader
 import genslides.task_tools.text as TextTool
 import genslides.utils.llmodel as LlmModel
+import genslides.utils.readfileman as ReadFM
 import os
 import json
 import shutil
@@ -354,7 +355,7 @@ class Actioner():
         if cnt > 0:
             return
         for task in man.getTasks():
-            res, actions = task.getAutoCommand2()
+            res, actions = task.getAutoActCmds()
             if res and self.checkChildExeTasks(task):
                 print('Exe commands by', task.getName())
                 self.getCurrentManager().setCurrentTask(task)
@@ -364,7 +365,7 @@ class Actioner():
         for name in names:
             task = self.getCurrentManager().getTaskByName(name)
             if task != None:
-                res, actions = task.getAutoCommand2()
+                res, actions = task.getAutoActCmds()
                 if res:
                     print('Exe commands by', task.getName())
                     self.getCurrentManager().setCurrentTask(task)
@@ -393,7 +394,7 @@ class Actioner():
     def exeCmdsOfTasks(self, range = "all"):
         for task in self.getCurrentMangerTasksByRange( range ):
             if task:
-                res, actions = task.getAutoCommand2()
+                res, actions = task.getAutoActCmds()
                 if res:
                     print('Exe commands by', task.getName())
                     self.getCurrentManager().setCurrentTask(task)
@@ -1856,12 +1857,15 @@ class Actioner():
                 names.append(task.getName())
         return names
  
-
     def getJsonCmd(self, json_cmds):
+        cmds = json.loads(json_cmds) # parse the JSON array
+        return self.getJsonCustomCmd( cmds )
+
+    def getJsonCustomCmd(self, cmds : list):
+
         # print('Get json command:', json_cmds)
         results = [] # list to hold results of each command
         try:
-            cmds = json.loads(json_cmds) # parse the JSON array
 
             if not isinstance(cmds, list):
                 return "Error: Input must be a JSON array."
@@ -2600,4 +2604,133 @@ class Actioner():
                         return
                 else:
                     print(f"Ignore")
+
+    def createDocTreeTags( self, target = "current_task" ):
+        print("Create Doc Tree")
+        if target == "current_task":
+            param_template = {"type":"tag","text":"","key":""}
+            task = self.getCurrentManager().getCurrentTask()
+            initial_node_task = task
+
+            root = task.getRootParent()
+
+            param_template["text"] = "srcdoctree"
+            root.setParamStruct(param_template)
+
+            param_template["text"] = "insert,autogenerate"
+            task.setParamStruct(param_template)
+
+            self.makeTaskAction("","SetOptions","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "full_doc"
+            task.setParamStruct(param_template)
+            start_doc_task = task
+
+            self.makeTaskAction("","Request","SubTask","user")
+            end_doc_task = self.getCurrentManager().getCurrentTask()
+
+            self.getCurrentManager().setCurrentTask(initial_node_task)
+            self.makeTaskAction("","SetOptions","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "node"
+            task.setParamStruct(param_template)
+            start_marker_task = task
+
+            self.makeTaskAction("","Request","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "marker"
+            task.setParamStruct(param_template)
+            end_marker_task = task
+
+
+            self.makeTaskAction("","ExternalInput","New","user")
+
+            self.getCurrentManager().addTaskToSelectList(end_marker_task)
+
+            self.getCurrentManager().createTreeOnSelectedTasks("SubTask","Listener")
+
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "input_summary"
+            task.setParamStruct(param_template)
+            input_summary_task = task
+            
+            
+            self.makeTaskAction("","Request","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            param_template["text"] = "input_dir"
+            task.setParamStruct(param_template)
+            input_dir_task = task
+
+            self.getCurrentManager().setCurrentTask(input_summary_task)
+
+            # self.getCurrentManager().setCurrentTask(input_dir_task)
+
+            param_template["text"] = "input_answer"
+            # self.makeTaskAction("","Request","SubTask","user")
+            self.makeTaskAction("","Request","SubTask","user", {"task_params":[param_template]})
+            task = self.getCurrentManager().getCurrentTask()
+            # task.setParamStruct(param_template)
+ 
+            self.makeTaskAction("[[current:param:format:result]]","Request","SubTask","user")
+            task = self.getCurrentManager().getCurrentTask()
+            task.setParamStruct({
+                    "type":"format",
+                    "target":"[[parent_2:msg_content]]",
+                    "description":"{ \"proposed_text_batch\":{\"prefix\":\"# Proposal\n\",\"suffix\":\"\n\"}, \"justification_for_edit\":{\"prefix\":\"# Reason\n\",\"suffix\":\"\n\"}, \"target_field_key\":{\"reference_marker\":\"[Rq1637]\"} }"
+                    })
+
+            param_template["text"] = "input_cmd"
+            self.makeTaskAction("","Request","SubTask","user", {"task_params":[param_template]})
+            task = self.getCurrentManager().getCurrentTask()
+            # task.setParamStruct(param_template)
+            
+            
+            self.makeTaskAction("","SetOptions","New","user")
+            self.getCurrentManager().addTaskToSelectList(end_doc_task)
+            self.getCurrentManager().createTreeOnSelectedTasks("SubTask","Listener")
+            param_template["text"] = "output_doc"
+            self.makeTaskAction("","Request","SubTask","user", {"task_params":[param_template]})
+
+    def createTaskTreeBasedOnJsonFile( self, jsonfiletype = "function"):
+
+        paths = Loader.Loader.getFilePathsByBrowsing()
+        for path in paths:
+            data = ReadFM.ReadFileMan.readJson( path )
+            if jsonfiletype == "function":
+                name_tag = "function_name"
+                body_tag = "function_info"
+                if "targets" in data and isinstance(data["targets"], list):
+                    param_template = {"type":"tag","text":"","key":""}
+                    param_template["text"] = ",".join(["srcdoctree",data.get("filename","")])
+                    self.makeTaskAction("","SetOptions","New","user", {"task_params":[param_template]})
+                    for pack in data["targets"]:
+                        if body_tag in pack:
+                            self.makeTaskAction(pack[body_tag],"Request","SubTask","user")
+    def copyTaskFromManagerToManager( self, src : Manager.Manager, dst : Manager.Manager, tasks : list[BaseTask], param : dict ):
+        for task in tasks:
+            if param.get('reqSraw', False ):
+                prompt=task.getPromptContentForCopyConverted() 
+            else:
+                prompt=task.getPromptContentForCopy() 
+            prompt_tag=task.getLastMsgRole()
+            trg_type = task.getType()
+            param_task = task.copyAllParams(True)
+            prio = task.getPrio()
+
+            parent_name = task.getParent().getName()
+
+            parent = dst.getTaskByName ( parent_name )
+
+            start_task = dst.getCurrentTask()
+
+            dst.createOrAddTask(prompt, trg_type, prompt_tag, parent, param_task)
+
+            if start_task != dst.getCurrentTask():
+                dst.getCurrentTask().setPrio(prio)
+                if param.get('forcecopyresp', False ):
+                    if dst.getCurrentTask().checkType('Response'):
+                        dst.getCurrentTask().forceSetPrompt(prompt)
+
+
+
 
