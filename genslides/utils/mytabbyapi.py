@@ -17,7 +17,7 @@ def tabbyApiGetChatCompletion(msgs, params):
         }
 
         # Add optional parameters to the payload if they are specified
-        optional_params = ['max_tokens', 'temperature', 'repetition_penalty', 'top_k', 'top_p']
+        optional_params = ['max_tokens', 'temperature', 'repetition_penalty', 'top_k', 'top_p', 'tools']
         out_param = {}
         for param in optional_params:
             if param in params:
@@ -133,3 +133,6 @@ def tabbyapi_unload_model( params ):
         return False
 
 
+def tabbyApiGetToolResponse ( msgs : list[str], tools : dict, params : dict):
+    params['tools'] = tools
+    return tabbyApiGetChatCompletion(msgs, params)

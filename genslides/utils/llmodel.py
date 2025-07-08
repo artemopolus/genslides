@@ -13,7 +13,7 @@ from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompl
 from genslides.utils.myollama import ollamaGetChatCompletion
 from genslides.utils.myllamacpp import llamacppGetChatCompletion, llamacppGetToolResponse
 from genslides.utils.mygemini import geminiGetChatCompletion
-from genslides.utils.mytabbyapi import tabbyApiGetChatCompletion, tabbyapi_num_tokens_from_text, tabbyapi_get_model, tabbyapi_switch_model
+from genslides.utils.mytabbyapi import tabbyApiGetChatCompletion, tabbyapi_num_tokens_from_text, tabbyapi_get_model, tabbyapi_switch_model, tabbyApiGetToolResponse
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
 
 model_to_method = {
@@ -38,7 +38,11 @@ model_to_method = {
 model_to_toolmethod = {
     "llamacpp":{
         'default':llamacppGetToolResponse
+    },
+    "tabbyapi":{
+        'default': tabbyApiGetToolResponse
     }
+
 }
 
 
