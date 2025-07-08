@@ -109,14 +109,15 @@ def getNumberBySplitting( text : str):
 
 def getMDcode( tmparg ):
     md_code = []
-    conv = tmparg.pop(0)
-    if conv == 'md':
-        while len(tmparg):
-            if tmparg[0] == '00':
-                tmparg.pop(0)
-                break
-            else:
-                md_code.append(tmparg.pop(0))
+    if len(tmparg):
+        conv = tmparg.pop(0)
+        if conv == 'md':
+            while len(tmparg):
+                if tmparg[0] == '00':
+                    tmparg.pop(0)
+                    break
+                else:
+                    md_code.append(tmparg.pop(0))
     return md_code, tmparg
 
 

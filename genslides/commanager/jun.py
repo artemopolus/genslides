@@ -1632,7 +1632,7 @@ class Manager(Man.Jun):
 
         tasks_chains = self.tc_tasks_chains
         branch = tasks_chains[i]
-        task = branch['branch'][j]
+        task : BaseTask = branch['branch'][j]
         # Заменить на особую функцию, которая используется только в случае копирования, 
         # чтобы переопределить ее для ExtProject. Для этой задачи при копировании важнее не входные переменные, 
         # а результирующее сообщение
@@ -1666,9 +1666,9 @@ class Manager(Man.Jun):
             parent = self.curr_task
         # print('branch',i,'task',j,'par',parent.getName() if parent else "No parent")
         # Меняем тип задачи
-        for switch in self.tc_switch_type:
-            if trg_type == switch['src'] and task not in self.tc_ignore_conv:
-                trg_type = switch['trg']
+        if task not in self.tc_ignore_conv:
+            trg_type = task.getConvertedType( self.tc_switch_type )
+            param_task = task.copyAllParamsAndCheckType(True, self.tc_switch_type)
             # TODO: При изменении типа задач. Если param_task содержит Collect и в нем input равен array, то создать цепочку задач на базе параметров, но только последовательно 
         if task.checkType('ExtProject'):
             res, param = task.getParamStruct('external')
@@ -1799,11 +1799,11 @@ class Manager(Man.Jun):
         links_chain = []
         insert_tasks = []
         for branch in tasks_chains:
-            print(i,'|',
-                  [task.getName() for task in branch['branch']], 
-                  branch['done'],'idx=', branch['idx'],'par=' , 
-                  branch['parent'].getName() if branch['parent'] else "None", 'idx_par=',
-                  branch['i_par'])
+            # print(i,'|',
+            #       [task.getName() for task in branch['branch']], 
+            #       branch['done'],'idx=', branch['idx'],'par=' , 
+            #       branch['parent'].getName() if branch['parent'] else "None", 'idx_par=',
+            #       branch['i_par'])
 
             for link in branch['links']:
                 print(i,'| link:' ,link['out'].getName(),'->',link['in'].getName())

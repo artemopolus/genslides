@@ -439,6 +439,12 @@ class BaseTask():
     def checkType(self, trg: str) -> bool:
         return self.type.endswith(trg)
     
+    def getConvertedType( self, convertions_list : list[dict]):
+        for conv in convertions_list:
+            if self.checkType(conv.get("src", "")):
+                return conv.get("trg", self.getType())
+        return self.getType()
+    
     def isExternalProjectTask(self):
         return False
     

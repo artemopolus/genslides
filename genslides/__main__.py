@@ -118,13 +118,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             parameters_manager = projecter
             with gr.Accordion(label='Session information'):
                 with gr.Tab(label='Loading'):
-                    with gr.Row():
-                        with gr.Column():
+                        with gr.Row():
+                        # with gr.Column():
                             session_names_list = projecter.getSessionNameList()
                             start_session_name = "None" if len(session_names_list) == 0 else session_names_list[0]
                             sessionname_drd = gr.Dropdown(label='Session names list',choices=session_names_list, value= start_session_name)
                             setsessionname_btn = gr.Button('Load from list')
-                        with gr.Column():
+                        with gr.Row():
+                        # with gr.Column():
                             sessioninfo_txt = gr.Textbox(label='Session info', lines=6, value=projecter.readSessionInfo(start_session_name))
                         sessionname_drd.select(fn=projecter.readSessionInfo, inputs=sessionname_drd, outputs=sessioninfo_txt )
                 with gr.Tab(label='Create'):
@@ -555,10 +556,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                                         label="Select actions", 
                                                         value="New"
                                                         )
-                    with gr.Row():
-                        collect_btn = gr.Button(value='Collect')
+                    # with gr.Row():
+                        # collect_btn = gr.Button(value='Collect')
                         shoot_btn = gr.Button(value='Listener')
-                        garland_btn = gr.Button(value='Garland')
+                        # garland_btn = gr.Button(value='Garland')
                 with gr.Tab('Multi'):
                     with gr.Column():
                         with gr.Row():
@@ -576,8 +577,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Row():
                         multicleanresp_btn = gr.Button('Clean MultiTask Chats')
                         set_multi_child_btn = gr.Button('Set Multiselected as Child')
-                        garlandmulti_btn = gr.Button('Garland from multi')
-                        collectmulti_btn = gr.Button('Collect from multi')
+                        # garlandmulti_btn = gr.Button('Garland from multi')
+                        collectmulti_btn = gr.Button('Listeners from multi')
                         gr.Button('Check').click(fn=projecter.checkTaskFiles)
                         minichainstobig_btn = gr.Button('Mini chains to ONE')
                         disunselectchild_btn = gr.Button('Disable unselected children from queue')
@@ -1303,11 +1304,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             response_btn.click(fn=userinput_manager.makeResponseAction, inputs=[prompt, base_action_list, roles_list, extcopy_chck], outputs=std_output_list)
             custom_btn.click(fn=userinput_manager.makeCustomAction, inputs=[prompt, base_action_list, custom_list], outputs=std_output_list)
             
-            collect_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
+            # collect_btn.click(fn=userinput_manager.createCollectTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
             shoot_btn.click(fn=userinput_manager.createShootTreeOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
-            garland_btn.click(fn=userinput_manager.createGarlandOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
+            # garland_btn.click(fn=userinput_manager.createGarlandOnSelectedTasks,inputs=slct_action_list, outputs= std_output_list)
             
-            garlandmulti_btn.click(fn=projecter.createGarlandFromMultiSelect, outputs=std_output_list)
+            # garlandmulti_btn.click(fn=projecter.createGarlandFromMultiSelect, outputs=std_output_list)
             collectmulti_btn.click(fn=projecter.createCollectFromMultiSelect, outputs=std_output_list)
             cmdmulti_exeautocmd_btn.click(fn=projecter.runExeAutoCommandForMultiSelect, inputs=[cmdmulti_exeautocmd_txt], outputs=std_output_list)
             minichainstobig_btn.click(fn=projecter.copyMultiSelectedTasksChainsToSingleChain, outputs=std_output_list)

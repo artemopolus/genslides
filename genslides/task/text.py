@@ -1487,6 +1487,21 @@ class TextTask(BaseTask):
                  text = n_text
         return n_text
     
+    def checkParameterForCopyAllParams( self, param : dict ):
+        return False
+    
+    def copyAllParamsAndCheckType( self, copy_info = False, convertions_list : list[dict] = [] ):
+        params = self.copyAllParams( copy_info= copy_info )
+        for conv in convertions_list:
+            if self.checkType(conv.get("src", "")):
+                to_del = []
+                for p in params:
+                    if self.checkParameterForCopyAllParams( p ):
+                        to_del.append(p)
+                for p in to_del:
+                    params.remove(p) 
+        return params
+    
     def copyAllParams(self, copy_info = False) -> list[dict]:
         pparams = self.getAllParams()
         to_del = []
@@ -1500,6 +1515,8 @@ class TextTask(BaseTask):
             if 'type' in p and p['type'] == 'copied':
                 to_del.append(p)
             if 'type' in p and p['type'] == 'branch':
+                to_del.append(p)
+            if 'type' in p and p['type'] == 'onupdate_result':
                 to_del.append(p)
             # if 'type' in p and p['type'] == 'bud':
             #     to_del.append(p)
@@ -1520,11 +1537,17 @@ class TextTask(BaseTask):
     
     def copyAllParamsConv(self):
         params = self.copyAllParams()
+        outputs = []
         for param in params:
+            conv_param = {}
             for key, value in param.items():
                 if isinstance(value, str):
-                    value = self.findKeyParam(value)
-        return params
+                    converted = self.findKeyParam(value)
+                    conv_param.update({key: converted})
+                else:
+                    conv_param.update({key: value})
+            outputs.append( conv_param )
+        return outputs
     
     def convParamStruct(self, param :dict):
         for key, value in param.items():

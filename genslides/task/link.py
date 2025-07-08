@@ -332,7 +332,7 @@ class ListenerTask(LinkedTask):
             elif lparam['input'] == 'params':
                 input_hash = txt.compute_sha256_hash(json.dumps(params))
                 if curr_hash != input_hash:
-                    self.prompt = prompt
+                    self.prompt = "" 
                     lparam['hash'] = input_hash
                     for param in params:
                         self.setParamStruct(param)
@@ -470,4 +470,18 @@ class ListenerTask(LinkedTask):
                     self.updateUpdationInfo(f"Freeze from links")
                     self.freezeTask()
                     return
+                
+    def getConvertedType(self, convertions_list):
+        for conv in convertions_list:
+            if self.checkType(conv.get("src", "")):
+                lres, lparam = self.getParamStruct("listener")
+                if lres and 'input' in lparam and lparam['input'] == 'params':
+                    return "SetOptions"
+                return conv.get("trg", self.getType())
+        return self.getType()
+    
+    def checkParameterForCopyAllParams(self, param):
+        if 'type' in param and param['type'] == 'listener':
+            return True
+        return super().checkParameterForCopyAllParams(param)
  
