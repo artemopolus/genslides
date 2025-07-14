@@ -871,7 +871,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         iaeditparam_chck = gr.CheckboxGroup(label='Edit task parameters',choices=projecter.getParamListForEdit())
                         interact_jsn = gr.JSON(label='Tasks to create')
                         compareacts_btn.click(fn=projecter.interCompareActioners, inputs=[ia_source_drd, ia_target_drd, interact_rad, iaeditparam_chck], outputs=interact_jsn)
-                        gr.Button('Create Task(s)').click(fn=projecter.copyTasksFromActionerToActioner, inputs=[interact_jsn, ia_target_drd], outputs=interact_jsn)
+                        with gr.Row():
+                            slctstarttasktype_rad = gr.Radio(choices=["New","Current"],label="Select actions", value="New")
+                            gr.Button('Create Task(s)').click(fn=projecter.copyTasksFromActionerToActioner, inputs=[interact_jsn, ia_target_drd, slctstarttasktype_rad], outputs=interact_jsn)
                     with gr.Tab("Special tasks"):
 
                         ia_records = gr.CheckboxGroup(label='None')

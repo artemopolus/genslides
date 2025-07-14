@@ -440,7 +440,7 @@ class Manager(Man.Jun):
         #Try float.
             # ret = float(s)
             return 
-        print("Increment=",inc)
+        # print("Increment=",inc)
         self.task_index += inc
 
         if len(self.task_list) <= self.task_index:
@@ -2200,8 +2200,7 @@ class Manager(Man.Jun):
         return False
     
    
-    def copyTree(self, branch_infos):
-        parent_task = None
+    def copyTree(self, branch_infos, parent_task : BaseTask = None):
         for info in branch_infos:
             if info['parent_branch'] != None:
                 last_branch = branch_infos[info['parent_branch']]['created']

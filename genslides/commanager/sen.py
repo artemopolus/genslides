@@ -1989,7 +1989,9 @@ class Projecter(Commander.Commander):
                     child.setPrio(j)
                     j += 1
         else:
-            task.getParent().getChilds()[idx - 1].setPrio(idx)
+            for child in task.getParent().getChilds():
+                if child.getPrio() == idx - 1:
+                    child.setPrio(idx)
             task.setPrio(idx -1)
         return self.updateMainUIelements()
     
@@ -3359,14 +3361,17 @@ class Projecter(Commander.Commander):
 
         return out
     
-    def copyTasksFromActionerToActioner(self, infos, names):
+    def copyTasksFromActionerToActioner(self, infos, names, starttasktype : str):
         for name in names:
             trg_act = self.getActionerFromLoadedOrTask(name)
             if trg_act:
                 trg_man = trg_act.getCurrentManager()
                 print(f"Copy for {name} by infos")
                 for info in infos["trees"]:
-                    trg_man.copyTree(info)
+                    if starttasktype == "New":
+                        trg_man.copyTree(info)
+                    elif starttasktype == "Current":
+                        trg_man.copyTree(info, trg_man.getCurrentTask())
                 for info in infos["links"]:
                     print(f"Try to make link using:{info}")
                     task_in = trg_man.getTaskByName(info['to'])
