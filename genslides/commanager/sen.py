@@ -3366,7 +3366,7 @@ class Projecter(Commander.Commander):
             trg_act = self.getActionerFromLoadedOrTask(name)
             if trg_act:
                 trg_man = trg_act.getCurrentManager()
-                print(f"Copy for {name} by infos")
+                print(f"Copy for {name} by infos[{starttasktype}]")
                 for info in infos["trees"]:
                     if starttasktype == "New":
                         trg_man.copyTree(info)

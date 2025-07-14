@@ -2211,12 +2211,14 @@ class Manager(Man.Jun):
                     trgtaskname = info['branch'][-1]['parent']
                     if trgtaskname != "":
                         print(f"Try to find task with {trgtaskname}")
-                        parent_task = self.getTaskByName(trgtaskname)
+                        updt_parent_task = self.getTaskByName(trgtaskname)
+                        parent_task = updt_parent_task if updt_parent_task != None else parent_task
                 self.copyBranchPartByInfo(info, parent_task)
         return info
 
 
     def copyBranchPartByInfo(self, branch, start_parent: BaseTask):
+        print(f"Copy branch part by info start from {"None" if start_parent == None else start_parent.getName()}")
         parent = start_parent
         branch['created'] = []
         branch['convert'] = []
