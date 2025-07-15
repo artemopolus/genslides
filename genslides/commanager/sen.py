@@ -611,6 +611,8 @@ class Projecter(Commander.Commander):
         return self.makeTaskAction("","","RemoveTree","")
     def moveCurrentTaskUP(self):
         return self.makeTaskAction("","","MoveCurrTaskUP","")
+    def moveCurrentTaskDownPrefferedToMultiChild ( self ):
+        return self.makeTaskAction("","","MoveCurrTaskDown","")
     
     def uniteTask(self):
         man = self.actioner.getCurrentManager()

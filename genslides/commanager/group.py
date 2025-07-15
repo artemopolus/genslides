@@ -569,6 +569,8 @@ class Actioner():
             return self.manager.makeTaskActionPro(prompt, type1, creation_type, creation_tag, param.get("task_params",[]))
         elif creation_type == "MoveCurrTaskUP":
             return self.manager.moveTaskUP(self.manager.curr_task)
+        elif creation_type == "MoveCurrTaskDown":
+            return self.getCurrentManager().moveTaskDown(self.getCurrentManager().getCurrentTask())
         elif creation_type == "EdCp1":
             return self.manager.copyChildChains(edited_prompt=prompt, apply_link= True, remove_old_link=True)
         elif creation_type == "EdCp2":

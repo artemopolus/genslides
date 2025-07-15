@@ -88,9 +88,77 @@ class EditParamCommand(SimpleCommand):
         task.updateParamStruct(p['name'], p['key'], p['select'])
         return super().unexecute()
     
+class MoveDownTaskCommand( SimpleCommand ):
+    def __init__(self, input):
+        super().__init__(input)
+        self.name = "move_task_down"
+        self.task_B : BaseTask = self.input.parent
+        self.task_C : BaseTask = self.input.target
+        self.task_A : BaseTask = None
+        self.task_B_children : list[BaseTask] = []
+        self.task_C_children : list[BaseTask] = []
+        # move switch parent and target
+    def execute(self):
+        self._moveTaskDown( self.task_B, self.task_C )
+        return super().execute()
+    
+    def unexecute(self):
+        self._moveTaskUp()
+        return super().unexecute()
+
+    def _moveTaskDown(self, parent : BaseTask, target : BaseTask):
+        task_A : BaseTask = parent.getParent()
+        parent_children : list[BaseTask] = parent.getChilds()
+        if target in parent_children:
+            parent_children.remove( target )
+        else:
+            return
+        target_children : list[BaseTask] = target.getChilds()
+
+        self.task_A = task_A
+        self.task_B_children = parent_children
+        self.task_C_children = target_children
+
+        if self.task_A == self.task_B or self.task_A == self.task_C or self.task_B == self.task_C:
+            return
+        target.removeParent()
+        parent.removeParent()
+        task_A.addChild(target)
+        for child in parent_children:
+            child.removeParent()
+            target.addChild(child)
+        target.addChild(parent)
+        for child in target_children:
+            child.removeParent()
+            parent.addChild(child)
+        self._saveAllParameters()
+
+    def _saveAllParameters(self):
+        self.task_A.saveAllParams()
+        self.task_B.saveAllParams()
+        self.task_C.saveAllParams()
+        for child in self.task_B_children:
+            child.saveAllParams()
+        for child in self.task_C_children:
+            child.saveAllParams()
+
+    def _moveTaskUp( self):
+        self.task_B.removeParent()
+        self.task_C.removeParent()
+        self.task_A.addChild(self.task_B)
+        for child in self.task_B_children:
+            child.removeParent()
+            self.task_B.addChild(child)
+        self.task_B.addChild(self.task_C)
+        for child in self.task_C_children:
+            child.removeParent()
+            self.task_C.addChild(child)
+        self._saveAllParameters()
+        
+    
 
 class MoveUpTaskCommand(SimpleCommand):
-    def __init__(self, input) -> None:
+    def __init__(self, input : TaskDescription) -> None:
         super().__init__(input)
         self.name = "move_task_up"
 

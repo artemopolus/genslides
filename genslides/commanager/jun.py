@@ -143,6 +143,20 @@ class Manager(Man.Jun):
         self.cmd_list.append(cmd)
         return self.runIteration('')
 
+    def moveTaskDown( self, task : BaseTask ):
+        children = task.getChilds()
+        if len(children) == 0:
+            print(f"Try to move bud down")
+            return
+        target = children[0]
+        for mtask in self.getMultiSelectedTasks():
+            if mtask in children:
+                target = mtask
+                break
+        info = TaskDescription(parent= task, target=target)
+        cmd = edit.MoveDownTaskCommand( info )
+        self.cmd_list.append(cmd)
+        return self.runIteration('')
 
 
     def getPath(self) -> str:

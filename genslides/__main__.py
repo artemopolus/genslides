@@ -534,7 +534,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         name_info = gr.Text(value="None", label="Task")
      # with gr.Row():
                     with gr.Row():
-                        moveup_btn = gr.Button(value='MoveUP')
+                        moveup_btn = gr.Button(value='Move UP')
+                        movedown_btn = gr.Button(value='Move Down')
                         switchup_btn = gr.Button(value='SwitchUP')
                         reparup_btn = gr.Button(value='ReparentUP')
                         unparent_btn = gr.Button(value='Unparent')
@@ -965,6 +966,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             ette_seltask_txt = gr.Textbox(label='Selected Task')
                             ette_setparam_btn = gr.Button('Set Edited Param')
 
+                        with gr.Row():
                             ette_multitask_info_txt = gr.Textbox(label="Multiselected tasks")
                         with gr.Row():
                             ette_outtreetaskinfo_txt = gr.Textbox(label="OutTreeTask targets")
@@ -1325,6 +1327,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             breakforlink.click(fn=manipulate_manager.breakLinkToChildren, outputs=std_output_list)
             moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
+            movedown_btn.click(fn=manipulate_manager.moveCurrentTaskDownPrefferedToMultiChild, outputs=std_output_list)
             switchup_btn.click(fn=manipulate_manager.swicthCurTaskUP, outputs=std_output_list)
             reparup_btn.click(fn=manipulate_manager.reparentCurTaskChildsUP, outputs=std_output_list)
             unite_btn.click(fn=manipulate_manager.uniteTask, outputs=std_output_list)
