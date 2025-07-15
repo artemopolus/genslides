@@ -954,26 +954,32 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 # with gr.Row():
                                 #     outextreesubtask_btn = gr.Button('Sub OutExtTree')
                     with gr.Tab('Edit'):
-                        # with gr.Row():
+                        with gr.Row():
+                            ette_targets_drd = gr.Dropdown(label='Ext Tree target')
+                            ette_addouttask_btn = gr.Button('Add OutExtTree')
 
                         with gr.Row():
                             ette_getparam_btn = gr.Button('Get ExtTree Task Param')
                             ette_taskname_txt = gr.Textbox(label='Ext Tree name')
-                            ette_targets_drd = gr.Dropdown(label='Ext Tree target')
                             ette_curtask_txt = gr.Textbox(label='Current Task')
                             ette_seltask_txt = gr.Textbox(label='Selected Task')
                             ette_setparam_btn = gr.Button('Set Edited Param')
-                            ette_addouttask_btn = gr.Button('Add OutExtTree')
+
+                            ette_multitask_info_txt = gr.Textbox(label="Multiselected tasks")
+                        with gr.Row():
+                            ette_outtreetaskinfo_txt = gr.Textbox(label="OutTreeTask targets")
 
 
-                            ette_getparam_btn.click(fn=projecter.getExtTreeParams, 
+                        ette_getparam_btn.click(fn=projecter.getExtTreeParams, 
                                                         outputs=[ette_targets_drd, 
                                                                 ette_curtask_txt, 
                                                                 ette_seltask_txt,
                                                                 ette_taskname_txt,
-                                                                ette_addouttask_btn
+                                                                ette_addouttask_btn,
+                                                                ette_multitask_info_txt,
+                                                                ette_outtreetaskinfo_txt
                                                                 ])
-                            ette_setparam_btn.click(fn=projecter.setExtTreeParams, inputs=ette_targets_drd)
+                        ette_setparam_btn.click(fn=projecter.setExtTreeParams, inputs=ette_targets_drd)
                             
                             # gr.Label('Manipulate actioner')
                         # with gr.Row():

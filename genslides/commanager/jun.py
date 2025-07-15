@@ -2218,7 +2218,8 @@ class Manager(Man.Jun):
 
 
     def copyBranchPartByInfo(self, branch, start_parent: BaseTask):
-        print(f"Copy branch part by info start from {"None" if start_parent == None else start_parent.getName()}")
+        start_parent_task_name = "None" if start_parent == None else start_parent.getName()
+        print(f"Copy branch part by info start from {start_parent_task_name}")
         parent = start_parent
         branch['created'] = []
         branch['convert'] = []

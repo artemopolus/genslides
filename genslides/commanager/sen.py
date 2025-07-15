@@ -3270,12 +3270,14 @@ class Projecter(Commander.Commander):
     def getExtTreeParams(self):
         man = self.actioner.getCurrentManager()
         task = man.getCurrentTask()
-        act = task.getActioner()
+        act : Actioner = task.getActioner()
         curr_trg_name = ""
         cur = ""
         sel = ""
         trg_names = []
         isjumpaer = False
+        outexttree_task_names = []
+        multitasks_names = ""
         if act != None:
             eres, eparam = task.getParamStruct('external')
             if eres:
@@ -3284,17 +3286,27 @@ class Projecter(Commander.Commander):
                     isjumpaer = True
                 elif task.checkType("OutExtTree"):
                     curr_trg_name = eparam['target']
+                
+                for child in task.getChilds():
+                    eres, eparam = child.getParamStruct("external", True)
+                    if eres and "target" in eparam:
+                        outexttree_task_names.append(eparam["target"])
+
                 trg_names =[t.getName() for t in act.getCurrentManager().task_list]
                 cur = act.getCurrentManager().getCurrentTask().getName()
                 if act.getCurrentManager().getSelectedTask():
                     sel = act.getCurrentManager().getSelectedTask().getName()
                 else:
                     sel = ""
+            multitasks_names = ", ".join([t.getName() for t in act.getCurrentManager().getMultiSelectedTasks()])
+
         return (gr.Dropdown(value=curr_trg_name, choices=trg_names, interactive=True),
                 cur, 
                 sel, 
                 man.getCurrentTask().getName(),
-                gr.Button(interactive=isjumpaer)
+                gr.Button(interactive=isjumpaer),
+                multitasks_names,
+                ", ".join(outexttree_task_names)
                 )
     
     def setExtTreeParams(self, target_name):
