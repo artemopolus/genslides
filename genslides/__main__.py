@@ -261,19 +261,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             # move2parnt_btn = gr.Button(value='Go up')
                             # move2child_btn = gr.Button(value='Go down')
                             fix_task_btn = gr.Button(value = 'Fix Q Tasks')
-                            with gr.Column():
-                                getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
-                                
-                                inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
-                                updselinexttreetasks_btn = gr.Button('Load selected task acts')
-                                giett_actioners_txt = gr.Textbox(label = 'Target Actioners')
-                                getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk, giett_actioners_txt])
-
-                                acttask_get_btn = gr.Button('Get Action Tasks')
-                                
-                                acttask_names_chk = gr.CheckboxGroup(label='Tasks with actions')
-                                acttask_exe_btn = gr.Button('Execute actions')
-                                acttask_get_btn.click(fn=projecter.getTasksWithActions, outputs=[acttask_names_chk])
+                            # with gr.Column():
                 with gr.Row():
                     dial_block = gr.Chatbot(height=800, layout='panel',type='messages')
 
@@ -479,9 +467,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     selected_prompt = gr.Textbox(value='',lines=4, label='Selected prompt')
                 select_to_list_btn.click(fn=projecter.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
                 with gr.Row():
-                    task_list = gr.Dropdown(choices=manager.getTaskNamesList(), label='Available tasks')
-                    sel_task_btn = gr.Button(value="Set to Current")
-                with gr.Row():
                     trgtexttosearch_txt = gr.Textbox(label='Text to search')
                     foundtaskstext_txt = gr.Textbox(label='Search results')
                     findtextintasks_btn = gr.Button('Find')
@@ -658,7 +643,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         redo_btn = gr.Button("Redo")
 
  
-            with gr.Tab('Custom json cmd'):
+                with gr.Tab('Custom json cmd'):
                                     # with gr.Tab('Task cmds'):
                     with gr.Accordion(label="From task", open=False):
                         gettaskswithcmds_btn = gr.Button("Get Tasks with Cmds")
@@ -704,6 +689,34 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     gettaskcmds_btn.click(fn=projecter.getTaskCmdList, outputs=[taskcmds_chk])
 
                         
+            with gr.Tab('Search'):
+                with gr.Row():
+                    task_list = gr.Dropdown(choices=manager.getTaskNamesList(), label='Available tasks')
+                    sel_task_btn = gr.Button(value="Set to Current")
+                with gr.Row():
+                    giett_actioners_txt = gr.Textbox(label = 'Target Actioners')
+                with gr.Row():
+                    getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
+                    updselinexttreetasks_btn = gr.Button('Load selected task acts')
+                with gr.Row():
+                    inexttretasklist_chk = gr.CheckboxGroup(label='InExtTree Task(s)')
+                    getinexttreetasks_btn.click(fn=projecter.getCurManInExtTreeTasks, outputs=[inexttretasklist_chk, giett_actioners_txt])
+                with gr.Row():
+                    inexttreeactsearch_txt = gr.Textbox(label="Found inexttree")
+                with gr.Row():
+                    gr.Button("Search act in inexttree").click(fn=projecter.searchInExtTreeTasksUsage, outputs=[inexttreeactsearch_txt])
+                with gr.Row():
+                    outexttreeinfo_txt = gr.Textbox(label="OutTreeTask info")
+                with gr.Row():
+                    gr.Button("Get out ext tree info").click(fn=projecter.getOutExtTreeLinkInfo, outputs=[outexttreeinfo_txt])
+
+                with gr.Row():
+                    acttask_get_btn = gr.Button('Get Action Tasks')
+                    acttask_exe_btn = gr.Button('Execute actions')
+                with gr.Row():
+                    acttask_names_chk = gr.CheckboxGroup(label='Tasks with actions')
+                    acttask_get_btn.click(fn=projecter.getTasksWithActions, outputs=[acttask_names_chk])
+
             with gr.Tab('Manager'):
                     # with gr.Row():
                         with gr.Tab('List'):

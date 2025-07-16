@@ -916,7 +916,7 @@ class Projecter(Commander.Commander):
         self.actioner.selectManagerByName(name)
         return self.updateTaskManagerUI()
     
-    def getActionersList(self):
+    def getActionersList(self) -> list[Actioner]:
         return [a['act'] for a in self.actioners_list]
     
     def getActionerSources(self):
@@ -2758,7 +2758,23 @@ class Projecter(Commander.Commander):
         self.actioner.getCurrentManager().fixTasks()
         return self.updateMainUIelements() 
     
-
+    def searchInExtTreeTasksUsage( self ):
+        # man = self.actioner.getCurrentManager()
+        trg_path = self.actioner.getPath()
+        paths = []
+        for act in self.getActionersList():
+            task_names, out_paths = act.getCurManInExtTreeTasks()
+            # paths.extend(out_paths)
+            for idx, path in enumerate(out_paths):
+                if trg_path in path:
+                    if idx < len(task_names):
+                        task_name = task_names[idx]
+                        paths.append( f"{idx}.{act.getPath()}:{task_name}")
+                    # return f"Found {act.getPath()}"
+        
+        text = f"Target:\n{trg_path}\n"
+        text += "\n".join(paths)
+        return text
 
     def getCurManInExtTreeTasks(self):
         man = self.actioner.getCurrentManager()
@@ -3269,6 +3285,17 @@ class Projecter(Commander.Commander):
 
         return output
     
+    def getOutExtTreeLinkInfo( self ):
+        man = self.actioner.getCurrentManager()
+        infos = []
+        for task in man.getTasks():
+            eres, eparam = task.getParamStruct('external')
+            if eres:
+                if task.checkType("OutExtTree"):
+                    curr_trg_name = eparam['target']
+                    infos.append(f"{task.getName()} -> {curr_trg_name}")
+        return "OutTreeTasks:\n" + "\n".join(infos)
+   
     def getExtTreeParams(self):
         man = self.actioner.getCurrentManager()
         task = man.getCurrentTask()
