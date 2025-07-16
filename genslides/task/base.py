@@ -1668,14 +1668,40 @@ class BaseTask():
 
     def blockLinked( self ):
         return self.blockChildren()
+    
+
+    def getForwardRelationTasksChain( self , max_idx = 500):
+        trg_task = self
+        childs = trg_task.getAllChildChains()
+        out_tasks = copy.deepcopy( childs )
+        idx = 0
+        while idx < max_idx:
+            # print('Try range:', idx)
+            new_childs = []
+            for child in childs:
+                for linked in child.getHoldGarlands():
+                    linked_childs = linked.getAllChildChains()
+                    for lch in linked_childs:
+                        if lch not in new_childs and lch not in out_tasks:
+                            new_childs.append(lch)
+                        if lch not in out_tasks:
+                            out_tasks.append(lch)
+            if len(new_childs) == 0:
+                break
+            else:
+                childs = new_childs
+            idx += 1
+        return out_tasks
+ 
 
 
     def unBlockChildren(self):
         self.unBlockTask()
-        for task in self.getAllChildChains():
+        realtedtasks = self.getForwardRelationTasksChain()
+        for task in realtedtasks:
             task.unBlockTask()
-            for linked in task.getHoldGarlands():
-                linked.unBlockChildren()
+            # for linked in task.getHoldGarlands():
+                # linked.unBlockChildren()
     
     def clearRecordParam(self):
         pass
