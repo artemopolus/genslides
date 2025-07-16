@@ -1549,6 +1549,14 @@ class TextTask(BaseTask):
             outputs.append( conv_param )
         return outputs
     
+    
+    def getParamStructConverted(self, param_name, only_current = False):
+        res, param = self.getParamStruct( param_name, only_current )
+        if res:
+            param = self.convParamStruct(copy.deepcopy(param))
+            return res, param
+        return res, copy.deepcopy(param)
+
     def convParamStruct(self, param :dict):
         for key, value in param.items():
             if isinstance(value, str):

@@ -154,6 +154,8 @@ class LLModel():
             'model': self.params['model'],
             'messages': messages
             }
+        if 'response_format' in self.params:
+            out['response_format'] = self.params['response_format']
         res, response, p = self.method(messages, self.params)
         mparam = self.params
         out['result'] = response
