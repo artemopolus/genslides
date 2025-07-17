@@ -25,6 +25,10 @@ def convert_file( target_file_path, output_file_path ):
     # Путь к файлу, который нужно проанализировать
     target_file = Path(target_file_path)
     output_file = Path(output_file_path)
+    if not target_file.is_file():
+        return
+    if target_file.suffix != ".py":
+        return
     if output_file.is_dir():
         output_file = output_file / target_file.stem
         output_file = output_file.with_suffix(".json")
@@ -59,7 +63,7 @@ def convert_file( target_file_path, output_file_path ):
     if len(base_global_vars):
         output_jsonfile["targets"].append({
                 "type":"variables",
-                "parent_class": "None",
+                "parent_target": "None",
                 "description": "global_vars",
                 "body": base_global_vars_text
         })
@@ -73,7 +77,7 @@ def convert_file( target_file_path, output_file_path ):
             base_global_method_text += pyparser.get_function_info( name )
         output_jsonfile["targets"].append({
                 "type":"method",
-                "parent_class": "None",
+                "parent_target": "None",
                 "description": "global methods",
                 "body": base_global_method_text
         })
@@ -83,7 +87,7 @@ def convert_file( target_file_path, output_file_path ):
     for target_class_name, target_class_line in base_class_names:
         output_jsonfile["targets"].append({
                 "type":"class",
-                "parent_class": target_class_name,
+                "parent_target": target_class_name,
                 "name": target_class_name,
                 "body": target_class_line
             })
@@ -95,7 +99,7 @@ def convert_file( target_file_path, output_file_path ):
             target_method_body_text = pyparser.get_class_function_body(code, target_class_name, method_name)
             output_jsonfile["targets"].append({
                 "type":"method",
-                "parent_class": target_class_name,
+                "parent_target": target_class_name,
                 "name": method_name,
                 "description": f"method {method_name} : class {target_class_name}",
                 "body": target_method_body_text

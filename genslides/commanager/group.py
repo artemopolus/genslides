@@ -14,6 +14,7 @@ import genslides.utils.loader as Loader
 import genslides.task_tools.text as TextTool
 import genslides.utils.llmodel as LlmModel
 import genslides.utils.readfileman as ReadFM
+import genslides.utils.writer as Writer
 import os
 import json
 import shutil
@@ -2693,21 +2694,57 @@ class Actioner():
             param_template["text"] = "output_doc"
             self.makeTaskAction("","Request","SubTask","user", {"task_params":[param_template]})
 
-    def createTaskTreeBasedOnJsonFile( self, jsonfiletype = "function"):
+    # def createTaskTreeBasedFromJsonFiles( self, jsonfiletype = "function"):
+    #     paths = Loader.Loader.getFilePathsByBrowsing()
+    #     for path in paths:
+    #         self.createTaskTreeBasedOnJsonFile( path )
 
-        paths = Loader.Loader.getFilePathsByBrowsing()
-        for path in paths:
-            data = ReadFM.ReadFileMan.readJson( path )
-            if jsonfiletype == "function":
-                name_tag = "function_name"
-                body_tag = "function_info"
-                if "targets" in data and isinstance(data["targets"], list):
-                    param_template = {"type":"tag","text":"","key":""}
-                    param_template["text"] = ",".join(["srcdoctree",data.get("filename","")])
-                    self.makeTaskAction("","SetOptions","New","user", {"task_params":[param_template]})
-                    for pack in data["targets"]:
-                        if body_tag in pack:
-                            self.makeTaskAction(pack[body_tag],"Request","SubTask","user")
+    def loadJsonFileWithTemplate( self, path ):
+        self.convertJsonFileToTemplateTreeTasks( path )
+    
+    def convertJsonFileToTemplateTreeTasks( self, path ):
+        data = ReadFM.ReadFileMan.readJson( path )
+        if "version" not in data:
+            return
+        name_tag = "name"
+        body_tag = "body"
+
+        if "converted" in data and data["converted"]:
+            pass
+
+        elif "targets" in data and isinstance(data["targets"], list): 
+            # first loading
+            man = self.getCurrentManager()
+            start_task = man.getTaskByTag("srcdoctree,start")
+            if start_task == None:
+                param_template = {"type":"tag","text":"","key":""}
+                param_template["text"] = ",".join(["srcdoctree",data.get("filename","")])
+                self.makeTaskAction("","SetOptions","New","user", {"task_params":[param_template]})
+                start_task = man.getCurrentTask()
+            else:
+                man.setCurrentTask(start_task)
+            prev_task_name = start_task.getName()
+            for pack in data["targets"]:
+                if body_tag in pack:
+                    if len(start_task.getChilds()):
+                        child = start_task.getChilds()[0]
+                        man.setCurrentTask( child )
+                        tags = [start_task.getName(),pack.get("type","")]
+                        if "name" in pack:
+                            tags.append(pack["name"])
+                        if "parent_target" in pack:
+                            tags.append(pack["parent_target"])
+                        
+                        task_tag_param = {"type":"tag",
+                                          "text":",".join(tags),
+                                          "key":""}
+
+                        self.makeTaskAction(pack[body_tag],"Request","Insert","user",{"task_params":[task_tag_param]})
+                        pack["parent_task"] = prev_task_name
+                        prev_task_name = man.getCurrentTask().getName()
+        Writer.writeJsonToFile(path, data, indent=4)
+
+
     def copyTaskFromManagerToManager( self, src : Manager.Manager, dst : Manager.Manager, tasks : list[BaseTask], param : dict ):
         for task in tasks:
             if param.get('reqSraw', False ):
