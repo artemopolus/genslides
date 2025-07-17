@@ -234,6 +234,24 @@ def get_global_functions(code):
 
     return function_names
 
+def get_class_names_lines( code ):
+    tree = parser.parse(bytes(code, "utf8"))
+    root_node = tree.root_node
+    class_names = []
+
+    for node in root_node.children:  # Iterate only through direct children of the root
+        if node.type == 'class_definition':
+            class_name_node = node.child_by_field_name('name')
+            class_name_node_text = class_name_node.text.decode('utf-8')
+            parameters_node = node.child_by_field_name('parameters')
+            parameters_text = parameters_node.text.decode() if parameters_node else "()"
+            def_indent = " " * node.start_point[1]
+            line = f"{def_indent}def {class_name_node_text}{parameters_text}:\n"  # Added def_indent
+            class_names.append([class_name_node_text, line])
+
+    return class_names
+
+
 def get_class_names(code):
     """
     Extracts top-level class names from Python code.
