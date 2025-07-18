@@ -2730,24 +2730,49 @@ class Actioner():
     #     for path in paths:
     #         self.createTaskTreeBasedOnJsonFile( path )
 
-    def loadJsonFileWithTemplate( self, path ):
-        self.convertJsonFileToTemplateTreeTasks( path )
+    def updateTreeTasksJsonFile (self):
+        man = self.getCurrentManager()
+        externalinput_task = man.getTaskByTag("main,external")
+        if not externalinput_task:
+            print("No external")
+            return
+        else:
+            if not externalinput_task.checkType("ExternalInput"):
+                print("Diff type")
+                return
+        jres, jparam = externalinput_task.getParamStruct("json_project_data", True)
+        if jres and "path_to_json_file" in jparam and "path_to_archive" in jparam:
+            # path_to_project_json = jparam["path_to_json_file"]
+            # folderpath = Loader.Loader.getFileFolder(path_to_project_json)
+            # name = self.getManagerSpaceName( man ) + "_gs"
+            manager_path = self.getManagerFolderPath( man )
+            # Archivator.Archivator.saveAllbyName(manager_path, folderpath, name)
+            Archivator.Archivator.saveAllbyPath(manager_path, externalinput_task.findKeyParam( jparam["path_to_archive"] ))
+         
     
-    def convertJsonFileToTemplateTreeTasks( self, path ):
-        data = ReadFM.ReadFileMan.readJson( path )
+    def convertJsonFileToTemplateTreeTasks( self, path_to_default_7z, path_to_project_json ):
+        data = ReadFM.ReadFileMan.readJson( path_to_project_json )
         if "version" not in data:
             print("No version")
             return
-        name_tag = "name"
         body_tag = "body"
-
-        if "converted" in data and data["converted"]:
-            pass
-
+        if data.get("converted", False) and "genslides_project_file" in data:
+            print(f"Load from project file: {data["genslides_project_file"] }")
+            self.loadManagerProjectFromFile ( data["genslides_project_file"] )
         elif "targets" in data and isinstance(data["targets"], list): 
+            print(f"Fisrt loading")
             # first loading
+            self.loadManagerProjectFromFile ( path_to_default_7z )
             man = self.getCurrentManager()
             start_task = man.getTaskByTag("srcdoctree,start")
+            externalinput_task = man.getTaskByTag("main,external")
+            if not externalinput_task:
+                print("No external")
+                return
+            else:
+                if not externalinput_task.checkType("ExternalInput"):
+                    print("Diff type")
+                    return
             if start_task == None:
                 print("No start task")
                 return
@@ -2776,12 +2801,22 @@ class Actioner():
                         self.makeTaskAction(pack[body_tag],"Request","Insert","user",{"task_params":[task_tag_param]})
                         pack["parent_task"] = prev_task_name
                         prev_task_name = man.getCurrentTask().getName()
-        folderpath = Loader.Loader.getFileFolder(path)
-        name = self.getManagerSpaceName( man ) + "_gs"
-        manager_path = self.getManagerFolderPath( man )
-        data["src_project_path"] = manager_path
-        data["genslides_project_file"] = Archivator.Archivator.saveAllbyName(manager_path, folderpath, name)
-        Writer.writeJsonToFile(path, data, indent=4)
+            folderpath = Loader.Loader.getFileFolder(path_to_project_json)
+            name = self.getManagerSpaceName( man ) + "_gs"
+            manager_path = self.getManagerFolderPath( man )
+            data["src_project_path"] = manager_path
+            path_to_created_project_file = Archivator.Archivator.saveAllbyName(manager_path, folderpath, name)
+            data["genslides_project_file"] = path_to_created_project_file
+            data["converted"] = True
+            externalinput_task.setParamStruct({
+                "type":"json_project_data",
+                "path_to_archive": Loader.Loader.getManRePath(path_to_created_project_file, manager_path),
+                "path_to_json_file": Loader.Loader.getManRePath(path_to_project_json, manager_path),
+                "path_to_json_file_raw": path_to_project_json,
+                "path_to_template": Loader.Loader.getManRePath(path_to_default_7z, manager_path)
+                })
+            externalinput_task.saveAllParams()
+            Writer.writeJsonToFile(path_to_project_json, data, indent=4)
 
 
     def copyTaskFromManagerToManager( self, src : Manager.Manager, dst : Manager.Manager, tasks : list[BaseTask], param : dict ):
@@ -2819,8 +2854,9 @@ class Actioner():
         self.setManager(self.std_manager)
         man = self.getCurrentManager()
         target_path = man.getPath()
-        name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
-        self.saveManToTmp(man, "tt_"+ SaveData.getTimeForProjectName(), ["tt_temp",f"{name}_tempload"])
+        name = self.getManagerSpaceName( man )
+        # name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
+        self.saveManToTmp(man, "tt_"+ SaveData.getTimeForProjectName(), ["tt_temp",f"{name}_tempload"], check_oldest=True, max_files= 10)
         if FileManager.checkExistPath(template_path):
             return
         FileManager.deleteFiles(target_path)
@@ -2839,15 +2875,16 @@ class Actioner():
 
     def loadTreeDoc( self, path_to_template, path_to_file ):
         # print(SaveData.getTimeForProjectName())
-        self.loadManagerProjectFromFile ( path_to_template )
-        self.convertJsonFileToTemplateTreeTasks( path_to_file )
+        self.convertJsonFileToTemplateTreeTasks( path_to_template, path_to_file )
 
-    def saveManToTmp(self, man : Manager.Manager, suffix = "", temp_folder = ["tt_temp"]):
+    def saveManToTmp(self, man : Manager.Manager, suffix = "", temp_folder = ["tt_temp"], check_oldest = False, max_files = 3):
         path = Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
         folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
         name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
         fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, temp_folder))
         FileManager.createFolder(fld_path)
         trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(fld_path, [name + "_" + suffix + ".7z"]))
+        if check_oldest:
+            FileManager.manageOldestFolderFiles(fld_path, max_files)
         Archivator.Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 

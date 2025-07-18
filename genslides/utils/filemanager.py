@@ -7,6 +7,7 @@ from pathlib import Path
 # import distutils
 
 import setuptools
+import datetime
 
 def deleteFolder( mypath ):
     shutil.rmtree( mypath )
@@ -102,3 +103,72 @@ def checkDirsContent(dirpath1 : str, dirpath2 : str) -> bool:
 
 def getFileName(path:str):
     return Path(path).stem
+
+
+def manageOldestFolderFiles(folder_path, max_files=10):
+    """
+    Checks the number of files in a given folder and removes the oldest file
+    (based on modification time) if the count exceeds a specified maximum.
+
+    Args:
+        folder_path (str): The path to the folder to manage.
+        max_files (int): The maximum number of files allowed in the folder.
+                         If the count exceeds this, the oldest file will be removed.
+                         Defaults to 10.
+
+    Returns:
+        bool: True if a file was removed, False otherwise.
+    """
+    if not os.path.isdir(folder_path):
+        print(f"Error: Folder '{folder_path}' does not exist or is not a directory.")
+        return False
+
+    try:
+        # Get all files in the folder (excluding subdirectories)
+        files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+
+        # If the number of files is within the limit, do nothing
+        if len(files) <= max_files:
+            print(f"Folder '{folder_path}' contains {len(files)} files, which is within the limit of {max_files}.")
+            return False
+
+        print(f"Folder '{folder_path}' contains {len(files)} files, exceeding the limit of {max_files}.")
+
+        # Get modification times for all files and store them as (timestamp, filepath) tuples
+        file_times = []
+        for f in files:
+            try:
+                # os.path.getmtime returns the time of last modification as a float
+                # We'll use this directly for comparison
+                mod_time = os.path.getmtime(f)
+                file_times.append((mod_time, f))
+            except OSError as e:
+                print(f"Warning: Could not get modification time for '{f}': {e}")
+                continue
+
+        if not file_times:
+            print("No files found to manage (or error getting times for all files).")
+            return False
+
+        # Sort files by modification time (oldest first)
+        file_times.sort()
+
+        # The first element after sorting is the oldest file
+        oldest_file_mod_time, oldest_file_path = file_times[0]
+
+        # Convert timestamp to human-readable format for logging
+        oldest_file_datetime = datetime.datetime.fromtimestamp(oldest_file_mod_time)
+
+        print(f"Identified oldest file: '{oldest_file_path}' (Last modified: {oldest_file_datetime})")
+
+        # Remove the oldest file
+        os.remove(oldest_file_path)
+        print(f"Successfully removed oldest file: '{oldest_file_path}'")
+        return True
+
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return False
+
+
+

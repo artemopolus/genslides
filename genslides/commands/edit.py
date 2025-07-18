@@ -239,7 +239,7 @@ class InsertTaskCommand(SimpleCommand):
         self.parent = self.task.getParent()
         self.task2 = input.parent
 
-        print(f"{self.parent.getName()} - {self.task.getName()} - {self.task2.getName()}")
+        # print(f"{self.parent.getName()} - {self.task.getName()} - {self.task2.getName()}")
     
     def execute(self):
         self.insertTaskInChain( self.parent, self.task2, self.task )
