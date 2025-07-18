@@ -6,6 +6,7 @@ import genslides.commanager.man as BaseMan
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
+import  genslides.utils.archivator as Archivator
 
 import genslides.utils.savedata as SaveData
 import genslides.utils.filemanager as FileManager
@@ -2771,5 +2772,22 @@ class Actioner():
                         dst.getCurrentTask().forceSetPrompt(prompt)
 
 
+
+    def loadManagerProjectFromFile(self, project_path, filename, safe_load_tasks = True, load_managers_tasks = True):
+        self.setManager(self.std_manager)
+        man = self.getCurrentManager()
+        target_path = man.getPath()
+        FileManager.deleteFiles(target_path)
+        Archivator.Archivator.extractFiles(project_path, filename, target_path)
+        self.reset()
+        self.setCurrentManager( self.std_manager )
+        man = self.getCurrentManager()
+        man.onStart()
+        man.initInfo(method = None, path = self.getPath())
+        if load_managers_tasks:
+            man.disableOutput2()
+            man.loadTasksList(safe_load_tasks)
+            man.enableOutput2()
+            self.loadTmpManagers()
 
 
