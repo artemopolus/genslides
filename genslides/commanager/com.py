@@ -129,8 +129,6 @@ class Commander:
 
 
 
-    def saveManToTmp ( self, manager : Act.Manager.Manager ):
-        pass
 
     def loadExtProject(self, filename, manager : Act.Manager.Manager) -> bool:
         pass
@@ -148,7 +146,7 @@ class Commander:
                 manager.addRenamedPair(pair['std'], pair['chg'])
         act = Act.Actioner(manager)
         act.setPath(path)
-        self.saveManToTmp(manager)
+        act.saveManToTmp(manager)
         if 'load' in eparam and eparam['load']:
             manager.disableOutput2()
             if 'loadtype' in eparam:

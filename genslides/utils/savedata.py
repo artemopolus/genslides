@@ -5,6 +5,9 @@ from os.path import isfile, join
 import datetime
 import time
 
+def getTimeForProjectName()-> str:
+    return datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
+
 def getTimeForSaving() -> str:
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

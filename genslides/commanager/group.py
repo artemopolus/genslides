@@ -2773,12 +2773,13 @@ class Actioner():
 
 
 
-    def loadManagerProjectFromFile(self, project_path, filename, safe_load_tasks = True, load_managers_tasks = True):
+    def loadManagerProjectFromFile(self, template_path, safe_load_tasks = True, load_managers_tasks = True):
         self.setManager(self.std_manager)
         man = self.getCurrentManager()
         target_path = man.getPath()
+        self.saveManToTmp(man, "tempload_"+ SaveData.getTimeForProjectName())
         FileManager.deleteFiles(target_path)
-        Archivator.Archivator.extractFiles(project_path, filename, target_path)
+        Archivator.Archivator.extract7zFileToFolder(template_path, target_path)
         self.reset()
         self.setCurrentManager( self.std_manager )
         man = self.getCurrentManager()
@@ -2790,4 +2791,16 @@ class Actioner():
             man.enableOutput2()
             self.loadTmpManagers()
 
+    def loadTreeDoc( self, path_to_template, path_to_file ):
+        self.loadManagerProjectFromFile ( path_to_template )
+        self.convertJsonFileToTemplateTreeTasks( path_to_file )
+
+    def saveManToTmp(self, man : Manager.Manager, suffix = ""):
+        path = Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
+        folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
+        name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
+        fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp"]))
+        FileManager.createFolder(fld_path)
+        trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp",name + "_" + suffix + ".7z"]))
+        Archivator.Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
