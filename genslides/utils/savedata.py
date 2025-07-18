@@ -6,7 +6,7 @@ import datetime
 import time
 
 def getTimeForProjectName()-> str:
-    return datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
+    return datetime.datetime.now().strftime("%Y%m%d_%H_%M_%S_%f")
 
 def getTimeForSaving() -> str:
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

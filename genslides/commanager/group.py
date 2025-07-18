@@ -2706,6 +2706,7 @@ class Actioner():
     def convertJsonFileToTemplateTreeTasks( self, path ):
         data = ReadFM.ReadFileMan.readJson( path )
         if "version" not in data:
+            print("No version")
             return
         name_tag = "name"
         body_tag = "body"
@@ -2718,10 +2719,12 @@ class Actioner():
             man = self.getCurrentManager()
             start_task = man.getTaskByTag("srcdoctree,start")
             if start_task == None:
-                param_template = {"type":"tag","text":"","key":""}
-                param_template["text"] = ",".join(["srcdoctree",data.get("filename","")])
-                self.makeTaskAction("","SetOptions","New","user", {"task_params":[param_template]})
-                start_task = man.getCurrentTask()
+                print("No start task")
+                return
+                # param_template = {"type":"tag","text":"","key":""}
+                # param_template["text"] = ",".join(["srcdoctree",data.get("filename","")])
+                # self.makeTaskAction("","SetOptions","New","user", {"task_params":[param_template]})
+                # start_task = man.getCurrentTask()
             else:
                 man.setCurrentTask(start_task)
             prev_task_name = start_task.getName()
@@ -2777,9 +2780,13 @@ class Actioner():
         self.setManager(self.std_manager)
         man = self.getCurrentManager()
         target_path = man.getPath()
-        self.saveManToTmp(man, "tempload_"+ SaveData.getTimeForProjectName())
+        name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
+        self.saveManToTmp(man, "tt_"+ SaveData.getTimeForProjectName(), ["tt_temp",f"{name}_tempload"])
+        if FileManager.checkExistPath(template_path):
+            return
         FileManager.deleteFiles(target_path)
-        Archivator.Archivator.extract7zFileToFolder(template_path, target_path)
+        if not Archivator.Archivator.extract7zFileToFolder(template_path, target_path):
+            return
         self.reset()
         self.setCurrentManager( self.std_manager )
         man = self.getCurrentManager()
@@ -2792,15 +2799,16 @@ class Actioner():
             self.loadTmpManagers()
 
     def loadTreeDoc( self, path_to_template, path_to_file ):
+        # print(SaveData.getTimeForProjectName())
         self.loadManagerProjectFromFile ( path_to_template )
         self.convertJsonFileToTemplateTreeTasks( path_to_file )
 
-    def saveManToTmp(self, man : Manager.Manager, suffix = ""):
+    def saveManToTmp(self, man : Manager.Manager, suffix = "", temp_folder = ["tt_temp"]):
         path = Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
         folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
         name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
-        fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp"]))
+        fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, temp_folder))
         FileManager.createFolder(fld_path)
-        trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp",name + "_" + suffix + ".7z"]))
+        trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(fld_path, [name + "_" + suffix + ".7z"]))
         Archivator.Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
