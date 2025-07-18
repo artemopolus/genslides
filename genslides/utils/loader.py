@@ -256,6 +256,13 @@ class Loader:
             out = PurePosixPath(out)
         return str(out)
     
+    def getFileFolder( path : str):
+        filepath = Path(path)
+        if filepath.is_dir():
+            return Loader.getUniPath( filepath.resolve())
+        else:
+            return Loader.getUniPath( filepath.parent.resolve())
+    
     def getUniPath(path: str) -> str:
         out = Path(path)
         if platform == 'win32':

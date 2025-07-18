@@ -44,7 +44,7 @@ class Archivator():
         with py7zr.SevenZipFile( res_trg_path, 'w') as archive:
             print('write',src_path,'to', res_trg_path)
             archive.writeall(src_path, arcname='')
-        return
+        return res_trg_path
     
     def extractFiles(trg_path, filename, path_to_extract):
         onlyfiles = [f for f in listdir(trg_path) if isfile(join(trg_path, f))]

@@ -2776,6 +2776,11 @@ class Actioner():
                         self.makeTaskAction(pack[body_tag],"Request","Insert","user",{"task_params":[task_tag_param]})
                         pack["parent_task"] = prev_task_name
                         prev_task_name = man.getCurrentTask().getName()
+        folderpath = Loader.Loader.getFileFolder(path)
+        name = self.getManagerSpaceName( man ) + "_gs"
+        manager_path = self.getManagerFolderPath( man )
+        data["src_project_path"] = manager_path
+        data["genslides_project_file"] = Archivator.Archivator.saveAllbyName(manager_path, folderpath, name)
         Writer.writeJsonToFile(path, data, indent=4)
 
 
@@ -2805,6 +2810,10 @@ class Actioner():
                         dst.getCurrentTask().forceSetPrompt(prompt)
 
 
+    def getManagerSpaceName( self, man : Manager.Manager):
+        return finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
+    def getManagerFolderPath( self, man : Manager.Manager):
+        return Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
 
     def loadManagerProjectFromFile(self, template_path, safe_load_tasks = True, load_managers_tasks = True):
         self.setManager(self.std_manager)
