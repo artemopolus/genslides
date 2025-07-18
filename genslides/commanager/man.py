@@ -495,7 +495,7 @@ class Jun():
         while(idx < 1000):
             par = trg.getParent()
             if par == None:
-                return
+                return fork, start_task
             if len(par.getChilds()) > 1:
                 fork = par
                 fork_root = trg

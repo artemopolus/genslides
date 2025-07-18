@@ -1120,7 +1120,7 @@ class Actioner():
 
    
 
-    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False, add_garlands=False, all_tree_task = False, out_childtask_max = -1):
+    def drawGraph(self, only_current= True, max_index = -1, path = "output/img", hide_tasks = True, add_multiselect = False, max_childs = 3, add_linked=False, add_garlands=False, all_tree_task = False, out_childtask_max = -1, hide_mono_childs = False):
         # print('Draw graph')
         man = self.manager
         tmpman_list = []
@@ -1160,7 +1160,7 @@ class Actioner():
                         if t not in trg_list:
                             trg_list.append(t)
         else:
-            trg_list = man.task_list
+            trg_list = man.getTasks()
         # print('Target tasks:',[t.getName() for t in trg_list])
         if len(trg_list) > 0:
             f = graphviz.Digraph(comment='The Test Table',
@@ -1187,11 +1187,30 @@ class Actioner():
                             if trg not in trg_list:
                                 trgs_rsm.append(trg)
                 trg_list.extend(trgs_rsm)
+            special_tasks_list = []
+            if hide_mono_childs:
+                rm_tasks = []
+                for task in trg_list:
+                    if task != man.getCurrentTask() and len(task.getChilds()) == 1 and task.getParent() != None and len(task.getParent().getChilds()) == 1:
+                        if man.getCurrentTask().getParent() != None and man.getCurrentTask().getParent() == task:
+                            special_tasks_list.append(task)
+                        elif task in man.getCurrentTask().getChilds():
+                            special_tasks_list.append(task)
+                        else:
+                            rm_tasks.append(task)
+                for task in rm_tasks:
+                    trg_list.remove(task)
 
-
-            
+            task_nodes = []
 
             for task in trg_list:
+                task_nodes.append({"name":task.getName(), "edges":0,"task":task})
+                task_name_for_draw = task.getNameForDrawing()
+                if task in special_tasks_list:
+                    if man.getCurrentTask().getParent() != None and man.getCurrentTask().getParent() == task:
+                        task_name_for_draw = f"{task.getDistanceToNearestParentFork()}"
+                    elif task in man.getCurrentTask().getChilds():
+                        task_name_for_draw = f"{task.getDistanceToNearestChildrenFork()}"
                 shape = "ellipse" #rectangle,hexagon
                 if task.checkType('Response'):
                     shape = 'rectangle'
@@ -1205,24 +1224,24 @@ class Actioner():
                     shape = 'polygon'
                 if task in trgs_rsm:
                     if task == man.getCurrentTask():
-                        f.node( task.getIdStr(), task.getNameForDrawing(),style="filled",color="blueviolet")
+                        f.node( task.getIdStr(), task_name_for_draw,style="filled",color="blueviolet")
                     else:
-                        f.node( task.getIdStr(), task.getNameForDrawing(),style="filled",color="darkmagenta")
+                        f.node( task.getIdStr(), task_name_for_draw,style="filled",color="darkmagenta")
                 elif task.readyToGenerate():
                     color = 'darkmagenta'
-                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", color = color, shape = shape)
+                    f.node( task.getIdStr(), task_name_for_draw,style="filled", color = color, shape = shape)
                 elif task in man.getMultiSelectedTasks():
                     color = "lightsalmon3"
                     if task == man.getCurrentTask():
                         color = "lightsalmon1"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'crimson'
-                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", color = color, shape = shape)
+                    f.node( task.getIdStr(), task_name_for_draw,style="filled", color = color, shape = shape)
                 elif task == man.getCurrentTask():
                     color = "skyblue"
                     if len(task.getHoldGarlands()) > 0:
                         color = 'skyblue4'
-                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", shape = shape, color = color)
+                    f.node( task.getIdStr(), task_name_for_draw,style="filled", shape = shape, color = color)
                 elif task in tmpman_list:
                     color = 'blueviolet'
                     # shape = "ellipse" #rectangle,hexagon
@@ -1235,7 +1254,7 @@ class Actioner():
                                     break
                     else:
                         color = manbase_color
-                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled", shape = shape, color = color)
+                    f.node( task.getIdStr(), task_name_for_draw,style="filled", shape = shape, color = color)
                 else:
                     color = 'antiquewhite1'
                     if task.checkBlock():
@@ -1256,25 +1275,36 @@ class Actioner():
                         info = task.getInfo()
                         if task.prompt_tag == "assistant":
                             color="azure2"
-                    f.node( task.getIdStr(), task.getNameForDrawing(),style="filled",color=color, shape = shape)
+                    f.node( task.getIdStr(), task_name_for_draw,style="filled",color=color, shape = shape)
 
 
                 # print("info=",task.getIdStr(),"   ", task.getName())
             
-            for task in trg_list:
+            for node_info in task_nodes:
+                task = node_info["task"]
                 if task.checkType('IterationEnd'):
                     if task.iter_start:
                         f.edge(task.getIdStr(), task.iter_start.getIdStr())
-                draw_child_cnt = 0
-                for child in task.childs:
-                    if child not in trg_list:
-                        if child in man.task_list:
-                            if out_childtask_max > 0 and draw_child_cnt < out_childtask_max:
-                                f.edge(task.getIdStr(), child.getIdStr())
-                                draw_child_cnt += 1
-                        #     f.edge(task.getIdStr(), child.getIdStr())
+                parent_task = task.getNearestParent(trg_list)
+                if parent_task != None:
+                    edge_count = 0
+                    for n_i in task_nodes:
+                        if n_i["task"] == parent_task:
+                            n_i["edges"] += 1
+                            edge_count = n_i["edges"]
+                    if out_childtask_max > 0 and edge_count < out_childtask_max:
+                        f.edge(parent_task.getIdStr(), task.getIdStr())
                     else:
-                        f.edge(task.getIdStr(), child.getIdStr())
+                        f.edge(parent_task.getIdStr(), task.getIdStr())
+                # for child in task.getChilds():
+                #     if child not in trg_list:
+                #         if child in man.task_list:
+                #             if out_childtask_max > 0 and draw_child_cnt < out_childtask_max:
+                #                 f.edge(task.getIdStr(), child.getIdStr())
+                #                 draw_child_cnt += 1
+                #         #     f.edge(task.getIdStr(), child.getIdStr())
+                #     else:
+                #         f.edge(task.getIdStr(), child.getIdStr())
                     # print("edge=", task.getIdStr(), "====>",child.getIdStr())
                 if not add_linked:
                     for info in task.getGarlandPart():

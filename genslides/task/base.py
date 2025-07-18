@@ -1031,6 +1031,35 @@ class BaseTask():
             return [child for child in self.childs if child.manager == self.manager]
         return self.childs.copy()
     
+    def getNearestParent( self, trgs = []):
+        branch = self.getAllParents(revert_dir=True)
+        if branch:
+            for task in branch:
+                if task != self and task in trgs:
+                    return task
+        return None
+    
+    def getDistanceToNearestParentFork( self ):
+        branch = self.getAllParents(revert_dir=True)
+        idx = 0
+        for task in branch:
+            if task != self and len(task.getChilds()) != 1:
+                return idx - 1
+            idx +=1
+        return idx - 1
+    
+    def getDistanceToNearestChildrenFork( self ):
+        idx = 0
+        task = self
+        while (idx < 1000):
+            if len(task.getChilds()) > 1:
+                return idx
+            elif len(task.getChilds()) == 0:
+                return idx
+            else:
+                task = task.getChilds()[0]
+            idx += 1
+        return idx
     
     def getKeyByBranching(self, task):
         return task.getPrio()
