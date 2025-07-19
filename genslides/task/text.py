@@ -71,11 +71,11 @@ class TextTask(BaseTask):
 
     def getTimeInfo ( self ):
         now = datetime.now()
-        return "(" + now.strftime("%Y-%m-%d %H:%M:%S.%f") + ")"
+        return  now.strftime("%Y-%m-%d %H:%M:%S.%f") 
 
     def updateUpdationInfo( self, info : str ):
         # print(info)
-        self.update_info += info + self.getTimeInfo() + "\n"
+        self.update_info += self.getTimeInfo() +":  " + info + "\n"
 
     def registerOnMsgDiffCallback ( self, callback):
         if callable(callback):  # Проверяем, что callback является вызываемой функцией

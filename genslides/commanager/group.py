@@ -1522,6 +1522,13 @@ class Actioner():
             if 'type' in param and param['type'] == 'model' and 'api_key' in param:
                 del param['api_key']
         res_params = {'params': task_params, 'queue':man.curr_task.getQueueList()}
+        update_info = ""
+        ures, uparam = man.getCurrentTask().getParamStruct("onupdate_result", True)
+        if ures:
+            update_info += f"Frozen: {uparam.get("frozen",False)}\n"
+            update_info += f"Blocked: {uparam.get("blocked",False)}\n---\n"
+            update_info += uparam.get("info","")
+
 
         cnt = 0
         cnt = man.getFrozenTasksCount()
@@ -1551,6 +1558,7 @@ class Actioner():
                         r_msgs, 
                         mancurtaskgetname, 
                         res_params, 
+                        update_info,
                         set_prompt, 
                         mangettasklist,
                         mangetcurtaskparamlist, 

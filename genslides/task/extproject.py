@@ -722,7 +722,7 @@ class JumperTreeTask(InExtTreeTask):
             self.updateUpdationInfo(f"No actioners for {trg_path}")
         return None
     
-    def updateJumperTask(self):
+    def reconnectJumperTreeExtTree(self):
         eres, eparam = self.getParamStruct('external', True)
         actioner = self.intact
         if eres and actioner:
@@ -732,6 +732,7 @@ class JumperTreeTask(InExtTreeTask):
                 man = actioner.std_manager
                 jumper = man.getTaskByName(eparam['jumper'])
                 if jumper and jumper.checkType('ExternalInput') and self.getParent() != jumper.getParent():
+                    self.updateUpdationInfo(f"Reconnect jumper")
                     jumper.setParent(self.getParent())
 
     def updateIternal(self, input : TaskDescription = None):
@@ -751,9 +752,10 @@ class JumperTreeTask(InExtTreeTask):
             else:
                 self.freezeTask()
             return
-        elif not self.checkParentMsgList(remove=False, update=True):
-            self.updateUpdationInfo(f"Acioner is loaded but Parent Msgs is not same")
-            self.updateJumperTask()
+        self.reconnectJumperTreeExtTree()
+        self.updateUpdationInfo(f"Acioner is loaded")
+        if not self.checkParentMsgList(remove=False, update=True):
+            self.updateUpdationInfo(f"Parent Msgs is not same")
             self.setChildUpdateState(True)
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
                 self.updateUpdationInfo("Disabled action execution")

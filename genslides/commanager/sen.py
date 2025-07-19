@@ -941,7 +941,7 @@ class Projecter(Commander.Commander):
         session_data = Reader.ReadFileMan.readJson(path)
         text = ""
         if 'modified' in session_data:
-            text += "Last modification: " + session_data["modified"]
+            text += "Last modification: " + session_data["modified"] + "\n"
         if 'actioners' in session_data:
             text +='\n\n'.join( [str(idx) + ") " + info['act_path'] for idx, info in enumerate(session_data['actioners'] ) ] )
         return text
@@ -2843,6 +2843,7 @@ class Projecter(Commander.Commander):
                         r_msgs, 
                         mancurtaskgetname, 
                         res_params, 
+                        update_info,
                         set_prompt, 
                         mangettasklist,
                         mangetcurtaskparamlist, 
@@ -2873,6 +2874,7 @@ class Projecter(Commander.Commander):
             # chck, 
             mancurtaskgetname, 
             res_params,
+            update_info,
             set_prompt, 
             gr.Dropdown(choices= mangettasklist),
             gr.Dropdown(choices=mangetcurtaskparamlist, interactive=True), 
@@ -2972,7 +2974,8 @@ class Projecter(Commander.Commander):
 
         [r_msgs, 
         mancurtaskgetname, 
-        res_params, 
+        res_params,
+        update_info, 
         set_prompt, 
         mangettasklist,
         mangetcurtaskparamlist, 
@@ -3015,6 +3018,7 @@ class Projecter(Commander.Commander):
                 workspace_msgs, 
                 mancurtaskgetname, 
                 res_params, 
+                update_info,
                 set_prompt, 
                 mangettasklist,
                 mangetcurtaskparamlist, 

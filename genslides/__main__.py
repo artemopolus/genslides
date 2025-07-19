@@ -450,6 +450,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         paramslctset_btn = gr.Button('Set option to value')
                         param_mnlval = gr.Textbox(label='Value',info='manual',lines=4, interactive=True)
                         param_edit = gr.Button("Apply new value to param")
+                        updateinfoparam_txt = gr.Textbox(label="Update info", lines=8)
                 with gr.Row():
                         param_jsonval_cod = gr.Code(label='Json',language='json')
                 with gr.Row():
@@ -1148,7 +1149,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             #    prompt_tag_list, 
                             #    checkbox,
                                 name_info, 
-                               param_info, 
+                               param_info,
+                               updateinfoparam_txt,
                                prompt, 
                                task_list, 
                                param_type, 
