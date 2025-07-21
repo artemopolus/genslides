@@ -696,7 +696,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     task_list = gr.Dropdown(choices=manager.getTaskNamesList(), label='Available tasks')
                     sel_task_btn = gr.Button(value="Set to Current")
                 with gr.Row():
-                    giett_actioners_txt = gr.Textbox(label = 'Target Actioners')
+                    giett_actioners_txt = gr.Textbox(label = 'Target Actioners', lines=6)
                 with gr.Row():
                     getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
                     updselinexttreetasks_btn = gr.Button('Load selected task acts')

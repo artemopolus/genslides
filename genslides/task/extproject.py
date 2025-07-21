@@ -674,6 +674,13 @@ class JumperTreeTask(InExtTreeTask):
             if res:
                 self.intman.appendGlobalVariables( key, value )
 
+    def getRelatedActionersPaths(self, actpaths_list):
+        if self.intact != None:
+            if self.intact.getPath() not in actpaths_list:
+                actpaths_list.append(self.intact.getPath())
+            actpaths_list = self.intact.getRelatedActionersPaths( actpaths_list )
+        return super().getRelatedActionersPaths(actpaths_list)
+
     def loadActionerTasks(self, actioners: list):
         self.updateUpdationInfo("Load actioner task")
         eres, eparam = self.getParamStruct('external')

@@ -2792,7 +2792,11 @@ class Projecter(Commander.Commander):
             task = man.getTaskByName(name)
             if task.getActioner() == None:
                 checks.append( name )
-        return gr.CheckboxGroup(choices=out, value=checks, interactive=True), '\n'.join(out_paths)
+        act_info_text = "Paths to actioners:\n"
+        act_info_text += '\n'.join([ "* " + p for p in out_paths])
+        act_paths = []
+        act_info_text += "\n\nRelated:\n" + '\n'.join(["* " + p for p in self.actioner.getRelatedActionersPaths(act_paths)])
+        return gr.CheckboxGroup(choices=out, value=checks, interactive=True), act_info_text
     
     def updateInExtTreeTasksByName(self, names : list[str]):
         man = self.actioner.getCurrentManager()

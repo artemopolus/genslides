@@ -210,6 +210,11 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                             text = '[[,]]'.join(text_arr)
                     elif conv == 'list' and isinstance(trgjson, list):
                         text = '[[,]]'.join([Loader.Loader.convJsonToText(v) for v in trgjson])
+                    elif conv == 'str':
+                        if isinstance(trgjson, str):
+                            text = trgjson
+                        else:
+                            text = str(trgjson)
                     elif conv == 'dumps':
                         text = Loader.Loader.convJsonToText(trgjson)[1:-1]
                     elif conv == 'md':

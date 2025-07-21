@@ -1924,10 +1924,11 @@ class TextTask(BaseTask):
                         target = self.findKeyParam(bparam['target'])
                         if target.lower() == 'false':
                             block = True
-                if block:
-                    self.blockChildren()
-                else:
-                    self.unBlockChildren()
+                if block != self.block_on:
+                    if block:
+                        self.blockChildren()
+                    else:
+                        self.unBlockChildren()
             else:
                 if self.block_on:
                     self.unBlockChildren()

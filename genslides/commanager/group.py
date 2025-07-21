@@ -1763,6 +1763,12 @@ class Actioner():
         task_manager = TaskManager()
         task_manager.clearTasksCache()
 
+    def getRelatedActionersPaths( self, actpaths_list : list[str]):
+        for task in self.getCurrentManager().getTasks():
+            actpaths_list = task.getRelatedActionersPaths( actpaths_list )
+        return actpaths_list
+
+
     def autoUpdateExtTreeTaskActs(self, actioners: list):
         # print(f"Auto load ext tree act for {self.getPath()}")
         man = self.std_manager
