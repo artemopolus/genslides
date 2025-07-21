@@ -107,9 +107,13 @@ class ResponseTask(TextTask):
                 print('Init with default params')
                 mparam = {'type':'model','model':model_name}
             chat = LLModel(mparam)
-        res, out, out_params = self.executeResponseInternal(chat)
-        out_params['type'] = self.getType()
-        self.updateParam2(out_params)
+        if mparam.get("allow_calling", True):
+            res, out, out_params = self.executeResponseInternal(chat)
+            out_params['type'] = self.getType()
+            self.updateParam2(out_params)
+        else:
+            res = False
+            self.updateUpdationInfo("Model calling is not allowed")
         if res:
             # print("out=", out)
             pair = {}

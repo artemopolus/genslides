@@ -190,10 +190,18 @@ class ListenerTask(LinkedTask):
     def update(self, input: TextTask.TaskDescription = None):
         out = super().update(input)
         return out
+    
+    def allowUpdateCollectedMsg( self ):
+        lres, lparam = self.getParamStruct("listener")
+        if lres and "update_frozen" in lparam and lparam["update_frozen"]:
+            return True
+        if not self.is_freeze or input != None:
+            return True
+        return False
 
     def updateIternal(self, input: TextTask.TaskDescription = None):
         # print('Update Internal')
-        if not self.is_freeze or input != None:
+        if self.allowUpdateCollectedMsg():
             self.updateCollectedMsgList([])
         return super().updateIternal(input)
  
