@@ -484,4 +484,8 @@ class ListenerTask(LinkedTask):
         if 'type' in param and param['type'] == 'listener':
             return True
         return super().checkParameterForCopyAllParams(param)
- 
+
+    def getTaskReport(self, report):
+        for task in self.getGarlandPart():
+            report = task.getTask(report)
+        return report

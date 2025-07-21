@@ -92,8 +92,24 @@ class Loader:
         else:
             return filename
         return path
+
+    def getFilePathToSaveText( initial_name = 'untitled'):
+        app = Tk()
+        app.withdraw() 
+        app.attributes('-topmost', True)
+        filepath = asksaveasfilename(defaultextension='.txt', initialfile=initial_name+'.txt', confirmoverwrite=True, filetypes = [('text files','*.txt')]) 
+        app.destroy()
+        return filepath
+ 
+    def getFilePathToSaveJson( initial_name = 'untitled'):
+        app = Tk()
+        app.withdraw() 
+        app.attributes('-topmost', True)
+        filepath = asksaveasfilename(defaultextension='.json', initialfile=initial_name+'.json', confirmoverwrite=True, filetypes = [('json text files','*.json')]) 
+        app.destroy()
+        return filepath
     
-    def getFilePathToSave():
+    def getFilePathToSave7zArchive():
         app = Tk()
         app.withdraw() 
         app.attributes('-topmost', True)

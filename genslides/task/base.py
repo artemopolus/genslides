@@ -1507,6 +1507,9 @@ class BaseTask():
     def getRawMsgs(self):
         return None
     
+    def getTaskReport(self, report : dict):
+        return report
+
     def getMsgs(self, except_task = [], hide_task = True, max_symbols = -1, inparam = {}):
         return None
     

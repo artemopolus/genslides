@@ -360,6 +360,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Column():
                         gr.Button("Copy dial").click(fn=projecter.copyToClickBoardDial, outputs=[tmp_code_txt, tmp_content_txt])
                         gr.Button("Copy lst msg").click(fn=projecter.copyToClickBoardLstMsg, outputs=[tmp_code_txt, tmp_content_txt])
+                        gr.Button("Get Task Report").click(fn=projecter.getCurrentTaskReport)
                         # gr.Button("[ [parent:msg_content] ]").click(fn=projecter.copyToClickBoardParentContent)
                         # gr.Button("[ [parent:msg_content:json:answer] ]").click(fn=projecter.copyToClickBoardParentContentJSONtrg, outputs=[tmp_code_txt, tmp_content_txt])
                         # gr.Button("[ [parent:code] ]").click(fn=projecter.copyToClickBoardParentCode, outputs=[tmp_code_txt, tmp_content_txt])

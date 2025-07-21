@@ -24,11 +24,11 @@ class ExtProjectTask(CollectTask):
         self.is_freeze = True
 
     def onStart(self):
-        self.intpar = None
+        self.intpar : BaseTask = None
         self.intch = []
-        self.intch_trg = None
-        self.intman = None
-        self.intact = None
+        self.intch_trg : BaseTask = None
+        self.intman : Actioner.Manager = None
+        self.intact : Actioner.Actioner = None
         self.allow_child_update = False
 
     def canChildUpdate(self) -> bool:
@@ -959,4 +959,9 @@ class OutExtTreeTask(ExtProjectTask):
 
     def getParamStructFromExtTask(self, param_name):
         return False, self.intch_trg, None
+    
+    def getTaskReport(self, report):
+        if self.intch_trg != None:
+            return self.intch_trg.getTaskReport( report )
+        return super().getTaskReport(report)
     

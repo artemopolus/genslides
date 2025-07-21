@@ -1,5 +1,5 @@
 from genslides.task.base import TaskManager, BaseTask, TaskDescription
-from genslides.utils.savedata import SaveData
+from genslides.utils.savedata import SaveData, getTimeForSaving
 from genslides.utils.archivator import Archivator
 from genslides.commanager.jun import Manager
 from genslides.commanager.group import Actioner
@@ -375,7 +375,7 @@ class Projecter(Commander.Commander):
         print('Save man', self.actioner.getCurrentManager().getName(),'(Temp)' if self.actioner.getCurrentManager() != self.actioner.std_manager else '(Main)')
         path = self.actioner.getCurrentManager().getPath()
         path = Loader.Loader.getUniPath(path)
-        trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave() )
+        trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave7zArchive() )
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
         # Archivator.saveAllbyName(path, trg_path, name)
 
@@ -387,7 +387,7 @@ class Projecter(Commander.Commander):
             return
         print(f"Save {self.actioner.getCurrentManager().getName()} tmp manager")
         path = Loader.Loader.getUniPath(self.actioner.getCurrentManager().getPath())
-        trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave())
+        trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave7zArchive())
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
        
 
@@ -2555,6 +2555,23 @@ class Projecter(Commander.Commander):
             text += msg['content'] + '\n'
         self.copyToClickBoard(text)
         return "[[parent:allmsgs]]", text
+    
+    def getCurrentTaskReport(self):
+        path = Loader.Loader.getFilePathToSaveText(task.getName())
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        report = {
+            "StartTask": task.getName(),
+            "time": getTimeForSaving(),
+            "chats":[]
+        }
+        report = task.getTaskReport(report)
+        report_txt = "# Intial Info\nTask: " + report["StartTask"] + "\ntime: " + report["time"] + "\n"
+        for chat in report["chats"]:
+            report_txt += "##" + chat.get("chain","") + "\n\n"
+            for msg_pack in chat.get("chat",[]):
+                report_txt += "### Role: " + msg_pack["role"] + "\n"
+                report_txt += msg_pack["content"]
+        Writer.writeToFile(path, report_txt)
 
     def copyToClickBoard(self, text):
         pyperclip.copy(text)

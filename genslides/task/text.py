@@ -611,6 +611,19 @@ class TextTask(BaseTask):
             text = msg['content']
             text.replace(trg_old, trg_new)
             msg['content'] = text
+
+    def getTaskReport(self, report):
+        chats = report.get("chats",[])
+        pars : list[BaseTask] = self.getAllParents()
+        subreport = {
+            "chain": "-".join([p.getName() for p in pars]),
+            "chat": self.getMsgs()
+        }
+        chats.append(subreport)
+        for par in pars:
+            if par != self:
+                report = par.getTaskReport( report )
+        return super().getTaskReport(report)
  
     def getMsgs(self, except_task = [], hide_task = True, max_symbols = -1, inparam = {}):
         # print(f"Get msgs from {self.getName()}")
