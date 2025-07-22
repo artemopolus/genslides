@@ -53,17 +53,24 @@ class MCPClient:
         """Process a query using Claude and available tools"""
         print("Process query")
         response = await self.session.list_tools()
-        available_tools = [{ 
+
+        available_tools = []
+        tools_text = ""
+        for tool in response.tools:
+            available_tools.append({ 
             "type":"function",
             "function":{
                 "name": tool.name,
                 "description": tool.description,
                 "parameters": tool.inputSchema
-            }
-        } for tool in response.tools]
+            }}
+            )
+            tools_text += f"# {tool.name}\n{tool.description}\n\n"
 
         chat = Llmodel.LLModel(parameters)
-        return chat.createToolCalling( messages, available_tools )
+        res, msg, param = chat.createToolCalling( messages, available_tools )
+        param["tools_description"] = tools_text
+        return res, msg, param
         # return "\n".join(final_text)
 
     async def chat_loop(self):

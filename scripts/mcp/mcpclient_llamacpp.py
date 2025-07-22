@@ -48,7 +48,7 @@ class MCPClient:
         self.exit_stack = AsyncExitStack()
         # self.anthropic = Anthropic()
 
-    async def connect_to_server(self, server_script_path: str):
+    async def connect_to_server(self, command : str, server_script_path: str):
         """Connect to an MCP server
         
         Args:
@@ -56,16 +56,23 @@ class MCPClient:
         """
         is_python = server_script_path.endswith('.py')
         is_js = server_script_path.endswith('.js')
-        if not (is_python or is_js):
+        is_ts = server_script_path.endswith('.ts')
+        if not (is_python or is_js or is_ts):
             raise ValueError("Server script must be a .py or .js file")
             
-        command = "python" if is_python else "node"
-        server_params = StdioServerParameters(
-            command=command,
-            args=[server_script_path],
-            env=None
-        )
-        
+        # command = "python" if is_python else "node"
+        if is_ts:
+            server_params = StdioServerParameters(
+                command=command,
+                args=[server_script_path],
+                env=None
+            )
+        else:
+            server_params = StdioServerParameters(
+                command=command,
+                args=[server_script_path],
+                env=None
+            )       
         stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
         self.stdio, self.write = stdio_transport
         self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
@@ -80,6 +87,7 @@ class MCPClient:
     async def process_query(self, query: str) -> str:
         """Process a query using Claude and available tools"""
         response = await self.session.list_tools()
+        final_text = []
         available_tools = [{ 
             "type":"function",
             "function":{
@@ -91,20 +99,24 @@ class MCPClient:
 
         # print(f"Messages:\n{query}\nTools:{available_tools}")
 
-        result = getToolResponse( query, available_tools)
+        if True:
+            for tool in available_tools:
+                print(tool)
+        else:
 
-        # Process response and handle tool calls
-        final_text = []
+            result = getToolResponse( query, available_tools)
 
-        if hasattr(result, 'finish_reason'):
-            if result.finish_reason == "tool_calls":
-                tool_name = result.message.tool_calls[0].function.name
-                tool_args = json.loads( result.message.tool_calls[0].function.arguments )
-                tool_output = await self.session.call_tool(tool_name, tool_args)
-                final_text.append(f"Call tool \"{tool_name}\" with arguments:\n{tool_args}\nResult:\n{tool_output.content[0].text}")
+            # Process response and handle tool calls
 
-            elif result.finish_reason == "stop":
-                final_text.append(f"Message:\n{result.message.content}")
+            if hasattr(result, 'finish_reason'):
+                if result.finish_reason == "tool_calls":
+                    tool_name = result.message.tool_calls[0].function.name
+                    tool_args = json.loads( result.message.tool_calls[0].function.arguments )
+                    tool_output = await self.session.call_tool(tool_name, tool_args)
+                    final_text.append(f"Call tool \"{tool_name}\" with arguments:\n{tool_args}\nResult:\n{tool_output.content[0].text}")
+
+                elif result.finish_reason == "stop":
+                    final_text.append(f"Message:\n{result.message.content}")
 
         return "\n".join(final_text)
 
@@ -131,13 +143,13 @@ class MCPClient:
         await self.exit_stack.aclose()
 
 async def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print("Usage: python client.py <path_to_server_script>")
         sys.exit(1)
         
     client = MCPClient()
     try:
-        await client.connect_to_server(sys.argv[1])
+        await client.connect_to_server(sys.argv[1], sys.argv[2])
         await client.chat_loop()
     finally:
         await client.cleanup()

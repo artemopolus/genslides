@@ -128,8 +128,9 @@ class LLModel():
         return False, {}
     
     def createToolCalling( self, messages, tools):
-        if self.model in model_to_toolmethod:
-            result, output, params = model_to_toolmethod[self.model]['default'](messages, tools, self.params)
+        if self.vendor in model_to_toolmethod:
+            print( "Call tool")
+            result, output, params = model_to_toolmethod[self.vendor]['default'](messages, tools, self.params)
             out = {
             'model': self.params['model'],
             'messages': messages,
@@ -137,6 +138,8 @@ class LLModel():
             }
             out.update( params )
             return result, output, out
+        else:
+            print(f"{self.vendor} not in methods")
         return False, "", {}
 
 

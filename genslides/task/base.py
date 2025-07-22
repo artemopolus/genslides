@@ -1708,7 +1708,8 @@ class BaseTask():
     def getForwardRelationTasksChain( self , max_idx = 500):
         trg_task = self
         childs = trg_task.getAllChildChains()
-        out_tasks = copy.deepcopy( childs )
+        # out_tasks = copy.deepcopy( childs )
+        out_tasks = [ch for ch in childs if ch != self]
         idx = 0
         while idx < max_idx:
             # print('Try range:', idx)

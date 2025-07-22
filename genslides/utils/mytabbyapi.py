@@ -38,6 +38,16 @@ def tabbyApiGetChatCompletion(msgs, params):
         if response.status_code == 200:
             completion = response.json()
             msg = completion['choices'][0]['message']['content']
+            if completion['choices'][0]['finish_reason'] == 'tool_calls':
+                # print(completion)
+                tool_calls = completion['choices'][0]['message']['tool_calls']
+                out_param['tool_calls'] = []
+                for tool in tool_calls:
+                    name = tool['function']['name']
+                    args = json.loads(tool['function']['arguments'])
+                    out_param['tool_calls'].append({"name":name,"arguments":args})
+                # print(tool_calls)
+
             try:
                 out_param['intok'] = completion['usage']['prompt_tokens']
                 out_param['outtok'] = completion['usage']['completion_tokens']

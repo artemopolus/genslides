@@ -718,28 +718,8 @@ class Jun():
             self.addTaskToMultiSelected(task)
 
     def getForwardRelatedTaskChain(self, trg_task : Task.BaseTask, max_idx : int):
-        print('Get forward task')
-        childs = trg_task.getAllChildChains()
-        out_tasks = copy.deepcopy( childs )
-        idx = 0
-        while idx < max_idx:
-            # print('Try range:', idx)
-            new_childs = []
-            for child in childs:
-                for linked in child.getHoldGarlands():
-                    linked_childs = linked.getAllChildChains()
-                    for lch in linked_childs:
-                        if lch not in new_childs:
-                            new_childs.append(lch)
-                        if lch not in out_tasks:
-                            out_tasks.append(lch)
-            if len(new_childs) == 0:
-                break
-            else:
-                childs = new_childs
-            # print('Found:',len(out_tasks))
-            idx += 1
-        print('Done in', idx)
+        print(f"Get forward chain for {trg_task.getName()} task with range {max_idx}")
+        out_tasks = trg_task.getForwardRelationTasksChain(max_idx)
         for task in out_tasks:
             self.addTaskToMultiSelected(task)
 

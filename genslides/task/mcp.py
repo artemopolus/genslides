@@ -66,6 +66,12 @@ class MCPTask(TextTask):
                 client = MCPClient()
                 await client.connect_to_server(mcp_params.get("path_to_server",""))
                 proc_res, response, outparams = await client.process_query(messages, model_params)
+                if "tool_calls" in outparams:
+                    text = ""
+                    for tool in outparams["tool_calls"]:
+                        tool_output = await client.session.call_tool(tool["name"], tool["arguments"])
+                        text += tool_output.content[0].text
+                    outparams["tool_output"] = text
                 await client.cleanup()
                 return proc_res, response, outparams
             return asyncio.run(blocking_mcp_main())
@@ -73,6 +79,11 @@ class MCPTask(TextTask):
         self.updateUpdationInfo(f"Execute blocking call")
 
         process_result, tool_call_output, tool_call_options = _run_mcp_client_server()
+        if process_result:
+            self.updateUpdationInfo("Succesfull run mcp")
+        else:
+            self.freezeTask()
+            self.updateUpdationInfo("Error on MCP")
         if process_result:
             tool_call_options["type"] = self.getType()
             tool_call_options["result"] = tool_call_output
