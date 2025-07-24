@@ -1525,8 +1525,8 @@ class Actioner():
         update_info = ""
         ures, uparam = man.getCurrentTask().getParamStruct("onupdate_result", True)
         if ures:
-            update_info += f"Frozen: {uparam.get("frozen",False)}\n"
-            update_info += f"Blocked: {uparam.get("blocked",False)}\n---\n"
+            update_info += f"Frozen: {uparam.get('frozen',False)}\n"
+            update_info += f"Blocked: {uparam.get('blocked',False)}\n---\n"
             update_info += uparam.get("info","")
 
 
@@ -2771,7 +2771,7 @@ class Actioner():
             return
         body_tag = "body"
         if data.get("converted", False) and "genslides_project_file" in data:
-            print(f"Load from project file: {data["genslides_project_file"] }")
+            print(f"Load from project file: {data['genslides_project_file'] }")
             self.loadManagerProjectFromFile ( data["genslides_project_file"] )
         elif "targets" in data and isinstance(data["targets"], list): 
             print(f"Fisrt loading")

@@ -30,6 +30,7 @@ def tabbyApiGetChatCompletion(msgs, params):
             jformat = json.loads(params['response_format'], strict=False)
             if jformat.get('type') == 'json_schema' and 'schema' in jformat['json_schema']:
                 payload['json_schema'] = jformat['json_schema']['schema']
+                out_param["tabbyapi_json_schema"] = json.dumps(jformat['json_schema']['schema'])
 
         # Send the POST request
         response = requests.post(TABBY_API_URL, json=payload, headers=headers)
@@ -38,6 +39,8 @@ def tabbyApiGetChatCompletion(msgs, params):
         if response.status_code == 200:
             completion = response.json()
             msg = completion['choices'][0]['message']['content']
+            out_param["model"] = completion['model']
+            # print(completion)
             if completion['choices'][0]['finish_reason'] == 'tool_calls':
                 # print(completion)
                 tool_calls = completion['choices'][0]['message']['tool_calls']
