@@ -461,7 +461,7 @@ def generate_genslides_json_file( code, filename, output_file_path):
         }
     return convert_text_to_genslides_json_file( code, output_jsonfile, output_file, output)
 
-def convert_text_to_genslides_json_file( code, output_jsonfile, output_file, output):
+def convert_text_to_genslides_json_file( code, output_jsonfile, output_file : Path, output):
 
     base_imports = get_import_statements( code )
     output_jsonfile["targets"].append({
@@ -530,9 +530,10 @@ def convert_text_to_genslides_json_file( code, output_jsonfile, output_file, out
         # with open(output_file_path, "w", encoding="utf-8") as json_file:
             json.dump(output_jsonfile, json_file, indent=4)
     except IOError as e:
-        output["report"] = f"Error writing to file {output_file_path}: {e}"
+        output["report"] = f"Error writing to file {PureWindowsPath(output_file.resolve())}: {e}"
         return output
     output["report"] = f"Output written to {PureWindowsPath(output_file.resolve())}"
+    output["result_filepath"] = PureWindowsPath(output_file.resolve())
     output["result"] = True
     return output
 

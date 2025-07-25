@@ -351,5 +351,17 @@
 				"cleanup_timeout": 5
 			}
 		]
+	},
+	"GenDoc":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "gendoc_config",
+				"path_to_write": "",
+				"filename": "",
+				"target": ""
+			}
+		]
 	}
 }

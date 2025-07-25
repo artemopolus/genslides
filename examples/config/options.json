@@ -312,5 +312,12 @@
       "use_json":[false, true],
       "include_functions":["ALL","function_name"],
       "jsonkeyspath":["json_schema,schema,properties,tool_calls,properties", ""]
+   },
+   {
+      "type": "gendoc_config",
+      "path_to_write": ["","[[parent:msg_content]]"],
+      "filename":["","[[parent:msg_content]]"],
+      "target":["","[[parent:msg_content]]"]
    }
+
 ]
