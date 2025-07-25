@@ -47,16 +47,22 @@ class Loader:
                 return False, pp
         return True, pp
     
-    def convertJsonTextPartToMsg(md_text : str, index = 1):
-        code_pattern = r'```json(.*?)```'
+
+    def convertMDwithPythonToCode( md_text : str):
+        for line in md_text.splitlines():
+            if line.strip() == "```python":
+                return Loader.convertJsonTextPartToMsg( md_text, language = "python" )
+        return md_text
+    
+    def convertJsonTextPartToMsg(md_text : str, index = 1, language = "json"):
+        # code_pattern = r'```json(.*?)```'
+        code_pattern = rf"```{language}\s*(.*?)```"
         parts = re.split(code_pattern, md_text, flags=re.DOTALL)
-        text = ""
         for i, part in enumerate(parts):
             if i % 2 == 0:  # Non-code parts treated as comments
                 pass
             else:  # Code parts
                 if i == index:
-                # print("parts", part)
                     return part.strip()
         return md_text
 

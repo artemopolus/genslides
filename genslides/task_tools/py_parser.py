@@ -2,6 +2,7 @@ import json
 from tree_sitter import Language, Parser
 import tree_sitter_python as tspython
 from pathlib import Path, PureWindowsPath
+import genslides.utils.writer as Writer
 
 
 
@@ -103,7 +104,7 @@ def get_global_variable_lines(code):
                     if target and target.type == 'identifier':
                         line_number = child.start_point[0]
                         full_line = code_lines[line_number]
-                        global_variables.append((line_number, target.text.decode(), full_line))
+                        global_variables.append([line_number, target.text.decode(), full_line])
 
             else:
                 global_variables.extend(_get_global_variables(child, current_scope))
@@ -463,6 +464,8 @@ def generate_genslides_json_file( code, filename, output_file_path):
 
 def convert_text_to_genslides_json_file( code, output_jsonfile, output_file : Path, output):
 
+    print( "Convert text to genslides json file" )
+
     base_imports = get_import_statements( code )
     output_jsonfile["targets"].append({
         "type":"imports",
@@ -472,8 +475,9 @@ def convert_text_to_genslides_json_file( code, output_jsonfile, output_file : Pa
 
     base_global_vars = get_global_variable_lines( code )
     base_global_vars_text = ""
-    for idx, name, text in base_global_vars:
-        base_global_vars += text
+    for bgvars in base_global_vars:
+        if len( bgvars ) == 3:
+            base_global_vars += bgvars[2]
 
     if len(base_global_vars):
         output_jsonfile["targets"].append({
@@ -526,9 +530,9 @@ def convert_text_to_genslides_json_file( code, output_jsonfile, output_file : Pa
 
         # Вывод результатов
     try:
-        with output_file.open("w", encoding="utf-8") as json_file:
-        # with open(output_file_path, "w", encoding="utf-8") as json_file:
-            json.dump(output_jsonfile, json_file, indent=4)
+        Writer.writeJsonToFile( output_file , output_jsonfile, indent=4)
+        # with output_file.open("w", encoding="utf-8") as json_file:
+        #     json.dump(output_jsonfile, json_file, indent=4)
     except IOError as e:
         output["report"] = f"Error writing to file {PureWindowsPath(output_file.resolve())}: {e}"
         return output

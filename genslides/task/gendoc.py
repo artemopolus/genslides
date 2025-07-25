@@ -17,7 +17,7 @@ class GenDocTask(Request.RequestTask):
         if gres:
             try:
                 path_to_folder = self.findKeyParam(gparam["path_to_write"])
-                code = self.findKeyParam(gparam["target"])
+                code = Ld.Loader.convertMDwithPythonToCode( self.findKeyParam(gparam["target"]) )
                 filename = self.findKeyParam(gparam["filename"])
                 report = PyParser.generate_genslides_json_file( code, filename, path_to_folder )
                 gparam["info"] = report["report"]
