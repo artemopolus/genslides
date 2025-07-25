@@ -2765,6 +2765,8 @@ class Actioner():
          
     
     def convertJsonFileToTemplateTreeTasks( self, path_to_default_7z, path_to_project_json ):
+        path_to_default_7z = Loader.Loader.getUniPath( path_to_default_7z )
+        path_to_project_json = Loader.Loader.getUniPath( path_to_project_json )
         data = ReadFM.ReadFileMan.readJson( path_to_project_json )
         if "version" not in data:
             print("No version")
@@ -2816,7 +2818,7 @@ class Actioner():
                         pack["parent_task"] = prev_task_name
                         prev_task_name = man.getCurrentTask().getName()
             folderpath = Loader.Loader.getFileFolder(path_to_project_json)
-            name = self.getManagerSpaceName( man ) + "_gs"
+            name = Loader.Loader.getFileNameFromPath(path_to_project_json) + "_gs"
             manager_path = self.getManagerFolderPath( man )
             data["src_project_path"] = manager_path
             path_to_created_project_file = Archivator.Archivator.saveAllbyName(manager_path, folderpath, name)
@@ -2865,16 +2867,19 @@ class Actioner():
         return Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
 
     def loadManagerProjectFromFile(self, template_path, safe_load_tasks = True, load_managers_tasks = True):
+        print("Load manager project from file")
         self.setManager(self.std_manager)
         man = self.getCurrentManager()
         target_path = man.getPath()
         name = self.getManagerSpaceName( man )
         # name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
         self.saveManToTmp(man, "tt_"+ SaveData.getTimeForProjectName(), ["tt_temp",f"{name}_tempload"], check_oldest=True, max_files= 10)
-        if FileManager.checkExistPath(template_path):
+        if not FileManager.checkExistPath(template_path):
+            print(f"Abort: path is not exist ({template_path})")
             return
         FileManager.deleteFiles(target_path)
         if not Archivator.Archivator.extract7zFileToFolder(template_path, target_path):
+            print("Abort: error on load archive")
             return
         self.reset()
         self.setCurrentManager( self.std_manager )

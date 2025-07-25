@@ -278,6 +278,13 @@ class Loader:
             out = PurePosixPath(out)
         return str(out)
     
+    def getFileNameFromPath( path : str ):
+        filepath = Path(path)
+        if filepath.is_file():
+            return filepath.stem
+        return path
+
+    
     def getFileFolder( path : str):
         filepath = Path(path)
         if filepath.is_dir():

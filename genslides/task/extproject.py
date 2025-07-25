@@ -768,10 +768,10 @@ class JumperTreeTask(InExtTreeTask):
                 self.updateUpdationInfo("Disabled action execution")
                 pass
             elif eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
-                results = self.intact.getJsonCmd(eparam['updt_actions'])
+                results = self.intact.getJsonCmd(self.findKeyParam(eparam['updt_actions']))
                 self.updateUpdationInfo(f"UPDATE Actions with results:{results}")
             else:
-                self.updateUpdationInfo("Deafualt update")
+                self.updateUpdationInfo("Default update")
                 self.intact.loadTmpManagerTasks()
                 self.intact.manager.disableOutput2()
                 if eres and 'update_count' in eparam and isinstance(eparam['update_count'], int):
@@ -791,7 +791,7 @@ class JumperTreeTask(InExtTreeTask):
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
                 pass
             elif eres and 'idle_actions' in eparam and eparam['idle_actions'] != "":
-                results = self.intact.getJsonCmd(eparam['idle_actions'])
+                results = self.intact.getJsonCmd(self.findKeyParam(eparam['idle_actions']))
                 self.updateUpdationInfo(f"IDLE Actions with results:{results}")
         if eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_check":
             if self.intact.getFrozenTasksCount() > 0:
@@ -804,7 +804,7 @@ class JumperTreeTask(InExtTreeTask):
     def forceCleanChat(self):
         eres, eparam = self.getParamStruct('external',True)
         if eres and 'reset_actions' in eparam and eparam['reset_actions'] != "":
-            results = self.intact.getJsonCmd(eparam['reset_actions'])
+            results = self.intact.getJsonCmd(self.findKeyParam(eparam['reset_actions']))
             self.updateUpdationInfo(f"RESET Actions with results:{results}")
         return super().forceCleanChat()
 
