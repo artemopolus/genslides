@@ -66,6 +66,15 @@ class TextTask(BaseTask):
 
         self.onMsgDiffCallbacks = []
 
+    def saveUpdationInfo( self ):
+        self.setParamStruct({
+            "type":"onupdate_result",
+            "time": savedata.getTimeForSaving(),
+            "frozen": self.is_freeze,
+            "blocked": self.block_on,
+            "info": self.update_info
+        })
+
     def resetUpdationInfo( self ):
         self.update_info = ""
 
@@ -1201,13 +1210,7 @@ class TextTask(BaseTask):
             else:
                 self.updateUpdationInfo(f"Error on jsondict to text convert")
         self.updateAutoCommand()
-        self.setParamStruct({
-            "type":"onupdate_result",
-            "time": savedata.getTimeForSaving(),
-            "frozen": self.is_freeze,
-            "blocked": self.block_on,
-            "info": self.update_info
-        })
+        self.saveUpdationInfo()
         self.resetUpdationInfo()
 
     def setRecordsParam(self):

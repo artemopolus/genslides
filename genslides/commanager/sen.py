@@ -3569,4 +3569,12 @@ class Projecter(Commander.Commander):
         self.actioner.getCurrentManager().redoCmd()
         return self.updateMainUIelements()
         
-
+    def freezeCurrentTask( self ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        task.freezeTask()
+        return self.updateMainUIelements()
+    
+    def forceGetCurrentTaskUpdationInfo( self ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        task.saveUpdationInfo()
+        return self.updateMainUIelements()
