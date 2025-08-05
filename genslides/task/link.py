@@ -243,10 +243,19 @@ class ListenerTask(LinkedTask):
         prompt = ""
         if lparam['combine'] == 'json_list':
             prompts_data = []
+        elif lparam['combine'] == 'json_append':
+            jres, jobj = Ld.Loader.loadJsonFromText(self.prompt)
+            if jres:
+                prompts_data = jobj
+            else:
+                prompts_data = []
         elif lparam['combine'] == 'json_dict':
             prompts_data = {}
         elif lparam['combine'].endswith('append'):
-            prompt = self.prompt
+            if self.prompt == self.findKeyParam(lparam['init_prompt']):
+                prompt = ""
+            else:
+                prompt = self.prompt
         params = []
         updated = False
         # if lres and 'init_prompt' in lparam:
@@ -295,6 +304,10 @@ class ListenerTask(LinkedTask):
                                 jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
                                 if jres:
                                     prompts_data.update( jobj)
+                            elif lparam['combine'] == 'json_append':
+                                jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
+                                if jres:
+                                    prompts_data.append( jobj)
                             elif isinstance(tsk_info.params, list):
                                 kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
                                 if kres:
