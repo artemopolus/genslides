@@ -21,4 +21,11 @@ class ExternalInput(RqTask.RequestTask):
 
     def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}):
         return False, [], self.parent
+    
+    def isUnconnectedExternalRoot(self):
+        if self.getParent() != None:
+            return False
+        else:
+            return True
+        return super().isUnconnectedExternalRoot()
  

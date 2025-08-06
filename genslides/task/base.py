@@ -1620,6 +1620,20 @@ class BaseTask():
     def getRelatedActionersPaths( self, actpaths_list : list[str]):
         return actpaths_list
     
+    def isUnconnectedExternalRoot( self ):
+        return False
+    
+    def checkIsFrozenForManager(self) -> bool:
+        if self.isFrozen():
+            if self.checkBlock():
+                return False
+            elif self.getRootParent().isUnconnectedExternalRoot():
+            # elif self.getRootParent().checkType('ExternalInput'):
+                return False
+            else:
+                return True
+        return False
+    
     def isFrozen(self):
         return self.is_freeze
 

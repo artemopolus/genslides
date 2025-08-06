@@ -216,7 +216,7 @@
       "input": ["prompt","params"],
       "output": ["prompt","param"],
       "hash": "",
-      "combine": ["none","single","json_list","json_dict","single_append","multi","multi_append"],
+      "combine": ["none","single","json_list","json_dict","single_append","multi","multi_append","json_append"],
       "data": "",
       "onedit":["none","collect","garland"],
       "onupdate":["none","chck_link_chld"],

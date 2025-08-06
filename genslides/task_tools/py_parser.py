@@ -452,7 +452,7 @@ def generate_genslides_json_file( code, filename, output_file_path):
         output_file = output_file / filename
         output_file = output_file.with_suffix(".json")
     else:
-        output["report"] = "Error: Is not dir"
+        output["report"] = f"Error: {output_file.resolve()} is not dir"
         return output
     output_jsonfile = {
             "filename": filename,
@@ -493,7 +493,7 @@ def convert_text_to_genslides_json_file( code, output_jsonfile, output_file : Pa
     if len(base_global_method_names):
         base_global_method_text = ""
         for name in base_global_method_names:
-            base_global_method_text += get_function_info( name )
+            base_global_method_text += parse_text( code, name )
         output_jsonfile["targets"].append({
                 "type":"method",
                 "parent_target": "None",

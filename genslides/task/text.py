@@ -1192,7 +1192,11 @@ class TextTask(BaseTask):
                 self.setParamStruct(rparam)
         ares, aparam = self.getParamStruct(param_name='array', only_current=True)
         if ares:
+            if "idx" in aparam:
+                start_index = aparam["idx"]
             naparam = ar.checkArrayIteration(self, aparam)
+            if "len" in naparam and "idx" in naparam and naparam["idx"] >= naparam["len"] -1 and naparam["idx"] == start_index:
+                self.freezeTask()
             self.updateParam2(naparam)
         fres, fparam = self.getParamStruct("format",True)
         if fres:
@@ -1249,8 +1253,8 @@ class TextTask(BaseTask):
             return "","",""
         out = super().update(input)
         self.internalUpdateParams()
-        for child in self.getChilds():
-            child.freezeTask()
+        # for child in self.getChilds():
+            # child.freezeTask()
         return out
 
     def getInfo(self, short=True) -> str:

@@ -328,12 +328,13 @@ class Jun():
     def getFrozenTasksCount(self) -> int:
         cnt = 0
         for t in self.getTasks():
-            if t.isFrozen():
-                if t.checkBlock():
-                    pass
-                elif t.getRootParent().checkType('ExternalInput'):
-                    pass
-                else:
+            if t.checkIsFrozenForManager():
+            # if t.isFrozen():
+            #     if t.checkBlock():
+            #         pass
+            #     elif t.getRootParent().checkType('ExternalInput'):
+            #         pass
+            #     else:
                     cnt += 1
         return cnt
 
