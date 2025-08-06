@@ -1800,3 +1800,9 @@ class BaseTask():
         pass
     def removeAutoActCmdByIndex(self, aa_idxs : list[int]):
         pass
+
+    def getExtTreeTaskCmds (self):
+        return []
+    
+    def exeExTreeTaskCmds( self, cmds : list[dict] ):
+        pass

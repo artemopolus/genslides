@@ -807,6 +807,26 @@ class JumperTreeTask(InExtTreeTask):
             results = self.intact.getJsonCmd(self.findKeyParam(eparam['reset_actions']))
             self.updateUpdationInfo(f"RESET Actions with results:{results}")
         return super().forceCleanChat()
+    
+    def getExtTreeTaskCmds(self):
+        lres, lparam = self.getParamStruct("external", True)
+        if lres:
+            cmds_txt = lparam.get("custom_actions","[]")
+            jres, jcmds = Loader.Loader.loadJsonFromText( cmds_txt )
+            if jres:
+                return [Loader.Loader.convJsonToText(j) for j in jcmds]
+        return super().getExtTreeTaskCmds()
+
+    def exeExTreeTaskCmds( self, cmds ):
+        act = self.getActioner()
+        if act != None:
+            act.getJsonCustomCmd( cmds )
+            self.setChildUpdateState( True )
+            for child in self.getChilds():
+                if child.checkType( "OutExtTree" ):
+                    child.updateIternal()
+            self.setChildUpdateState( False )
+        return super().exeExTreeTaskCmds( cmds )
 
 
 class OutExtTreeTask(ExtProjectTask):

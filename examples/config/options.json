@@ -209,7 +209,8 @@
       "onupdate":["loadact_ignore","loadact_check"],
       "reset_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
       "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
-      "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
+      "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
+      "custom_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
    },
    {
       "type": "listener",

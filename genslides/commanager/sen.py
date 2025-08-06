@@ -3069,7 +3069,8 @@ class Projecter(Commander.Commander):
         cmdinfo += f"\ncount: {len(cmds)}"
         out += (
             self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), 
-                stepgraph, rawgraph, cmdinfo
+                stepgraph, rawgraph, cmdinfo, 
+                gr.CheckboxGroup(choices=self.actioner.getExtTreeCmdsListOfCurrentTask(),value=[])
                 )
         # print('act:',out)
         return out
@@ -3440,6 +3441,12 @@ class Projecter(Commander.Commander):
         man = self.actioner.getCurrentManager()
         for task in man.getCurrentTask().getAllParents():
             man.forceUnFreezeTask(task)
+        return self.updateMainUIelements()
+    
+    def executeExtTreeActionerJsonCmd( self, cmds_list ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        cmds = [Loader.Loader.loadJsonFromText(c) for c in cmds_list]
+        task.exeExTreeTaskCmds( cmds )
         return self.updateMainUIelements()
     
        

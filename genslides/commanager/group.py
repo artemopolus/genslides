@@ -1043,7 +1043,12 @@ class Actioner():
         # return out
         self.is_updating = False
         return project_chain
+    
 
+    def setCurrentTaskAndUpdateAllUntillCurrTask(self, name : str, force_check=False):
+        task = self.getCurrentManager().getTaskByName( name )
+        if task != None:
+            self.updateAllUntillCurrTask(force_check)
 
     def updateAllUntillCurrTask(self, force_check=False):
         man = self.manager
@@ -1904,6 +1909,10 @@ class Actioner():
             if res and isinstance(param['idx'], int) and param['idx'] < param['len'] - 1:
                 names.append(task.getName())
         return names
+    
+    def getExtTreeCmdsListOfCurrentTask( self ):
+        task = self.getCurrentManager().getCurrentTask()
+        return task.getExtTreeTaskCmds()
  
     def getJsonCmd(self, json_cmds):
         cmds = json.loads(json_cmds) # parse the JSON array

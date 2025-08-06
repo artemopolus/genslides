@@ -646,8 +646,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         undo_btn = gr.Button("Undo")
                         redo_btn = gr.Button("Redo")
 
+                with gr.Tab('ExtTreeTask custom json cmd'):
+                    exttreetask_cstmjsoncmd_drd = gr.CheckboxGroup(label="Available cmds")
+                    exttreetask_execurcmd_btn = gr.Button("Exe selected cmds")
  
-                with gr.Tab('Custom json cmd'):
+                with gr.Tab('Actioner custom json cmd'):
                                     # with gr.Tab('Task cmds'):
                     with gr.Accordion(label="From task", open=False):
                         gettaskswithcmds_btn = gr.Button("Get Tasks with Cmds")
@@ -1178,7 +1181,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_tasks_list, 
                                 selected_prompt
                                ]
-            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt])
+            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt, exttreetask_cstmjsoncmd_drd])
+
+            exttreetask_execurcmd_btn.click(fn=projecter.executeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
 
             undo_btn.click(fn=projecter.undoCurrentManagerCommand, outputs=std_output_list)
             redo_btn.click(fn=projecter.redoCurrentManagerCommand, outputs=std_output_list)
