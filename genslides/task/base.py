@@ -1673,6 +1673,12 @@ class BaseTask():
     def getJsonFilePath(self):
         return ""
     
+    def forceResetArray( self ):
+        pass
+
+    def forceResetHash( self ):
+        pass
+    
     def forceCleanChat(self):
         pass
 

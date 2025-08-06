@@ -97,9 +97,10 @@ def cut_text_into_parts(text, parts_count, before_length, after_length):
 
 def convert_text_with_names_to_list( text : str, delimiter = ',') -> list[str]:
     names = text.split(delimiter)
+    out = []
     for name in names:
-        name.replace(" ","")
-    return names
+        out.append(name.replace(" ",""))
+    return out
 
 def getNumberBySplitting( text : str):
     values = text.split("_")

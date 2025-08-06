@@ -1228,15 +1228,24 @@ class TextTask(BaseTask):
         #     np = rd.clearRecordData(param)
         #     self.setParamStruct(np)
 
-    def forceCleanChat(self):
+    def forceResetArray(self):
         res, param = self.getParamStruct('array', only_current=True)
         if res:
-            print(self.getName(), 'reset array param')
+            self.updateUpdationInfo(f"{self.getName()}: reset array param" )
             param = ar.resetArrayParam(self, param)
             self.updateParam2( param )
+        return super().forceResetArray()
+    
+    def forceResetHash(self):
         res, param = self.getParamStruct('check', only_current=True)
         if res:
+            self.updateUpdationInfo(f"{self.getName()}: reset hash" )
             self.updateParamStruct('check','hash','')
+        return super().forceResetHash()
+
+    def forceCleanChat(self):
+        self.forceResetArray()
+        self.forceResetHash()
         return super().forceCleanChat()
 
     def getChatRecords(self) ->list:

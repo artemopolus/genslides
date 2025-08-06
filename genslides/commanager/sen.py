@@ -3445,7 +3445,12 @@ class Projecter(Commander.Commander):
     
     def executeExtTreeActionerJsonCmd( self, cmds_list ):
         task = self.actioner.getCurrentManager().getCurrentTask()
-        cmds = [Loader.Loader.loadJsonFromText(c) for c in cmds_list]
+        cmds = []
+        for cmd_txt in cmds_list:
+            res, cmd = Loader.Loader.loadJsonFromText(cmd_txt)
+            if res:
+                cmds.append( cmd )
+        print(f"exe ext tree actions:\n{cmds}")
         task.exeExTreeTaskCmds( cmds )
         return self.updateMainUIelements()
     

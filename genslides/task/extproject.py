@@ -812,14 +812,16 @@ class JumperTreeTask(InExtTreeTask):
         lres, lparam = self.getParamStruct("external", True)
         if lres:
             cmds_txt = lparam.get("custom_actions","[]")
+            cmds_txt = self.findKeyParam( cmds_txt )
             jres, jcmds = Loader.Loader.loadJsonFromText( cmds_txt )
             if jres:
                 return [Loader.Loader.convJsonToText(j) for j in jcmds]
         return super().getExtTreeTaskCmds()
 
     def exeExTreeTaskCmds( self, cmds ):
-        act = self.getActioner()
+        act = self.intact
         if act != None:
+            self.updateUpdationInfo(f"Exe ext tree actions")
             act.getJsonCustomCmd( cmds )
             self.setChildUpdateState( True )
             for child in self.getChilds():
@@ -833,6 +835,16 @@ class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
         super().__init__(task_info, type)
         self.readbranchmsg_idx = 0
+
+    def getExtTreeTaskCmds(self):
+        if self.getParent():
+            return self.getParent().getExtTreeTaskCmds()
+        return super().getExtTreeTaskCmds()
+    
+    def exeExTreeTaskCmds(self, cmds):
+        if self.getParent():
+            return self.getParent().exeExTreeTaskCmds( cmds )
+        return super().exeExTreeTaskCmds(cmds)
 
     def onExistedMsgListAction(self, msg_list_from_file):
         self.updateUpdationInfo(f"msg_list_old:\n{msg_list_from_file}")

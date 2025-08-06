@@ -516,9 +516,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 # with gr.Row():
                     
             with gr.Tab('Cmds'):
+                with gr.Row():
+                    name_info = gr.Text(value="None", label="Current Task Name")
+
                 with gr.Tab('Current'):
-                    with gr.Row():
-                        name_info = gr.Text(value="None", label="Task")
      # with gr.Row():
                     with gr.Row():
                         moveup_btn = gr.Button(value='Move UP')
@@ -530,7 +531,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         freezetask_btn = gr.Button(value='Freeze task')
                         gettaskupdationinfo_btn = gr.Button(value='Get Task Info')
                         forceunfrzpars_btn = gr.Button('Force unfreeze Parents')
-                        clnresp_btn = gr.Button(value='Clean Response')
+                        clnresp_btn = gr.Button(value='Force Reset Chat')
                         unite_btn = gr.Button(value='Unite')
                         breakforlink = gr.Button(value='Make uniq link')
                 with gr.Tab('Selected'):
@@ -1402,7 +1403,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=tree_outlist)          
 
-            sel_task_btn.click(fn=projecter.setCurrentTaskByName, inputs=[task_list], outputs= std_output_list )
+            sel_task_btn.click(fn=projecter.setCurrentTaskByName, inputs=[task_list], outputs= tree_outlist )
             gettaskswithcmds_rad.input(fn=projecter.setCurrentTaskByName, inputs=[gettaskswithcmds_rad], outputs= tree_outlist )
             go_lnkfrwd_btn.click(fn=projecter.setCurrentTaskByName, inputs=[go_lnkfrwd_rad], outputs= tree_outlist )
 

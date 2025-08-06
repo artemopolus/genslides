@@ -539,13 +539,11 @@ class Actioner():
             self.removeTmpManager(self.manager, trg, copy=False)
            
         elif creation_type == "SetCurrTask":
-            self.manager.setCurrentTaskByName(name=param['task'])
+            self.setCurManTaskByName( name=param['task'] )
         elif creation_type == "SetSlctTask":
-            self.manager.setSelectedTaskByName(name=param['task'])
+            self.setManSelectTaskByName(name=param['task'])
         elif creation_type == "SetMultiTask":
-            names = TextTool.convert_text_with_names_to_list(param['tasks'])
-            for name in names:
-                self.manager.addTaskToMultiSelectedByName(name)
+            self.setManMultiSelectTasksByNames( param['tasks'] )
         elif creation_type == "NewExtProject":
             self.manager.createExtProject(type1, prompt, None)
         elif creation_type == "SubExtProject":
@@ -705,7 +703,15 @@ class Actioner():
         return out
     
     def setCurManTaskByName(self, name):
-        self.manager.setCurrentTaskByName(name)
+        self.getCurrentManager().setCurrentTaskByName( name )
+
+    def setManSelectTaskByName( self, name ):
+        self.getCurrentManager().setSelectedTaskByName( name )
+
+    def setManMultiSelectTasksByNames( self, names_txt ):
+        names = TextTool.convert_text_with_names_to_list( names_txt )
+        for name in names:
+            self.manager.addTaskToMultiSelectedByName(name)
 
     def getCurrentTaskName(self):
         return self.manager.curr_task.getName()
@@ -1048,6 +1054,8 @@ class Actioner():
     def setCurrentTaskAndUpdateAllUntillCurrTask(self, name : str, force_check=False):
         task = self.getCurrentManager().getTaskByName( name )
         if task != None:
+            self.getCurrentManager().setCurrentTask( task )
+            print(f"Update to {self.getCurrentManager().getCurrentTask().getName()}")
             self.updateAllUntillCurrTask(force_check)
 
     def updateAllUntillCurrTask(self, force_check=False):
@@ -1920,7 +1928,7 @@ class Actioner():
 
     def getJsonCustomCmd(self, cmds : list):
 
-        # print('Get json command:', json_cmds)
+        print(f"Get json command for {self.getPath()}")
         results = [] # list to hold results of each command
         try:
 
@@ -2003,6 +2011,29 @@ class Actioner():
         
         for link in outlinks:
             man.makeLink( cr_task, link )
+
+    def cleanTaskParameters( self, range = "Current", target = "hash"):
+        if range == "Current":
+            tasks = [self.getCurrentManager().getCurrentTask()]
+        elif range == "Multi":
+            tasks = self.getCurrentManager().getMultiSelectedTasks()
+        else:
+            names = TextTool.convert_text_with_names_to_list( range )
+            tasks  = []
+            for name in names:
+                task = self.getCurrentManager().getTaskByName( name )
+                if task != None:
+                    tasks.append( task )
+                else:
+                    print(f"Can't find \"{name}\"")
+        for task in tasks:
+            print(f"Apply to {task.getName()} task ")
+            if target == "hash":
+                task.forceResetHash()
+            elif target == "array":
+                task.forceResetArray()
+            elif target == "clean":
+                task.forceCleanChat()
 
     def cleanLastMessageCurrentTask(self):
         man = self.getCurrentManager()
