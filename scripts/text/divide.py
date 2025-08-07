@@ -90,14 +90,37 @@ Response using provided Json Schema.
 
 before = "I'd like the GUI to handle user inputs and then pass them to the core functions for processing."
 
+before1 = "I'd like the handle user inputs and then core functions for processing."
+
 after = "Data format: custom text file. There are three columns in file for X, Y, Z data. The file is a CSV with headers 'X', 'Y', 'Z' and values separated by tabs."
 
 
-similar_sentence, score, start_pos, end_pos_above = Text.find_most_similar_simple( before, src_text )
+similar_sentence, score, start_pos, end_pos = Text.find_most_similar_simple( before1, src_text )
+
+
+
+text_near_start_start = 0 if start_pos < 10 else start_pos - 10
+text_near_start_end = len(src_text) if len(src_text) - start_pos < 10 else start_pos + 10
+text_near_start = "\"\"\"\n..." + src_text[text_near_start_start:text_near_start_end] + "...\n\"\"\""
+
+
+text_near_end_start = 0 if end_pos < 10 else end_pos - 10
+text_near_end_end = len(src_text) if len(src_text) - end_pos < 10 else end_pos + 10
+text_near_end = "\"\"\"\n..." + src_text[text_near_end_start:text_near_end_end] + "...\n\"\"\""
+
 
 print("\n--- Results (Simple Word Count) ---")
 # print(f"Query Sentence: '{query}'")
 print(f"Most Similar Sentence Found: '{similar_sentence}'")
 print(f"Shared Word Count: {score}")
-print(f"Start Position: {start_pos}")
+print(f"Start Position: {start_pos}/{len(src_text)}:\n{text_near_start}")
+print(f"End Position: {end_pos}/{len(src_text)}:\n{text_near_end}")
+
+res, parts = Text.divide_based_on_texts_above_below( src_text, before, after )
+
+if res:
+    print("\n\n\n\nPART 1\n---\n")
+    print(parts[0])
+    print("PART 2\n---\n")
+    print(parts[1])
 

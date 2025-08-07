@@ -1492,8 +1492,8 @@ class Actioner():
         tag = task.getLastMsgRole()
         res, parts = TextTool.divide_based_on_texts_above_below(  text, text_before, text_after )
         if res:
-            self.getCurrentManager().makeTaskAction(parts[0], "Request", "Insert", tag)
-            self.getCurrentManager().makeTaskAction(parts[1], "Request", "Edit", tag)
+            self.makeTaskAction(parts[0], "Request","Insert", tag)
+            self.makeTaskAction(parts[1], "Request","Edit", tag)
 
     def divideActions(self, prompt, param):
         text = prompt

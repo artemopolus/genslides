@@ -333,8 +333,9 @@ def divide_based_on_texts_above_below(text, sentence_above, sentence_below):
     elif end_pos_above == None:
         divide = start_pos_below
     else:
-        divide = int((end_pos_above + start_pos_below)/2)
-    if divide < len(text):
+        divide = end_pos_above
+    if divide < len(text) - 1:
+        divide += 1
         part1 = text[:divide]
         part2 = text[divide:]
     else:
