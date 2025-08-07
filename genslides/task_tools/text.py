@@ -278,3 +278,119 @@ def convertJsonDictToText( args : list[str], trg ):
         text = f"Target is not list or dict. Arguments: {args}"
 
     return text
+
+
+def find_most_similar_simple(query_sentence, text_corpus):
+    """
+    Finds the most similar sentence in a text corpus based on a simple
+    count of shared words.
+
+    Args:
+        query_sentence (str): The sentence to compare against the corpus.
+        text_corpus (str): The large block of text to search through.
+
+    Returns:
+        tuple: A tuple containing the most similar sentence (str) and its
+               shared word count (int). Returns (None, None) if the
+               corpus is empty.
+    """
+    if not text_corpus:
+        return None, None
+
+    # Split the text corpus into a list of individual sentences.
+    # We'll use a basic split on '.'
+    corpus_sentences = [s.strip() for s in text_corpus.split('.') if s.strip()]
+
+    # Process the query sentence to create a set of unique words.
+    # Converting to lowercase and splitting by space is a simple tokenization.
+    query_words = set(query_sentence.lower().split())
+
+    most_similar_sentence = None
+    max_shared_words = -1
+
+    # Iterate through each sentence in the corpus.
+    for sentence in corpus_sentences:
+        # Process the corpus sentence into a set of unique words.
+        sentence_words = set(sentence.lower().split())
+
+        # Find the number of words shared between the query and the current sentence.
+        shared_words_count = len(query_words.intersection(sentence_words))
+
+        # If this sentence has more shared words, it's our new best match.
+        if shared_words_count > max_shared_words:
+            max_shared_words = shared_words_count
+            most_similar_sentence = sentence
+
+    return most_similar_sentence, max_shared_words
+
+def divide_based_on_texts_above_below(text, sentence_above, sentence_below):
+    similar_sentence, score, start_pos, end_pos_above = find_most_similar_simple( sentence_above, text )
+    similar_sentence, score, start_pos_below, end_pos = find_most_similar_simple( sentence_below, text )
+    if end_pos_above == None and start_pos_below == None:
+        return False, []
+    elif start_pos_below == None:
+        divide = end_pos_above
+    elif end_pos_above == None:
+        divide = start_pos_below
+    else:
+        divide = int((end_pos_above + start_pos_below)/2)
+    if divide < len(text):
+        part1 = text[:divide]
+        part2 = text[divide:]
+    else:
+        return False, []
+    return True, [part1, part2]
+
+
+def find_most_similar_simple(query_sentence, text_corpus):
+    """
+    Finds the most similar sentence in a text corpus based on a simple
+    count of shared words, and returns its start and end positions.
+
+    Args:
+        query_sentence (str): The sentence to compare against the corpus.
+        text_corpus (str): The large block of text to search through.
+
+    Returns:
+        tuple: A tuple containing the most similar sentence (str), its
+               shared word count (int), its start position (int), and its
+               end position (int). Returns (None, None, None, None) if the
+               corpus is empty or no similar sentence is found.
+    """
+    if not text_corpus:
+        return None, None, None, None
+
+    # Split the text corpus into a list of individual sentences.
+    # We'll use a basic split on '.'
+    corpus_sentences = [s.strip() for s in text_corpus.split('.') if s.strip()]
+
+    # Process the query sentence to create a set of unique words.
+    # Converting to lowercase and splitting by space is a simple tokenization.
+    query_words = set(query_sentence.lower().split())
+
+    most_similar_sentence = None
+    max_shared_words = -1
+
+    # Iterate through each sentence in the corpus.
+    for sentence in corpus_sentences:
+        # Process the corpus sentence into a set of unique words.
+        sentence_words = set(sentence.lower().split())
+
+        # Find the number of words shared between the query and the current sentence.
+        shared_words_count = len(query_words.intersection(sentence_words))
+
+        # If this sentence has more shared words, it's our new best match.
+        if shared_words_count > max_shared_words:
+            max_shared_words = shared_words_count
+            most_similar_sentence = sentence
+
+    # If a similar sentence was found, determine its start and end positions.
+    if most_similar_sentence:
+        # The .find() method returns the index of the first occurrence of the substring.
+        start_pos = text_corpus.find(most_similar_sentence)
+        end_pos = start_pos + len(most_similar_sentence)
+        return most_similar_sentence, max_shared_words, start_pos, end_pos
+    else:
+        return None, None, None, None
+
+
