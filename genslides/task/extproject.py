@@ -767,6 +767,8 @@ class JumperTreeTask(InExtTreeTask):
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
                 self.updateUpdationInfo("Disabled action execution")
                 pass
+            elif eres and 'updt_actions' in eparam and eparam['updt_actions'] == "":
+                self.updateUpdationInfo("No actions for update")
             elif eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
                 results = self.intact.getJsonCmd(self.findKeyParam(eparam['updt_actions']))
                 self.updateUpdationInfo(f"UPDATE Actions with results:{results}")
@@ -960,6 +962,9 @@ class OutExtTreeTask(ExtProjectTask):
             return
         if not self.getParent().canChildUpdate():
             self.updateUpdationInfo(f"Block by {self.getParent().getName()}")
+            if self.intch_trg != None and self.intch_trg.isFrozen():
+                self.updateUpdationInfo(f"{self.intch_trg.getName()} is frozen")
+                self.freezeTask()
             return
         if self.intch_trg == None:
             eres, eparam = self.getParamStruct('external')
