@@ -330,8 +330,8 @@ class ListenerTask(LinkedTask):
         else:
             self.updateUpdationInfo("Checks not pass\n")
         if not updated:
-            if lres and 'init_prompt' in lparam:
-                self.prompt = self.findKeyParam(lparam['init_prompt'])
+            # if lres and 'init_prompt' in lparam:
+                # self.prompt = self.findKeyParam(lparam['init_prompt'])
             self.updateUpdationInfo("No updates from linked\n")
             return self.prompt
         if lres:

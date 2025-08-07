@@ -319,6 +319,11 @@
       "path_to_write": ["","[[parent:msg_content]]"],
       "filename":["","[[parent:msg_content]]"],
       "target":["","[[parent:msg_content]]"]
+   },
+   {
+      "type":"cmd_generator",
+      "content": "",
+      "hash":""
    }
 
 ]

@@ -1183,6 +1183,41 @@ class TextTask(BaseTask):
             naparam = ar.iterateOverArrayFromParam(self, aparam)
             self.updateParam2(naparam)
 
+    def resetCommandGenerator( self ):
+        res, param = self.getParamStruct(param_name='cmd_generator', only_current=True)
+        if res:
+            param["hash"] = ""
+            self.setParamStruct( param )
+
+
+    def generateCommandFromTask( self ):
+        if self.isFrozen():
+            return
+        res, param = self.getParamStruct(param_name='cmd_generator', only_current=True)
+        if res:
+            cmd_text = self.findKeyParam(param.get("content",""))
+            prev_hash = param.get("hash","")
+            cmd_hash = Txt.compute_sha256_hash( cmd_text )
+            if cmd_hash == prev_hash:
+                return
+            jres, cmd = Loader.loadJsonFromText( cmd_text )
+            if jres:
+                if isinstance( cmd, dict ):
+                    if "action" in cmd:
+                        self.updateAutoCommand2param( cmd )
+                        param["hash"] = cmd_hash
+                        self.setParamStruct( param )
+                elif isinstance( cmd, dict ):
+                    one_action = False
+                    for action in cmd:
+                        if "action" in action:
+                            self.updateAutoCommand2param( action )
+                            one_action = True
+                    if one_action:
+                        param["hash"] = cmd_hash
+                        self.setParamStruct( param )
+
+
     def internalUpdateParams(self):
         self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
         res, param = self.getParamStruct(param_name='records', only_current=True)
@@ -1198,6 +1233,9 @@ class TextTask(BaseTask):
             if "len" in naparam and "idx" in naparam and naparam["idx"] >= naparam["len"] -1 and naparam["idx"] == start_index:
                 self.freezeTask()
             self.updateParam2(naparam)
+
+        self.generateCommandFromTask()
+
         fres, fparam = self.getParamStruct("format",True)
         if fres:
             ores, options = Loader.loadJsonFromText( self.findKeyParam( fparam.get("description","") ) )
@@ -1246,6 +1284,7 @@ class TextTask(BaseTask):
     def forceCleanChat(self):
         self.forceResetArray()
         self.forceResetHash()
+        self.resetCommandGenerator()
         return super().forceCleanChat()
 
     def getChatRecords(self) ->list:
