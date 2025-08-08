@@ -1049,7 +1049,7 @@ class Manager(Man.Jun):
         info.manager = self
         res, task_params = self.helper.getParams(task_type)
         if res:
-            task_params.update(info.params)
+            # task_params.update(info.params)
             info.params = self.updateTaskParams(info.params, task_params)
 
         curr_cmd = cr.createTaskByType(task_type, info)
