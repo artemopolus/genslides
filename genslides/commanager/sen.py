@@ -924,6 +924,21 @@ class Projecter(Commander.Commander):
     def getActionerPathsList(self):
         return gr.Radio(choices=[a['act'].getPath() for a in self.actioners_list], 
     value=self.actioner.getPath() if self.actioner != None else None, interactive=True)
+
+    def selectActionerFromTask( self ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        if task != None:
+            res, path_to_act, task_name = task.getExternalActionerTask()
+            if res:
+                for act in self.getActionersList():
+                    if path_to_act == act.getPath():
+                        trg = act.getCurrentManager().getTaskByName( task_name )
+                        if trg != None:
+                            self.actioner = act
+                            act.getCurrentManager().setCurrentTask( trg )
+                            return self.updateTreeAndAll()
+        return self.updateTreeAndAll()
+        
     
     def selectActionerByPath(self, path):
         for act in self.actioners_list:

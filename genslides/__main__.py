@@ -148,6 +148,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     updactlist_btn = gr.Button('Update')
                     updactlist_btn.click(fn=projecter.getActionerPathsList, outputs=[actionerlist_rad])
                 with gr.Row():
+                    selactbytask_btn = gr.Button('Go to task actioner')
                     exttreetaskaddact_btn = gr.Button('Load ExtTree to actioner')
 
 
@@ -1272,7 +1273,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             next_tree_btn.click(fn=projecter.goToNextTree, outputs=tree_outlist)
             new_tree_btn.click(fn=projecter.createNewTree, outputs=tree_outlist)
             actionerlist_rad.input(fn=projecter.selectActionerByPath, inputs=[actionerlist_rad], outputs=tree_outlist)
-
+            selactbytask_btn.click(fn=projecter.selectActionerFromTask, outputs=tree_outlist)
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)

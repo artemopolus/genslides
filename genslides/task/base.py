@@ -1812,3 +1812,6 @@ class BaseTask():
     
     def exeExTreeTaskCmds( self, cmds : list[dict] ):
         pass
+
+    def getExternalActionerTask( self ):
+        return False, "", ""

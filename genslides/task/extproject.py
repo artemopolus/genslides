@@ -831,12 +831,28 @@ class JumperTreeTask(InExtTreeTask):
                     child.updateIternal()
             self.setChildUpdateState( False )
         return super().exeExTreeTaskCmds( cmds )
+    
+    def getExternalActionerTask(self):
+        act = self.getActioner()
+        eres, eparam = self.getParamStruct('external',True)
+        if not eres:
+            return super().getExternalActionerTask()
+        if act != None:
+            return True, act.getPath(), eparam['jumper']
+        return super().getExternalActionerTask()
 
 
 class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:
         super().__init__(task_info, type)
         self.readbranchmsg_idx = 0
+
+    def getExternalActionerTask(self):
+        eres, eparam = self.getParamStruct('external',True)
+        if eres and \
+            self.getParent() != None and self.getParent().getActioner() != None:
+                return True, self.getParent().getActioner().getPath() ,eparam.get("target","")
+        return super().getExternalActionerTask()
 
     def getExtTreeTaskCmds(self):
         if self.getParent():
