@@ -1010,8 +1010,15 @@ class Projecter(Commander.Commander):
 
     def loadActionerByBrowsing(self):
         path = Loader.Loader.getDirPathFromSystem()
-        print('Load manager by path',path)
+        print(f"Load manager by path\'{path}\'")
+        if path == "[[manager:path:sub_0]]/.":
+            print("Abort.")
+            return self.updateTaskManagerUI()
         man_path = Loader.Loader.getUniPath(path)
+        for act in self.getActionersList():
+            if man_path == act.getPath():
+                print(f"Found actioner ({man_path})")
+                return self.updateTaskManagerUI()
         self.loadActionerByPath(man_path)
         return self.updateTaskManagerUI()
     
