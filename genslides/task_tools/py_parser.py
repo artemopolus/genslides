@@ -136,11 +136,11 @@ def get_import_statements(code):
 
     return _traverse_tree(root_node)
 
-def get_class_function_body(code_text, class_name, function_name):
+def get_class_function_body(code_text, class_name, function_name, return_type = "all"):
     tree = parser.parse(bytes(code_text, "utf8"))
     root_node = tree.root_node
 
-    def traverse_for_function(node, found_class, in_nested_class=False):
+    def traverse_for_function(node, found_class, in_nested_class=False, return_type = "all" ):
         if node.type == 'class_definition':
             class_name_node = node.child_by_field_name('name')
             current_class_name = class_name_node.text.decode('utf-8')
@@ -167,11 +167,31 @@ def get_class_function_body(code_text, class_name, function_name):
                         rest_of_the_lines = "\n".join(body_lines[1:])
                         body_text = f"{first_line}\n{rest_of_the_lines}" if rest_of_the_lines else first_line
                         body_text = f"{body_indent}{body_text}"
+                if return_type == "all":
+                    return f"{def_indent}def {function_name}{parameters_text}:\n{body_text}"  # Added def_indent
+                elif return_type == "params":
+                    parameters_inc = parameters_text.replace("(","")
+                    parameters_inc = parameters_inc.replace(")","")
+                    parameters_inc = parameters_inc.replace(" ","")
 
-                return f"{def_indent}def {function_name}{parameters_text}:\n{body_text}"  # Added def_indent
+                    parameters_list = parameters_inc.split(",")
+                    nout_params_list = []
+                    for param in parameters_list:
+                        if param != "self":
+                            splitted_param = param.split(":")
+                            if len(splitted_param) > 0:
+                                paramout = splitted_param[0]
+                            else:
+                                paramout = param
+                            # paramout = "\"" + paramout + "\""
+                            nout_params_list.append(paramout)
+                    parameters_text = ",".join(nout_params_list)
+                    return f"{parameters_text}"
+                else:
+                    return f"{def_indent}def {function_name}{parameters_text}:\n{body_text}"  # Added def_indent
 
         for child in node.children:
-            info = traverse_for_function(child, found_class, in_nested_class)
+            info = traverse_for_function(child, found_class, in_nested_class, return_type)
             if info:
                 return info
 
@@ -179,7 +199,7 @@ def get_class_function_body(code_text, class_name, function_name):
             in_nested_class = False
         return None  # Return None if function not found in this branch
 
-    return traverse_for_function(root_node, False)
+    return traverse_for_function(root_node, False, return_type=return_type)
 
 def get_class_info(code, target_class_name):
     tree = parser.parse(bytes(code, "utf8"))

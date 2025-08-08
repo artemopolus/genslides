@@ -54,6 +54,8 @@ def read_file_for_methods():
             print(target_methods[0])
             target_method_body_example = pyparser.get_class_function_body(code, target, target_methods[0])
             print(target_method_body_example)
+            print(f"Function '{target}' arguments:")
+            print( pyparser.get_class_function_body(code, target, target_methods[0], return_type= "params") )
         print("\n🏷️ Найденные внутренние классы:")
         print(target_internal_classes)
 
