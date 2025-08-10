@@ -1485,15 +1485,26 @@ class Actioner():
                 pass
 
     def divideTaskBasedOnPrompt( self, taskname : str, text_before : str, text_after : str):
-        task = self.getCurrentManager().getTaskByName( taskname)
-        if task == None:
+        target = self.getCurrentManager().getTaskByName( taskname)
+        if target == None:
             return
-        text = task.getCurTaskLstMsgRaw()
-        tag = task.getLastMsgRole()
-        res, parts = TextTool.divide_based_on_texts_above_below(  text, text_before, text_after )
-        if res:
-            self.makeTaskAction(parts[0], "Request","Insert", tag)
-            self.makeTaskAction(parts[1], "Request","Edit", tag)
+        found_max_score = 0
+        divided_parts = []
+        found_task = None
+        for task in target.getAllParents():
+            text = task.getCurTaskLstMsgRaw()
+            tag = task.getLastMsgRole()
+            res, parts, score = TextTool.divide_based_on_texts_above_below(  text, text_before, text_after )
+            print(f"Task {task.getName()} score: {score}")
+            if res and score > found_max_score:
+                found_max_score = score
+                divided_parts = parts
+                found_task = task
+        if found_task != None and found_max_score > 0:
+            print(f"Divide {found_task.getName()} with score {found_max_score}")
+            self.getCurrentManager().setCurrentTask( found_task)
+            self.makeTaskAction(divided_parts[0], "Request","Insert", tag)
+            self.makeTaskAction(divided_parts[1], "Request","Edit", tag)
 
     def divideActions(self, prompt, param):
         text = prompt

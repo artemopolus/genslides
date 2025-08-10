@@ -324,23 +324,26 @@ def find_most_similar_simple(query_sentence, text_corpus):
     return most_similar_sentence, max_shared_words
 
 def divide_based_on_texts_above_below(text, sentence_above, sentence_below):
-    similar_sentence, score, start_pos, end_pos_above = find_most_similar_simple( sentence_above, text )
-    similar_sentence, score, start_pos_below, end_pos = find_most_similar_simple( sentence_below, text )
+    similar_sentence, score_end, start_pos, end_pos_above = find_most_similar_simple( sentence_above, text )
+    similar_sentence, score_start, start_pos_below, end_pos = find_most_similar_simple( sentence_below, text )
     if end_pos_above == None and start_pos_below == None:
-        return False, []
+        return False, [], 0
     elif start_pos_below == None:
         divide = end_pos_above
+        out_score = score_end
     elif end_pos_above == None:
         divide = start_pos_below
+        out_score = score_start
     else:
         divide = end_pos_above
+        out_score = score_end
     if divide < len(text) - 1:
         divide += 1
         part1 = text[:divide]
         part2 = text[divide:]
     else:
-        return False, []
-    return True, [part1, part2]
+        return False, [], 0
+    return True, [part1, part2], out_score
 
 
 def find_most_similar_simple(query_sentence, text_corpus):
