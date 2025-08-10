@@ -3577,22 +3577,33 @@ class Projecter(Commander.Commander):
                                     out += value
                     return out
         return out
- 
- 
-    def getJsonCmdsMethods( self ):
+
+
+    def getGroupCommanagerCode( self ):
         target_file = Path("genslides/commanager/group.py")
         with target_file.open("r", encoding="utf-8") as f:
             text = f.read()
+        return text
+
+    def getJsonCmdsMethods( self ):
+        text = self.getGroupCommanagerCode()
         methods, classes = pyparser.get_class_info(text, "Actioner")
         return methods
     
     def appendCmdToJson( self, cmds_str : str, cmd_name : str):
         cres, cmds = Loader.Loader.loadJsonFromText( cmds_str )
+        code = self.getGroupCommanagerCode()
+        action_value = {"action":cmd_name,"kwargs":{}}
+        kwargs = pyparser.get_class_function_body(code, "Actioner", cmd_name, return_type= "params") 
+        if kwargs != None:
+            kwargs_list = kwargs.split(",")
+            for arg in kwargs_list:
+                action_value['kwargs'].update({arg : ""})
         if cres and isinstance(cmds, list):
-            cmds.append({"action":cmd_name,"kwargs":{}})
+            cmds.append(action_value)
             cmds_str = Loader.Loader.convJsonToText( cmds, indent=3 )
         else:
-            cmds_str = Loader.Loader.convJsonToText( [ {"action":cmd_name,"kwargs":{}} ], indent=3 )
+            cmds_str = Loader.Loader.convJsonToText( [ action_value ], indent=3 )
         return cmds_str
     
     def undoCurrentManagerCommand( self ):

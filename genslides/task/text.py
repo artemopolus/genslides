@@ -1207,7 +1207,9 @@ class TextTask(BaseTask):
                         self.updateAutoCommand2param( cmd )
                         param["hash"] = cmd_hash
                         self.setParamStruct( param )
-                elif isinstance( cmd, dict ):
+                    else:
+                        print("No action in dict")
+                elif isinstance( cmd, list ):
                     one_action = False
                     for action in cmd:
                         if "action" in action:
@@ -1216,6 +1218,10 @@ class TextTask(BaseTask):
                     if one_action:
                         param["hash"] = cmd_hash
                         self.setParamStruct( param )
+                    else:
+                        print("No action found in act list")
+            else:
+                self.updateUpdationInfo(f"Error on json convertion")
 
 
     def internalUpdateParams(self):
