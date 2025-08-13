@@ -1033,8 +1033,11 @@ class Actioner():
         tasks_chain = []
         while(idx < max_update_idx):
             self.update(update_task=update_task, step_options={"tasks_chain":tasks_chain})
-            tasks_chain.append(man.getCurrentTask().getName())
-            project_chain.append({'idx':idx, 'task': man.getCurrentTask()})
+            current_task = man.getCurrentTask()
+            tasks_chain.append(current_task.getName())
+            project_chain.append({'idx':idx, 'task': current_task})
+            print(f"Set struct for {current_task.getName()}: {idx}")
+            current_task.setParamStruct({"type":"update_chain","chain_idx":idx})
             if self.update_state == 'done' or self.force_update_stop:
                 break
             idx += 1
@@ -1508,17 +1511,19 @@ class Actioner():
 
     def divideActions(self, prompt, param):
         text = prompt
-        tag = self.manager.curr_task.getLastMsgRole()
+        start_task = self.getCurrentManager().getCurrentTask()
+        start_task_params = start_task.getAllParams()
+        tag = start_task.getLastMsgRole()
         verticaldiv = text.split('[[---]]')
         horizontaldiv = text.split('[[+++]]')
         
         if len(verticaldiv) > 1:
             last = verticaldiv.pop()
             for batch in verticaldiv:
-                self.manager.makeTaskAction(batch, "Request", "Insert", tag)
+                self.makeTaskAction(batch, "Request","Insert", tag, param={"task_params": start_task_params})
+                # self.manager.makeTaskAction(batch, "Request", "Insert", tag)
             return self.manager.makeTaskAction(last, "Request", "Edit", tag)
         elif len(horizontaldiv) > 1:
-            start_task = self.manager.curr_task
             for batch in horizontaldiv:
                 self.manager.curr_task = start_task
                 self.editBasicActions(batch, param)
@@ -2375,7 +2380,7 @@ class Actioner():
 
 
     def breakBranchOnParts(self, taskname : str, treestarttask = "SetOptions", listener = "Listener", 
-                           summary = "summary", marker="marker", node = "node", input_summary = "input_summary", input_dir = "input_dir"):
+                           summary = "summary,output", marker="marker", node = "node", input_summary = "input_summary", input_dir = "input_dir"):
         man = self.getCurrentManager()
         trg = man.getTaskByName( taskname )
 
@@ -2411,7 +2416,7 @@ class Actioner():
 
         
 
-        newbud = trg.getParent()
+        newbud : BaseTask = trg.getParent()
         outtask = self.getMainOutput(marker_task)
         if not outtask:
             # or check summary task
@@ -2426,6 +2431,12 @@ class Actioner():
                 tree_param['task_params'].append(srcdoctree_idx)
 
             self.makeTaskAction(prompt="", type1=treestarttask, creation_type="New",creation_tag="user", param=tree_param, save_action=True)
+
+            if not trg.checkType("Listener"):
+                self.makeTaskAction("","Listener","SubTask","user",[{ "type":"tag","text": "additional, context","key": ""}])
+                man.setTaskKeyValue("listener","onupdate","none")
+
+
             man.addCurrTaskToSelectList()
             man.setCurrentTask(trg)
             self.makeTaskAction("","","Parent","",{"select": man.getSelectedTask().getName()})
@@ -2444,6 +2455,7 @@ class Actioner():
         if self.checkOnSrcMarkerToChoiser( trg, intask ):
             tree_param['task_params'].append(intertree2_idx)
             tree_param['task_params'].append({ "type":"tag","text": "intertree","key": ""})
+            print(f"Create midtree as {treestarttask}")
             self.makeTaskAction(prompt="", type1=treestarttask, creation_type="New",creation_tag="user", param=tree_param, save_action=True)
             intertree = man.getCurrentTask()
             self.makeTaskAction(prompt="", type1=listener, creation_type="SubTask",creation_tag="user", param={}, save_action=True)
@@ -2452,6 +2464,10 @@ class Actioner():
             man.addCurrTaskToSelectList()
 
             man.setCurrentTask(node_task)
+
+            print(f"Copy from Current task: {man.getCurrentTask().getName()}")
+            print(f"To Selected task: {man.getSelectedTask().getName()}")
+ 
 
             self.makeTaskAction( 
                 prompt="",
@@ -2495,9 +2511,13 @@ class Actioner():
 
             self.makeTaskAction("","","Unlink","")
 
+            print(f"Link {summary_task.getName()} -> {interINtask.getName()}")
+
             self.makeTaskAction(prompt="", type1="", creation_type="Link", creation_tag= "" , param={
                 "select":summary_task.getName(),
                 "curr":interINtask.getName()}, save_action=True)
+
+            print(f"Link {interOUTtask.getName()} -> {intask.getName()}")
 
             self.makeTaskAction(prompt="", type1="", creation_type="Link", creation_tag= "", param={
                 "select":interOUTtask.getName(),
@@ -2512,6 +2532,9 @@ class Actioner():
             else:
                 tree_param['task_params'].append({ "type":"tag","text": "srcdoctree","key": ""})
                 tst_param['task_params'].append(srcdoctree_idx)
+            
+            
+            print(f"Create midtree as {treestarttask}")
 
             self.makeTaskAction(prompt="", type1=treestarttask, creation_type="New",creation_tag="user", param=tst_param, save_action=True)
             
@@ -2521,15 +2544,20 @@ class Actioner():
 
             man.setCurrentTask(trg)
 
+            print(f"Set {man.getCurrentTask().getName()} as child of {man.getSelectedTask().getName()}")
             self.makeTaskAction("","","Parent","",{"select": man.getSelectedTask().getName()})
 
             man.addTaskToSelectList(newbud)
 
+            print(f"Copy from Current task: {man.getCurrentTask().getName()}")
+            print(f"To Selected task: {man.getSelectedTask().getName()}")
             man.setCurrentTask(node_task)
 
             self.copyBranchToSelectedTask()
 
             self.extendQuestionRoute(man, mainoutputtasktree, input_summary, input_dir)
+
+            # newbud_summary = man.getTaskByTagFromTasks(summary, newbud.getAllChildChains())
 
     def copyBranchToSelectedTask( self ):
         self.makeTaskAction( 
@@ -2968,4 +2996,14 @@ class Actioner():
         if check_oldest:
             FileManager.manageOldestFolderFiles(fld_path, max_files)
         Archivator.Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
+
+    def travelViaTextParts( self ):
+        man = self.getCurrentManager()
+        docstarttasks = man.getAllTasksByTagFromTaskList("srcdoctree,start", man.getTasks())
+        docpartstasks = man.getAllTasksByTagFromTaskList("insert,autogenerate", man.getTasks())
+        for docroot in docstarttasks:
+            children = docroot.getAllChildChains()
+            for task in docpartstasks:
+                if task not in children:
+                    pass
 

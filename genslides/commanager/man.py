@@ -198,6 +198,12 @@ class Jun():
         if self.curr_task.parent is not None and self.curr_task.getParent() in self.task_list:
             self.curr_task = self.curr_task.parent
 
+    def sortTaskByUpdateChain( self, task : Task.BaseTask):
+        res, param = task.getParamStruct(  "update_chain", True )
+        if res and "chain_idx" in param:
+            return param["chain_idx"]
+        return 0
+
     def sortBuds(self, trg : Task.BaseTask):
         tasks = trg.getAllParents()
         prio = 0

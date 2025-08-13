@@ -1885,8 +1885,8 @@ class Manager(Man.Jun):
 
     def copyTasksByInfoStop(self):
         # for branch in self.tc_tasks_chains:
-        #     print('branch convert results:[[from, to]]')
-        #     print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
+            # print('branch convert results:[[from, to]]')
+            # print([[t['from'].getName(),t['to'].getName()] for t in branch['convert']])
         # print('Links list:')
         # print([[link['out'].getName(),link['in'].getName()] for link in self.tc_links_chain])
         # print('Inserting order:', [[i,link['in'].getName()] for i,link in enumerate(self.tc_links_chain)])
@@ -1901,10 +1901,12 @@ class Manager(Man.Jun):
                 elif link['insert']:
                     if 'option' in link:
                         if link['option'] == 'std':
+                            # print("Insert option std")
                             self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='Insert', creation_tag=link['tag'], params=param_task)
-                            intask = self.slct_task
+                            intask = self.getCurrentTask().getParent()
                             self.makeLink( intask, outtask )
                         elif link['option'] == 'sub':
+                            # print("Insert option sub")
                             self.makeTaskAction(prompt=link['prompt'],type=link['type'], creation_type='SubTask', creation_tag=link['tag'], params=param_task)
                             intask = self.curr_task
                             self.makeLink( intask, outtask )
