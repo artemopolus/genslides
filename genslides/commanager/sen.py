@@ -338,7 +338,7 @@ class Projecter(Commander.Commander):
 
         FileManager.deleteFiles(man.getPath())
         self.loadInternal(project_path, filename, path)
-        return filename
+        return self.updateTaskManagerUI()
  
     def loadFromTmp(self):
         print('Load from temporary')
@@ -366,20 +366,16 @@ class Projecter(Commander.Commander):
         Archivator.extractFiles(project_path, filename, path)
         self.resetManager(self.actioner.getCurrentManager(), path=self.actioner.getPath())
 
-    def save(self, name):
-        self.current_project_name = name
-        self.actioner.std_manager.setParam("current_project_name",self.current_project_name)
+    def save(self):
+        # self.current_project_name = name
+        # self.actioner.std_manager.setParam("current_project_name",self.current_project_name)
 
-        # Archivator.saveOnlyFiles(self.savedpath, self.mypath, name)
         self.actioner.setManager(self.actioner.std_manager)
         print('Save man', self.actioner.getCurrentManager().getName(),'(Temp)' if self.actioner.getCurrentManager() != self.actioner.std_manager else '(Main)')
         path = self.actioner.getCurrentManager().getPath()
         path = Loader.Loader.getUniPath(path)
         trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave7zArchive() )
         Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
-        # Archivator.saveAllbyName(path, trg_path, name)
-
-        # return gr.Dropdown( choices= self.loadList(), interactive=True)
         return "Save"
     
     def saveTmpMan(self):

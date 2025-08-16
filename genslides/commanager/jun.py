@@ -967,6 +967,9 @@ class Manager(Man.Jun):
     
     def makeLink(self, task_in : BaseTask, task_out :BaseTask):
         if task_in != None and task_out != None:
+            if task_in in task_out.getHoldGarlands() and task_out in task_in.getGarlandPart():
+                print("Link exist")
+                return
             if (
                 task_out.isReceiver() and task_in.isReceiver()
                 ):

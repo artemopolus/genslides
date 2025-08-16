@@ -2356,9 +2356,9 @@ class Actioner():
                     "coll2req": False,
                     "read2req": False,
                     "run2req": False,
-                    "in": False,
-                    "out": False,
-                    "link": False,
+                    "in": True,
+                    "out": True,
+                    "link": True,
                     "av_cp": False,
                     "sel2par": True,
                     "ignrlist": False,
@@ -2455,6 +2455,7 @@ class Actioner():
         if self.checkOnSrcMarkerToChoiser( trg, intask ):
             tree_param['task_params'].append(intertree2_idx)
             tree_param['task_params'].append({ "type":"tag","text": "intertree","key": ""})
+            tree_param['task_params'].append({ "type":"summary","text": "intermediate"})
             print(f"Create midtree as {treestarttask}")
             self.makeTaskAction(prompt="", type1=treestarttask, creation_type="New",creation_tag="user", param=tree_param, save_action=True)
             intertree = man.getCurrentTask()
@@ -2527,11 +2528,13 @@ class Actioner():
 
             tst_param = {"task_params":[]}
             if trg.checkType("Listener"):
-                tree_param['task_params'].append({ "type":"tag","text": "intertree","key": ""})
+                tst_param['task_params'].append({ "type":"tag","text": "intertree","key": ""})
                 tst_param['task_params'].append(intertree_idx)
+                tst_param['task_params'].append({ "type":"summary","text": "intermediate"})
             else:
-                tree_param['task_params'].append({ "type":"tag","text": "srcdoctree","key": ""})
+                tst_param['task_params'].append({ "type":"tag","text": "srcdoctree","key": ""})
                 tst_param['task_params'].append(srcdoctree_idx)
+                tst_param['task_params'].append({ "type":"summary","text": "source"})
             
             
             print(f"Create midtree as {treestarttask}")
