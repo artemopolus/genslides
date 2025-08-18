@@ -744,7 +744,7 @@ class JumperTreeTask(InExtTreeTask):
 
     def updateIternal(self, input : TaskDescription = None):
         self.updateUpdationInfo("Update internal")
-        self.setChildUpdateState(False)
+        self.setChildUpdateState(True)
         eres, eparam = self.getParamStruct('external',True)
         if self.intact is None:
             self.updateUpdationInfo(f"No actioner")
@@ -752,18 +752,18 @@ class JumperTreeTask(InExtTreeTask):
                 if not self.checkParentMsgList(remove=False, update=True):
                     self.updateUpdationInfo(f"Parent Msgs is not same")
                     self.freezeTask()
-                else:
-                    self.setChildUpdateState(True)
+                    self.setChildUpdateState(False)
             elif eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_check":
                 self.freezeTask()
+                self.setChildUpdateState(False)
             else:
                 self.freezeTask()
+                self.setChildUpdateState(False)
             return
         self.reconnectJumperTreeExtTree()
         self.updateUpdationInfo(f"Acioner is loaded")
         if not self.checkParentMsgList(remove=False, update=True):
             self.updateUpdationInfo(f"Parent Msgs is not same")
-            self.setChildUpdateState(True)
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
                 self.updateUpdationInfo("Disabled action execution")
                 pass
@@ -799,7 +799,7 @@ class JumperTreeTask(InExtTreeTask):
             if self.intact.getFrozenTasksCount() > 0:
                 self.updateUpdationInfo(f"Freeze cz internal tasks")
                 self.freezeTask()
-
+                self.setChildUpdateState(False)
     def removeProject(self):
         pass
 
