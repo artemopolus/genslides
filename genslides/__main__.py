@@ -151,7 +151,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     selactbytask_btn = gr.Button('Go to task actioner')
                     exttreetaskaddact_btn = gr.Button('Load ExtTree to actioner')
 
-
+            with gr.Row():
+                current_actioner_name = gr.Textbox(label="Current actioner")
 
             with gr.Row() as r:
                 tree_names_radio = gr.Radio(label='Trees:')
@@ -650,14 +651,26 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
                 with gr.Tab('ExtTreeTask custom json cmd'):
                     exttreetask_cstmjsoncmd_drd = gr.CheckboxGroup(label="Available cmds")
-                    exttreetask_execurcmd_btn = gr.Button("Exe selected cmds")
+                    with gr.Row():
+                        exttreetask_execurcmd_btn = gr.Button("Exe selected cmds")
+                        exttreetask_editselected_btn = gr.Button("EDIT selected cmds")
+                    with gr.Row():
+                        ett_cmdtoexe_jsn = gr.JSON(label="Edit cmds to exe")
+                        exttreetask_editselected_btn.click(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=ett_cmdtoexe_jsn)
+                    with gr.Row():
+                        ett_cmdtoexe_btn = gr.Button("Execute edited cmds")
  
                 with gr.Tab('Actioner custom json cmd'):
                                     # with gr.Tab('Task cmds'):
                     with gr.Accordion(label="From task", open=False):
-                        gettaskswithcmds_btn = gr.Button("Get Tasks with Cmds")
+                        with gr.Row():
+                            getcurractpaths_btn = gr.Button("Get Curr Act")
+                            gettaskactpaths_btn = gr.Button("Get Task Act paths")
+                        availableactioners_drd = gr.Dropdown(label = "Available actioners")
+                        getcurractpaths_btn.click(fn=projecter.getCurrentActRelatedActionersPaths, outputs=availableactioners_drd)
+                        gettaskactpaths_btn.click(fn=projecter.getCurrentTaskRelatedActionersPaths, outputs=availableactioners_drd)
                         gettaskswithcmds_rad = gr.Radio(label="Tasks with Cmds")
-                        gettaskswithcmds_btn.click(fn=projecter.getTasksWithCmds, outputs=gettaskswithcmds_rad)
+                        availableactioners_drd.change(fn=projecter.getTasksWithCmds,inputs=availableactioners_drd, outputs=gettaskswithcmds_rad)
                         gettaskcmds_btn = gr.Button("Get Current Task commands")
                         taskcmds_chk = gr.CheckboxGroup(label="Commands")
                         with gr.Row():
@@ -1183,15 +1196,15 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_tasks_list, 
                                 selected_prompt
                                ]
-            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt, exttreetask_cstmjsoncmd_drd])
+            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt, exttreetask_cstmjsoncmd_drd, current_actioner_name])
 
             exttreetask_execurcmd_btn.click(fn=projecter.executeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
-
+            ett_cmdtoexe_btn.click(fn=projecter.executeEditedExtTreeActionerJsonCmd, inputs=[ett_cmdtoexe_jsn], outputs=std_output_list)
             undo_btn.click(fn=projecter.undoCurrentManagerCommand, outputs=std_output_list)
             redo_btn.click(fn=projecter.redoCurrentManagerCommand, outputs=std_output_list)
 
             cleanallchats_btn.click(fn=projecter.cleanTasksChat, outputs=std_output_list)
-            customjsoncmd_btn.click(fn=projecter.executeJsonCmd, inputs=customjsoncmd_cod, outputs=std_output_list)
+            customjsoncmd_btn.click(fn=projecter.executeJsonCmd, inputs=[customjsoncmd_cod,availableactioners_drd], outputs=std_output_list)
 
             wo_request_sld.release(fn=projecter.setRequestTaskSymVizCount, inputs=[wo_request_sld], outputs=std_output_list)
             wo_response_sld.release(fn=projecter.setResponseTaskSymVizCount, inputs=[wo_response_sld], outputs=std_output_list)

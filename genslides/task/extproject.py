@@ -752,8 +752,8 @@ class JumperTreeTask(InExtTreeTask):
                 if not self.checkParentMsgList(remove=False, update=True):
                     self.updateUpdationInfo(f"Parent Msgs is not same")
                     self.freezeTask()
-                # else:
-                    # self.stdProcessUnFreeze()
+                else:
+                    self.setChildUpdateState(True)
             elif eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_check":
                 self.freezeTask()
             else:

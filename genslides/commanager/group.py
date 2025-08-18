@@ -1036,7 +1036,7 @@ class Actioner():
             current_task = man.getCurrentTask()
             tasks_chain.append(current_task.getName())
             project_chain.append({'idx':idx, 'task': current_task})
-            print(f"Set struct for {current_task.getName()}: {idx}")
+            # print(f"Set struct for {current_task.getName()}: {idx}")
             current_task.setParamStruct({"type":"update_chain","chain_idx":idx})
             if self.update_state == 'done' or self.force_update_stop:
                 break

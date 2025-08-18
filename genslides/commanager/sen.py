@@ -3100,7 +3100,8 @@ class Projecter(Commander.Commander):
         out += (
             self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), 
                 stepgraph, rawgraph, cmdinfo, 
-                gr.CheckboxGroup(choices=self.actioner.getExtTreeCmdsListOfCurrentTask(),value=[])
+                gr.CheckboxGroup(choices=self.actioner.getExtTreeCmdsListOfCurrentTask(),value=[]),
+                self.actioner.getPath()
                 )
         # print('act:',out)
         return out
@@ -3484,22 +3485,48 @@ class Projecter(Commander.Commander):
         task.exeExTreeTaskCmds( cmds )
         return self.updateMainUIelements()
     
-       
-    def executeJsonCmd( self, cmds ):
+    def editSelectedExtTreeActionerJsonCmd( self, cmds_list ):
+        cmds = []
+        for cmd_txt in cmds_list:
+            res, cmd = Loader.Loader.loadJsonFromText(cmd_txt)
+            if res:
+                cmds.append( cmd )
+        return Loader.Loader.convJsonToText( cmds )
+
+    def executeEditedExtTreeActionerJsonCmd( self, cmds_txt ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        res, cmds = Loader.Loader.loadJsonFromText(cmds_txt)
+        if res:
+            task.exeExTreeTaskCmds( cmds )
+        return self.updateMainUIelements()
+ 
+    def executeJsonCmd( self, cmds, path ):
         # print(' Exe json cmd ')
-        self.actioner.getJsonCmd( cmds )
+        act = self.getActionerByPath( path )
+        if act != None:
+            act.getJsonCmd( cmds, path )
         return self.updateMainUIelements()
 
     def cleanTasksChat(self):
         self.actioner.cleanTasksChat()
         return self.updateMainUIelements()
     
-    def getTasksWithCmds ( self ):
+    def getCurrentActRelatedActionersPaths( self ):
+        return gr.Dropdown(choices= self.actioner.getRelatedActionersPaths( [] ) )
+    
+    def getCurrentTaskRelatedActionersPaths( self ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        return gr.Dropdown(choices=task.getRelatedActionersPaths( [] ))
+ 
+    
+    def getTasksWithCmds ( self, path ):
         out = []
-        for task in self.actioner.getCurrentManager().getTasks():
-            res, actions = task.getAutoActCmds(checkhash = False)
-            if res:
-                out.append( task.getName()) 
+        act = self.getActionerByPath( path)
+        if act != None:
+            for task in act.getCurrentManager().getTasks():
+                res, actions = task.getAutoActCmds(checkhash = False)
+                if res:
+                    out.append( task.getName()) 
         return gr.Radio(choices=out)
     
     def setTaskCmdStatus ( self, name, idxs, status ):
@@ -3631,3 +3658,5 @@ class Projecter(Commander.Commander):
         task = self.actioner.getCurrentManager().getCurrentTask()
         task.saveUpdationInfo()
         return self.updateMainUIelements()
+    
+
