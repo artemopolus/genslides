@@ -661,12 +661,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         ett_cmdtoexe_btn = gr.Button("Execute edited cmds")
  
                 with gr.Tab('Actioner custom json cmd'):
+                    with gr.Row():
+                        getcurractpaths_btn = gr.Button("Get Curr Act")
+                        gettaskactpaths_btn = gr.Button("Get Task Act paths")
+                    with gr.Row():
+                        availableactioners_drd = gr.Dropdown(label = "Available actioners")
                                     # with gr.Tab('Task cmds'):
                     with gr.Accordion(label="From task", open=False):
-                        with gr.Row():
-                            getcurractpaths_btn = gr.Button("Get Curr Act")
-                            gettaskactpaths_btn = gr.Button("Get Task Act paths")
-                        availableactioners_drd = gr.Dropdown(label = "Available actioners")
                         getcurractpaths_btn.click(fn=projecter.getCurrentActRelatedActionersPaths, outputs=availableactioners_drd)
                         gettaskactpaths_btn.click(fn=projecter.getCurrentTaskRelatedActionersPaths, outputs=availableactioners_drd)
                         gettaskswithcmds_rad = gr.Radio(label="Tasks with Cmds")
@@ -708,7 +709,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     cmdkwargkeyvalue_mrd = gr.Markdown(label='Value')
                     taskcmds_chk.change(fn=projecter.getTaskKwargsList, inputs=[taskcmds_chk, cmdkwargskeys_drd], outputs=cmdkwargkeyvalue_mrd)
 
-                    gettaskcmds_btn.click(fn=projecter.getTaskCmdList, outputs=[taskcmds_chk])
+                    gettaskcmds_btn.click(fn=projecter.getTaskCmdList, inputs=[availableactioners_drd], outputs=[taskcmds_chk])
 
                         
             with gr.Tab('Search'):

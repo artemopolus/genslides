@@ -3501,10 +3501,10 @@ class Projecter(Commander.Commander):
         return self.updateMainUIelements()
  
     def executeJsonCmd( self, cmds, path ):
-        # print(' Exe json cmd ')
+        print(f"Exe json cmd for act ({path})")
         act = self.getActionerByPath( path )
         if act != None:
-            act.getJsonCmd( cmds, path )
+            act.getJsonCmd( cmds )
         return self.updateMainUIelements()
 
     def cleanTasksChat(self):
@@ -3512,11 +3512,12 @@ class Projecter(Commander.Commander):
         return self.updateMainUIelements()
     
     def getCurrentActRelatedActionersPaths( self ):
-        return gr.Dropdown(choices= self.actioner.getRelatedActionersPaths( [] ) )
+        return gr.Dropdown(value=self.actioner.getPath(),choices= self.actioner.getRelatedActionersPaths( [self.actioner.getPath()] ) )
     
     def getCurrentTaskRelatedActionersPaths( self ):
         task = self.actioner.getCurrentManager().getCurrentTask()
-        return gr.Dropdown(choices=task.getRelatedActionersPaths( [] ))
+        task_act_path = [] if task.getActioner() == None else [task.getActioner().getPath()]
+        return gr.Dropdown(choices=task.getRelatedActionersPaths( task_act_path ))
  
     
     def getTasksWithCmds ( self, path ):
@@ -3580,21 +3581,24 @@ class Projecter(Commander.Commander):
                 cmds.append( task.getAutoActCmdAndSetStatus(aa_idx=i, status="needreview") )
         # return self.updateMainUIelements()
     
-    def getTaskCmdList( self ):
-        task = self.actioner.getCurrentManager().getCurrentTask()
+    def getTaskCmdList( self, path ):
+
         out = []
-        if task:
-            res, cmds = task.getAutoActCmds(checkhash = False)
-            if res:
-                # cres, cmds = Loader.Loader.loadJsonFromText( actions )
-                if isinstance(cmds, list):
-                    for cmd in cmds:
-                        if "action" in cmd:
-                            out.append([Loader.Loader.convJsonToText(cmd), cmd["aa_idx"]])
+        act = self.getActionerByPath( path )
+        if act != None:
+            task = act.getCurrentManager().getCurrentTask()
+            if task:
+                res, cmds = task.getAutoActCmds(checkhash = False)
+                if res:
+                    # cres, cmds = Loader.Loader.loadJsonFromText( actions )
+                    if isinstance(cmds, list):
+                        for cmd in cmds:
+                            if "action" in cmd:
+                                out.append([Loader.Loader.convJsonToText(cmd), cmd["aa_idx"]])
+                else:
+                    print("No act")
             else:
-                print("No act")
-        else:
-            print("No task")
+                print("No task")
         return gr.CheckboxGroup(choices=out)
     
     def getTaskKwargsList ( self, cmdname, key ):

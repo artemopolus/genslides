@@ -2222,7 +2222,11 @@ class Actioner():
         return False
     
     def updateTreeUsingAnswer( self, input_answer = "input_answer", cmd_list_key = "text_edits",
-                                text_batch_key = "proposed_text_batch", marker_key = "reference_marker", edit_key = "edit_type"
+                                text_batch_key = "proposed_text_batch", marker_key = "reference_marker", 
+                                edit_key = "edit_type",
+                                text_batch_reason_key = "proposed_batch_justification",
+                                direct_cmd_update = True,
+                                copy_to_dict = False
                               ):
         print("Update tree using answer")
         man = self.getCurrentManager()
@@ -2252,6 +2256,7 @@ class Actioner():
             return
         try:
             # answer_data = json.loads( answer_task.getLastMsgContent() )
+            print(f"Answer task: {answer_task.getName()}")
             ares, answer_data = Loader.Loader.loadJsonFromText( answer_task.getLastMsgContent2() )
             if not ares:
                 print(f"Break:\n{answer_task.getLastMsgContent2()}")
@@ -2267,21 +2272,35 @@ class Actioner():
                 if edit_key in update and text_batch_key in update  and marker_key in update:
                     edit_type = update[edit_key]
                     batch = update[text_batch_key]
+                    reason = ""
+                    if text_batch_reason_key in update:
+                        reason = update[text_batch_reason_key]
                     if len(update[marker_key]) and update[marker_key][0] == "[":
                         shortname = update[marker_key][1:-1]
                     else:
                         shortname = update[marker_key]
                     res, targettaskname = man.getLongNameUsingShortName( shortname )
                     if res:
+                        print(f"Target task: {targettaskname}")
                         updatetask = man.getTaskByName( targettaskname)
-                        if updatetask and updatetask.checkType("Request"):
+                        roottreetask = updatetask.getRootParent()
+                        print(f"Root task: {roottreetask.getName()}")
+                        if roottreetask.checkTags("srcdoctree"):
+                        # if updatetask and updatetask.checkType("Request"):
                             if edit_type == "Insertion":
-                                updatetask.saveDictBuffer({"action":"insertingToTaskAction","taskname":targettaskname,"prompt":batch})
+                                if direct_cmd_update:
+                                    updatetask.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason})
+                                if copy_to_dict:
+                                    updatetask.saveDictBuffer({"action":"insertingToTaskAction","taskname":targettaskname,"prompt":batch})
                                 # command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                             elif edit_type == "Replacement":
-                                updatetask.saveDictBuffer({"action":"editingToTaskAction","taskname":targettaskname,"prompt":batch})
+                                if direct_cmd_update:
+                                    updatetask.updateAutoCommand2param({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason})
+                                if copy_to_dict:
+                                    updatetask.saveDictBuffer({"action":"editingToTaskAction","taskname":targettaskname,"prompt":batch})
                                 # command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
-                        elif updatetask and updatetask.checkType("Listener"):
+                        elif roottreetask.checkTags("intertree"):
+                        # elif updatetask and updatetask.checkType("Listener"):
                             updatetask.updateAutoCommand2param({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
                             # listener_to_up.append({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
                         else:
