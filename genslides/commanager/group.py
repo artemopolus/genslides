@@ -2221,14 +2221,230 @@ class Actioner():
                 return True
         return False
     
-    def updateTreeUsingAnswer( self, input_answer = "input_answer", cmd_list_key = "text_edits",
-                                text_batch_key = "proposed_text_batch", marker_key = "reference_marker", 
-                                edit_key = "edit_type",
-                                text_batch_reason_key = "proposed_batch_justification",
-                                direct_cmd_update = True,
-                                copy_to_dict = False
+    def updateDocTreeAllStagesRunAllSteps(self,
+                                     input_answer: str = "input_answer",
+                                     cmd_list_key: str = "text_edits",
+                                     text_batch_key: str = "proposed_text_batch",
+                                     marker_key: str = "reference_marker",
+                                     edit_key: str = "edit_type",
+                                     text_batch_reason_key: str = "justification_for_edit",
+                                     direct_cmd_update: bool = True,
+                                     copy_to_dict: bool = False,
+                                     steps: int = 1,
+                                     reset: bool = False):
+        """
+        Run updateDocTreeAllStagesStep repeatedly until all stages are processed.
+
+        Args: same as updateDocTreeAllStagesStep; `steps` is the chunk size per call.
+        Returns a dict with:
+        - total_processed: total number of stage actions processed
+        - iterations: number of updateDocTreeAllStagesStep calls made
+        - finished: True if completed normally (no remaining stages)
+        - remaining: number of actions left on the internal stack (0 if finished)
+        - stalled: True if loop stopped because no progress was made (possible bug)
+        - last_result: the last dict returned by updateDocTreeAllStagesStep
+        """
+        if steps is None or steps < 1:
+            raise ValueError("steps must be an integer >= 1")
+
+        total_processed = 0
+        iterations = 0
+        stalled = False
+        last_result = None
+
+        # Ensure the stepper is initialized (reset will force re-init)
+        # First call will initialize internal stack if needed.
+        # Pass the provided reset flag to start fresh if requested.
+        last_result = self.updateDocTreeAllStagesStep(
+            input_answer=input_answer,
+            cmd_list_key=cmd_list_key,
+            text_batch_key=text_batch_key,
+            marker_key=marker_key,
+            edit_key=edit_key,
+            text_batch_reason_key=text_batch_reason_key,
+            direct_cmd_update=direct_cmd_update,
+            copy_to_dict=copy_to_dict,
+            steps=0 if reset else 1,  # if reset=True we want to initialize but not consume; a step=0 is invalid, so instead call with reset behavior below
+            reset=reset
+        )
+        # Note: some callers prefer to initialize without consuming any steps.
+        # If the above call returned a processed_count (because reset was False), include it.
+        if last_result is not None and isinstance(last_result, dict):
+            # If reset=True and the implementation of updateDocTreeAllStagesStep honored reset
+            # and returned no processing, processed_count may be 0.
+            total_processed += int(last_result.get("processed_count", 0))
+            iterations += 1
+
+        # Now loop until finished
+        while True:
+            # Call the stepper to process `steps` actions (normal stepping)
+            last_result = self.updateDocTreeAllStagesStep(
+                input_answer=input_answer,
+                cmd_list_key=cmd_list_key,
+                text_batch_key=text_batch_key,
+                marker_key=marker_key,
+                edit_key=edit_key,
+                text_batch_reason_key=text_batch_reason_key,
+                direct_cmd_update=direct_cmd_update,
+                copy_to_dict=copy_to_dict,
+                steps=steps,
+                reset=False
+            )
+            iterations += 1
+
+            if not isinstance(last_result, dict):
+                # Unexpected return type — abort to avoid infinite loop
+                stalled = True
+                break
+
+            processed = int(last_result.get("processed_count", 0))
+            total_processed += processed
+            remaining = int(last_result.get("remaining", 0))
+            finished = bool(last_result.get("finished", False))
+
+            # If nothing was processed but not finished -> stalled (avoid infinite loop)
+            if processed == 0 and not finished:
+                stalled = True
+                break
+
+            if finished:
+                stalled = False
+                break
+
+            # otherwise continue looping
+
+        return {
+            "total_processed": total_processed,
+            "iterations": iterations,
+            "finished": (not stalled) and bool(last_result.get("finished", False)),
+            "remaining": int(last_result.get("remaining", 0)) if isinstance(last_result, dict) else None,
+            "stalled": stalled,
+            "last_result": last_result
+        }
+
+
+    def updateDocTreeAllStagesStep(self,
+                                input_answer: str = "input_answer",
+                                cmd_list_key: str = "text_edits",
+                                text_batch_key: str = "proposed_text_batch",
+                                marker_key: str = "reference_marker",
+                                edit_key: str = "edit_type",
+                                text_batch_reason_key: str = "justification_for_edit",
+                                direct_cmd_update: bool = True,
+                                copy_to_dict: bool = False,
+                                steps: int = 1,
+                                reset: bool = False):
+        """
+        Advance the update tree algorithm `steps` times (default 1). Call repeatedly
+        to step through the stages in depth-first order.
+
+        Returns a dict:
+        - processed_actions: list of stage_action items that were processed this call
+        - processed_count: number of actions processed this call
+        - total_processed: total actions processed across this session
+        - remaining: number of actions still on the stack
+        - finished: True if no more actions remain after this call
+        - stack_preview: small preview of next actions on the stack (up to 10)
+        """
+        # Validate steps
+        if steps < 1:
+            raise ValueError("steps must be >= 1")
+
+        # Pack current args to detect arg changes
+        current_args = (input_answer, cmd_list_key, text_batch_key, marker_key,
+                        edit_key, text_batch_reason_key, direct_cmd_update, copy_to_dict)
+
+        # Initialize state storage on self if missing
+        if not hasattr(self, "_udtas_state"):
+            self._udtas_state = {
+                "stack": [],            # LIFO stack of pending stage actions
+                "total_processed": 0,   # total processed across this session
+                "args": None            # last used args tuple
+            }
+
+        # If reset requested or args changed, re-initialize the stack
+        if reset or self._udtas_state["args"] != current_args:
+            # call the single-step internal to get top-level next_stages
+            top_next = self.updateDocTreeAllStagesInternal(
+                input_answer, cmd_list_key, text_batch_key, marker_key,
+                edit_key, text_batch_reason_key, direct_cmd_update, copy_to_dict
+            ) or []
+            # use reversed order on stack so first returned child is processed first (depth-first)
+            self._udtas_state["stack"] = list(reversed(list(top_next)))
+            self._udtas_state["total_processed"] = 0
+            self._udtas_state["args"] = current_args
+
+        stack = self._udtas_state["stack"]
+        processed_actions = []
+
+        # Run up to `steps` stage-actions
+        for _ in range(steps):
+            if not stack:
+                break  # nothing left to process
+
+            stage_action = stack.pop()
+            # Apply the action (side effects expected)
+            self.getJsonCustomCmd(stage_action)
+            processed_actions.append(stage_action)
+            self._udtas_state["total_processed"] += 1
+
+            # After applying, get immediate children for this new state (single-step internal)
+            new_next = self.updateDocTreeAllStagesInternal(
+                input_answer, cmd_list_key, text_batch_key, marker_key,
+                edit_key, text_batch_reason_key, direct_cmd_update, copy_to_dict
+            ) or []
+
+            # push children onto stack reversed so first child is processed first next time
+            if new_next:
+                stack.extend(reversed(list(new_next)))
+
+        result = {
+            "processed_actions": processed_actions,
+            "processed_count": len(processed_actions),
+            "total_processed": self._udtas_state["total_processed"],
+            "remaining": len(stack),
+            "finished": len(stack) == 0,
+            "stack_preview": list(reversed(stack[-10:]))  # show next up to 10 in processing order
+        }
+        return result
+
+
+
+    def updateDocTreeAllStagesInternal(self,
+                                   input_answer: str = "input_answer",
+                                   cmd_list_key: str = "text_edits",
+                                   text_batch_key: str = "proposed_text_batch",
+                                   marker_key: str = "reference_marker",
+                                   edit_key: str = "edit_type",
+                                   text_batch_reason_key: str = "justification_for_edit",
+                                   direct_cmd_update: bool = True,
+                                   copy_to_dict: bool = False
+                                   ):
+        """
+        Single-step function: calls updateTreeUsingAnswer(...) once and returns the
+        next stages (list). DOES NOT recurse. This makes it handy for stepping
+        through the algorithm manually.
+        """
+        next_stages = self.updateTreeUsingAnswer(
+            input_answer, cmd_list_key, text_batch_key, marker_key,
+            edit_key, text_batch_reason_key, direct_cmd_update, copy_to_dict
+        )
+        # ensure a list (caller expects iterable)
+        if next_stages is None:
+            return []
+        return list(next_stages)
+    
+
+    
+    def updateTreeUsingAnswer( self, input_answer : str = "input_answer", cmd_list_key : str = "text_edits",
+                                text_batch_key : str = "proposed_text_batch", marker_key : str = "reference_marker", 
+                                edit_key : str = "edit_type",
+                                text_batch_reason_key : str = "justification_for_edit",
+                                direct_cmd_update : bool = True,
+                                copy_to_dict : bool = False
                               ):
         print("Update tree using answer")
+        next_stage_actions = []
         man = self.getCurrentManager()
 
         exttree = self.getMainExternalTree()
@@ -2241,7 +2457,7 @@ class Actioner():
             answer_task = answers[0]
         elif len(answers) == 0:
             print(f"No task with tag {input_answer} for {target.getName()}")
-            return
+            return next_stage_actions
         else:
             answer_task = answers[0]
             distance = answer_task.getDistance( target )
@@ -2253,17 +2469,17 @@ class Actioner():
                         answer_task = task
         if not answer_task:
             print("No answers")
-            return
+            return next_stage_actions
         try:
             # answer_data = json.loads( answer_task.getLastMsgContent() )
             print(f"Answer task: {answer_task.getName()}")
             ares, answer_data = Loader.Loader.loadJsonFromText( answer_task.getLastMsgContent2() )
             if not ares:
                 print(f"Break:\n{answer_task.getLastMsgContent2()}")
-                return
+                return next_stage_actions
         except:
             print(f"Break:\n{answer_task.getLastMsgContent2()}")
-            return
+            return next_stage_actions
         # command_to_execute = []
         # listener_to_up = []
         if isinstance(answer_data, dict) and cmd_list_key in answer_data and isinstance(answer_data[cmd_list_key], list):
@@ -2286,6 +2502,7 @@ class Actioner():
                         roottreetask = updatetask.getRootParent()
                         print(f"Root task: {roottreetask.getName()}")
                         if roottreetask.checkTags("srcdoctree"):
+                            print("Add doc tree task")
                         # if updatetask and updatetask.checkType("Request"):
                             if edit_type == "Insertion":
                                 if direct_cmd_update:
@@ -2301,7 +2518,9 @@ class Actioner():
                                 # command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                         elif roottreetask.checkTags("intertree"):
                         # elif updatetask and updatetask.checkType("Listener"):
-                            updatetask.updateAutoCommand2param({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
+                            print("Add INTER tree task")
+                            next_stage_actions.append({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname},"reason":reason})
+                            # updatetask.updateAutoCommand2param({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
                             # listener_to_up.append({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
                         else:
                             print("Unknown action")
@@ -2309,26 +2528,7 @@ class Actioner():
                         print(f"No task with {shortname} name")
         else:
             print(f"No json data in {answer_task.getName()}:\n{answer_data}")
-        # cmd_task = man.getTaskByTagFromTasks(input_cmd, answer_task.getAllChildChains())    
-        # if cmd_task:
-        #     man.setCurrentTask(cmd_task)
-        #     eres, existing_commands = Loader.Loader.loadJsonFromText(cmd_task.getLastMsgContent2())
-        #     if eres and isinstance(existing_commands, list):
-        #         command_to_execute.extend(existing_commands)
-        #     self.editingAction( Loader.Loader.convJsonToText(command_to_execute))
-        # else:
-        #     print(f"No task with tag {input_cmd}")
-        # cmd_link = man.getTaskByTagFromTasks(input_addlink, answer_task.getAllChildChains())    
-        # if cmd_link:
-        #     man.setCurrentTask(cmd_link)
-        #     self.editingAction(json.dumps(listener_to_up))
-        # else:
-        #     print(f"No task with tag {input_addlink}")
-
-    # def createSecondStageLink ( self, taskname : str, summary = "marker", input_summary = "input_summary" ):
-                            # pass
-                            # write extended command
-
+        return next_stage_actions
     
     
     def extendQuestionRoute( self, man : Manager.Manager, question_tree : BaseTask, input_summary = "input_summary", input_dir = "input_dir" ):

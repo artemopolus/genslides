@@ -43,46 +43,7 @@ class WriteBranchTask(WriteToFileParamTask):
         
 
     def executeResponse(self):
-        self.updateUpdationInfo(f"Execute response\n")
-        res, param = self.getParamStruct(param_name='write_branch')
-        if not res:
-            return
-        try:
-            path = ld.Loader.getUniPath( self.findKeyParam( param['path_to_write'] ) )
-            t_input = param['input']
-            content = None
-
-            if t_input == 'msgs':
-                content = self.getMsgs()
-                wr.writeJsonToFile(path, content)
-
-            elif self.checkRecordsOption(param):
-                self.updateUpdationInfo( f"Open dial file by path: {path}" )
-                if fm.checkExistPath(path):
-                    with open(path, 'r',encoding='utf8') as f:
-                        content = json.load(f)
-                    
-                    if 'type' in content and content['type'] == 'records':
-                        chat = self.getTasksContent()
-                        # print(self.getName(),'append content',chat)
-                        rres, naparam = rd.appendDataForRecord(content, chat)
-                        # if not rres:          
-                            # naparam = rd.createRecordParam(self.getTasksContent())
-                    else:
-                        naparam = rd.createRecordParam(self.getTasksContent())
-                else:
-                    self.updateUpdationInfo( f"Create file for msgs with path: {path}" )
-                    naparam = rd.createRecordParam(self.getTasksContent())
-
-
-                wr.writeJsonToFile(path, naparam)
-
-                self.updateUpdationInfo( self.getRecordedContentInfo( path ) )
-
-        except Exception as e:
-            error_out = f"{self.getName()} got write branch dial error: {e}"
-            print(error_out)
-            self.updateUpdationInfo( error_out )
+        self.updateRecordedParam()
 
     def checkRecordsOption(self, param):
         if 'check_manager' in param:

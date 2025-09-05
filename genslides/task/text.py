@@ -1225,6 +1225,7 @@ class TextTask(BaseTask):
 
 
     def internalUpdateParams(self):
+        self.updateRecordedParam()
         self.setParamStruct({'type':'branch','code':self.getBranchCodeTag()})
         res, param = self.getParamStruct(param_name='records', only_current=True)
         if res:
@@ -2020,4 +2021,56 @@ class TextTask(BaseTask):
     def transmitInfoToLinked(self, task : TaskDescription, input : TaskDescription):
         self.updateUpdationInfo(f"transmit from {self.getName()} to {task.target.getName()}")
         return super().transmitInfoToLinked(task, input)
-    
+
+    def updateRecordedParam( self ):
+        self.updateUpdationInfo(f"Update records\n")
+        res, param = self.getParamStruct(param_name='write_branch', only_current=True)
+        if not res:
+            return
+        
+        try:
+            path = Loader.Loader.getUniPath( self.findKeyParam( param['path_to_write'] ) )
+            t_input = param['input']
+            content = None
+
+            s_method = param.get("save_method","param")
+
+            if t_input == 'msgs':
+                content = self.getMsgs()
+                if s_method == "file":
+                    wr.writeJsonToFile(path, content)
+            elif t_input == 'content':
+
+                proposal = self.findKeyParam(param.get( "content_target", self.getLastMsgContentRaw() ))
+                rd.updateProposals( param, proposal )
+                if s_method == "file":
+                    wr.writeJsonToFile(path, param)
+               
+            elif self.checkRecordsOption(param):
+                self.updateUpdationInfo( f"Open dial file by path: {path}" )
+                if FileMan.checkExistPath(path):
+                    with open(path, 'r',encoding='utf8') as f:
+                        content = json.load(f)
+                    chat = self.getTasksContent()
+                    
+                    if 'type' in content and content['type'] == 'records':
+                        rres, naparam = rd.appendDataForRecord(content, chat)
+                        if not rres:
+                            self.updateUpdationInfo("Error on record data append")
+                    else:
+                        naparam = rd.createRecordParam(chat)
+                else:
+                    self.updateUpdationInfo( f"Create file for msgs with path: {path}" )
+                    naparam = rd.createRecordParam(self.getTasksContent())
+
+
+                wr.writeJsonToFile(path, naparam)
+
+                self.updateUpdationInfo( self.getRecordedContentInfo( path ) )
+            self.setParamStruct(param)
+
+        except Exception as e:
+            error_out = f"{self.getName()} got write branch dial error: {e}"
+            print(error_out)
+            self.updateUpdationInfo( error_out )
+

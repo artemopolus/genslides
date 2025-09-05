@@ -148,7 +148,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     updactlist_btn = gr.Button('Update')
                     updactlist_btn.click(fn=projecter.getActionerPathsList, outputs=[actionerlist_rad])
                 with gr.Row():
-                    selactbytask_btn = gr.Button('Go to task actioner')
                     exttreetaskaddact_btn = gr.Button('Load ExtTree to actioner')
 
             with gr.Row():
@@ -204,6 +203,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 go_lnkfrwd_rad = gr.Radio(label='Targets')
                                 go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
+                            with gr.Row():
+                                selactbytask_btn = gr.Button('Go to task actioner')
                             with gr.Row():
                                 go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
                                 go_brchfrk_btn = gr.Button(value='Go to fork')

@@ -782,6 +782,7 @@ class JumperTreeTask(InExtTreeTask):
                 else:
                     self.intact.updateAll(force_check=True)
                 self.intact.manager.enableOutput2()
+        # elif self.isFrozen():
         # elif self.intact.manager.getFrozenTasksCount():
         #     self.intact.loadTmpManagerTasks()
         #     print(f"Frozen tasks:{self.intact.manager.getFrozenTasksCount()}")
@@ -789,17 +790,25 @@ class JumperTreeTask(InExtTreeTask):
         #     self.intact.updateAll(force_check=True)
         #     self.intact.manager.enableOutput2()
         else:
-            self.updateUpdationInfo(f"No update")
+            self.updateUpdationInfo(f"No update: idle action")
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
                 pass
             elif eres and 'idle_actions' in eparam and eparam['idle_actions'] != "":
                 results = self.intact.getJsonCmd(self.findKeyParam(eparam['idle_actions']))
                 self.updateUpdationInfo(f"IDLE Actions with results:{results}")
         if eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_check":
+            if self.intact.getFrozenTasksCount() > 0 \
+                and eres and 'actions_on' in eparam and eparam['actions_on'] \
+                and 'updt_actions' in eparam and eparam['updt_actions'] != "":
+                    results = self.intact.getJsonCmd(self.findKeyParam(eparam['updt_actions']))
+                    # self.updateUpdationInfo(f"UPDATE Actions (frozen) with results:{results}")
+
             if self.intact.getFrozenTasksCount() > 0:
                 self.updateUpdationInfo(f"Freeze cz internal tasks")
                 self.freezeTask()
                 self.setChildUpdateState(False)
+        elif eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_ignore":
+            self.setChildUpdateState(False)
     def removeProject(self):
         pass
 
@@ -980,7 +989,7 @@ class OutExtTreeTask(ExtProjectTask):
             self.updateUpdationInfo(f"Block by {self.getParent().getName()}")
             if self.intch_trg != None and self.intch_trg.isFrozen():
                 self.updateUpdationInfo(f"{self.intch_trg.getName()} is frozen")
-                self.freezeTask()
+                # self.freezeTask()
             return
         if self.intch_trg == None:
             eres, eparam = self.getParamStruct('external')

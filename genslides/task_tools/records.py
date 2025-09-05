@@ -337,3 +337,37 @@ def fill_missing_indices(data, default=None):
     
     return result
 
+def updateProposals(param : dict, proposal : str):
+    prop_hash = Txt.compute_sha256_hash(proposal)
+    lastprophash = param.get("last_proposal_hash","")
+    props : list = param.get("proposals",[])
+    if lastprophash != prop_hash:
+        max_props = param.get("max_proposals", 10)
+        if len(props) < max_props:
+            props.append(proposal)
+        else:
+            props.pop(0)
+            props.append(proposal)
+        param["proposals"] = props
+        param["last_proposal_hash"] = prop_hash
+        param["trg_prop_idx"] = 0
+
+def getNextProposal(param : dict ):
+    props : list = param.get("proposals",[])
+    idx = param.get("trg_prop_idx", 0)
+    if len(props):
+        idx += 1
+        if idx >= len(props):
+            idx = 0
+        param["trg_prop_idx"] = idx
+        return props[idx]
+    return ""
+
+def clearProposals( param : dict ):
+    param["proposals"] = []
+    param["last_proposal_hash"] = ""
+    param["trg_prop_idx"] = -1
+
+def getProposals( param : dict) -> list :
+    return param.get("proposals",[])
+

@@ -27,11 +27,14 @@
    },
    {
       "type": "write_branch",
+      "save_method": ["param","file"],
       "path_to_write": "[[manager:path:spc]]/dial/[[name]].json",
-      "input": ["msgs", "records"],
+      "input": ["msgs","content", "records"],
+      "content_target": ["[[current:msg_content]]","[[parent:msg_content]]","[[parent_2:msg_content]]"],
       "excld_task": [],
       "always_update": [true, false],
-      "check_manager":[true, false]
+      "check_manager":[true, false],
+      "max_proposals": 10
    },
    {
       "type": "path_to_read",
