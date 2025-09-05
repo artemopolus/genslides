@@ -1976,12 +1976,13 @@ class Actioner():
                         # print('Kwargs', kwargs)
                         # print('Method', method)
                         result = method(*args, **kwargs)
-                        results.append(result)  # Append the result of each action
+                        results.append({"action": action, "result": result})  # Append the result of each action
                     else:
                         results.append(f"Error: Action '{action}' not found or not callable.")
 
                 else:
                     results.append("Error: Missing 'action' key in JSON.")
+            print(f"Actioner({self.getPath()}):\n{results}")
             return results # return a list of results
 
         except json.JSONDecodeError:
@@ -2221,7 +2222,7 @@ class Actioner():
                 return True
         return False
     
-    def updateDocTreeAllStagesRunAllSteps(self,
+    def runSteppedDocTreeAllStages(self,
                                      input_answer: str = "input_answer",
                                      cmd_list_key: str = "text_edits",
                                      text_batch_key: str = "proposed_text_batch",
@@ -2255,7 +2256,7 @@ class Actioner():
         # Ensure the stepper is initialized (reset will force re-init)
         # First call will initialize internal stack if needed.
         # Pass the provided reset flag to start fresh if requested.
-        last_result = self.updateDocTreeAllStagesStep(
+        last_result = self.runDocTreeStageStep(
             input_answer=input_answer,
             cmd_list_key=cmd_list_key,
             text_batch_key=text_batch_key,
@@ -2278,7 +2279,7 @@ class Actioner():
         # Now loop until finished
         while True:
             # Call the stepper to process `steps` actions (normal stepping)
-            last_result = self.updateDocTreeAllStagesStep(
+            last_result = self.runDocTreeStageStep(
                 input_answer=input_answer,
                 cmd_list_key=cmd_list_key,
                 text_batch_key=text_batch_key,
@@ -2323,7 +2324,7 @@ class Actioner():
         }
 
 
-    def updateDocTreeAllStagesStep(self,
+    def runDocTreeStageStep(self,
                                 input_answer: str = "input_answer",
                                 cmd_list_key: str = "text_edits",
                                 text_batch_key: str = "proposed_text_batch",
@@ -2365,7 +2366,7 @@ class Actioner():
         # If reset requested or args changed, re-initialize the stack
         if reset or self._udtas_state["args"] != current_args:
             # call the single-step internal to get top-level next_stages
-            top_next = self.updateDocTreeAllStagesInternal(
+            top_next = self.runDocTreeStageInternal(
                 input_answer, cmd_list_key, text_batch_key, marker_key,
                 edit_key, text_batch_reason_key, direct_cmd_update, copy_to_dict
             ) or []
@@ -2389,7 +2390,7 @@ class Actioner():
             self._udtas_state["total_processed"] += 1
 
             # After applying, get immediate children for this new state (single-step internal)
-            new_next = self.updateDocTreeAllStagesInternal(
+            new_next = self.runDocTreeStageInternal(
                 input_answer, cmd_list_key, text_batch_key, marker_key,
                 edit_key, text_batch_reason_key, direct_cmd_update, copy_to_dict
             ) or []
@@ -2410,7 +2411,7 @@ class Actioner():
 
 
 
-    def updateDocTreeAllStagesInternal(self,
+    def runDocTreeStageInternal(self,
                                    input_answer: str = "input_answer",
                                    cmd_list_key: str = "text_edits",
                                    text_batch_key: str = "proposed_text_batch",
@@ -2418,14 +2419,16 @@ class Actioner():
                                    edit_key: str = "edit_type",
                                    text_batch_reason_key: str = "justification_for_edit",
                                    direct_cmd_update: bool = True,
-                                   copy_to_dict: bool = False
+                                   copy_to_dict: bool = False,
+                                   update_times : int = 1
                                    ):
         """
         Single-step function: calls updateTreeUsingAnswer(...) once and returns the
         next stages (list). DOES NOT recurse. This makes it handy for stepping
         through the algorithm manually.
         """
-        next_stages = self.updateTreeUsingAnswer(
+        self.updateAllnTimes(update_times)
+        next_stages = self.getDocTreeCommands(
             input_answer, cmd_list_key, text_batch_key, marker_key,
             edit_key, text_batch_reason_key, direct_cmd_update, copy_to_dict
         )
@@ -2436,7 +2439,7 @@ class Actioner():
     
 
     
-    def updateTreeUsingAnswer( self, input_answer : str = "input_answer", cmd_list_key : str = "text_edits",
+    def getDocTreeCommands( self, input_answer : str = "input_answer", cmd_list_key : str = "text_edits",
                                 text_batch_key : str = "proposed_text_batch", marker_key : str = "reference_marker", 
                                 edit_key : str = "edit_type",
                                 text_batch_reason_key : str = "justification_for_edit",

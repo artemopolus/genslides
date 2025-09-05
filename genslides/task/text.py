@@ -1806,6 +1806,7 @@ class TextTask(BaseTask):
         tres, tparam = self.getParamStruct("autoactioner", only_current=True)
         if tres:
             tparam['input'] = "" 
+            tparam['cmds'] = []
             self.setParamStruct(tparam)
         return super().clearAutoCommand2param()       
 

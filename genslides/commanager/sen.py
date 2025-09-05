@@ -3517,7 +3517,8 @@ class Projecter(Commander.Commander):
     def getCurrentTaskRelatedActionersPaths( self ):
         task = self.actioner.getCurrentManager().getCurrentTask()
         task_act_path = [] if task.getActioner() == None else [task.getActioner().getPath()]
-        return gr.Dropdown(choices=task.getRelatedActionersPaths( task_act_path ))
+        act_paths = task.getRelatedActionersPaths( task_act_path )
+        return gr.Dropdown(value=None if len(act_paths) == 0 else act_paths[0],choices=act_paths)
  
     
     def getTasksWithCmds ( self, path ):
@@ -3530,12 +3531,12 @@ class Projecter(Commander.Commander):
                     out.append( task.getName()) 
         return gr.Radio(choices=out)
     
-    def setTaskCmdStatus ( self, name, idxs, status ):
+    def setTaskCmdStatus ( self, name, idxs, status, act_path ):
         task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
         if task:
             for i in idxs:
                 task.setAutoActCmdStatus(i, status)
-        return self.getTaskCmdList()
+        return self.getTaskCmdList(act_path)
     
     def removeCmdFromTask (self, name, idxs):
         task :BaseTask = self.actioner.getCurrentManager().getTaskByName( name )
@@ -3637,7 +3638,8 @@ class Projecter(Commander.Commander):
         if kwargs != None:
             kwargs_list = kwargs.split(",")
             for arg in kwargs_list:
-                action_value['kwargs'].update({arg : ""})
+                re_arg = arg.replace("\n","")
+                action_value['kwargs'].update({re_arg : ""})
         if cres and isinstance(cmds, list):
             cmds.append(action_value)
             cmds_str = Loader.Loader.convJsonToText( cmds, indent=3 )

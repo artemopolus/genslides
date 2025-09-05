@@ -826,7 +826,17 @@ class JumperTreeTask(InExtTreeTask):
             cmds_txt = self.findKeyParam( cmds_txt )
             jres, jcmds = Loader.Loader.loadJsonFromText( cmds_txt )
             if jres:
-                return [Loader.Loader.convJsonToText(j) for j in jcmds]
+                custom_commands = [Loader.Loader.convJsonToText(j) for j in jcmds]
+                act = self.getActioner()
+                if act != None:
+                    for task in act.getCurrentManager().getTasks():
+                        res, cmds = task.getAutoActCmds(checkhash = False)
+                        if res:
+                            if isinstance(cmds, list):
+                                for cmd in cmds:
+                                    if "action" in cmd:
+                                        custom_commands.append(Loader.Loader.convJsonToText(cmd))
+                return custom_commands
         return super().getExtTreeTaskCmds()
 
     def exeExTreeTaskCmds( self, cmds ):

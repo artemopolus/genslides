@@ -696,7 +696,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     
                     customjsoncmdadd_btn.click(fn=projecter.appendCmdToJson, inputs=[customjsoncmd_cod, customjsoncmd_drp], outputs=customjsoncmd_cod)
                     settaskcmdstatus_btn.click(fn=projecter.setTaskCmdStatus,
-                                                   inputs = [gettaskswithcmds_rad, taskcmds_chk, cmdtaskstatus_sld],
+                                                   inputs = [gettaskswithcmds_rad, taskcmds_chk, cmdtaskstatus_sld, availableactioners_drd],
                                                    outputs=[taskcmds_chk])
 
 
