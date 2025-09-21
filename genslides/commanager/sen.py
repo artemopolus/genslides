@@ -319,10 +319,19 @@ class Projecter(Commander.Commander):
         return False, ''
     
     def saveToTmp(self):
+        out = []
         self.actioner.setManager(self.actioner.std_manager)
         man = self.actioner.getCurrentManager()
         self.actioner.saveManToTmp(man, suffix="reserved")
-        return "Save"
+        out.append(self.actioner.getPath())
+        act_paths = self.actioner.getRelatedActionersPaths([])
+        for path in act_paths:
+            act = self.getActionerByPath(path)
+            if act != None:
+                out.append(path)
+                act.setManager(act.std_manager)
+                act.saveManToTmp(act.getCurrentManager(), suffix="reserved")
+        return f"Save:\n" + "\n".join(out)
     
     def load(self):
         self.actioner.setManager(self.actioner.std_manager)
@@ -341,7 +350,20 @@ class Projecter(Commander.Commander):
         return self.updateTaskManagerUI()
  
     def loadFromTmp(self):
-        print('Load from temporary')
+        print(f"========Start load from temporary file")
+        act_paths = self.actioner.getRelatedActionersPaths([])
+        self.loadCurrentActionerFromTmp()
+        start_act = self.actioner
+        for path in act_paths:
+            act = self.getActionerByPath(path)
+            if act != None:
+                self.actioner = act
+                self.loadCurrentActionerFromTmp()
+        self.actioner = start_act
+        return self.updateTaskManagerUI()
+    
+    def loadCurrentActionerFromTmp( self ):
+        print(f"Load from temporary {self.actioner.getPath()}")
         self.actioner.setManager(self.actioner.std_manager)
         man = self.actioner.getCurrentManager()
         folder = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
@@ -360,7 +382,6 @@ class Projecter(Commander.Commander):
 
         FileManager.deleteFiles(man.getPath())
         self.loadInternal(project_path, filename, path)
-        return self.updateTaskManagerUI()
     
     def loadInternal( self, project_path, filename, path ):
         Archivator.extractFiles(project_path, filename, path)
@@ -2036,25 +2057,13 @@ class Projecter(Commander.Commander):
     def moveUpTree(self):
         man = self.actioner.getCurrentManager()
         task = man.curr_task
-        cur_tree = task.getRootParent()
-        sres, sparam = cur_tree.getParamStruct('tree_step', True)
-        if sres:
-            idx = sparam['idx']
-            if idx != 0:
-                idx -= 1
-            cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
+        task.incTreeIdx()
         return self.updateMainUIelements()
  
     def moveDwTree(self):
         man = self.actioner.getCurrentManager()
         task = man.curr_task
-        cur_tree = task.getRootParent()
-        sres, sparam = cur_tree.getParamStruct('tree_step', True)
-        if sres:
-            idx = sparam['idx']
-            # if idx != 0:
-            idx += 1
-            cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
+        task.decTreeIdx()
         return self.updateMainUIelements()
 
  
@@ -3481,23 +3490,42 @@ class Projecter(Commander.Commander):
             res, cmd = Loader.Loader.loadJsonFromText(cmd_txt)
             if res:
                 cmds.append( cmd )
-        print(f"exe ext tree actions:\n{cmds}")
+        # print(f"exe ext tree actions:\n{cmds}")
         task.exeExTreeTaskCmds( cmds )
         return self.updateMainUIelements()
     
-    def editSelectedExtTreeActionerJsonCmd( self, cmds_list ):
+    def removeExtTreeActionerJsonCmd( self, cmds_list ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
         cmds = []
         for cmd_txt in cmds_list:
             res, cmd = Loader.Loader.loadJsonFromText(cmd_txt)
             if res:
                 cmds.append( cmd )
-        return Loader.Loader.convJsonToText( cmds )
+        # print(f"exe ext tree actions:\n{cmds}")
+        task.removeJsonTaskCmds( cmds )
+        return self.updateMainUIelements()
+    
+    def editSelectedExtTreeActionerJsonCmd( self, cmds_list ):
+        cmds = []
+        cmd_text = ""
+        for jsoncmd_txt in cmds_list:
+            res, cmd = Loader.Loader.loadJsonFromText(jsoncmd_txt)
+            if res:
+                cmds.append( cmd )
+                if "action" in cmd:
+                    cmd_text += f"# Action `{cmd.get("action","")}`\n"
+                    cmd_text += f"{cmd.get("reason","")}\n"
+                    kwargs : dict = cmd.get("kwargs",{})
+                    for k, v in kwargs.items():
+                        cmd_text += f"### {k}\n{v}\n\n"
+        return Loader.Loader.convJsonToText( cmds ), cmd_text
 
-    def executeEditedExtTreeActionerJsonCmd( self, cmds_txt ):
+    def executeEditedExtTreeActionerJsonCmd( self, cmds ):
+        print("Execute edited extreeact json commands")
         task = self.actioner.getCurrentManager().getCurrentTask()
-        res, cmds = Loader.Loader.loadJsonFromText(cmds_txt)
-        if res:
-            task.exeExTreeTaskCmds( cmds )
+        task.exeExTreeTaskCmds( cmds )
+        task.saveUpdationInfo()
+        task.resetUpdationInfo()
         return self.updateMainUIelements()
  
     def executeJsonCmd( self, cmds, path ):

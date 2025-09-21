@@ -822,25 +822,34 @@ class JumperTreeTask(InExtTreeTask):
     def getExtTreeTaskCmds(self):
         lres, lparam = self.getParamStruct("external", True)
         if lres:
+            custom_commands = lparam.get("generated_actions",[])
+            return custom_commands
+        return super().getExtTreeTaskCmds()
+    
+    def updateGeneratedAction ( self ):
+        lres, lparam = self.getParamStruct("external", True)
+        if lres:
+            custom_commands = []
             cmds_txt = lparam.get("custom_actions","[]")
             cmds_txt = self.findKeyParam( cmds_txt )
             jres, jcmds = Loader.Loader.loadJsonFromText( cmds_txt )
             if jres:
                 custom_commands = [Loader.Loader.convJsonToText(j) for j in jcmds]
-                act = self.getActioner()
-                if act != None:
-                    for task in act.getCurrentManager().getTasks():
-                        res, cmds = task.getAutoActCmds(checkhash = False)
-                        if res:
-                            if isinstance(cmds, list):
-                                for cmd in cmds:
-                                    if "action" in cmd:
-                                        custom_commands.append(Loader.Loader.convJsonToText(cmd))
-                return custom_commands
-        return super().getExtTreeTaskCmds()
-
+            act = self.getActioner()
+            if act != None:
+                for task in act.getCurrentManager().getTasks():
+                    res, cmds = task.getAutoActCmds(checkhash = False)
+                    if res:
+                        if isinstance(cmds, list):
+                            for cmd in cmds:
+                                if "action" in cmd:
+                                    cmd["output_task"] = task.getName()
+                                    custom_commands.append(Loader.Loader.convJsonToText(cmd))
+            lparam["generated_actions"] = custom_commands
+            self.setParamStruct(lparam)
+ 
     def exeExTreeTaskCmds( self, cmds ):
-        act = self.intact
+        act = self.getActioner()
         if act != None:
             self.updateUpdationInfo(f"Exe ext tree actions")
             act.getJsonCustomCmd( cmds )
@@ -851,6 +860,21 @@ class JumperTreeTask(InExtTreeTask):
             self.setChildUpdateState( False )
         return super().exeExTreeTaskCmds( cmds )
     
+    def removeJsonTaskCmds( self, cmds ):
+        act = self.getActioner()
+        if act != None:
+            self.updateUpdationInfo(f"Remove ext tree actions")
+            for cmd in cmds:
+                if "output_task" in cmd:
+                    task = act.getCurrentManager().getTaskByName(cmd["output_task"])
+                    if task != None:
+                        del cmd["output_task"]
+                        task.removeAutoCommandFromparam( cmd )
+            eres, eparam = self.getParamStruct('external',True)
+            if eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
+                results = act.getJsonCmd(self.findKeyParam(eparam['updt_actions']))
+                # self.updateUpdationInfo(f"UPDATE Actions with results:{results}")
+ 
     def getExternalActionerTask(self):
         act = self.getActioner()
         eres, eparam = self.getParamStruct('external',True)

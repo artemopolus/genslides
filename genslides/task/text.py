@@ -159,6 +159,34 @@ class TextTask(BaseTask):
                 return p['idx']
         return super().getPrio()
     
+    def getTreeIdx(self):
+        cur_tree = self.getRootParent()
+        sres, sparam = cur_tree.getParamStruct('tree_step', True)
+        if sres:
+            return sparam['idx']
+        return 0
+    
+    def incTreeIdx(self):
+        cur_tree = self.getRootParent()
+        sres, sparam = cur_tree.getParamStruct('tree_step', True)
+        if sres:
+            idx = sparam['idx']
+            if idx != 0:
+                idx -= 1
+            cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
+        return super().incTreeIdx()
+    
+    def decTreeIdx(self):
+        cur_tree = self.getRootParent()
+        sres, sparam = cur_tree.getParamStruct('tree_step', True)
+        if sres:
+            idx = sparam['idx']
+            # if idx != 0:
+            idx += 1
+            cur_tree.updateParamStruct(param_name='tree_step',key='idx', val=idx)
+
+        return super().decTreeIdx()
+    
     def getQueueParam(self) -> dict:
         par = self.getParent()
         if par:
@@ -1203,6 +1231,7 @@ class TextTask(BaseTask):
             jres, cmd = Loader.loadJsonFromText( cmd_text )
             if jres:
                 if isinstance( cmd, dict ):
+                    self.updateUpdationInfo("Act dict")
                     if "action" in cmd:
                         self.updateAutoCommand2param( cmd )
                         param["hash"] = cmd_hash
@@ -1210,16 +1239,21 @@ class TextTask(BaseTask):
                     else:
                         print("No action in dict")
                 elif isinstance( cmd, list ):
+                    self.updateUpdationInfo("Act list")
                     one_action = False
                     for action in cmd:
                         if "action" in action:
+                            action_name = action["action"]
+                            self.updateUpdationInfo(f"Add action {action_name}")
                             self.updateAutoCommand2param( action )
                             one_action = True
+                        else:
+                            self.updateUpdationInfo(f"Action error:\n{action}")
                     if one_action:
                         param["hash"] = cmd_hash
                         self.setParamStruct( param )
                     else:
-                        print("No action found in act list")
+                        self.updateUpdationInfo(f"No action found in act list:\n{cmd}")
             else:
                 self.updateUpdationInfo(f"Error on json convertion")
 
@@ -1258,6 +1292,7 @@ class TextTask(BaseTask):
                 self.setParamStruct(fparam)
             else:
                 self.updateUpdationInfo(f"Error on jsondict to text convert")
+        self.updateGeneratedAction()
         self.updateAutoCommand()
         self.saveUpdationInfo()
         self.resetUpdationInfo()
@@ -1727,15 +1762,30 @@ class TextTask(BaseTask):
         if "action" in cmd:
             tres, tparam = self.getParamStruct("autoactioner", only_current=True)
             if tres:
-                content = self.findKeyParam(tparam['input'])
-                jres, jobj = Loader.loadJsonFromText( content )
-                if jres:
-                    try:
-                        jobj.remove( cmd)
-                        tparam['input'] = Loader.convJsonToText( jobj )
+                if 'cmds' in tparam and isinstance(tparam['cmds'], list):
+                    trg = cmd.get("aa_time","")
+                    if trg == "":
+                        return
+                    trg_act = None
+                    for action in tparam['cmds']:
+                        time = action.get("aa_time","")
+                        if trg == time:
+                            trg_act = action
+                            break
+                    if trg_act != None:
+                        print("Remove:", trg_act)
+                        tparam['cmds'].remove(trg_act)
                         self.setParamStruct(tparam)
-                    except Exception as e:
-                        pass
+
+                # content = self.findKeyParam(tparam['input'])
+                # jres, jobj = Loader.loadJsonFromText( content )
+                # if jres:
+                #     try:
+                #         jobj.remove( cmd)
+                #         tparam['input'] = Loader.convJsonToText( jobj )
+                #         self.setParamStruct(tparam)
+                #     except Exception as e:
+                #         pass
 
     def updateAutoActCmdInput ( self, tparam ):
         if 'input' not in tparam:
@@ -1767,10 +1817,18 @@ class TextTask(BaseTask):
             tres, tparam = self.getParamStruct("autoactioner", only_current=True)
             if tres:
                 if "cmds" in tparam:
-                    cmd["aa_idx"] = len(tparam["cmds"])
-                    tparam["cmds"] = tparam["cmds"].append( cmd2 )
+                    cmd_name = cmd2["action"]
+                    self.updateUpdationInfo(f"add cmd {cmd_name}")
+                    if isinstance(tparam["cmds"], list):
+                        cmd["aa_idx"] = len(tparam["cmds"])
+                        tparam["cmds"].append( cmd2 )
+                    else:
+                        tparam["cmds"] = [ cmd2 ]
+
                     self.setParamStruct(tparam)
+                    return
                 else:
+                    self.updateUpdationInfo("Create new cmds field")
                     content = self.findKeyParam(tparam['input'])
                     jres, jobj = Loader.loadJsonFromText( content )
                     if jres:
@@ -1786,7 +1844,7 @@ class TextTask(BaseTask):
                         self.setParamStruct(tparam)
                         return
                     else:
-                        pass
+                        self.updateUpdationInfo("No correct json")
                         # print("No correct json")
                     # return
             else:

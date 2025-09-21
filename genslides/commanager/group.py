@@ -1965,7 +1965,7 @@ class Actioner():
 
             for cmd in cmds:
                 action = cmd.get("action")
-                print('Run cmd', action)
+                print(f"Run {action} cmd")
                 args = cmd.get("args", [])
                 kwargs = cmd.get("kwargs", {})
 
@@ -2347,6 +2347,7 @@ class Actioner():
         - finished: True if no more actions remain after this call
         - stack_preview: small preview of next actions on the stack (up to 10)
         """
+        print("Run stage step of Document Tree")
         # Validate steps
         if steps < 1:
             raise ValueError("steps must be >= 1")
@@ -2365,6 +2366,22 @@ class Actioner():
 
         # If reset requested or args changed, re-initialize the stack
         if reset or self._udtas_state["args"] != current_args:
+            tasks = self.getCurrentManager().getAllTasksByTagFromTaskList("input_summary", self.getCurrentManager().getTasks())
+            for task in tasks:
+                print(f"Unlink {task.getName()}")
+                self.getCurrentManager().setCurrentTask(task)
+                self.makeTaskAction("","","Unlink","")
+            tasks = self.getCurrentManager().getAllTasksByTagFromTaskList("marker", self.getCurrentManager().getTasks())
+            prio = 0
+            taskname= ""
+            for task in tasks:
+                if task.getTreeIdx() > prio or taskname == "":
+                    taskname = task.getName()
+                    prio = task.getTreeIdx()
+            if taskname == "":
+                print(f"Can't get prio in {len(tasks)} task(s)")
+                return {}
+            self.createSecondStageLink(taskname=taskname,input_summary="input_summary")
             # call the single-step internal to get top-level next_stages
             top_next = self.runDocTreeStageInternal(
                 input_answer, cmd_list_key, text_batch_key, marker_key,
@@ -2381,7 +2398,10 @@ class Actioner():
         # Run up to `steps` stage-actions
         for _ in range(steps):
             if not stack:
+                print("Nothing to process")
                 break  # nothing left to process
+            else:
+                print(f"Stack:\n{stack}")
 
             stage_action = stack.pop()
             # Apply the action (side effects expected)
@@ -2427,6 +2447,7 @@ class Actioner():
         next stages (list). DOES NOT recurse. This makes it handy for stepping
         through the algorithm manually.
         """
+        print("Run Doc Tree Stage internal")
         self.updateAllnTimes(update_times)
         next_stages = self.getDocTreeCommands(
             input_answer, cmd_list_key, text_batch_key, marker_key,
@@ -2509,7 +2530,9 @@ class Actioner():
                         # if updatetask and updatetask.checkType("Request"):
                             if edit_type == "Insertion":
                                 if direct_cmd_update:
-                                    updatetask.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason})
+                                    updtaskchild = updatetask if len(updatetask.getChilds()) == 0 else updatetask.getChilds()[0]
+                                    targettaskname = updtaskchild.getName()
+                                    updtaskchild.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason})
                                 if copy_to_dict:
                                     updatetask.saveDictBuffer({"action":"insertingToTaskAction","taskname":targettaskname,"prompt":batch})
                                 # command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
@@ -2875,6 +2898,7 @@ class Actioner():
                         add_task_names.append(full_name)
 
     def createSecondStageLink ( self, taskname : str, summary = "marker", input_summary = "input_addlink" ):
+        print(f"Create Second Stage Link with `{taskname}` name:\n{summary}\n{input_summary}")
         man = self.getCurrentManager()
         mainoutputtasktree = None
 
@@ -2891,6 +2915,9 @@ class Actioner():
                       marker = "marker", input_summary = "input_summary" 
                       ):
         linked_task = man.getTaskByName( taskname )
+        if linked_task == None:
+            print(f"No task with `{taskname}` name in manager ({man.getPath()})")
+            return
 
         output_task = None
 
@@ -2899,12 +2926,14 @@ class Actioner():
             break
 
         if not output_task:
-            print(f"No output task")
-            return
-        
-        output_tree = output_task.getRootParent()
+            print(f"No output task: try to find closest")
+            marker_output_task = linked_task
 
-        marker_output_task = man.getTaskByTagFromTasks(marker, output_tree.getAllChildChains())
+        else:
+        
+            output_tree = output_task.getRootParent()
+
+            marker_output_task = man.getTaskByTagFromTasks(marker, output_tree.getAllChildChains())
 
         summary_input_task = None
 
