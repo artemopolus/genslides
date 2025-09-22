@@ -1628,6 +1628,9 @@ class BaseTask():
     
     def getRelatedActionersPaths( self, actpaths_list : list[str]):
         return actpaths_list
+
+    def getLoadedActionerPath( self, actpaths_list : list[str] ):
+        return actpaths_list
     
     def isUnconnectedExternalRoot( self ):
         return False

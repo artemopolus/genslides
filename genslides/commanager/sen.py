@@ -1051,6 +1051,21 @@ class Projecter(Commander.Commander):
         self.loadActionerByPath(man_path)
         return self.updateTaskManagerUI()
     
+    def loadActionerFromExtTreeTask( self ):
+        act_paths = []
+        loaded_act_paths = [a.getPath() for a in self.getActionersList()]
+        for act in self.getActionersList():
+            paths = act.getLoadedActionerPath([])
+
+            for path in paths:
+                print(f"Check {path}")
+                if path not in loaded_act_paths:
+                    act_paths.append( path )
+        print(f"Need to load actioners:\n{act_paths}")
+        for path in act_paths:
+            self.loadActionerByPath( path )
+        return self.updateTaskManagerUI()
+    
     def loadActionerWithTemplate(self, template_path : str, projectfile_path : str, save_path : str):
         # Archivator.extractFiles(templates_path, template_name, save_path)
         Archivator.extract7zFileToFolder( template_path, save_path)
@@ -3513,8 +3528,10 @@ class Projecter(Commander.Commander):
             if res:
                 cmds.append( cmd )
                 if "action" in cmd:
-                    cmd_text += f"# Action `{cmd.get("action","")}`\n"
-                    cmd_text += f"{cmd.get("reason","")}\n"
+                    cmd_action = cmd.get("action","")
+                    cmd_reason = cmd.get("reason","")
+                    cmd_text += f"# Action `{cmd_action}`\n"
+                    cmd_text += f"{cmd_reason}\n"
                     kwargs : dict = cmd.get("kwargs",{})
                     for k, v in kwargs.items():
                         cmd_text += f"### {k}\n{v}\n\n"

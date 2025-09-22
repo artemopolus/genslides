@@ -138,6 +138,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Column():
                     with gr.Row():
                         actaddbybrow_btn = gr.Button('Load actioner from location')
+                        actaddbyext_btn = gr.Button("Load ext tree acts")
                         instructaddbybrow_btn = gr.Button('Add instructions from location').click(fn=projecter.loadInstructionDicitionaryByBrowsing)
                     with gr.Row():
                         loadactwithtemplate_btn = gr.Button("Load actioner with template")
@@ -1296,6 +1297,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
+            actaddbyext_btn.click(fn=projecter.loadActionerFromExtTreeTask, outputs=std_full)
+            
             loadactwithtemplate_btn.click(fn=projecter.loadActionerWithTemplate, inputs=[templatepath_txt, projectfilepath_txt, projectfolderpath_txt], outputs=std_full)
 
             projectrestore_btn.click(fn=projecter.loadFromTmp, outputs=std_full)
