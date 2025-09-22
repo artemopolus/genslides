@@ -68,6 +68,9 @@ class Actioner():
 
     def reset(self):
         self.setManager(self.std_manager)
+        for manager in self.tmp_managers:
+            print(f"Reset {manager.getName()} manager")
+            manager.onStart()
         self.tmp_managers : list[BaseMan.Jun] = []
         self.clearTmp()
 
