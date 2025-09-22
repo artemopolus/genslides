@@ -951,6 +951,15 @@ class BaseTask():
     
     def setPrio(self, idx : int):
         pass
+
+    def getTreeIdx( self ):
+        pass
+
+    def incTreeIdx( self ):
+        pass
+
+    def decTreeIdx( self ):
+        pass
     
     def getChildByName(self, child_name):
         for ch in self.getChilds():
@@ -1815,3 +1824,10 @@ class BaseTask():
 
     def getExternalActionerTask( self ):
         return False, "", ""
+    
+    def generateCommandFromTask( self ):
+        pass
+
+    def updateGeneratedAction ( self ):
+        pass
+
