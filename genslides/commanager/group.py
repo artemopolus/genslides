@@ -16,6 +16,7 @@ import genslides.task_tools.text as TextTool
 import genslides.utils.llmodel as LlmModel
 import genslides.utils.readfileman as ReadFM
 import genslides.utils.writer as Writer
+import genslides.utils.ids as Ids
 import os
 import json
 import shutil
@@ -1025,8 +1026,9 @@ class Actioner():
         else:
             self.is_updating = True
         man = self.manager
+        man.setUpdateSessionId(Ids.generateKey())
         print(f"Update all tasks of {man.getName()}")
-        start_task = man.curr_task
+        start_task = man.getCurrentTask()
         self.resetUpdate(force_check=force_check)
         if len(man.tree_arr) == 0:
             self.is_updating = False
@@ -1066,7 +1068,8 @@ class Actioner():
 
     def updateAllUntillCurrTask(self, force_check=False):
         man = self.manager
-        start_task = man.curr_task
+        man.setUpdateSessionId(Ids.generateKey())
+        start_task = man.getCurrentTask()
         self.resetUpdate(force_check=force_check)
         if len(man.tree_arr) == 0:
             return

@@ -352,6 +352,33 @@ def updateProposals(param : dict, proposal : str):
         param["last_proposal_hash"] = prop_hash
         param["trg_prop_idx"] = 0
 
+def updateChatProposals(param : dict, chat_data : list[dict], id : str):
+    raw_text = ""
+    for msg in chat_data:
+        if "content" in msg:
+            raw_text += msg["content"]
+        else:
+            return
+    prop_hash = Txt.compute_sha256_hash(raw_text)
+    lastprophash = param.get("last_proposal_hash","")
+    props : list = param.get("proposals",[])
+    if lastprophash != prop_hash:
+        max_props = param.get("max_proposals", 10)
+        prop_data = {
+            "chat":chat_data,
+            "hash":prop_hash,
+            "session_id": id
+        }
+        if len(props) < max_props:
+            props.append(prop_data)
+        else:
+            props.pop(0)
+            props.append(prop_data)
+        param["proposals"] = props
+        param["last_proposal_hash"] = prop_hash
+        param["trg_prop_idx"] = 0
+
+
 def getNextProposal(param : dict ):
     props : list = param.get("proposals",[])
     idx = param.get("trg_prop_idx", 0)

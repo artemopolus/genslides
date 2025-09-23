@@ -2081,6 +2081,15 @@ class TextTask(BaseTask):
         self.updateUpdationInfo(f"transmit from {self.getName()} to {task.target.getName()}")
         return super().transmitInfoToLinked(task, input)
 
+    def checkRecordsOption(self, param):
+        if 'check_manager' in param:
+            if param['check_manager']:
+                pass
+            else:
+                return param['input'] == 'records'
+        return param['input'] == 'records' and self.manager.allowUpdateInternalArrayParam()
+
+
     def updateRecordedParam( self ):
         self.updateUpdationInfo(f"Update records\n")
         res, param = self.getParamStruct(param_name='write_branch', only_current=True)
@@ -2088,7 +2097,7 @@ class TextTask(BaseTask):
             return
         
         try:
-            path = Loader.Loader.getUniPath( self.findKeyParam( param['path_to_write'] ) )
+            path = Loader.getUniPath( self.findKeyParam( param['path_to_write'] ) )
             t_input = param['input']
             content = None
 
@@ -2096,12 +2105,14 @@ class TextTask(BaseTask):
 
             if t_input == 'msgs':
                 content = self.getMsgs()
+                rd.updateChatProposals( param, content, self.manager.getUpdateSessionId() )
                 if s_method == "file":
                     wr.writeJsonToFile(path, content)
             elif t_input == 'content':
 
                 proposal = self.findKeyParam(param.get( "content_target", self.getLastMsgContentRaw() ))
-                rd.updateProposals( param, proposal )
+                content = [{"role":"user","content":proposal}]
+                rd.updateChatProposals( param, content, self.manager.getUpdateSessionId() )
                 if s_method == "file":
                     wr.writeJsonToFile(path, param)
                

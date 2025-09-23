@@ -45,14 +45,6 @@ class WriteBranchTask(WriteToFileParamTask):
     def executeResponse(self):
         self.updateRecordedParam()
 
-    def checkRecordsOption(self, param):
-        if 'check_manager' in param:
-            if param['check_manager']:
-                pass
-            else:
-                return param['input'] == 'records'
-        return param['input'] == 'records' and self.manager.allowUpdateInternalArrayParam()
-
     def checkAnotherOptions(self) -> bool:
         param_name = "write_branch"
         res, pparam = self.getParamStruct(param_name)

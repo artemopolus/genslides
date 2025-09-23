@@ -53,6 +53,13 @@ class Jun():
         self.renamed_parent = []
         self.is_executing = False
         self.actioner = None
+        self.update_session_id = ""
+
+    def setUpdateSessionId(self, id : str):
+        self.update_session_id = id
+
+    def getUpdateSessionId( self, id : str):
+        return self.update_session_id
 
     def getCommandList(self)->list[str]:
         out = []
