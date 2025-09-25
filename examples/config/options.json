@@ -29,11 +29,13 @@
       "type": "write_branch",
       "save_method": ["param","file"],
       "path_to_write": "[[manager:path:spc]]/dial/[[name]].json",
-      "input": ["msgs","content", "records"],
+      "input": ["msgs","content", "trgs", "records"],
       "content_target": ["[[current:msg_content]]","[[parent:msg_content]]","[[parent_2:msg_content]]"],
+      "target_tasks":"",
       "excld_task": [],
       "always_update": [true, false],
       "check_manager":[true, false],
+      "last_proposal_hash":"",
       "max_proposals": 10
    },
    {

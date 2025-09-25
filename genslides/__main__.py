@@ -256,6 +256,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             with gr.Row():
                                 maxupdateidx_num = gr.Number(value=10000, label='Max steps to update', minimum=1)
                                 updatecheckown_chk = gr.Checkbox(label='Check tasks manager', value=False)
+                                updatesessionid_chk = gr.Checkbox(label="UAT to cur update id", value=False)
                                 reset_step_btn = gr.Button(value="Reset steps")
                                 updatechildtasks_btn = gr.Button('UAT childs')
                                 updatemultitasks_btn = gr.Button('UAT multi')
@@ -1450,7 +1451,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             updateall_stepNs_btn.click(fn=projecter.updateAllnTimes, inputs=[updateall_stepNs_sld, updatecheckown_chk], outputs=std_output_list)
             updateall_msgdiff_btn.click(fn=projecter.updateAllnTimesCheckDiff, inputs=[updateall_stepNs_sld, updatecheckown_chk], outputs=std_output_list)
             updatealln_btn.click(fn=projecter.updateAllnTimes, inputs=[updatealln_num, updatecheckown_chk], outputs=std_output_list)
-            upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, inputs=[updatecheckown_chk], outputs=std_output_list)
+            upd2cur_step_btn.click(fn=projecter.updateAllUntillCurrTask, inputs=[updatecheckown_chk, updatesessionid_chk], outputs=std_output_list)
             updatechildtasks_btn.click(fn=projecter.updateChildTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
             updatemultitasks_btn.click(fn=projecter.updateMultiSelectedTasks, inputs=[updatecheckown_chk], outputs=std_output_list)
             updateforktasks_btn.click(fn=projecter.updateFromFork, inputs=[updatecheckown_chk], outputs=std_output_list)

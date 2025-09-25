@@ -1679,7 +1679,7 @@ class BaseTask():
     def getLastMsgAndParentMessage(self, hide_task = True, max_symbols = -1, param = {}):
         return ""
     
-    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}, add_task_name = False):
         return False, [], self.parent
     
     def getJsonFilePath(self):

@@ -58,7 +58,7 @@ class Jun():
     def setUpdateSessionId(self, id : str):
         self.update_session_id = id
 
-    def getUpdateSessionId( self, id : str):
+    def getUpdateSessionId( self):
         return self.update_session_id
 
     def getCommandList(self)->list[str]:

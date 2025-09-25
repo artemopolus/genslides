@@ -473,7 +473,12 @@ class TextTask(BaseTask):
         else:
             return ""
    
-
+    def getPromptRoleForCopyConverted(self):
+        if len(self.msg_list) > 0:
+            return self.findKeyParam( self.msg_list[-1]["role"])
+        else:
+            return ""
+ 
     def getLastMsgContentRaw(self):
         if len(self.msg_list) > 0:
             return self.getRawMsgs()[-1]['content']
@@ -539,7 +544,7 @@ class TextTask(BaseTask):
         res, content, parent = self.getLastMsgAndParent(hide_task, max_symbols, param)
         return content[0]["content"]
         
-    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}) -> (bool, list, BaseTask):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}, add_task_name = False):
         if hide_task:
             res, pparam = self.getParamStruct('hidden', only_current=True)
             if res and pparam['hidden']:
@@ -588,6 +593,8 @@ class TextTask(BaseTask):
 
         pack = {"role":self.getLastMsgRole(), 
                 "content": content}
+        if add_task_name:
+            pack["name"] = self.getName()
         val = [pack]
         if "attach" in param and param["attach"]:
             ares, aparam = self.getParamStruct("attach", only_current=True)
@@ -662,7 +669,7 @@ class TextTask(BaseTask):
                 report = par.getTaskReport( report )
         return super().getTaskReport(report)
  
-    def getMsgs(self, except_task = [], hide_task = True, max_symbols = -1, inparam = {}):
+    def getMsgs(self, except_task = [], hide_task = True, max_symbols = -1, inparam = {}, add_task_name = False):
         # print(f"Get msgs from {self.getName()}")
         rres, rparam = self.getParamStruct("response")
         if rres and "restricted_index" in rparam and rparam["restricted_index"]:
@@ -678,7 +685,7 @@ class TextTask(BaseTask):
         out = []
         mres, mparam = self.getParamStruct("message")
         while(index < 1000):
-            res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols, inparam)
+            res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols, inparam, add_task_name)
             if res and task.getName() not in except_task:
                 if mres and mparam["autoconnect"] and len(out) and len(msg) and out[0]["role"] == msg[-1]["role"]:
                         # print(index, " ", task.getName(),"give", len(msg), "msgs") 
@@ -2104,7 +2111,22 @@ class TextTask(BaseTask):
             s_method = param.get("save_method","param")
 
             if t_input == 'msgs':
-                content = self.getMsgs()
+                content = self.getMsgs(hide_task=False, add_task_name=True)
+                rd.updateChatProposals( param, content, self.manager.getUpdateSessionId() )
+                if s_method == "file":
+                    wr.writeJsonToFile(path, content)
+            elif t_input == 'trgs':
+                targets = self.findKeyParam( param.get("target_tasks","") )
+                names = Txt.convert_text_with_names_to_list( targets )
+                content = []
+                for name in names:
+                    task : BaseTask = self.manager.getTaskByName( name )
+                    task_data = {
+                        "content": task.getPromptContentForCopyConverted(),
+                        "role" : task.getPromptRoleForCopyConverted(),
+                        "name": task.getName()
+                    }
+                    content.append(task_data)
                 rd.updateChatProposals( param, content, self.manager.getUpdateSessionId() )
                 if s_method == "file":
                     wr.writeJsonToFile(path, content)

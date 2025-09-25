@@ -13,6 +13,7 @@ import genslides.utils.searcher as Searcher
 import genslides.utils.filemanager as FileManager
 import genslides.utils.readfileman as Reader
 import genslides.utils.writer as Writer
+import genslides.utils.ids as Ids
 
 import genslides.task_tools.py_parser as pyparser
 import genslides.commanager.com as Commander
@@ -1505,16 +1506,22 @@ class Projecter(Commander.Commander):
         delta = dt2 - dt1
         print(f"Update {chain[0]}->{chain[1]} duration: {delta:.6f} s. Next: {chain[2]}")
         return self.updateMainUIelements() + (chain[0], chain[1], chain[2])
+    
+    def updateActionersIds( self ):
+        for actioner in self.getActionersList():
+            actioner.getCurrentManager().setUpdateSessionId(Ids.generateKey())
         
     def updateAll(self, check = False, max_idx = 10000):
         print('Update All trees stepped')
         self.actioner.getCurrentManager().disableOutput2()
+        self.updateActionersIds()
         self.actioner.updateAll(force_check=check, max_update_idx=max_idx)
         self.actioner.getCurrentManager().enableOutput2()
         return self.updateMainUIelements()
     
     def updateAllnTimes(self, n, check = False):
         print('Update All trees stepped',n,'times')
+        self.updateActionersIds()
         dt1 = time.time()       
         self.actioner.updateAllnTimes(n, check)
         dt2 = time.time() 
@@ -1546,8 +1553,10 @@ class Projecter(Commander.Commander):
         return self.updateMainUIelements()
 
    
-    def updateAllUntillCurrTask(self, force_check = False):
+    def updateAllUntillCurrTask(self, force_check = False, update_id = False):
         self.actioner.getCurrentManager().disableOutput2()
+        if update_id:
+            self.updateActionersIds()
         self.actioner.updateAllUntillCurrTask(force_check=force_check)
         self.actioner.getCurrentManager().enableOutput2()
         return self.updateMainUIelements()

@@ -19,7 +19,7 @@ class ExternalInput(RqTask.RequestTask):
         else:
             super().stdProcessUnFreeze(input)
 
-    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}):
+    def getLastMsgAndParent(self, hide_task = True, max_symbols = -1, param = {}, add_task_name = False):
         return False, [], self.parent
     
     def isUnconnectedExternalRoot(self):
