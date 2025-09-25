@@ -388,6 +388,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         prompt = gr.Textbox(label="Prompt", lines=4, value=request)
                         with gr.Accordion('Proposals', open=False):
                             with gr.Row():
+                                copyfrombuffer_btn = gr.Button("Paste from buffer")
+                                copyfrombuffer_btn.click(fn=projecter.getTextFromBuffer, inputs=[prompt], outputs=[prompt])
+                            with gr.Row():
                                 examples_dst = gr.CheckboxGroup(label='Choices')
                             with gr.Row():
                                 add_examples_btn = gr.Button('Append to prompt')

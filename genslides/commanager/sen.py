@@ -2920,6 +2920,9 @@ class Projecter(Commander.Commander):
         pyperclip.copy(value)
         pyperclip.paste()
 
+    def getTextFromBuffer( self, text ):
+        return text + "\n" + pyperclip.paste()
+
     def updateMainUIelements(self):
         return self.updateUIelements()
 
