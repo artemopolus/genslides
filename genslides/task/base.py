@@ -1824,6 +1824,9 @@ class BaseTask():
     
     def exeExTreeTaskCmds( self, cmds : list[dict] ):
         pass
+    
+    def removeJsonTaskCmds( self, cmds ):
+        pass
 
     def getExternalActionerTask( self ):
         return False, "", ""

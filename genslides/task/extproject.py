@@ -921,6 +921,11 @@ class OutExtTreeTask(ExtProjectTask):
         if self.getParent():
             return self.getParent().exeExTreeTaskCmds( cmds )
         return super().exeExTreeTaskCmds(cmds)
+    
+    def removeJsonTaskCmds(self, cmds):
+        if self.getParent():
+            return self.getParent().removeJsonTaskCmds( cmds )
+        return super().removeJsonTaskCmds(cmds)
 
     def onExistedMsgListAction(self, msg_list_from_file):
         self.updateUpdationInfo(f"msg_list_old:\n{msg_list_from_file}")
