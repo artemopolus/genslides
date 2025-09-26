@@ -866,6 +866,7 @@ class JumperTreeTask(InExtTreeTask):
         if act != None:
             self.updateUpdationInfo(f"Exe ext tree actions")
             act.getJsonCustomCmd( cmds )
+            self.updateGeneratedAction()
             self.setChildUpdateState( True )
             for child in self.getChilds():
                 if child.checkType( "OutExtTree" ):
@@ -883,9 +884,10 @@ class JumperTreeTask(InExtTreeTask):
                     if task != None:
                         del cmd["output_task"]
                         task.removeAutoCommandFromparam( cmd )
-            eres, eparam = self.getParamStruct('external',True)
-            if eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
-                results = act.getJsonCmd(self.findKeyParam(eparam['updt_actions']))
+            self.updateGeneratedAction()
+            # eres, eparam = self.getParamStruct('external',True)
+            # if eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
+            #     results = act.getJsonCmd(self.findKeyParam(eparam['updt_actions']))
                 # self.updateUpdationInfo(f"UPDATE Actions with results:{results}")
  
     def getExternalActionerTask(self):
