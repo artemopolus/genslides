@@ -2517,7 +2517,7 @@ class Actioner():
         # command_to_execute = []
         # listener_to_up = []
         if isinstance(answer_data, dict) and cmd_list_key in answer_data and isinstance(answer_data[cmd_list_key], list):
-            print("Check updates in document")
+            print(f"Check {len(answer_data)} updates in document")
             for update in answer_data[cmd_list_key]:
                 if edit_key in update and text_batch_key in update  and marker_key in update:
                     edit_type = update[edit_key]
@@ -2552,6 +2552,8 @@ class Actioner():
                                 if copy_to_dict:
                                     updatetask.saveDictBuffer({"action":"editingToTaskAction","taskname":targettaskname,"prompt":batch})
                                 # command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
+                            else:
+                                print("Unknown edit type")
                         elif roottreetask.checkTags("intertree"):
                         # elif updatetask and updatetask.checkType("Listener"):
                             print("Add INTER tree task")
@@ -2562,6 +2564,12 @@ class Actioner():
                             print("Unknown action")
                     else:
                         print(f"No task with {shortname} name")
+                else:
+                # if edit_key in update and text_batch_key in update  and marker_key in update:
+                    print("No valid json for cmd:")
+                    print(f"edit_key({edit_key}):{edit_key in update}")
+                    print(f"text_batch_key({text_batch_key}):{text_batch_key in update}")
+                    print(f"marker_key({marker_key}):{marker_key in update}")
         else:
             print(f"No json data in {answer_task.getName()}:\n{answer_data}")
         return next_stage_actions
