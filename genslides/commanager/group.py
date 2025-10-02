@@ -2051,19 +2051,21 @@ class Actioner():
             man.makeLink( cr_task, link )
 
     def cleanTaskParameters( self, range = "Current", target = "hash"):
+        tasks  = []
         if range == "Current":
             tasks = [self.getCurrentManager().getCurrentTask()]
         elif range == "Multi":
             tasks = self.getCurrentManager().getMultiSelectedTasks()
         else:
             names = TextTool.convert_text_with_names_to_list( range )
-            tasks  = []
             for name in names:
                 task = self.getCurrentManager().getTaskByName( name )
                 if task != None:
                     tasks.append( task )
                 else:
                     print(f"Can't find \"{name}\"")
+            if len(tasks) == 0:
+                tasks = self.getCurrentManager().getAllTasksByTagFromTaskList(range, self.getCurrentManager().getTasks())
         for task in tasks:
             print(f"Apply to {task.getName()} task ")
             if target == "hash":
@@ -2174,8 +2176,8 @@ class Actioner():
         man = self.getCurrentManager()
         task = man.getTaskByName(taskname)
         if task:
-            if len(task.getChilds()):
-                task = task.getChilds()[0]
+            # if len(task.getChilds()):
+                # task = task.getChilds()[0]
             man.setCurrentTask( task )
             self.insertingAction(prompt, task_type, role)
 
@@ -2539,8 +2541,14 @@ class Actioner():
                             print("Add doc tree task")
                         # if updatetask and updatetask.checkType("Request"):
                             if edit_type == "Insertion":
-                                if direct_cmd_update:
-                                    updtaskchild = updatetask if len(updatetask.getChilds()) == 0 else updatetask.getChilds()[0]
+                                if direct_cmd_update: 
+                                    updttskchilds : list[BaseTask] = updatetask.getChilds()
+                                    updtaskchild = updatetask 
+                                    if len(updttskchilds):
+                                        for child in updttskchilds:
+                                            if child.checkTags(["insert","autogenerate"]) or child.checkTags(["node"]):
+                                                updtaskchild = child
+                                                break
                                     targettaskname = updtaskchild.getName()
                                     updtaskchild.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason})
                                 if copy_to_dict:

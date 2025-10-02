@@ -1334,6 +1334,8 @@ class TextTask(BaseTask):
         self.forceResetArray()
         self.forceResetHash()
         self.resetCommandGenerator()
+        self.clearAutoCommand2param()
+        self.saveAllParams()
         return super().forceCleanChat()
 
     def getChatRecords(self) ->list:
