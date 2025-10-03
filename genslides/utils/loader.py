@@ -25,6 +25,8 @@ class Loader:
             thinking = parts[0].replace("<|im_end|>","")
             thinking = thinking.replace("<|end|>","")
             return parts[1], thinking
+        else:
+            print("Not 2 parts")
         return text, text
 
     def replaceTag( text: str, keyword : str = 'think', replacement : str = ''):
