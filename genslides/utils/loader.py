@@ -10,6 +10,23 @@ from pathlib import PureWindowsPath, Path, PurePosixPath
 
 class Loader:
 
+    def checkStdThinkingTag( text : str ):
+        return False
+
+    def checkOpenAIthinkingTag( text : str ):
+        if "<|start|>assistant<|channel|>final<|message|>" in text:
+            return True
+        else:
+            return False
+        
+    def getOpenAIThinkOutput( text : str):
+        parts = text.split("<|start|>assistant<|channel|>final<|message|>")
+        if len(parts) == 2:
+            thinking = parts[0].replace("<|im_end|>","")
+            thinking = thinking.replace("<|end|>","")
+            return parts[1], thinking
+        return text, text
+
     def replaceTag( text: str, keyword : str = 'think', replacement : str = ''):
         if rf"<{keyword}>" not in text:
             text = rf"<{keyword}>" + text

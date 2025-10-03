@@ -50,7 +50,7 @@ def llamacppGetChatCompletion(msgs, params):
             )
         
             
-        # print('Openai completion=',completion)
+        # print('Openai completion\n',completion)
         msg = completion.choices[0].message.content
         # print('Out:', msg)
         try:

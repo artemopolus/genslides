@@ -167,7 +167,13 @@ class LLModel():
         if res and 'output_format' in mparam:
             if mparam['output_format'] != 'none':
                 print('There is think process')
-                outtext, tagged = Ld.Loader.replaceTag(text = response)
+                if Ld.Loader.checkOpenAIthinkingTag( response ):
+                    outtext, tagged = Ld.Loader.getOpenAIThinkOutput( response )
+                elif Ld.Loader.checkStdThinkingTag( response ):
+                    outtext, tagged = Ld.Loader.replaceTag(text = response)
+                else:
+                    outtext = response
+                    tagged = response
                 out['result'] = outtext
                 out['think'] = tagged
                 response = outtext
