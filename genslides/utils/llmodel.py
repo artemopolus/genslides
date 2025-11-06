@@ -166,6 +166,7 @@ class LLModel():
 
         if res and 'output_format' in mparam:
             if mparam['output_format'] != 'none':
+                # TODO: при неудачном исполнении поиска важных тэгов вернуть в результатах: Неудачно
                 print('There is think process')
                 if Ld.Loader.checkOpenAIthinkingTag( response ):
                     print("openai model")

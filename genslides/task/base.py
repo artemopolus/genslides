@@ -601,7 +601,7 @@ class BaseTask():
                   'links=',[[t['in'].getName(),t['out'].getName()] for t in branch['links']])
             i += 1
 
-
+# TODO: нефига не работает копирование чинить нада
     def getTasksFullLinks(self, pparam):
         # print('Get child and links for target branch',self.getName())
         branches = self.getChildAndLinks(self, pparam)

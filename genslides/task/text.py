@@ -684,6 +684,7 @@ class TextTask(BaseTask):
         index = 0
         out = []
         mres, mparam = self.getParamStruct("message")
+        # TODO: вставить удаление всех системных промптов за исключением ближайщего? Системный промпт вставляется в самое начало диалога
         while(index < 1000):
             res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols, inparam, add_task_name)
             if res and task.getName() not in except_task:

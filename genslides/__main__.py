@@ -477,6 +477,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     selected_prompt = gr.Textbox(value='',lines=4, label='Selected prompt')
                 select_to_list_btn.click(fn=projecter.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
                 with gr.Row():
+                    # TODO: Перенести в секцию Поиска
                     trgtexttosearch_txt = gr.Textbox(label='Text to search')
                     foundtaskstext_txt = gr.Textbox(label='Search results')
                     findtextintasks_btn = gr.Button('Find')

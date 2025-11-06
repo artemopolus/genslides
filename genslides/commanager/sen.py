@@ -955,6 +955,10 @@ class Projecter(Commander.Commander):
         return gr.Radio(choices=output_choices, 
     value=output_value, interactive=True)
 
+    # TODO: сделать запоминание команд, чтобы перемещаться между акционерами?
+    # Запускать отклонять update
+    # Перемещение между задачами
+
     def selectActionerFromTask( self ):
         task = self.actioner.getCurrentManager().getCurrentTask()
         if task != None:
