@@ -3294,3 +3294,23 @@ class Actioner():
                 if task not in children:
                     pass
 
+    def uniteTwoTaskByName(self, task_marker1, task_marker2):
+        man = self.getCurrentManager()
+        united = man.getTaskByName( task_marker1 )
+        removed = man.getTaskByName( task_marker2 )
+        if united != None and removed != None:
+            if united in removed.getAllParents():
+                text = united.getLastMsgContentRaw()
+                text += removed.getLastMsgContentRaw()
+            else:
+                text = removed.getLastMsgContentRaw()
+                text += united.getLastMsgContentRaw()
+            man.setCurrentTask(united)
+            selected_tag = united.getLastMsgRole()
+            self.makeTaskAction(text, "Request", "Edit", selected_tag, [])
+            man.setCurrentTask(removed)
+            self.makeTaskAction("","","Remove","")
+            return f"Union for {task_marker1} and {task_marker2} is done"
+        return f"Error with {task_marker1} and {task_marker2}"
+                 
+

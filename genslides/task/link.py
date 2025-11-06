@@ -307,7 +307,12 @@ class ListenerTask(LinkedTask):
                             elif lparam['combine'] == 'json_append':
                                 jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
                                 if jres:
-                                    prompts_data.append( jobj)
+                                    if isinstance(jobj, list) and isinstance(prompts_data, list):
+                                        if tsk_info.parent != None:
+                                            self.updateUpdationInfo(f"Extend list by {tsk_info.parent.getName()}")
+                                        prompts_data.extend(jobj)
+                                    else:
+                                        prompts_data.append( jobj)
                             elif isinstance(tsk_info.params, list):
                                 kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
                                 if kres:
