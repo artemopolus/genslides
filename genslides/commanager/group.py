@@ -2172,14 +2172,14 @@ class Actioner():
             print(f"Select {task.getName()} by {tags}")
             man.setCurrentTask(task)
 
-    def insertingToTaskAction( self, prompt : str, taskname : str, task_type = "Request", role = "user" ):
+    def insertingToTaskAction( self, prompt : str, taskname : str, task_type = "Request", role = "user", task_params = [] ):
         man = self.getCurrentManager()
         task = man.getTaskByName(taskname)
         if task:
             # if len(task.getChilds()):
                 # task = task.getChilds()[0]
             man.setCurrentTask( task )
-            self.insertingAction(prompt, task_type, role)
+            self.insertingAction(prompt, task_type, role, task_params)
 
     def editingToTaskAction( self, prompt : str, taskname : str ):
         man = self.getCurrentManager()
@@ -2188,14 +2188,17 @@ class Actioner():
             man.setCurrentTask( task )
             self.editingAction(prompt)
  
-    def insertingAction( self, prompt, task_type = "Request", role = "user" ):
+    def insertingAction( self, prompt, task_type = "Request", role = "user", task_params = [] ):
         print (f"Execute inserting action for {self.getCurrentManager().getCurrentTask().getName()}")
+        param = {}
+        if isinstance(task_params, list) and len(task_params) > 0:
+            param["task_params"] = task_params
         self.makeTaskAction( 
             prompt=prompt,
             type1=task_type,
             creation_type='Insert',
             creation_tag = role,
-            param={} ,
+            param=param ,
             save_action=True                
             )
 
@@ -2550,9 +2553,13 @@ class Actioner():
                                                 updtaskchild = child
                                                 break
                                     targettaskname = updtaskchild.getName()
-                                    updtaskchild.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason})
+                                    updtaskchild.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch, "task_params" : [
+                                        {"type":"tag","text":"insert,autogenerate","key":""}
+                                        ]},"reason":reason})
                                 if copy_to_dict:
-                                    updatetask.saveDictBuffer({"action":"insertingToTaskAction","taskname":targettaskname,"prompt":batch})
+                                    updatetask.saveDictBuffer({"action":"insertingToTaskAction","taskname":targettaskname,"prompt":batch, "task_params":[
+                                        {"type":"tag","text":"insert,autogenerate","key":""}
+                                    ]})
                                 # command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
                             elif edit_type == "Replacement":
                                 if direct_cmd_update:

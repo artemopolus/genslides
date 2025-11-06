@@ -35,6 +35,7 @@ class ExtProjectTask(CollectTask):
         return self.allow_child_update
     
     def setChildUpdateState(self, state : bool):
+        self.updateUpdationInfo(f"Allow update: {state}")
         self.allow_child_update = state
 
     def afterFileLoading(self, trg_files = []):
@@ -809,6 +810,8 @@ class JumperTreeTask(InExtTreeTask):
             elif eres and 'idle_actions' in eparam and eparam['idle_actions'] != "":
                 results = self.intact.getJsonCmd(self.findKeyParam(eparam['idle_actions']))
                 self.updateUpdationInfo(f"IDLE Actions with results:{results}")
+            if eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_ignore":
+                self.setChildUpdateState(False)
         if eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_check":
             if self.intact.getFrozenTasksCount() > 0 \
                 and eres and 'actions_on' in eparam and eparam['actions_on'] \
@@ -820,8 +823,6 @@ class JumperTreeTask(InExtTreeTask):
                 self.updateUpdationInfo(f"Freeze cz internal tasks")
                 self.freezeTask()
                 self.setChildUpdateState(False)
-        elif eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_ignore":
-            self.setChildUpdateState(False)
     def removeProject(self):
         pass
 
