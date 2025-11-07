@@ -31,6 +31,7 @@ import genslides.task_tools.array as ar
 import genslides.task_tools.records as rd
 import genslides.task_tools.actions as Actions
 import genslides.task_tools.text as Txt
+import genslides.task_tools.cmds as CommandTool
 import copy
 import tempfile
 from datetime import datetime
@@ -1820,6 +1821,8 @@ class TextTask(BaseTask):
         if "action" in cmd:
 
             cmd2 = copy.deepcopy( cmd )
+
+            cmd2 = CommandTool.addSupportInformation( cmd2, self.manager)
 
             cmd2["aa_idx"] = 0
             cmd2["aa_time"] = self.getTimeInfo()
