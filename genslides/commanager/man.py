@@ -58,6 +58,9 @@ class Jun():
     def setUpdateSessionId(self, id : str):
         self.update_session_id = id
 
+    def blockCmdExecution( self, block = True):
+        self.need_human_response = block
+
     def getUpdateSessionId( self):
         return self.update_session_id
 
@@ -1075,6 +1078,13 @@ class Jun():
     def makeLink(self, task_in : Task.BaseTask, task_out : Task.BaseTask):
         pass
     
+    def getTaskByAnyName(self, name : str) -> Task.BaseTask:
+        for task in self.task_list:
+            res, trgname = self.getLongNameUsingShortName( name )
+            if res and task.getName() == trgname:
+                return task
+        return None
+
     def getTaskByName(self, name : str) -> Task.BaseTask:
         for task in self.task_list:
             if task.getName() == name:
@@ -1157,7 +1167,8 @@ class Jun():
     def getAndCheckLongName(self, short_name : str) -> list[bool,str]:
         pass
  
-    
+    def getLongNameUsingShortName( self, short_name : str):
+        return False, ''
    
     def setTaskKeyValue(self, param_name, key, mnl_value):
         pass

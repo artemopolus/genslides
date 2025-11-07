@@ -1120,7 +1120,8 @@ class Manager(Man.Jun):
         # print("Run iteration")
 
         if self.need_human_response:
-            self.need_human_response = False
+            # self.need_human_response = False
+            return
             # return self.getCurrTaskPrompts()
 
         self.index += 1
@@ -1443,8 +1444,10 @@ class Manager(Man.Jun):
             letters = match.group(1)
             numbers = match.group(2)
             tasks_dict  = cr.getTasksDict()
+            if len(letters) > 2:
+                return True, letters + numbers
             for t in tasks_dict:
-                if t['short']== letters:
+                if t['short'] == letters:
                     return True, t['type'] + numbers
         else:
             return False, ''

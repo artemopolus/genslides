@@ -3296,8 +3296,8 @@ class Actioner():
 
     def uniteTwoTaskByName(self, task_marker1, task_marker2):
         man = self.getCurrentManager()
-        united = man.getTaskByName( task_marker1 )
-        removed = man.getTaskByName( task_marker2 )
+        united = man.getTaskByAnyName( task_marker1 )
+        removed = man.getTaskByAnyName( task_marker2 )
         if united != None and removed != None:
             if united in removed.getAllParents():
                 text = united.getLastMsgContentRaw()
@@ -3312,5 +3312,19 @@ class Actioner():
             self.makeTaskAction("","","Remove","")
             return f"Union for {task_marker1} and {task_marker2} is done"
         return f"Error with {task_marker1} and {task_marker2}"
+    
+    def moveTask(self, marker, direction):
+        man = self.getCurrentManager()
+        start = man.getCurrentTask()
+        target = man.getTaskByAnyName( marker )
+        if target == None:
+            return
+        man.setCurrentTask(target)
+        if direction == "UP":
+            self.makeTaskAction("","","MoveCurrTaskUP","")
+        elif direction == "DOWN":
+            self.makeTaskAction("","","MoveCurrTaskDown","")
+        man.setCurrentTask( start )
+ 
                  
 

@@ -304,7 +304,8 @@ class ListenerTask(LinkedTask):
                                 jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
                                 if jres:
                                     prompts_data.update( jobj)
-                            elif lparam['combine'] == 'json_append':
+                            elif lparam['combine'] == 'json_append' \
+                            or lparam['combine'] == 'json_list':
                                 jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
                                 if jres:
                                     if isinstance(jobj, list) and isinstance(prompts_data, list):
