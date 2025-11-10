@@ -1040,6 +1040,11 @@ class BaseTask():
             return [child for child in self.childs if child.manager == self.manager]
         return self.childs.copy()
     
+    def getFirstChild( self ):
+        if len(self.childs) > 0:
+            return self.childs[0]
+        return None
+    
     def getNearestParent( self, trgs = []):
         branch = self.getAllParents(revert_dir=True)
         if branch:

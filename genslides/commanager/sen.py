@@ -19,6 +19,7 @@ import genslides.task_tools.py_parser as pyparser
 import genslides.commanager.com as Commander
 
 import genslides.task_tools.text as TextTool
+import genslides.task_tools.cmds as CommandTool
 
 from os import listdir
 from os.path import isfile, join
@@ -3539,6 +3540,7 @@ class Projecter(Commander.Commander):
     def editSelectedExtTreeActionerJsonCmd( self, cmds_list ):
         cmds = []
         cmd_text = ""
+        highligth = []
         for jsoncmd_txt in cmds_list:
             res, cmd = Loader.Loader.loadJsonFromText(jsoncmd_txt)
             if res:
@@ -3551,7 +3553,9 @@ class Projecter(Commander.Commander):
                     kwargs : dict = cmd.get("kwargs",{})
                     for k, v in kwargs.items():
                         cmd_text += f"### {k}\n{v}\n\n"
-        return Loader.Loader.convJsonToText( cmds ), cmd_text
+                # if "aa_info" in cmd:
+                highligth.extend(CommandTool.highlightCmdResult(cmd))
+        return Loader.Loader.convJsonToText( cmds ), cmd_text, highligth
 
     def executeEditedExtTreeActionerJsonCmd( self, cmds ):
         print("Execute edited extreeact json commands")

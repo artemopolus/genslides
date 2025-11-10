@@ -102,7 +102,7 @@ class LinkedTask(TextTask.TextTask):
 
     def affectedTaskCallback(self, input : TextTask.TaskDescription):
         self.updateUpdationInfo(f"Update from {input.parent.getName()}\n")
-        print("From ", input.parent.getName(), " to ", self.getName())
+        # print("From ", input.parent.getName(), " to ", self.getName())
         # if input and input.stepped:
         #     found = False
         #     for cl in self.callback_link:

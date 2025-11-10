@@ -1498,7 +1498,7 @@ class Actioner():
         divided_parts = []
         found_task = None
         for task in target.getAllParents():
-            text = task.getCurTaskLstMsgRaw()
+            text = task.getLastMsgContentRaw()
             tag = task.getLastMsgRole()
             res, parts, score = TextTool.divide_based_on_texts_above_below(  text, text_before, text_after )
             print(f"Task {task.getName()} score: {score}")
@@ -3307,7 +3307,7 @@ class Actioner():
                 text += united.getLastMsgContentRaw()
             man.setCurrentTask(united)
             selected_tag = united.getLastMsgRole()
-            self.makeTaskAction(text, "Request", "Edit", selected_tag, [])
+            self.makeTaskAction(text, "Request", "Edit", selected_tag)
             man.setCurrentTask(removed)
             self.makeTaskAction("","","Remove","")
             return f"Union for {task_marker1} and {task_marker2} is done"
@@ -3326,5 +3326,14 @@ class Actioner():
             self.makeTaskAction("","","MoveCurrTaskDown","")
         man.setCurrentTask( start )
  
-                 
+    def deleteTask( self, marker ):
+        man = self.getCurrentManager()
+        start = man.getCurrentTask()
+        target = man.getTaskByAnyName( marker )
+        if target == None:
+            return
+        man.setCurrentTask(target)
+        self.makeTaskAction("","","Remove","")
+        man.setCurrentTask( start )
+ 
 

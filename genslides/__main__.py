@@ -664,9 +664,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         exttreetask_editselected_btn = gr.Button("EDIT selected cmds")
                     with gr.Accordion(label="Cmd text", open=True):
                         ett_cmdtoexe_txt = gr.Markdown()
+                    with gr.Accordion(label="Highlight", open=True):
+                        ett_highlightcmdres = gr.HighlightedText(label="Results", combine_adjacent=True, show_legend=True, color_map={"add":"green","del":"red","trg":"blue"})
                     with gr.Accordion(label="JSON cmds list", open=False):
                         ett_cmdtoexe_jsn = gr.JSON(label="Edit cmds to exe")
-                        exttreetask_editselected_btn.click(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=[ett_cmdtoexe_jsn, ett_cmdtoexe_txt])
+                        exttreetask_editselected_btn.click(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], 
+                                                           outputs=[ett_cmdtoexe_jsn, ett_cmdtoexe_txt, ett_highlightcmdres])
                     with gr.Row():
                         ett_cmdtoexe_btn = gr.Button("Execute edited cmds")
  

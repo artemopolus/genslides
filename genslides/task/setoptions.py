@@ -25,7 +25,8 @@ class SetOptionsTask(WriteToFileTask):
         return False, [], self.parent
 
     def getLastMsgContentRaw(self):
-        return json.dumps(self.params, indent=1)
+        return ""
+        # return json.dumps(self.params, indent=1)
 
     def getLastMsgContent(self):
         return json.dumps(self.params, indent=1)

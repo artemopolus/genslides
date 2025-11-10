@@ -1822,7 +1822,8 @@ class TextTask(BaseTask):
 
             cmd2 = copy.deepcopy( cmd )
 
-            cmd2 = CommandTool.addSupportInformation( cmd2, self.manager)
+            cmd2, report = CommandTool.addSupportInformation( cmd2, self.manager)
+            self.updateUpdationInfo( report )
 
             cmd2["aa_idx"] = 0
             cmd2["aa_time"] = self.getTimeInfo()
@@ -1831,7 +1832,7 @@ class TextTask(BaseTask):
             if tres:
                 if "cmds" in tparam:
                     cmd_name = cmd2["action"]
-                    self.updateUpdationInfo(f"add cmd {cmd_name}")
+                    # self.updateUpdationInfo(f"add cmd {cmd_name}")
                     if isinstance(tparam["cmds"], list):
                         cmd["aa_idx"] = len(tparam["cmds"])
                         tparam["cmds"].append( cmd2 )

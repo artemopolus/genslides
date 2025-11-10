@@ -1078,7 +1078,8 @@ class Jun():
     def makeLink(self, task_in : Task.BaseTask, task_out : Task.BaseTask):
         pass
     
-    def getTaskByAnyName(self, name : str) -> Task.BaseTask:
+    def getTaskByAnyName(self, marker : str) -> Task.BaseTask:
+        name = marker.replace("[","").replace("]","")
         for task in self.task_list:
             res, trgname = self.getLongNameUsingShortName( name )
             if res and task.getName() == trgname:
