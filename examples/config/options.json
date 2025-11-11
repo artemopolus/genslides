@@ -203,6 +203,10 @@
       "excld_task": ""
    },
    {
+      "type": "externalinput",
+      "unfreeze": ["std","non_freezing"]
+	},
+   {
       "type": "external",
       "dir": ["Out","In"],
       "target": "",

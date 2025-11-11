@@ -13,6 +13,7 @@ import genslides.utils.filemanager as FileManager
 import genslides.utils.finder as finder
 import genslides.utils.loader as Loader
 import genslides.task_tools.text as TextTool
+import genslides.task_tools.cmds as CommandTool
 import genslides.utils.llmodel as LlmModel
 import genslides.utils.readfileman as ReadFM
 import genslides.utils.writer as Writer
@@ -2536,47 +2537,7 @@ class Actioner():
                         shortname = update[marker_key]
                     res, targettaskname = man.getLongNameUsingShortName( shortname )
                     if res:
-                        print(f"Target task: {targettaskname}")
-                        updatetask = man.getTaskByName( targettaskname)
-                        roottreetask = updatetask.getRootParent()
-                        print(f"Root task: {roottreetask.getName()}")
-                        if roottreetask.checkTags("srcdoctree"):
-                            print("Add doc tree task")
-                        # if updatetask and updatetask.checkType("Request"):
-                            if edit_type == "Insertion":
-                                if direct_cmd_update: 
-                                    updttskchilds : list[BaseTask] = updatetask.getChilds()
-                                    updtaskchild = updatetask 
-                                    if len(updttskchilds):
-                                        for child in updttskchilds:
-                                            if child.checkTags(["insert","autogenerate"]) or child.checkTags(["node"]):
-                                                updtaskchild = child
-                                                break
-                                    targettaskname = updtaskchild.getName()
-                                    updtaskchild.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch, "task_params" : [
-                                        {"type":"tag","text":"insert,autogenerate","key":""}
-                                        ]},"reason":reason})
-                                if copy_to_dict:
-                                    updatetask.saveDictBuffer({"action":"insertingToTaskAction","taskname":targettaskname,"prompt":batch, "task_params":[
-                                        {"type":"tag","text":"insert,autogenerate","key":""}
-                                    ]})
-                                # command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
-                            elif edit_type == "Replacement":
-                                if direct_cmd_update:
-                                    updatetask.updateAutoCommand2param({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason})
-                                if copy_to_dict:
-                                    updatetask.saveDictBuffer({"action":"editingToTaskAction","taskname":targettaskname,"prompt":batch})
-                                # command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
-                            else:
-                                print("Unknown edit type")
-                        elif roottreetask.checkTags("intertree"):
-                        # elif updatetask and updatetask.checkType("Listener"):
-                            print("Add INTER tree task")
-                            next_stage_actions.append({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname},"reason":reason})
-                            # updatetask.updateAutoCommand2param({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
-                            # listener_to_up.append({"action":"createSecondStageLink","kwargs":{"taskname":targettaskname}})
-                        else:
-                            print("Unknown action")
+                        CommandTool.parseEditInsert( targettaskname, man, edit_type, direct_cmd_update, copy_to_dict, reason, batch, next_stage_actions)
                     else:
                         print(f"No task with {shortname} name")
                 else:

@@ -98,7 +98,13 @@
 	},
 	"ExternalInput":{
 		"Init":"",
-		"Endi":""
+		"Endi":"",
+		"params":[
+			{
+				"type": "externalinput",
+				"unfreeze": "std"
+			}
+		]
 	},
 	"Searcher":{
 		"Init":"",

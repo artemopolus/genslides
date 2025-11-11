@@ -14,6 +14,10 @@ class ExternalInput(RqTask.RequestTask):
         return True
     
     def stdProcessUnFreeze(self, input=None):
+        eres, eparam = self.getParamStruct("externalinput")
+        if eres and "unfreeze" in eparam and eparam["unfreeze"] == "non_freezing":
+            self.unfreezeTask()
+            return
         if self.parent == None:
             self.freezeTask()
         else:

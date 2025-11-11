@@ -1,7 +1,7 @@
 import genslides.commanager.man as Manager
 import genslides.task_tools.text as TextTool
 
-def parseEditInsert( man : Manager.Jun, edit_type : str, direct_cmd_update : str, copy_to_dict, reason : str, batch, next_stage_actions):
+def parseEditInsert( targettaskname, man : Manager.Jun, edit_type : str, direct_cmd_update : str, copy_to_dict, reason : str, batch, next_stage_actions):
     print(f"Target task: {targettaskname}")
     updatetask = man.getTaskByName( targettaskname)
     roottreetask = updatetask.getRootParent()
@@ -19,9 +19,11 @@ def parseEditInsert( man : Manager.Jun, edit_type : str, direct_cmd_update : str
                             updtaskchild = child
                             break
                 targettaskname = updtaskchild.getName()
-                updtaskchild.updateAutoCommand2param({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch, "task_params" : [
+                cmd = {"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch, "task_params" : [
                     {"type":"tag","text":"insert,autogenerate","key":""}
-                    ]},"reason":reason})
+                    ]},"reason":reason}
+                cmd, report = addSupportInformation( cmd, man )
+                updtaskchild.updateAutoCommand2param(cmd)
             if copy_to_dict:
                 updatetask.saveDictBuffer({"action":"insertingToTaskAction","taskname":targettaskname,"prompt":batch, "task_params":[
                     {"type":"tag","text":"insert,autogenerate","key":""}
@@ -29,7 +31,9 @@ def parseEditInsert( man : Manager.Jun, edit_type : str, direct_cmd_update : str
             # command_to_execute.append({"action":"insertingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
         elif edit_type == "Replacement":
             if direct_cmd_update:
-                updatetask.updateAutoCommand2param({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason})
+                cmd = {"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch},"reason":reason}
+                cmd, report = addSupportInformation( cmd, man )
+                updatetask.updateAutoCommand2param(cmd)
             if copy_to_dict:
                 updatetask.saveDictBuffer({"action":"editingToTaskAction","taskname":targettaskname,"prompt":batch})
             # command_to_execute.append({"action":"editingToTaskAction","kwargs":{"taskname":targettaskname,"prompt":batch}})
@@ -49,9 +53,11 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
     result = []
     action_type = command.get("action", "")
     kwargs = command.get("kwargs",{})
+    
     if action_type == "uniteTwoTaskByName":
         united_name = kwargs.get("task_marker1","")
         removed_name = kwargs.get("task_marker2","")
+        result.append({"status":"divider","content":f"==={action_type}:{united_name}, {removed_name}============>\n\n"})
         united = manager.getTaskByAnyName(united_name)
         removed = manager.getTaskByAnyName(removed_name)
         if united != None and removed != None:
@@ -61,7 +67,7 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
                 tmp = united
                 united = removed
                 removed = tmp
-            result.append({"status":"stay","content":united.getLastMsgContentRaw()})
+            result.append({"status":"target","content":united.getLastMsgContentRaw()})
             result.append({"status":"append","content":removed.getLastMsgContentRaw()})
             united_child = united.getFirstChild()
             if united_child == removed and len(removed.getChilds()):
@@ -74,6 +80,7 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
         target_name = kwargs.get("marker","")
         target = manager.getTaskByAnyName(target_name)
         direction = kwargs.get("direction","")
+        result.append({"status":"divider","content":f"==={action_type}:{target_name}, {direction}============>\n\n"})
         text  = target.getLastMsgContentRaw()
         uptext  = ""
         dwtext  = ""
@@ -103,6 +110,7 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
     elif action_type == "deleteTask":
         target_name = kwargs.get("marker","")
         target = manager.getTaskByAnyName(target_name)
+        result.append({"status":"divider","content":f"==={action_type}:{target_name}============>\n\n"})
         if target != None:
             uptask : Manager.Task.BaseTask = target.getParent()
             uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
@@ -110,9 +118,37 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             result.append({"status":"stay","content":uptext})
             result.append({"status":"delete","content":target.getLastMsgContentRaw()})
             result.append({"status":"stay","content":dwtext})
+    elif action_type == "insertingToTaskAction":
+        target_name = kwargs.get("taskname","")
+        result.append({"status":"divider","content":f"==={action_type}:{target_name}============>\n\n"})
+        insert_text = kwargs.get("prompt","")
+        target = manager.getTaskByAnyName(target_name)
+        if target != None:
+            uptask : Manager.Task.BaseTask = target.getParent()
+            uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+            # dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
+            result.append({"status":"stay","content":uptext})
+            result.append({"status":"append","content":insert_text})
+            result.append({"status":"stay","content":target.getLastMsgContentRaw()})
+    elif action_type == "editingToTaskAction":
+        target_name = kwargs.get("taskname","")
+        result.append({"status":"divider","content":f"==={action_type}:{target_name}============>\n\n"})
+        insert_text = kwargs.get("prompt","")
+        target = manager.getTaskByAnyName(target_name)
+        if target != None:
+            uptask : Manager.Task.BaseTask = target.getParent()
+            uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+            dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
+            result.append({"status":"stay","content":uptext})
+            result.append({"status":"append","content":insert_text})
+            result.append({"status":"delete","content":target.getLastMsgContentRaw()})
+            result.append({"status":"stay","content":dwtext})
+
+
     elif action_type == "divideTaskBasedOnPrompt":
         print("divide task")
         target_name = kwargs.get("taskname","")
+        result.append({"status":"divider","content":f"==={action_type}:{target_name}============>\n\n"})
         text_before = kwargs.get("text_before","")
         text_after = kwargs.get("text_after","")
         target = manager.getTaskByAnyName(target_name)
@@ -143,6 +179,7 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
         else:
             print(f"No task with marker {target_name}")
     if len(result):
+        result.append({"status":"divider","content":"\n\n********\n\n"})
         command["aa_info"] = result
     return command, f"Added {len(result)} batches"
 
@@ -159,6 +196,8 @@ def highlightCmdResult(command : dict):
                 out.append([text, "del"])
             elif status == "target":
                 out.append([text, "trg"])
+            elif status == "divider":
+                out.append([text, "div"])
             else:
                 out.append([text, None])
     return out
