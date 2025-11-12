@@ -67,13 +67,19 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
                 tmp = united
                 united = removed
                 removed = tmp
-            result.append({"status":"target","content":united.getLastMsgContentRaw()})
-            result.append({"status":"append","content":removed.getLastMsgContentRaw()})
+            uptext = ""
+            upmark = ""
+            if united.getParent() != None:
+                uptext = united.getParent().getLastMsgContentRaw()
+                upmark = united.getParent().getName()
+                result.append({"status":"stay","content":uptext,"marker":upmark})
+            result.append({"status":"target","content":united.getLastMsgContentRaw(),"marker":united.getName()})
+            result.append({"status":"append","content":removed.getLastMsgContentRaw(),"marker":removed.getName()})
             united_child = united.getFirstChild()
             if united_child == removed and len(removed.getChilds()):
-                result.append({"status":"stay","content":removed.getFirstChild().getLastMsgContentRaw()})
+                result.append({"status":"stay","content":removed.getFirstChild().getLastMsgContentRaw(),"marker":removed.getName()})
             elif united_child != None and united_child != removed:
-                result.append({"status":"stay","content":united.getFirstChild().getLastMsgContentRaw()})
+                result.append({"status":"stay","content":united.getFirstChild().getLastMsgContentRaw(),"marker":united.getName()})
         else:
             return command, f"No tasks for {united_name}, {removed_name}"
     elif action_type == "moveTask":
@@ -87,24 +93,29 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
         if direction == "UP":
             uptask = None if target.getParent() else target.getParent().getParent()
             uptext = "" if uptask == None else uptask.getLastMsgContentRaw()
+            upmark = "" if uptask == None else uptask.getName()
             dwtext = "" if target.getParent() == None else target.getParent().getLastMsgContentRaw()
+            dwmark = "" if target.getParent() == None else target.getFirstChild().getName()
         elif direction == "DOWN":
             if len(target.getChilds()) > 0:
                 uptask : Manager.Task.BaseTask = target.getFirstChild()
                 uptext = "" if uptask == None else uptask.getLastMsgContentRaw()
+                upmark = "" if uptask == None else uptask.getName()
+                dwmark = ""
                 if uptask != None and len(uptask.getChilds()) > 0 and uptask.getFirstChild() != None:
                     dwtext = uptask.getFirstChild().getLastMsgContentRaw()
+                    dwmark = uptask.getFirstChild().getName()
                 else:
                     dwtext = ""
                     # return command, f"Error on move"
         # if uptask != None and dwtask != None:
         if direction == "DOWN":
-            result.append({"status":"delete","content":text})
-        result.append({"status":"stay","content":uptext})
-        result.append({"status":"append","content":text})
-        result.append({"status":"stay","content":dwtext})
+            result.append({"status":"delete","content":text,"marker":target_name})
+        result.append({"status":"stay","content":uptext,"marker":upmark})
+        result.append({"status":"append","content":text,"marker":target_name})
+        result.append({"status":"stay","content":dwtext,"marker":dwmark})
         if direction == "UP":
-            result.append({"status":"delete","content":text})
+            result.append({"status":"delete","content":text,"marker":target_name})
         # else:
             # return command, f"Error on move"
     elif action_type == "deleteTask":
@@ -114,10 +125,12 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
         if target != None:
             uptask : Manager.Task.BaseTask = target.getParent()
             uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+            upmark = "" if uptask == None else uptask.getName()
             dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
-            result.append({"status":"stay","content":uptext})
-            result.append({"status":"delete","content":target.getLastMsgContentRaw()})
-            result.append({"status":"stay","content":dwtext})
+            dwmark  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getName()
+            result.append({"status":"stay","content":uptext,"marker":upmark})
+            result.append({"status":"delete","content":target.getLastMsgContentRaw(),"marker":target_name})
+            result.append({"status":"stay","content":dwtext,"marker":dwmark})
     elif action_type == "insertingToTaskAction":
         target_name = kwargs.get("taskname","")
         result.append({"status":"divider","content":f"==={action_type}:{target_name}============>\n\n"})
@@ -126,10 +139,11 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
         if target != None:
             uptask : Manager.Task.BaseTask = target.getParent()
             uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+            upmark = "" if uptask == None else uptask.getName()
             # dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
-            result.append({"status":"stay","content":uptext})
-            result.append({"status":"append","content":insert_text})
-            result.append({"status":"stay","content":target.getLastMsgContentRaw()})
+            result.append({"status":"stay","content":uptext,"marker":upmark})
+            result.append({"status":"append","content":insert_text,"marker":"NewRequest"})
+            result.append({"status":"stay","content":target.getLastMsgContentRaw(),"marker":target_name})
     elif action_type == "editingToTaskAction":
         target_name = kwargs.get("taskname","")
         result.append({"status":"divider","content":f"==={action_type}:{target_name}============>\n\n"})
@@ -138,11 +152,13 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
         if target != None:
             uptask : Manager.Task.BaseTask = target.getParent()
             uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+            upmark = "" if uptask == None else uptask.getName()
             dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
-            result.append({"status":"stay","content":uptext})
-            result.append({"status":"append","content":insert_text})
-            result.append({"status":"delete","content":target.getLastMsgContentRaw()})
-            result.append({"status":"stay","content":dwtext})
+            dwmark  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getName()
+            result.append({"status":"stay","content":uptext,"marker":upmark})
+            result.append({"status":"append","content":insert_text,"marker":target_name})
+            result.append({"status":"delete","content":target.getLastMsgContentRaw(),"marker":target_name})
+            result.append({"status":"stay","content":dwtext,"marker":dwmark})
 
 
     elif action_type == "divideTaskBasedOnPrompt":
@@ -168,13 +184,15 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
                 print("add divided")
                 uptask : Manager.Task.BaseTask = found_task.getParent()
                 uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+                upmark = "" if uptask == None else uptask.getName()
                 dwtext  = "" if len(found_task.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
-                result.append({"status":"stay","content":uptext})
-                result.append({"status":"target","content":divided_parts[0]})
-                result.append({"status":"append","content":divided_parts[1]})
-                result.append({"status":"stay","content":dwtext})
+                dwmark  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getName()
+                result.append({"status":"stay","content":uptext,"marker":upmark})
+                result.append({"status":"target","content":divided_parts[0],"marker":found_task.getName()})
+                result.append({"status":"append","content":divided_parts[1],"marker":"NewRequest"})
+                result.append({"status":"stay","content":dwtext,"marker":dwmark})
             else:
-                result.append({"status":"stay","content":target.getLastMsgContentRaw()})
+                result.append({"status":"stay","content":target.getLastMsgContentRaw(),"marker":target_name})
 
         else:
             print(f"No task with marker {target_name}")
@@ -201,3 +219,23 @@ def highlightCmdResult(command : dict):
             else:
                 out.append([text, None])
     return out
+
+def getMarkDownResult( command : dict ):
+    out_text = ""
+    if "aa_info" in command:
+        results : list[dict] = command.get("aa_info",[])
+        for res in results:
+            status = res.get("status","")
+            text = res.get("content","")
+            marker = res.get("marker","")
+            if status == "append":
+                out_text += f"**{marker}** {text}"
+            elif status == "delete":
+                out_text += f"**{marker}** ~~{text}~~"
+            elif status == "target":
+                out_text += f"**{marker}** {text}"
+            elif status == "divider":
+                pass
+            else:
+                out_text += f"**{marker}** {text}"
+    return out_text
