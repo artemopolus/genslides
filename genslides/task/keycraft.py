@@ -46,6 +46,8 @@ class KeyCraftTask(Txt.TextTask):
             for code in codes:
                 median.append( self.findKeyParam(code.replace(" ","")) )
             text = "[[" + ":".join(median) + "]]"
+            cparam["crafted_key"] = text
+            self.setParamStruct(cparam)
             return self.findKeyParam( text )
         return ""
     

@@ -205,8 +205,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 go_lnkfrwd_rad = gr.Radio(label='Targets')
                                 go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
                             with gr.Row():
-                                selactbytask_btn = gr.Button('Go to task actioner')
-                            with gr.Row():
                                 go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
                                 go_brchfrk_btn = gr.Button(value='Go to fork')
                                 go_taskbud_btn = gr.Button(value='Go to Task Bud')
@@ -242,6 +240,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             updbrnc_step_btn = gr.Button(value='Update Tree + Linked')
                             updateforktasks_btn = gr.Button('UAT fork')
+                        with gr.Row():
+                            selactbytask_btn = gr.Button('Go to task actioner')
                         with gr.Accordion(label='Options', open=False):
                             so_symcount_chck = gr.Checkbox(label='Check symbols', value=False)
                             so_request_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getStepRequestTaskSymVizCount(), label='Request Symbols')

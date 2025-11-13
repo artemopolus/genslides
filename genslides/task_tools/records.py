@@ -374,9 +374,28 @@ def updateChatProposals(param : dict, chat_data : list[dict], id : str):
         else:
             props.pop(0)
             props.append(prop_data)
+
+        prefix = param.get("view_proposal_prefix", "")
+        suffix = param.get("view_proposal_suffix", "")
+        idx = param.get("view_proposal_index", 1)
+        if idx < len(props):
+            prop_text = prefix + raw_text + suffix
+        else:
+            prop_text = "Empty"
+        param["view_proposal_text"] = prop_text
         param["proposals"] = props
         param["last_proposal_hash"] = prop_hash
         param["trg_prop_idx"] = 0
+
+    if "view_proposal_text" not in param:
+        prefix = param.get("view_proposal_prefix", "")
+        suffix = param.get("view_proposal_suffix", "")
+        idx = param.get("view_proposal_index", 1)
+        if idx < len(props):
+            prop_text = prefix + raw_text + suffix
+        else:
+            prop_text = "Empty"
+        param["view_proposal_text"] = prop_text
 
 
 def getNextProposal(param : dict ):

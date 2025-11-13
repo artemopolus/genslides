@@ -685,6 +685,7 @@ class TextTask(BaseTask):
         index = 0
         out = []
         mres, mparam = self.getParamStruct("message")
+        self.updateUpdationInfo(f"Excl list:{except_task}")
         # TODO: вставить удаление всех системных промптов за исключением ближайщего? Системный промпт вставляется в самое начало диалога
         while(index < 1000):
             res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols, inparam, add_task_name)
@@ -700,6 +701,8 @@ class TextTask(BaseTask):
                     # print(f"Extend by {task.getName()}")
                     msg.extend(out)
                     out = msg
+            elif task.getName() in except_task:
+                self.updateUpdationInfo(f"Ignore {task.getName()} task")
                 # print(index, task.getName(),'give',len(out))
             if par is None:
                 break

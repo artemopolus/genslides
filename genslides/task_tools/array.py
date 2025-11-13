@@ -2,7 +2,7 @@ import genslides.task_tools.text as TextTool
 import genslides.utils.loader as Ld
 # import genslides.task.text as Txt
 
-def divideArray(task  , param):
+def divideArray(task  , param : dict):
     # print('Divide array')
     parse_type = param['parse']
     if parse_type == 'std':
@@ -68,6 +68,18 @@ def divideArray(task  , param):
             arr.append({"content": msg["content"], "idx": idx, "chck": False})
         if len(arr) > 0:
             return True, arr
+    elif parse_type.startswith("task_names"):
+        excl = param.get("exclude_tasktypes","")
+        prefix = param.get("part_prefix","")
+        suffix = param.get("part_suffix","")
+        arr = []
+        if parse_type == "task_names_inv":
+            names : list[str] = task.getAllParentNames(exclude = excl, revert_dir = True)
+        else:
+            names : list[str] = task.getAllParentNames(exclude = excl)
+        for idx, name in enumerate(names):
+            arr.append({"content": prefix + name + suffix, "idx": idx, "chck": False})
+        return True, arr
     return False, []
 
 def getArrayByIndexPlusPlus( param, task  ):
@@ -102,6 +114,8 @@ def getArrayByIndexPlusPlus( param, task  ):
         return getPartByParam(task,param)
     return param
 
+ArrayStdTypesList = ['std','json','msgs','task_names','task_names_inv']
+
 def getPartByParam(task, param):
     parse_type = param['parse']
     index = param['idx']
@@ -110,7 +124,7 @@ def getPartByParam(task, param):
         return param
     array = param['array']
     array[index]['chck'] = True
-    if parse_type in ['std','json','msgs']:
+    if parse_type in ArrayStdTypesList:
         param['curr'] = array[index]["content"]
     elif parse_type == 'text_split':
         src_data = task.getLastMsgContent2()
@@ -123,7 +137,7 @@ def getPartByParam(task, param):
 
 def getArrayByIndex(array, index, param, task  ):
     parse_type = param['parse']
-    if parse_type in ['std','json','msgs']:
+    if parse_type in ArrayStdTypesList:
         return array[index]["content"]
     elif parse_type == 'text_split':
         src_data = task.getLastMsgContent2()
@@ -137,7 +151,7 @@ def checkCurrentArrayElem(param : dict, task  ):
     parse_type = param['parse']
     index = param['idx']
     array = param['array']
-    if parse_type in ['std','json','msgs']:
+    if parse_type in ArrayStdTypesList:
         return current != array[index]["content"]
     elif parse_type == 'text_split':
         src_data = task.getLastMsgContent2()
@@ -156,7 +170,7 @@ def getSHAfromTask(task, param):
     elif param['parse'] == 'manual':
         if 'manual_target' in param:
             data = task.findKeyParam( param['manual_target'] )
-    elif param['parse'] == 'msgs':
+    elif param['parse'] == 'msgs' or param['parse'].startswith("task_names"):
         messages = task.getMsgs()
         for msg in messages:
             data += msg['content'] 

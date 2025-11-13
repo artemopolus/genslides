@@ -36,7 +36,10 @@
       "always_update": [true, false],
       "check_manager":[true, false],
       "last_proposal_hash":"",
-      "max_proposals": 10
+      "max_proposals": 10,
+      "view_proposal_prefix":["","# "],
+      "view_proposal_suffix":["", "\n"],
+      "view_proposal_index": 1
    },
    {
       "type": "path_to_read",
@@ -130,7 +133,7 @@
 	},
    {
       "type":"array",
-      "parse":["None", "std","text_split","msgs","manual","json"],
+      "parse":["None", "std","text_split","msgs","manual","json","task_names","task_names_inv"],
       "idx":0,
       "curr":"",
       "parts":1,
@@ -144,7 +147,10 @@
       "manual_excl":["","[[parent_2:msg_content]]","1,5"],
       "len": 0,
       "step": 1,
-      "start": 0
+      "start": 0,
+      "part_prefix": ["","[["],
+      "part_suffix": ["", "]]"],
+      "exclude_tasktypes":["","SetOptions","SetOptions,Response,Listener"]
    },
    {
       "type":"ReadBranch",

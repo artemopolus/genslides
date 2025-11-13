@@ -494,6 +494,14 @@ class BaseTask():
                     return idx
         return -1
     
+    def getAllParentNames(self, exclude = "", max_index = -1, revert_dir = False) -> list[str]:
+        excl_types = exclude.split(",")
+        names = [] 
+        for t in self.getAllParents(max_index, revert_dir):
+            if t.getType() not in excl_types:
+                names.append(t.getName())
+        return names
+    
     def getAllParents(self, max_index = -1, revert_dir = False):
         par = self
         index = 0
