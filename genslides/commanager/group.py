@@ -954,7 +954,7 @@ class Actioner():
         man.curr_task = init_task
         return 
     
-    def updateAllnTimes(self, n, check = False):
+    def updateAllnTimes(self, n : int, check : bool = False):
         self.getCurrentManager().disableOutput2()
         for i in range(n):
             print('UAT:', i)
@@ -964,7 +964,12 @@ class Actioner():
                 break
         self.getCurrentManager().enableOutput2()
 
-    def updateToUnFreeze(self, max_times = 1000, check = False ):
+    def updateIFfrozentasks(self, n : int = 1000, check : bool = False ):
+        frozen_tasks_cnt = self.getFrozenTasksCount() 
+        if frozen_tasks_cnt > 0:
+            self.updateAllnTimes( n , check)
+
+    def updateToUnFreeze(self, max_times : int = 1000, check : bool = False ):
         for index in range( max_times ):
             self.updateAll(force_check=check)
             frozen_tasks_cnt = self.getFrozenTasksCount() 
