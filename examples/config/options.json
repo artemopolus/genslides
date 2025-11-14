@@ -107,7 +107,9 @@
    },
    {
       "type": "bud",
-      "summary": "summary" 
+      "summary": "summary",
+      "text":"",
+      "step_navigation_preffered":[false, true]
    },
    {
       "type":"search",

@@ -35,7 +35,7 @@ class Jun():
         self.tree_arr = []
         self.tree_idx = 0
 
-        self.endes = []
+        self.endes: list[Task.BaseTask] = []
         self.endes_idx = 0
 
         self.browser = WebBrowser()
@@ -468,14 +468,22 @@ class Jun():
             if len(self.endes) == 0:
                 self.iterateOnBranchEnd()
             task = self.endes[self.endes_idx]
-            if trg not in task.getAllParents():
-                for idx, end in enumerate(self.endes):
-                    if trg in task.getAllParents():
-                        self.endes_idx = idx
+            possible_endes_list = []
+            # if trg not in task.getAllParents():
+            for idx, end in enumerate(self.endes):
+                if trg in end.getAllParents():
+                    self.endes_idx = idx
+                    possible_endes_list.append( end )
+                    res, param = end.getParamStruct("bud", True)
+                    if res and param.get("step_navigation_preffered", False):
                         return end
+            if len(possible_endes_list):
+                return possible_endes_list[0]
+            else:
+                return trg
         except Exception as e:
             print('Error on get branch end:',e)
-            task = self.curr_task
+            task = trg
         return task
             
 
