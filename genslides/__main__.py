@@ -657,6 +657,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         redo_btn = gr.Button("Redo")
 
                 with gr.Tab('ExtTreeTask custom json cmd'):
+                    exttreetaskname_txt = gr.Textbox(label="Found exttreetask", value=None)
                     with gr.Row():
                         with gr.Column():
                             with gr.Row():
@@ -1216,11 +1217,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 selected_tasks_list, 
                                 selected_prompt
                                ]
-            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt, exttreetask_cstmjsoncmd_drd, current_actioner_name])
+            std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt, 
+                                    exttreetaskname_txt,
+                                    exttreetask_cstmjsoncmd_drd, 
+                                    current_actioner_name])
 
             exttreetask_execurcmd_btn.click(fn=projecter.executeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
             exttreetask_rmvselcmd_btn.click(fn=projecter.removeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
-            ett_cmdtoexe_btn.click(fn=projecter.executeEditedExtTreeActionerJsonCmd, inputs=[ett_cmdtoexe_jsn], outputs=std_output_list)
+            ett_cmdtoexe_btn.click(fn=projecter.executeEditedExtTreeActionerJsonCmd, inputs=[ett_cmdtoexe_jsn, exttreetaskname_txt], outputs=std_output_list)
             undo_btn.click(fn=projecter.undoCurrentManagerCommand, outputs=std_output_list)
             redo_btn.click(fn=projecter.redoCurrentManagerCommand, outputs=std_output_list)
 

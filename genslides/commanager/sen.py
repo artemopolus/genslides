@@ -3138,10 +3138,16 @@ class Projecter(Commander.Commander):
         cmds = self.actioner.getCurrentManager().getCommandList()
         cmdinfo += "\n".join(cmds)
         cmdinfo += f"\ncount: {len(cmds)}"
+
+        nearest_exttreetask = self.actioner.getNearestExtTreeTask()
+        nearest_exttreetask_name = "None" if nearest_exttreetask == None else nearest_exttreetask.getName()
+        nearest_exttreetask_list = [] if nearest_exttreetask == None else self.actioner.getExtTreeCmdsListOfTask( nearest_exttreetask )
+
         out += (
             self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), 
                 stepgraph, rawgraph, cmdinfo, 
-                gr.CheckboxGroup(choices=self.actioner.getExtTreeCmdsListOfCurrentTask(),value=[]),
+                nearest_exttreetask_name,
+                gr.CheckboxGroup(choices=nearest_exttreetask_list,value=[]),
                 self.actioner.getPath()
                 )
         # print('act:',out)
@@ -3557,12 +3563,15 @@ class Projecter(Commander.Commander):
                 highligth.extend(CommandTool.highlightCmdResult(cmd))
         return Loader.Loader.convJsonToText( cmds ), cmd_text, highligth
 
-    def executeEditedExtTreeActionerJsonCmd( self, cmds ):
-        print("Execute edited extreeact json commands")
-        task = self.actioner.getCurrentManager().getCurrentTask()
-        task.exeExTreeTaskCmds( cmds )
-        task.saveUpdationInfo()
-        task.resetUpdationInfo()
+    def executeEditedExtTreeActionerJsonCmd( self, cmds, taskname ):
+        print(f"Execute edited extreeact json commands for {taskname}")
+        task = self.actioner.getCurrentManager().getTaskByName( taskname )
+        if task != None:
+            task.exeExTreeTaskCmds( cmds )
+            task.saveUpdationInfo()
+            task.resetUpdationInfo()
+        else:
+            print("No task found")
         return self.updateMainUIelements()
  
     def executeJsonCmd( self, cmds, path ):

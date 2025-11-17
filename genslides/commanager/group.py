@@ -1961,6 +1961,24 @@ class Actioner():
                 names.append(task.getName())
         return names
     
+    def getNearestExtTreeTask ( self ) -> BaseTask:
+        target = self.getCurrentManager().getCurrentTask()
+        found = None
+        found_distance = 0
+        for task in target.getAllChildChains():
+            if task.isExternalProjectTask():
+                if found == None:
+                    found = task
+                    found_distance = task.getDistance(target)
+                else:
+                    if found_distance > task.getDistance( target ):
+                        found = task
+                        found_distance = task.getDistance(target)
+        return found
+    
+    def getExtTreeCmdsListOfTask( self, task : BaseTask ):
+        return task.getExtTreeTaskCmds()
+
     def getExtTreeCmdsListOfCurrentTask( self ):
         task = self.getCurrentManager().getCurrentTask()
         return task.getExtTreeTaskCmds()
