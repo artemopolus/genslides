@@ -45,7 +45,6 @@ class LinkedTask(TextTask.TextTask):
         self.saveAllParams()
 
     def getRichPrompt(self) -> str:
-        # TODO: Перенести сюда заполнение шаблона
         res, param = self.getParamStruct('linkedfrom')
         text = ""
         if res:

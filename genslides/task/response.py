@@ -184,7 +184,6 @@ class ResponseTask(TextTask):
             if sres and 'do_always' in sparam and sparam['do_always']:
                 exe_always = True
             # Проверка сообщений родителя
-            # TODO: вставить функцию отключения обновления в зависимости от диалога родителя
             if not self.checkParentMsgList(update=True, save_curr=False) or exe_always:
                 # Список сообщений родителя отличается
                 self.updateUpdationInfo(f"Parent msg differs")

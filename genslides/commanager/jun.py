@@ -1689,7 +1689,6 @@ class Manager(Man.Jun):
         if task not in self.tc_ignore_conv:
             trg_type = task.getConvertedType( self.tc_switch_type )
             param_task = task.copyAllParamsAndCheckType(True, self.tc_switch_type)
-            # TODO: При изменении типа задач. Если param_task содержит Collect и в нем input равен array, то создать цепочку задач на базе параметров, но только последовательно 
         if task.checkType('ExtProject'):
             res, param = task.getParamStruct('external')
             if res:

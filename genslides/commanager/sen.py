@@ -1168,13 +1168,11 @@ class Projecter(Commander.Commander):
    
     def stopPrivManager(self):
         self.makeTaskAction("","","StopPrivManager","")
-        #TODO: Нужно разобраться почему так происходит и убрать этот костыль
         self.actioner.getCurrentManager().fixTasks()
         return self.updateTaskManagerUI()
   
     def rmvePrivManager(self):
         self.makeTaskAction("","","RmvePrivManager","")
-        #TODO: Нужно разобраться почему так происходит и убрать этот костыль
         self.actioner.getCurrentManager().fixTasks()
         return self.updateTaskManagerUI()
     

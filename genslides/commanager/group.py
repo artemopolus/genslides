@@ -1810,6 +1810,7 @@ class Actioner():
         cur_man.fixTasks()
 
     def afterLoading(self):
+        # TODO: запуск кастомных команд после загрузки акционера
         task_manager = TaskManager()
         task_manager.clearTasksCache()
 
