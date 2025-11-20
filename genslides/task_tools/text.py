@@ -369,4 +369,5 @@ def find_most_similar_simple(query_sentence, text_corpus):
     else:
         return None, None, None, None
 
-
+def convertCommaSeparatedToList( text : str ):
+    return [t.replace(" ","") for t in text.split(',')]

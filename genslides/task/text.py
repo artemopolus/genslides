@@ -1291,19 +1291,50 @@ class TextTask(BaseTask):
 
         fres, fparam = self.getParamStruct("format",True)
         if fres:
-            ores, options = Loader.loadJsonFromText( self.findKeyParam( fparam.get("description","") ) )
             tres, trg = Loader.loadJsonFromText( self.findKeyParam( fparam.get("target","")))
-            if ores and tres and isinstance( trg, dict ):
-                fparam["result"] = Txt.convertJsonDictToText2(trg, options)
-                self.setParamStruct(fparam)
-            elif ores and tres and isinstance( trg, list ):
-                res_text = ""
-                for value in trg:
-                    res_text += Txt.convertJsonDictToText2( value , options)
-                fparam["result"] = res_text
-                self.setParamStruct(fparam)
-            else:
-                self.updateUpdationInfo(f"Error on jsondict to text convert")
+            fconvert = fparam.get("convert_type","tomd")
+            if fconvert == "tomd":
+                ores, options = Loader.loadJsonFromText( self.findKeyParam( fparam.get("description","") ) )
+                if ores and tres and isinstance( trg, dict ):
+                    fparam["result"] = Txt.convertJsonDictToText2(trg, options)
+                    self.setParamStruct(fparam)
+                elif ores and tres and isinstance( trg, list ):
+                    res_text = ""
+                    for value in trg:
+                        res_text += Txt.convertJsonDictToText2( value , options)
+                    fparam["result"] = res_text
+                    self.setParamStruct(fparam)
+                else:
+                    self.updateUpdationInfo(f"Error on jsondict to text convert")
+            elif fconvert == "trgkey":
+                ftrgkey = Txt.convertCommaSeparatedToList( fparam.get("keyspath",""))
+                if len( ftrgkey ):
+                    target_json = trg
+                    for key in ftrgkey:
+                        if key in target_json:
+                            target_json = target_json[key]
+                            if not isinstance(target_json, dict):
+                                break
+                        else:
+                            self.updateUpdationInfo(f"Can't find {key} in {target_json}")
+                            break
+                    foutput = fparam.get("output","json")
+                    if foutput == "json":
+                        fparam["result"] = Loader.convJsonToText(target_json)         
+                    elif foutput == "list":
+                        if isinstance( target_json, list) and len(target_json) and isinstance(target_json[0], str):
+                            text = "\n".join(["- " + t for t in target_json])
+                            fparam["result"] = text
+                        else:
+                            fparam["result"] = Loader.convJsonToText(target_json)         
+                    elif foutput == "str":
+                        if isinstance(target_json, str):
+                            fparam["result"] = target_json
+                        else:
+                            fparam["result"] = Loader.convJsonToText(target_json)         
+                else:
+                    self.updateUpdationInfo(f"Error on jsondict to text convert ({ fconvert })")
+
         self.updateGeneratedAction()
         self.updateAutoCommand()
         self.saveUpdationInfo()
