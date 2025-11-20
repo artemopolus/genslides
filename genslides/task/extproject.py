@@ -270,34 +270,17 @@ class ExtProjectTask(CollectTask):
         return super().getExeCommands()
  
     def stdProcessUnFreeze(self, input=None):
-        res, pparam = self.getParamStruct('block')
-        if res and pparam['block']:
-            self.is_freeze = True
-            return
-        if self.parent:
-            pass
-        if self.is_freeze:
-            to_unfreeze = False
-            if self.parent and not self.parent.is_freeze:
-                to_unfreeze = True
-            elif not self.parent and self.is_freeze:
-                to_unfreeze = True
-            if to_unfreeze:
-                # if len(self.by_ext_affected_list) == 0:
-                    # return
-                for tsk_info in self.by_ext_affected_list:
-                    if not tsk_info.enabled:
-                        return
-                self.is_freeze = False
-            else:
-                pass
+        self.updateUpdationInfo(f"Standart unfreeze process for ext project")
+        if self.checkBlock():
+            self.freezeTask()
         else:
-            for tsk_info in self.by_ext_affected_list:
-                if not tsk_info.enabled:
-                    self.updateUpdationInfo(f"Freeze from children")
-                    self.freezeTask()
-                    return
- 
+            if self.is_freeze:
+                if self.parent and not self.parent.is_freeze:
+                    self.unfreezeTask()
+                elif not self.parent and self.is_freeze:
+                    self.unfreezeTask()
+        self.updateUpdationInfo(f"Freeze status: {self.is_freeze}")
+
     def updateInternalActioners(self):
         if self.intact is None:
             self.freezeTask()
