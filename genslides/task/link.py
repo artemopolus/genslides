@@ -338,7 +338,11 @@ class ListenerTask(LinkedTask):
             # if lres and 'init_prompt' in lparam:
                 # self.prompt = self.findKeyParam(lparam['init_prompt'])
             self.updateUpdationInfo("No updates from linked\n")
-            return self.prompt
+            clear_nonupdated = lparam.get("clear_nonupdated", False)
+            if clear_nonupdated:
+                return ""
+            else:
+                return self.prompt
         if lres:
             if lparam['combine'].startswith("json"):
                 prompt = Ld.Loader.convJsonToText(prompts_data)

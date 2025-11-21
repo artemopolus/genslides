@@ -244,7 +244,8 @@
       "init_prompt":"",
       "prefix":"",
       "suffix":"",
-      "update_frozen":[false, true]
+      "update_frozen":[false, true],
+      "clear_nonupdated":[false, true]
    },
    {
       "type": "autocommander",
