@@ -317,7 +317,10 @@
       "type":"format",
       "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "description":["","{\n\"target_json_key\":{\"prefix\":\"# Proposal\\n\",\"suffix\":\"\\n\"},\n  \"target_field_key\":{\"reference_key\":\"target_value\"}\n}"],
-      "target_field_key":""
+      "target_field_key":"",
+      "convert_type":["tomd","trgkey"],
+      "keyspath":["key1,key2","key"],
+      "output":["json","str","list"]
    },
    {
       "type": "mcp_config",
