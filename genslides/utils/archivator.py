@@ -65,3 +65,8 @@ class Archivator():
             return True
         return False
 
+    def checkPathToArchive( path_to_file : str ):
+        if isfile(path_to_file) and path_to_file.endswith(".7z"):
+            return True
+        return False
+

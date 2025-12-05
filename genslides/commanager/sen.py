@@ -2866,10 +2866,13 @@ class Projecter(Commander.Commander):
     
     def updateInExtTreeTasksByName(self, names : list[str]):
         man = self.actioner.getCurrentManager()
+        found = False
         for name in names:
             task = man.getTaskByName(name)
             if task != None:
                 self.loadActionerInExtTreeTask(task)
+                found = True
+        print(f"Search for {names} , found = {found}")
         return self.updateMainUIelements() 
     
     def copyManagerTaskFilesToAnotherFolder(self):

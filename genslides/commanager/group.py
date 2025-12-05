@@ -3142,7 +3142,11 @@ class Actioner():
             # first loading
             self.loadManagerProjectFromFile ( path_to_default_7z )
             man = self.getCurrentManager()
-            start_task = man.getTaskByTag("srcdoctree,start")
+            srctree_task = man.getTaskByTag("srcdoctree,start")
+            if srctree_task == None:
+                print("No src tree task")
+                return
+            start_task = man.getTaskByTagFromTasks("additional, context", srctree_task.getAllChildChains())
             externalinput_task = man.getTaskByTag("main,external")
             if not externalinput_task:
                 print("No external")

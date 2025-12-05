@@ -1121,11 +1121,14 @@ class BaseTask():
 
     def updateIternal(self, input : TaskDescription = None):
         pass
-   
+
+    def runBeforeUpdateIternal(self, input : TaskDescription = None):
+        pass
+    
     def update(self, input : TaskDescription = None):
         self.stdProcessUnFreeze(input)
 
-       
+        self.runBeforeUpdateIternal( input )
         # print("Update=",self.getName(), "|frozen=", self.is_freeze)
         self.updateIternal(input)
 
