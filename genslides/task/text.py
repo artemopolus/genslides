@@ -1337,8 +1337,25 @@ class TextTask(BaseTask):
 
         self.updateGeneratedAction()
         self.updateAutoCommand()
+        self.autoExecuteTaskByParam()
         self.saveUpdationInfo()
         self.resetUpdationInfo()
+
+    def autoExecuteTaskByParam( self ):
+        ares, aparam = self.getParamStruct("execute_commands", True)
+        if ares:
+            name = self.findKeyParam( aparam.get("target_task","") )
+            cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
+            cmds_old_hash = aparam.get("hash","")
+            cmds_hash = Txt.compute_sha256_hash( cmds_text)
+            if cmds_old_hash != cmds_hash:
+                cmds = Loader.loadJsonFromText(cmds_text)
+                task : BaseTask = self.manager.getTaskByName(name)
+                if task != None and isinstance(cmds, list):
+                    task.exeExTreeTaskCmds(cmds)
+                    aparam["hash"] = cmds_hash
+                    self.setParamStruct(aparam)
+
 
     def setRecordsParam(self):
         print('Set',self.getName(),'to recording')

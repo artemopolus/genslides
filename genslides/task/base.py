@@ -1838,6 +1838,9 @@ class BaseTask():
     def getExtTreeTaskCmds (self):
         return []
     
+    def forceExeExtTreeTaskCmds( self, filter_on = False, min_value = 5 ):
+        pass
+    
     def exeExTreeTaskCmds( self, cmds : list[dict] ):
         pass
     

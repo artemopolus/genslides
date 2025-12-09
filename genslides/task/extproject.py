@@ -854,12 +854,20 @@ class JumperTreeTask(InExtTreeTask):
             results = self.intact.getJsonCmd(self.findKeyParam(eparam['reset_actions']))
             self.updateUpdationInfo(f"RESET Actions with results:{results}")
         return super().forceCleanChat()
-    
-    def getExtTreeTaskCmds(self):
+
+ 
+    def getExtTreeTaskCmds(self, filter_on = False, min_value = 5):
         lres, lparam = self.getParamStruct("external", True)
         if lres:
             custom_commands = lparam.get("generated_actions",[])
-            return custom_commands
+            output = []
+            if filter_on:
+                for action in custom_commands:
+                    if isinstance(action, dict):
+                        value = action.get("confidence",0)
+                        if value > min_value:
+                            output.append(action)
+            return output
         return super().getExtTreeTaskCmds()
     
     def updateGeneratedAction ( self ):

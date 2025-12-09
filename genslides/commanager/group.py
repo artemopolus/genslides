@@ -3325,4 +3325,9 @@ class Actioner():
         self.makeTaskAction("","","Remove","")
         man.setCurrentTask( start )
  
+    def getExtTreeTaskByNameExecuteJsonCmd( self, name : str, cmds_list : str ):
+        task = self.getCurrentManager().getTaskByName(name)
+        res, cmd = Loader.Loader.loadJsonFromText(cmds_list)
+        if res and task != None:
+            task.exeExTreeTaskCmds(cmd)
 

@@ -350,6 +350,11 @@
       "type":"cmd_generator",
       "content": "",
       "hash":""
+   },
+   {
+      "type":"execute_commands",
+      "target_task": "",
+      "cmds":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "hash":""
    }
-
 ]
