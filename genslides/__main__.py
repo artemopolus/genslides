@@ -153,6 +153,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             with gr.Row():
                 current_actioner_name = gr.Textbox(label="Current actioner")
+            with gr.Row():
+                related_actioners_rad = gr.Radio(label="Related Actioners")
 
             with gr.Row() as r:
                 tree_names_radio = gr.Radio(label='Trees:')
@@ -1219,7 +1221,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt, 
                                     exttreetaskname_txt,
                                     exttreetask_cstmjsoncmd_drd, 
-                                    current_actioner_name])
+                                    current_actioner_name,
+                                    related_actioners_rad
+                                    ])
 
             exttreetask_execurcmd_btn.click(fn=projecter.executeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
             exttreetask_rmvselcmd_btn.click(fn=projecter.removeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
@@ -1310,6 +1314,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             next_tree_btn.click(fn=projecter.goToNextTree, outputs=tree_outlist)
             new_tree_btn.click(fn=projecter.createNewTree, outputs=tree_outlist)
             actionerlist_rad.input(fn=projecter.selectActionerByPath, inputs=[actionerlist_rad], outputs=tree_outlist)
+            related_actioners_rad.input(fn=projecter.selectActionerByPath, inputs=[related_actioners_rad], outputs=tree_outlist)
             selactbytask_btn.click(fn=projecter.selectActionerFromTask, outputs=tree_outlist)
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    

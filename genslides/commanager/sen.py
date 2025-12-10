@@ -973,6 +973,17 @@ class Projecter(Commander.Commander):
                             act.getCurrentManager().setCurrentTask( trg )
                             return self.updateTreeAndAll()
         return self.updateTreeAndAll()
+    
+    def getRelatedActionersToCurrent( self ):
+        current_path = self.actioner.getPath()
+        paths = []
+        
+        for act in self.getActionersList():
+            for task in act.getCurrentManager().getTasks():
+                res, path_to_act, task_name = task.getExternalActionerTask()
+                if res and path_to_act == current_path:
+                    paths.append(act.getPath())
+        return paths
         
     
     def selectActionerByPath(self, path):
@@ -3149,7 +3160,8 @@ class Projecter(Commander.Commander):
                 stepgraph, rawgraph, cmdinfo, 
                 nearest_exttreetask_name,
                 gr.CheckboxGroup(choices=nearest_exttreetask_list,value=[]),
-                self.actioner.getPath()
+                self.actioner.getPath(),
+                gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True)
                 )
         # print('act:',out)
         return out
