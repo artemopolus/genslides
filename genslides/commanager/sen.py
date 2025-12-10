@@ -981,8 +981,17 @@ class Projecter(Commander.Commander):
         for act in self.getActionersList():
             for task in act.getCurrentManager().getTasks():
                 res, path_to_act, task_name = task.getExternalActionerTask()
-                if res and path_to_act == current_path:
+                if res and path_to_act == current_path and act.getPath() not in paths:
                     paths.append(act.getPath())
+        return paths
+    
+    def getControledActionersByCurrent( self ):
+        paths = []
+        act = self.actioner
+        for task in act.getCurrentManager().getTasks():
+                res, path_to_act, task_name = task.getExternalActionerTask()
+                if res and path_to_act not in paths:
+                    paths.append(path_to_act)
         return paths
         
     
@@ -3161,7 +3170,8 @@ class Projecter(Commander.Commander):
                 nearest_exttreetask_name,
                 gr.CheckboxGroup(choices=nearest_exttreetask_list,value=[]),
                 self.actioner.getPath(),
-                gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True)
+                gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True),
+                gr.Radio(choices=self.getControledActionersByCurrent(), interactive=True)
                 )
         # print('act:',out)
         return out
