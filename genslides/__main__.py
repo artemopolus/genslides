@@ -476,12 +476,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     selected_prompt = gr.Textbox(value='',lines=4, label='Selected prompt')
                 select_to_list_btn.click(fn=projecter.addCurrTaskToSelectList, outputs=[selected_tasks_list, selected_prompt])
-                with gr.Row():
-                    # TODO: Перенести в секцию Поиска
-                    trgtexttosearch_txt = gr.Textbox(label='Text to search')
-                    foundtaskstext_txt = gr.Textbox(label='Search results')
-                    findtextintasks_btn = gr.Button('Find')
-                    findtextintasks_btn.click(fn=projecter.findSubStringInTasks, inputs=[trgtexttosearch_txt], outputs=[foundtaskstext_txt])
             with gr.Tab('MultiSelect'):
                 with gr.Row():
                     multiselecttask_txt = gr.Textbox(label='Multiselected tasks:')
@@ -737,6 +731,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     task_list = gr.Dropdown(choices=manager.getTaskNamesList(), label='Available tasks')
                     sel_task_btn = gr.Button(value="Set to Current")
                 with gr.Row():
+                    trgtexttosearch_txt = gr.Textbox(label='Text to search')
+                    findtextintasks_btn = gr.Button('Find')
+                with gr.Row():
+                    foundtaskstext_txt = gr.Textbox(label='Search results')
+                    findtextintasks_btn.click(fn=projecter.findSubStringInTasks, inputs=[trgtexttosearch_txt], outputs=[foundtaskstext_txt])
+                with gr.Row():
                     giett_actioners_txt = gr.Textbox(label = 'Target Actioners', lines=6)
                 with gr.Row():
                     getinexttreetasks_btn = gr.Button('Get InExtTree Task(s)')
@@ -759,7 +759,6 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     acttask_names_chk = gr.CheckboxGroup(label='Tasks with actions')
                     acttask_get_btn.click(fn=projecter.getTasksWithActions, outputs=[acttask_names_chk])
-
             with gr.Tab('Manager'):
                     # with gr.Row():
                         with gr.Tab('List'):

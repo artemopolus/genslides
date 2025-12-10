@@ -3,28 +3,60 @@ import os
 from tree_sitter import Language, Parser
 import tree_sitter_cpp as tspython
 import genslides.task_tools.py_parser as pyparser
+import genslides.task_tools.text as TextTool
+from pypdf import PdfReader
 
 class DefaultConvertor:
+    def __init__(self):
+        self.parameters = {
+            "suffix":"_dflt"
+        }
+
+    def createFileHeader(self, source_path : str, targets : list):
+        return {
+            "filename": os.path.basename(source_path),
+            "path": source_path,
+            "version": "0.1",
+            "description":"Json File for genslides app",
+            "targets": targets
+        }
+    
+    def createTargetPack( self, part_name : str, part_body : str, ttype = "method", parent_target = "None" ):
+        return {
+                    "type": ttype,
+                    "parent_target": parent_target,
+                    "name": part_name,
+                    "body": part_body
+                }
+
+
     def process_file( self, file_path, output_dir):
         return {"result": False, "report":" File default convertor run"}
 
     def process_directory(self,input_dir, output_dir):
         return {"result": False, "report":" Directory default convertor run"}
     
-    def generateJsonFileNameByPath (self,file_path):
-        return ""
+    def get_new_genslides_path( self, file_path, ext = ".json" ):
+        output_dir = os.path.dirname( file_path )
+        base_name, ext = os.path.splitext(os.path.basename(file_path))
+        output_extension = self.parameters.get("suffix","_unknwn") + ext
+        return os.path.join(output_dir, f"{base_name}{output_extension}")
+ 
+    
+    def get_genslides_jsonproject_path (self,file_path):
+        return self.get_new_genslides_path( file_path, ".json")
     
     def check_extension (self, file_path ):
         return False
     
     def check_generated_genslides_json (self, file_path):
-        return False
+        return os.path.exists( self.get_genslides_jsonproject_path( file_path ) )
 
     def check_genslides_archive (self, file_path):
-        return False
+        return os.path.exists( self.get_genslides_archive_path( file_path ) )
     
     def get_genslides_archive_path(self, file_path ):
-        return ""
+        return self.get_new_genslides_path( file_path, ".7z")
 
 
 class CppConvertor(DefaultConvertor):
@@ -233,7 +265,7 @@ class CppConvertor(DefaultConvertor):
                 self.process_directory(entry.path, output_subdir)
         return {"result": True, "report":"Process directory using cpp"}
     
-    def generateJsonFileNameByPath (self,file_path):
+    def get_genslides_jsonproject_path (self,file_path):
         output_dir = os.path.dirname( file_path )
         base_name, ext = os.path.splitext(os.path.basename(file_path))
         output_extension = "_h.json" if ext == ".h" else "_hpp.json" if ext == ".hpp" else "_cpp.json"
@@ -243,7 +275,7 @@ class CppConvertor(DefaultConvertor):
         return True
     
     def check_generated_genslides_json(self,file_path):
-        target_path = self.generateJsonFileNameByPath(file_path)
+        target_path = self.get_genslides_jsonproject_path(file_path)
         return os.path.exists( target_path )
     
     def get_genslides_archive_path(self,file_path):
@@ -262,7 +294,7 @@ class PyConverter(DefaultConvertor):
         output_file_path = os.path.join(output_dir, f"{base_name}{output_extension}")
         return pyparser.convert_genslide_json_file( file_path, output_file_path)
     
-    def generateJsonFileNameByPath (self,file_path):
+    def get_genslides_jsonproject_path (self,file_path):
         output_dir = os.path.dirname( file_path )
         base_name, ext = os.path.splitext(os.path.basename(file_path))
         output_extension = "_py.json"
@@ -281,12 +313,94 @@ class PyConverter(DefaultConvertor):
         return True
     
     def check_generated_genslides_json(self,file_path):
-        target_path = self.generateJsonFileNameByPath(file_path)
+        target_path = self.get_genslides_jsonproject_path(file_path)
         return os.path.exists( target_path )
 
+class TxtConverter(DefaultConvertor):
+    def __init__(self):
+        super().__init__()
+        self.parameters["suffix"] = "_txt"
+
+    def process_file(self, file_path, output_dir):
+        parts_count_on = self.parameters.get("parts_count_on", False)
+        smbl_before = self.parameters.get("smbl_before", 100)
+        smbl_after = self.parameters.get("smbl_after",100)
+        output = {}
+        output["result"] = True
+
+        # Load and parse the C++ source code
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = f.read()
+        except (FileNotFoundError, UnicodeDecodeError) as e:
+            print(f"Error reading file {file_path}: {e}")
+            output["result"] = False
+            return output
+        cuts = []
+        parts = []
+
+        if parts_count_on:
+            parts_count = self.parameters.get("parts_target_count", 10)
+            cuts = TextTool.cut_text_into_parts(data, parts_count,smbl_before, smbl_after)
+        else:
+            part_smbl_cnt = self.parameters.get("part_smbl_cnt", 2000)
+            cuts = TextTool.split_text_with_context(data, part_smbl_cnt,smbl_before, smbl_after)
+        
+        for cut in cuts:
+            pack = cut.get("Result Text","")
+            parts.append(self.createTargetPack("", pack))
+
+        json_data = self.createFileHeader(file_path, parts)
+        
+        output_file_path = self.get_genslides_jsonproject_path( file_path )
+        try:
+            with open(output_file_path, "w", encoding="utf-8") as json_file:
+                json.dump(json_data, json_file, indent=4)
+        except IOError as e:
+            print(f"Error writing to file {output_file_path}: {e}")
+            output["result"] = False
+            return output
+        return output 
+    
+    def check_extension(self, file_path):
+        return True
+    
+class PdfConverter(DefaultConvertor):
+    def __init__(self):
+        super().__init__()
+        self.parameters["suffix"] = "_pdf"
+
+    def process_file(self, file_path, output_dir):
+        output = {}
+        parts = []
+        output["result"] = True
+
+        reader = PdfReader(file_path)
+        for page in reader.pages:
+            text = page.extract_text()
+            if isinstance( text, str):
+                parts.append(self.createTargetPack("", text))
+
+        json_data = self.createFileHeader(file_path, parts)
+        
+        output_file_path = self.get_genslides_jsonproject_path( file_path )
+        try:
+            with open(output_file_path, "w", encoding="utf-8") as json_file:
+                json.dump(json_data, json_file, indent=4)
+        except IOError as e:
+            print(f"Error writing to file {output_file_path}: {e}")
+            output["result"] = False
+            return output
+        return output 
+
+    def check_extension(self, file_path):
+        return True
+ 
  
 CONVERTERS = {
-    ".txt": DefaultConvertor,
+    ".pdf": PdfConverter,
+    ".tex": TxtConverter,
+    ".txt": TxtConverter,
     ".h":   CppConvertor,
     ".hpp":   CppConvertor,
     ".c":   CppConvertor,
@@ -310,7 +424,7 @@ def convertFileToGenslidesJson( filepath ):
 
 def getConvertedGenslidesJsonName ( filepath ):
     converter = get_converter( filepath )
-    return converter.generateJsonFileNameByPath( filepath )
+    return converter.get_genslides_jsonproject_path( filepath )
 
 def checkExistOfGenslidesJsonFile( filepath ):
     converter = get_converter( filepath )
