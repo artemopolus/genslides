@@ -224,6 +224,7 @@
       "exttreetask_file_target": ["","[[parent:msg_content]]","[[parent:msg_content:json:key]]","[[parent:param:key]]"],
       "exttreetask_file_current": "",
       "exttreetask_template": "",
+      "autoload_actions": "",
       "exttreetask_path": "",
       "inexttree": ["None", "fromact"],
       "prompt": "",

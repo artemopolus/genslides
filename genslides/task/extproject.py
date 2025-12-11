@@ -749,33 +749,41 @@ class JumperTreeTask(InExtTreeTask):
             if autoload_on:
                 self.updateUpdationInfo("Autoload project")
                 path_to_target_file = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_file_target","") ) )
-                path_to_current_file = eparam.get("exttreetask_file_current","")
-                if path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
-                    self.updateUpdationInfo(f"Target file == current file:{path_to_target_file}: json and archive exist")
-                else:
-                    self.updateUpdationInfo(f"Load project by path: {path_to_target_file}")
-
-                    act = self.getActioner()
-                    if Converter.checkExtensionOfFile( path_to_target_file ):
-                        if not Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
-                            path_to_gsjs = Converter.getConvertedGenslidesJsonName( path_to_target_file )
-                            if not Converter.checkExistOfGenslidesJsonFile( path_to_target_file ):
-                                Converter.convertFileToGenslidesJson( path_to_target_file)
-                            path_to_template = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_template","") ) )
-                            if Archive.Archivator.checkPathToArchive( path_to_template ):
-                                self.updateUpdationInfo(f"Reproduce template ({path_to_template}) with parameters ({path_to_gsjs}) ")
-                                act.convertJsonFileToTemplateTreeTasks( path_to_template, path_to_gsjs )
-                            else:
-                                self.updateUpdationInfo(f"No valid archive by path:{path_to_template}")
-                        else:
-                            path_to_archive = Converter.getGenslidesArchiveFilePath( path_to_target_file )
-                            self.updateUpdationInfo(f"Load archive from {path_to_archive}")
-                            act.loadManagerProjectFromFile( path_to_archive )
+                if Loader.Loader.checkIsFile(path_to_target_file):
+                    path_to_current_file = eparam.get("exttreetask_file_current","")
+                    if path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
+                        self.updateUpdationInfo(f"Target file == current file:{path_to_target_file}: json and archive exist")
                     else:
-                        self.updateUpdationInfo(f"Extension for file ({path_to_target_file}):unknown")
+                        self.updateUpdationInfo(f"Load project by path: {path_to_target_file}")
 
-                    eparam["exttreetask_file_current"] = path_to_target_file
-                    self.setParamStruct(eparam)
+                        act = self.getActioner()
+                        if Converter.checkExtensionOfFile( path_to_target_file ):
+                            if not Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
+                                path_to_gsjs = Converter.getConvertedGenslidesJsonName( path_to_target_file )
+                                if not Converter.checkExistOfGenslidesJsonFile( path_to_target_file ):
+                                    Converter.convertFileToGenslidesJson( path_to_target_file)
+                                path_to_template = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_template","") ) )
+                                if Archive.Archivator.checkPathToArchive( path_to_template ):
+                                    self.updateUpdationInfo(f"Reproduce template ({path_to_template}) with parameters ({path_to_gsjs}) ")
+                                    act.convertJsonFileToTemplateTreeTasks( path_to_template, path_to_gsjs )
+                                else:
+                                    self.updateUpdationInfo(f"No valid archive by path:{path_to_template}")
+                            else:
+                                path_to_archive = Converter.getGenslidesArchiveFilePath( path_to_target_file )
+                                self.updateUpdationInfo(f"Load archive from {path_to_archive}")
+                                act.loadManagerProjectFromFile( path_to_archive )
+                        else:
+                            self.updateUpdationInfo(f"Extension for file ({path_to_target_file}):unknown")
+
+                        cres, cmds = Loader.Loader.loadJsonFromText( self.findKeyParam( eparam.get("autoload_actions","")))
+                        if cres:
+                            results = act.getJsonCmd(cmds)
+                            self.updateUpdationInfo(f"Autoload_cmds:{results}")
+
+                        eparam["exttreetask_file_current"] = path_to_target_file
+                        self.setParamStruct(eparam)
+                else:
+                    self.updateUpdationInfo(f"File {path_to_target_file} is not exist")
         return super().runBeforeUpdateIternal(input)
 
     def updateIternal(self, input : TaskDescription = None):

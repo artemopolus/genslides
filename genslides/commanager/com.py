@@ -144,7 +144,7 @@ class Commander:
         elif 'retrgs' in eparam:
             for pair in eparam['retrgs']:
                 manager.addRenamedPair(pair['std'], pair['chg'])
-        act = Act.Actioner(manager)
+        act = Act.Actioner(manager, eparam)
         act.setPath(path)
         act.saveManToTmp(manager)
         if 'load' in eparam and eparam['load']:
@@ -157,12 +157,16 @@ class Commander:
             act.loadTmpManagers()
         dt2 = datetime.datetime.now()     
         print('Actioner was created by:\t',(dt2-dt1).seconds,'second(s)')    
+        print(f"Params:\n{eparam}")
         return act
 
     def loadActionerByPath(self, man_path : str):
-        actioner = self.createActioner({'exttreetask_path':man_path,'load':True})
+        actioner = self.createActioner({'exttreetask_path':man_path,'load':True,'available_actioners':self.getActionersList})
         self.addActionerTolist(actioner)
 
+    def getActionersList(self) -> list[Act.Actioner]:
+        return [a['act'] for a in self.actioners_list]
+ 
     def addActionerTolist(self, act : Act.Actioner, params = {'type':'project'}, move2selected = True):
         found = False
         for actpack in self.actioners_list:

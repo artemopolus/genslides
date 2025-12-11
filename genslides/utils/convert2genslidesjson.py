@@ -281,7 +281,7 @@ class CppConvertor(DefaultConvertor):
     def get_genslides_archive_path(self,file_path):
         output_dir = os.path.dirname( file_path )
         base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_h.7z" if ext == ".h" else "_hpp.7z" if ext == ".hpp" else "_cpp.7z"
+        output_extension = "_h_gs.7z" if ext == ".h" else "_hpp_gs.7z" if ext == ".hpp" else "_cpp_gs.7z"
         return  os.path.join(output_dir, f"{base_name}{output_extension}")
     
     def check_genslides_archive(self,file_path):

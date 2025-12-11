@@ -25,7 +25,7 @@ import copy
 import datetime
 
 class Actioner():
-    def __init__(self, manager : Manager.Manager) -> None:
+    def __init__(self, manager : Manager.Manager, parameters = {}) -> None:
         self.std_manager = manager
         self.setManager(manager)
         self.tmp_managers = []
@@ -43,7 +43,8 @@ class Actioner():
 
         self.force_update_stop = False
         
-        self.time_marker = datetime.datetime.now()        
+        self.time_marker = datetime.datetime.now()
+        self.parameters : dict = parameters 
 
     def setManager(self, manager : Manager.Manager):
         if manager != self.std_manager and not manager.is_loaded:
@@ -3330,4 +3331,23 @@ class Actioner():
         res, cmd = Loader.Loader.loadJsonFromText(cmds_list)
         if res and task != None:
             task.exeExTreeTaskCmds(cmd)
+
+    def loadExtTreeTaskActioners(self):
+        method_to_external_actioners = self.parameters.get("available_actioners",None)
+        if method_to_external_actioners != None:
+            for task in self.getCurrentManager().getTasks():
+                task.loadActionerTasks(method_to_external_actioners())
+
+    def loadExtTreeTaskActionersByTaskNames(self, names : str):
+        method_to_external_actioners = self.parameters.get("available_actioners",None)
+        if method_to_external_actioners != None:
+            found = False
+            for name in names:
+                task = self.getCurrentManager().getTaskByName(name)
+                if task != None:
+                    task.loadActionerTasks(method_to_external_actioners())
+                    found = True
+            print(f"Search for {names} , found = {found}")
+        else:
+            print(f"No method: {method_to_external_actioners}")
 

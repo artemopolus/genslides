@@ -926,9 +926,7 @@ class Projecter(Commander.Commander):
         self.actioner.selectManagerByName(name)
         return self.updateTaskManagerUI()
     
-    def getActionersList(self) -> list[Actioner]:
-        return [a['act'] for a in self.actioners_list]
-    
+   
     def getActionerSources(self):
         trgs = [t.getPath() for t in self.getActionersList()]
         out, out_paths = self.actioner.getCurManInExtTreeTasks()
@@ -996,9 +994,10 @@ class Projecter(Commander.Commander):
         
     
     def selectActionerByPath(self, path):
-        for act in self.actioners_list:
-            if act['act'].getPath() == path:
-                self.actioner = act['act']
+        if isinstance(path, str):
+            for act in self.actioners_list:
+                if act['act'].getPath() == path:
+                    self.actioner = act['act']
         return self.updateTreeAndAll()
     
     def getModificationTimeOfSession(self, name : str ):
@@ -1095,7 +1094,7 @@ class Projecter(Commander.Commander):
     def loadActionerWithTemplate(self, template_path : str, projectfile_path : str, save_path : str):
         # Archivator.extractFiles(templates_path, template_name, save_path)
         Archivator.extract7zFileToFolder( template_path, save_path)
-        actioner = self.createActioner({'exttreetask_path':save_path,'load':True})
+        actioner = self.createActioner({'exttreetask_path':save_path,'load':True,'available_actioners':self.getActionersList})
         self.addActionerTolist(actioner)
         man = self.actioner.getCurrentManager()
         if len(man.getTasks()) == 0:
@@ -1121,7 +1120,7 @@ class Projecter(Commander.Commander):
 
 
     def loadActionerByPath(self, man_path : str):
-        actioner = self.createActioner({'exttreetask_path':man_path,'load':True})
+        actioner = self.createActioner({'exttreetask_path':man_path,'load':True,'available_actioners':self.getActionersList})
         self.addActionerTolist(actioner)
         man = self.actioner.std_manager
         if len(man.task_list) == 0:
@@ -2885,14 +2884,7 @@ class Projecter(Commander.Commander):
         return gr.CheckboxGroup(choices=out, value=checks, interactive=True), act_info_text
     
     def updateInExtTreeTasksByName(self, names : list[str]):
-        man = self.actioner.getCurrentManager()
-        found = False
-        for name in names:
-            task = man.getTaskByName(name)
-            if task != None:
-                self.loadActionerInExtTreeTask(task)
-                found = True
-        print(f"Search for {names} , found = {found}")
+        self.actioner.loadExtTreeTaskActionersByTaskNames( names )
         return self.updateMainUIelements() 
     
     def copyManagerTaskFilesToAnotherFolder(self):
@@ -3170,8 +3162,8 @@ class Projecter(Commander.Commander):
                 nearest_exttreetask_name,
                 gr.CheckboxGroup(choices=nearest_exttreetask_list,value=[]),
                 self.actioner.getPath(),
-                gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True),
-                gr.Radio(choices=self.getControledActionersByCurrent(), interactive=True)
+                gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True,value = None),
+                gr.Radio(choices=self.getControledActionersByCurrent(), interactive=True, value=None)
                 )
         # print('act:',out)
         return out
