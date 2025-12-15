@@ -747,12 +747,14 @@ class JumperTreeTask(InExtTreeTask):
         if eres:
             autoload_on = eparam.get("exttreetask_autoload", False)
             if autoload_on:
+                autoload_result = False
                 self.updateUpdationInfo("Autoload project")
                 path_to_target_file = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_file_target","") ) )
                 if Loader.Loader.checkIsFile(path_to_target_file):
                     path_to_current_file = eparam.get("exttreetask_file_current","")
                     if path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
                         self.updateUpdationInfo(f"Target file == current file:{path_to_target_file}: json and archive exist")
+                        autoload_result = True
                     else:
                         self.updateUpdationInfo(f"Load project by path: {path_to_target_file}")
 
@@ -766,12 +768,13 @@ class JumperTreeTask(InExtTreeTask):
                                 if Archive.Archivator.checkPathToArchive( path_to_template ):
                                     self.updateUpdationInfo(f"Reproduce template ({path_to_template}) with parameters ({path_to_gsjs}) ")
                                     act.convertJsonFileToTemplateTreeTasks( path_to_template, path_to_gsjs )
+                                    autoload_result = True
                                 else:
                                     self.updateUpdationInfo(f"No valid archive by path:{path_to_template}")
                             else:
                                 path_to_archive = Converter.getGenslidesArchiveFilePath( path_to_target_file )
                                 self.updateUpdationInfo(f"Load archive from {path_to_archive}")
-                                act.loadManagerProjectFromFile( path_to_archive )
+                                autoload_result = act.loadManagerProjectFromFile( path_to_archive )
                         else:
                             self.updateUpdationInfo(f"Extension for file ({path_to_target_file}):unknown")
 
@@ -781,9 +784,10 @@ class JumperTreeTask(InExtTreeTask):
                             self.updateUpdationInfo(f"Autoload_cmds:{results}")
 
                         eparam["exttreetask_file_current"] = path_to_target_file
-                        self.setParamStruct(eparam)
                 else:
                     self.updateUpdationInfo(f"File {path_to_target_file} is not exist")
+                eparam["exttreetask_autoload_result"] = autoload_result
+                self.setParamStruct(eparam)
         return super().runBeforeUpdateIternal(input)
 
     def updateIternal(self, input : TaskDescription = None):

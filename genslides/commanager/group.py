@@ -3243,11 +3243,11 @@ class Actioner():
         self.saveManToTmp(man, "tt_"+ SaveData.getTimeForProjectName(), ["tt_temp",f"{name}_tempload"], check_oldest=True, max_files= 10)
         if not FileManager.checkExistPath(template_path):
             print(f"Abort: path is not exist ({template_path})")
-            return
+            return False
         FileManager.deleteFiles(target_path)
         if not Archivator.Archivator.extract7zFileToFolder(template_path, target_path):
             print("Abort: error on load archive")
-            return
+            return False
         self.reset()
         self.setCurrentManager( self.std_manager )
         man = self.getCurrentManager()
@@ -3258,6 +3258,7 @@ class Actioner():
             man.loadTasksList(safe_load_tasks)
             man.enableOutput2()
             self.loadTmpManagers()
+        return True
 
     def loadTreeDoc( self, path_to_template, path_to_file ):
         # print(SaveData.getTimeForProjectName())
