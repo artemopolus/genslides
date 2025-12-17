@@ -1283,7 +1283,7 @@ class TextTask(BaseTask):
             if "idx" in aparam:
                 start_index = aparam["idx"]
             naparam = ar.checkArrayIteration(self, aparam)
-            if "len" in naparam and "idx" in naparam and naparam["idx"] >= naparam["len"] -1 and naparam["idx"] == start_index:
+            if naparam.get("freeze_if_array_end", False) and "len" in naparam and "idx" in naparam and naparam["idx"] >= naparam["len"] -1 and naparam["idx"] == start_index:
                 self.freezeTask()
             self.updateParam2(naparam)
 

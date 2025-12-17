@@ -152,7 +152,8 @@
       "start": 0,
       "part_prefix": ["","[["],
       "part_suffix": ["", "]]"],
-      "exclude_tasktypes":["","SetOptions","SetOptions,Response,Listener"]
+      "exclude_tasktypes":["","SetOptions","SetOptions,Response,Listener"],
+      "freeze_if_array_end":[false, true]
    },
    {
       "type":"ReadBranch",
