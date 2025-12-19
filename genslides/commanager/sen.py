@@ -175,12 +175,15 @@ class Projecter(Commander.Commander):
             )
     
     def getSessionNameFromList(self, name):
+        dt1 = datetime.datetime.now()
         if name in self.session_names_list:
             print(f"Load session \"{name}\"")
             self.setCurrentSessionMame( name )
             self.loadSession()
         else:
             print(f"Can\'t find {name} in {self.session_names_list}")
+        dt2 = datetime.datetime.now()
+        print('Session loading time:\t',(dt2-dt1).seconds,'second(s)')    
         
         return self.updateTreeAndAll()
     

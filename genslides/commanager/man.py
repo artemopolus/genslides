@@ -1399,11 +1399,11 @@ class Jun():
         elif self.isMultiSelectedTask( task ) and self.isLinkedWithListenerTask( task ):
             color = "lightsalmon1"
         elif self.isCurrentTask(task) and self.isLinkedWithListenerTask( task ) and task.isFrozen():
-            color = "orchid3"
+            color = "mediumpurple4"
         elif self.isCurrentTask(task) and self.isLinkedWithListenerTask( task ):
             color = "springgreen4"
         elif self.isLinkedWithListenerTask( task ) and task.isFrozen():
-            color = "orchid"
+            color = "mediumpurple1"
         elif self.isCurrentTask(task) and self.isConnectedToOutExtree( task ):
             color = "purple3"
         elif self.isConnectedToOutExtree( task ) and task.isFrozen():
