@@ -1358,3 +1358,70 @@ class Jun():
         return None
     def redoCmd( self ) -> Task.BaseTask:
         return None
+    
+    def isCurrentTask( self, task : Task.BaseTask ):
+        return task == self.getCurrentTask()
+    
+    def isMultiSelectedTask( self, task : Task.BaseTask):
+        return task in self.getMultiSelectedTasks()
+    
+    def isLinkedWithListenerTask( self, task : Task.BaseTask):
+        return len(task.getHoldGarlands()) > 0
+    
+    def isConnectedToOutExtree( self, task : Task.BaseTask):
+        res, param = task.getParamStruct("outexttreetask", True)
+        if res:
+            links : list = param.get("links",[])
+            return len(links) > 0
+        return False
+    
+    def isActionStorage( self, task : Task.BaseTask):
+        return task.checkAutoActCmds()
+    
+    def getTaskNodeColor( self, task : Task.BaseTask, trgs_rsm : list[Task.BaseTask] ):
+        man = self
+        color = 'antiquewhite1'
+        if task in trgs_rsm:
+            if task == man.getCurrentTask():
+                color = "blueviolet"
+            else:
+                color = "darkmagenta"
+        elif task.checkBlock() and self.isCurrentTask(task):
+            color="goldenrod3"
+        elif task.checkBlock():
+            color="gold2"
+        elif self.isCurrentTask(task) and self.isMultiSelectedTask( task ) and self.isLinkedWithListenerTask( task ) and task.isFrozen():
+            color = "darkcyan"
+        elif self.isMultiSelectedTask( task ) and self.isLinkedWithListenerTask( task ) and task.isFrozen():
+            color = "cyan3"
+        elif self.isCurrentTask(task) and self.isMultiSelectedTask( task ) and self.isLinkedWithListenerTask( task ):
+            color = "crimson"
+        elif self.isMultiSelectedTask( task ) and self.isLinkedWithListenerTask( task ):
+            color = "lightsalmon1"
+        elif self.isCurrentTask(task) and self.isLinkedWithListenerTask( task ) and task.isFrozen():
+            color = "orchid3"
+        elif self.isCurrentTask(task) and self.isLinkedWithListenerTask( task ):
+            color = "springgreen4"
+        elif self.isLinkedWithListenerTask( task ) and task.isFrozen():
+            color = "orchid"
+        elif self.isCurrentTask(task) and self.isConnectedToOutExtree( task ):
+            color = "purple3"
+        elif self.isConnectedToOutExtree( task ) and task.isFrozen():
+            color = "plum1"
+        elif self.isConnectedToOutExtree( task ):
+            color = "pink1"
+        elif self.isLinkedWithListenerTask( task ):
+            color = "springgreen3"
+        elif self.isCurrentTask(task) and task.isFrozen():
+            color="cornflowerblue"
+        elif self.isCurrentTask(task):
+            color = 'blueviolet'
+        elif self.isCurrentTask(task) and self.isActionStorage():
+            color = "slateblue3"
+        elif self.isActionStorage(task) and task.isFrozen():
+            color = "royalblue4"
+        elif self.isActionStorage(task ):
+            color = "slateblue1"
+        elif task.isFrozen():
+            color = 'dodgerblue'
+        return color

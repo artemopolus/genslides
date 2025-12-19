@@ -1004,6 +1004,25 @@ class OutExtTreeTask(ExtProjectTask):
         if self.getParent() == None:
             return True
         return not self.getParent().isExternalProjectTask()
+    
+    def setExternalTask( self, task : BaseTask ):
+        if task != None:
+            self.updateUpdationInfo(f"Set external task {task.getName()}")
+            if task != self.intch_trg:
+                self.updateUpdationInfo("External is same")
+                self.intch_trg = task
+                if self.getActioner() != None:
+                    res, param = task.getParamStruct("outexttreetask", True)
+                    if res:
+                        links : list = param.get("links",[])
+                        links.append(self.getActioner().getPath())
+                        param["links"] = links
+                        task.setParamStruct( param )
+                    else:
+                        task.setParamStruct({'type':'outexttreetask','links':[self.getActioner().getPath()]})       
+                else:
+                    self.updateUpdationInfo("No actioner for external")
+
 
     def updateOutExtActMan(self, actioners = []):
         try:
@@ -1015,7 +1034,7 @@ class OutExtTreeTask(ExtProjectTask):
                     self.intman = self.parent.intman
                     self.intact.autoUpdateExtTreeTaskActs(actioners)
 
-                    self.intch_trg = self.intman.getTaskByName(eparam['target'])
+                    self.setExternalTask(self.intman.getTaskByName(eparam['target']))
             else:
                 eres, eparam = self.getParamStruct('external')
                 if eres and eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
@@ -1028,7 +1047,7 @@ class OutExtTreeTask(ExtProjectTask):
                             man = actioner.std_manager
                             self.intact = actioner
                             self.intman = man
-                            self.intch_trg = man.getTaskByName(eparam['target'])
+                            self.setExternalTask(man.getTaskByName(eparam['target']))
                             self.intact.autoUpdateExtTreeTaskActs(actioners)
                             return
 
@@ -1091,7 +1110,7 @@ class OutExtTreeTask(ExtProjectTask):
         if self.intch_trg == None:
             eres, eparam = self.getParamStruct('external')
             if eres:
-                self.intch_trg = self.intman.getTaskByName(eparam['target'])
+                self.setExternalTask(self.intman.getTaskByName(eparam['target']))
         try:
             if self.intch_trg.is_freeze:
                 self.updateUpdationInfo(f"Target is frozen")

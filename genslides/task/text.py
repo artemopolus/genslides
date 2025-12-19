@@ -63,6 +63,7 @@ class TextTask(BaseTask):
         # print('Task params',self.params)
         self.updateParam2({'type':'task_creation','time':savedata.getTimeForSaving()})       
         self.updateParam2({'type':'branch','code':self.getBranchCodeTag()})       
+        self.updateParam2({'type':'outexttreetask','links':[]})       
         self.stdProcessUnFreeze()
 
         self.onMsgDiffCallbacks = []
@@ -2002,7 +2003,9 @@ class TextTask(BaseTask):
             return cmd
         return None
 
- 
+    def checkAutoActCmds(self):
+        tres, tparam = self.getParamStruct("autoactioner", only_current=True)
+        return tres
     
     def getAutoActCmds(self, checkhash = True):
         # print("Get Auto Command2")

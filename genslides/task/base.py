@@ -1855,4 +1855,6 @@ class BaseTask():
 
     def updateGeneratedAction ( self ):
         pass
+    def checkAutoActCmds(self):
+        return False
 

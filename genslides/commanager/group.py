@@ -1232,6 +1232,7 @@ class Actioner():
             for task in trg_list:
                 task_nodes.append({"name":task.getName(), "edges":0,"task":task})
                 task_name_for_draw = task.getNameForDrawing()
+                # shape
                 if task in special_tasks_list:
                     if man.getCurrentTask().getParent() != None and man.getCurrentTask().getParent() == task:
                         task_name_for_draw = f"{task.getDistanceToNearestParentFork()}"
@@ -1248,27 +1249,9 @@ class Actioner():
                     shape = 'doubleoctagon'
                 elif len(task.getAffectedTasks()) > 0:
                     shape = 'polygon'
-                if task in trgs_rsm:
-                    if task == man.getCurrentTask():
-                        f.node( task.getIdStr(), task_name_for_draw,style="filled",color="blueviolet")
-                    else:
-                        f.node( task.getIdStr(), task_name_for_draw,style="filled",color="darkmagenta")
-                elif task.readyToGenerate():
-                    color = 'darkmagenta'
-                    f.node( task.getIdStr(), task_name_for_draw,style="filled", color = color, shape = shape)
-                elif task in man.getMultiSelectedTasks():
-                    color = "lightsalmon3"
-                    if task == man.getCurrentTask():
-                        color = "lightsalmon1"
-                    if len(task.getHoldGarlands()) > 0:
-                        color = 'crimson'
-                    f.node( task.getIdStr(), task_name_for_draw,style="filled", color = color, shape = shape)
-                elif task == man.getCurrentTask():
-                    color = "skyblue"
-                    if len(task.getHoldGarlands()) > 0:
-                        color = 'skyblue4'
-                    f.node( task.getIdStr(), task_name_for_draw,style="filled", shape = shape, color = color)
-                elif task in tmpman_list:
+                # color
+                
+                if task in tmpman_list:
                     color = 'blueviolet'
                     # shape = "ellipse" #rectangle,hexagon
                     if man == self.std_manager:
@@ -1280,28 +1263,9 @@ class Actioner():
                                     break
                     else:
                         color = manbase_color
-                    f.node( task.getIdStr(), task_name_for_draw,style="filled", shape = shape, color = color)
                 else:
-                    color = 'antiquewhite1'
-                    if task.checkBlock():
-                        color="gold2"
-                    elif man.getTaskParamRes(task, "input"):
-                        color="aquamarine"
-                    elif man.getTaskParamRes(task, "output"):
-                        color="darkgoldenrod1"
-                    # elif man.getTaskParamRes(task, "check"):
-                        # color="darkorchid1"
-                    elif task.is_freeze:
-                        color="cornflowerblue"
-                    #     if len(task.getAffectedTasks()) > 0:
-                    #         color = 'teal'
-                    # elif len(task.getAffectedTasks()) > 0:
-                    #     color="aquamarine2"
-                    else:
-                        info = task.getInfo()
-                        if task.prompt_tag == "assistant":
-                            color="azure2"
-                    f.node( task.getIdStr(), task_name_for_draw,style="filled",color=color, shape = shape)
+                    color = man.getTaskNodeColor( task, trgs_rsm )
+                f.node( task.getIdStr(), task_name_for_draw,style="filled",color=color, shape = shape)
 
 
                 # print("info=",task.getIdStr(),"   ", task.getName())
