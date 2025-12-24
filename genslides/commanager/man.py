@@ -224,12 +224,19 @@ class Jun():
             return param["chain_idx"]
         return 0
 
+    def sortBudsOrderByTaskParams( self, task : Task.BaseTask):
+        res, pparam = task.getParamStruct('update_chain', only_current=True)
+        if res and 'chain_idx' in pparam and isinstance(pparam['chain_idx'], int):
+            return pparam['chain_idx']
+        return 0
+ 
     def sortBuds(self, trg : Task.BaseTask):
-        tasks = trg.getAllParents()
-        prio = 0
-        for task in tasks:
-            prio += task.getPrio()
-        return prio
+        return self.sortBudsOrderByTaskParams( trg )
+        # tasks = trg.getAllParents()
+        # prio = 0
+        # for task in tasks:
+        #     prio += task.getPrio()
+        # return prio
     
     def iterateNextBranch(self, task :Task.BaseTask, revert = False):
         childs = task.getChilds()
@@ -586,6 +593,7 @@ class Jun():
             names.append( task.getName())
         return names
     
+   
     def sortTreeOrderByTaskParams(self, task):
         res, pparam = task.getParamStruct('tree_step', only_current=True)
         if res:
