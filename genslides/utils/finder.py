@@ -10,29 +10,34 @@ import genslides.task_tools.py_parser as pyparse
 import genslides.task_tools.text as Txt
 import textwrap
 
-def convertTextPartToMsg(md_text):
+def convertTextPartToMsg(md_text, even = True):
     code_pattern = r'```\n(.*?)\n```'
     parts = re.split(code_pattern, md_text, flags=re.DOTALL)
     text = ""
     for i, part in enumerate(parts):
         if i % 2 == 0:  # Non-code parts treated as comments
-            pass
+            if not even:
+                text += part.strip()
         else:  # Code parts
-            text += part.strip()
+            if even:
+                text += part.strip()
     if text == "":
-        return md_text
+        return removeCodeFromMd(md_text,"markdown", even)
     return text
 
-def removeCodeFromMd( md_text : str, keyword: str = 'python' ):
+def removeCodeFromMd( md_text : str, keyword: str = 'python' , even = True):
     code_pattern = rf"```{keyword}\n(.*?)\n```"
     parts = re.split(code_pattern, md_text, flags=re.DOTALL)
     text = ""
     for i, part in enumerate(parts):
         if i % 2 == 0:  # Non-code parts treated as comments
-            text += part.strip() + "\n"
-            pass
-        else:  # Code parts
-            pass
+            if not even:
+                text += part.strip() + "\n"
+        else:  # Code parts 
+            if even:
+                text += part.strip()
+    if text == "":
+        return md_text
     return text
 
 def convertMdToScript(md_text):
@@ -328,8 +333,13 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
         elif arr[1] == 'remove_code':
             script_text = removeCodeFromMd( md_text= task.getLastMsgContent())
             rep_text = rep_text.replace(res, script_text)
-        elif arr[1] == 'text_ins':
+        elif arr[1] == 'text_ins_even':
             script_text = convertTextPartToMsg(md_text=task.getLastMsgContent())
+            if len(arr) > 2 and arr[2] == 'json_dumps':
+                    script_text = Loader.Loader.convJsonToText( script_text )
+            rep_text = rep_text.replace(res, script_text)
+        elif arr[1] == 'text_ins':
+            script_text = convertTextPartToMsg(md_text=task.getLastMsgContent(), even=False)
             if len(arr) > 2:
                 if arr[2] == 'json_dumps':
                     script_text = Loader.Loader.convJsonToText( script_text )

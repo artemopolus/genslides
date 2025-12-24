@@ -157,7 +157,7 @@ class Commander:
             act.loadTmpManagers()
         dt2 = datetime.datetime.now()     
         print('Actioner was created by:\t',(dt2-dt1).seconds,'second(s)')    
-        print(f"Params:\n{eparam}")
+        # print(f"Params:\n{eparam}")
         return act
 
     def loadActionerByPath(self, man_path : str):

@@ -84,16 +84,24 @@ class Jun():
             return self.info['name']
         return self.name
     
-    def updateTreeArr(self, check_list = False):
-        self.tree_arr = []
+    def updateTreeArr(self, check_list = True):
+        # self.tree_arr = []
+        task_list : list[Task.BaseTask] = []
         for task in self.task_list:
             if check_list:
                 par = task.parent
                 if task.isRootParent() or par not in self.task_list:
-                    self.tree_arr.append(task)
+                    if task not in self.tree_arr:
+                        self.tree_arr.append(task)
+                    task_list.append(task)
             else:
                 if task.isRootParent():
-                    self.tree_arr.append(task)
+                    if task not in self.tree_arr:
+                        self.tree_arr.append(task)
+                    task_list.append(task)
+        if len(task_list) < len(self.tree_arr):
+            self.tree_arr = task_list
+        # print(f"Update tree arr:{self.getTreeNames()}")
         # print('Update tree array with check state:', check_list, [t.getName() for t in self.tree_arr])
         
 
@@ -107,9 +115,10 @@ class Jun():
         return task.getBranchSummary() + '[' + task.getName() + ']'
 
     def getTreeNamesForRadio(self):
+        # print("Get tree names for radio")
         names = []
-        if len(self.tree_arr) == 0:
-            self.sortTreeOrder()
+        # if len(self.tree_arr) == 0:
+        self.sortTreeOrder()
         for task in self.tree_arr:
             names.append(self.getTreeName(task))
         trg = self.getTreeName(self.curr_task)
@@ -139,13 +148,14 @@ class Jun():
 
 
     def goToNextTree(self):
-        # print('Current tree was',self.tree_idx,'out of',len(self.tree_arr))
+        print(f"Current tree was {self.tree_idx} out of {len(self.tree_arr)}: {self.getTreeName(self.getCurrentTask())}")
         if len(self.tree_arr) > 0:
             if self.tree_idx + 1 < len(self.tree_arr):
                 self.tree_idx += 1
             else:
                 self.tree_idx = 0
             self.curr_task = self.tree_arr[self.tree_idx]
+        print(f"Next tree start task: {self.getTreeName(self.getCurrentTask())} [{self.tree_idx}/{len(self.tree_arr)}] ({self.getTreeNames()})")
         # return self.getCurrTaskPrompts()
 
     def takeFewSteps(self, dir:str, times : int):
@@ -570,7 +580,21 @@ class Jun():
             print("Set current task=", task.getName())
             self.slct_task = task
 
-    def sortTreeOrder(self, check_list = False):
+    def getTreeNames( self ) -> list[str]:
+        names = []
+        for task in self.tree_arr:
+            names.append( task.getName())
+        return names
+    
+    def sortTreeOrderByTaskParams(self, task):
+        res, pparam = task.getParamStruct('tree_step', only_current=True)
+        if res:
+            idx = pparam['idx']
+        else:
+            idx = 0
+        return idx
+   
+    def sortTreeOrder(self, check_list = True):
         # print('Tree idx', self.tree_idx, 'out of', len(self.tree_arr))
         self.updateTreeArr(check_list=check_list)
         if self.tree_idx >= len(self.tree_arr):
@@ -578,19 +602,20 @@ class Jun():
 
         if len(self.tree_arr) == 0:
             return
-        trg_task = self.tree_arr[self.tree_idx]
+        # trg_task = self.tree_arr[self.tree_idx]
         for task in self.tree_arr:
             res, pparam = task.getParamStruct('tree_step', only_current = True)
             if not res:
-                self.curr_task = task
+                # self.curr_task = task
                 task.setParamStruct({
                     'type':'tree_step',
                     'idx': 6,
-                    'target': self.getCurrentTask().getName()
+                    'target': task.getName()
                 })
                 # self.appendNewParamToTask('tree_step') 
                    
-        self.tree_arr.sort(key=self.sortKey)
+        self.tree_arr.sort(key=self.sortTreeOrderByTaskParams)
+        # print(f"Sort Tree Order{self.getTreeNames()}")
 
         i = 0
         for task in self.tree_arr:
@@ -799,6 +824,7 @@ class Jun():
         return out
   
     def getTreesList(self, check = False):
+        # print("Get tree list")
         man = self
         task = man.curr_task
         out = []
@@ -1398,6 +1424,14 @@ class Jun():
             color = "crimson"
         elif self.isMultiSelectedTask( task ) and self.isLinkedWithListenerTask( task ):
             color = "lightsalmon1"
+        elif self.isMultiSelectedTask( task ) and self.isCurrentTask(task) and task.isFrozen():
+            color = "cyan4"
+        elif self.isMultiSelectedTask( task ) and task.isFrozen():
+            color = "cyan1"
+        elif self.isMultiSelectedTask( task ) and self.isCurrentTask(task):
+            color = "chocolate4"
+        elif self.isMultiSelectedTask( task ):
+            color = "chocolate1"
         elif self.isCurrentTask(task) and self.isLinkedWithListenerTask( task ) and task.isFrozen():
             color = "mediumpurple4"
         elif self.isCurrentTask(task) and self.isLinkedWithListenerTask( task ):

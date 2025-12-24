@@ -24,6 +24,9 @@ import graphviz
 import copy
 import datetime
 
+def printGreenCmd(text : str):
+    print(f"\033[32m{text}\033[0m")
+
 class Actioner():
     def __init__(self, manager : Manager.Manager, parameters = {}) -> None:
         self.std_manager = manager
@@ -804,6 +807,7 @@ class Actioner():
         man.sortTreeOrder(True)
         self.update_state = 'start tree'
         self.update_tree_idx = 0
+        printGreenCmd(f"Initiate data for Update:{man.getTreeNames()}")
 
 
     def updateStepInternal(self, update_task = True, step_options = {}):
@@ -895,13 +899,14 @@ class Actioner():
       
     def update(self, update_task = True, step_options = {}):
         man = self.manager
-        # print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
+        # print(f"Curr state:{self.update_state}|task:{man.getCurrentTask().getName()}")
+        # printGreenCmd(f"Tree order:{man.getTreeNames()}")
         if self.update_state == 'init':
             self.updateInit()
         elif self.update_state == 'start tree':
             self.time_marker = datetime.datetime.now()
             task = man.tree_arr[self.update_tree_idx]
-            print('Start tree', task.getName(),'[',self.update_tree_idx,']')
+            print(f"Start tree {task.getName()}[{self.update_tree_idx}]:{man.getTreeNames()}")
             self.setStartParamsForUpdate(man, task)
             self.updateStepInternal(update_task=update_task, step_options=step_options)
         elif self.update_state == 'step':
@@ -1831,6 +1836,7 @@ class Actioner():
                 print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
 
     def updateManager(self, man : Manager.Manager, update_task = True):
+        # printGreenCmd("Update manager")
         # print('Curr state:', self.update_state,'|task:',man.curr_task.getName())
         if self.update_state == 'init':
             man.sortTreeOrder(True)

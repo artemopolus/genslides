@@ -183,7 +183,8 @@ class Projecter(Commander.Commander):
         else:
             print(f"Can\'t find {name} in {self.session_names_list}")
         dt2 = datetime.datetime.now()
-        print('Session loading time:\t',(dt2-dt1).seconds,'second(s)')    
+        print(f"\033[32mSession loaded\033[0m")
+        print('Loading time:\t',(dt2-dt1).seconds,'second(s)')    
         
         return self.updateTreeAndAll()
     

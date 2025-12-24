@@ -2155,14 +2155,7 @@ class Manager(Man.Jun):
         self.saveInfo() 
 
         # print(self.info)
-    def sortKey(self, task):
-        res, pparam = task.getParamStruct('tree_step', only_current=True)
-        if res:
-            idx = pparam['idx']
-        else:
-            idx = 0
-        return idx
-    
+   
 
     def addTask(self, task :BaseTask):
         if task ==None:
