@@ -3076,7 +3076,28 @@ class Projecter(Commander.Commander):
             if pack:
                 out.append(pack)
         return out
+    
+    def getActionersExtTreeTaskNames( self ):
+        names = []
+        for act in self.getActionersList():
+            path = act.getPath()
+            for task in act.getCurrentManager().getAllTasksByTagFromTaskList( "report_doc", act.getExtTreeTasks() ):
+                qtasks = act.getCurrentManager().getAllTasksByTagFromTaskList( "report_question", task.getAllParents() )
+                for question in qtasks:
+                    names.append("|".join([question.getName(), path]))
+        return names
 
+    def setCurrentActionerTaskByExtTreeTaskName( self, name : str):
+        # print(f"setCurrentActionerTaskByExtTreeTaskName: {name}")
+        try:
+            act_name = name.split("|")
+            act = self.getActionerByPath(act_name[1])
+            task = act.getCurrentManager().getTaskByAnyName( act_name[0])
+            self.actioner = act
+            self.actioner.getCurrentManager().setCurrentTask( task )
+        except Exception as e:
+            print(f"Error:{e}")
+        return self.updateTaskManagerUI()
 
     def updateUIelements(self, prompt = ''):
         hide_tasks = False
@@ -3163,7 +3184,7 @@ class Projecter(Commander.Commander):
         out += (
             self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), 
                 stepgraph, rawgraph, cmdinfo, 
-                nearest_exttreetask_name,
+                gr.Dropdown(choices=self.getActionersExtTreeTaskNames(), interactive=True),
                 gr.CheckboxGroup(choices=nearest_exttreetask_list,value=[]),
                 self.actioner.getPath(),
                 gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True,value = None),

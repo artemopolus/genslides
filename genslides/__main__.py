@@ -655,7 +655,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         redo_btn = gr.Button("Redo")
 
                 with gr.Tab('ExtTreeTask custom json cmd'):
-                    exttreetaskname_txt = gr.Textbox(label="Found exttreetask", value=None)
+                    exttreetaskname_txt = gr.Dropdown(label="Found exttreetask")
                     with gr.Row():
                         with gr.Column():
                             with gr.Row():
@@ -1308,6 +1308,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 updatealln_num
             ])
 
+            exttreetaskname_txt.select(fn=projecter.setCurrentActionerTaskByExtTreeTaskName, inputs=exttreetaskname_txt, outputs=std_full)
             applyautocmdtomulti_btn.click(projecter.applyAutoCommandsToMulti, outputs=std_full)
 
             exttreetaskaddact_btn.click(fn=projecter.addCurrentExtTreeTaskActioner, outputs=std_full)

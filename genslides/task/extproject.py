@@ -872,15 +872,17 @@ class JumperTreeTask(InExtTreeTask):
         lres, lparam = self.getParamStruct("external", True)
         if lres:
             custom_commands = lparam.get("generated_actions",[])
-            output = []
             if filter_on:
+                output = []
                 for action in custom_commands:
                     if isinstance(action, dict):
                         value = action.get("confidence",0)
                         if value > min_value:
                             output.append(action)
-            return output
-        return super().getExtTreeTaskCmds()
+                return output
+            else:
+                return custom_commands
+        return super().getExtTreeTaskCmds(filter_on, min_value)
     
     def updateGeneratedAction ( self ):
         lres, lparam = self.getParamStruct("external", True)
@@ -955,10 +957,10 @@ class OutExtTreeTask(ExtProjectTask):
                 return True, self.getParent().getActioner().getPath() ,eparam.get("target","")
         return super().getExternalActionerTask()
 
-    def getExtTreeTaskCmds(self):
+    def getExtTreeTaskCmds(self, filter_on = False, min_value = 5):
         if self.getParent():
-            return self.getParent().getExtTreeTaskCmds()
-        return super().getExtTreeTaskCmds()
+            return self.getParent().getExtTreeTaskCmds(filter_on, min_value)
+        return super().getExtTreeTaskCmds(filter_on, min_value)
     
     def exeExTreeTaskCmds(self, cmds):
         if self.getParent():

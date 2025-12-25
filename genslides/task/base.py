@@ -1835,7 +1835,7 @@ class BaseTask():
     def removeAutoActCmdByIndex(self, aa_idxs : list[int]):
         pass
 
-    def getExtTreeTaskCmds (self):
+    def getExtTreeTaskCmds(self, filter_on = False, min_value = 5):
         return []
     
     def forceExeExtTreeTaskCmds( self, filter_on = False, min_value = 5 ):

@@ -1794,7 +1794,8 @@ class Actioner():
             actpaths_list = task.getLoadedActionerPath( actpaths_list )
         return actpaths_list
 
-
+    def getExtTreeTasks( self ):
+        return [t for t in self.getCurrentManager().getTasks() if t.isExternalProjectTask()]
 
     def autoUpdateExtTreeTaskActs(self, actioners: list):
         # print(f"Auto load ext tree act for {self.getPath()}")
