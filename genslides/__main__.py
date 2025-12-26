@@ -677,6 +677,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 ett_cmdtoexe_btn = gr.Button("Execute edited cmds")
                     exttreetask_editselected_btn.click(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], 
                                                             outputs=[ett_cmdtoexe_jsn, ett_cmdtoexe_txt, ett_highlightcmdres])
+                    
+                    exttreetask_cstmjsoncmd_drd.select(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], 
+                                                            outputs=[ett_cmdtoexe_jsn, ett_cmdtoexe_txt, ett_highlightcmdres])
   
                 with gr.Tab('Actioner custom json cmd'):
                     with gr.Row():

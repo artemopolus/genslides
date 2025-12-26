@@ -1950,7 +1950,25 @@ class Actioner():
         return found
     
     def getExtTreeCmdsListOfTask( self, task : BaseTask ):
-        return task.getExtTreeTaskCmds()
+        output = []
+        for action_str in task.getExtTreeTaskCmds():
+            res, action = Loader.Loader.loadJsonFromText( action_str )
+            if res and "action" in action:
+                header = action["action"]
+                if "kwargs" in action:
+                    if "taskname" in action["kwargs"]:
+                        header += " |" + action["kwargs"]["taskname"]
+                        output.append([header , action_str])
+                    elif "marker" in action["kwargs"]:
+                        header += " |" + action["kwargs"]["marker"]
+                        output.append([header , action_str])
+                    elif "task_marker1" in action["kwargs"] and "task_marker1" in action["kwargs"]:
+                        header += " |" + action["kwargs"]["task_marker1"]
+                        header += " |" + action["kwargs"]["task_marker2"]
+                        output.append([header , action_str])
+                    else:
+                        output.append([action_str, action_str])
+        return output
 
     def getExtTreeCmdsListOfCurrentTask( self ):
         task = self.getCurrentManager().getCurrentTask()
