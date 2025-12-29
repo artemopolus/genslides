@@ -1122,7 +1122,8 @@ class Projecter(Commander.Commander):
                     act_paths.append( path )
         print(f"Need to load actioners:\n{act_paths}")
         for path in act_paths:
-            self.loadActionerByPath( path )
+            if path not in [a.getPath() for a in self.getActionersList()]:
+                self.loadActionerByPath( path )
         return self.updateTaskManagerUI()
     
     def loadActionerWithTemplate(self, template_path : str, projectfile_path : str, save_path : str):
