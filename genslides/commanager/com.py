@@ -67,10 +67,11 @@ class Commander:
 
     def saveSession(self, params = {}):
         act_data = []
-        for act in self.actioners_list:
+        for idx, act in enumerate(self.actioners_list):
             act_info = {
                 'act_path': act['act'].getPath(),
-                'type' : act['params']['type']
+                'type' : act['params']['type'],
+                'idx' : idx
             }
             if act['params']['type'] == 'exttreetask':
                 act_info['trg_task_name'] = act['params']['task'].getName()
@@ -98,7 +99,8 @@ class Commander:
                     exttreetask_info.append(act_info)
         self.clrActionerList()
         for info in projects_info:
-            self.loadActionerByPath(info['act_path'])
+            self.loadActionerByParameters( info )
+            # self.loadActionerByPath(info['act_path'])
 
         active_act = self.actioners_list.copy()
         for info in exttreetask_info:
@@ -121,6 +123,7 @@ class Commander:
                 #     self.params[v].extend( [t for t in session_data[v]] )
                 # else:
                     self.params[v] = session_data[v]
+        self.sortActioner()
         self.saveSession()
 
         if 'autoloadext' in self.params:
@@ -159,6 +162,43 @@ class Commander:
         print('Actioner was created by:\t',(dt2-dt1).seconds,'second(s)')    
         # print(f"Params:\n{eparam}")
         return act
+    
+    def moveUpActioner( self ):
+        for act in self.actioners_list:
+            if act['act'].getPath() == self.actioner.getPath():
+                idx = act.get('idx',0)
+                new_idx = 0 if idx == 0 else idx - 1
+        item = self.actioners_list.pop(idx)
+        self.actioners_list.insert( new_idx, item)
+        for i, act in enumerate(self.actioners_list):
+            act['idx'] = i
+    
+    def moveDownActioner( self ):
+        for act in self.actioners_list:
+            if act['act'].getPath() == self.actioner.getPath():
+                idx = act.get('idx',0)
+                new_idx = len(self.actioners_list - 1) if idx == len(self.actioners_list - 1) else idx + 1
+        item = self.actioners_list.pop(idx)
+        self.actioners_list.insert( new_idx, item)
+        for i, act in enumerate(self.actioners_list):
+            act['idx'] = i
+ 
+        
+    
+    def getActionerIdx( self, trg : dict):
+        return trg.get('idx',0)
+    
+    def sortActioner( self ):
+        self.actioners_list.sort(key=self.getActionerIdx)
+
+    def loadActionerByParameters(self, params : dict):
+        actioner = self.createActioner(
+            {
+                'exttreetask_path':params['act_path'],
+                'load':True,
+                'available_actioners':self.getActionersList
+            })
+        self.addActionerTolist(actioner)
 
     def loadActionerByPath(self, man_path : str):
         actioner = self.createActioner({'exttreetask_path':man_path,'load':True,'available_actioners':self.getActionersList})
@@ -174,7 +214,8 @@ class Commander:
                 found = True
                 break
         if not found:
-            self.actioners_list.append({'act':act, 'params':params})
+            len_idx = len(self.actioners_list)
+            self.actioners_list.append({'act':act, 'params':params,'idx':len_idx})
             self.saveSession()
         if move2selected:
             self.actioner = act

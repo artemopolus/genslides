@@ -942,6 +942,14 @@ class Projecter(Commander.Commander):
 
         )
     
+    def moveDownActioner(self):
+        super().moveDownActioner()
+        return self.getActionerPathsList()
+    
+    def moveUpActioner(self):
+        super().moveUpActioner()
+        return self.getActionerPathsList()
+    
     def getActionerPathsList(self):
         output_choices = []
         output_value = None
@@ -996,7 +1004,24 @@ class Projecter(Commander.Commander):
                     paths.append(path_to_act)
         return paths
         
-    
+    def removeActioner( self, path):
+        trg = None
+        if isinstance(path, str):
+            for act in self.actioners_list:
+                if act['act'].getPath() == path:
+                    trg = act
+        else:
+            print("Path is not str")
+        if trg != None:
+            trg['act'].beforeRemove()
+            self.actioners_list.remove( trg )
+            del trg
+            self.actioner = self.actioners_list[0]
+            self.saveSession()
+        else:
+            print("No actioner found")
+        return self.updateTreeAndAll()
+
     def selectActionerByPath(self, path):
         if isinstance(path, str):
             for act in self.actioners_list:

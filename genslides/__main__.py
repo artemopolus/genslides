@@ -147,7 +147,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         projectfilepath_txt = gr.Textbox(value="", label="Path to project file")
                     actionerlist_rad = gr.Radio(label='Actioners')
                     updactlist_btn = gr.Button('Update')
+                    moveactionerup_btn = gr.Button('Move actioner UP')
+                    moveactionerdown_btn = gr.Button('Move actioner DOWN')
                     updactlist_btn.click(fn=projecter.getActionerPathsList, outputs=[actionerlist_rad])
+                    moveactionerup_btn.click(fn=projecter.moveDownActioner, outputs=[actionerlist_rad])
+                    moveactionerdown_btn.click(fn=projecter.moveUpActioner, outputs=[actionerlist_rad])
                 with gr.Row():
                     exttreetaskaddact_btn = gr.Button('Load ExtTree to actioner')
 

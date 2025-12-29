@@ -1396,6 +1396,7 @@ class Actioner():
         manager.saveInfo()
 
     def beforeRemove(self):
+        print(f"Preparing for remove {self.getPath()}")
         for man in self.tmp_managers:
             man.beforeRemove(remove_folder = True, remove_task = True)
         self.tmp_managers.clear()
