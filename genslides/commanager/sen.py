@@ -185,6 +185,7 @@ class Projecter(Commander.Commander):
         dt2 = datetime.datetime.now()
         print(f"\033[32mSession loaded\033[0m")
         print('Loading time:\t',(dt2-dt1).seconds,'second(s)')    
+        self.actioner = self.getActionersList()[0]
         
         return self.updateTreeAndAll()
     
@@ -1013,13 +1014,15 @@ class Projecter(Commander.Commander):
         else:
             print("Path is not str")
         if trg != None:
+            print(f"Remove actioner [{path}]")
             trg['act'].beforeRemove()
             self.actioners_list.remove( trg )
             del trg
-            self.actioner = self.actioners_list[0]
+            self.actioner = self.actioners_list[0]['act']
             self.saveSession()
         else:
             print("No actioner found")
+        self.saveSession()
         return self.updateTreeAndAll()
 
     def selectActionerByPath(self, path):
@@ -1104,6 +1107,8 @@ class Projecter(Commander.Commander):
                 return self.updateTaskManagerUI()
         self.loadActionerByPath(man_path)
         return self.updateTaskManagerUI()
+    
+
     
     def loadActionerFromExtTreeTask( self ):
         act_paths = []

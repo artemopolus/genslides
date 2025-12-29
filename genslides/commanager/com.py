@@ -172,16 +172,18 @@ class Commander:
         self.actioners_list.insert( new_idx, item)
         for i, act in enumerate(self.actioners_list):
             act['idx'] = i
+        self.saveSession()
     
     def moveDownActioner( self ):
         for act in self.actioners_list:
             if act['act'].getPath() == self.actioner.getPath():
                 idx = act.get('idx',0)
-                new_idx = len(self.actioners_list - 1) if idx == len(self.actioners_list - 1) else idx + 1
+                new_idx = idx if idx == (len(self.actioners_list) - 1) else idx + 1
         item = self.actioners_list.pop(idx)
         self.actioners_list.insert( new_idx, item)
         for i, act in enumerate(self.actioners_list):
             act['idx'] = i
+        self.saveSession()
  
         
     

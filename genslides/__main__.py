@@ -141,14 +141,17 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         actaddbyext_btn = gr.Button("Load ext tree acts")
                         instructaddbybrow_btn = gr.Button('Add instructions from location').click(fn=projecter.loadInstructionDicitionaryByBrowsing)
                     with gr.Row():
+                        actdel_btn = gr.Button('Remove current actioner from session')
+                    with gr.Row():
                         loadactwithtemplate_btn = gr.Button("Load actioner with template")
                         projectfolderpath_txt = gr.Textbox(value="",label="Path to project folder")
                         templatepath_txt = gr.Textbox(value="", label="Path to template")
                         projectfilepath_txt = gr.Textbox(value="", label="Path to project file")
                     actionerlist_rad = gr.Radio(label='Actioners')
-                    updactlist_btn = gr.Button('Update')
-                    moveactionerup_btn = gr.Button('Move actioner UP')
-                    moveactionerdown_btn = gr.Button('Move actioner DOWN')
+                    with gr.Row():
+                        updactlist_btn = gr.Button('Update')
+                        moveactionerup_btn = gr.Button('Move actioner UP')
+                        moveactionerdown_btn = gr.Button('Move actioner DOWN')
                     updactlist_btn.click(fn=projecter.getActionerPathsList, outputs=[actionerlist_rad])
                     moveactionerup_btn.click(fn=projecter.moveDownActioner, outputs=[actionerlist_rad])
                     moveactionerdown_btn.click(fn=projecter.moveUpActioner, outputs=[actionerlist_rad])
@@ -1331,6 +1334,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
+            actdel_btn.click(fn=projecter.removeActioner, inputs=current_actioner_name, outputs=tree_outlist)
             actaddbyext_btn.click(fn=projecter.loadActionerFromExtTreeTask, outputs=std_full)
             
             loadactwithtemplate_btn.click(fn=projecter.loadActionerWithTemplate, inputs=[templatepath_txt, projectfilepath_txt, projectfolderpath_txt], outputs=std_full)
