@@ -1036,6 +1036,7 @@ class Actioner():
             return
         else:
             self.is_updating = True
+        dt1 = datetime.datetime.now()     
         man = self.manager
         print(f"Update all tasks of {man.getName()}")
         start_task = man.getCurrentTask()
@@ -1066,6 +1067,9 @@ class Actioner():
         # out = man.getCurrTaskPrompts()
         # return out
         self.is_updating = False
+        dt2 = datetime.datetime.now()
+        delta = dt2- dt1
+        printGreenCmd(f"Update all {idx} times: {int(delta.seconds / 60)} min | {delta.seconds} second(s)")     
         return project_chain
     
 
@@ -2196,6 +2200,9 @@ class Actioner():
                 # task = task.getChilds()[0]
             man.setCurrentTask( task )
             self.insertingAction(prompt, task_type, role, task_params)
+
+    def editMarkeredText( self, edited_text : str, marker : str ):
+        self.editingToTaskAction( edited_text, marker )
 
     def editingToTaskAction( self, prompt : str, taskname : str ):
         man = self.getCurrentManager()

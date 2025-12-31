@@ -4,6 +4,7 @@ import genslides.utils.filemanager as FileManager
 import genslides.utils.loader as Loader
 import genslides.utils.writer as Writer
 import genslides.utils.readfileman as Reader
+import genslides.utils.filemanager as FileManager
 from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
@@ -194,13 +195,14 @@ class Commander:
         self.actioners_list.sort(key=self.getActionerIdx)
 
     def loadActionerByParameters(self, params : dict):
-        actioner = self.createActioner(
+        if FileManager.checkExistPath(params['act_path']):
+            actioner = self.createActioner(
             {
                 'exttreetask_path':params['act_path'],
                 'load':True,
                 'available_actioners':self.getActionersList
             })
-        self.addActionerTolist(actioner)
+            self.addActionerTolist(actioner)
 
     def loadActionerByPath(self, man_path : str):
         actioner = self.createActioner({'exttreetask_path':man_path,'load':True,'available_actioners':self.getActionersList})

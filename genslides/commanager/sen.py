@@ -3634,15 +3634,16 @@ class Projecter(Commander.Commander):
                 highligth.extend(CommandTool.highlightCmdResult(cmd))
         return Loader.Loader.convJsonToText( cmds ), cmd_text, highligth
 
-    def executeEditedExtTreeActionerJsonCmd( self, cmds, taskname ):
-        print(f"Execute edited extreeact json commands for {taskname}")
-        task = self.actioner.getCurrentManager().getTaskByName( taskname )
+    def executeEditedExtTreeActionerJsonCmd( self, cmds ):
+        # task = self.actioner.getCurrentManager().getTaskByName( taskname )
+        task = self.actioner.getNearestExtTreeTask()
         if task != None:
+            print(f"Execute edited extreeact json commands for {task.getName()}")
             task.exeExTreeTaskCmds( cmds )
             task.saveUpdationInfo()
             task.resetUpdationInfo()
         else:
-            print("No task found")
+            print("No task found for command")
         return self.updateMainUIelements()
  
     def executeJsonCmd( self, cmds, path ):

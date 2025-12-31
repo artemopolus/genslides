@@ -248,6 +248,8 @@ class ListenerTask(LinkedTask):
                 prompts_data = jobj
             else:
                 prompts_data = []
+        elif lparam['combine'] == 'json_update':
+            prompts_data = {}
         elif lparam['combine'] == 'json_dict':
             prompts_data = {}
         elif lparam['combine'].endswith('append'):

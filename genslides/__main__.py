@@ -1240,7 +1240,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             exttreetask_execurcmd_btn.click(fn=projecter.executeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
             exttreetask_rmvselcmd_btn.click(fn=projecter.removeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
-            ett_cmdtoexe_btn.click(fn=projecter.executeEditedExtTreeActionerJsonCmd, inputs=[ett_cmdtoexe_jsn, exttreetaskname_txt], outputs=std_output_list)
+            ett_cmdtoexe_btn.click(fn=projecter.executeEditedExtTreeActionerJsonCmd, inputs=[ett_cmdtoexe_jsn], outputs=std_output_list)
             undo_btn.click(fn=projecter.undoCurrentManagerCommand, outputs=std_output_list)
             redo_btn.click(fn=projecter.redoCurrentManagerCommand, outputs=std_output_list)
 

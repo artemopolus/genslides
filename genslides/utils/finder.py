@@ -126,6 +126,10 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     out_text += f"Message #{idx}\n"
                     out_text += 'ROLE: ' + msg['role'] + '\n---\n'
                     out_text += msg['content'] + '\n---\n'
+            elif len(tmparg) > 2 and 'dumps' == tmparg[2]:
+                for msg in msgs:
+                    out_text += msg['content'] + '\n\n'
+                out_text = Loader.Loader.convJsonToText(out_text)
             else:
                 for msg in msgs:
                     out_text += msg['content'] + '\n\n'
