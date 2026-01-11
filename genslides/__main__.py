@@ -13,6 +13,7 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 import genslides.gr_ui as UI
+import genslides.std_console as StdConsole
 # from genslides.utils.mliner import Mliner
 
 from PIL.Image import Image
@@ -1685,6 +1686,10 @@ def main() -> None:
     # Add arguments for the variables
     parser.add_argument("--project", type=str, help="Path to start project location")
     parser.add_argument("--share", type=bool, help="Share UI via Gradio", default=False)
+    parser.add_argument("--console", type=bool, help="Run console", default=False)
+    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host for the HTTP server")
+    parser.add_argument("--port", type=int, default=8000, help="Port for the HTTP server")
+
 
     # Parse the command line arguments
     args = parser.parse_args()
@@ -1705,7 +1710,20 @@ def main() -> None:
 
     mode = manager.getParam("app type")
 
-    if mode == "gradio":
+    if args.console:
+        StdConsole.startSimpleCommander()
+        commander = StdConsole.startSimpleCommander(host=args.host, port=args.port)
+        print(f"Server started at http://{args.host}:{args.port}/sessions")
+        try:
+            # Держим процесс живым, чтобы сервер обслуживал запросы
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("Shutting down...")
+
+        # Очистка (если нужно)
+        del commander
+    elif mode == "gradio":
         print("Start gradio application")
         gr_body(prompt, manager, projecter, project_params=project_params)
     elif mode == "mliner":

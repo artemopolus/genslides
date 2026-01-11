@@ -224,4 +224,14 @@ class Commander:
         if move2selected:
             self.actioner = act
 
+    def getModificationTimeOfSession(self, name : str ):
+        path = FileManager.addFolderToPath(self.getPathToSession(),[name + ".json"])
+        session_data = Reader.ReadFileMan.readJson(path)
+        return "" if "modified" not in session_data else session_data["modified"]
+
+    def getSessionNameList(self):
+        names = self.session_names_list.copy()
+        names.sort(key=self.getModificationTimeOfSession, reverse=True)
+        return names
+
 

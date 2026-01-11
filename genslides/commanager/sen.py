@@ -154,12 +154,6 @@ class Projecter(Commander.Commander):
         return self.updateMainUIelements()
 
    
-    def getSessionNameList(self):
-        names = self.session_names_list.copy()
-        names.sort(key=self.getModificationTimeOfSession, reverse=True)
-        return names
-        # return self.session_names_list
-
     def getSessionName(self):
         session_names = self.getSessionNameList()
         return gr.Dropdown(choices=session_names, value=self.getCurrentSessionName(), interactive=True)
@@ -1032,11 +1026,6 @@ class Projecter(Commander.Commander):
                     self.actioner = act['act']
         return self.updateTreeAndAll()
     
-    def getModificationTimeOfSession(self, name : str ):
-        path = FileManager.addFolderToPath(self.getPathToSession(),[name + ".json"])
-        session_data = Reader.ReadFileMan.readJson(path)
-        return "" if "modified" not in session_data else session_data["modified"]
-
     def readSessionInfo( self, name : str ):
         path = FileManager.addFolderToPath(self.getPathToSession(),[name + ".json"])
         session_data = Reader.ReadFileMan.readJson(path)

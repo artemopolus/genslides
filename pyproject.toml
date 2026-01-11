@@ -169,6 +169,7 @@ dependencies = [
     "mcp>=1.9.4",
     "setuptools>=80.9.0",
     "tree-sitter-cpp>=0.23.4",
+    "fastapi>=0.115.12",
 ]
 
 [tool.uv]
