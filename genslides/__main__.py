@@ -663,7 +663,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         redo_btn = gr.Button("Redo")
 
                 with gr.Tab('ExtTreeTask custom json cmd'):
-                    exttreetaskname_txt = gr.Dropdown(label="Found exttreetask")
+                    with gr.Row():
+                        exttreetaskname_txt = gr.Dropdown(label="Found exttreetask")
+                    with gr.Row():
+                        exttreetasksessions_drd = gr.Dropdown(label="Saved sessions")
+                        exttreetasksessionload_btn = gr.Button("Load session by id")
                     with gr.Row():
                         with gr.Column():
                             with gr.Row():
@@ -1236,10 +1240,13 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             std_output_list.extend([trees_data, graph_img, graph_alone, raw_graph, cmdlist_txt, 
                                     exttreetaskname_txt,
                                     exttreetask_cstmjsoncmd_drd, 
+                                    exttreetasksessions_drd,
                                     current_actioner_name,
                                     related_parent_actioners_rad,
                                     related_sub_actioners_rad
                                     ])
+            
+            exttreetasksessionload_btn.click(fn=projecter.loadSessionById, inputs=[exttreetasksessions_drd], outputs=std_output_list)
 
             exttreetask_execurcmd_btn.click(fn=projecter.executeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)
             exttreetask_rmvselcmd_btn.click(fn=projecter.removeExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], outputs=std_output_list)

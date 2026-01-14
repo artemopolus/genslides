@@ -3210,12 +3210,14 @@ class Projecter(Commander.Commander):
         nearest_exttreetask = self.actioner.getNearestExtTreeTask()
         nearest_exttreetask_name = "None" if nearest_exttreetask == None else nearest_exttreetask.getName()
         nearest_exttreetask_list = [] if nearest_exttreetask == None else self.actioner.getExtTreeCmdsListOfTask( nearest_exttreetask )
+        nearest_exttreetask_sessions = [] if nearest_exttreetask == None else self.actioner.getExtTreeCmdTrgSessions( nearest_exttreetask )
 
         out += (
             self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), 
                 stepgraph, rawgraph, cmdinfo, 
                 gr.Dropdown(choices=self.getActionersExtTreeTaskNames(), interactive=True),
                 gr.CheckboxGroup(choices=nearest_exttreetask_list,value=[]),
+                gr.Dropdown(choices=nearest_exttreetask_sessions, interactive=True),
                 self.actioner.getPath(),
                 gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True,value = None),
                 gr.Radio(choices=self.getControledActionersByCurrent(), interactive=True, value=None)
@@ -3810,4 +3812,7 @@ class Projecter(Commander.Commander):
         task.saveUpdationInfo()
         return self.updateMainUIelements()
     
+    def loadSessionById(self, id):
+        self.actioner.restoreSession( id )
+        return self.updateMainUIelements()
 

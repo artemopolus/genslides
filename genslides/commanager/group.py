@@ -8,6 +8,7 @@ from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 import  genslides.utils.archivator as Archivator
 
+import genslides.utils.ids as Ids
 import genslides.utils.savedata as SaveData
 import genslides.utils.filemanager as FileManager
 import genslides.utils.finder as finder
@@ -960,6 +961,38 @@ class Actioner():
         man.curr_task = init_task
         return 
     
+    def updateSession( self, n : int, check : bool = False ):
+
+        self.setManager(self.std_manager)
+        man = self.getCurrentManager()
+       
+        self.getCurrentManager().disableOutput2()
+        for i in range(n):
+
+            man.setUpdateSessionId(Ids.generateKey())
+            name = self.getManagerSpaceName( man )
+            session_id = man.getUpdateSessionId()
+            print(f"UAT[{i}]: {session_id}")
+            self.saveManToTmp(man = man,
+                suffix = session_id, 
+                temp_folder = ["tt_temp",f"session_{name}"], 
+                check_oldest=True, max_files= 10)
+
+            self.updateAll(force_check=check)
+            if self.force_update_stop:
+                print(f"Force stop on {i} time")
+                break
+        self.getCurrentManager().enableOutput2()
+
+    def restoreSession( self, session_id : str):
+        man = self.getCurrentManager()
+        name = self.getManagerSpaceName( man )
+        temp_folder = ["tt_temp",f"session_{name}"]
+        folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
+        fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, temp_folder))
+        trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(fld_path, [name + "_" + session_id + ".7z"]))
+        self.loadManagerProjectFromFile(trg_path)
+  
     def updateAllnTimes(self, n : int, check : bool = False):
         self.getCurrentManager().disableOutput2()
         for i in range(n):
@@ -1953,6 +1986,17 @@ class Actioner():
                         found = task
                         found_distance = task.getDistance(target)
         return found
+    
+    def getExtTreeCmdTrgSessions(self, task : BaseTask):
+        output = []
+        for action_str in task.getExtTreeTaskCmds():
+            res, action = Loader.Loader.loadJsonFromText( action_str )
+            if res and "action" in action and "session_id" in action:
+                s_id = action["session_id"]
+                if s_id not in output:
+                    output.append(s_id) 
+        return output
+ 
     
     def getExtTreeCmdsListOfTask( self, task : BaseTask ):
         output = []
@@ -3349,3 +3393,4 @@ class Actioner():
         else:
             print(f"No method: {method_to_external_actioners}")
 
+       

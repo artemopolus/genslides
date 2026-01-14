@@ -902,6 +902,10 @@ class JumperTreeTask(InExtTreeTask):
                             for cmd in cmds:
                                 if "action" in cmd:
                                     cmd["output_task"] = task.getName()
+                                    try:
+                                        cmd["session"] = self.manager.getUpdateSessionId()
+                                    except Exception as e:
+                                        print(f"Session error:{e}")
                                     custom_commands.append(Loader.Loader.convJsonToText(cmd))
             lparam["generated_actions"] = custom_commands
             self.setParamStruct(lparam)
