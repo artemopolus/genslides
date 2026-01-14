@@ -762,6 +762,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Row():
                     inexttreeactsearch_txt = gr.Textbox(label="Found inexttree")
                 with gr.Row():
+                    cleartaskexttreelinks_btn = gr.Button("Clear ExtTreeTasl Links")
+                with gr.Row():
                     gr.Button("Search act in inexttree").click(fn=projecter.searchInExtTreeTasksUsage, outputs=[inexttreeactsearch_txt])
                 with gr.Row():
                     outexttreeinfo_txt = gr.Textbox(label="OutTreeTask info")
@@ -1283,6 +1285,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             acttask_exe_btn.click(fn=projecter.exeTasksByName,inputs=[acttask_names_chk], outputs=std_output_list)
             updselinexttreetasks_btn.click(fn=projecter.updateInExtTreeTasksByName, inputs=[inexttretasklist_chk], outputs=std_output_list)
+            cleartaskexttreelinks_btn.click(fn=projecter.clearTaskExtTreeLinks, outputs=std_output_list)
             loadtaskintomanbrow_btn.click(fn=projecter.loadAdditionalTasksInManager, outputs=std_output_list)
 
             multishiftpartag_btn.click(fn=projecter.shiftParentTagForMultiSelect, inputs=[shiftpartag_sld], outputs=std_output_list)

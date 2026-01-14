@@ -70,6 +70,8 @@ class Jun():
             out.append(f"{idx}. {cmd.getName()}")
         return out
 
+    def getActioner(self):
+        return self.actioner
 
     def setActioner(self, actioner):
         self.actioner = actioner

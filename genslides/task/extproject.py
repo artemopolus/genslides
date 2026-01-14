@@ -1013,15 +1013,17 @@ class OutExtTreeTask(ExtProjectTask):
             if task != self.intch_trg:
                 self.updateUpdationInfo("External is same")
                 self.intch_trg = task
-                if self.getActioner() != None:
+                if self.manager.getActioner() != None:
                     res, param = task.getParamStruct("outexttreetask", True)
                     if res:
                         links : list = param.get("links",[])
-                        links.append(self.getActioner().getPath())
-                        param["links"] = links
-                        task.setParamStruct( param )
+                        act_path = self.manager.getActioner().getPath()
+                        if act_path not in links:
+                            links.append(act_path)
+                            param["links"] = links
+                            task.setParamStruct( param )
                     else:
-                        task.setParamStruct({'type':'outexttreetask','links':[self.getActioner().getPath()]})       
+                        task.setParamStruct({'type':'outexttreetask','links':[self.manager.getActioner().getPath()]})       
                 else:
                     self.updateUpdationInfo("No actioner for external")
 

@@ -175,26 +175,29 @@ class TaskManager(metaclass=Singleton):
             if cache['path'] == trgfldpath:
                 for task_info in cache['tasks']:
                     if task_info['parent_path'] == trg_path:
-                        with open(task_info['task_path'], 'r') as f:
-                            rq = json.load(f)
-                        filename = task_info['filename']
-                        if len(rq['chat']) == 0:
-                            elem = {'role': 'user','content': ''}
-                        else:
-                            if rq['type'] == "RichText":
+                        try:
+                            with open(task_info['task_path'], 'r') as f:
+                                rq = json.load(f)
+                            filename = task_info['filename']
+                            if len(rq['chat']) == 0:
+                                elem = {'role': 'user','content': ''}
+                            else:
+                                if rq['type'] == "RichText":
+                                    elem = rq['chat'].pop()
                                 elem = rq['chat'].pop()
-                            elem = rq['chat'].pop()
-                        pair = {}
-                        # pair['type'] = rq['type']
-                        pair['type'] =filename.split('.')[0] 
-                        pair['content'] = elem['content']
-                        pair['role'] = elem['role']
+                            pair = {}
+                            # pair['type'] = rq['type']
+                            pair['type'] =filename.split('.')[0] 
+                            pair['content'] = elem['content']
+                            pair['role'] = elem['role']
 
-                        filenamearr = filename.split('.')
-                        if len(filenamearr) == 2:
-                            pair['trgtaskname'] = filenamearr[0]
+                            filenamearr = filename.split('.')
+                            if len(filenamearr) == 2:
+                                pair['trgtaskname'] = filenamearr[0]
 
-                        out.append(pair)
+                            out.append(pair)
+                        except Exception as e:
+                            print(f"Error load from cache: {e}")
         return out
  
 

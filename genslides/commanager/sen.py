@@ -2911,6 +2911,16 @@ class Projecter(Commander.Commander):
         self.actioner.loadExtTreeTaskActionersByTaskNames( names )
         return self.updateMainUIelements() 
     
+    def clearTaskExtTreeLinks(self):
+        for act in self.getActionersList():
+            for task in act.getCurrentManager().getTasks():
+                res, param = task.getParamStruct("outexttreetask",True)
+                if res:
+                    param["links"] = []
+                    task.setParamStruct(param)
+        return self.updateMainUIelements() 
+
+    
     def copyManagerTaskFilesToAnotherFolder(self):
         man = self.actioner.getCurrentManager()
         
