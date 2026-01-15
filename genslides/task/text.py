@@ -2067,13 +2067,53 @@ class TextTask(BaseTask):
                 print("Auto command add error:", e)
                 tparam = Actions.createEmptyActionsPack() 
                 pass
-            self.setParamStruct( tparam )       
+            self.setParamStruct( tparam ) 
 
+    def setUserConsentForBlockChange( self, consent : bool ):
+        bres, bparam = self.getParamStruct('block',only_current=True)
+        if bres:
+            bparam["user_ctrl"] = True
+            bparam["user_consent"] = consent
+            self.setParamStruct( bparam )
+
+    def getReadyToBlockChange(self):
+        bres, bparam = self.getParamStruct('block',only_current=True)
+        if bres:
+            return bparam.get ("check_block_res", False)
+        return super().getReadyToBlockChange()
+    
+    def setForcedBlockStatus( self, status : bool ):
+        bres, bparam = self.getParamStruct('block',only_current=True)
+        if bres:
+            bparam["force_block"] = True
+            bparam["force_block_status"] = status
+            self.setParamStruct( bparam )
+
+    def isForcedBlocked(self):
+        bres, bparam = self.getParamStruct('block',only_current=True)
+        if bres:
+            return bparam.get("force_block", False)
+        return super().isForcedBlocked()
+
+    def disableForcedBlockStatus( self ):
+        bres, bparam = self.getParamStruct('block',only_current=True)
+        if bres:
+            bparam["force_block"] = False
+            bparam["force_block_status"] = False
+            self.setParamStruct( bparam )
+     
     def checkBlock(self):
         # if self.getParent() and self.getParent().checkBlock():
             # return True
         bres, bparam = self.getParamStruct('block',only_current=True)
-        if bres and 'block' in bparam:
+        if bres and 'force_block' in bparam and block['force_block']:
+            force_block_status = bparam.get("force_block_status", False)
+            if force_block_status:
+                self.blockChildren()
+            else:
+                self.unBlockChildren()
+        elif bres and 'block' in bparam:
+            change_block_status_by_user = bparam.get("user_ctrl", False)
             if bparam['block']:
                 block = False
                 if 'reason' in bparam:
@@ -2114,10 +2154,24 @@ class TextTask(BaseTask):
                         if target.lower() == 'false':
                             block = True
                 if block != self.block_on:
-                    if block:
-                        self.blockChildren()
+                    bparam["check_block_res"] = True
+                    if change_block_status_by_user:
+                        user_allows_change_block = bparam.get("user_consent", False)
+                        if user_allows_change_block:
+                            if block:
+                                self.blockChildren()
+                            else:
+                                self.unBlockChildren()
+                            bparam["user_consent"] = False
+                        
                     else:
-                        self.unBlockChildren()
+                        if block:
+                            self.blockChildren()
+                        else:
+                            self.unBlockChildren()
+                else:
+                    bparam["check_block_res"] = False
+                self.setParamStruct( bparam )
             else:
                 if self.block_on:
                     self.unBlockChildren()

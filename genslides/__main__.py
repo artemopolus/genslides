@@ -744,6 +744,27 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
                     gettaskcmds_btn.click(fn=projecter.getTaskCmdList, inputs=[availableactioners_drd], outputs=[taskcmds_chk])
 
+            with gr.Tab('Block'):
+                with gr.Row():
+                    setcurrtaskforcedBlockedstatus_btn = gr.Button("Set Forced Blocked")
+                    setcurrtaskforcedUnBlockedstatus_btn = gr.Button("Set Forced UnBlocked")
+                with gr.Row():
+                    getforcedblockedstatus_btn = gr.Button("Get forced blocked tasks")
+                with gr.Row():
+                    forcedblockedtasks_chck = gr.CheckboxGroup(label="Forced Blocked")
+                with gr.Row():
+                    disableforcedblockedstatus_btn = gr.Button("Disable forced block status")
+                getforcedblockedstatus_btn.click(fn=projecter.getForcedBlockedTasks, outputs=[forcedblockedtasks_chck])
+
+                with gr.Row():
+                    getblocktasks_btn = gr.Button("Get task to block change")
+                with gr.Row():
+                    blockedtaskslist_chck = gr.CheckboxGroup(label="Task to change block status")
+                with gr.Row():
+                    changeblockstatus_btn = gr.Button("Change status")
+                getblocktasks_btn.click(fn=projecter.getTasksReadyForBlockChange, outputs=[blockedtaskslist_chck])
+
+
                         
             with gr.Tab('Search'):
                 with gr.Row():
@@ -1245,6 +1266,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     related_parent_actioners_rad,
                                     related_sub_actioners_rad
                                     ])
+            setcurrtaskforcedBlockedstatus_btn.click(fn=projecter.setCurrTaskForcedBlocked, outputs=std_output_list)
+            setcurrtaskforcedUnBlockedstatus_btn.click(fn=projecter.setCurrTaskForcedBlocked, outputs=std_output_list)
+            disableforcedblockedstatus_btn.click(fn=projecter.disableTaskForcedBlockStatus, inputs=forcedblockedtasks_chck, outputs=std_output_list)
+
+            
+            changeblockstatus_btn.click(fn=projecter.allowTasksToBlockChange, inputs=[blockedtaskslist_chck], outputs=std_output_list)
             
             exttreetasksessionload_btn.click(fn=projecter.loadSessionById, inputs=[exttreetasksessions_drd], outputs=std_output_list)
 

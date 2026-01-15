@@ -1735,6 +1735,21 @@ class BaseTask():
             "trgtaskname": self.getName(),
             "parent": parent_name
         }
+    
+    def isForcedBlocked( self ):
+        return False
+
+    def setForcedBlockStatus( self, status : bool ):
+        pass
+
+    def disableForcedBlockStatus( self ):
+        pass
+    
+    def setUserConsentForBlockChange( self, consent : bool ):
+        pass
+
+    def getReadyToBlockChange (self):
+        return False
 
     def checkBlock(self):
         return self.block_on

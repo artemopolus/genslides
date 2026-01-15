@@ -3815,4 +3815,42 @@ class Projecter(Commander.Commander):
     def loadSessionById(self, id):
         self.actioner.restoreSession( id )
         return self.updateMainUIelements()
+    
+    def getTasksReadyForBlockChange( self ):
+        out = []
+        for task in self.actioner.getCurrentManager().getTasks():
+            if task.getReadyToBlockChange():
+                out.append(task.getName())
+        return gr.CheckboxGroup(choices=out, interactive=True, value=None)
+    
+    def allowTasksToBlockChange( self, names ):
+        for name in names:
+            task = self.actioner.getCurrentManager().getTaskByAnyName( name )
+            if task != None:
+                task.setUserConsentForBlockChange( True )
+                task.checkBlock()
+        return self.updateMainUIelements()
+    
+    def setCurrTaskForcedBlocked ( self ):
+        self.actioner.getCurrentManager().getCurrentTask().setForcedBlockStatus( True )
+        return self.updateMainUIelements()
+
+    def setCurrTaskForcedUnBlocked ( self ):
+        self.actioner.getCurrentManager().getCurrentTask().setForcedBlockStatus( False )
+        return self.updateMainUIelements()
+    
+    def getForcedBlockedTasks( self ):
+        out = []
+        for task in self.actioner.getCurrentManager().getTasks():
+            if task.isForcedBlocked():
+                out.append(task.getName())
+        return gr.CheckboxGroup(choices=out, value=None, interactive=True)
+    
+    def disableTaskForcedBlockStatus (self, names):
+        for name in names:
+            task = self.actioner.getCurrentManager().getTaskByAnyName( name )
+            if task != None:
+                task.disableForcedBlockStatus()
+        return self.updateMainUIelements()
+
 
