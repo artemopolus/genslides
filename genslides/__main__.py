@@ -1121,6 +1121,14 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             updinexttree_btn = gr.Button('Update InExtTree act')
                             addmultitastoinexttree_btn = gr.Button('Add multi to Cur InExtTree')
                             copyinexttreetask_btn = gr.Button('Copy From Selected InExtTree to Multi InExtTrees')
+                    with gr.Tab('Loading'):
+                        with gr.Row():
+                            gettaskarchives_btn = gr.Button('Get curr task archives')
+                        with gr.Row():
+                            taskarchives_drd = gr.Dropdown(label = 'Archives')
+                        with gr.Row():
+                            loadtaskarchive_btn = gr.Button('Load selected archive')
+                        gettaskarchives_btn.click(fn=projecter.getSavedArchivesForCurrentTask, outputs=[taskarchives_drd])
 
                     
                     manextinfobrowse_btn.click(fn=projecter.loadMangerExtInfoExtWithBrowser, outputs=maninfoextout)
@@ -1269,6 +1277,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     ])
             setcurrtaskforcedBlockedstatus_btn.click(fn=projecter.setCurrTaskForcedBlocked, outputs=std_output_list)
             setcurrtaskforcedUnBlockedstatus_btn.click(fn=projecter.setCurrTaskForcedBlocked, outputs=std_output_list)
+            loadtaskarchive_btn.click(fn=projecter.loadSavedArchiveForCurrentTask, inputs=taskarchives_drd, outputs=std_output_list)
             disableforcedblockedstatus_btn.click(fn=projecter.disableTaskForcedBlockStatus, inputs=forcedblockedtasks_chck, outputs=std_output_list)
 
             

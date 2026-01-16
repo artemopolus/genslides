@@ -3852,5 +3852,19 @@ class Projecter(Commander.Commander):
             if task != None:
                 task.disableForcedBlockStatus()
         return self.updateMainUIelements()
+    
+    def getSavedArchivesForCurrentTask( self ):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        paths = task.getExtTreeArchivePaths()
+        return gr.Dropdown(choices=paths, value=None, interactive=True)
+    
+    def loadSavedArchiveForCurrentTask( self, path):
+        task = self.actioner.getCurrentManager().getCurrentTask()
+        if task.loadExtTreeProject():
+            task.freezeTask()
+            for t in task.getAllChildChains():
+                t.freezeTask()
+        return self.updateMainUIelements()
+
 
 

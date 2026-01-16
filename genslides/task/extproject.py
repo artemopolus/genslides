@@ -742,6 +742,13 @@ class JumperTreeTask(InExtTreeTask):
                     self.updateUpdationInfo(f"Reconnect jumper")
                     jumper.setParent(self.getParent())
 
+    def getExtTreeArchivePaths( self ):
+        act = self.getActioner()
+        if act != None:
+            return act.getSavedArchives()
+        return []
+
+
     def saveExtTreeProject(self, path):
         act = self.getActioner()
         if act != None:

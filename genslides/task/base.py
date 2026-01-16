@@ -1876,3 +1876,12 @@ class BaseTask():
     def checkAutoActCmds(self):
         return False
 
+    def getExtTreeArchivePaths( self ):
+        return []
+
+    def saveExtTreeProject(self, path):
+        pass
+
+    def loadExtTreeProject( self, path):
+        return False
+ 

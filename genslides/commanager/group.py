@@ -50,6 +50,12 @@ class Actioner():
         self.time_marker = datetime.datetime.now()
         self.parameters : dict = parameters 
 
+        self.session_prefix = "session_"
+        self.session_suffix = ""
+
+        self.rsrvd_tmp_prefix = ""
+        self.rsrvd_tmp_suffix = "_tempload"
+
     def setManager(self, manager : Manager.Manager):
         if manager != self.std_manager and not manager.is_loaded:
             manager.disableOutput2()
@@ -979,7 +985,7 @@ class Actioner():
             print(f"UAT[{i}]: {session_id}")
             self.saveManToTmp(man = man,
                 suffix = session_id, 
-                temp_folder = ["tt_temp",f"session_{name}"], 
+                temp_folder = ["tt_temp",f"{self.session_prefix}{name}{self.session_suffix}"], 
                 check_oldest=True, max_files= max_files_count)
 
             self.updateAll(force_check=check)
@@ -991,10 +997,29 @@ class Actioner():
                 break
         self.getCurrentManager().enableOutput2()
 
+    def getSavedArchives(self):
+        files = []
+        man = self.getCurrentManager()
+        name = self.getManagerSpaceName( man )
+        folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
+        session_tmp_fld = ["tt_temp",f"{self.session_prefix}{name}{self.session_suffix}"]
+        session_fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, session_tmp_fld))
+        files.extend(FileManager.getFilesInFolder(session_fld_path))
+        reserved_temp_folder = ["tt_temp",f"{self.rsrvd_tmp_prefix}{name}{self.rsrvd_tmp_suffix}"]
+        reserved_fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, reserved_temp_folder))
+        files.extend(FileManager.getFilesInFolder(reserved_fld_path))
+        old_reserved_fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp"]))
+        filename = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
+        filename += "_reserved.7z"
+        old_path_to_reserved = FileManager.addFolderToPath(old_reserved_fld_path, [filename])
+        if Archivator.Archivator.checkPathToArchive(old_path_to_reserved):
+            files.append(old_path_to_reserved)
+        return files
+
     def restoreSession( self, session_id : str):
         man = self.getCurrentManager()
         name = self.getManagerSpaceName( man )
-        temp_folder = ["tt_temp",f"session_{name}"]
+        temp_folder = ["tt_temp",f"{self.session_prefix}{name}{self.session_suffix}"]
         folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
         fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, temp_folder))
         trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(fld_path, [name + "_" + session_id + ".7z"]))
@@ -3297,7 +3322,7 @@ class Actioner():
         target_path = man.getPath()
         name = self.getManagerSpaceName( man )
         # name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
-        self.saveManToTmp(man, "tt_"+ SaveData.getTimeForProjectName(), ["tt_temp",f"{name}_tempload"], check_oldest=True, max_files= 10)
+        self.saveManToTmp(man, "tt_"+ SaveData.getTimeForProjectName(), ["tt_temp",f"{self.rsrvd_tmp_prefix}{name}{self.rsrvd_tmp_suffix}"], check_oldest=True, max_files= 10)
         if not FileManager.checkExistPath(template_path):
             print(f"Abort: path is not exist ({template_path})")
             return False
