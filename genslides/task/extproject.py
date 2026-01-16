@@ -742,6 +742,26 @@ class JumperTreeTask(InExtTreeTask):
                     self.updateUpdationInfo(f"Reconnect jumper")
                     jumper.setParent(self.getParent())
 
+    def saveExtTreeProject(self, path):
+        act = self.getActioner()
+        if act != None:
+            act.saveGenslidesArchiveInFolder( path )
+            eres, eparam = self.getParamStruct('external', True)
+            if eres:
+                eparam["exttree_gsarch_path"] = path
+                self.setParamStruct(eparam)
+
+    def loadExtTreeProject( self, path):
+        act = self.getActioner()
+        if act != None:
+            if act.loadManagerProjectFromFile( path ):
+                eres, eparam = self.getParamStruct('external', True)
+                if eres:
+                    eparam["exttree_gsarch_path"] = path
+                    self.setParamStruct(eparam)
+                return True
+        return False
+
     def runBeforeUpdateIternal(self, input = None):
         eres, eparam = self.getParamStruct('external', True)
         if eres:
@@ -767,7 +787,8 @@ class JumperTreeTask(InExtTreeTask):
                                 path_to_template = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_template","") ) )
                                 if Archive.Archivator.checkPathToArchive( path_to_template ):
                                     self.updateUpdationInfo(f"Reproduce template ({path_to_template}) with parameters ({path_to_gsjs}) ")
-                                    act.convertJsonFileToTemplateTreeTasks( path_to_template, path_to_gsjs )
+                                    path_to_craeted_gs_archive = act.convertJsonFileToTemplateTreeTasks( path_to_template, path_to_gsjs )
+                                    eparam["exttree_gsarch_path"] = path_to_craeted_gs_archive
                                     autoload_result = True
                                 else:
                                     self.updateUpdationInfo(f"No valid archive by path:{path_to_template}")

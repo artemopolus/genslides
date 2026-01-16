@@ -961,8 +961,12 @@ class Actioner():
         man.curr_task = init_task
         return 
     
-    def updateSession( self, n : int, check : bool = False ):
-
+    def updateSession( self, n : int, check : bool = False, max_files_count = 10, update_if_only_frozen = False ):
+        print(f"Update session: {self.getPath()}")
+        if update_if_only_frozen and self.getFrozenTasksCount() == 0 :
+            print("Reset cz no frozen tasks")
+            return
+ 
         self.setManager(self.std_manager)
         man = self.getCurrentManager()
        
@@ -976,9 +980,12 @@ class Actioner():
             self.saveManToTmp(man = man,
                 suffix = session_id, 
                 temp_folder = ["tt_temp",f"session_{name}"], 
-                check_oldest=True, max_files= 10)
+                check_oldest=True, max_files= max_files_count)
 
             self.updateAll(force_check=check)
+            if update_if_only_frozen and self.getFrozenTasksCount() == 0 :
+                print(f"Stop on {i} time cz no frozen")
+                break
             if self.force_update_stop:
                 print(f"Force stop on {i} time")
                 break
@@ -3166,7 +3173,12 @@ class Actioner():
             manager_path = self.getManagerFolderPath( man )
             # Archivator.Archivator.saveAllbyName(manager_path, folderpath, name)
             Archivator.Archivator.saveAllbyPath(manager_path, externalinput_task.findKeyParam( jparam["path_to_archive"] ))
-         
+
+    def saveGenslidesArchiveInFolder(self, path_to_folder: str): 
+        man = self.getCurrentManager()
+        manager_path = self.getManagerFolderPath( man )
+        name = f"{self.getManagerSpaceName( man )}_gs"
+        return Archivator.Archivator.saveAllbyName(manager_path, path_to_folder, name)
     
     def convertJsonFileToTemplateTreeTasks( self, path_to_default_7z, path_to_project_json ):
         path_to_default_7z = Loader.Loader.getUniPath( path_to_default_7z )
@@ -3174,11 +3186,12 @@ class Actioner():
         data = ReadFM.ReadFileMan.readJson( path_to_project_json )
         if "version" not in data:
             print("No version")
-            return
+            return ""
         body_tag = "body"
         if data.get("converted", False) and "genslides_project_file" in data:
             print(f"Load from project file: {data['genslides_project_file'] }")
             self.loadManagerProjectFromFile ( data["genslides_project_file"] )
+            return data["genslides_project_file"]
         elif "targets" in data and isinstance(data["targets"], list): 
             print(f"Fisrt loading")
             # first loading
@@ -3241,6 +3254,9 @@ class Actioner():
                 })
             externalinput_task.saveAllParams()
             Writer.writeJsonToFile(path_to_project_json, data, indent=4)
+            return path_to_created_project_file
+        return ""
+
 
 
     def copyTaskFromManagerToManager( self, src : Manager.Manager, dst : Manager.Manager, tasks : list[BaseTask], param : dict ):
