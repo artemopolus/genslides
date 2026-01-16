@@ -683,37 +683,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     getblocktasks_btn.click(fn=projecter.getTasksReadyForBlockChange, outputs=[blockedtaskslist_chck])
 
 
-                with gr.Tab('ExtTreeTask custom json cmd'):
-                    with gr.Row():
-                        exttreetaskname_txt = gr.Dropdown(label="Found exttreetask")
-                    with gr.Row():
-                        exttreetasksessions_drd = gr.Dropdown(label="Saved sessions")
-                        exttreetasksessionload_btn = gr.Button("Load session by id")
-                    with gr.Row():
-                        with gr.Column():
-                            with gr.Row():
-                                exttreetask_editselected_btn = gr.Button("EDIT selected cmds")
-                            with gr.Row():
-                                exttreetask_cstmjsoncmd_drd = gr.CheckboxGroup(label="Available cmds")
-                            with gr.Row():
-                                exttreetask_execurcmd_btn = gr.Button("Exe selected cmds")
-                                exttreetask_rmvselcmd_btn = gr.Button("Remove selected cmds")
-                        with gr.Column():
-                            with gr.Accordion(label="Commands text", open=True):
-                                ett_cmdtoexe_txt = gr.Markdown()
-                            with gr.Accordion(label="Highlighted changes", open=True):
-                                ett_highlightcmdres = gr.HighlightedText(label="Results", combine_adjacent=True, show_legend=True, 
-                                                                    color_map={"add":"green","del":"red","trg":"blue","div":"white"})
-                            with gr.Accordion(label="JSON cmds list", open=False):
-                                ett_cmdtoexe_jsn = gr.JSON(label="Edit cmds to exe")
-                            with gr.Row():
-                                ett_cmdtoexe_btn = gr.Button("Execute edited cmds")
-                    exttreetask_editselected_btn.click(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], 
-                                                            outputs=[ett_cmdtoexe_jsn, ett_cmdtoexe_txt, ett_highlightcmdres])
-                    
-                    exttreetask_cstmjsoncmd_drd.select(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], 
-                                                            outputs=[ett_cmdtoexe_jsn, ett_cmdtoexe_txt, ett_highlightcmdres])
-  
+ 
                 with gr.Tab('Actioner custom json cmd'):
                     with gr.Row():
                         getcurractpaths_btn = gr.Button("Get Curr Act")
@@ -1129,7 +1099,37 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         with gr.Row():
                             loadtaskarchive_btn = gr.Button('Load selected archive')
                         gettaskarchives_btn.click(fn=projecter.getSavedArchivesForCurrentTask, outputs=[taskarchives_drd])
-
+                    with gr.Tab('ExtTreeTask custom json cmd'):
+                        with gr.Row():
+                            exttreetaskname_txt = gr.Dropdown(label="Found exttreetask")
+                        with gr.Row():
+                            exttreetasksessions_drd = gr.Dropdown(label="Saved sessions")
+                            exttreetasksessionload_btn = gr.Button("Load session by id")
+                        with gr.Row():
+                            with gr.Column():
+                                with gr.Row():
+                                    exttreetask_editselected_btn = gr.Button("EDIT selected cmds")
+                                with gr.Row():
+                                    exttreetask_cstmjsoncmd_drd = gr.CheckboxGroup(label="Available cmds")
+                                with gr.Row():
+                                    exttreetask_execurcmd_btn = gr.Button("Exe selected cmds")
+                                    exttreetask_rmvselcmd_btn = gr.Button("Remove selected cmds")
+                            with gr.Column():
+                                with gr.Accordion(label="Commands text", open=True):
+                                    ett_cmdtoexe_txt = gr.Markdown()
+                                with gr.Accordion(label="Highlighted changes", open=True):
+                                    ett_highlightcmdres = gr.HighlightedText(label="Results", combine_adjacent=True, show_legend=True, 
+                                                                        color_map={"add":"green","del":"red","trg":"blue","div":"white"})
+                                with gr.Accordion(label="JSON cmds list", open=False):
+                                    ett_cmdtoexe_jsn = gr.JSON(label="Edit cmds to exe")
+                                with gr.Row():
+                                    ett_cmdtoexe_btn = gr.Button("Execute edited cmds")
+                        exttreetask_editselected_btn.click(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], 
+                                                                outputs=[ett_cmdtoexe_jsn, ett_cmdtoexe_txt, ett_highlightcmdres])
+                        
+                        exttreetask_cstmjsoncmd_drd.select(fn=projecter.editSelectedExtTreeActionerJsonCmd, inputs=[exttreetask_cstmjsoncmd_drd], 
+                                                                outputs=[ett_cmdtoexe_jsn, ett_cmdtoexe_txt, ett_highlightcmdres])
+    
                     
                     manextinfobrowse_btn.click(fn=projecter.loadMangerExtInfoExtWithBrowser, outputs=maninfoextout)
                     manextinfocurtask_btn.click(fn=projecter.loadMangerExtInfoExtForCurTask, outputs=maninfoextout)
