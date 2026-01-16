@@ -967,7 +967,7 @@ class Actioner():
         man.curr_task = init_task
         return 
     
-    def updateSession( self, n : int, check : bool = False, max_files_count = 10, update_if_only_frozen = False ):
+    def updateSession( self, n : int, check : bool = False, max_files_count : int = 10, update_if_only_frozen : bool = False ):
         print(f"Update session: {self.getPath()}")
         if update_if_only_frozen and self.getFrozenTasksCount() == 0 :
             print("Reset cz no frozen tasks")

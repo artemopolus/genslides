@@ -179,7 +179,7 @@ def get_class_function_body(code_text, class_name, function_name, return_type = 
                     for param in parameters_list:
                         if param != "self":
                             splitted_param = param.split(":")
-                            if len(splitted_param) > 0:
+                            if len(splitted_param) > 1:
                                 paramout = splitted_param[0]
                             else:
                                 paramout = param
