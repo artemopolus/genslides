@@ -441,3 +441,9 @@ def checkExistOfGenslidesArchiveFile( filepath ):
 def getGenslidesArchiveFilePath( filepath ):
     converter = get_converter( filepath )
     return converter.get_genslides_archive_path( filepath )
+
+def isValidGenslidesArchiveFilePath( filepath : str ):
+    if os.path.exists( filepath ) and filepath.endswith("_gs.7z"):
+        return True
+    return False
+

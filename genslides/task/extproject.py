@@ -779,7 +779,13 @@ class JumperTreeTask(InExtTreeTask):
                 path_to_target_file = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_file_target","") ) )
                 if Loader.Loader.checkIsFile(path_to_target_file):
                     path_to_current_file = eparam.get("exttreetask_file_current","")
-                    if path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
+                    if path_to_target_file == path_to_current_file and Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
+                        self.updateUpdationInfo(f"Target file == valid archive:{path_to_target_file}")
+                        autoload_result = True
+                    elif path_to_target_file != path_to_current_file and Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
+                        autoload_result = act.loadManagerProjectFromFile( path_to_target_file )
+                        self.updateUpdationInfo(f"Load archive:{path_to_target_file} = {autoload_result}")
+                    elif path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
                         self.updateUpdationInfo(f"Target file == current file:{path_to_target_file}: json and archive exist")
                         autoload_result = True
                     else:
@@ -807,7 +813,7 @@ class JumperTreeTask(InExtTreeTask):
                             self.updateUpdationInfo(f"Extension for file ({path_to_target_file}):unknown")
 
                         cres, cmds = Loader.Loader.loadJsonFromText( self.findKeyParam( eparam.get("autoload_actions","")))
-                        if cres:
+                        if cres and autoload_result:
                             results = act.getJsonCmd(cmds)
                             self.updateUpdationInfo(f"Autoload_cmds:{results}")
 
