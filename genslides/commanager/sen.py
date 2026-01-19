@@ -3151,6 +3151,7 @@ class Projecter(Commander.Commander):
         status_color,
         rawinfo_msgs,
         manholdgarlands,
+        mangarlandparts,
         mangetname,
         mangetcolor,
         multitasks, 
@@ -3220,7 +3221,8 @@ class Projecter(Commander.Commander):
                 gr.Dropdown(choices=nearest_exttreetask_sessions, interactive=True),
                 self.actioner.getPath(),
                 gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True,value = None),
-                gr.Radio(choices=self.getControledActionersByCurrent(), interactive=True, value=None)
+                gr.Radio(choices=self.getControledActionersByCurrent(), interactive=True, value=None),
+                gr.Radio(choices=mangarlandparts, value=None if len(mangarlandparts) == 0 else mangarlandparts[0], interactive=True)
                 )
         # print('act:',out)
         return out

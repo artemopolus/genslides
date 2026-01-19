@@ -1646,7 +1646,8 @@ class Actioner():
 
         mangetbranchlist = man.getBranchList()
         mangetbranchmessages = man.getBranchMessages()
-        manholdgarlands = [t.getName() for t in man.curr_task.getHoldGarlands()]
+        manholdgarlands = [t.getName() for t in man.getCurrentTask().getHoldGarlands()]
+        mangarlandparts = [t.getName() for t in man.getCurrentTask().getGarlandPart()]
         mangetname = man.getName()
         mangetcolor = man.getColor()
         multitasks = ', '.join(["\""+t.getName() + "\"" for t in man.multiselect_tasks]) + " : "
@@ -1672,6 +1673,7 @@ class Actioner():
                         status_color,
                         rawinfo_msgs,
                         manholdgarlands,
+                        mangarlandparts,
                         mangetname,
                         mangetcolor,
                         multitasks,

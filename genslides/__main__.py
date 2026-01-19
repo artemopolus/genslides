@@ -212,9 +212,10 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             )
                         with gr.Accordion(label='Extra move', open=False):
                             with gr.Row():
+                                go_lnkback_rad = gr.Radio(label='Back Targets')
                                 go_lnkback_btn = gr.Button(value='Go BackLnk')
                             with gr.Row():
-                                go_lnkfrwd_rad = gr.Radio(label='Targets')
+                                go_lnkfrwd_rad = gr.Radio(label='Forward Targets')
                                 go_lnkfrwd_btn = gr.Button(value='Go FrwdLnk')
                             with gr.Row():
                                 go_hlfbrch_btn = gr.Button(value='Go to MidBranch')
@@ -1273,7 +1274,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                     exttreetasksessions_drd,
                                     current_actioner_name,
                                     related_parent_actioners_rad,
-                                    related_sub_actioners_rad
+                                    related_sub_actioners_rad,
+                                    go_lnkback_rad
                                     ])
             setcurrtaskforcedBlockedstatus_btn.click(fn=projecter.setCurrTaskForcedBlocked, outputs=std_output_list)
             setcurrtaskforcedUnBlockedstatus_btn.click(fn=projecter.setCurrTaskForcedBlocked, outputs=std_output_list)
@@ -1510,7 +1512,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
            
 
-            go_lnkback_btn.click(fn=projecter.goBackByLink, outputs=tree_outlist)          
+            go_lnkback_btn.click(fn=projecter.setCurrentTaskByName,inputs=[go_lnkback_rad], outputs=tree_outlist)          
 
             sel_task_btn.click(fn=projecter.setCurrentTaskByName, inputs=[task_list], outputs= tree_outlist )
             gettaskswithcmds_rad.input(fn=projecter.setCurrentTaskByName, inputs=[gettaskswithcmds_rad], outputs= tree_outlist )
