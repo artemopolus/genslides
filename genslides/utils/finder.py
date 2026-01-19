@@ -593,6 +593,9 @@ def findByKey2(text, manager , base):
                         if len(arr) > 3 and arr[3] == 'name':
                             trg_text = FileMan.getFileName(trg_text)
                         rep_text = rep_text.replace(res, trg_text)
+                    elif len(arr) > 1 and arr[1] == 'id':
+                        trg_text = manager.getUpdateSessionId()
+                        rep_text = rep_text.replace(res, trg_text)
                     elif len(arr) > 2 and arr[1] == 'global':
                         gres, trg_text = manager.getGlobalValue(arr[2])
                         if gres and isinstance(trg_text, str):

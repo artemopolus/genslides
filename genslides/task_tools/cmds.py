@@ -85,37 +85,38 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
     elif action_type == "moveTask":
         target_name = kwargs.get("marker","")
         target = manager.getTaskByAnyName(target_name)
-        direction = kwargs.get("direction","")
-        result.append({"status":"divider","content":f"==={action_type}:{target_name}, {direction}============>\n\n"})
-        text  = target.getLastMsgContentRaw()
-        uptext  = ""
-        dwtext  = ""
-        if direction == "UP":
-            uptask = None if target.getParent() else target.getParent().getParent()
-            uptext = "" if uptask == None else uptask.getLastMsgContentRaw()
-            upmark = "" if uptask == None else uptask.getName()
-            dwtext = "" if target.getParent() == None else target.getParent().getLastMsgContentRaw()
-            dwmark = "" if target.getParent() == None else target.getFirstChild().getName()
-        elif direction == "DOWN":
-            if len(target.getChilds()) > 0:
-                uptask : Manager.Task.BaseTask = target.getFirstChild()
+        if target != None:
+            direction = kwargs.get("direction","")
+            result.append({"status":"divider","content":f"==={action_type}:{target_name}, {direction}============>\n\n"})
+            text  = target.getLastMsgContentRaw()
+            uptext  = ""
+            dwtext  = ""
+            if direction == "UP":
+                uptask = None if target.getParent() else target.getParent().getParent()
                 uptext = "" if uptask == None else uptask.getLastMsgContentRaw()
                 upmark = "" if uptask == None else uptask.getName()
-                dwmark = ""
-                if uptask != None and len(uptask.getChilds()) > 0 and uptask.getFirstChild() != None:
-                    dwtext = uptask.getFirstChild().getLastMsgContentRaw()
-                    dwmark = uptask.getFirstChild().getName()
-                else:
-                    dwtext = ""
-                    # return command, f"Error on move"
-        # if uptask != None and dwtask != None:
-        if direction == "DOWN":
-            result.append({"status":"delete","content":text,"marker":target_name})
-        result.append({"status":"stay","content":uptext,"marker":upmark})
-        result.append({"status":"append","content":text,"marker":target_name})
-        result.append({"status":"stay","content":dwtext,"marker":dwmark})
-        if direction == "UP":
-            result.append({"status":"delete","content":text,"marker":target_name})
+                dwtext = "" if target.getParent() == None else target.getParent().getLastMsgContentRaw()
+                dwmark = "" if target.getParent() == None else target.getFirstChild().getName()
+            elif direction == "DOWN":
+                if len(target.getChilds()) > 0:
+                    uptask : Manager.Task.BaseTask = target.getFirstChild()
+                    uptext = "" if uptask == None else uptask.getLastMsgContentRaw()
+                    upmark = "" if uptask == None else uptask.getName()
+                    dwmark = ""
+                    if uptask != None and len(uptask.getChilds()) > 0 and uptask.getFirstChild() != None:
+                        dwtext = uptask.getFirstChild().getLastMsgContentRaw()
+                        dwmark = uptask.getFirstChild().getName()
+                    else:
+                        dwtext = ""
+                        # return command, f"Error on move"
+            # if uptask != None and dwtask != None:
+            if direction == "DOWN":
+                result.append({"status":"delete","content":text,"marker":target_name})
+            result.append({"status":"stay","content":uptext,"marker":upmark})
+            result.append({"status":"append","content":text,"marker":target_name})
+            result.append({"status":"stay","content":dwtext,"marker":dwmark})
+            if direction == "UP":
+                result.append({"status":"delete","content":text,"marker":target_name})
         # else:
             # return command, f"Error on move"
     elif action_type == "deleteTask":

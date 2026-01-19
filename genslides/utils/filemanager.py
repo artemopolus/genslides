@@ -85,6 +85,8 @@ def getFilesInFolder(path: str):
     return [f for f in listdir(path) if isfile(join(path, f))]
 
 def getFilesPathInFolder(path: str):
+    if not os.path.exists(path):
+        return []
     return [join(path,f) for f in listdir(path) if isfile(join(path, f))]
 
 def getFilenamesFromFilepaths( paths : list[str]):

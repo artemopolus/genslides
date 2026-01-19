@@ -981,6 +981,12 @@ class JumperTreeTask(InExtTreeTask):
         if act != None:
             return True, act.getPath(), eparam['jumper']
         return super().getExternalActionerTask()
+    
+    def setExtTreeSessionId(self, session_id):
+        act = self.getActioner()
+        if act != None:
+            act.getCurrentManager().setUpdateSessionId( session_id )
+        return super().setExtTreeSessionId(session_id)
 
 
 class OutExtTreeTask(ExtProjectTask):

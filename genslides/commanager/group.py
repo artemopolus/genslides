@@ -997,6 +997,14 @@ class Actioner():
                 break
         self.getCurrentManager().enableOutput2()
 
+    def clearSessionArchives( self ):
+        man = self.getCurrentManager()
+        name = self.getManagerSpaceName( man )
+        folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
+        session_tmp_fld = ["tt_temp",f"{self.session_prefix}{name}{self.session_suffix}"]
+        session_fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, session_tmp_fld))
+        FileManager.deleteFiles( session_fld_path )
+
     def getSavedArchives(self):
         files = []
         man = self.getCurrentManager()
@@ -1004,10 +1012,10 @@ class Actioner():
         folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
         session_tmp_fld = ["tt_temp",f"{self.session_prefix}{name}{self.session_suffix}"]
         session_fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, session_tmp_fld))
-        files.extend(FileManager.getFilesInFolder(session_fld_path))
+        files.extend(FileManager.getFilesPathInFolder(session_fld_path))
         reserved_temp_folder = ["tt_temp",f"{self.rsrvd_tmp_prefix}{name}{self.rsrvd_tmp_suffix}"]
         reserved_fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, reserved_temp_folder))
-        files.extend(FileManager.getFilesInFolder(reserved_fld_path))
+        files.extend(FileManager.getFilesPathInFolder(reserved_fld_path))
         old_reserved_fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, ["tt_temp"]))
         filename = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
         filename += "_reserved.7z"
@@ -2146,7 +2154,7 @@ class Actioner():
         for link in outlinks:
             man.makeLink( cr_task, link )
 
-    def cleanTaskParameters( self, range = "Current", target = "hash"):
+    def getTasksByRange( self, range = "Current" ):
         tasks  = []
         if range == "Current":
             tasks = [self.getCurrentManager().getCurrentTask()]
@@ -2159,9 +2167,19 @@ class Actioner():
                 if task != None:
                     tasks.append( task )
                 else:
-                    print(f"Can't find \"{name}\"")
+                    print(f"Can\'t find \"{name}\"")
             if len(tasks) == 0:
                 tasks = self.getCurrentManager().getAllTasksByTagFromTaskList(range, self.getCurrentManager().getTasks())
+        return tasks
+    
+    def setForcedBlockedStatus ( self, range = "Current", block_status = True):
+        tasks  = self.getTasksByRange( range )
+        for task in tasks:
+            task.setForcedBlockStatus( block_status )
+            
+ 
+    def cleanTaskParameters( self, range = "Current", target = "hash"):
+        tasks  = self.getTasksByRange( range )
         for task in tasks:
             print(f"Apply to {task.getName()} task ")
             if target == "hash":

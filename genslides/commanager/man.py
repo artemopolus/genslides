@@ -57,6 +57,8 @@ class Jun():
 
     def setUpdateSessionId(self, id : str):
         self.update_session_id = id
+        for task in self.getTasks():
+            task.setExtTreeSessionId( id )
 
     def blockCmdExecution( self, block = True):
         self.need_human_response = block

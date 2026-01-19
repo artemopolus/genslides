@@ -1,4 +1,4 @@
-from genslides.task.base import BaseTask
+from genslides.task.base import BaseTask, TaskManager
 from genslides.task.base import TaskDescription
 
 import genslides.utils.reqhelper as ReqHelper
@@ -2087,7 +2087,14 @@ class TextTask(BaseTask):
         if bres:
             bparam["force_block"] = True
             bparam["force_block_status"] = status
-            self.setParamStruct( bparam )
+        else:
+            task_man = TaskManager()
+            bparam = task_man.getParamBasedOptionsDict("block")
+            if bparam == None:
+                bparam = {"type":"block","block":False}
+            bparam["force_block"] = True
+            bparam["force_block_status"] = status
+        self.setParamStruct( bparam )
 
     def isForcedBlocked(self):
         bres, bparam = self.getParamStruct('block',only_current=True)

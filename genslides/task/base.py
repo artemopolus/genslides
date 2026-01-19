@@ -1884,4 +1884,7 @@ class BaseTask():
 
     def loadExtTreeProject( self, path):
         return False
+    
+    def setExtTreeSessionId( self, session_id : str):
+        pass
  
