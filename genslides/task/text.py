@@ -1533,19 +1533,15 @@ class TextTask(BaseTask):
             param_name = trg_param['type']
         else:
             return False
-        trg = None
         for param in self.params:
             if 'type' in param and param['type'] == param_name:
-                print('Rewrite', param['type'],'from', self.getName())
-                trg = param
-        if trg != None:
-            self.params.remove(trg)
-            self.params.append(trg_param)
-            self.saveJsonToFile(self.msg_list)
-        else:
-            print('Nothing to rewrite')
-            return False
-        return True
+                self.updateUpdationInfo(f"Rewrite{param_name}from {self.getName()}")
+                for k, v in trg_param.items():
+                    if k != 'type':
+                        self.updateUpdationInfo(f"Update {k} with {v}")
+                        param[k] = v
+                return True
+        return False
 
 
 

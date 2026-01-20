@@ -574,7 +574,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             getparamamulti_btn = gr.Button('Get params from multi')
                         parammulti_json = gr.Textbox(label='Parameters', interactive=True)
                         parammultilog_txt = gr.Textbox(label='log')
-                        gr.Button(value='Update param struct').click(fn=projecter.setParamStructToMultiSelect, 
+                        gr.Button(value='Update param struct values to multi').click(fn=projecter.setParamStructToMultiSelect, 
                                                                         inputs=[parammulti_json, parammultikey_dd], 
                                                                         outputs=[parammulti_json, parammultilog_txt])
 

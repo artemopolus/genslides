@@ -2174,6 +2174,11 @@ class Actioner():
                 tasks = self.getCurrentManager().getAllTasksByTagFromTaskList(range, self.getCurrentManager().getTasks())
         return tasks
     
+    def applyNewParameterValues( self, range : str, param : dict):
+        tasks  = self.getTasksByRange( range )
+        for task in tasks:
+            task.rewriteParamStruct( param )
+    
     def setForcedBlockedStatus ( self, range = "Current", block_status = True):
         tasks  = self.getTasksByRange( range )
         for task in tasks:
