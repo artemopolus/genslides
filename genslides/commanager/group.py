@@ -863,9 +863,9 @@ class Actioner():
         else:
             self.update_state = 'step'
             self.update_processed_chain.append(next.getName())
-        if next:
-            if len(next.getChilds()) == 0:
-                print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
+        # if next:
+        #     if len(next.getChilds()) == 0:
+        #         print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
 
     def resetUpdate(self, force_check = False):
         self.update_state = 'init'
@@ -913,7 +913,7 @@ class Actioner():
         elif self.update_state == 'start tree':
             self.time_marker = datetime.datetime.now()
             task = man.tree_arr[self.update_tree_idx]
-            print(f"Start tree {task.getName()}[{self.update_tree_idx}]:{man.getTreeNames()}")
+            # print(f"Start tree {task.getName()}[{self.update_tree_idx}]:{man.getTreeNames()}")
             self.setStartParamsForUpdate(man, task)
             self.updateStepInternal(update_task=update_task, step_options=step_options)
         elif self.update_state == 'step':
@@ -1912,9 +1912,9 @@ class Actioner():
         else:
             self.update_state = 'step'
             self.update_processed_chain.append(next.getName())
-        if next:
-            if len(next.getChilds()) == 0:
-                print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
+        # if next:
+        #     if len(next.getChilds()) == 0:
+        #         print('Branch complete:', self.root_task_tree.getName(), '-', next.getName())
 
     def updateManager(self, man : Manager.Manager, update_task = True):
         # printGreenCmd("Update manager")
@@ -1925,7 +1925,7 @@ class Actioner():
             self.update_tree_idx = 0
         elif self.update_state == 'start tree':
             task = man.tree_arr[self.update_tree_idx]
-            print('Start tree', task.getName(),'[',self.update_tree_idx,']')
+            # print('Start tree', task.getName(),'[',self.update_tree_idx,']')
             self.setStartParamsForUpdate(man, task)
             self.updateManagerStepInternal(man, update_task=update_task)
         elif self.update_state == 'step':
@@ -3238,7 +3238,7 @@ class Actioner():
             print("No version")
             return ""
         body_tag = "body"
-        if data.get("converted", False) and "genslides_project_file" in data:
+        if data.get("converted", False) and "genslides_project_file" in data and FileManager.checkExistPath(data["genslides_project_file"]):
             print(f"Load from project file: {data['genslides_project_file'] }")
             self.loadManagerProjectFromFile ( data["genslides_project_file"] )
             return data["genslides_project_file"]
@@ -3366,6 +3366,36 @@ class Actioner():
             man.enableOutput2()
             self.loadTmpManagers()
         return True
+    
+    def syncRelatedActionersWithFolder( self ):
+        self.loadExtTreeTaskActioners()
+        act_paths = self.getRelatedActionersPaths([])
+        print(f"syncRelatedActionersWithFolder:{act_paths}")
+        method_to_external_actioners = self.parameters.get("available_actioners",None)
+        if method_to_external_actioners != None:
+            for act in method_to_external_actioners():
+                if act.getPath() in act_paths:
+                    print(f"Sync with folder {act.getPath()}")
+                    act.syncWithCurrentFolder()
+            for act in method_to_external_actioners():
+                if act.getPath() in act_paths:
+                    act.loadExtTreeTaskActioners()
+        else:
+            print(f"No methods in {self.parameters}")
+
+    
+    def syncWithCurrentFolder( self, safe_load_tasks = True, load_managers_tasks = True):
+        self.reset()
+        self.setCurrentManager( self.std_manager )
+        man = self.getCurrentManager()
+        man.onStart()
+        man.initInfo(method = None, path = self.getPath())
+        if load_managers_tasks:
+            man.disableOutput2()
+            man.loadTasksList(safe_load_tasks)
+            man.enableOutput2()
+            self.loadTmpManagers()
+ 
 
     def loadTreeDoc( self, path_to_template, path_to_file ):
         # print(SaveData.getTimeForProjectName())

@@ -2109,7 +2109,7 @@ class TextTask(BaseTask):
         # if self.getParent() and self.getParent().checkBlock():
             # return True
         bres, bparam = self.getParamStruct('block',only_current=True)
-        if bres and 'force_block' in bparam and block['force_block']:
+        if bres and 'force_block' in bparam and bparam['force_block']:
             force_block_status = bparam.get("force_block_status", False)
             if force_block_status:
                 self.blockChildren()

@@ -802,6 +802,7 @@ class JumperTreeTask(InExtTreeTask):
                                     self.updateUpdationInfo(f"Reproduce template ({path_to_template}) with parameters ({path_to_gsjs}) ")
                                     path_to_craeted_gs_archive = act.convertJsonFileToTemplateTreeTasks( path_to_template, path_to_gsjs )
                                     eparam["exttree_gsarch_path"] = path_to_craeted_gs_archive
+                                    act.syncRelatedActionersWithFolder()
                                     autoload_result = True
                                 else:
                                     self.updateUpdationInfo(f"No valid archive by path:{path_to_template}")
@@ -809,6 +810,8 @@ class JumperTreeTask(InExtTreeTask):
                                 path_to_archive = Converter.getGenslidesArchiveFilePath( path_to_target_file )
                                 self.updateUpdationInfo(f"Load archive from {path_to_archive}")
                                 autoload_result = act.loadManagerProjectFromFile( path_to_archive )
+                                if autoload_result:
+                                    act.syncRelatedActionersWithFolder()
                         else:
                             self.updateUpdationInfo(f"Extension for file ({path_to_target_file}):unknown")
 
