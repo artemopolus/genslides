@@ -262,6 +262,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             so_default_sld = gr.Slider(minimum=0, maximum=10000, value=projecter.getStepDefaultTaskSymVizCount(), label='Default Symbols')
                         with gr.Accordion("Additional",open=False):
                             with gr.Row():
+                                updatesessionids_btn = gr.Button("Update session id")
+                            with gr.Row():
                                 updateall_stepNs_sld = gr.Slider(label='N times Update All Trees',value=0,minimum=0, maximum=50,step=1)
                             with gr.Row():
                                 updateall_stepNs_btn = gr.Button('(N)UAT=>end')
@@ -1534,6 +1536,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             update_list = std_output_list.copy()
             update_list.extend([prevtask_txt, currtask_txt, nexttask_txt])
             update_step_btn.click(fn=projecter.update, outputs=update_list)
+            updatesessionids_btn.click(fn=projecter.updateActionersIds, outputs=std_output_list)
             updateall_step_btn.click(fn=projecter.updateAll, inputs=[updatecheckown_chk, maxupdateidx_num], outputs=std_output_list)
             updateall_stepNs_btn.click(fn=projecter.updateAllnTimes, inputs=[updateall_stepNs_sld, updatecheckown_chk], outputs=std_output_list)
             updateall_msgdiff_btn.click(fn=projecter.updateAllnTimesCheckDiff, inputs=[updateall_stepNs_sld, updatecheckown_chk], outputs=std_output_list)

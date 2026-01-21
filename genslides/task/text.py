@@ -1084,6 +1084,15 @@ class TextTask(BaseTask):
             return
         text = self.msg_list[len(self.msg_list) - 1]["content"]
         text = self.findKeyParam(text)
+        eres, eparam = self.getParamStruct("emitter", True)
+        if eres:
+            old_hash = eparam.get("hash","")
+            cur_hash = Txt.compute_sha256_hash(text)
+            if eparam.get("emit_reason","hash") == "hash" and old_hash != cur_hash:
+                eparam["hash"] = cur_hash
+                self.setParamStruct( eparam )
+            elif eparam.get("emit_reason","hash") == "hash" and old_hash == cur_hash:
+                return
         for task in self.affect_to_ext_list:
             input = task
             input.prompt = text

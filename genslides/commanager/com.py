@@ -9,6 +9,7 @@ from genslides.utils.reqhelper import RequestHelper
 from genslides.utils.testrequest import TestRequester
 from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.savedata as SaveData
+import genslides.utils.ids as Ids
 
 class Commander:
     def __init__(self, path = "session"):
@@ -234,4 +235,7 @@ class Commander:
         names.sort(key=self.getModificationTimeOfSession, reverse=True)
         return names
 
-
+    def updateActionersIds( self ):
+        for actioner in self.getActionersList():
+            actioner.getCurrentManager().setUpdateSessionId(Ids.generateKey())
+ 

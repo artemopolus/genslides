@@ -13,7 +13,6 @@ import genslides.utils.searcher as Searcher
 import genslides.utils.filemanager as FileManager
 import genslides.utils.readfileman as Reader
 import genslides.utils.writer as Writer
-import genslides.utils.ids as Ids
 
 import genslides.task_tools.py_parser as pyparser
 import genslides.commanager.com as Commander
@@ -1553,21 +1552,21 @@ class Projecter(Commander.Commander):
         print(f"Update {chain[0]}->{chain[1]} duration: {delta:.6f} s. Next: {chain[2]}")
         return self.updateMainUIelements() + (chain[0], chain[1], chain[2])
     
-    def updateActionersIds( self ):
-        for actioner in self.getActionersList():
-            actioner.getCurrentManager().setUpdateSessionId(Ids.generateKey())
-        
+    def updateActionersIds(self):
+        super().updateActionersIds()
+        return self.updateMainUIelements()
+       
     def updateAll(self, check = False, max_idx = 10000):
         print('Update All trees stepped')
         self.actioner.getCurrentManager().disableOutput2()
-        self.updateActionersIds()
+        # self.updateActionersIds()
         self.actioner.updateAll(force_check=check, max_update_idx=max_idx)
         self.actioner.getCurrentManager().enableOutput2()
         return self.updateMainUIelements()
     
     def updateAllnTimes(self, n, check = False):
         print('Update All trees stepped',n,'times')
-        self.updateActionersIds()
+        # self.updateActionersIds()
         dt1 = time.time()       
         self.actioner.updateAllnTimes(n, check)
         dt2 = time.time() 
