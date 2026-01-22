@@ -3868,4 +3868,7 @@ class Projecter(Commander.Commander):
         return self.updateMainUIelements()
 
 
+    def reloadCurrentTaskActioner(self, actioners : list ):
+        self.actioner.getCurrentManager().getCurrentTask().reloadTaskActioner( self.getActionersList() )
+
 

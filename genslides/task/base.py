@@ -1887,4 +1887,7 @@ class BaseTask():
     
     def setExtTreeSessionId( self, session_id : str):
         pass
+    
+    def reloadTaskActioner(self, actioners : list ):
+        pass
  

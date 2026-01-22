@@ -1041,6 +1041,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             ette_multitask_info_txt = gr.Textbox(label="Multiselected tasks")
                         with gr.Row():
                             ette_outtreetaskinfo_txt = gr.Textbox(label="OutTreeTask targets")
+                        with gr.Row():
+                            ette_realoadactioner_btn = gr.Button("Reload actioner").click(fn=projecter.reloadCurrentTaskActioner)
 
 
                         ette_getparam_btn.click(fn=projecter.getExtTreeParams, 

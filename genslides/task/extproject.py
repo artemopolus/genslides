@@ -680,6 +680,28 @@ class JumperTreeTask(InExtTreeTask):
         return super().getLoadedActionerPath(actpaths_list)
 
 
+    def reloadTaskActioner(self, actioners : list ):
+        self.updateUpdationInfo("Reload actioner")
+        eres, eparam = self.getParamStruct('external')
+        if eres and eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
+            str_trg_path = self.findKeyParam(eparam['exttreetask_path'])
+            trg_path = Loader.Loader.getUniPath(str_trg_path)
+            self.updateUpdationInfo(f"Try to find {trg_path} ")
+            for actioner in actioners:
+                if actioner.getPath() == trg_path:
+                    man = actioner.std_manager
+                    jumper = man.getTaskByName(eparam['jumper'])
+                    if jumper and jumper.checkType('ExternalInput') and self.getParent() != jumper.getParent():
+                        self.intact = actioner
+                        self.intman = man
+                        jumper.setParent(self.getParent())
+                        self.updateInternalGlobalKeys()
+                        self.intact.autoUpdateExtTreeTaskActs(actioners)
+                        return None
+                    else:
+                        jumper_name = eparam['jumper']
+                        self.updateUpdationInfo(f"No task with name {jumper_name} with path { trg_path}")
+            self.updateUpdationInfo(f"No actioners for {trg_path}")
 
     def loadActionerTasks(self, actioners: list):
         self.updateUpdationInfo("Load actioner task")
