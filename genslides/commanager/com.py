@@ -66,6 +66,15 @@ class Commander:
     
     def getPathToSession(self):
         return self.session_name_path
+    
+    def loadSessionFile( self ):
+        path = FileManager.addFolderToPath(self.session_name_path,[self.session_name_curr + ".json"])
+        text = Reader.ReadFileMan.readJson(path )
+        return text
+    
+    def forceSetSessionParameters(self, params : dict):
+        self.params = params
+        self.saveSession()
 
     def saveSession(self, params = {}):
         act_data = []
