@@ -3871,4 +3871,6 @@ class Projecter(Commander.Commander):
     def reloadCurrentTaskActioner(self ):
         self.actioner.getCurrentManager().getCurrentTask().reloadTaskActioner( self.getActionersList() )
 
-
+    def saveCurretTaskExtTreeArchive( self ):
+        trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave7zArchive() )
+        self.actioner.getCurrentManager().getCurrentTask().saveExtTreeProject( trg_path )

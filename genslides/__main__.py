@@ -1043,6 +1043,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                             ette_outtreetaskinfo_txt = gr.Textbox(label="OutTreeTask targets")
                         with gr.Row():
                             ette_realoadactioner_btn = gr.Button("Reload actioner").click(fn=projecter.reloadCurrentTaskActioner)
+                        with gr.Row():
+                            gr.Button("Save ExtTree archive").click(fn=projecter.saveCurretTaskExtTreeArchive)
 
 
                         ette_getparam_btn.click(fn=projecter.getExtTreeParams, 
