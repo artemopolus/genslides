@@ -132,6 +132,15 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                 with gr.Tab(label='Create'):
                     sessionnamecur_txt = gr.Textbox(label='Session name',lines=1,value=projecter.getCurrentSessionName())
                     newsessionname_btn = gr.Button('New name for session')
+                with gr.Tab(label='Edit'):
+                    with gr.Row():
+                        sessionparamload_btn = gr.Button('Load parameters')
+                    with gr.Row():
+                        sessionparamedit_jsn = gr.JSON(label="Session parameters")
+                    with gr.Row():
+                        sessionparamsave_btn = gr.Button('Save session')
+                    sessionparamload_btn.click(fn=projecter.loadSessionFile, outputs=[sessionparamedit_jsn])
+                    sessionparamsave_btn.click(fn=projecter.forceSetSessionParameters, inputs=[sessionparamedit_jsn])
                 # with gr.Row():
                     # project_manLoad = gr.Button(value='Default project location')
                     # project_manBrow = gr.Button(value='Select project location')
