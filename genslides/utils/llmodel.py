@@ -12,6 +12,7 @@ import genslides.utils.loader as Ld
 from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages, openai_decode_token, openai_get_tokens_from_message
 from genslides.utils.myollama import ollamaGetChatCompletion
 from genslides.utils.myllamacpp import llamacppGetChatCompletion, llamacppGetToolResponse
+from genslides.utils.myopenrouter import openrouterGetChatCompletion, openrouterGetToolResponse
 from genslides.utils.mygemini import geminiGetChatCompletion
 from genslides.utils.mytabbyapi import tabbyApiGetChatCompletion, tabbyapi_num_tokens_from_text, tabbyapi_get_model, tabbyapi_switch_model, tabbyApiGetToolResponse
 # from myopenai import openaiGetChatCompletion, openaiGetSmplCompletion
@@ -32,6 +33,9 @@ model_to_method = {
     },
     "tabbyapi":{
         'default':tabbyApiGetChatCompletion
+    },
+    "openrouter":{
+        "default":openrouterGetChatCompletion
     }
 }
 
@@ -41,6 +45,9 @@ model_to_toolmethod = {
     },
     "tabbyapi":{
         'default': tabbyApiGetToolResponse
+    },
+    "openrouter":{
+        'default':openrouterGetToolResponse
     }
 
 }
