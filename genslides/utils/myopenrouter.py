@@ -1,5 +1,6 @@
 from openai import OpenAI
 import json
+import requests
 
 def openrouterGetChatCompletion(msgs, params):
     # print('LlamaCPP openai api')
@@ -16,7 +17,11 @@ def openrouterGetChatCompletion(msgs, params):
             api_key = "sk-no-key-required"
         )
         out_param = {}
-        if 'response_format' in params and params['response_format'] != "":
+        if params.get("model","none") == "openai/gpt-oss-20b:free" \
+            or params.get("model","none") == "openai/gpt-oss-120b:free" \
+        :
+            return getUglyResponseGptOss( client, msgs, params)
+        elif 'response_format' in params and params['response_format'] != "":
             jformat = json.loads(params['response_format'], strict=False)
             # print("With reponse format:",jformat)
             if 'temperature' in params:
@@ -98,4 +103,24 @@ def openrouterGetToolResponse ( msgs : list[str], tools : list, params : dict):
     except Exception as e:
         print(f"llama server api error:\n{e}") 
         return False, "", {}
- 
+
+
+def getUglyResponseGptOss( client :OpenAI, msgs, params):
+    model_name = params['model']
+    completion = client.chat.completions.create(
+                model= model_name,
+                messages=msgs,
+                # timeout=7200,
+                extra_body={"reasoning": {"enabled": True}},
+                temperature = params.get("temperature", 0.6)
+                # temperature = temperature
+            )
+    # print(completion)
+    msg = completion.choices[0].message.content
+    out_param = {} 
+    out_param ['intok'] = completion.usage.prompt_tokens,
+    out_param ['outtok'] = completion.usage.completion_tokens
+    out_param [ 'reasoning' ] = completion.choices[0].message.reasoning
+    out_param ['report'] = f'ugly call router: {model_name}'
+
+    return True, msg, out_param
