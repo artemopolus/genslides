@@ -80,7 +80,7 @@ def llamacppGetChatCompletion(msgs, params):
 
 def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
     try:
-        print("llamacppGetToolResponse")
+        # print("llamacppGetToolResponse")
         client = OpenAI(
                 base_url= params.get('url', "http://localhost:5000/v1"), # "http://<Your api-server IP>:port"
                 api_key = params.get('api_key', "sk-no-key-required")
@@ -96,13 +96,14 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                 )
         out = {}
         result = completion.choices[0]
-        out ['report'] = f"call tool for: {model_name}\n{getattr(result,"finish_reason", "no finish reason")}"
+        out ['report'] = f"call tool for: {model_name}\n"
         # print(f"Response:\n{completion.choices[0]}")
         if hasattr(result, 'finish_reason'):
             out['finish_reason'] = result.finish_reason
             if result.finish_reason == "tool_calls":
                 tool_response_format =  params.get("tool_response_format", "std")
                 if tool_response_format == "std":
+                    # print("Std tool response format")
                     try:
                         tool_name = result.message.tool_calls[0].function.name
                         tool_args = json.loads( result.message.tool_calls[0].function.arguments )
@@ -139,6 +140,7 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                             if res:
                                 response_out.append( fun_args )
                     response = Loader.Loader.convJsonToText(response_out)
+                # print("Final data saving")
                 out ['tool_content'] = result.message.content
                 out ['tool_reasoning_content'] = getattr(result.message, "reasoning_content", "")
                 out ['tool_calls_result'] = str(result.message.tool_calls)
@@ -148,22 +150,23 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                 out ['tool_calls_result'] = ""
                 response = result.message.content
             else:
-                return False, "", {}
+                out ['tool_content'] = getattr(result.message, "content", "")
+                out ['tool_reasoning_content'] = getattr(result.message, "reasoning_content", "")
+                out ['tool_calls_result'] = str( getattr(result.message, "tool_calls", ""))
+                out['report'] += f"Invalid finish reason:{result.finish_reason}"
+                return False, "", out
 
         return True, response, out
     except Exception as e:
-        print(f"llama server api error:\n{e}") 
+        print(f"llama server api tool error:\n{e}") 
         return False, "", {}
 
 def getToolFunctionFormat( name : str, description : str, schema : str):
-    print("get tool body")
     available_tools = []
     final_schema = {}
     res, s = Loader.Loader.loadJsonFromText( schema, True )
     if res:
         if isinstance( s, dict):
-            for k, v in s.items():
-                print(k)
             final_schema = s ["json_schema"]["schema"]
         else:
             print(f"not dict:\n{s}")

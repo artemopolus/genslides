@@ -11,7 +11,7 @@ class SimpleCommand(metaclass=ABCMeta):
         self.task : base.BaseTask = None
         self.session_exe_id = ""
 
-    def setSessionId(self, id);
+    def setSessionId(self, id):
         self.session_exe_id = id
 
     def getSessionId(self):
