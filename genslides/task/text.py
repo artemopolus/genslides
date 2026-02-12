@@ -879,6 +879,7 @@ class TextTask(BaseTask):
 
         retries = 5
         delay = 1
+        temp_filename = ""
 
         for attempt in range(retries):
             try:

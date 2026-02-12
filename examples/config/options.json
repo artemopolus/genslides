@@ -55,7 +55,12 @@
       "model": ["gpt-3.5-turbo","gpt-3.5-turbo-instruct","gpt-3.5-turbo-16k","text-davinci-003","gpt-4","gpt-4-32k","gpt-4-turbo-2024-04-09"],
       "response_format":["","{\n\"type\": \"json_schema\",\n\"json_schema\": {\n    \"name\": \"json_creating\",\n    \"schema\": {\n        \"type\": \"array\",\n        \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"idx\":{\"type\":\"number\"},\n                \"content\": {\"type\": \"string\"}\n            },\n            \"required\": [\"idx\", \"content\"],\n            \"additionalProperties\": false\n        }\n    },\n    \"strict\": true\n}\n}","{\n\"type\": \"json_schema\",\n\"json_schema\": {\n    \"name\": \"json_creating\",\n    \"schema\": {\n        \"type\": \"array\",\n        \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"idx\":{\"type\":\"number\",\"description\":\"Number of the Text Part\"},\n                \"content\": {\"type\": \"string\",\"description\":\"Content of the Text Part\"}\n            },\n            \"required\": [\"idx\", \"content\"],\n            \"additionalProperties\": false\n        }\n    },\n    \"strict\": true\n}\n}","{\n\"type\": \"json_schema\",\n\"json_schema\": {\n    \"name\": \"json_creating\",\n    \"schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"sentences\": {\n                \"type\": \"array\",\n                \"items\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                        \"num\":{\"type\":\"number\",\"description\":\"Number of sentence\"},\n                        \"init\": {\"type\": \"string\",\"description\":\"Initial sentence from the Text\"},\n                        \"edit\": {\"type\": \"string\",\"description\":\"Edited sentence from your previous reply\"}\n                    },\n                    \"required\": [\"num\",\"init\", \"edit\"],\n                    \"additionalProperties\": false\n                }\n            }\n        },\n        \"required\": [\"sentences\"],\n        \"additionalProperties\": false\n    },\n    \"strict\": true\n}\n}"],
       "output_type":["none","think"],
-      "allow_calling": [true, false]
+      "allow_calling": [true, false],
+      "tool_default_name": ["default", ""],
+      "tool_description":["","This is tool"],
+      "tool_for_schema": [true, false],
+      "use_response_format_for_tools": [true, false],
+      "tool_response_format":["std","raw","tool_args_dict","tool_args_list"]
    },
    {
       "type": "updateable",

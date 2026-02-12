@@ -191,7 +191,6 @@ class LLModel():
         if res and 'intok' in p and 'outtok' in p:
             intok = p['intok']
             outtok = p['outtok']
-            out.update(p)
 
             # print('Res param=',p)
             try:
@@ -199,6 +198,7 @@ class LLModel():
                 self.addCounterToPromts(outtok, self.params['output'])
             except Exception as e:
                 print('Error count llm:',e)
+        out.update(p)
         return res, response, out
 
 

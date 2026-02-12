@@ -371,9 +371,15 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     else:
                         rep_text = rep_text.replace(res, str(pparam[arr[3]]))
                 else:
-                    rep_text = rep_text.replace(res, f"In {arr[2]} there is no {arr[3]}")
+                    target = arr[2] + "("
+                    if isinstance(pparam, dict):
+                        keys = [k for k, v in pparam.items()]
+                        target += ",".join(keys) + ")"
+                    else:
+                        target += "not_dict)"
+                    rep_text = rep_text.replace(res, f"[[FINDER_ERROR: in `{target}` there is no `{arr[3]}`]]")
             else:
-                rep_text = rep_text.replace(res, f"No target param: {arr[2]}")
+                rep_text = rep_text.replace(res, f"[[FINDER_ERROR:No target param: `{arr[2]}`]]")
         return rep_text
 
 def shiftParentTags( text : str, shift : int ):
