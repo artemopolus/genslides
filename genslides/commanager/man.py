@@ -10,6 +10,7 @@ import copy
 
 import genslides.utils.loader as Loader
 import genslides.utils.readfileman as Reader
+import genslides.commands.simple as Cmd
 
 class Jun():
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher):
@@ -20,9 +21,9 @@ class Jun():
         self.task_index = 0
         self.curr_task = None
         self.slct_task = None
-        self.cmd_list = []
+        self.cmd_list : list[Cmd.SimpleCommand] = []
 
-        self.execmd_list = []
+        self.execmd_list : list[Cmd.SimpleCommand] = []
         self.execmd_num = 10
         self.unexecmd_list = []
         self.unexecmd_num = 10

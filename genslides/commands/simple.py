@@ -9,6 +9,14 @@ class SimpleCommand(metaclass=ABCMeta):
         self.name = "simple"
         self.time = Save.getTimeForSaving()
         self.task : base.BaseTask = None
+        self.session_exe_id = ""
+
+    def setSessionId(self, id);
+        self.session_exe_id = id
+
+    def getSessionId(self):
+        return self.session_exe_id
+    
 
     def getName(self):
         task_name = "None" if self.task == None else self.task.getName()

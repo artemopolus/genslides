@@ -1095,6 +1095,8 @@ class Manager(Man.Jun):
     
     def executeCommand( self ):
         cmd = self.cmd_list.pop(0)
+        session_id = self.getUpdateSessionId()
+        cmd.setSessionId( session_id )
         self.execmd_list.append( cmd )
         if len(self.execmd_list) > self.execmd_num:
             self.execmd_list.pop(0)

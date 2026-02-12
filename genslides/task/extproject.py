@@ -591,6 +591,12 @@ class InExtTreeTask(ExtProjectTask):
     def drawAsRootTaskSymbol(self):
         return True
     
+    def runJsonCommandByInnerActioner( self, cmds : list):
+        act = self.getActioner()
+        if act != None:
+            return act.getJsonCmd( cmds )
+        return None
+    
 
  
 class JumperTreeTask(InExtTreeTask):
@@ -839,7 +845,7 @@ class JumperTreeTask(InExtTreeTask):
 
                         cres, cmds = Loader.Loader.loadJsonFromText( self.findKeyParam( eparam.get("autoload_actions","")))
                         if cres and autoload_result:
-                            results = act.getJsonCmd(cmds)
+                            results = self.runJsonCommandByInnerActioner( cmds )
                             self.updateUpdationInfo(f"Autoload_cmds:{results}")
 
                         eparam["exttreetask_file_current"] = path_to_target_file
@@ -877,7 +883,7 @@ class JumperTreeTask(InExtTreeTask):
             elif eres and 'updt_actions' in eparam and eparam['updt_actions'] == "":
                 self.updateUpdationInfo("No actions for update")
             elif eres and 'updt_actions' in eparam and eparam['updt_actions'] != "":
-                results = self.intact.getJsonCmd(self.findKeyParam(eparam['updt_actions']))
+                results = self.runJsonCommandByInnerActioner( self.findKeyParam(eparam['updt_actions']) )
                 self.updateUpdationInfo(f"UPDATE Actions with results:{results}")
             else:
                 self.updateUpdationInfo("Default update")
@@ -901,7 +907,7 @@ class JumperTreeTask(InExtTreeTask):
             if eres and 'actions_on' in eparam and eparam['actions_on'] == False:
                 pass
             elif eres and 'idle_actions' in eparam and eparam['idle_actions'] != "":
-                results = self.intact.getJsonCmd(self.findKeyParam(eparam['idle_actions']))
+                results = self.runJsonCommandByInnerActioner( self.findKeyParam(eparam['idle_actions']) )
                 self.updateUpdationInfo(f"IDLE Actions with results:{results}")
             if eres and "onupdate" in eparam and eparam["onupdate"] == "loadact_ignore":
                 self.setChildUpdateState(False)
@@ -909,7 +915,7 @@ class JumperTreeTask(InExtTreeTask):
             if self.intact.getFrozenTasksCount() > 0 \
                 and eres and 'actions_on' in eparam and eparam['actions_on'] \
                 and 'updt_actions' in eparam and eparam['updt_actions'] != "":
-                    results = self.intact.getJsonCmd(self.findKeyParam(eparam['updt_actions']))
+                    results = self.runJsonCommandByInnerActioner( self.findKeyParam(eparam['updt_actions']) )
                     # self.updateUpdationInfo(f"UPDATE Actions (frozen) with results:{results}")
 
             if self.intact.getFrozenTasksCount() > 0:
@@ -922,7 +928,7 @@ class JumperTreeTask(InExtTreeTask):
     def forceCleanChat(self):
         eres, eparam = self.getParamStruct('external',True)
         if eres and 'reset_actions' in eparam and eparam['reset_actions'] != "":
-            results = self.intact.getJsonCmd(self.findKeyParam(eparam['reset_actions']))
+            results = self.runJsonCommandByInnerActioner( self.findKeyParam(eparam['reset_actions']) )
             self.updateUpdationInfo(f"RESET Actions with results:{results}")
         return super().forceCleanChat()
 
