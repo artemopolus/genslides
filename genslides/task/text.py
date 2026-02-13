@@ -1649,6 +1649,8 @@ class TextTask(BaseTask):
         manager = self.manager
         base = self
         idx = 0
+        if not isinstance( text, str):
+            return str(text)
         #  print(f"Task: {self.getName()}")
         while idx < 10000:
              n_text, task, ress, repeat = finder.findByKey2(text, manager, base)

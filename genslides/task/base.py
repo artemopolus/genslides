@@ -341,7 +341,7 @@ class BaseTask():
                 self.setName(self.trgtaskname)
         else:
             self.setName( self.type + str(self.id))
-        request = self.init + self.prompt + self.endi
+        request = str(self.init) + str(self.prompt) + str(self.endi)
         self.task_description = "Task type = " + self.type + "\nRequest:\n" + request
         self.task_creation_result = "Results of task creation:\n"
 

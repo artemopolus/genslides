@@ -97,25 +97,27 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
         out = {}
         result = completion.choices[0]
         out ['report'] = f"call tool for: {model_name}\n"
+        response = ""
         # print(f"Response:\n{completion.choices[0]}")
         if hasattr(result, 'finish_reason'):
             out['finish_reason'] = result.finish_reason
             if result.finish_reason == "tool_calls":
                 tool_response_format =  params.get("tool_response_format", "std")
                 if tool_response_format == "std":
-                    # print("Std tool response format")
+                    out['report'] += "Std tool response format"
                     try:
                         tool_name = result.message.tool_calls[0].function.name
                         tool_args = json.loads( result.message.tool_calls[0].function.arguments )
                     except:
-                        pass
+                        out['report'] += "error on tool args"
+                        tool_args = {}
                     out['tools'] = Loader.Loader.convJsonToText( [{"name": tool_name, "args": tool_args}] )
-                    response = f"Call {tool_name} tool with: {tool_args}"
+                    response = Loader.Loader.convJsonToText( tool_args )
                 elif tool_response_format == "raw":
                     tool_calls_array = result.message.tool_calls
                     response_out = {
                         "content":result.message.content,
-                        "reasoning_content": result.message.reasoning_content,
+                        "reasoning_content": getattr(result.message, "reasoning_content", ""),
                         "tool_calls":[]
                     }
                     if tool_calls_array != None:
@@ -140,7 +142,7 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                             if res:
                                 response_out.append( fun_args )
                     response = Loader.Loader.convJsonToText(response_out)
-                # print("Final data saving")
+                out['report'] += "Final data saving"
                 out ['tool_content'] = result.message.content
                 out ['tool_reasoning_content'] = getattr(result.message, "reasoning_content", "")
                 out ['tool_calls_result'] = str(result.message.tool_calls)
