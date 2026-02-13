@@ -25,12 +25,17 @@ class UnLinkCommand(SimpleCommand):
     def execute(self) -> None:
         task = self.input.target
         self.holders = task.getHoldGarlands()
+        self.parts = task.getGarlandPart()
         task.removeLinkToTask()
         return super().execute()
     
     def unexecute(self) -> None:
         task = self.input.target
         for holder in self.holders:
-            task.createLinkToTask(holder)
+            holder.createLinkToTask(task)
+            # task.createLinkToTask(holder)
+        for part in self.parts:
+            # part.createLinkToTask(task)
+            task.createLinkToTask(part)
 
         return super().unexecute()

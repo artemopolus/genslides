@@ -1490,7 +1490,15 @@ class BaseTask():
             input = self.by_ext_affected_list.pop()
             input.parent.resetLinkToTask(input)
         for task in self.getHoldGarlands():
-            task.removeLinkToTask()
+            found = None
+            for link in task.by_ext_affected_list:
+                if link.parent == self:
+                    found = link
+            if found:
+                found.parent.resetLinkToTask(found)
+                task.by_ext_affected_list.remove(found)
+            
+            # task.removeLinkToTask()
     
 
     def completeTask(self) -> bool:
