@@ -2432,10 +2432,10 @@ class Projecter(Commander.Commander):
             inexttreeparam['idle_actions'] = idle_commands_task.getLastMsgContentRaw()
         return inexttreeparam
     
-    def createInExtTreeTaskByParam(self, param):
+    def createInExtTreeTaskByParam(self, param, jumpertreename = 'JumperTree', outexttreename = 'OutExtTree'):
         man = self.actioner.getCurrentManager()
         trgpar = man.getCurrentTask()
-        inxttreetask = man.createOrAddTaskByInfo('JumperTree', TaskDescription(prompt='', 
+        inxttreetask = man.createOrAddTaskByInfo(jumpertreename, TaskDescription(prompt='', 
                                                                               prompt_tag='user',
                                                                               parent=trgpar, 
                                                                               params=[param]))
@@ -2446,7 +2446,7 @@ class Projecter(Commander.Commander):
                 'dir':'Out',
                 'target': outtaskname
                 }
-            outexttreetask = man.createOrAddTaskByInfo('OutExtTree', 
+            outexttreetask = man.createOrAddTaskByInfo(outexttreename, 
                 TaskDescription(prompt='', prompt_tag='user',parent=inxttreetask, params=[outexttreeparam]))
         return self.updateMainUIelements()
     

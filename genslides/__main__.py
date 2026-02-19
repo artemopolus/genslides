@@ -980,6 +980,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                                 crparaminexttree_btn = gr.Button('Create InExtTree parameters')
                             with gr.Column():
                                 inexttreeactparam_jsn = gr.JSON(label='InExtTree Parameters')
+                                inexttreename_txt = gr.Textbox(label="JumperTree name",value="JumperTree")
+                                outexttreename_txt = gr.Textbox(label="OutExtTree name",value="OutExtTree")
                                 inexttreeactcreate_btn = gr.Button('Create InExtTree & OutExtTree')
                                 crparaminexttree_btn.click(fn=projecter.createJSONparamInExtTree, inputs=[ inexttree_intask_rad, inexttree_outtask_rad, inexttreeactlist_drd], outputs=inexttreeactparam_jsn)
                         with gr.Row():
@@ -1323,7 +1325,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             forceunfrzpars_btn.click(fn=projecter.forceUnFreezeParentTasks, outputs=std_output_list)
 
-            inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, inputs=inexttreeactparam_jsn, outputs=std_output_list)
+            inexttreeactcreate_btn.click(fn=projecter.createInExtTreeTaskByParam, inputs=[inexttreeactparam_jsn, inexttreename_txt, outexttreename_txt], outputs=std_output_list)
             outexttreeactcreate_btn.click(fn=projecter.createOutExtTreeTaskByParam, inputs=outexttreeactparam_jsn, outputs=std_output_list)
             ette_addouttask_btn.click(fn=projecter.createOutExtTreeTask, inputs=[ette_taskname_txt, ette_targets_drd], outputs=std_output_list)
 
