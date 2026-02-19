@@ -1,9 +1,11 @@
-from openai import OpenAI
+from openai import OpenAI, NotGiven
 import json
 import genslides.utils.loader as Loader
 
-def llamacppGetChatCompletion(msgs, params):
+def llamacppGetChatCompletion(msgs : list, params):
     # print('LlamaCPP openai api')
+    out_param = {}
+    out_param ['report'] = f"llamacppGetChatCompletion\n"
     try:
         # print('Input params:', params)
         try:
@@ -16,26 +18,59 @@ def llamacppGetChatCompletion(msgs, params):
             base_url="http://localhost:8080/v1", # "http://<Your api-server IP>:port"
             api_key = "sk-no-key-required"
         )
-        out_param = {}
-        if params.get("tool_for_schema", False):
+
+        tool_for_schema = params.get("tool_for_schema", False)
+        use_response_format_for_tools = params.get("use_response_format_for_tools", False)
+
+        append_message_on = params.get("append_messages_reason", "None")
+        if append_message_on == "Any" or \
+            append_message_on == "Tool" and (tool_for_schema or use_response_format_for_tools) \
+            :
+            appended_messages_list = params.get("appended_messages_list", [])
+            if isinstance( appended_messages_list, str):
+                res, add_msgs = Loader.Loader.loadJsonFromText( appended_messages_list )
+                if res:
+                    appended_messages_list = add_msgs
+                else:
+                    appended_messages_list = []
+            elif isinstance( appended_messages_list, list):
+                pass
+            else:
+                appended_messages_list = []
+            for idx, message in enumerate(appended_messages_list):
+                if idx == 0 and params.get("unite_appended_messages_with_last", False) \
+                    and "role" in message and "content" in message \
+                    and "role" in msgs[-1] and "content" in msgs[-1]\
+                    and message["role"] == msgs[-1]["role"]:
+                    msgs[-1]["content"] += message["content"]
+                elif "role" in message and "content" in message:
+                    msgs.append( message )
+
+      
+        if tool_for_schema:
             tools = getToolFunctionFormat(params.get("tool_default_name","default"), params.get("tool_description",""), params.get("response_format",""))
             return llamacppGetToolResponse(msgs, tools, params)
-        if params.get("use_response_format_for_tools", False):
+        if use_response_format_for_tools:
             res, tools = Loader.Loader.loadJsonFromText(params.get("response_format",""))
             if res:
                 return llamacppGetToolResponse(msgs, tools, params)
             return False, '', {}
+        model_name = getattr(params,'model','unknown')
+        out_param ['report'] += f"Standart call: {model_name}\n"
 
         if 'response_format' in params and params['response_format'] != "":
             jformat = json.loads(params['response_format'], strict=False)
+            out_param ['report'] += f"With structured output\n"
             # print("With reponse format:",jformat)
             if 'temperature' in params:
+                t = params['temperature']
+                out_param ['report'] += f"with temperature{t}\n"
                 completion = client.chat.completions.create(
                 model=params['model'],
                 messages=msgs,
                 timeout=7200,
                 response_format=jformat,
-                temperature=params['temperature']
+                temperature=t
             )
             else:
                 completion = client.chat.completions.create(
@@ -45,7 +80,10 @@ def llamacppGetChatCompletion(msgs, params):
                 response_format=jformat
             )
         else:
+            out_param ['report'] += f"std msg call\n"
             if 'temperature' in params:
+                t = params['temperature']
+                out_param ['report'] += f"with temperature{t}\n"
                 completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=msgs,
@@ -61,22 +99,27 @@ def llamacppGetChatCompletion(msgs, params):
             )
         
             
-        print('Openai completion\n',completion)
+        # print('Openai completion\n',completion)
         msg = completion.choices[0].message.content
         choice = completion.choices[0]
         # print('Out:', msg)
         try:
             out_param ['intok'] = completion.usage.prompt_tokens,
             out_param ['outtok'] = completion.usage.completion_tokens
-            out_param ['reasoning_content'] = choice.message.reasoning_content
-            out_param ['tool_calls'] = choice.message.tool_calls
         except:
             pass
+        out_param ['reasoning_content'] = getattr(choice.message,"reasoning_content","")
+        out_param ['tool_calls'] = getattr(choice.message,"tool_calls", "")
+        out_param ['finish_reason'] = getattr(choice,"finish_reason","error")
 
-        return True, msg, out_param
+        if msg == "":
+            out_param ['report'] += f"Empty message\n"
+            return False, msg, out_param
+        else:
+            return True, msg, out_param
     except Exception as e:
-        print('llama server api error=', e) 
-        return False, '', {}
+        out_param ['report'] += f"llama server api error={e}\n"
+        return False, '', out_param
 
 def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
     try:
@@ -92,7 +135,7 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                     messages=msgs,
                     timeout=7200,
                     tools=tools,
-                    temperature= params.get("temperature", 0.6)
+                    temperature= params.get("temperature", NotGiven)
                 )
         out = {}
         result = completion.choices[0]
