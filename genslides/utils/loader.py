@@ -107,6 +107,41 @@ class Loader:
 
         return False, None
     
+    def loadJsonFromTextStr(text : str):
+        report = "load json try 1\n"
+        try:
+            val = json.loads(text, strict=False)
+            return True, val, report
+        except json.JSONDecodeError as e:
+            # Ошибка именно в структуре JSON
+            error_msg = (
+                f"JSON Syntax Error: {e.msg}\n"
+                f"At line {e.lineno}, column {e.colno} (char {e.pos})\n"
+            )
+            # Можно добавить фрагмент текста, где произошла ошибка
+            snippet = text[max(0, e.pos - 20):e.pos + 20].replace('\n', ' ')
+            report += f"error: {error_msg} Context: '...{snippet}...'\n"
+        
+        except TypeError as e:
+            # Ошибка, если входные данные — не строка и не байты
+            report += f"error: Invalid input type. Expected string/bytes, got {type(text).__name__}. Details: {e}\n"
+            
+        except Exception as e:
+            # На случай непредвиденных системных ошибок
+            report += f"error: Unexpected error during parsing: {type(e).__name__}: {e}\n"
+
+
+        report += "load json try 2\n"
+        try:
+            prop = Loader.convertJsonTextPartToMsg(text)
+            val = json.loads(prop, strict=False)
+            return True, val, report
+        except Exception as e:
+            report += f"error:{e}\n"
+        return False, None, report
+    
+    
+    
     def convertFilePathToTag(path, manager_path):
         filename = PurePosixPath(Path(path))
         res, filename = Loader.checkManagerTag2(path, manager_path, False)

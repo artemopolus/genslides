@@ -284,8 +284,9 @@ class ListenerTask(LinkedTask):
         if check_links:
             prefix = lparam.get("prefix","")
             suffix = lparam.get("suffix","")
+            link_dict_keys = []
             for tsk_info in self.by_ext_affected_list:
-                # print('Upd listener from',tsk_info.parent.getName())
+                self.updateUpdationInfo(f"Upd listener from {tsk_info.parent.getName()}")
                 if 'combine' in lparam:
                     if lparam['combine'].startswith ('single'):
                         if tsk_info.enabled:
@@ -305,8 +306,9 @@ class ListenerTask(LinkedTask):
                                 jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
                                 if jres:
                                     prompts_data.update( jobj)
-                            elif lparam['combine'] == 'json_append' \
-                            or lparam['combine'] == 'json_list':
+                                else:
+                                    self.updateUpdationInfo("Not valid for json_update")
+                            elif lparam['combine'] == 'json_append':
                                 jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
                                 if jres:
                                     if isinstance(jobj, list) and isinstance(prompts_data, list):
@@ -315,27 +317,97 @@ class ListenerTask(LinkedTask):
                                         prompts_data.extend(jobj)
                                     else:
                                         prompts_data.append( jobj)
+                                else:
+                                    self.updateUpdationInfo("Not valid for json_append")
                             elif isinstance(tsk_info.params, list):
+                                fres, forced_type = self.getParamValueByKey(tsk_info.params,'tag','forced_content_type')
                                 kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
-                                if kres:
-                                    if lparam['combine'] == 'json_list':
-                                        prompts_data.append({key: tsk_info.prompt})
-                                    elif lparam['combine'] == 'json_dict':
-                                        prompts_data.update({key: tsk_info.prompt})
+                                if fres and kres and forced_type != "any":
+                                    self.updateUpdationInfo(f"Forced type[{key}]: {forced_type}")
+                                    if forced_type == "prompt":
+                                        if lparam['combine'] == 'json_list':
+                                            link_dict_keys.append(key)
+                                            prompts_data.append({key: tsk_info.prompt})
+                                        elif lparam['combine'] == 'json_dict':
+                                            link_dict_keys.append(key)
+                                            prompts_data.update({key: tsk_info.prompt})
+                                    elif forced_type == "json":
+                                        jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr(tsk_info.prompt)
+                                        keys_info = ",".join([k for k, v in jobj.items()])
+                                        self.updateUpdationInfo(f"Update json with {keys_info}")
+                                        if jres:
+                                            if lparam['combine'] == 'json_list':
+                                                prompts_data.append(jobj)
+                                            elif lparam['combine'] == 'json_dict':
+                                                prompts_data.update(jobj)
+                                        else:
+                                            self.updateUpdationInfo(jreport)
+                                    elif forced_type == "key_json":
+                                        jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr(tsk_info.prompt)
+                                        if jres:
+                                            if lparam['combine'] == 'json_list':
+                                                link_dict_keys.append(key)
+                                                prompts_data.append({key: jobj})
+                                            elif lparam['combine'] == 'json_dict':
+                                                link_dict_keys.append(key)
+                                                prompts_data.update({key: jobj})
+                                        else:
+                                            self.updateUpdationInfo(jreport)
+                                    else:
+                                        self.updateUpdationInfo("Unknown forced type")
                                 elif lparam['combine'] == 'json_list':
                                     jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
                                     if jres:
                                         prompts_data.append(jobj)
                                     else:
-                                        prompts_data.append(tsk_info.prompt)
+                                        kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
+                                        if kres:
+                                            prompts_data.append({key: tsk_info.prompt})
+                                        else:
+                                            prompts_data.append(tsk_info.prompt)
+                                elif lparam['combine'] == 'json_dict':
+                                    self.updateUpdationInfo("Json dict")
+                                    jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr(tsk_info.prompt)
+                                    if jres and isinstance( jobj, dict):
+                                            for k, v in jobj.items():
+                                                link_dict_keys.append( k )
+                                            keys_info = ",".join([k for k, v in jobj.items()])
+                                            self.updateUpdationInfo(f"Update dict with {keys_info}")
+                                            prompts_data.update(jobj)
+                                    elif jres and isinstance( jobj, list):
+                                        kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
+                                        if kres:
+                                            prompts_data.update({key: jobj})
+                                            link_dict_keys.append(key)
+                                            self.updateUpdationInfo(f"Update list for {key}")
+                                        else:
+                                            self.updateUpdationInfo(f"No key for list")
+                                    else:
+                                        if not jres:
+                                            self.updateUpdationInfo(jreport)
+                                        else:
+                                            self.updateUpdationInfo("Is not dict or list")
+                                        kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
+                                        if kres:
+                                            self.updateUpdationInfo(f"Update prompt for {key}")
+                                            prompts_data.update({key: tsk_info.prompt})
+                                            link_dict_keys.append(key)
+                                        else:
+                                            self.updateUpdationInfo(f"No key for prompt")
+                                else:
+                                    self.updateUpdationInfo("Is not dict or list or prompt")
+
                             tsk_info.enabled = False
                             updated = True
+                    else:
+                        self.updateUpdationInfo("Is not json or multi or single")
                 else:
                     prompt += prefix + tsk_info.prompt + suffix
                     params.extend(tsk_info.params)
                     updated = True
         else:
             self.updateUpdationInfo("Checks not pass\n")
+        lparam["json_dict_link_keys"] = ",".join(link_dict_keys)
         if not updated:
             # if lres and 'init_prompt' in lparam:
                 # self.prompt = self.findKeyParam(lparam['init_prompt'])

@@ -290,8 +290,9 @@
    },
    {
       "type":"tag",
-      "text": ["","external input default","external output default","external updt_actions default","external idle_actions default"],
-      "key": ""
+      "text": ["","write_here_text_for_searching_task,example1","external input default","external output default","external updt_actions default","external idle_actions default"],
+      "key": ["","write here name for json manipulating"],
+      "forced_content_type":["any","prompt","json","key_json"]
    },
    {
       "type":"check",
