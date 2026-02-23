@@ -220,6 +220,9 @@ class Commander:
 
     def getActionersList(self) -> list[Act.Actioner]:
         return [a['act'] for a in self.actioners_list]
+    
+    def getActionersPaths(self) -> list[str]:
+        return [a.getPath() for a in self.getActionersList()]
  
     def addActionerTolist(self, act : Act.Actioner, params = {'type':'project'}, move2selected = True):
         found = False
