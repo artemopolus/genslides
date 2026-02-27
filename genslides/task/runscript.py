@@ -26,10 +26,13 @@ class RunScriptTask(ResponseTask):
             workspace = self.findKeyParam(pparam["cwd"])
             workspace = Loader.getUniPath(workspace)
             fm.createFolder(workspace)
-            print("Run script", file,'in', workspace)
+            # print("Run script", file,'in', workspace)
             self.updateUpdationInfo(f"Run script:\n{file}\n in \n{workspace}")
+
             result = subprocess.run(file, capture_output=True, text=True, cwd=workspace, shell=True)
             self.execute_success = True
+            pparam['script_command'] = file
+            pparam['script_cwd'] = workspace
             pparam['return'] = result.returncode
             pparam['error'] = result.stderr
             pparam['out'] = result.stdout

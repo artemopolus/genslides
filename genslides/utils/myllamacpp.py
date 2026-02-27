@@ -1,11 +1,16 @@
 from openai import OpenAI, NotGiven
 import json
 import genslides.utils.loader as Loader
+import requests
 
-def llamacppGetChatCompletion(msgs : list, params):
+
+def llamacppGetChatCompletion(msgs : list, params : dict):
     # print('LlamaCPP openai api')
     out_param = {}
     out_param ['report'] = f"llamacppGetChatCompletion\n"
+    callllamacppreq = params.get("callllamacppreq", False)
+    if callllamacppreq:
+        return llamacppRawCall( msgs, params, out_param)
     try:
         # print('Input params:', params)
         try:
@@ -226,3 +231,55 @@ def getToolFunctionFormat( name : str, description : str, schema : str):
     else:
         print("No good schemas")
     return available_tools
+
+def llamacppRawCall( msgs : list[dict], params : dict, out_param : dict):
+    model_name = params.get('model','unknown')
+    out_param ['report'] += f"llamacppRawCall for: {model_name}\n"
+
+    port = params.get('url',"http://127.0.0.1:4085/v1")
+    
+
+    url = f"{port}/chat/completions"
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer no-key"
+    }
+
+    # Тело запроса
+    payload = {
+        "model": "qwen3.5-35b-a3b",
+        "stream": False,
+        # Используем тройные кавычки для удобной записи многострочной грамматики GBNF
+        "messages": msgs
+    }
+    allowed_params = ["temperature","top_k","top_p","min_p","grammar","json_schema","chat_template_kwargs"]
+    for p in allowed_params:
+        if p in params:
+            payload[p] = params[p]
+            out_param ['report'] += f"Add param {p}"
+    if "logit_bias" in params:
+        payload["logit_bias"] = {
+            "248069": 11.8
+        },
+    if "grammar" not in params and "json_schema" not in params:
+        if "default_grammar" in params:
+            payload["grammar"] = params["default_grammar"]
+        # payload["grammar"] = "root ::= pre <[248069]> post\npre ::= !<[248069]>*\npost ::= !<[248069]>*",
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()  # Вызовет ошибку, если статус-код не 200
+        
+        # Вывод результата
+        result = response.json()
+        choice = result["choices"][0]
+        message = choice["message"]
+        content = message.get("content","")
+        out_param["reasoning_content"] = message.get("reasoning_content","Empty")
+        out_param["finish_reason"] = choice.get("finish_reason","No finish reason")
+        return True, content, out_param
+
+    except requests.exceptions.RequestException as e:
+        out_param ['report'] += f"Ошибка при выполнении запроса: {e}"
+        return False, "", out_param
