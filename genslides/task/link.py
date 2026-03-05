@@ -284,6 +284,7 @@ class ListenerTask(LinkedTask):
         if check_links:
             prefix = lparam.get("prefix","")
             suffix = lparam.get("suffix","")
+            trg_multi_on = lparam.get("trg_multi_on", False)
             link_dict_keys = []
             for tsk_info in self.by_ext_affected_list:
                 self.updateUpdationInfo(f"Upd listener from {tsk_info.parent.getName()}")
@@ -297,9 +298,19 @@ class ListenerTask(LinkedTask):
                             break
                     elif lparam['combine'].startswith ('multi'):
                         if tsk_info.enabled:
-                            prompt += prefix + tsk_info.prompt + suffix
-                            tsk_info.enabled = False
-                            updated = True
+                            if trg_multi_on:
+                                trg_multi_tasks_names = txt.convertCommaSeparatedToList( lparam.get("trg_multi_tasks_names",""))
+                                if tsk_info.parent.getName() in trg_multi_tasks_names:
+                                    prompt += prefix + tsk_info.prompt + suffix
+                                    updated = True
+                                    self.updateUpdationInfo(f"Trg multi ALLOW: {tsk_info.parent.getName()}")
+                                else:
+                                    self.updateUpdationInfo(f"Trg multi decline: {tsk_info.parent.getName()}")
+                                tsk_info.enabled = False
+                            else:
+                                prompt += prefix + tsk_info.prompt + suffix
+                                tsk_info.enabled = False
+                                updated = True
                     elif lparam['combine'].startswith("json"):
                         if tsk_info.enabled:
                             if lparam['combine'] == 'json_update':
