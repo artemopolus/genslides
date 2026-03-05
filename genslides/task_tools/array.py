@@ -2,6 +2,11 @@ import genslides.task_tools.text as TextTool
 import genslides.utils.loader as Ld
 # import genslides.task.text as Txt
 
+def checkContextWindow( text: str, size):
+    if size < len(text):
+        return False
+    return True
+
 def divideArray(task  , param : dict):
     # print('Divide array')
     parse_type = param['parse']
@@ -29,26 +34,68 @@ def divideArray(task  , param : dict):
         res, targets = Ld.Loader.loadJsonFromText(msg_content)
         if res and isinstance(targets, list):
             arr = []
-            for idx, content in enumerate( targets ):
-                trg_idx  = idx
-                chck = False
-                if 'idx' in content:
-                    trg_idx = content['idx']
-                    del content['idx']
-                if 'chck' in content:
-                    chck = content['chck']
-                    del content['chck']
-                if 'content' in content:
-                    text = content['content']
-                else:
-                    text = Ld.Loader.convJsonToText( content )
-                arr.append(
-                    {
-                        'idx' : trg_idx,
-                        'chck':chck,
-                        'content': text
-                    }
-                )
+            check_context_window_on = param.get("context_window_check_on",False)
+            if check_context_window_on:
+                context_win_size = param.get("context_window_size", 100)
+                use_marker = param.get("context_window_addmarker","none")
+                starting_text = ""
+                starting_names = []
+                for msg in targets:
+                    if "content" in msg and "priority" in msg and "name" in msg:
+                        if msg["priority"] == "high":
+                            if use_marker == "taskname":
+                                starting_text += f"[{msg["name"]}] " + msg["content"]
+                            else:
+                                starting_text += msg["content"]
+                            starting_names.append(msg["name"])
+                msg_content = starting_text
+                msg_names = []
+                for idx, msg in enumerate(targets):
+                    if "content" in msg and "name" in msg:
+                        if msg["name"] not in starting_names:
+                            if checkContextWindow(msg_content, context_win_size):
+                                if use_marker == "taskname":
+                                    msg_content += f"[{msg["name"]}] " + msg["content"]
+                                else:
+                                    msg_content += msg["content"]
+                                msg_names.append(msg["name"])
+                            elif len(msg_names) > 0:
+                                arr_value = {
+                                    "content" : msg_content,
+                                    "name" : ",".join(msg_names)
+                                }
+                                arr.append(
+                                    {
+                                        'idx' : idx,
+                                        'chck':False,
+                                        'content': Ld.Loader.convJsonToText(arr_value)
+                                    }
+                                )
+                                msg_content = starting_text
+                                msg_names = []
+                            else:
+                                msg_content = starting_text
+            else:
+                for idx, content in enumerate( targets ):
+                    trg_idx  = idx
+                    chck = False
+                    if 'idx' in content:
+                        trg_idx = content['idx']
+                        del content['idx']
+                    if 'chck' in content:
+                        chck = content['chck']
+                        del content['chck']
+                    if 'content' in content:
+                        text = content['content']
+                    else:
+                        text = Ld.Loader.convJsonToText( content )
+                    arr.append(
+                        {
+                            'idx' : trg_idx,
+                            'chck':chck,
+                            'content': text
+                        }
+                    )
                 
             return True, arr
         else:

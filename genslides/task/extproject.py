@@ -1132,8 +1132,7 @@ class OutExtTreeTask(ExtProjectTask):
 
             
         except Exception as e:
-            # print('Failed load man and act:', e)
-            pass
+            self.updateUpdationInfo(f"Failed load man and act:{e}")
 
     def checkGetContentAndParent(self) -> list[bool, list, BaseTask]:
         return False, [], self.intch_trg
@@ -1206,8 +1205,7 @@ class OutExtTreeTask(ExtProjectTask):
                 param = {'type':'bud','text': bparam['text'],'branch':self.getBranchCodeTag()}
                 self.setParamStruct(param)
             else:
-                # print('No param for summary')
-                pass
+                self.updateUpdationInfo('No param for summary')
  
             
         except Exception as e:

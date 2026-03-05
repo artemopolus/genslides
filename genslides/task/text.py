@@ -584,7 +584,10 @@ class TextTask(BaseTask):
         if cres:
             content = self.findKeyParam(cparam.get("prefix","")) + content + self.findKeyParam(cparam.get("suffix",""))
 
-        if "prefix" in param:
+        if "prefixsuffix" in param:
+            if param["prefixsuffix"] == "short":
+                content = f"[{self.getShortName()}] " + content
+        elif "prefix" in param:
             if param["prefix"] == "name":
                 prefix = self.getName()
             elif param["prefix"] == "short_name":
@@ -597,6 +600,17 @@ class TextTask(BaseTask):
                 "content": content}
         if add_task_name:
             pack["name"] = self.getName()
+        elif "add_task_name" in param:
+            if param["add_task_name"] == "short":
+                pack["name"] = self.getShortName()
+            else:
+                pack["name"] = self.getShortName()
+        if param.get("add_priority", False):
+            tres, tparam = self.getParamStruct('tag', only_current=True)
+            if tres:
+                if "priority" in tparam:
+                    pack["priority"] = tparam["priority"]
+        
         val = [pack]
         if "attach" in param and param["attach"]:
             ares, aparam = self.getParamStruct("attach", only_current=True)

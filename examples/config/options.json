@@ -158,7 +158,10 @@
       "part_prefix": ["","[["],
       "part_suffix": ["", "]]"],
       "exclude_tasktypes":["","SetOptions","SetOptions,Response,Listener"],
-      "freeze_if_array_end":[false, true]
+      "freeze_if_array_end":[false, true],
+      "context_window_check_on":[false, true],
+      "context_window_size":[100, 500, 1000],
+      "context_window_addmarker":["none","taskname"]
    },
    {
       "type":"ReadBranch",
@@ -257,7 +260,8 @@
       "prefix":"",
       "suffix":"",
       "update_frozen":[false, true],
-      "clear_nonupdated":[false, true]
+      "clear_nonupdated":[false, true],
+      "trg_multi_tasks_names":["","Example: Request111,Request222"]
    },
    {
       "type": "autocommander",
@@ -292,7 +296,8 @@
       "type":"tag",
       "text": ["","write_here_text_for_searching_task,example1","external input default","external output default","external updt_actions default","external idle_actions default"],
       "key": ["","write here name for json manipulating"],
-      "forced_content_type":["any","prompt","json","key_json"]
+      "forced_content_type":["any","prompt","json","key_json"],
+      "priority":["low","high","for allmsgs:json_msgs"]
    },
    {
       "type":"check",
