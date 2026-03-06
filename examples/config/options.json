@@ -217,7 +217,9 @@
       "restricted_index": [true, false],
       "index": 2,
       "break":[false, true],
-      "excld_task": ""
+      "excld_task": "",
+      "system_mark":["system","user","assistant"],
+      "system_first":["none","only_last","all_first"]
    },
    {
       "type": "externalinput",

@@ -726,7 +726,16 @@ class TextTask(BaseTask):
             else:
                 task = par
             index += 1
-        # print(f"Res msgs:{len(out)}")
+        if rres:
+            system_first = rparam.get("system_first", "none")
+            if system_first != "none":
+                target_role = rparam.get("system_mark","system")
+                trgs = [d for d in out if d.get("role") == target_role]
+                others = [d for d in out if d.get("role") != target_role]
+                if system_first == "only_last":
+                    return trgs[-1:] + others
+                else:
+                    return trgs + others
         return out
 
 
