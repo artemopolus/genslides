@@ -344,6 +344,10 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
         elif arr[1] == 'remove_code':
             script_text = removeCodeFromMd( md_text= task.getLastMsgContent())
             rep_text = rep_text.replace(res, script_text)
+        elif arr[1] == 'get_md_part' and len(arr) > 2:
+            even = True if len(arr) > 3 and arr[3] == 'even' else False
+            script_text = removeCodeFromMd(md_text=task.getLastMsgContent(),keyword=arr[2], even=even)
+            rep_text = rep_text.replace(res, script_text)
         elif arr[1] == 'text_ins_even':
             script_text = convertTextPartToMsg(md_text=task.getLastMsgContent())
             if len(arr) > 2 and arr[2] == 'json_dumps':
