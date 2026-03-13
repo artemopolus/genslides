@@ -3874,3 +3874,12 @@ class Projecter(Commander.Commander):
     def saveCurretTaskExtTreeArchive( self ):
         trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave7zArchive() )
         self.actioner.getCurrentManager().getCurrentTask().saveExtTreeProject( trg_path )
+
+    def moveActionerToAnotherFolder(self, path):
+        super().moveActionerToAnotherFolder(path)
+        return self.updateTreeAndAll()
+    
+    def syncCurrentActionerWithFolder(self):
+        super().syncCurrentActionerWithFolder()
+        return self.updateTreeAndAll()
+

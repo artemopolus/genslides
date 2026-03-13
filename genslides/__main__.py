@@ -942,6 +942,12 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     copymultiseltask_btn.click(fn=projecter.copyMultiSelectedTasksFromTargetActioner, outputs=[movemultiseltask_btn, copymultiseltask_btn, selact_txt])
                     
                     with gr.Row():
+                        acttrgpath_txt = gr.Textbox(label="Type new path to act dir")
+                        acttrgpath_btn = gr.Button("Move act to target folder")
+                    with gr.Row():
+                        reloadact_btn = gr.Button("Reload current actioner")
+                    
+                    with gr.Row():
                         ia_source_drd = gr.Dropdown(label='Source ExtTreeTask')
                     with gr.Tab("Create tasks"):
                         ia_target_drd = gr.CheckboxGroup(label='Target ExtTreeTask')
@@ -1535,6 +1541,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             gettaskswithcmds_rad.input(fn=projecter.setCurrentTaskByName, inputs=[gettaskswithcmds_rad], outputs= tree_outlist )
             go_lnkfrwd_btn.click(fn=projecter.setCurrentTaskByName, inputs=[go_lnkfrwd_rad], outputs= tree_outlist )
 
+            acttrgpath_btn.click(fn=projecter.moveActionerToAnotherFolder, inputs=[acttrgpath_txt], outputs=tree_outlist)
+            reloadact_btn.click(fn=projecter.syncCurrentActionerWithFolder, outputs=tree_outlist)
 
             project_clear.click(fn=projecter.clear)
             project_load.click(fn=projecter.load, outputs=std_full)

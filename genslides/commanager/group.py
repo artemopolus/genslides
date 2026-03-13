@@ -3389,6 +3389,23 @@ class Actioner():
         else:
             print(f"No methods in {self.parameters}")
 
+    def syncExtTreeTaskPath( self, path ):
+        for task in self.getCurrentManager().getTasks():
+            if task.checkActionerTaskPath( path ):
+                print(f"Sync task {task.getName()} with {path}")
+                task.setActionerTaskPath( path )
+
+    def moveFromCurrentToAnother( self, trg_path : str, autoload = True):
+        self.setCurrentManager(self.std_manager)
+        start_path = self.getCurrentManager().getPath()
+        print(f"Move from {start_path} to {trg_path}")
+        FileManager.copyFiles(start_path, trg_path)
+        self.getCurrentManager().setPath( trg_path )
+        self.setPath( trg_path )
+        self.syncWithCurrentFolder()
+        if autoload:
+            self.syncRelatedActionersWithFolder()
+
     
     def syncWithCurrentFolder( self, safe_load_tasks = True, load_managers_tasks = True):
         self.reset()

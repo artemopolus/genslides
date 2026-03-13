@@ -250,4 +250,18 @@ class Commander:
     def updateActionersIds( self ):
         for actioner in self.getActionersList():
             actioner.getCurrentManager().setUpdateSessionId(Ids.generateKey())
+
+    def moveActionerToAnotherFolder( self, path ):
+        act = self.actioner
+        act.moveFromCurrentToAnother( path )
+
+        for actioner in self.getActionersList():
+            if act != actioner:
+                actioner.syncExtTreeTaskPath( path )
+
+        self.saveSession()
+
+    def syncCurrentActionerWithFolder( self ):
+        self.actioner.syncWithCurrentFolder()
+        # self.actioner.syncRelatedActionersWithFolder()
  

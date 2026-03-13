@@ -1650,6 +1650,12 @@ class BaseTask():
     def getActioner(self):
         return None
     
+    def checkActionerTaskPath( self, path : str):
+        return False
+    
+    def setActionerTaskPath( self, path : str):
+        pass
+
     def loadActionerTasks(self, actioners : list):
         return None
     
