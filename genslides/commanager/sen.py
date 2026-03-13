@@ -998,7 +998,7 @@ class Projecter(Commander.Commander):
                     paths.append(path_to_act)
         return paths
         
-    def removeActioner( self, path):
+    def removeActionerFromList( self, path):
         trg = None
         if isinstance(path, str):
             for act in self.actioners_list:
@@ -1007,8 +1007,8 @@ class Projecter(Commander.Commander):
         else:
             print("Path is not str")
         if trg != None:
-            print(f"Remove actioner [{path}]")
-            trg['act'].beforeRemove()
+            print(f"Remove actioner [{path}] from list")
+            trg['act'].beforeRemove(False, False)
             self.actioners_list.remove( trg )
             del trg
             self.actioner = self.actioners_list[0]['act']

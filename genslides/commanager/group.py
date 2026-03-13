@@ -1473,13 +1473,13 @@ class Actioner():
         manager.info['task_names'] = task_names
         manager.saveInfo()
 
-    def beforeRemove(self):
+    def beforeRemove(self, rm_fld = True, rm_tasks = True):
         print(f"Preparing for remove {self.getPath()}")
         for man in self.tmp_managers:
-            man.beforeRemove(remove_folder = True, remove_task = True)
+            man.beforeRemove(remove_folder = rm_fld, remove_task = rm_tasks)
         self.tmp_managers.clear()
         if self.std_manager != None:
-            self.std_manager.beforeRemove(remove_folder = True, remove_task = True)
+            self.std_manager.beforeRemove(remove_folder = rm_fld, remove_task = rm_tasks)
 
  
     def editBasicActions(self, prompt, param):

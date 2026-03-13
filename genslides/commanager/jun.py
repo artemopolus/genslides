@@ -1555,6 +1555,10 @@ class Manager(Man.Jun):
                 task.beforeRemove()
                 self.task_list.remove(task)
                 del task
+        else:
+            for task in self.task_list:
+                del task
+            self.task_list = []
         if remove_folder:
             # os.path.split(self.getPath())
             # Path.rmdir(self.getPath())

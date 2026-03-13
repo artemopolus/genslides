@@ -1407,7 +1407,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             newsessionname_btn.click(fn=projecter.setNewSessionName, inputs=[sessionnamecur_txt], outputs=[sessionnamecur_txt, sessionname_drd])
    
             actaddbybrow_btn.click(fn=projecter.loadActionerByBrowsing, outputs=std_full)
-            actdel_btn.click(fn=projecter.removeActioner, inputs=current_actioner_name, outputs=tree_outlist)
+            actdel_btn.click(fn=projecter.removeActionerFromList, inputs=current_actioner_name, outputs=tree_outlist)
             actaddbyext_btn.click(fn=projecter.loadActionerFromExtTreeTask, outputs=std_full)
             
             loadactwithtemplate_btn.click(fn=projecter.loadActionerWithTemplate, inputs=[templatepath_txt, projectfilepath_txt, projectfolderpath_txt], outputs=std_full)
