@@ -18,6 +18,7 @@ import genslides.task_tools.cmds as CommandTool
 import genslides.utils.llmodel as LlmModel
 import genslides.utils.readfileman as ReadFM
 import genslides.utils.writer as Writer
+import genslides.utils.convert2genslidesjson as Converter
 import os
 import json
 import shutil
@@ -3230,6 +3231,11 @@ class Actioner():
         name = f"{self.getManagerSpaceName( man )}_gs"
         return Archivator.Archivator.saveAllbyName(manager_path, path_to_folder, name)
     
+    def saveGenslidesArchiveByPath( self, path_to_file : str):
+        man = self.getCurrentManager()
+        manager_path = self.getManagerFolderPath( man )
+        return Archivator.Archivator.saveAllbyPath( manager_path, path_to_file )
+    
     def convertJsonFileToTemplateTreeTasks( self, path_to_default_7z, path_to_project_json ):
         path_to_default_7z = Loader.Loader.getUniPath( path_to_default_7z )
         path_to_project_json = Loader.Loader.getUniPath( path_to_project_json )
@@ -3289,7 +3295,7 @@ class Actioner():
                         pack["parent_task"] = prev_task_name
                         prev_task_name = man.getCurrentTask().getName()
             folderpath = Loader.Loader.getFileFolder(path_to_project_json)
-            name = Loader.Loader.getFileNameFromPath(path_to_project_json) + "_gs"
+            name = Converter.getGenslidesArchiveFilePathBasedOnJson( path_to_project_json )
             manager_path = self.getManagerFolderPath( man )
             data["src_project_path"] = manager_path
             path_to_created_project_file = Archivator.Archivator.saveAllbyName(manager_path, folderpath, name)

@@ -805,12 +805,16 @@ class JumperTreeTask(InExtTreeTask):
                 autoload_result = False
                 self.updateUpdationInfo("Autoload project")
                 path_to_target_file = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_file_target","") ) )
+                act = self.getActioner()
                 if Loader.Loader.checkIsFile(path_to_target_file):
                     path_to_current_file = eparam.get("exttreetask_file_current","")
                     if path_to_target_file == path_to_current_file and Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
                         self.updateUpdationInfo(f"Target file == valid archive:{path_to_target_file}")
                         autoload_result = True
                     elif path_to_target_file != path_to_current_file and Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
+                        path_to_current_archive = Converter.getGenslidesArchiveFilePath( path_to_current_file)
+                        self.updateUpdationInfo(f"Save previous file: {path_to_current_file}\nTarget:{path_to_current_archive}")
+                        act.saveGenslidesArchiveByPath( path_to_current_archive)
                         autoload_result = act.loadManagerProjectFromFile( path_to_target_file )
                         self.updateUpdationInfo(f"Load archive:{path_to_target_file} = {autoload_result}")
                     elif path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
@@ -819,7 +823,6 @@ class JumperTreeTask(InExtTreeTask):
                     else:
                         self.updateUpdationInfo(f"Load project by path: {path_to_target_file}")
 
-                        act = self.getActioner()
                         if Converter.checkExtensionOfFile( path_to_target_file ):
                             if not Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
                                 path_to_gsjs = Converter.getConvertedGenslidesJsonName( path_to_target_file )

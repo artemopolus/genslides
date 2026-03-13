@@ -4,6 +4,7 @@ from tree_sitter import Language, Parser
 import tree_sitter_cpp as tspython
 import genslides.task_tools.py_parser as pyparser
 import genslides.task_tools.text as TextTool
+import genslides.utils.loader as loader
 from pypdf import PdfReader
 
 class DefaultConvertor:
@@ -11,6 +12,9 @@ class DefaultConvertor:
         self.parameters = {
             "suffix":"_dflt"
         }
+
+    def getArchiveNameFromJson( self, path : str):
+        return loader.Loader.getFileNameFromPath(path)
 
     def createFileHeader(self, source_path : str, targets : list):
         return {
@@ -44,7 +48,7 @@ class DefaultConvertor:
  
     
     def get_genslides_jsonproject_path (self,file_path):
-        return self.get_new_genslides_path( file_path, ".json")
+        return self.get_new_genslides_path( file_path, "_gs.json")
     
     def check_extension (self, file_path ):
         return False
@@ -241,7 +245,7 @@ class CppConvertor(DefaultConvertor):
 
         # Construct output file path
         base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_h.json" if ext == ".h" else "_hpp.json" if ext == ".hpp" else "_cpp.json"
+        output_extension = "_h_gs.json" if ext == ".h" else "_hpp_gs.json" if ext == ".hpp" else "_cpp_gs.json"
         output_file_path = os.path.join(output_dir, f"{base_name}{output_extension}")
 
         # Write the output to a JSON file
@@ -268,7 +272,7 @@ class CppConvertor(DefaultConvertor):
     def get_genslides_jsonproject_path (self,file_path):
         output_dir = os.path.dirname( file_path )
         base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_h.json" if ext == ".h" else "_hpp.json" if ext == ".hpp" else "_cpp.json"
+        output_extension = "_h_gs.json" if ext == ".h" else "_hpp_gs.json" if ext == ".hpp" else "_cpp_gs.json"
         return os.path.join(output_dir, f"{base_name}{output_extension}")
     
     def check_extension(self,file_path):
@@ -281,7 +285,7 @@ class CppConvertor(DefaultConvertor):
     def get_genslides_archive_path(self,file_path):
         output_dir = os.path.dirname( file_path )
         base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_h_gs.7z" if ext == ".h" else "_hpp_gs.7z" if ext == ".hpp" else "_cpp_gs.7z"
+        output_extension = "_h.7z" if ext == ".h" else "_hpp.7z" if ext == ".hpp" else "_cpp.7z"
         return  os.path.join(output_dir, f"{base_name}{output_extension}")
     
     def check_genslides_archive(self,file_path):
@@ -290,14 +294,14 @@ class CppConvertor(DefaultConvertor):
 class PyConverter(DefaultConvertor):
     def process_file(self,file_path, output_dir):
         base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_py.json"
+        output_extension = "_gs_py.json"
         output_file_path = os.path.join(output_dir, f"{base_name}{output_extension}")
         return pyparser.convert_genslide_json_file( file_path, output_file_path)
     
     def get_genslides_jsonproject_path (self,file_path):
         output_dir = os.path.dirname( file_path )
         base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_py.json"
+        output_extension = "_gs_py.json"
         return os.path.join(output_dir, f"{base_name}{output_extension}")
     
     def get_genslides_archive_path(self,file_path):
@@ -437,6 +441,11 @@ def checkExtensionOfFile( filepath ):
 def checkExistOfGenslidesArchiveFile( filepath ):
     converter = get_converter( filepath )
     return converter.check_genslides_archive( filepath )
+
+def getGenslidesArchiveFilePathBasedOnJson( filepath ):
+    return loader.Loader.getFileNameFromPath( filepath )
+    # converter = get_converter( filepath )
+    # return converter.getArchiveNameFromJson( filepath )
 
 def getGenslidesArchiveFilePath( filepath ):
     converter = get_converter( filepath )

@@ -30,13 +30,14 @@ class Archivator():
     def saveAllbyPath(data_path, trgfile_path):
         if trgfile_path == "":
             print('Path error:', trgfile_path)
-            return
+            return False
         elif trgfile_path[-3:] != ".7z":
             print('Filename',trgfile_path,'is not 7z archive')
-            return
+            return False
         with py7zr.SevenZipFile( trgfile_path, 'w') as archive:
             archive.writeall(data_path, arcname='')
         print(f"Save data from {data_path} to {trgfile_path}")
+        return True
 
     def saveAllbyName(src_path, trg_path, name):
         print('Archivator save from',src_path,'to', trg_path,'with name', name)
