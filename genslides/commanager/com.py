@@ -253,11 +253,12 @@ class Commander:
 
     def moveActionerToAnotherFolder( self, path ):
         act = self.actioner
+        starter_path = act.getPath()
         act.moveFromCurrentToAnother( path )
 
         for actioner in self.getActionersList():
             if act != actioner:
-                actioner.syncExtTreeTaskPath( path )
+                actioner.syncExtTreeTaskPath( path, starter_path )
 
         self.saveSession()
 

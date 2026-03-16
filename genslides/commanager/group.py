@@ -3389,10 +3389,11 @@ class Actioner():
         else:
             print(f"No methods in {self.parameters}")
 
-    def syncExtTreeTaskPath( self, path ):
+    def syncExtTreeTaskPath( self, path, init ):
+        # print(f"syncExtTreeTaskPath:{self.getPath()}")
         for task in self.getCurrentManager().getTasks():
-            if task.checkActionerTaskPath( path ):
-                print(f"Sync task {task.getName()} with {path}")
+            if task.checkActionerTaskPath( init ):
+                # print(f"Sync task {task.getName()} with {path}")
                 task.setActionerTaskPath( path )
 
     def moveFromCurrentToAnother( self, trg_path : str, autoload = True):

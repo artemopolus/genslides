@@ -43,22 +43,24 @@ def divideArray(task  , param : dict):
                 for msg in targets:
                     if "content" in msg and "priority" in msg and "name" in msg:
                         if msg["priority"] == "high":
+                            message_name = msg["name"]
                             if use_marker == "taskname":
-                                starting_text += f"[{msg["name"]}] " + msg["content"]
+                                starting_text += f"[{message_name}] " + msg["content"]
                             else:
                                 starting_text += msg["content"]
-                            starting_names.append(msg["name"])
+                            starting_names.append(message_name)
                 msg_content = starting_text
                 msg_names = []
                 for idx, msg in enumerate(targets):
                     if "content" in msg and "name" in msg:
                         if msg["name"] not in starting_names:
                             if checkContextWindow(msg_content, context_win_size):
+                                message_name = msg["name"]
                                 if use_marker == "taskname":
-                                    msg_content += f"[{msg["name"]}] " + msg["content"]
+                                    msg_content += f"[{message_name}] " + msg["content"]
                                 else:
                                     msg_content += msg["content"]
-                                msg_names.append(msg["name"])
+                                msg_names.append(message_name)
                             elif len(msg_names) > 0:
                                 arr_value = {
                                     "content" : msg_content,

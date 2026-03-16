@@ -712,7 +712,10 @@ class JumperTreeTask(InExtTreeTask):
     def checkActionerTaskPath(self, path):
         eres, eparam = self.getParamStruct('external')
         if eres and eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
-            return path == self.findKeyParam(eparam['exttreetask_path'])
+            target_path = Loader.Loader.getUniPath( path )
+            exttree_path = Loader.Loader.getUniPath( self.findKeyParam(eparam['exttreetask_path']) )
+            self.updateUpdationInfo(f"Check \n{target_path}\n ==\n{exttree_path}")
+            return target_path == exttree_path
         return super().checkActionerTaskPath(path)
     
     def setActionerTaskPath(self, path):
