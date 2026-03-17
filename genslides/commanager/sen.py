@@ -945,18 +945,8 @@ class Projecter(Commander.Commander):
         return self.getActionerPathsList()
     
     def getActionerPathsList(self):
-        output_choices = []
-        output_value = None
-        for act in self.getActionersList():
-            path = act.getPath()
-            name = FileManager.getFileName( path )
-            value = [
-                f"{name} : ({path})",
-                path
-            ]
-            output_choices.append(value)
-            if act == self.actioner:
-                output_value = value
+        output_value, output_choices  = super().getActionerPathsList()
+    
         return gr.Radio(choices=output_choices, 
     value=output_value, interactive=True)
 
@@ -3882,4 +3872,15 @@ class Projecter(Commander.Commander):
     def syncCurrentActionerWithFolder(self):
         super().syncCurrentActionerWithFolder()
         return self.updateTreeAndAll()
+    
+    def filterActionerNames( self, target):
+        names = []
+        output_value, output_choices  = super().getActionerPathsList()
+        for choice in output_choices:
+            try:
+                if target in choice[1]:
+                    names.append(choice)
+            except:
+                pass
+        return gr.Radio(choices=names)
 

@@ -266,3 +266,17 @@ class Commander:
         self.actioner.syncWithCurrentFolder()
         # self.actioner.syncRelatedActionersWithFolder()
  
+    def getActionerPathsList(self):
+        output_choices = []
+        output_value = None
+        for act in self.getActionersList():
+            path = act.getPath()
+            name = FileManager.getFileName( path )
+            value = [
+                f"{name} : ({path})",
+                path
+            ]
+            output_choices.append(value)
+            if act == self.actioner:
+                output_value = value
+        return output_value, output_choices

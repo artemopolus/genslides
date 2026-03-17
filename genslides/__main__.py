@@ -157,7 +157,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         projectfolderpath_txt = gr.Textbox(value="",label="Path to project folder")
                         templatepath_txt = gr.Textbox(value="", label="Path to template")
                         projectfilepath_txt = gr.Textbox(value="", label="Path to project file")
+                    with gr.Row():
+                        filter_acts_txt = gr.Textbox(label="write target text")
+                        filter_acts_btn = gr.Button("Filter")
                     actionerlist_rad = gr.Radio(label='Actioners')
+                    filter_acts_btn.click(fn=projecter.filterActionerNames, inputs=[filter_acts_txt], outputs=actionerlist_rad)
                     with gr.Row():
                         updactlist_btn = gr.Button('Update')
                         moveactionerup_btn = gr.Button('Move actioner UP')

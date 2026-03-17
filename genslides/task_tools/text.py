@@ -167,6 +167,8 @@ def convertJsonDictToText2internal( trg : dict, opt : dict ) -> str:
         str: The Markdown representation of the JSON data.
     """
     text = ""
+    if not isinstance(trg, dict):
+        return Loader.Loader.convJsonToText(trg)
     for key, value in trg.items():
         if key in opt:
             option = opt[key]

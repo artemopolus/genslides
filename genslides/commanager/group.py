@@ -37,16 +37,8 @@ class Actioner():
         self.loadExtProject = manager.loadexttask
         # TODO: установить как значение по умолчанию
         self.path = 'saved'
-        self.update_state = 'init'
         self.is_executing = False
         self.executing_man = None
-        self.hide_task = True
-
-        self.updateallcounter = 0
-
-        self.is_updating = False
-
-        self.force_update_stop = False
         
         self.time_marker = datetime.datetime.now()
         self.parameters : dict = parameters 
@@ -56,6 +48,14 @@ class Actioner():
 
         self.rsrvd_tmp_prefix = ""
         self.rsrvd_tmp_suffix = "_tempload"
+        self.setInitialValues()
+
+    def setInitialValues(self ):
+        self.updateallcounter = 0
+        self.is_updating = False
+        self.force_update_stop = False
+        self.hide_task = True
+        self.update_state = 'init'
 
     def setManager(self, manager : Manager.Manager):
         if manager != self.std_manager and not manager.is_loaded:
@@ -86,6 +86,7 @@ class Actioner():
             manager.onStart()
         self.tmp_managers : list[BaseMan.Jun] = []
         self.clearTmp()
+        self.setInitialValues()
 
     def setPath(self, path: str):
         self.path = path
@@ -1106,7 +1107,7 @@ class Actioner():
 
     def updateAll(self, force_check = False, update_task = True, max_update_idx = 10000):
         if self.is_updating:
-            print('Abort',self.getPath,'cause: already updating')
+            print('Abort',self.getPath(),'cause: already updating')
             return
         else:
             self.is_updating = True
@@ -1957,7 +1958,7 @@ class Actioner():
                           'force_check' : False, 'update_task' : True, 'max_update_idx' : 10000
                           }):
         if self.is_updating:
-            print('Abort',self.getPath,'cause: already updating')
+            print('Abort',self.getPath(),'cause: already updating')
             return
         else:
             self.is_updating = True
