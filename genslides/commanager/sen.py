@@ -1095,10 +1095,10 @@ class Projecter(Commander.Commander):
             paths = act.getLoadedActionerPath([])
 
             for path in paths:
-                print(f"Check {path}")
+                # print(f"Check {path}")
                 if path not in loaded_act_paths:
                     act_paths.append( path )
-        print(f"Need to load actioners:\n{act_paths}")
+        # print(f"Need to load actioners:\n{act_paths}")
         for path in act_paths:
             if path not in [a.getPath() for a in self.getActionersList()]:
                 self.loadActionerByPath( path )

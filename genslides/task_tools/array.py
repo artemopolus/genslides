@@ -233,7 +233,7 @@ def saveArrayToParams(task  , param : dict):
     idx = param ['idx']
     if 'parse' in param:
         res, arr = divideArray(task, param)
-        if res:
+        if isinstance(arr, list) and len(arr) > 0 and res:
             curr = getArrayByIndex(arr, 0, param, task)
             if param['parse'] == 'manual' and 'start' in param:
                 exclude = param.get("manual_excl","")

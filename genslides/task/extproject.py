@@ -724,6 +724,7 @@ class JumperTreeTask(InExtTreeTask):
             relpath = Loader.Loader.getManRePath(path, self.manager.getPath())
             eparam['exttreetask_path'] = relpath
             self.setParamStruct(eparam)
+            self.saveAllParams()
         return super().setActionerTaskPath(path)
 
     def loadActionerTasks(self, actioners: list):
@@ -825,24 +826,32 @@ class JumperTreeTask(InExtTreeTask):
                 act = self.getActioner()
                 if Loader.Loader.checkIsFile(path_to_target_file):
                     path_to_current_file = eparam.get("exttreetask_file_current","")
-                    if path_to_target_file == path_to_current_file and Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
+                    path_to_gsjs = Converter.getConvertedGenslidesJsonName( path_to_target_file )
+                    path_to_current_archive = Converter.getGenslidesArchiveFilePathBasedOnJson( path_to_gsjs )
+                    self.updateUpdationInfo(f"Target file:{path_to_target_file}")
+                    self.updateUpdationInfo(f"Current file:{path_to_current_file}")
+                    self.updateUpdationInfo(f"Json data:{path_to_gsjs}")
+                    self.updateUpdationInfo(f"Archive:{path_to_current_archive}")
+                    if path_to_target_file == path_to_current_file:
                         self.updateUpdationInfo(f"Target file == valid archive:{path_to_target_file}")
                         autoload_result = True
-                    elif path_to_target_file != path_to_current_file and Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
-                        path_to_current_archive = Converter.getGenslidesArchiveFilePath( path_to_current_file)
+                    # if path_to_target_file == path_to_current_file and Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
+                    #     self.updateUpdationInfo(f"Target file == valid archive:{path_to_target_file}")
+                    #     autoload_result = True
+                    elif path_to_target_file != path_to_current_file and Fm.checkExistPath(  path_to_current_archive ):
+                    # Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
                         self.updateUpdationInfo(f"Save previous file: {path_to_current_file}\nTarget:{path_to_current_archive}")
                         act.saveGenslidesArchiveByPath( path_to_current_archive)
                         autoload_result = act.loadManagerProjectFromFile( path_to_target_file )
                         self.updateUpdationInfo(f"Load archive:{path_to_target_file} = {autoload_result}")
-                    elif path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
-                        self.updateUpdationInfo(f"Target file == current file:{path_to_target_file}: json and archive exist")
-                        autoload_result = True
+                    # elif path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
+                    #     self.updateUpdationInfo(f"Target file == current file:{path_to_target_file}: json and archive exist")
+                    #     autoload_result = True
                     else:
                         self.updateUpdationInfo(f"Load project by path: {path_to_target_file}")
 
                         if Converter.checkExtensionOfFile( path_to_target_file ):
                             if not Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
-                                path_to_gsjs = Converter.getConvertedGenslidesJsonName( path_to_target_file )
                                 if not Converter.checkExistOfGenslidesJsonFile( path_to_target_file ):
                                     Converter.convertFileToGenslidesJson( path_to_target_file)
                                 path_to_template = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_template","") ) )
@@ -1106,7 +1115,7 @@ class OutExtTreeTask(ExtProjectTask):
         if task != None:
             self.updateUpdationInfo(f"Set external task {task.getName()}")
             if task != self.intch_trg:
-                self.updateUpdationInfo("External is same")
+                self.updateUpdationInfo("External is NOT same")
                 self.intch_trg = task
                 if self.manager.getActioner() != None:
                     res, param = task.getParamStruct("outexttreetask", True)
@@ -1121,6 +1130,8 @@ class OutExtTreeTask(ExtProjectTask):
                         task.setParamStruct({'type':'outexttreetask','links':[self.manager.getActioner().getPath()]})       
                 else:
                     self.updateUpdationInfo("No actioner for external")
+            else:
+                self.updateUpdationInfo("Do not change outexttree task")
 
 
     def updateOutExtActMan(self, actioners = []):
@@ -1193,7 +1204,7 @@ class OutExtTreeTask(ExtProjectTask):
     def updateIternal(self, input : TaskDescription = None):
         if not self.getParent():
             return
-        if self.intact == None:
+        if self.intact == None or self.intact != self.getParent().intact:
             self.updateOutExtActMan()
         if self.intact == None:
             self.updateUpdationInfo(f"No internal actioner for {self.getName()}")
@@ -1205,13 +1216,22 @@ class OutExtTreeTask(ExtProjectTask):
                 self.updateUpdationInfo(f"{self.intch_trg.getName()} is frozen")
                 # self.freezeTask()
             return
-        if self.intch_trg == None:
-            eres, eparam = self.getParamStruct('external')
-            if eres:
-                self.setExternalTask(self.intman.getTaskByName(eparam['target']))
+        # if self.intch_trg == None:
+        eres, eparam = self.getParamStruct('external')
+        if eres:
+            self.setExternalTask(self.intman.getTaskByName(eparam['target']))
         try:
             if self.intch_trg.is_freeze:
-                self.updateUpdationInfo(f"Target is frozen")
+                eres, eparam = self.getParamStruct('external')
+                try:
+                    task = self.intman.getTaskByName(eparam['target'])
+                    self.updateUpdationInfo( f"task {task.getName()} is frozen: {task.isFrozen()} ")
+                    self.updateUpdationInfo(f"src manager: {self.intman.getPath()}")
+                    self.updateUpdationInfo(f"Target {self.intch_trg.getName()}|{self.intact.getPath()} is frozen:{self.intch_trg.isFrozen()}")
+                    self.updateUpdationInfo(f"trg manager: {self.intch_trg.manager.getPath()}")
+                    self.updateUpdationInfo(f"managers eq: {self.intch_trg.manager == task.manager}")
+                except:
+                    pass
                 self.freezeTask()
                 if self.isExternalProjectTask():
                     self.updateInternalActioners()

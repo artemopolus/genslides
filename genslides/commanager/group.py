@@ -1045,12 +1045,12 @@ class Actioner():
                 break
         self.getCurrentManager().enableOutput2()
 
-    def updateIFfrozentasks(self, n : int = 1000, check : bool = False ):
+    def updateIFfrozentasks(self, n : int = 10, check : bool = False ):
         frozen_tasks_cnt = self.getFrozenTasksCount() 
         if frozen_tasks_cnt > 0:
             self.updateAllnTimes( n , check)
 
-    def updateToUnFreeze(self, max_times : int = 1000, check : bool = False ):
+    def updateToUnFreeze(self, max_times : int = 10, check : bool = False ):
         for index in range( max_times ):
             self.updateAll(force_check=check)
             frozen_tasks_cnt = self.getFrozenTasksCount() 
@@ -1113,7 +1113,7 @@ class Actioner():
             self.is_updating = True
         dt1 = datetime.datetime.now()     
         man = self.manager
-        print(f"Update all tasks of {man.getName()}")
+        print(f"Update all tasks of {man.getName()}\n{self.getPath()}")
         start_task = man.getCurrentTask()
         self.resetUpdate(force_check=force_check)
         if len(man.tree_arr) == 0:
@@ -3296,7 +3296,7 @@ class Actioner():
                         pack["parent_task"] = prev_task_name
                         prev_task_name = man.getCurrentTask().getName()
             folderpath = Loader.Loader.getFileFolder(path_to_project_json)
-            name = Converter.getGenslidesArchiveFilePathBasedOnJson( path_to_project_json )
+            name = Converter.getGenslidesArchiveFileNameBasedOnJson( path_to_project_json )
             manager_path = self.getManagerFolderPath( man )
             data["src_project_path"] = manager_path
             path_to_created_project_file = Archivator.Archivator.saveAllbyName(manager_path, folderpath, name)

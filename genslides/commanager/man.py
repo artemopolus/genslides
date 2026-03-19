@@ -117,6 +117,8 @@ class Jun():
             self.tree_idx = 1
 
     def getTreeName(self, task:Task.BaseTask):
+        if task == None:
+            return "Empty tree name"
         return task.getBranchSummary() + '[' + task.getName() + ']'
 
     def getTreeNamesForRadio(self):

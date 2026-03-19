@@ -60,7 +60,7 @@ class DefaultConvertor:
         return os.path.exists( self.get_genslides_archive_path( file_path ) )
     
     def get_genslides_archive_path(self, file_path ):
-        return self.get_new_genslides_path( file_path, ".7z")
+        return self.get_new_genslides_path( file_path, "_gs.7z")
 
 
 class CppConvertor(DefaultConvertor):
@@ -442,10 +442,12 @@ def checkExistOfGenslidesArchiveFile( filepath ):
     converter = get_converter( filepath )
     return converter.check_genslides_archive( filepath )
 
-def getGenslidesArchiveFilePathBasedOnJson( filepath ):
+def getGenslidesArchiveFileNameBasedOnJson( filepath ):
     return loader.Loader.getFileNameFromPath( filepath )
     # converter = get_converter( filepath )
     # return converter.getArchiveNameFromJson( filepath )
+def getGenslidesArchiveFilePathBasedOnJson( filepath ):
+    return os.path.join(loader.Loader.getFileFolder(filepath),(getGenslidesArchiveFileNameBasedOnJson(filepath)+".7z"))
 
 def getGenslidesArchiveFilePath( filepath ):
     converter = get_converter( filepath )
