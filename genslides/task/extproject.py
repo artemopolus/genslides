@@ -824,6 +824,8 @@ class JumperTreeTask(InExtTreeTask):
                 self.updateUpdationInfo("Autoload project")
                 path_to_target_file = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_file_target","") ) )
                 act = self.getActioner()
+                if act == None:
+                    return super().runBeforeUpdateIternal(input)
                 if Loader.Loader.checkIsFile(path_to_target_file):
                     path_to_current_file = eparam.get("exttreetask_file_current","")
                     path_to_gsjs = Converter.getConvertedGenslidesJsonName( path_to_target_file )

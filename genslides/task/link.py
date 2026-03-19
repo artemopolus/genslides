@@ -348,7 +348,10 @@ class ListenerTask(LinkedTask):
                                         self.updateUpdationInfo(f"Update json with {keys_info}")
                                         if jres:
                                             if lparam['combine'] == 'json_list':
-                                                prompts_data.append(jobj)
+                                                if isinstance(jobj, list):
+                                                    prompts_data.extend(jobj)
+                                                else:
+                                                    prompts_data.append(jobj)
                                             elif lparam['combine'] == 'json_dict':
                                                 prompts_data.update(jobj)
                                         else:
@@ -369,7 +372,10 @@ class ListenerTask(LinkedTask):
                                 elif lparam['combine'] == 'json_list':
                                     jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
                                     if jres:
-                                        prompts_data.append(jobj)
+                                        if isinstance(jobj, list):
+                                            prompts_data.extend(jobj)
+                                        else:
+                                            prompts_data.append(jobj)
                                     else:
                                         kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
                                         if kres:
