@@ -498,8 +498,10 @@ class TextTask(BaseTask):
             return ""
 
     def getLastMsgContent(self):
-        if len(self.msg_list) > 0:
-            return self.msg_list[-1]["content"]
+        if isinstance(self.msg_list, list) and len(self.msg_list) > 0 and isinstance(self.msg_list[-1], dict):
+            out = self.msg_list[-1].get("content","Empty")
+            if isinstance( out, str ):
+                return out
         return "Empty"
     
     def getLastMsgRole(self):
