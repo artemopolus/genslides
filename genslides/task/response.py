@@ -109,6 +109,8 @@ class ResponseTask(TextTask):
             chat = LLModel(mparam)
         if mparam.get("allow_calling", True):
             res, out, out_params = self.executeResponseInternal(chat)
+            chat_report = out_params.get("report","No report")
+            self.updateUpdationInfo(chat_report)
             out_params['type'] = self.getType()
             self.updateParam2(out_params)
         else:

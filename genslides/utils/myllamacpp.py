@@ -60,7 +60,7 @@ def llamacppGetChatCompletion(msgs : list, params : dict):
             if res:
                 return llamacppGetToolResponse(msgs, tools, params)
             return False, '', {}
-        model_name = getattr(params,'model','unknown')
+        model_name = params.get('model','unknown')
         out_param ['report'] += f"Standart call: {model_name}\n"
 
         if 'response_format' in params and params['response_format'] != "":
@@ -71,7 +71,7 @@ def llamacppGetChatCompletion(msgs : list, params : dict):
                 t = params['temperature']
                 out_param ['report'] += f"with temperature{t}\n"
                 completion = client.chat.completions.create(
-                model=params['model'],
+                model = model_name,
                 messages=msgs,
                 timeout=7200,
                 response_format=jformat,
@@ -79,7 +79,7 @@ def llamacppGetChatCompletion(msgs : list, params : dict):
             )
             else:
                 completion = client.chat.completions.create(
-                model=params['model'],
+                model = model_name,
                 messages=msgs,
                 timeout=7200,
                 response_format=jformat
@@ -90,14 +90,14 @@ def llamacppGetChatCompletion(msgs : list, params : dict):
                 t = params['temperature']
                 out_param ['report'] += f"with temperature{t}\n"
                 completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model = model_name,
                 messages=msgs,
                 timeout=7200,
                 temperature=params['temperature']
             )
             else:
                 completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model = model_name,
                 messages=msgs,
                 timeout=7200,
 
@@ -123,10 +123,16 @@ def llamacppGetChatCompletion(msgs : list, params : dict):
         else:
             return True, msg, out_param
     except Exception as e:
-        out_param ['report'] += f"llama server api error={e}\n"
+        out_param ['report'] += f"llamacppGetChatCompletion error: {e}\n"
         return False, '', out_param
 
 def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
+    model_name = params.get('model','unknown')
+    out = {
+            "report": f"call tool for: {model_name}\n",
+            "initial_tool_schema": tools
+        }
+    result = None
     try:
         # print("llamacppGetToolResponse")
         client = OpenAI(
@@ -134,20 +140,35 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                 api_key = params.get('api_key', "sk-no-key-required")
             )
         
-        model_name = params['model']
-        completion = client.chat.completions.create(
-                    model='model',
-                    messages=msgs,
-                    timeout=7200,
-                    tools=tools,
-                    temperature= params.get("temperature", NotGiven)
-                )
-        out = {}
+        # print(f"Call completion with tools:\n{tools}")
+
+        kwargs = {
+        "model": model_name,
+        "messages": msgs,
+        "timeout": 7200,
+        "tools": tools,
+        }
+
+        if "temperature" in params:
+            print("temp:",params["temperature"])
+            kwargs["temperature"] = params["temperature"]
+
+        completion = client.chat.completions.create(**kwargs)
+
+        # completion = client.chat.completions.create(
+        #             model = model_name,
+        #             messages=msgs,
+        #             timeout=7200,
+        #             tools=tools,
+        #             temperature= params.get("temperature", NotGiven)
+        #         )
+        # print(f"Completion:\n{completion}")
         result = completion.choices[0]
-        out ['report'] = f"call tool for: {model_name}\n"
         response = ""
+        # print(f"finish reason: {result.finish_reason}")
         # print(f"Response:\n{completion.choices[0]}")
         if hasattr(result, 'finish_reason'):
+            out ['report'] += f"finish reason: {result.finish_reason}\n"
             out['finish_reason'] = result.finish_reason
             if result.finish_reason == "tool_calls":
                 tool_response_format =  params.get("tool_response_format", "std")
@@ -206,10 +227,20 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                 out['report'] += f"Invalid finish reason:{result.finish_reason}"
                 return False, "", out
 
+        else:
+            # print(f"NO finish reason in {result}\n")
+            out ['report'] += f"NO finish reason in {result}\n"
         return True, response, out
+    except TypeError as e:
+        error_msg = f"Type error: {e}"
+        # print(error_msg)
+        out['report'] +=  error_msg
+        return False, "", out
     except Exception as e:
-        print(f"llama server api tool error:\n{e}") 
-        return False, "", {}
+        error_msg = f"llamacppGetToolResponse error:\n{e} \n\n\nResult:{result}\n---\n"
+        # print(error_msg)
+        out['report'] +=  error_msg
+        return False, "", out
 
 def getToolFunctionFormat( name : str, description : str, schema : str):
     available_tools = []
