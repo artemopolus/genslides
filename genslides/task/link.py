@@ -286,10 +286,28 @@ class ListenerTask(LinkedTask):
             suffix = lparam.get("suffix","")
             trg_multi_on = lparam.get("trg_multi_on", False)
             link_dict_keys = []
+            gs_task_signes = []
             for tsk_info in self.by_ext_affected_list:
                 self.updateUpdationInfo(f"Upd listener from {tsk_info.parent.getName()}")
                 if 'combine' in lparam:
-                    if lparam['combine'].startswith ('single'):
+                    if lparam['combine'] == "json_signed" and isinstance(tsk_info.params, list):
+                        tres, tparam = self.getParamStructByKey(tsk_info.params, "tag")
+                        if tres:
+                            forced_type = tparam.get('forced_content_type', "any")
+                            json_s_key = tparam.get('key', "")
+                            if forced_type == "prompt":
+                                prompts_data.update({json_s_key:tsk_info.prompt})
+                        elif tres and forced_type == "json" or not tres:
+                            jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr(tsk_info.prompt)
+                            if jres and isinstance( jobj, dict):
+                                for k, v in jobj.items():
+                                    link_dict_keys.append( k )
+                                keys_info = ",".join([k for k, v in jobj.items()])
+                                self.updateUpdationInfo(f"Update dict with {keys_info}")
+                                prompts_data.update(jobj)
+                        if tres and "sign" in tparam:
+                            gs_task_signes.append(tparam["sign"])
+                    elif lparam['combine'].startswith ('single'):
                         if tsk_info.enabled:
                             prompt += prefix + tsk_info.prompt + suffix
                             params.extend(tsk_info.params)
@@ -422,6 +440,8 @@ class ListenerTask(LinkedTask):
                     prompt += prefix + tsk_info.prompt + suffix
                     params.extend(tsk_info.params)
                     updated = True
+            if len(gs_task_signes) > 0 and lparam['combine'] == "json_signed":
+                prompts_data.update({"gs_task_signes":gs_task_signes})
         else:
             self.updateUpdationInfo("Checks not pass\n")
         lparam["json_dict_link_keys"] = ",".join(link_dict_keys)

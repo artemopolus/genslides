@@ -406,6 +406,37 @@ class TextTask(BaseTask):
     def getMsgsText ( self ):
         input_msgs = self.getParent().getMsgs(inparam={'goal':'check'})
         return ' '.join( [m['content'] for m in input_msgs] ) 
+    
+    def checkSign( self, sign_info : dict):
+        tres, tparam = self.getParamStruct("tag", only_current=True)
+        if tres:
+            sname = sign_info.get("name","")
+            sid = sign_info.get("id","")
+            if sname == tparam.get("name","") and sid == sign_info.get("id",""):
+                return True
+        return False
+
+    def setSign( self, actioner_info = "", trg_task_name = "" ):
+        tres, tparam = self.getParamStruct("tag", only_current=True)
+        if tres:
+            content = actioner_info + self.getName() + self.getTimeInfo() + self.getLastMsgContent()
+            tparam["sign"] = \
+            {
+                "name": self.getName(),
+                "id" : Txt.compute_sha256_hash(content),
+                "on_reject": trg_task_name,
+                "active":True
+            }
+        else:
+            return
+        self.setParamStruct( tparam )
+
+    def resetSign( self ):
+        tres, tparam = self.getParamStruct("tag", only_current=True)
+        if tres and "sign" in tparam:
+            tparam["sign"]["active"] = False
+            self.setParamStruct( tparam )
+
    
     def calculateMsgsHash( self ):
         text_msgs = self.getMsgsText()
@@ -1538,6 +1569,12 @@ class TextTask(BaseTask):
     def getCurParamStructValue(self, param_name, key):
         return self.getParamValueByKey(self.params, param_name, key)
    
+    def getParamStructByKey(self, params : list, param_name : str):
+        for param in params:
+            if "type" in param and param["type"] == param_name:
+                return True, param 
+        return False, {}
+
     def getParamValueByKey(self, params : list, param_name : str, key : str):
         for param in params:
             if "type" in param and param["type"] == param_name:

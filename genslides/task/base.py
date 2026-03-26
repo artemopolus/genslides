@@ -1904,4 +1904,10 @@ class BaseTask():
     
     def reloadTaskActioner(self, actioners : list ):
         pass
+    def checkSign( self, sign_info : dict):
+        pass
+    def setSign( self, actioner_info = "", trg_task_name = "" ):
+        pass
+    def resetSign( self ):
+        pass
  
