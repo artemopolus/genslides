@@ -586,7 +586,26 @@ class Projecter(Commander.Commander):
                 self.makeTaskAction("","","Link","", param)
         return self.updateMainUIelements()
 
+    def linkMultiSelectedToCurrent( self ):
+        man = self.actioner.getCurrentManager()
+        for task in man.getMultiSelectedTasks():
+            man.makeLink(task_in=man.getCurrentTask(), task_out=task)
+        return self.updateMainUIelements()
     
+    def setSignToCurrentTask( self ):
+        man = self.actioner.getCurrentManager()
+        trgtaskname = "" if man.getSelectedTask() == None else man.getSelectedTask().getName()
+        currtaskname = man.getCurrentTask().getName()
+        self.actioner.setSignToCurrentTask( currtaskname, trgtaskname )
+        return self.updateMainUIelements()
+    
+    def resetSignOfCurrentTask( self ):
+        man = self.actioner.getCurrentManager()
+        currtaskname = man.getCurrentTask().getName()
+        task = man.getTaskByAnyName(currtaskname)
+        if task != None:
+            task.resetSign()
+        return self.updateMainUIelements()
 
     def makeActionLink(self):
         man = self.actioner.getCurrentManager()

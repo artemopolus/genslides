@@ -3514,4 +3514,15 @@ class Actioner():
         else:
             print(f"No method: {method_to_external_actioners}")
 
-       
+    def setSignToCurrentTask( self, currtaskname, trgtaskname ):
+        man = self.getCurrentManager()
+        task = man.getTaskByAnyName(currtaskname)
+        if task != None:
+            task.setSign(self.getPath(), trgtaskname)
+    
+    def resetSignOfCurrentTask( self, currtaskname ):
+        man = self.getCurrentManager()
+        task = man.getTaskByAnyName(currtaskname)
+        if task != None:
+            task.resetSign()
+

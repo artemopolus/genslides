@@ -565,6 +565,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                         clnresp_btn = gr.Button(value='Force Reset Chat')
                         unite_btn = gr.Button(value='Unite')
                         breakforlink = gr.Button(value='Make uniq link')
+                        setsignedtask_btn = gr.Button("Set Sign with Selected as Trg")
+                        resetsigntask_btn = gr.Button("Reset Sign")
                 with gr.Tab('Selected'):
                     with gr.Row():
                         relink_sel2cur_btn = gr.Button(value='Relink Sel to Cur')
@@ -599,6 +601,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Row():
                         multicleanresp_btn = gr.Button('Clean MultiTask Chats')
                         set_multi_child_btn = gr.Button('Set Multiselected as Child')
+                        linkmultiticurr_btn = gr.Button('Link to curr')
                         # garlandmulti_btn = gr.Button('Garland from multi')
                         collectmulti_btn = gr.Button('Listeners from multi')
                         gr.Button('Check').click(fn=projecter.checkTaskFiles)
@@ -1488,6 +1491,8 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             enablemultichilds_btn.click(fn=projecter.resetMultiselectedTasksChainToMainTrack, outputs=std_output_list)
 
             breakforlink.click(fn=manipulate_manager.breakLinkToChildren, outputs=std_output_list)
+            setsignedtask_btn.click(fn=projecter.setSignToCurrentTask, outputs=std_output_list)
+            resetsigntask_btn.click(fn=projecter.resetSignOfCurrentTask, outputs=std_output_list)
             moveup_btn.click(fn=manipulate_manager.moveCurrentTaskUP, outputs=std_output_list)
             movedown_btn.click(fn=manipulate_manager.moveCurrentTaskDownPrefferedToMultiChild, outputs=std_output_list)
             switchup_btn.click(fn=manipulate_manager.swicthCurTaskUP, outputs=std_output_list)
@@ -1495,7 +1500,11 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
             unite_btn.click(fn=manipulate_manager.uniteTask, outputs=std_output_list)
             parent_btn.click(fn=manipulate_manager.makeActionParent, outputs=std_output_list)
             child_btn.click(fn=manipulate_manager.makeActionChild, outputs=std_output_list)
+
             link_btn.click(fn=manipulate_manager.makeActionLink, outputs=std_output_list)
+            linkmultiticurr_btn.click(fn=projecter.linkMultiSelectedToCurrent, outputs=std_output_list)
+
+
             revlink_btn.click(fn=manipulate_manager.makeActionRevertLink, outputs=std_output_list)
             unparent_btn.click(fn=manipulate_manager.makeActionUnParent, outputs=std_output_list)
             unlink_btn.click(fn=manipulate_manager.makeActionUnLink, outputs=std_output_list)
