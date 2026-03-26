@@ -3622,6 +3622,19 @@ class Projecter(Commander.Commander):
             if res:
                 cmds.append( cmd )
         # print(f"exe ext tree actions:\n{cmds}")
+        for cmd in cmds:
+            if "gs_task_signes" in cmd and isinstance( cmd["gs_task_signes"], list):
+                for sign in cmd["gs_task_signes"]:
+                    on = sign.get("active", False)
+                    task_name = sign.get("name","")
+                    if on:
+                        for act in self.getActionersList():
+                            trg = act.getCurrentManager().getTaskByName( task_name )
+                            if trg != None:
+                                if trg.checkSign( sign ):
+                                    on_reject_task = sign.get("on_reject","")
+                                    act.rejectSignedTaskReport( on_reject_task, cmd)
+                                    break
         task.removeJsonTaskCmds( cmds )
         return self.updateMainUIelements()
     

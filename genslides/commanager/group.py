@@ -3526,3 +3526,18 @@ class Actioner():
         if task != None:
             task.resetSign()
 
+    def rejectSignedTaskReport( self, targettaskname = "", cmd = {}):
+        man = self.getCurrentManager()
+        task = man.getTaskByAnyName( targettaskname )
+        if task != None:
+            jres, jobj, jreport = Loader.Loader.loadJsonFromTextStr(task.getLastMsgContent())
+            if jres and isinstance(jobj, list):
+                jobj.append( cmd )
+            else:
+                jobj = [cmd]
+            prompt = Loader.Loader.convJsonToText( jobj )
+            init = man.getCurrentTask()
+            man.setCurrentTask( task )
+            self.editingAction( prompt )
+            man.setCurrentTask( init )
+ 
