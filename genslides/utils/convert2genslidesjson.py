@@ -33,9 +33,38 @@ class DefaultConvertor:
                     "body": part_body
                 }
 
+    def process_file(self, file_path, output_dir):
+        output = {}
+        output["result"] = True
 
-    def process_file( self, file_path, output_dir):
-        return {"result": False, "report":" File default convertor run"}
+        # Load and parse the C++ source code
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = f.read()
+        except (FileNotFoundError, UnicodeDecodeError) as e:
+            print(f"Error reading file {file_path}: {e}")
+            output["result"] = False
+            return output
+        cuts = []
+        parts = []
+
+        cuts = self.process_file_internal( data )
+
+        for cut in cuts:
+            pack = cut.get("Result Text","")
+            parts.append(self.createTargetPack("", pack))
+
+        json_data = self.createFileHeader(file_path, parts)
+        
+        output_file_path = self.get_genslides_jsonproject_path( file_path )
+        try:
+            with open(output_file_path, "w", encoding="utf-8") as json_file:
+                json.dump(json_data, json_file, indent=4)
+        except IOError as e:
+            print(f"Error writing to file {output_file_path}: {e}")
+            output["result"] = False
+            return output
+        return output 
 
     def process_directory(self,input_dir, output_dir):
         return {"result": False, "report":" Directory default convertor run"}
@@ -292,80 +321,36 @@ class CppConvertor(DefaultConvertor):
         return os.path.exists( self.get_genslides_archive_path( file_path ) )
 
 class PyConverter(DefaultConvertor):
+    def __init__(self):
+        super().__init__()
+        self.parameters["suffix"] = "_py"
+
     def process_file(self,file_path, output_dir):
         base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_gs_py.json"
+        output_extension = "_py_gs.json"
         output_file_path = os.path.join(output_dir, f"{base_name}{output_extension}")
         return pyparser.convert_genslide_json_file( file_path, output_file_path)
-    
-    def get_genslides_jsonproject_path (self,file_path):
-        output_dir = os.path.dirname( file_path )
-        base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_gs_py.json"
-        return os.path.join(output_dir, f"{base_name}{output_extension}")
-    
-    def get_genslides_archive_path(self,file_path):
-        output_dir = os.path.dirname( file_path )
-        base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_py.7z"
-        return os.path.join(output_dir, f"{base_name}{output_extension}")
-    
-    def check_genslides_archive(self,file_path):
-        return os.path.exists( self.get_genslides_archive_path( file_path ) )
- 
+
     def check_extension(self,file_path):
         return True
     
-    def check_generated_genslides_json(self,file_path):
-        target_path = self.get_genslides_jsonproject_path(file_path)
-        return os.path.exists( target_path )
-
 class TxtConverter(DefaultConvertor):
     def __init__(self):
         super().__init__()
         self.parameters["suffix"] = "_txt"
 
-    def process_file(self, file_path, output_dir):
+    def process_file_internal( self, data):
         parts_count_on = self.parameters.get("parts_count_on", False)
         smbl_before = self.parameters.get("smbl_before", 100)
         smbl_after = self.parameters.get("smbl_after",100)
-        output = {}
-        output["result"] = True
-
-        # Load and parse the C++ source code
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = f.read()
-        except (FileNotFoundError, UnicodeDecodeError) as e:
-            print(f"Error reading file {file_path}: {e}")
-            output["result"] = False
-            return output
-        cuts = []
-        parts = []
-
         if parts_count_on:
             parts_count = self.parameters.get("parts_target_count", 10)
             cuts = TextTool.cut_text_into_parts(data, parts_count,smbl_before, smbl_after)
         else:
             part_smbl_cnt = self.parameters.get("part_smbl_cnt", 2000)
             cuts = TextTool.split_text_with_context(data, part_smbl_cnt,smbl_before, smbl_after)
-        
-        for cut in cuts:
-            pack = cut.get("Result Text","")
-            parts.append(self.createTargetPack("", pack))
-
-        json_data = self.createFileHeader(file_path, parts)
-        
-        output_file_path = self.get_genslides_jsonproject_path( file_path )
-        try:
-            with open(output_file_path, "w", encoding="utf-8") as json_file:
-                json.dump(json_data, json_file, indent=4)
-        except IOError as e:
-            print(f"Error writing to file {output_file_path}: {e}")
-            output["result"] = False
-            return output
-        return output 
-    
+        return cuts
+   
     def check_extension(self, file_path):
         return True
     
@@ -400,7 +385,80 @@ class PdfConverter(DefaultConvertor):
     def check_extension(self, file_path):
         return True
  
- 
+class GodotConverter(DefaultConvertor):
+    def __init__(self):
+        super().__init__()
+        self.parameters["suffix"] = "_gd"
+
+    def split_gdscript(self, code: str, max_chunk_size: int = 500):
+        lines = code.splitlines(keepends=True)
+        
+        chunks = []
+        current_chunk = ""
+        
+        i = 0
+        n = len(lines)
+
+        def get_indent(line):
+            return len(line) - len(line.lstrip(" \t"))
+
+        while i < n:
+            line = lines[i]
+
+            # начало функции
+            if line.strip().startswith("func "):
+                func_lines = [line]
+                base_indent = get_indent(line)
+                i += 1
+
+                # собираем тело функции
+                while i < n:
+                    next_line = lines[i]
+                    
+                    # пустые строки включаем
+                    if next_line.strip() == "":
+                        func_lines.append(next_line)
+                        i += 1
+                        continue
+
+                    if get_indent(next_line) > base_indent:
+                        func_lines.append(next_line)
+                        i += 1
+                    else:
+                        break
+
+                func_block = "".join(func_lines)
+
+                # если не помещается — пушим текущий chunk
+                if len(current_chunk) + len(func_block) > max_chunk_size:
+                    if current_chunk:
+                        chunks.append(current_chunk)
+                        current_chunk = ""
+
+                current_chunk += func_block
+
+            else:
+                # обычный код вне функций
+                if len(current_chunk) + len(line) > max_chunk_size:
+                    if current_chunk:
+                        chunks.append(current_chunk)
+                        current_chunk = ""
+
+                current_chunk += line
+                i += 1
+
+        if current_chunk:
+            chunks.append(current_chunk)
+
+        return chunks
+
+
+    def process_file_internal( self, data):
+        return self.split_gdscript( data )
+    
+    def check_extension(self, file_path):
+        return True
+    
 CONVERTERS = {
     ".pdf": PdfConverter,
     ".tex": TxtConverter,
@@ -410,6 +468,7 @@ CONVERTERS = {
     ".c":   CppConvertor,
     ".cpp": CppConvertor,
     ".py":  PyConverter,
+    ".gd":GodotConverter
 }
 
 def get_converter(file_path) -> DefaultConvertor:

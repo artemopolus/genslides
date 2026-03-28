@@ -1037,6 +1037,7 @@ class Actioner():
   
     def updateAllnTimes(self, n : int, check : bool = False):
         self.getCurrentManager().disableOutput2()
+        self.getCurrentManager().resetTaskReports()
         for i in range(n):
             print('UAT:', i)
             self.updateAll(force_check=check)

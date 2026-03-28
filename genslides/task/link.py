@@ -362,8 +362,6 @@ class ListenerTask(LinkedTask):
                                             prompts_data.update({key: tsk_info.prompt})
                                     elif forced_type == "json":
                                         jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr(tsk_info.prompt)
-                                        keys_info = ",".join([k for k, v in jobj.items()])
-                                        self.updateUpdationInfo(f"Update json with {keys_info}")
                                         if jres:
                                             if lparam['combine'] == 'json_list':
                                                 if isinstance(jobj, list):
@@ -371,6 +369,8 @@ class ListenerTask(LinkedTask):
                                                 else:
                                                     prompts_data.append(jobj)
                                             elif lparam['combine'] == 'json_dict':
+                                                keys_info = ",".join([k for k, v in jobj.items()])
+                                                self.updateUpdationInfo(f"Update json with {keys_info}")
                                                 prompts_data.update(jobj)
                                         else:
                                             self.updateUpdationInfo(jreport)

@@ -2,6 +2,7 @@ from genslides.task.text import TextTask
 from genslides.task.base import TaskDescription
 import pprint
 import copy
+import datetime
 from genslides.utils.llmodel import LLModel
 
 import genslides.utils.loader as Ld
@@ -109,6 +110,10 @@ class ResponseTask(TextTask):
             chat = LLModel(mparam)
         if mparam.get("allow_calling", True):
             res, out, out_params = self.executeResponseInternal(chat)
+            response_report = copy.deepcopy( out_params )
+            response_report["time"] = datetime.datetime.now()        
+            response_report["source_task"] = self.getName()
+            self.manager.onTaskReport( response_report )
             chat_report = out_params.get("report","No report")
             self.updateUpdationInfo(chat_report)
             out_params['type'] = self.getType()

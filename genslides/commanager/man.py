@@ -56,6 +56,8 @@ class Jun():
         self.actioner = None
         self.update_session_id = ""
 
+        self.task_reports = []
+
     def setUpdateSessionId(self, id : str):
         self.update_session_id = id
         for task in self.getTasks():
@@ -1418,6 +1420,15 @@ class Jun():
     
     def isActionStorage( self, task : Task.BaseTask):
         return task.checkAutoActCmds()
+    
+    def onTaskReport( self, report ):
+        self.task_reports.append( report )
+
+    def resetTaskReports(self ):
+        self.task_reports = []
+
+    def getTaskReports( self ):
+        return self.task_reports
     
     def getTaskNodeColor( self, task : Task.BaseTask, trgs_rsm : list[Task.BaseTask] ):
         man = self
