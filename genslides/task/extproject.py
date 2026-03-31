@@ -1015,14 +1015,14 @@ class JumperTreeTask(InExtTreeTask):
     def exeExTreeTaskCmds( self, cmds ):
         act = self.getActioner()
         if act != None:
-            self.updateUpdationInfo(f"Exe ext tree actions")
-            act.getJsonCustomCmd( cmds )
+            result = self.runJsonCommandByInnerActioner( cmds )
             self.updateGeneratedAction()
             self.setChildUpdateState( True )
             for child in self.getChilds():
                 if child.checkType( "OutExtTree" ):
                     child.updateIternal()
             self.setChildUpdateState( False )
+            return f"Run ext tree task cmds: {result}"
         return super().exeExTreeTaskCmds( cmds )
     
     def removeJsonTaskCmds( self, cmds ):

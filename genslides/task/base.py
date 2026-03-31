@@ -1874,7 +1874,7 @@ class BaseTask():
         pass
     
     def exeExTreeTaskCmds( self, cmds : list[dict] ):
-        pass
+        return "Can not run ext tree task json cmds"
     
     def removeJsonTaskCmds( self, cmds ):
         pass

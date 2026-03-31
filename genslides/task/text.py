@@ -1416,12 +1416,18 @@ class TextTask(BaseTask):
             cmds_old_hash = aparam.get("hash","")
             cmds_hash = Txt.compute_sha256_hash( cmds_text)
             if cmds_old_hash != cmds_hash:
-                cmds = Loader.loadJsonFromText(cmds_text)
-                task : BaseTask = self.manager.getTaskByName(name)
-                if task != None and isinstance(cmds, list):
-                    task.exeExTreeTaskCmds(cmds)
-                    aparam["hash"] = cmds_hash
-                    self.setParamStruct(aparam)
+                res, cmds = Loader.loadJsonFromText(cmds_text)
+                if res and isinstance(cmds, list) and self.manager != None:
+                    task : BaseTask = self.manager.getTaskByAnyName(name)
+                    if task != None:
+                        result = task.exeExTreeTaskCmds(cmds)
+                        aparam["hash"] = cmds_hash
+                        self.setParamStruct(aparam)
+                        self.updateUpdationInfo( f"Run [{name}] cmds:{result}")
+                    else:
+                        self.updateUpdationInfo(f"No task with [{name}] name")
+                else:
+                    self.updateUpdationInfo(f"Can not understand json:{cmds_text} or invalid manager")
 
 
     def setRecordsParam(self):
