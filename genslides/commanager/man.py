@@ -58,6 +58,12 @@ class Jun():
 
         self.task_reports = []
 
+        self.current_command_info = {}
+        self.save_session_cmds = True
+
+    def setCurrentCommandInfo( self, data : dict):
+        self.current_command_info = data
+
     def setUpdateSessionId(self, id : str):
         self.update_session_id = id
         for task in self.getTasks():

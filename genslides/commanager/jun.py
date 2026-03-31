@@ -174,6 +174,7 @@ class Manager(Man.Jun):
     def loadTasksList(self, safe = False, trg_files = []):
         if self.is_loaded:
             return
+        self.save_session_cmds = False
         # print(10*"=======")
         print('Fast load of tasks' if safe else 'Load task from files')
         print('Manager path=', self.getPath())
@@ -195,6 +196,7 @@ class Manager(Man.Jun):
                 task.completeTask()
 
         self.is_loaded = True
+        self.save_session_cmds = True
 
         # for task in self.task_list:
         #     print("Task name=", task.getName(), " affected")
@@ -1080,26 +1082,36 @@ class Manager(Man.Jun):
             self.unexecmd_list.pop(0)
         self.updateTaskList(task, action )
         return None
+    
+    def getManagerStateInfo( self ):
+        self.current_command_info.update( {
+            "current": "" if self.getCurrentTask() == None else self.getCurrentTask().getName(),
+            "selected": "" if self.getSelectedTask() == None else self.getSelectedTask().getName(),
+            "multiselected":[t.getName() for t in self.getMultiSelectedTasks()],
+            "id":self.getUpdateSessionId()
+        }
+        )
        
     def redoCmd( self ) -> BaseTask:
         if len(self.unexecmd_list) == 0:
             return None
         cmd = self.unexecmd_list.pop()
         task, action = cmd.execute()
+        self.appendCommandToExecuted( cmd )
+        self.updateTaskList(task, action )
+        return None
+    
+    def appendCommandToExecuted( self, cmd ):
         self.execmd_list.append( cmd )
         if len(self.execmd_list) > self.execmd_num:
             self.execmd_list.pop(0)
-        self.updateTaskList(task, action )
-        return None
- 
+
     
     def executeCommand( self ):
         cmd = self.cmd_list.pop(0)
-        session_id = self.getUpdateSessionId()
-        cmd.setSessionId( session_id )
-        self.execmd_list.append( cmd )
-        if len(self.execmd_list) > self.execmd_num:
-            self.execmd_list.pop(0)
+        if self.save_session_cmds:
+            cmd.setManagerInfo( self.getManagerStateInfo() )
+            self.appendCommandToExecuted( cmd )
         task, action = cmd.execute()
         return task, action
 
@@ -2073,6 +2085,9 @@ class Manager(Man.Jun):
                     pass
             if not loaded:
                 self.info = {'actions':[]}
+        self.info["execmd_list"] = []
+        for cmd in self.execmd_list:
+            self.info["execmd_list"].append( cmd.getCmdInfo())
         if len(self.tree_arr) > 0:
             Sr.ProjectSearcher.saveSearchInfo(tree_info, self.info)
         writer.writeJsonToFile(path_to_projectfile, self.info, 'w', 1)

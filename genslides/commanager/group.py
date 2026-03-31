@@ -2094,6 +2094,7 @@ class Actioner():
                         # print('Args:', args)
                         # print('Kwargs', kwargs)
                         # print('Method', method)
+                        self.getCurrentManager().setCurrentCommandInfo( cmd )
                         result = method(*args, **kwargs)
                         results.append({"action": action, "result": result})  # Append the result of each action
                     else:
