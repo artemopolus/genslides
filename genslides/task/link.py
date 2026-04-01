@@ -352,7 +352,7 @@ class ListenerTask(LinkedTask):
                                 fres, forced_type = self.getParamValueByKey(tsk_info.params,'tag','forced_content_type')
                                 kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')
                                 if fres and kres and forced_type != "any":
-                                    self.updateUpdationInfo(f"Forced type[{key}]: {forced_type}")
+                                    self.updateUpdationInfo(f"Forced type[{forced_type}]: {key}")
                                     if forced_type == "prompt":
                                         if lparam['combine'] == 'json_list':
                                             link_dict_keys.append(key)
@@ -368,10 +368,13 @@ class ListenerTask(LinkedTask):
                                                     prompts_data.extend(jobj)
                                                 else:
                                                     prompts_data.append(jobj)
+                                                self.updateUpdationInfo(f"Update json LIST with {keys_info}")
                                             elif lparam['combine'] == 'json_dict':
-                                                keys_info = ",".join([k for k, v in jobj.items()])
-                                                self.updateUpdationInfo(f"Update json with {keys_info}")
+                                                ks = [k for k, v in jobj.items()]
+                                                keys_info = ",".join(ks)
+                                                self.updateUpdationInfo(f"Update json dict with {keys_info}")
                                                 prompts_data.update(jobj)
+                                                link_dict_keys.extend( ks )
                                         else:
                                             self.updateUpdationInfo(jreport)
                                     elif forced_type == "key_json":
@@ -383,6 +386,7 @@ class ListenerTask(LinkedTask):
                                             elif lparam['combine'] == 'json_dict':
                                                 link_dict_keys.append(key)
                                                 prompts_data.update({key: jobj})
+                                                self.updateUpdationInfo(f"Update json dict with {key}")
                                         else:
                                             self.updateUpdationInfo(jreport)
                                     else:
