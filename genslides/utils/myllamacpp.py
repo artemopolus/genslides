@@ -130,8 +130,12 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
     model_name = params.get('model','unknown')
     out = {
             "report": f"call tool for: {model_name}\n",
-            "initial_tool_schema": tools
-        }
+            "initial_tool_schema": tools,
+            "tool_content":"",
+            "tool_reasoning_content":"", 
+            "tool_calls_result":"",
+            "tools":""
+     }
     result = None
     try:
         # print("llamacppGetToolResponse")
@@ -185,13 +189,15 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                 elif tool_response_format == "raw":
                     tool_calls_array = result.message.tool_calls
                     response_out = {
-                        "content":result.message.content,
-                        "reasoning_content": getattr(result.message, "reasoning_content", ""),
+                        "content":getattr(result.message, "content", ""),
                         "tool_calls":[]
                     }
-                    if tool_calls_array != None:
+                    out ['tool_reasoning_content'] = getattr(result.message, "reasoning_content", "")
+                    if tool_calls_array != None and isinstance(tool_calls_array, list):
                         for tool_call in tool_calls_array:
-                            response_out["tool_calls"].append({"name":tool_call.function.name,"args":tool_call.function.arguments})
+                            response_out["tool_calls"].append({"action":tool_call.function.name,"kwargs":tool_call.function.arguments})
+                    else:
+                        out['report'] += "no valid tool array"
                     response = Loader.Loader.convJsonToText(response_out)
                 elif tool_response_format == "tool_args_dict":
                     tool_calls_array = result.message.tool_calls

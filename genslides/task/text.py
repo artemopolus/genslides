@@ -1373,6 +1373,11 @@ class TextTask(BaseTask):
                     self.setParamStruct(fparam)
                 else:
                     self.updateUpdationInfo(f"Error on jsondict to text convert")
+            elif fconvert == "tomd_jinja2":
+                format_report = Txt.jsonTextToMarkdown(self.findKeyParam( fparam.get("target","")),self.findKeyParam( fparam.get("jinja2_template","")))
+                self.updateUpdationInfo(format_report["report"])
+                fparam["result"] = format_report["output"]
+                self.setParamStruct(fparam)
             elif fconvert == "trgkey":
                 ftrgkey = Txt.convertCommaSeparatedToList( fparam.get("keyspath",""))
                 if len( ftrgkey ):

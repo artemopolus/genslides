@@ -339,7 +339,8 @@
       "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "description":["","{\n\"target_json_key\":{\"prefix\":\"# Proposal\\n\",\"suffix\":\"\\n\"},\n  \"target_field_key\":{\"reference_key\":\"target_value\"}\n}"],
       "target_field_key":"",
-      "convert_type":["tomd","trgkey"],
+      "convert_type":["tomd","tomd_jinja2","trgkey"],
+      "jinja2_template":["","[[current:msg_content]]","[[parent:msg_content]]","insert_here_valid_jinja2_template"],
       "keyspath":["key1,key2","key"],
       "output":["json","str","list"]
    },

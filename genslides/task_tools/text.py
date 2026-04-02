@@ -1,6 +1,9 @@
 import hashlib
 import genslides.utils.loader as Loader
 
+from jinja2 import Environment, BaseLoader, StrictUndefined, TemplateError
+
+
 def compute_sha256_hash(input_text: str) -> str:
     """
     Compute the SHA256 hash of the given input text.
@@ -373,3 +376,45 @@ def find_most_similar_simple(query_sentence, text_corpus):
 
 def convertCommaSeparatedToList( text : str ):
     return [t.replace(" ","") for t in text.split(',')]
+
+def jsonTextToMarkdown(data: str, template_str: str) -> str:
+    res, jobj, jreport = Loader.Loader.loadJsonFromTextStr(data)
+    out = {
+        "result":False,
+        "report":jreport,
+        "output":""
+    }
+    if res:
+        cres, creport, cdata = jsonToMarkdown( jobj, template_str )
+        out["report"] += creport
+        out["result"] = cres
+        out["output"] = cdata
+    return out
+
+
+def jsonToMarkdown(data, template_str: str):
+    """
+    Рендерит Markdown из JSON-данных через Jinja2 шаблон.
+
+    :param data: dict (твой JSON)
+    :param template_str: строка шаблона Jinja2
+    :return: готовый markdown
+    """
+    output = ""
+    try:
+        env = Environment(
+            loader=BaseLoader(),
+            undefined=StrictUndefined,  # ошибка если поле отсутствует
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
+
+        template = env.from_string(template_str)
+        if isinstance(data, dict):
+            output = template.render(**data)
+        output = template.render(data=data)
+        return True, "Convert to markdown with jinja2", output
+
+    except TemplateError as e:
+        return True, f"Ошибка шаблона: {e}", output
+    
