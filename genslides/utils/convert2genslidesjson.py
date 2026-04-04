@@ -12,6 +12,7 @@ class DefaultConvertor:
         self.parameters = {
             "suffix":"_dflt"
         }
+        self.reports = []
 
     def getArchiveNameFromJson( self, path : str):
         return loader.Loader.getFileNameFromPath(path)
@@ -32,6 +33,8 @@ class DefaultConvertor:
                     "name": part_name,
                     "body": part_body
                 }
+    def process_file_internal( self, data):
+        return []
 
     def process_file(self, file_path, output_dir):
         output = {}
@@ -51,18 +54,21 @@ class DefaultConvertor:
         cuts = self.process_file_internal( data )
 
         for cut in cuts:
-            pack = cut.get("Result Text","")
-            parts.append(self.createTargetPack("", pack))
+            if isinstance( cut, dict):
+                pack = cut.get("Result Text","")
+                parts.append(self.createTargetPack("", pack))
 
         json_data = self.createFileHeader(file_path, parts)
         
         output_file_path = self.get_genslides_jsonproject_path( file_path )
+        self.reports.append(f"File path:{output_file_path}")
         try:
             with open(output_file_path, "w", encoding="utf-8") as json_file:
                 json.dump(json_data, json_file, indent=4)
         except IOError as e:
-            print(f"Error writing to file {output_file_path}: {e}")
+            self.reports.append(f"Error writing to file {output_file_path}: {e}")
             output["result"] = False
+            output["report"] = "\n".join(self.reports)
             return output
         return output 
 
@@ -71,8 +77,10 @@ class DefaultConvertor:
     
     def get_new_genslides_path( self, file_path, ext = ".json" ):
         output_dir = os.path.dirname( file_path )
-        base_name, ext = os.path.splitext(os.path.basename(file_path))
+        base_name, ext_prev = os.path.splitext(os.path.basename(file_path))
         output_extension = self.parameters.get("suffix","_unknwn") + ext
+        self.reports.append(f"OutExt:{output_extension}")
+        self.reports.append(f"Ext:{ext}")
         return os.path.join(output_dir, f"{base_name}{output_extension}")
  
     
@@ -401,12 +409,14 @@ class GodotConverter(DefaultConvertor):
 
         def get_indent(line):
             return len(line) - len(line.lstrip(" \t"))
+        before_start_index = 0
 
         while i < n:
             line = lines[i]
 
             # начало функции
             if line.strip().startswith("func "):
+                before_start_index = i
                 func_lines = [line]
                 base_indent = get_indent(line)
                 i += 1
@@ -432,7 +442,13 @@ class GodotConverter(DefaultConvertor):
                 # если не помещается — пушим текущий chunk
                 if len(current_chunk) + len(func_block) > max_chunk_size:
                     if current_chunk:
-                        chunks.append(current_chunk)
+                        # chunks.append(current_chunk)
+                        chunks.append({
+                            'Result Text': current_chunk,
+                            'Start Index of Text': before_start_index,
+                            'End Index of Text': i
+                        })
+
                         current_chunk = ""
 
                 current_chunk += func_block
@@ -441,14 +457,25 @@ class GodotConverter(DefaultConvertor):
                 # обычный код вне функций
                 if len(current_chunk) + len(line) > max_chunk_size:
                     if current_chunk:
-                        chunks.append(current_chunk)
+                        # chunks.append(current_chunk)
+                        chunks.append({
+                            'Result Text': current_chunk,
+                            'Start Index of Text': before_start_index,
+                            'End Index of Text': i
+                        })
+
                         current_chunk = ""
 
                 current_chunk += line
                 i += 1
 
         if current_chunk:
-            chunks.append(current_chunk)
+            # chunks.append(current_chunk)
+            chunks.append({
+                'Result Text': current_chunk,
+                'Start Index of Text': before_start_index,
+                'End Index of Text': i
+            })
 
         return chunks
 

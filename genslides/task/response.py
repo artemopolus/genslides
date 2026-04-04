@@ -111,7 +111,7 @@ class ResponseTask(TextTask):
         if mparam.get("allow_calling", True):
             res, out, out_params = self.executeResponseInternal(chat)
             response_report = copy.deepcopy( out_params )
-            response_report["time"] = datetime.datetime.now()        
+            response_report["time"] = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")        
             response_report["source_task"] = self.getName()
             self.manager.onTaskReport( response_report )
             chat_report = out_params.get("report","No report")

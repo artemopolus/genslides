@@ -86,7 +86,10 @@ class Loader:
         return md_text
 
     def convJsonToText(val, indent = None):
-        return json.dumps(val, ensure_ascii=False, indent=indent)
+        try:
+            return json.dumps(val, ensure_ascii=False, indent=indent)
+        except:
+            return ""
 
     def loadJsonFromText(text : str, report = False):
         try:
