@@ -401,6 +401,8 @@ def jsonToMarkdown(data, template_str: str):
     :return: готовый markdown
     """
     output = ""
+    report = []
+    report.append("jsonToMarkdown")
     try:
         env = Environment(
             loader=BaseLoader(),
@@ -411,10 +413,15 @@ def jsonToMarkdown(data, template_str: str):
 
         template = env.from_string(template_str)
         if isinstance(data, dict):
+            report.append("dict")
             output = template.render(**data)
-        output = template.render(data=data)
-        return True, "Convert to markdown with jinja2", output
+        else:
+            report.append("list")
+            output = template.render(data=data)
+        report.append("Convert to markdown with jinja2")
+        return True, "\n".join(report), output
 
     except TemplateError as e:
-        return True, f"Ошибка шаблона: {e}", output
+        report.append(f"Ошибка шаблона: {e}")
+        return True, "\n".join(report), output
     
