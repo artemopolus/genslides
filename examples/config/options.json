@@ -60,7 +60,7 @@
       "tool_description":["","This is tool"],
       "tool_for_schema": [true, false],
       "use_response_format_for_tools": [true, false],
-      "tool_response_format":["std","raw","tool_args_dict","tool_args_list"]
+      "tool_response_format":["std","raw","raw_gs","tool_args_dict","tool_args_list"]
    },
    {
       "type": "updateable",
@@ -88,7 +88,12 @@
       "block": [true, false],
       "reason":["None","Target","TargetInv","TargetMoreValue","TargetLessValue","TargetTrue","TargetFalse"],
       "target":"",
-      "value":""
+      "value":"",
+      "use_raw_value":[false, true],
+      "check_block_res":[false, true],
+      "force_block":[false, true],
+      "force_block_status":[false, true]
+
    },
    {
       "type": "hidden",
@@ -241,6 +246,8 @@
       "prompt": "",
       "actions_on": [true, false],
       "onupdate":["loadact_ignore","loadact_check"],
+      "replace_manager_globalvars":[false, true],
+      "target_manager_globalvars":["","{\"\"MainModel\":[[manager:global:ThinkModel]]\"}","{\"MainModel\": \"openai/gpt-oss-20b\",\"DocModel\": \"openai/gpt-oss-20b\",\"CheckModel\": \"google/gemma-4-26b-a4b-it\",\"ThinkModel\": \"google/gemma-4-26b-a4b-it\"}"],
       "reset_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
       "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
       "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],

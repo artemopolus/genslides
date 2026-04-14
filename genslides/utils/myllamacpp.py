@@ -189,13 +189,30 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
                 elif tool_response_format == "raw":
                     tool_calls_array = result.message.tool_calls
                     response_out = {
+                        "tool_calls":[]
+                    }
+                    if tool_calls_array != None and isinstance(tool_calls_array, list):
+                        for tool_call in tool_calls_array:
+                            response_out["tool_calls"].append({"function":{"name":tool_call.function.name,"arguments":tool_call.function.arguments}})
+                    response = Loader.Loader.convJsonToText(response_out)
+                elif tool_response_format == "raw_gs":
+                    tool_calls_array = result.message.tool_calls
+                    response_out = {
                         "content":getattr(result.message, "content", ""),
+                        "reasoning":getattr(result.message, "reasoning", ""),
+                        "tool_calls_gs":[],
                         "tool_calls":[]
                     }
                     out ['tool_reasoning_content'] = getattr(result.message, "reasoning_content", "")
                     if tool_calls_array != None and isinstance(tool_calls_array, list):
                         for tool_call in tool_calls_array:
-                            response_out["tool_calls"].append({"action":tool_call.function.name,"kwargs":tool_call.function.arguments})
+                            tool_call_function_name = tool_call.function.name
+                            jres, tool_call_function_args, jreport = Loader.Loader.loadJsonFromTextStr(tool_call.function.arguments)
+                            if jres:
+                                response_out["tool_calls"].append({"function":{"name":tool_call_function_name,"arguments":tool_call_function_args}})
+                                response_out["tool_calls_gs"].append({"action":tool_call_function_name,"kwargs":tool_call_function_args})
+                            else:
+                                out['report'] += jreport + "\n"
                     else:
                         out['report'] += "no valid tool array"
                     response = Loader.Loader.convJsonToText(response_out)

@@ -2205,41 +2205,46 @@ class TextTask(BaseTask):
             if bparam['block']:
                 block = False
                 if 'reason' in bparam:
+                    target = self.findKeyParam(bparam['target'])
+                    if bparam.get("use_raw_value", True):
+                        value = self.findKeyParam(bparam['value'])
+                    else:
+                        value = bparam['value']
+                    self.updateUpdationInfo("Block check:")
+                    self.updateUpdationInfo(f"target:{target}")
+                    self.updateUpdationInfo(f"value:{value}")
                     if bparam['reason'] == "None":
+                        self.updateUpdationInfo("Block without reason")
                         block = True
                     elif bparam['reason'] == "Target":
-                        target = self.findKeyParam(bparam['target'])
-                        value = self.findKeyParam(bparam['value'])
                         if target == value:
+                            self.updateUpdationInfo("Target = Value")
                             block = True
                     elif bparam['reason'] == "TargetInv":
-                        target = self.findKeyParam(bparam['target'])
-                        value = self.findKeyParam(bparam['value'])
                         if target != value:
+                            self.updateUpdationInfo("Target != Value")
                             block = True
                     elif bparam['reason'] == "TargetMoreValue":
-                        target = self.findKeyParam(bparam['target'])
-                        value = self.findKeyParam(bparam['value'])
                         try:
                             if float(target) >= float(value):
+                                self.updateUpdationInfo("Target > Value")
                                 block = True
                         except:
                             pass
                     elif bparam['reason'] == "TargetLessValue":
-                        target = self.findKeyParam(bparam['target'])
-                        value = self.findKeyParam(bparam['value'])
                         try:
                             if float(target) < float(value):
+                                self.updateUpdationInfo("Target < Value")
                                 block = True
                         except:
                             pass
                     elif bparam['reason'] == "TargetTrue":
-                        target = self.findKeyParam(bparam['target'])
                         if target.lower() == 'true':
+                            self.updateUpdationInfo("Target TRUE")
                             block = True
                     elif bparam['reason'] == "TargetFalse":
-                        target = self.findKeyParam(bparam['target'])
                         if target.lower() == 'false':
+                            self.updateUpdationInfo("Target FALSE")
                             block = True
                 if block != self.block_on:
                     bparam["check_block_res"] = True

@@ -667,11 +667,26 @@ class JumperTreeTask(InExtTreeTask):
     def updateInternalGlobalKeys(self):
         if not self.intman:
             return
+        global_vars_update = {}
         for key in self.manager.getGlobalKeys():
             self.updateUpdationInfo(f"Update new key: {key}\n")
             res, value = self.manager.getGlobalValue( key )
             if res:
-                self.intman.appendGlobalVariables( key, value )
+                global_vars_update[key] = value
+
+        eres, eparam = self.getParamStruct('external')
+        if eres:
+            if eparam.get("replace_manager_globalvars", False):
+                forcing_keys = self.findKeyParam(eparam.get("target_manager_globalvars",""))
+                jres, jobj, jreport = Loader.Loader.loadJsonFromTextStr(forcing_keys)
+                self.updateUpdationInfo(f"For Global Vars: {jreport}")
+                if jres and isinstance(jobj, dict):
+                    for k, v in jobj.items():
+                        global_vars_update[k] = v
+                else:
+                    self.updateUpdationInfo(f"Error replacing Globals:{forcing_keys}")
+        for key, value in global_vars_update.items():
+            self.getActioner().getCurrentManager().appendGlobalVariables( key, value )
 
     def getRelatedActionersPaths(self, actpaths_list):
         if self.intact != None:
