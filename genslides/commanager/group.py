@@ -2256,7 +2256,6 @@ class Actioner():
             )
 
     def editingAction( self, prompt ):
-        print (f"Execute editing action for {self.getCurrentManager().getCurrentTask().getName()}")
         self.makeTaskAction( 
             prompt=prompt,
             type1='Request',
@@ -2289,6 +2288,7 @@ class Actioner():
                 },
             save_action=True                
             )
+        return f"Execute editing action for {self.getCurrentManager().getCurrentTask().getName()}"
 
     def getTaskByTag( self, tags : str):
         man = self.getCurrentManager()
@@ -2297,27 +2297,32 @@ class Actioner():
             print(f"Select {task.getName()} by {tags}")
             man.setCurrentTask(task)
 
+    def insertTextAfterMarker(self, inserted_text, marker):
+        return self.insertingToTaskAction( prompt=inserted_text, taskname=marker)
+
     def insertingToTaskAction( self, prompt : str, taskname : str, task_type = "Request", role = "user", task_params = [] ):
         man = self.getCurrentManager()
-        task = man.getTaskByName(taskname)
+        task = man.getTaskByAnyName(taskname)
         if task:
-            # if len(task.getChilds()):
-                # task = task.getChilds()[0]
+            if len(task.getChilds()):
+                task = task.getChilds()[0]
             man.setCurrentTask( task )
-            self.insertingAction(prompt, task_type, role, task_params)
+            return self.insertingAction(prompt, task_type, role, task_params)
+        return f"No task found with {taskname}"
 
     def editMarkeredText( self, edited_text : str, marker : str ):
-        self.editingToTaskAction( edited_text, marker )
+        return self.editingToTaskAction( edited_text, marker )
 
     def editingToTaskAction( self, prompt : str, taskname : str ):
         man = self.getCurrentManager()
-        task = man.getTaskByName(taskname)
+        task = man.getTaskByAnyName(taskname)
         if task:
             man.setCurrentTask( task )
-            self.editingAction(prompt)
+            return self.editingAction(prompt)
+        else:
+            return f"No task found with {taskname}"
  
     def insertingAction( self, prompt, task_type = "Request", role = "user", task_params = [] ):
-        print (f"Execute inserting action for {self.getCurrentManager().getCurrentTask().getName()}")
         param = {}
         if isinstance(task_params, list) and len(task_params) > 0:
             param["task_params"] = task_params
@@ -2329,6 +2334,7 @@ class Actioner():
             param=param ,
             save_action=True                
             )
+        return f"Execute inserting action for {self.getCurrentManager().getCurrentTask().getName()}"
 
     def createGarlandTree(self, prompt, out_prompt = "[[parent:code]]", root_type = "SetOptions", receivroot_type = "SetOptions", receiver_type = "Listener"):
         man = self.getCurrentManager()

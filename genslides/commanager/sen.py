@@ -2002,18 +2002,34 @@ class Projecter(Commander.Commander):
         return self.updateMainUIelements()
 
     def findSubStringInTasks(self, trg : str):
-        man = self.actioner.getCurrentManager()
         output = ''
-        for task in man.task_list:
-            if task.checkType('Request'):
+        result = []
+        CONTEXT = 20
+        for act in self.getActionersList():
+            man = act.getCurrentManager()
+
+            for task in man.task_list:
+                if not task.checkType('Request'):
+                    continue
+
                 content = task.getLastMsgContentRaw()
-                for idx in range(len(content)):
-                    if content.startswith(trg, idx):
-                        info = ':'.join([task.getName(), str(idx)]) + '\n\n'
-                        start_idx = max(0, idx - 20)
-                        end_idx = min((len(content) - 1), idx + len(trg) + 20)
-                        info += content[start_idx : end_idx] + '\n\n\n\n'
-                        output += info
+                if not content:
+                    continue
+
+                idx = content.find(trg)
+                while idx != -1:
+                    start_idx = max(0, idx - CONTEXT)
+                    end_idx = min(len(content), idx + len(trg) + CONTEXT)
+
+                    snippet = content[start_idx:end_idx]
+
+                    result.append(
+                        f"{act.getPath()}:{task.getName()}:{idx}\n\n{snippet}\n\n\n\n"
+                    )
+
+                    idx = content.find(trg, idx + len(trg))
+                    
+        output = ''.join(result)
         return output
 
 

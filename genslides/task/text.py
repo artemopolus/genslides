@@ -733,7 +733,7 @@ class TextTask(BaseTask):
         index = 0
         out = []
         mres, mparam = self.getParamStruct("message")
-        self.updateUpdationInfo(f"Excl list:{except_task}")
+        # self.updateUpdationInfo(f"Excl list:{except_task}")
         # TODO: вставить удаление всех системных промптов за исключением ближайщего? Системный промпт вставляется в самое начало диалога
         while(index < 1000):
             res, msg, par = task.getLastMsgAndParent(hide_task, max_symbols, inparam, add_task_name)
@@ -1301,7 +1301,7 @@ class TextTask(BaseTask):
         if self.isFrozen():
             return
         res, param = self.getParamStruct(param_name='cmd_generator', only_current=True)
-        if res:
+        if res and param.get("active", True):
             cmd_text = self.findKeyParam(param.get("content",""))
             prev_hash = param.get("hash","")
             cmd_hash = Txt.compute_sha256_hash( cmd_text )
@@ -1407,20 +1407,52 @@ class TextTask(BaseTask):
                 else:
                     self.updateUpdationInfo(f"Error on jsondict to text convert ({ fconvert })")
 
+        self.getTargetToolFromOutput()
         self.updateGeneratedAction()
         self.updateAutoCommand()
         self.autoExecuteTaskByParam()
         self.saveUpdationInfo()
         self.resetUpdationInfo()
 
+
+    def getTargetToolFromOutput( self ):
+        gres, gparam = self.getParamStruct("get_tool_output", True)
+        if gres:
+            trg_tool_name = self.findKeyParam( gparam.get("tool_name","") )
+            trg_body = self.findKeyParam(gparam.get("target",""))
+            res_opt = self.findKeyParam( gparam.get("res_opt", "first") )
+            jres, jobj, jreport = Loader.loadJsonFromTextStr(trg_body)
+            if jres:
+                if isinstance(jobj, list):
+                    if res_opt == "first":
+                        self.updateUpdationInfo("Search first appearence ...")
+                        result = None
+                        for tool in jobj:
+                            if "function" in tool and "name" in tool["function"]:
+                                name = tool["function"]["name"]
+                                self.updateUpdationInfo(f"Found {name}")
+                                if tool["function"]["name"] == trg_tool_name and "arguments" in tool["function"]:
+                                    result = tool["function"]["arguments"]
+                                    break
+                        if result != None:
+                            gparam["result"] = Loader.convJsonToText(result)
+                            self.setParamStruct( gparam )
+                        else:
+                            self.updateUpdationInfo(f"No {trg_tool_name} in target")
+                else:
+                    self.updateUpdationInfo(f"getTargetToolFromOutput error: not list")
+            else:
+                self.updateUpdationInfo(f"getTargetToolFromOutput error: {jreport}")
+
     def autoExecuteTaskByParam( self ):
         ares, aparam = self.getParamStruct("execute_commands", True)
-        if ares:
+        if ares and aparam.get("active",True):
             name = self.findKeyParam( aparam.get("target_task","") )
             cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
             cmds_old_hash = aparam.get("hash","")
             cmds_hash = Txt.compute_sha256_hash( cmds_text)
             if cmds_old_hash != cmds_hash:
+                self.updateUpdationInfo("Execute commands")
                 res, cmds = Loader.loadJsonFromText(cmds_text)
                 if res and isinstance(cmds, list) and self.manager != None:
                     task : BaseTask = self.manager.getTaskByAnyName(name)
@@ -1433,6 +1465,10 @@ class TextTask(BaseTask):
                         self.updateUpdationInfo(f"No task with [{name}] name")
                 else:
                     self.updateUpdationInfo(f"Can not understand json:{cmds_text} or invalid manager")
+        elif ares and not aparam.get("active",False):
+            name = self.findKeyParam( aparam.get("target_task","") )
+            cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
+            self.updateUpdationInfo(f"Available commands for [{name}]:\n{cmds_text}")
 
 
     def setRecordsParam(self):

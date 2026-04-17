@@ -240,6 +240,7 @@
       "exttreetask_file_target": ["","[[parent:msg_content]]","[[parent:msg_content:json:key]]","[[parent:param:key]]"],
       "exttreetask_file_current": "",
       "exttreetask_template": "",
+      "exttreetask_template_load_onreset": [false, true],
       "autoload_actions": "",
       "exttreetask_path": "",
       "inexttree": ["None", "fromact"],
@@ -250,7 +251,7 @@
       "target_manager_globalvars":["","{\"\"MainModel\":[[manager:global:ThinkModel]]\"}","{\"MainModel\": \"openai/gpt-oss-20b\",\"DocModel\": \"openai/gpt-oss-20b\",\"CheckModel\": \"google/gemma-4-26b-a4b-it\",\"ThinkModel\": \"google/gemma-4-26b-a4b-it\"}"],
       "reset_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
       "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
-      "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
+      "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]","[ { \"action\": \"updateIFfrozentasks\", \"kwargs\": { \"n\": 1 } } ]"],
       "custom_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
    },
    {
@@ -372,12 +373,20 @@
    {
       "type":"cmd_generator",
       "content": "",
+      "active": [true, false],
       "hash":""
    },
    {
       "type":"execute_commands",
       "target_task": "",
       "cmds":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "active": [true, false],
       "hash":""
+   },
+   {
+      "type":"get_tool_output",
+      "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "tool_name":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "res_opt":["first","array"]
    }
 ]
