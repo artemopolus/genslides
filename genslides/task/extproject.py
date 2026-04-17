@@ -594,7 +594,12 @@ class InExtTreeTask(ExtProjectTask):
     def runJsonCommandByInnerActioner( self, cmds : list):
         act = self.getActioner()
         if act != None:
-            result = act.getJsonCmd( cmds )
+            result = None
+            if isinstance( cmds , str ):
+                result = act.getJsonCmd( cmds )
+            elif isinstance( cmds , list ):
+                result = act.getJsonCustomCmd( cmds )
+
             eres, eparam = self.getParamStruct('external')
             if eres:
                 eparam["task_reports_after_cmd"] = Loader.Loader.convJsonToText(self.manager.getTaskReports())
@@ -981,6 +986,20 @@ class JumperTreeTask(InExtTreeTask):
 
     def forceCleanChat(self):
         eres, eparam = self.getParamStruct('external',True)
+        act = self.getActioner()
+        if act == None:
+            return super().forceCleanChat()
+        if eres and eparam.get("exttreetask_template_load_onreset", False):
+            path_to_template = eparam.get("exttreetask_file_current","")
+            if not Fm.checkExistPath( path_to_template ):
+                self.updateUpdationInfo(f"Reload with template [{path_to_template}]")
+                path_to_template = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_template","") ) )
+            else:
+                self.updateUpdationInfo(f"Reload from Current File {path_to_template}")
+            if Fm.checkExistPath( path_to_template ):
+                act.loadManagerProjectFromFile ( path_to_template )
+                act.syncRelatedActionersWithFolder()
+                self.updateUpdationInfo(f"Loaded and synced")
         if eres and 'reset_actions' in eparam and eparam['reset_actions'] != "":
             results = self.runJsonCommandByInnerActioner( self.findKeyParam(eparam['reset_actions']) )
             self.updateUpdationInfo(f"RESET Actions with results:{results}")
