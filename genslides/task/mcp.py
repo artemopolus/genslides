@@ -8,6 +8,7 @@
 """
 from genslides.task.text import TextTask, TaskDescription
 from genslides.mcp.mcpclient import MCPClient
+import genslides.utils.loader as Ld
 import copy
 import asyncio
 import json
@@ -44,8 +45,21 @@ class MCPTask(TextTask):
         mres, mparam = self.getParamStruct("model")
         messages = self.getParent().getMsgs()
 
-        if not cres or not mres:
-            return None
+        if not cres:
+            self.updateUpdationInfo("No mcp config")
+            return super().updateIternal(input)
+        if not mres:
+            self.updateUpdationInfo("No model config")
+            try:
+                self.appendMessage(
+                    {
+                        "role":"assistant",
+                        "content": self._run_tools(cparam) 
+                    }
+                )
+            except Exception as e:
+                self.updateUpdationInfo(f"Error tool get: {e}")
+            return super().updateIternal(input)
         
         cparam = self.convParamStruct(copy.deepcopy(cparam))
         mparam = self.convParamStruct(copy.deepcopy(mparam))
@@ -57,6 +71,41 @@ class MCPTask(TextTask):
         else:
             self.updateUpdationInfo("No non-blocking task now")
         return None
+    
+    def _run_tools(self, mcp_params : dict):
+        self.updateUpdationInfo("_run_tools")
+        def _run_mcp_client_server_tools():
+            async def blocking_mcp_main():
+                client = MCPClient()
+                text = ""
+                path  = mcp_params.get("path_to_server","")
+                path = Ld.Loader.getUniPath(self.findKeyParam( path ))
+                await client.connect_to_server(path)
+                tool_exe_results = []
+                tools = self.findKeyParam(mcp_params.get("tool_calls_raw", ""))
+                jres, jtools, jreport = Ld.Loader.loadJsonFromTextStr(tools)
+                if jres:
+                    tool_input_type = mcp_params.get("tool_input", "std")
+                    for tool in jtools:
+                        tool_exe = {}
+                        if tool_input_type == "std":
+                            tool_output = await client.session.call_tool(tool["name"], tool["arguments"])
+                        elif tool_input_type == "fun":
+                            tool_exe["name"] = tool["function"]["name"]
+                            tool_exe["arguments"] = tool["function"]["arguments"]
+                            tool_output = await client.session.call_tool(tool["function"]["name"], tool["function"]["arguments"])
+                        tool_exe["result"] = tool_output.content[0].text
+                        tool_exe_results.append( tool_exe )
+                else:
+                    self.updateUpdationInfo(f"Error to json convert:{jreport}")
+                await client.cleanup()
+                text = Ld.Loader.convJsonToText( tool_exe_results )
+                return text
+            return asyncio.run(blocking_mcp_main())
+        exe_result = _run_mcp_client_server_tools()
+        mcp_params["result"] = exe_result
+        self.setParamStruct( mcp_params )
+        return exe_result
 
 
     def _execute_block(self, messages : list[dict], mcp_params : dict, model_params : dict):
@@ -97,10 +146,18 @@ class MCPTask(TextTask):
                 else:
                     proc_res, response, outparams = await client.process_query(messages, model_params)
                     if "tool_calls" in outparams:
+                        tool_exe_reluts = []
+                        tool_input_type = mcp_params.get("tool_input", "std")
                         for tool in outparams["tool_calls"]:
-                            tool_output = await client.session.call_tool(tool["name"], tool["arguments"])
-                            text += tool_output.content[0].text
-                        outparams["tool_output"] = text
+                            try:
+                                if tool_input_type == "std":
+                                    tool_output = await client.session.call_tool(tool["name"], tool["arguments"])
+                                elif tool_input_type == "fun":
+                                    tool_output = await client.session.call_tool(tool["function"]["name"], tool["function"]["arguments"])
+                                tool_exe_reluts.append( tool_output.content[0].text )
+                            except Exception as e:
+                                self.updateUpdationInfo(f"Error tool get: {e}")
+                        outparams["tool_output"] = "\n".join(tool_exe_reluts)
                 await client.cleanup()
                 return proc_res, response, outparams
             return asyncio.run(blocking_mcp_main())

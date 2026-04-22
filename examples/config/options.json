@@ -361,6 +361,8 @@
       "submit_timeout": 30,
       "cleanup_timeout": 5,
       "use_json":[false, true],
+      "tool_calls_raw":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "tool_input":["fun","std"],
       "include_functions":["ALL","function_name"],
       "jsonkeyspath":["json_schema,schema,properties,tool_calls,properties", ""]
    },
