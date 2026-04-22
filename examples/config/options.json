@@ -86,7 +86,7 @@
    {
       "type": "block",
       "block": [true, false],
-      "reason":["None","Target","TargetInv","TargetMoreValue","TargetLessValue","TargetTrue","TargetFalse"],
+      "reason":["None","Target","TargetInv","TargetMoreValue","TargetLessValue","TargetTrue","TargetFalse","ValueArray","ValueArrayInv"],
       "target":"",
       "value":"",
       "use_raw_value":[false, true],

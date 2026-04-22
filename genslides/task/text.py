@@ -2252,6 +2252,13 @@ class TextTask(BaseTask):
                     if bparam['reason'] == "None":
                         self.updateUpdationInfo("Block without reason")
                         block = True
+                    elif bparam['reason'].startswith("ValueArray"):
+                        val_arr = value.split(",")
+                        self.updateUpdationInfo(f"chck {target} in {val_arr}")
+                        if bparam['reason'] == "ValueArray" and target in val_arr:
+                            block = True
+                        elif bparam['reason'] == "ValueArrayInv" and target not in val_arr:
+                            block = True
                     elif bparam['reason'] == "Target":
                         if target == value:
                             self.updateUpdationInfo("Target = Value")
