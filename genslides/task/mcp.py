@@ -99,7 +99,7 @@ class MCPTask(TextTask):
                 else:
                     self.updateUpdationInfo(f"Error to json convert:{jreport}")
                 await client.cleanup()
-                text = Ld.Loader.convJsonToText( tool_exe_results )
+                text = Ld.Loader.convJsonToText( { "tool_calls": tool_exe_results } )
                 return text
             return asyncio.run(blocking_mcp_main())
         exe_result = _run_mcp_client_server_tools()
