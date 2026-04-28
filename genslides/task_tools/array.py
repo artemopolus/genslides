@@ -2,8 +2,8 @@ import genslides.task_tools.text as TextTool
 import genslides.utils.loader as Ld
 # import genslides.task.text as Txt
 
-def checkContextWindow( text: str, size):
-    if size < len(text):
+def checkContextWindow( text: str, size : int):
+    if len(text) > size:
         return False
     return True
 
@@ -49,34 +49,58 @@ def divideArray(task  , param : dict):
                             else:
                                 starting_text += msg["content"]
                             starting_names.append(message_name)
-                msg_content = starting_text
+                msg_content = [starting_text]
                 msg_names = []
                 for idx, msg in enumerate(targets):
                     if "content" in msg and "name" in msg:
                         if msg["name"] not in starting_names:
-                            if checkContextWindow(msg_content, context_win_size):
+                            if len("".join(msg_content)) < context_win_size:
                                 message_name = msg["name"]
                                 if use_marker == "taskname":
-                                    msg_content += f"[{message_name}] " + msg["content"]
+                                    msg_content.append( f"[{message_name}] " + msg["content"] )
                                 else:
-                                    msg_content += msg["content"]
+                                    msg_content.append( msg["content"] )
                                 msg_names.append(message_name)
-                            elif len(msg_names) > 0:
+                            else:
+                                if len(msg_names) == 0:
+                                    message_name = msg["name"]
+                                    if use_marker == "taskname":
+                                        msg_content.append( f"[{message_name}] " + msg["content"] )
+                                    else:
+                                        msg_content.append( msg["content"] )
+                                    msg_names.append(message_name)
+                                
                                 arr_value = {
-                                    "content" : msg_content,
+                                    "content" : "".join( msg_content),
                                     "name" : ",".join(msg_names)
                                 }
+                                arr_idx = len(arr)
                                 arr.append(
                                     {
-                                        'idx' : idx,
+                                        'idx' : arr_idx,
+                                        "size":len("".join( msg_content)),
                                         'chck':False,
                                         'content': Ld.Loader.convJsonToText(arr_value)
                                     }
                                 )
-                                msg_content = starting_text
+                                msg_content = [starting_text]
                                 msg_names = []
-                            else:
-                                msg_content = starting_text
+                #
+                if len(msg_names):
+                    arr_value = {
+                        "content" : "".join( msg_content),
+                        "name" : ",".join(msg_names)
+                    }
+                    arr_idx = len(arr)
+                    arr.append(
+                        {
+                            'idx' : arr_idx,
+                            "size":len("".join( msg_content)),
+                            'chck':False,
+                            'content': Ld.Loader.convJsonToText(arr_value)
+                        }
+                    )
+                   
             else:
                 for idx, content in enumerate( targets ):
                     trg_idx  = idx

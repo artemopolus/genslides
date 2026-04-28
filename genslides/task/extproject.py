@@ -595,12 +595,18 @@ class InExtTreeTask(ExtProjectTask):
         act = self.getActioner()
         if act != None:
             result = None
+            eres, eparam = self.getParamStruct('external')
+            if eres:
+                eparam["task_reports_after_cmd"] = ""
+                eparam["filtered_cmds"] = "" 
             if isinstance( cmds , str ):
                 result = act.getJsonCmd( cmds )
             elif isinstance( cmds , list ):
+                cmds = act.filterJsonCommands( cmds )
+                if eres:
+                    eparam["filtered_cmds"] = Loader.Loader.convJsonToText( cmds )
                 result = act.getJsonCustomCmd( cmds )
 
-            eres, eparam = self.getParamStruct('external')
             if eres:
                 eparam["task_reports_after_cmd"] = Loader.Loader.convJsonToText(self.manager.getTaskReports())
                 self.setParamStruct( eparam )

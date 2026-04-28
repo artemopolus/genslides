@@ -2297,8 +2297,33 @@ class Actioner():
             print(f"Select {task.getName()} by {tags}")
             man.setCurrentTask(task)
 
+    def filterJsonCommands( self, cmds_list : list[dict]):
+        trg_tasks = []
+        updated_cmds_list = []
+        for cmd in cmds_list:
+            if "action" in cmd:
+                if cmd["action"] == "editMarkeredText":
+                    marker = cmd.get("kwargs",{}).get("marker","")
+                    task = self.getCurrentManager().getTaskByAnyName( marker )
+                    if task != None:
+                        if task not in trg_tasks:
+                            trg_tasks.append( task )
+                            updated_cmds_list.append( cmd )
+                        else:
+                            cmd["action"] = "insertTextAfterMarker"
+                            cmd["kwargs"]["marker"] = f"[{task.getShortName()}]"
+                            # Если ключа нет, ничего не произойдет
+                            if "edited_text" in cmd["kwargs"]:
+                                cmd["kwargs"]["inserted_text"] = cmd["kwargs"].pop("edited_text")
+                                updated_cmds_list.append( cmd )
+        return updated_cmds_list
+
     def insertTextAfterMarker(self, inserted_text, marker):
         return self.insertingToTaskAction( prompt=inserted_text, taskname=marker)
+
+    def editMarkeredText( self, edited_text : str, marker : str ):
+        return self.editingToTaskAction( edited_text, marker )
+
 
     def insertingToTaskAction( self, prompt : str, taskname : str, task_type = "Request", role = "user", task_params = [] ):
         man = self.getCurrentManager()
@@ -2309,9 +2334,6 @@ class Actioner():
             man.setCurrentTask( task )
             return self.insertingAction(prompt, task_type, role, task_params)
         return f"No task found with {taskname}"
-
-    def editMarkeredText( self, edited_text : str, marker : str ):
-        return self.editingToTaskAction( edited_text, marker )
 
     def editingToTaskAction( self, prompt : str, taskname : str ):
         man = self.getCurrentManager()
