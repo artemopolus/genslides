@@ -2318,12 +2318,46 @@ class Actioner():
                                 updated_cmds_list.append( cmd )
         return updated_cmds_list
 
-    def insertTextAfterMarker(self, inserted_text, marker):
+    def insertTextAfterMarker(self, inserted_text, marker, justification = ""):
         return self.insertingToTaskAction( prompt=inserted_text, taskname=marker)
 
     def editMarkeredText( self, edited_text : str, marker : str ):
         return self.editingToTaskAction( edited_text, marker )
 
+    def editMarkedText( self, text_fragment : str, marker : str, justification = "" ):
+        return self.editMarkeredText( text_fragment, marker )
+    
+    def moveMarkedText (self, moving_direction, marker, justification = ""):
+        task = self.getCurrentManager().getTaskByAnyName( marker )
+        if task == None:
+            return
+        if moving_direction == "Up":
+            self.getCurrentManager().moveTaskUP(task)
+        elif moving_direction == "Down":
+            self.getCurrentManager().moveTaskDown(task)
+
+    def deleteMarkedText( self, marker, justification = ""):
+        return self.deleteTask(marker)
+
+    def splitMarkedText(self, marker : str, fragments : list[str], justification = "" ):
+        if len(fragments) > 0:
+            first = True
+            for text in fragments:
+                if first:
+                    self.editMarkedText(text, marker, justification)
+                    first = False
+                else:
+                    self.insertTextAfterMarker( text, marker, justification )
+                    marker = self.getCurrentManager().getCurrentTask().getName()
+
+    def mergeMarkedText(self, target_marker, source_marker, text_fragment : str, justification = "" ):
+        man = self.getCurrentManager()
+        trg_task = man.getTaskByAnyName(target_marker)
+        src_task = man.getTaskByAnyName( source_marker )
+        if trg_task and src_task:
+            self.editMarkedText( text_fragment, target_marker, justification)
+            self.deleteMarkedText( source_marker, justification)
+        
 
     def insertingToTaskAction( self, prompt : str, taskname : str, task_type = "Request", role = "user", task_params = [] ):
         man = self.getCurrentManager()
