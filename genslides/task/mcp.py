@@ -91,10 +91,18 @@ class MCPTask(TextTask):
                         if tool_input_type == "std":
                             tool_output = await client.session.call_tool(tool["name"], tool["arguments"])
                         elif tool_input_type == "fun":
-                            tool_exe["name"] = tool["function"]["name"]
-                            tool_exe["arguments"] = tool["function"]["arguments"]
+                            tool_exe["function"] = {
+                                "name" : tool["function"]["name"],
+                                "arguments" : tool["function"]["arguments"]
+                            }
+                            # tool_exe["name"] = tool["function"]["name"]
+                            # tool_exe["arguments"] = tool["function"]["arguments"]
                             tool_output = await client.session.call_tool(tool["function"]["name"], tool["function"]["arguments"])
-                        tool_exe["result"] = tool_output.content[0].text
+                        jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr(tool_output.content[0].text)
+                        if jres:
+                            tool_exe["result"] = jobj 
+                        else:
+                            tool_exe["result"] = tool_output.content[0].text
                         tool_exe_results.append( tool_exe )
                 else:
                     self.updateUpdationInfo(f"Error to json convert:{jreport}")

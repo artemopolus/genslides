@@ -2080,6 +2080,8 @@ class Actioner():
 
             if not isinstance(cmds, list):
                 return "Error: Input must be a JSON array."
+            
+            print(f"Cmds count: {len(cmds)}")
 
 
             for cmd in cmds:
@@ -2316,6 +2318,9 @@ class Actioner():
                             if "edited_text" in cmd["kwargs"]:
                                 cmd["kwargs"]["inserted_text"] = cmd["kwargs"].pop("edited_text")
                                 updated_cmds_list.append( cmd )
+                else:
+                    updated_cmds_list.append( cmd )
+
         return updated_cmds_list
 
     def insertTextAfterMarker(self, inserted_text, marker, justification = ""):

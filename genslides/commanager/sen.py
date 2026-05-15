@@ -3678,7 +3678,7 @@ class Projecter(Commander.Commander):
         # task = self.actioner.getCurrentManager().getTaskByName( taskname )
         task = self.actioner.getNearestExtTreeTask()
         if task != None:
-            print(f"Execute edited extreeact json commands for {task.getName()}")
+            print(f"Execute edited ext tree act json commands for {task.getName()}:\n{cmds}")
             task.exeExTreeTaskCmds( cmds )
             task.saveUpdationInfo()
             task.resetUpdationInfo()

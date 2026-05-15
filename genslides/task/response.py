@@ -202,7 +202,7 @@ class ResponseTask(TextTask):
                 msg = self.getLastMsgContentRaw()
                 # print('Response[',len(msg),']|',msg,'|')
                 # Если сообщение пустое, то делаем вывод, что задача была морожена
-                if len(msg) == 0:
+                if msg == None or len(msg) == 0:
                     # Запрашиваем сообщение
                     self.updateUpdationInfo(f"Last msg is empty")
                     # Если сообщение пустое, то убираем его

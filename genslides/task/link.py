@@ -240,6 +240,7 @@ class ListenerTask(LinkedTask):
         #     if lparam['hash'] != "":
         #         return self.prompt
         prompt = ""
+        link_dict_keys = []
         if lparam['combine'] == 'json_list':
             prompts_data = []
         elif lparam['combine'] == 'json_append':
@@ -285,7 +286,6 @@ class ListenerTask(LinkedTask):
             prefix = lparam.get("prefix","")
             suffix = lparam.get("suffix","")
             trg_multi_on = lparam.get("trg_multi_on", False)
-            link_dict_keys = []
             gs_task_signes = []
             for tsk_info in self.by_ext_affected_list:
                 self.updateUpdationInfo(f"Upd listener from {tsk_info.parent.getName()}")
@@ -369,12 +369,14 @@ class ListenerTask(LinkedTask):
                                                 else:
                                                     prompts_data.append(jobj)
                                                 self.updateUpdationInfo(f"Update json LIST with {keys_info}")
-                                            elif lparam['combine'] == 'json_dict':
+                                            elif lparam['combine'] == 'json_dict' and isinstance(jobj, dict):
                                                 ks = [k for k, v in jobj.items()]
                                                 keys_info = ",".join(ks)
                                                 self.updateUpdationInfo(f"Update json dict with {keys_info}")
                                                 prompts_data.update(jobj)
                                                 link_dict_keys.extend( ks )
+                                            else:
+                                                self.updateUpdationInfo(f"Can't update it right")
                                         else:
                                             self.updateUpdationInfo(jreport)
                                     elif forced_type == "key_json":

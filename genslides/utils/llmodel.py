@@ -152,6 +152,7 @@ class LLModel():
 
     def createChatCompletion(self, messages) -> (bool, str, dict):
         if not self.active:
+            print("llm not active")
             return False, '', {}
         token_cnt, _  = self.getPriceFromMsgs(messages)
         # print("Get response[", token_cnt,"]=",msgs[-1]["content"])

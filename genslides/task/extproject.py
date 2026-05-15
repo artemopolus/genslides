@@ -19,6 +19,7 @@ import genslides.utils.archivator as Archive
 import os
 import shutil
 import pathlib
+import datetime
 
 class ExtProjectTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="ExtProject") -> None:
@@ -986,7 +987,32 @@ class JumperTreeTask(InExtTreeTask):
             if self.intact.getFrozenTasksCount() > 0:
                 self.updateUpdationInfo(f"Freeze cz internal tasks")
                 self.freezeTask()
+                cres, cparam = self.getParamStruct('check',True)
+                if cres:
+                    cparam['hash'] = ''
+                    self.setParamStruct(cparam)
                 self.setChildUpdateState(False)
+
+        if eres:
+            input_tokens_count = 0
+            output_tokens_count = 0
+            manager_report = self.getActioner().getCurrentManager().getTaskReports()
+            if isinstance(manager_report, list):
+                for report in self.manager.getTaskReports():
+                    input_tokens_count += report.get("intok",0)
+                    output_tokens_count += report.get("outtok", 0)
+                    
+                response_report = {
+                    "intok":input_tokens_count,
+                    "outtok":output_tokens_count
+                }
+                response_report["time"] = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")        
+                response_report["source_task"] = self.getName()
+                self.manager.onTaskReport( response_report )
+
+            # eparam["task_reports_after_cmd"] = Loader.Loader.convJsonToText(self.manager.getTaskReports())
+
+        
     def removeProject(self):
         pass
 

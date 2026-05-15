@@ -1149,6 +1149,7 @@ class TextTask(BaseTask):
                 eparam["hash"] = cur_hash
                 self.setParamStruct( eparam )
             elif eparam.get("emit_reason","hash") == "hash" and old_hash == cur_hash:
+                self.updateUpdationInfo(f"Block emitting cz of hash")
                 return
         for task in self.affect_to_ext_list:
             input = task
@@ -1497,9 +1498,18 @@ class TextTask(BaseTask):
             self.updateParamStruct('check','hash','')
         return super().forceResetHash()
 
+    def forceResetEmitter(self):
+        res, param = self.getParamStruct('emitter', only_current=True)
+        if res:
+            self.updateUpdationInfo(f"{self.getName()}: reset hash for emitter" )
+            self.updateParamStruct('emitter','hash','')
+        return super().forceResetHash()
+
+
     def forceCleanChat(self):
         self.forceResetArray()
         self.forceResetHash()
+        self.forceResetEmitter()
         self.resetCommandGenerator()
         self.clearAutoCommand2param()
         self.saveAllParams()
