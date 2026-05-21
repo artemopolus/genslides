@@ -7,8 +7,7 @@ import sys
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List
-import readline
+from typing import Any, Dict, List, Optional
 
 # === Добавляем корень проекта в sys.path, чтобы можно было импортировать genslides ===
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -16,6 +15,12 @@ sys.path.insert(0, str(project_root))
 
 import genslides.task_tools.commander_client as ComClient
 
+# Импортируем инструменты для продвинутого CLI на Windows
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.history import InMemoryHistory
+
+# Ваши шаблоны команд
 COMMAND_EXAMPLES = [
     '[{"action":"setCurManTaskByName","kwargs":{"name":""}}]',
     '[{"action": "updateAllnTimes", "kwargs": {"n": 1}}]',
@@ -24,6 +29,64 @@ COMMAND_EXAMPLES = [
     'exit',
     'quit'
 ]
+
+def run_interactive_shell(client: ComClient.ExternalCommanderClient) -> None:
+    """8. Интерактивный режим для Windows с автозаполнением на лету через prompt_toolkit."""
+    
+    # Создаем умный комплитер. 
+    # match_middle=True позволяет находить команду, даже если вы ввели "up" или "Task" с середины строки
+    # ignore_case=True делает поиск нечувствительным к регистру
+    completer = WordCompleter(COMMAND_EXAMPLES, match_middle=True, ignore_case=True)
+    
+    # Хранилище для истории команд (стрелочки Вверх/Вниз будут работать между вызовами)
+    history = InMemoryHistory()
+
+    print("\n" + "="*60)
+    print("Запущен продвинутый интерактивный режим (Windows CLI).")
+    print("Начните вводить текст (например, 'up' или 'set'), и варианты появятся сами.")
+    print("Используйте стрелки [Вверх]/[Вниз] для навигации по подсказкам и истории.")
+    print("="*60 + "\n")
+
+    while True:
+        try:
+            # prompt() заменяет стандартный input(), добавляя автозаполнение и историю
+            user_input = prompt(
+                "ExtCommander> ", 
+                completer=completer, 
+                history=history,
+                complete_while_typing=True  # Подсказки всплывают прямо во время ввода!
+            ).strip()
+            
+            if not user_input:
+                continue
+                
+            if user_input.lower() in ["exit", "quit"]:
+                print("Выход из интерактивного режима.")
+                break
+
+            # Валидация и отправка JSON на сервер
+            if user_input.startswith("[") and user_input.endswith("]"):
+                try:
+                    actions_list = json.loads(user_input)
+                    if not isinstance(actions_list, list):
+                        print("Ошибка: JSON должен быть массивом объектов [ {...} ]")
+                        continue
+                except json.JSONDecodeError as je:
+                    print(f"Ошибка валидации JSON: {je}")
+                    continue
+            else:
+                actions_list = [{"action": "user_input", "command": user_input}]
+
+            # Отправка в ваш кастомный пайплайн
+            execute_custom_pipeline(client, actions_list)
+            print("-" * 40)
+
+        except KeyboardInterrupt:
+            # Перехват Ctrl+C
+            print("\nВыход из интерактивного режима.")
+            break
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка: {e}")
 
 def get_all_sessions(client: ComClient.ExternalCommanderClient) -> List[str]:
     """1. Запрос списка всех доступных сессий."""
@@ -150,58 +213,15 @@ def select_target_task(client: ComClient.ExternalCommanderClient, actioner_name:
         return False
 
 
-def run_interactive_shell(client: ComClient.ExternalCommanderClient) -> None:
-    """8. Интерактивный режим для ручного ввода кастомных команд."""
-    print("\n" + "="*50)
-    print("Запущен интерактивный режим командной строки.")
-    print("Вы можете вводить команды в двух форматах:")
-    print("1. Обычный текст -> отправится как [{'action': 'user_input', 'command': 'ваш текст'}]")
-    print("2. JSON-массив   -> [{...}, {...}] для отправки сложных пакетов.")
-    print("Введите 'exit' или 'quit' для выхода.")
-    print("="*50 + "\n")
-    print("Examples:")
-    print("[{\"action\":\"setCurManTaskByName\",\"kwargs\":{\"name\":\"SetOptions117\"}}]")
-    print("[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1}}]")
-    print("[{\"action\": \"updateAllUntillCurrTask\", \"kwargs\": {}}]")
-    print("[{\"action\": \"update\", \"kwargs\": {}}]")
-    print("\n" + "="*50)
-
-    while True:
-        try:
-            user_input = input("ExtCommander> ").strip()
-            
-            if not user_input:
-                continue
-                
-            if user_input.lower() in ["exit", "quit"]:
-                print("Выход из интерактивного режима.")
-                break
-
-            # Проверяем, ввёл ли пользователь JSON-массив
-            if user_input.startswith("[") and user_input.endswith("]"):
-                try:
-                    actions_list = json.loads(user_input)
-                    if not isinstance(actions_list, list):
-                        print("Ошибка: JSON должен быть массивом объектов [ {...} ]")
-                        continue
-                except json.JSONDecodeError as je:
-                    print(f"Ошибка валидации JSON: {je}")
-                    continue
-            else:
-                # Если это обычная строка, заворачиваем её в стандартный формат
-                actions_list = [{"action": "user_input", "command": user_input}]
-
-            # Отправляем на сервер через уже существующую функцию
-            execute_custom_pipeline(client, actions_list)
-            print("-" * 40)
-
-        except KeyboardInterrupt:
-            print("\nВыход из интерактивного режима (Ctrl+C).")
-            break
-        except Exception as e:
-            print(f"Произошла непредвиденная ошибка: {e}")
-
-
+def make_completer(vocabulary: List[str]):
+    """Фабрика для создания функции автозаполнения."""
+    def completer(text: str, state: int) -> Optional[str]:
+        # Ищем совпадения по началу введенного текста (регистронезависимо)
+        options = [cmd for cmd in vocabulary if cmd.lower().startswith(text.lower())]
+        if state < len(options):
+            return options[state]
+        return None
+    return completer
 
 def main():
     parser = argparse.ArgumentParser(description="Скрипт автоматизации для ExternalCommander API.")
@@ -255,21 +275,6 @@ def main():
             sys.exit(1)
 
         run_interactive_shell(client)
-
-        # pipeline_steps = [
-        #     {"action": "updateAllnTimes", "target": 1}
-        # ]
-        # execute_custom_pipeline(client, pipeline_steps)
-
-
-    #     # Выделяем чистое имя актионера из пути (например, из "managers/main" получаем "main")
-    #     actioner_name = target_actioner_path.split("/")[-1]
-        
-    #     # Пример выбора задачи для этого актионера
-    #     select_target_task(client, actioner_name=actioner_name, task_name="init_presentation_workflow")
-    #     print()
-    # else:
-    #     print("Актионеры не найдены в текущей сессии.")
 
 
 if __name__ == "__main__":

@@ -605,6 +605,7 @@ dependencies = [
     { name = "passlib" },
     { name = "pdfminer-six" },
     { name = "preshed" },
+    { name = "prompt-toolkit" },
     { name = "propcache" },
     { name = "proto-plus" },
     { name = "protobuf" },
@@ -626,7 +627,6 @@ dependencies = [
     { name = "pyperclip" },
     { name = "pyppmd" },
     { name = "pyre-extensions" },
-    { name = "pyreadline3" },
     { name = "pyrsistent" },
     { name = "pysocks" },
     { name = "python-dateutil" },
@@ -778,6 +778,7 @@ requires-dist = [
     { name = "passlib", specifier = "==1.7.4" },
     { name = "pdfminer-six", specifier = "==20231228" },
     { name = "preshed", specifier = "==3.0.9" },
+    { name = "prompt-toolkit", specifier = ">=3.0.52" },
     { name = "propcache", specifier = "==0.3.2" },
     { name = "proto-plus", specifier = "==1.24.0" },
     { name = "protobuf", specifier = "==4.22.3" },
@@ -799,7 +800,6 @@ requires-dist = [
     { name = "pyperclip", specifier = "==1.8.2" },
     { name = "pyppmd", specifier = "==1.1.0" },
     { name = "pyre-extensions", specifier = "==0.0.29" },
-    { name = "pyreadline3", specifier = ">=3.5.6" },
     { name = "pyrsistent", specifier = "==0.19.3" },
     { name = "pysocks", specifier = "==1.7.1" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
@@ -1744,6 +1744,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f2/4e/76dbf784e7d4ed069f91a4c249b1d6ec6856ef0c0b2fd96992895d458b15/preshed-3.0.9.tar.gz", hash = "sha256:721863c5244ffcd2651ad0928951a2c7c77b102f4e11a251ad85d37ee7621660", size = 14478, upload-time = "2023-09-15T15:44:32.386Z" }
 
 [[package]]
+name = "prompt-toolkit"
+version = "3.0.52"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "wcwidth" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a1/96/06e01a7b38dce6fe1db213e061a4602dd6032a8a97ef6c1a862537732421/prompt_toolkit-3.0.52.tar.gz", hash = "sha256:28cde192929c8e7321de85de1ddbe736f1375148b02f2e17edd840042b1be855", size = 434198, upload-time = "2025-08-27T15:24:02.057Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/03/0d3ce49e2505ae70cf43bc5bb3033955d2fc9f932163e84dc0779cc47f48/prompt_toolkit-3.0.52-py3-none-any.whl", hash = "sha256:9aac639a3bbd33284347de5ad8d68ecc044b91a762dc39b7c21095fcd6a19955", size = 391431, upload-time = "2025-08-27T15:23:59.498Z" },
+]
+
+[[package]]
 name = "propcache"
 version = "0.3.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2085,15 +2097,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/cf/41/5109fc6630ebe49fa9ad74ed3187ab6c429ee659f5d432780429467167cb/pyre-extensions-0.0.29.tar.gz", hash = "sha256:4113600706c47306a156dcc9c405f4d458c505be432699571e357ef20e2d5d77", size = 10195, upload-time = "2022-06-16T18:53:40.539Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/96/2fd3042ad8b21278f22b7de116b1489e286c445f07c309c85221db86f120/pyre_extensions-0.0.29-py3-none-any.whl", hash = "sha256:f4fef9089872c0656f82de7e8f357af0377dcbb6c2deadc1a7d3037aaf43757e", size = 12067, upload-time = "2022-06-16T18:53:38.109Z" },
-]
-
-[[package]]
-name = "pyreadline3"
-version = "3.5.6"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b6/6d/f94028646d7bbe6d9d873c47ee7c246f2d29129d253f0d96cb6fcab70733/pyreadline3-3.5.6.tar.gz", hash = "sha256:61e53218b99656091ddb077df9e71f25850e72e030b6183b39c9b7e6e4f4a9bf", size = 100368, upload-time = "2026-05-14T17:55:04.471Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/5e/35c856e186b74678c24927847ad9895a51f1bc02a0c6126477a6c6040064/pyreadline3-3.5.6-py3-none-any.whl", hash = "sha256:8449b734232e42a5dcd74048e39b60db2839a4c38cf3ae2bf7707d58b5389c0d", size = 85243, upload-time = "2026-05-14T17:55:03.262Z" },
 ]
 
 [[package]]
@@ -2830,6 +2833,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ac/f9/054e6e2f1071e963b5e746b48d1e3727470b2a490834d18ad92364929db3/wasabi-1.1.3.tar.gz", hash = "sha256:4bb3008f003809db0c3e28b4daf20906ea871a2bb43f9914197d540f4f2e0878", size = 30391, upload-time = "2024-05-31T16:56:18.99Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/06/7c/34330a89da55610daa5f245ddce5aab81244321101614751e7537f125133/wasabi-1.1.3-py3-none-any.whl", hash = "sha256:f76e16e8f7e79f8c4c8be49b4024ac725713ab10cd7f19350ad18a8e3f71728c", size = 27880, upload-time = "2024-05-31T16:56:16.699Z" },
+]
+
+[[package]]
+name = "wcwidth"
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2c/ee/afaf0f85a9a18fe47a67f1e4422ed6cf1fe642f0ae0a2f81166231303c52/wcwidth-0.7.0.tar.gz", hash = "sha256:90e3a7ea092341c44b99562e75d09e4d5160fe7a3974c6fb842a101a95e7eed0", size = 182132, upload-time = "2026-05-02T16:04:12.653Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/41/52/e465037f5375f43533d1a80b6923955201596a99142ed524d77b571a1418/wcwidth-0.7.0-py3-none-any.whl", hash = "sha256:5d69154c429a82910e241c738cd0e2976fac8a2dd47a1a805f4afed1c0f136f2", size = 110825, upload-time = "2026-05-02T16:04:11.033Z" },
 ]
 
 [[package]]
