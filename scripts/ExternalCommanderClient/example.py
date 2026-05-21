@@ -237,6 +237,18 @@ def main():
         default=8000, 
         help="Порт FastAPI сервера (по умолчанию: 8000)"
     )
+    parser.add_argument(
+        "--session", 
+        type=str, 
+        default="archi_helper_v1", 
+        help="Имя целевой сессии для загрузки (по умолчанию: archi_helper_v1)"
+    )
+    parser.add_argument(
+        "--actioner", 
+        type=str, 
+        default="base_router_v1", 
+        help="Путь целевого актионера для активации (по умолчанию: base_router_v1)"
+    )
     
     args = parser.parse_args()
     
@@ -244,37 +256,73 @@ def main():
     server_address = f"{args.url}:{args.port}"
     print(f"Подключение к серверу ExternalCommander по адресу: {server_address}\n")
     client = ComClient.ExternalCommanderClient(base_url=server_address)
-
-    # Последовательно выполняем все этапы пайплайна
-    sessions = get_all_sessions(client)
-    # print()
-
-    if not sessions:
-        print("Список сессий пуст или сервер недоступен. Завершение работы.")
-        sys.exit(1)
-
-    # # Имитируем логику: берем первую сессию из списка для демонстрации
-    # target_session = sessions[0]
-    target_session = "archi_helper_v1"
-    if not load_target_session(client, target_session):
-        sys.exit(1)
-    # print()
-
+    
+    # Проверяем, загружено ли уже что-то на сервере
     actioners_data = get_available_actioners(client)
-    # print()
-
     choices = actioners_data.get("choices", [])
-    if choices:
-        # Берём первый доступный путь актионера для теста
-        target_actioner_path = "base_router_v1"
-        if not select_active_actioner(client, target_actioner_path):
-            sys.exit(1)
-        print()
-
-        if not load_exttree_actioner(client):
-            sys.exit(1)
-
+    
+    if len(choices) > 0:
+        print("Сессия уже инициализирована на сервере. Запуск интерактивного режима напрямую.")
         run_interactive_shell(client)
+    else:
+        print("Начало процесса первичной загрузки...")
+
+        # 1. Запрос списка всех сессий
+        sessions = get_all_sessions(client)
+
+        if not sessions:
+            print("Список сессий на сервере пуст или сервер недоступен. Завершение работы.")
+            sys.exit(1)
+
+        # Проверяем наличие запрашиваемой сессии на сервере
+        target_session = args.session
+        if target_session not in sessions:
+            print(f"Предупреждение: Сессия '{target_session}' не найдена в списке доступных сессий сервера.")
+            print(f"Доступные варианты: {sessions}")
+            # Не выходим принудительно, так как сервер может позволить принудительную инициализацию, 
+            # но если нужно строгое совпадение — раскомментируйте строку ниже:
+            # sys.exit(1)
+
+        # 2. Загрузка целевой сессии
+        if not load_target_session(client, target_session):
+            print("Ошибка при загрузке сессии. Завершение работы.")
+            sys.exit(1)
+
+        # 3. Повторный запрос актионеров после загрузки сессии
+        actioners_data = get_available_actioners(client)
+        choices = actioners_data.get("choices", [])
+        
+        if len(choices) > 0:
+            target_actioner_path = args.actioner
+            found = False
+            for c in choices:
+                if c[1].endswith(target_actioner_path):
+                    found = True
+                    break
+            
+            # Валидация: проверяем, существует ли указанный актионер
+            if not found:
+                print(f"\nПредупреждение: Указанный актионер '{target_actioner_path}' отсутствует.")
+                target_actioner_path = choices[0][1]
+                print(f"Автоматически выбран первый доступный: '{target_actioner_path}'")
+            
+            # 4. Активация выбранного актионера
+            if not select_active_actioner(client, target_actioner_path):
+                print("Ошибка при установке активного актионера. Завершение работы.")
+                sys.exit(1)
+            print()
+
+            # 5. Загрузка ExtTree актионеров
+            if not load_exttree_actioner(client):
+                print("Ошибка при выполнении load_exttree_actioner. Завершение работы.")
+                sys.exit(1)
+            print()
+
+            # 6. Вход в интерактивный shell
+            run_interactive_shell(client)
+        else:
+            print("Критическая ошибка: После загрузки сессии список доступных актионеров пуст.")
+            sys.exit(1)
 
 
 if __name__ == "__main__":
