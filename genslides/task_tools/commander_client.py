@@ -1,6 +1,8 @@
 import hashlib
 import json
+import httpx
 from typing import Any, Dict, List, Optional
+
 import requests
 
 
@@ -103,3 +105,168 @@ class ExternalCommanderClient:
             "payload_data": actions
         }
         return self._send_request("/custom_command", data=data_payload)
+    
+
+
+
+class AsyncExternalCommanderPipeline:
+    def __init__(
+        self,
+        base_url: str,
+        timeout: float = 30.0,
+    ):
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+        self._client: Optional[httpx.AsyncClient] = None
+
+    # ===================== LIFECYCLE =====================
+
+    async def __aenter__(self):
+        self._client = httpx.AsyncClient(
+            base_url=self.base_url,
+            timeout=self.timeout
+        )
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self._client.aclose()
+
+    async def _ensure_client(self):
+        if self._client is None:
+            self._client = httpx.AsyncClient(
+                base_url=self.base_url,
+                timeout=self.timeout
+            )
+
+    # ===================== CORE =====================
+
+    async def ensure_initialized(
+        self,
+        session_name: str,
+        actioner_path: Optional[str] = None
+    ) -> Dict[str, Any]:
+
+        if await self._is_initialized():
+            return {"status": "already_initialized"}
+
+        sessions = await self.get_sessions()
+        if session_name not in sessions:
+            raise ValueError(f"Session '{session_name}' not found")
+
+        ok = await self.load_session(session_name)
+        if not ok:
+            raise RuntimeError("Failed to load session")
+
+        actioners = await self.get_actioners()
+        if not actioners:
+            raise RuntimeError("No actioners after session load")
+
+        selected = self._resolve_actioner(actioners, actioner_path)
+
+        if not await self.set_actioner(selected):
+            raise RuntimeError("Failed to set actioner")
+
+        if not await self.load_exttree_actioner():
+            raise RuntimeError("Failed to load ext_tree")
+
+        return {
+            "status": "initialized",
+            "actioner": selected
+        }
+
+    async def run_actions(
+        self,
+        actions: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+
+        if not isinstance(actions, list):
+            raise TypeError("actions must be a list")
+
+        res = await self._post("/custom_command", {"actions": actions})
+
+        return {
+            "status": res.get("status"),
+            "result": res.get("result"),
+            "actioner": res.get("current_actioner"),
+            "actioners": res.get("actioners"),
+            "report": res.get("report")
+        }
+
+    # ===================== API =====================
+
+    async def get_sessions(self) -> List[str]:
+        res = await self._get("/sessions")
+        return res or []
+
+    async def load_session(self, session_name: str) -> bool:
+        res = await self._post("/command", {
+            "cmd_type": "load_session",
+            "cmd_value": session_name
+        })
+        return res.get("status") == "ok"
+
+    async def get_actioners(self) -> List[List[str]]:
+        res = await self._post("/command", {
+            "cmd_type": "get_actioners",
+            "cmd_value": ""
+        })
+        return res.get("data", {}).get("choices", [])
+
+    async def set_actioner(self, actioner_path: str) -> bool:
+        res = await self._post("/command", {
+            "cmd_type": "set_actioner",
+            "cmd_value": actioner_path
+        })
+        return res.get("status") == "ok"
+
+    async def load_exttree_actioner(self) -> bool:
+        res = await self._post("/command", {
+            "cmd_type": "load_exttree_actioner",
+            "cmd_value": ""
+        })
+        return res.get("status") == "ok"
+
+    async def set_task(self, actioner: str, task: str) -> bool:
+        res = await self._post("/command", {
+            "cmd_type": "set_task",
+            "cmd_value": {
+                "actioner": actioner,
+                "task": task
+            }
+        })
+        return res.get("status") == "ok"
+
+    # ===================== INTERNAL HTTP =====================
+
+    async def _get(self, path: str) -> Any:
+        await self._ensure_client()
+        resp = await self._client.get(path)
+        resp.raise_for_status()
+        return resp.json()
+
+    async def _post(self, path: str, payload: Dict[str, Any]) -> Any:
+        await self._ensure_client()
+        resp = await self._client.post(path, json=payload)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ===================== HELPERS =====================
+
+    async def _is_initialized(self) -> bool:
+        actioners = await self.get_actioners()
+        return len(actioners) > 0
+
+    def _resolve_actioner(
+        self,
+        actioners: List[List[str]],
+        target: Optional[str]
+    ) -> str:
+        if not target:
+            return actioners[0][1]
+
+        for a in actioners:
+            if a[1].endswith(target):
+                return a[1]
+
+        return actioners[0][1]
+    
