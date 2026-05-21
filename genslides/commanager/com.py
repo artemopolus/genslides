@@ -280,3 +280,44 @@ class Commander:
             if act == self.actioner:
                 output_value = value
         return output_value, output_choices
+    
+
+    def getSessionNameFromList(self, name):
+        dt1 = datetime.datetime.now()
+        report = []
+        if name in self.session_names_list:
+            report.append(f"Load session \"{name}\"")
+            self.setCurrentSessionMame( name )
+            self.loadSession()
+        else:
+            report.append(f"Can\'t find {name} in {self.session_names_list}")
+            return False, "\n".join(report)
+        dt2 = datetime.datetime.now()
+        report.append(f"\033[32mSession loaded\033[0m")
+        report.append(f"Loading time:\t{(dt2-dt1).seconds} second(s)")    
+        self.actioner = self.getActionersList()[0]
+        return True, "\n".join(report)
+        
+    def setActionerByAnyPath(self, path):
+        if isinstance(path, str):
+            for act in self.actioners_list:
+                trg_path : str = act['act'].getPath()
+                if trg_path.endswith( path ):
+                    self.actioner = act['act']
+                    return True
+        return False
+    
+    def loadActionersForExtTreeTasks( self ):
+        man = self.actioner.getCurrentManager()
+        out, out_paths = self.actioner.getCurManInExtTreeTasks()
+        checks = []
+        for name in out:
+            task = man.getTaskByName(name)
+            if task.getActioner() == None:
+                checks.append( name )
+        self.actioner.loadExtTreeTaskActionersByTaskNames( checks )
+        act_info_text = ["Paths to actioners:\n"]
+        act_info_text.append( '\n'.join([ "* " + p for p in out_paths]) )
+        act_paths = []
+        act_info_text.append( "\n\nRelated:\n" + '\n'.join(["* " + p for p in self.actioner.getRelatedActionersPaths(act_paths)]) )
+        return "\n".join( act_info_text )

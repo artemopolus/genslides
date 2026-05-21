@@ -1588,6 +1588,23 @@ class Actioner():
                 self.manager.curr_task = start_task
                 self.editBasicActions(batch, param)
 
+    def getTaskReport( self, hide_tasks= True, max_symbols=-1):
+        man = self.getCurrentManager()
+        report = {}
+        report["cnt"] = len(man.task_list)
+        report["frozen"] = man.getFrozenTasksCount()
+        gettreenameforradio_names, gettreenameforradio_trg = man.getTreeNamesForRadio()
+        report["curr_tree_name"] = gettreenameforradio_trg
+        report["curr_tree_branches"] = man.getBranchEnds()
+        report["trees_list"] = gettreenameforradio_names
+        task = man.getCurrentTask()
+        if task != None:
+            report["msgs"] = task.getMsgs(hide_task=hide_tasks, max_symbols=max_symbols)
+            report["name"] = task.getName()
+            pars = task.getAllParentNames()
+            report["branch"] = "->".join(pars)
+        return report
+
     def getCurrTaskPrompts2(self, set_prompt = "", hide_tasks = True):
         man = self.manager
         if man.no_output:

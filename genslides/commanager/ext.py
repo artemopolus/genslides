@@ -1,5 +1,5 @@
 # genslides/commanager/ext.py
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import threading
 import json
 import hashlib
@@ -27,10 +27,10 @@ class _StdGenslidesRespModel(BaseModel):
 class _CustomRespModel(BaseModel):
     status: str
     type: str = "custom_command"
-    result: Any          # Результаты выполнения списка команд
-    actioners: List[str]        # Список всех имен Актионеров
-    current_actioner: str       # Имя текущего Актионера
-    tasks: List[Dict[str, Any]] # Список словарей задач
+    result: Any                         # Результаты выполнения списка команд
+    actioners: List[str]                # Список всех имен Актионеров
+    current_actioner: Optional[str]     # Имя текущего Актионера (может быть None)
+    report: Any                         # Меняем на Any или str, если getTaskReport() возвращает строку/текст
     hash: str
 
 def _compute_hash(data: Dict[str, Any]) -> str:
@@ -97,89 +97,84 @@ class ExternalCommander(Commander.Commander):
             if calc != req.hash:
                 raise HTTPException(status_code=400, detail="Hash mismatch")
             
-            payload = getattr(req.data,"payload_data",{})
+            # payload : dict = getattr(req.data,"payload_data",{})
+            payload : dict = req.data.get("payload_data",{})
 
-            cmd_type = getattr(payload,"cmd_type","")
-            data_out = {"test": []}
+            cmd_type = payload.get("cmd_type","")
+            cmd_value = payload.get("cmd_value","")
+            data_out = {"report": "empty"}
+            result = True
+            print(f"Command type: {cmd_type}")
+            print(f"VALUE:\n {cmd_value}")
             if cmd_type == "load_session":
-                pass
-            elif cmd_type == "set_actioners":
-                pass
+                result, report = self.getSessionNameFromList( cmd_value )
+                data_out["report"] = report
+            elif cmd_type == "set_actioner":
+                result = self.setActionerByAnyPath( cmd_value )
+                if result:
+                    data_out["report"] = self.actioner.getTaskReport()
+            elif cmd_type == "load_exttree_actioner":
+                data_out ["report"] = self.loadActionersForExtTreeTasks() 
+
             elif cmd_type == "get_actioners":
-                pass
-            elif cmd_type == "get_tasks":
-                pass
-            elif cmd_type == "get_task_info":
-                pass
+                value, choices = self.getActionerPathsList()
+                data_out["value"] = value
+                data_out["choices"] = choices
+
+            
+            elif cmd_type == "set_task":
+                result = False
+                if isinstance( cmd_value, dict):
+                    act_name = cmd_value.get("actioner")
+                    task_name = cmd_value.get("task")
+                    result = self.setActionerByAnyPath( act_name )
+                    if result:
+                        task = self.actioner.getCurrentManager().getTaskByAnyName( task_name )
+                        if task != None:
+                            self.actioner.getCurrentManager().setCurrentTask( task )
+                            data_out["report"] = self.actioner.getTaskReport()
+                            result = True
+                        else:
+                            data_out = {"report": "No valid task"}
+                    else:
+                        data_out = {"report": "No valid actioner"}
+
+                else:
+                    data_out = {"report": "cmd value is not dict"}
 
             # Для ответа формируем data_out и hash_out
             hash_out = _compute_hash(data_out)
 
-            return {"status": "ok", "data": data_out, "hash": hash_out}
+            return {"status": "ok" if result else "error", "data": data_out, "hash": hash_out}
 
 
         
         @self.app.post("/custom_command", response_model=_CustomRespModel)
         def custom_command_endpoint(req: _ReqModel):
             print('custom_command')
-            # 1. Проверка хэша всей структуры data
-            # (той самой internal_data из Godot)
             calc = _compute_hash(req.data)
             if calc != req.hash:
                 raise HTTPException(status_code=400, detail="Hash mismatch")
 
-            # 2. Извлекаем список команд из payload_data
-            # В Godot ты передал это как второй аргумент в send_command
             actions = req.data.get("payload_data", [])
             
             if not isinstance(actions, list):
                 raise HTTPException(status_code=400, detail="payload_data must be a list for custom_command")
 
-            results = "All done"
+            results = self.actioner.getJsonCustomCmd(actions)
             
-            # 3. Выполняем каждую команду из списка
-            # try:
-            #     for item in actions:
-            #         action_name = item.get("action")
-            #         kwargs = item.get("kwargs", {})
-                    
-            #         # Вызываем метод выполнения в твоем базовом классе Commander
-            #         # Допустим, он называется execute_action
-            #         res = self.execute_action(action_name, **kwargs)
-            #         results.append(res)
-            # except Exception as e:
-            #     raise HTTPException(status_code=500, detail=f"Execution error: {e}")
+            value, choices = self.getActionerPathsList()
+
             response_data = {
                 "status": "ok",
                 "type": "custom_command",
                 "result": results,
-                "actioners": [],
-                "current_actioner": "None",
-                "tasks": []
+                "actioners": [ch[0] for ch in choices],
+                "current_actioner": value[0],
+                "report" : self.actioner.getTaskReport()
             }
-
-            # 4. Собираем данные для ответа, как ты просил
-            # try:
-            #     all_actioners = list(self.getSessionNameList()) # или getActionerList()
-            #     # Получаем текущего актионера (замени на свой метод)
-            #     current_act = self.current_session 
-            #     # Получаем список задач (замени на свой метод)
-            #     current_tasks = self.get_tasks_for_actioner(current_act) 
-            # except Exception as e:
-            #     raise HTTPException(status_code=500, detail=f"State gathering error: {e}")
-
-            # # 5. Формируем финальный словарь ответа
-            # response_data = {
-            #     "status": "ok",
-            #     "type": "custom_command",
-            #     "result": results,
-            #     "actioners": all_actioners,
-            #     "current_actioner": str(current_act),
-            #     "tasks": current_tasks
-            # }
-
-            # 6. Считаем хэш ответа для проверки в Godot
-            response_data["hash"] = _compute_hash(response_data)
+            hash_out = _compute_hash(response_data)
+            response_data["hash"] = hash_out
             
             return response_data
 
