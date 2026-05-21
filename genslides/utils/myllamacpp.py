@@ -56,10 +56,12 @@ def llamacppGetChatCompletion(msgs : list, params : dict):
             tools = getToolFunctionFormat(params.get("tool_default_name","default"), params.get("tool_description",""), params.get("response_format",""))
             return llamacppGetToolResponse(msgs, tools, params)
         if use_response_format_for_tools:
-            res, tools = Loader.Loader.loadJsonFromText(params.get("response_format",""))
+            res, tools, report = Loader.Loader.loadJsonFromTextStr(params.get("response_format",""))
             if res:
                 return llamacppGetToolResponse(msgs, tools, params)
-            return False, '', {}
+            else:
+                out_param ['report'] = f"{report}\n"
+                return False, '', out_param
         model_name = params.get('model','unknown')
         out_param ['report'] += f"Standart call: {model_name}\n"
 
@@ -136,6 +138,7 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
             "tool_calls_result":"",
             "tools":""
      }
+    out ['report'] += f"llamacppGetToolResponse\n"
     result = None
     try:
         # print("llamacppGetToolResponse")

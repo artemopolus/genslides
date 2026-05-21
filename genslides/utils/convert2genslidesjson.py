@@ -503,7 +503,7 @@ def get_converter(file_path) -> DefaultConvertor:
     ext = ext.lower()
 
     if ext not in CONVERTERS:
-        return DefaultConvertor
+        return DefaultConvertor()
 
     return CONVERTERS[ext]()
 
@@ -541,6 +541,11 @@ def getGenslidesArchiveFilePath( filepath ):
 
 def isValidGenslidesArchiveFilePath( filepath : str ):
     if os.path.exists( filepath ) and filepath.endswith("_gs.7z"):
+        return True
+    return False
+
+def isValidGenslidesArchiveFilePathToCreate( filepath : str ):
+    if filepath.endswith("_gs.7z"):
         return True
     return False
 

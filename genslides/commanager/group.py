@@ -3435,7 +3435,7 @@ class Actioner():
         self.setCurrentManager( self.std_manager )
         man = self.getCurrentManager()
         man.onStart()
-        man.initInfo(method = None, path = self.getPath())
+        man.initInfo(method = self.loadExtProject, path = self.getPath())
         if load_managers_tasks:
             man.disableOutput2()
             man.loadTasksList(safe_load_tasks)

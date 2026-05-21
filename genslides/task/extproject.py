@@ -862,7 +862,10 @@ class JumperTreeTask(InExtTreeTask):
                 if Loader.Loader.checkIsFile(path_to_target_file):
                     path_to_current_file = eparam.get("exttreetask_file_current","")
                     path_to_gsjs = Converter.getConvertedGenslidesJsonName( path_to_target_file )
-                    path_to_current_archive = Converter.getGenslidesArchiveFilePathBasedOnJson( path_to_gsjs )
+                    if Converter.isValidGenslidesArchiveFilePath( path_to_target_file):
+                        path_to_current_archive = path_to_target_file
+                    else:
+                        path_to_current_archive = Converter.getGenslidesArchiveFilePathBasedOnJson( path_to_gsjs )
                     self.updateUpdationInfo(f"Target file:{path_to_target_file}")
                     self.updateUpdationInfo(f"Current file:{path_to_current_file}")
                     self.updateUpdationInfo(f"Json data:{path_to_gsjs}")
@@ -917,6 +920,20 @@ class JumperTreeTask(InExtTreeTask):
                         eparam["exttreetask_file_current"] = path_to_target_file
                 else:
                     self.updateUpdationInfo(f"File {path_to_target_file} is not exist")
+                    if Converter.isValidGenslidesArchiveFilePathToCreate( path_to_target_file ):
+                        path_to_template = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_template","") ) )
+                        self.updateUpdationInfo(f"Load archive from {path_to_template}")
+                        autoload_result = act.loadManagerProjectFromFile( path_to_template )
+                        if autoload_result:
+                            act.saveGenslidesArchiveByPath( path_to_target_file)
+                            act.syncRelatedActionersWithFolder()
+                            self.updateUpdationInfo(f"Create project and save in {path_to_target_file}")
+                            eparam["exttreetask_file_current"] = path_to_target_file
+                        else:
+                            self.updateUpdationInfo(f"Error on loading tasks")
+                    else:
+                        self.updateUpdationInfo(f"{path_to_target_file} is not valid archive name")
+                 
                 eparam["exttreetask_autoload_result"] = autoload_result
                 self.setParamStruct(eparam)
         return super().runBeforeUpdateIternal(input)
