@@ -369,5 +369,22 @@
 				"target": ""
 			}
 		]
+	},
+	"ExtTreeClient":{
+		"Init":"",
+		"Endi":"",
+		"params":[
+			{
+				"type": "exttreeclient",
+				"actions_on": true,
+				"url":"http://localhost:8000",
+				"session":"archi_helper_v1",
+				"actioner":"base_router_v1",
+				"idle_actions":"[]",
+				"updt_actions":"[]",
+				"reset_actions":"[]",
+				"custom_actions":"[]"
+			}
+		]
 	}
 }

@@ -390,5 +390,16 @@
       "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "tool_name":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "res_opt":["first","array"]
+   },
+   {
+      "type":"exttreeclient",
+      "actions_on": [true, false],
+      "url":["http://localhost:8000","[[current:msg_content]]","[[parent:msg_content]]"],
+      "session":["archi_helper_v1","[[current:msg_content]]","[[parent:msg_content]]"],
+      "actioner":["base_router_v1","[[current:msg_content]]","[[parent:msg_content]]"],
+      "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]","[ { \"action\": \"updateIFfrozentasks\", \"kwargs\": { \"n\": 1 } } ]"],
+      "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]","[ { \"action\": \"updateIFfrozentasks\", \"kwargs\": { \"n\": 1 } } ]"],
+      "reset_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]","[ { \"action\": \"updateIFfrozentasks\", \"kwargs\": { \"n\": 1 } } ]"],
+      "custom_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
    }
 ]
