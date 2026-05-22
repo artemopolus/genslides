@@ -377,6 +377,7 @@
 			{
 				"type": "exttreeclient",
 				"actions_on": true,
+				"check_msgs": true,
 				"url":"http://localhost:8000",
 				"session":"archi_helper_v1",
 				"actioner":"base_router_v1",

@@ -394,6 +394,7 @@
    {
       "type":"exttreeclient",
       "actions_on": [true, false],
+      "check_msgs": [true, false],
       "url":["http://localhost:8000","[[current:msg_content]]","[[parent:msg_content]]"],
       "session":["archi_helper_v1","[[current:msg_content]]","[[parent:msg_content]]"],
       "actioner":["base_router_v1","[[current:msg_content]]","[[parent:msg_content]]"],
