@@ -52,33 +52,42 @@ class ExtTreeClientTask(BaseTask.LoadTask):
         eres, eparam = self.getParamStruct("exttreeclient")
         self.freezeTask()
 
-        if not eres or self._is_completed:
+        if not eres:
+            self.updateUpdationInfo("Skipping update: No structure found for 'exttreeclient'")
             return super().updateIternal(input)
-        actions_on = self.findKeyParam( eparam.get("actions_on") )
+            
+        if self._is_completed:
+            self.updateUpdationInfo("Skipping update: Task already marked as completed")
+            return super().updateIternal(input)
 
+        actions_on = self.findKeyParam(eparam.get("actions_on"))
         if not actions_on:
+            self.updateUpdationInfo("Skipping update: 'actions_on' parameter evaluation returned false/empty")
             return super().updateIternal(input)
 
-        check_msgs = self.findKeyParam( eparam.get("check_msgs") )
+        check_msgs = self.findKeyParam(eparam.get("check_msgs"))
 
         if self._future is None and check_msgs and self.checkParentMsgList(update=True, save_curr=False):
-            self.updateUpdationInfo(f"Hash is same")
+            self.updateUpdationInfo("Hash is same")
             self.unfreezeTask()
             return super().updateIternal(input)
+
         # 1. Если задача ещё не запущена → извлекаем параметры и стартуем
         if self._future is None:
-            # Вся работа с eparam локализована здесь
-            url = self.findKeyParam( eparam.get("url") )
-            session = self.findKeyParam( eparam.get("session") )
-            actioner =self.findKeyParam(  eparam.get("actioner") )
-            actions_str = self.findKeyParam( eparam.get("updt_actions", []) )
+            self.updateUpdationInfo("Initializing external pipeline arguments...")
+            
+            url = self.findKeyParam(eparam.get("url"))
+            session = self.findKeyParam(eparam.get("session"))
+            actioner = self.findKeyParam(eparam.get("actioner"))
+            actions_str = self.findKeyParam(eparam.get("updt_actions", []))
 
-            jres, actions, jreport = Loader.Loader.loadJsonFromTextStr( actions_str )
+            jres, actions, jreport = Loader.Loader.loadJsonFromTextStr(actions_str)
             if not jres:
                 self.updateUpdationInfo(f"Error on json load {jreport}")
                 return super().updateIternal(input)
 
-
+            self.updateUpdationInfo(f"Submitting async pipeline task to background thread (URL: {url}, Session: {session})")
+            
             # Передаем в фоновый поток уже готовые, чистые типы данных
             self._future = asyncio.run_coroutine_threadsafe(
                 self._run_pipeline(
@@ -93,14 +102,17 @@ class ExtTreeClientTask(BaseTask.LoadTask):
 
         # 2. Если выполняется → просто выходим (non-blocking)
         if not self._future.done():
+            self.updateUpdationInfo("Async task is still execution in background thread. Polling...")
             return super().updateIternal(input)
 
         # 3. Если завершилась → забираем результат
         try:
             self._result = self._future.result()
+            self.updateUpdationInfo("Async pipeline execution completed successfully. Unfreezing.")
             self.unfreezeTask()
         except Exception as e:
             self._result = {"status": "error", "error": str(e)}
+            self.updateUpdationInfo(f"Async pipeline execution failed with exception: {str(e)}")
 
         self._apply_result(eparam, self._result)
         self._future = None
@@ -110,7 +122,7 @@ class ExtTreeClientTask(BaseTask.LoadTask):
 
     # ===================== HELPERS =====================
 
-    def _apply_result(self, param : dict,  result: dict):
+    def _apply_result(self, param: dict, result: dict):
         param["result"] = result
-        self.setParamStruct( param )
-
+        self.setParamStruct(param)
+        
