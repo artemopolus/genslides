@@ -2208,7 +2208,7 @@ class Actioner():
             task.setForcedBlockStatus( block_status )
             
  
-    def cleanTaskParameters( self, range = "Current", target = "hash"):
+    def cleanTaskParameters( self, range : str = "Current", target : str = "clean"):
         tasks  = self.getTasksByRange( range )
         for task in tasks:
             print(f"Apply to {task.getName()} task ")
