@@ -171,3 +171,4 @@ actpacks/
 tt_temp
 .gradio/*
 scripts/check_project_folder/save_projects_and_clear.ps1
+scripts/check_project_folder/check_projects.ps1

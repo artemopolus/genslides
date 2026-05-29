@@ -686,7 +686,7 @@ class JumperTreeTask(InExtTreeTask):
             if res:
                 global_vars_update[key] = value
 
-        eres, eparam = self.getParamStruct('external')
+        eres, eparam = self.getParamStruct('external', True)
         if eres:
             if eparam.get("replace_manager_globalvars", False):
                 forcing_keys = self.findKeyParam(eparam.get("target_manager_globalvars",""))
@@ -957,6 +957,7 @@ class JumperTreeTask(InExtTreeTask):
                 self.setChildUpdateState(False)
             return
         self.reconnectJumperTreeExtTree()
+        self.updateInternalGlobalKeys()
         self.updateUpdationInfo(f"Acioner is loaded")
         if not self.checkParentMsgList(remove=False, update=True):
             self.updateUpdationInfo(f"Parent Msgs is not same")
