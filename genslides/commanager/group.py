@@ -1603,6 +1603,7 @@ class Actioner():
             report["name"] = task.getName()
             pars = task.getAllParentNames()
             report["branch"] = "->".join(pars)
+            report["prompt"] = self.getCurrentManager().getCurTaskLstMsg()
         return report
 
     def getCurrTaskPrompts2(self, set_prompt = "", hide_tasks = True):

@@ -1115,6 +1115,9 @@ class BaseTask():
     #         print('Register command:' + str(task.method))
     #         return create.CreateCommand( task)
     #     return None
+
+    def isParentFrozen(self ) -> bool:
+        return self.parent.is_freeze
     
     def stdProcessUnFreeze(self, input=None):
             if self.parent:

@@ -790,7 +790,13 @@ class TextTask(BaseTask):
 
         return out
 
-   
+    def appendPrompt( self, text :str):
+        parent_msgs = self.getRawParentMsgs()
+        parent_msgs.append({
+            "role":self.getTagPrompt(),
+            "content":text
+        })
+        self.setMsgList(parent_msgs)
        
     def appendMessage(self, message : dict):
         if "role" in message and "content" in message:
@@ -1139,7 +1145,7 @@ class TextTask(BaseTask):
         # print(self.getName(), 'update link to', [t.getName() for t in self.getAffectedTasks()])
         if len(self.msg_list) == 0:
             return
-        text = self.msg_list[len(self.msg_list) - 1]["content"]
+        text = self.msg_list[len(self.msg_list) - 1].get("content","")
         text = self.findKeyParam(text)
         eres, eparam = self.getParamStruct("emitter", True)
         if eres:

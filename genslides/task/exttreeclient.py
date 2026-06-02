@@ -74,6 +74,10 @@ class ExtTreeClientTask(BaseTask.LoadTask):
     # ===================== MAIN =====================
 
     def updateIternal(self, input: BaseTask.TextTask.TaskDescription = None):
+        if self.isParentFrozen():
+            self.updateUpdationInfo("Skipping update: parent is frozen")
+            return super().updateIternal(input)
+            
         eres, eparam = self.getParamStruct("exttreeclient")
         self.freezeTask()
 
@@ -82,8 +86,12 @@ class ExtTreeClientTask(BaseTask.LoadTask):
             return super().updateIternal(input)
             
         if self._is_completed:
-            self.updateUpdationInfo("Skipping update: Task already marked as completed")
-            return super().updateIternal(input)
+            if self.checkParentMsgList(update=True, save_curr=False):
+                self.updateUpdationInfo("Skipping update: Task already marked as completed")
+                self.unfreezeTask()
+                return super().updateIternal(input)
+            else:
+                self._is_completed = False
 
         actions_on = self.findKeyParam(eparam.get("actions_on"))
         if not actions_on:
@@ -153,4 +161,18 @@ class ExtTreeClientTask(BaseTask.LoadTask):
     def _apply_result(self, param: dict, result: dict):
         param["result"] = result
         self.setParamStruct(param)
+        if "execution" in result:
+            if "report" in result["execution"]:
+                try:
+                    reports = result["execution"]["report"]
+                    text = reports[-1]["report"]["prompt"]
+                    self.appendPrompt( text )
+                except Exception as e:
+                    self.updateUpdationInfo(f"Ext Client error:{e}")
+            else:
+                self.updateUpdationInfo(f"Ext Client error: no report")
+        else:
+            self.updateUpdationInfo(f"Ext Client error: no report")
+
+                    
         
