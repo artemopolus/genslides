@@ -199,14 +199,12 @@ class AsyncExternalCommanderPipeline:
         return res or []
 
     async def load_session(self, session_name: str) -> bool:
-        res = await self._post("/command", {
-            "cmd_type": "load_session",
-            "cmd_value": session_name
-        })
+        payload = self._create_payload( "load_session", session_name)
+        res = await self._post("/gs_cmd",payload)
         return res.get("status") == "ok"
 
     async def get_actioners(self) -> List[List[str]]:
-        res = await self._post("/command", {
+        res = await self._post("/gs_cmd", {
             "cmd_type": "get_actioners",
             "cmd_value": ""
         })
@@ -269,4 +267,27 @@ class AsyncExternalCommanderPipeline:
                 return a[1]
 
         return actioners[0][1]
+    
+    def _compute_hash(self, data: Dict[str, Any]) -> str:
+        """
+        Computes SHA-256 hash from canonical JSON (sorted keys, compact separators).
+        Matches the server's backend implementation precisely.
+        """
+        canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+    def _create_payload( self, cmd_type: str, cmd_value: Any) -> Dict[str, Any]:
+        data_payload = {
+            "payload_data": {
+                "cmd_type": cmd_type,
+                "cmd_value": cmd_value
+            }
+        }
+        payload = {
+            "data": data_payload,
+            "hash": self._compute_hash(data_payload)
+        }
+        return payload
+ 
     

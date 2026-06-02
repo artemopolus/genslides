@@ -2,8 +2,8 @@ import genslides.task.text as TextTask
 
 
 class LoadTask(TextTask.TextTask):
-    def __init__(self, task_info : TextTask.TaskDescription):
-        super().__init__(task_info, type="Load")
+    def __init__(self, task_info : TextTask.TaskDescription, type = "Load"):
+        super().__init__(task_info, type=type)
         pair = {}
         pair["role"] = task_info.prompt_tag
         pair["content"] = self.getRichPrompt()

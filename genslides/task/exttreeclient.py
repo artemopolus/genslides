@@ -79,7 +79,7 @@ class ExtTreeClientTask(BaseTask.LoadTask):
             url = self.findKeyParam(eparam.get("url"))
             session = self.findKeyParam(eparam.get("session"))
             actioner = self.findKeyParam(eparam.get("actioner"))
-            actions_str = self.findKeyParam(eparam.get("updt_actions", []))
+            actions_str = self.findKeyParam(eparam.get("updt_actions", ""))
 
             jres, actions, jreport = Loader.Loader.loadJsonFromTextStr(actions_str)
             if not jres:
