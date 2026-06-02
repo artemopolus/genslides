@@ -113,7 +113,7 @@ class AsyncExternalCommanderPipeline:
     def __init__(
         self,
         base_url: str,
-        timeout: float = 30.0,
+        timeout: float = 600.0,
     ):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
@@ -145,36 +145,88 @@ class AsyncExternalCommanderPipeline:
         session_name: str,
         actioner_path: Optional[str] = None
     ) -> Dict[str, Any]:
-
-        if await self._is_initialized():
-            return {"status": "already_initialized"}
-
+        """
+        Ensures the session and correct actioner are initialized on the server
+        following the step-by-step validation and fallback blueprint.
+        """
+        print(f"\n--- Проверка инициализации для сессии: '{session_name}' ---")
+        
+        # Проверяем, инициализирована ли уже какая-то сессия на сервере
+        choices = await self.get_actioners()
+        
+        if len(choices) > 0:
+            print("Сессия уже инициализирована на сервере. Запуск интерактивного режима напрямую.")
+            selected = self._resolve_actioner(choices, actioner_path)
+            print(f"Выбран активный актионер: '{selected}'")
+            return {
+                "status": "already_initialized",
+                "actioner": selected
+            }
+            
+        print("Начало процесса первичной загрузки...")
+        
+        # 1. Запрос списка всех сессий
         sessions = await self.get_sessions()
-        if session_name not in sessions:
-            raise ValueError(f"Session '{session_name}' not found")
-        else:
-            print(f"Found {session_name}")
+        if not sessions:
+            print("Список сессий на сервере пуст или сервер недоступен. Завершение работы.")
+            raise RuntimeError("Session list on the server is empty or the server is unavailable.")
+        
+        print(f"Успешно получен список доступных сессий с сервера. Всего сессий: {len(sessions)}")
 
+        # Проверяем наличие запрашиваемой сессии на сервере
+        if session_name not in sessions:
+            print(f"Предупреждение: Сессия '{session_name}' не найдена в списке доступных сессий сервера.")
+            print(f"Доступные варианты: {sessions}")
+
+        # 2. Загрузка целевой сессии
+        print(f"Отправка запроса на загрузку сессии '{session_name}'...")
         ok = await self.load_session(session_name)
         if not ok:
-            raise RuntimeError("Failed to load session")
+            print("Ошибка при загрузке сессии. Завершение работы.")
+            raise RuntimeError(f"Error loading target session '{session_name}'.")
+        
+        print(f"Успешно: Сессия '{session_name}' загружена.")
 
-        actioners = await self.get_actioners()
-        if not actioners:
-            raise RuntimeError("No actioners after session load")
+        # 3. Повторный запрос актионеров после загрузки сессии
+        print("Запрос доступных актионеров для загруженной сессии...")
+        choices = await self.get_actioners()
+        if not choices:
+            print("Ошибка: Список актионеров пуст после загрузки сессии. Завершение работы.")
+            raise RuntimeError("No actioners returned from the engine after session load.")
+        
+        print(f"Получен список актионеров. Доступно вариантов: {len(choices)}")
 
-        selected = self._resolve_actioner(actioners, actioner_path)
+        # Разрешение пути актионера и логика fallback
+        target_actioner_path = actioner_path if actioner_path else ""
+        found = False
+        selected = choices[0][1] # По умолчанию берем первый
 
+        for c in choices:
+            if c[1].endswith(target_actioner_path):
+                selected = c[1]
+                found = True
+                break
+
+        if not found and target_actioner_path:
+            print(f"\nПредупреждение: Указанный актионер '{target_actioner_path}' отсутствует.")
+            print(f"Автоматически выбран первый доступный: '{selected}'")
+        else:
+            print(f"Целевой актионер успешно определен: '{selected}'")
+
+        # 4. Активация выбранного актионера
+        print(f"Активация выбранного актионера на сервере...")
         if not await self.set_actioner(selected):
-            raise RuntimeError("Failed to set actioner")
-
-        if not await self.load_exttree_actioner():
-            raise RuntimeError("Failed to load ext_tree")
+            print("Ошибка при установке активного актионера. Завершение работы.")
+            raise RuntimeError(f"Error setting active engine actioner destination to: '{selected}'")
+        
+        print(f"Успешно: Актионер '{selected}' установлен как активный.")
+        print("--- Первичная загрузка и инициализация успешно завершены ---\n")
 
         return {
             "status": "initialized",
             "actioner": selected
         }
+
 
     async def run_actions(
         self,
