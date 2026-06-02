@@ -5,7 +5,7 @@ from typing import Optional
 
 import genslides.task.load as BaseTask
 import genslides.utils.loader as Loader
-from genslides.task_tools.commander_client import AsyncExternalCommanderPipeline
+from genslides.task_tools.commander_client import AsyncExternalCommanderPipeline, PipelineInitializationError
 
 # ===================== GLOBAL ASYNC SETUP =====================
 _bg_loop = asyncio.new_event_loop()
@@ -40,11 +40,36 @@ class ExtTreeClientTask(BaseTask.LoadTask):
         Принимает только строго определенные аргументы.
         """
         async with AsyncExternalCommanderPipeline(base_url=url) as pipeline:
-            await pipeline.ensure_initialized(
-                session_name=session,
-                actioner_path=actioner
-            )
-            return await pipeline.run_actions(actions)
+            try:
+                # Пытаемся инициализировать
+                init_result = await pipeline.ensure_initialized(
+                    session_name=session,
+                    actioner_path=actioner
+                )
+                
+                # Если успешно — выполняем экшены
+                actions_result = await pipeline.run_actions(actions)
+                
+                return {
+                    "success": True,
+                    "initialization": init_result,
+                    "execution": actions_result
+                }
+                
+            except PipelineInitializationError as e:
+                # Если упало на этапе инициализации — спасаем логи!
+                return {
+                    "success": False,
+                    "error": str(e),
+                    "initialization": {
+                        "status": "failed",
+                        "log": e.log  # Логи до момента падения здесь
+                    },
+                    "execution": {
+                        "status": "not_started",
+                        "log": ["Выполнение команд не было запущено из-за ошибки инициализации."]
+                    }
+                }
 
     # ===================== MAIN =====================
 

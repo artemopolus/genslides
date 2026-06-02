@@ -106,7 +106,11 @@ class ExternalCommanderClient:
         }
         return self._send_request("/custom_command", data=data_payload)
     
-
+class PipelineInitializationError(RuntimeError):
+    """Исключение, выбрасываемое при ошибке инициализации, сохраняющее логи."""
+    def __init__(self, message: str, log: list):
+        super().__init__(message)
+        self.log = log  # Сохраняем массив логов внутри объекта ошибки
 
 
 class AsyncExternalCommanderPipeline:
@@ -146,60 +150,60 @@ class AsyncExternalCommanderPipeline:
         actioner_path: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Ensures the session and correct actioner are initialized on the server
-        following the step-by-step validation and fallback blueprint.
+        Ensures the session and correct actioner are initialized on the server.
+        Raises PipelineInitializationError on failure, preserving logs.
         """
-        print(f"\n--- Проверка инициализации для сессии: '{session_name}' ---")
+        log = []
+        log.append(f"--- Проверка инициализации для сессии: '{session_name}' ---")
         
-        # Проверяем, инициализирована ли уже какая-то сессия на сервере
         choices = await self.get_actioners()
         
         if len(choices) > 0:
-            print("Сессия уже инициализирована на сервере. Запуск интерактивного режима напрямую.")
+            log.append("Сессия уже инициализирована на сервере. Запуск интерактивного режима напрямую.")
             selected = self._resolve_actioner(choices, actioner_path)
-            print(f"Выбран активный актионер: '{selected}'")
+            log.append(f"Выбран активный актионер: '{selected}'")
             return {
                 "status": "already_initialized",
-                "actioner": selected
+                "actioner": selected,
+                "log": log
             }
             
-        print("Начало процесса первичной загрузки...")
+        log.append("Начало процесса первичной загрузки...")
         
         # 1. Запрос списка всех сессий
         sessions = await self.get_sessions()
         if not sessions:
-            print("Список сессий на сервере пуст или сервер недоступен. Завершение работы.")
-            raise RuntimeError("Session list on the server is empty or the server is unavailable.")
+            log.append("Список сессий на сервере пуст или сервер недоступен. Завершение работы.")
+            # Выбрасываем кастомную ошибку и отдаем ей текущий log
+            raise PipelineInitializationError("Session list on the server is empty.", log)
         
-        print(f"Успешно получен список доступных сессий с сервера. Всего сессий: {len(sessions)}")
+        log.append(f"Успешно получен список доступных сессий с сервера. Всего сессий: {len(sessions)}")
 
-        # Проверяем наличие запрашиваемой сессии на сервере
         if session_name not in sessions:
-            print(f"Предупреждение: Сессия '{session_name}' не найдена в списке доступных сессий сервера.")
-            print(f"Доступные варианты: {sessions}")
+            log.append(f"Предупреждение: Сессия '{session_name}' не найдена в списке доступных сессий сервера.")
+            log.append(f"Доступные варианты: {sessions}")
 
         # 2. Загрузка целевой сессии
-        print(f"Отправка запроса на загрузку сессии '{session_name}'...")
+        log.append(f"Отправка запроса на загрузку сессии '{session_name}'...")
         ok = await self.load_session(session_name)
         if not ok:
-            print("Ошибка при загрузке сессии. Завершение работы.")
-            raise RuntimeError(f"Error loading target session '{session_name}'.")
+            log.append("Ошибка при загрузке сессии. Завершение работы.")
+            raise PipelineInitializationError(f"Error loading target session '{session_name}'.", log)
         
-        print(f"Успешно: Сессия '{session_name}' загружена.")
+        log.append(f"Успешно: Сессия '{session_name}' загружена.")
 
         # 3. Повторный запрос актионеров после загрузки сессии
-        print("Запрос доступных актионеров для загруженной сессии...")
+        log.append("Запрос доступных актионеров для загруженной сессии...")
         choices = await self.get_actioners()
         if not choices:
-            print("Ошибка: Список актионеров пуст после загрузки сессии. Завершение работы.")
-            raise RuntimeError("No actioners returned from the engine after session load.")
+            log.append("Ошибка: Список актионеров пуст после загрузки сессии. Завершение работы.")
+            raise PipelineInitializationError("No actioners returned from the engine after session load.", log)
         
-        print(f"Получен список актионеров. Доступно вариантов: {len(choices)}")
+        log.append(f"Получен список актионеров. Доступно вариантов: {len(choices)}")
 
-        # Разрешение пути актионера и логика fallback
         target_actioner_path = actioner_path if actioner_path else ""
         found = False
-        selected = choices[0][1] # По умолчанию берем первый
+        selected = choices[0][1]
 
         for c in choices:
             if c[1].endswith(target_actioner_path):
@@ -208,23 +212,24 @@ class AsyncExternalCommanderPipeline:
                 break
 
         if not found and target_actioner_path:
-            print(f"\nПредупреждение: Указанный актионер '{target_actioner_path}' отсутствует.")
-            print(f"Автоматически выбран первый доступный: '{selected}'")
+            log.append(f"Предупреждение: Указанный актионер '{target_actioner_path}' отсутствует.")
+            log.append(f"Автоматически выбран первый доступный: '{selected}'")
         else:
-            print(f"Целевой актионер успешно определен: '{selected}'")
+            log.append(f"Целевой актионер успешно определен: '{selected}'")
 
         # 4. Активация выбранного актионера
-        print(f"Активация выбранного актионера на сервере...")
+        log.append(f"Активация выбранного актионера на сервере...")
         if not await self.set_actioner(selected):
-            print("Ошибка при установке активного актионера. Завершение работы.")
-            raise RuntimeError(f"Error setting active engine actioner destination to: '{selected}'")
+            log.append("Ошибка при установке активного актионера. Завершение работы.")
+            raise PipelineInitializationError(f"Error setting active engine actioner to: '{selected}'", log)
         
-        print(f"Успешно: Актионер '{selected}' установлен как активный.")
-        print("--- Первичная загрузка и инициализация успешно завершены ---\n")
+        log.append(f"Успешно: Актионер '{selected}' установлен как активный.")
+        log.append("--- Первичная загрузка и инициализация успешно завершены ---")
 
         return {
             "status": "initialized",
-            "actioner": selected
+            "actioner": selected,
+            "log": log
         }
 
 
@@ -315,6 +320,7 @@ class AsyncExternalCommanderPipeline:
     ) -> Dict[str, Any]:
         """
         Runs a sequential pipeline of actions grouped by actioner.
+        All execution logs are captured inside the returned 'log' field.
         
         Input format:
         [
@@ -322,41 +328,42 @@ class AsyncExternalCommanderPipeline:
             {"actioner_name_2": [action3]}
         ]
         """
+        log = []
         if not isinstance(actions_pipeline, list):
             raise TypeError("actions_pipeline must be a list")
 
-        print(f"\n--- Запуск пакетного конвейера действий (Всего групп: {len(actions_pipeline)}) ---")
+        log.append(f"--- Запуск пакетного конвейера действий (Всего групп: {len(actions_pipeline)}) ---")
         
         combined_reports = []
         last_res = {}
 
         for index, group in enumerate(actions_pipeline, start=1):
             if not isinstance(group, dict) or not group:
-                print(f"Предупреждение: Элемент конвейера под индексом {index} имеет неверный формат. Пропуск.")
+                log.append(f"Предупреждение: Элемент конвейера под индексом {index} имеет неверный формат. Пропуск.")
                 continue
 
             # Извлекаем имя актионера и его список действий
             actioner_name, actions = next(iter(group.items()))
             
-            print(f"\n[Группа {index}/{len(actions_pipeline)}] Переключение на актионера: '{actioner_name}'...")
+            log.append(f"[Группа {index}/{len(actions_pipeline)}] Переключение на актионера: '{actioner_name}'...")
             
-            # 1. Меняем актионера на сервере перед отправкой его пачки команд
+            # 1. Меняем актионера на сервере
             if not await self.set_actioner(actioner_name):
-                print(f"Ошибка: Не удалось переключить актионер на '{actioner_name}'. Прерывание конвейера.")
+                log.append(f"Ошибка: Не удалось переключить актионер на '{actioner_name}'. Прерывание конвейера.")
                 raise RuntimeError(f"Failed to set actioner to '{actioner_name}' during execution pipeline.")
             
-            print(f"Актионер '{actioner_name}' успешно установлен. Отправка действий (количество: {len(actions)})...")
+            log.append(f"Актионер '{actioner_name}' успешно установлен. Отправка действий (количество: {len(actions)})...")
 
-            # 2. Формируем payload для /custom_command (старый вариант)
+            # 2. Формируем payload для /custom_command
             data_payload = {
                 "payload_data": actions
             }
             
             # 3. Выполняем запрос к серверу
             res = await self._post("/custom_command", data=data_payload)
-            last_res = res  # Сохраняем последний ответ для финального статуса
+            last_res = res  # Сохраняем последний ответ для структуры
             
-            # Собираем отчеты воедино
+            # Собираем отчеты
             report = res.get("report")
             if report:
                 combined_reports.append({
@@ -364,19 +371,19 @@ class AsyncExternalCommanderPipeline:
                     "report": report
                 })
             
-            print(f"Группа {index} успешно выполнена. Статус: {res.get('status')}")
+            log.append(f"Группа {index} успешно выполнена. Статус ответа сервера: {res.get('status')}")
 
-        print("\n--- Все группы действий конвейера обработаны ---\n")
+        log.append("--- Все группы действий конвейера обработаны ---")
 
-        # Возвращаем структуру, похожую на старый вариант, но с объединенным отчетом
+        # Возвращаем структуру со всеми логами выполнения внутри
         return {
             "status": "ok" if all(r.get("status") == "ok" for r in [last_res]) else last_res.get("status"),
             "result": last_res.get("result"),
             "actioner": last_res.get("current_actioner"),
             "actioners": last_res.get("actioners"),
-            "report": combined_reports  # Теперь здесь список отчетов по каждому актионеру
+            "report": combined_reports,
+            "log": log  # Здесь собраны все строки, которые раньше уходили в print
         }
-
 
     # ===================== INTERNAL HTTP =====================
 
