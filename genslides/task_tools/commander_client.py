@@ -309,21 +309,72 @@ class AsyncExternalCommanderPipeline:
         res = await self._post("/gs_cmd", data=data_payload)
         return res.get("status") == "ok"
 
-    async def run_actions(self, actions: List[Dict[str, Any]]) -> Dict[str, Any]:
-        if not isinstance(actions, list):
-            raise TypeError("actions must be a list")
+    async def run_actions(
+        self,
+        actions_pipeline: List[Dict[str, List[Dict[str, Any]]]]
+    ) -> Dict[str, Any]:
+        """
+        Runs a sequential pipeline of actions grouped by actioner.
+        
+        Input format:
+        [
+            {"actioner_name_1": [action1, action2]},
+            {"actioner_name_2": [action3]}
+        ]
+        """
+        if not isinstance(actions_pipeline, list):
+            raise TypeError("actions_pipeline must be a list")
 
-        data_payload = {
-            "payload_data": actions
-        }
-        res = await self._post("/custom_command", data=data_payload)
+        print(f"\n--- Запуск пакетного конвейера действий (Всего групп: {len(actions_pipeline)}) ---")
+        
+        combined_reports = []
+        last_res = {}
 
+        for index, group in enumerate(actions_pipeline, start=1):
+            if not isinstance(group, dict) or not group:
+                print(f"Предупреждение: Элемент конвейера под индексом {index} имеет неверный формат. Пропуск.")
+                continue
+
+            # Извлекаем имя актионера и его список действий
+            actioner_name, actions = next(iter(group.items()))
+            
+            print(f"\n[Группа {index}/{len(actions_pipeline)}] Переключение на актионера: '{actioner_name}'...")
+            
+            # 1. Меняем актионера на сервере перед отправкой его пачки команд
+            if not await self.set_actioner(actioner_name):
+                print(f"Ошибка: Не удалось переключить актионер на '{actioner_name}'. Прерывание конвейера.")
+                raise RuntimeError(f"Failed to set actioner to '{actioner_name}' during execution pipeline.")
+            
+            print(f"Актионер '{actioner_name}' успешно установлен. Отправка действий (количество: {len(actions)})...")
+
+            # 2. Формируем payload для /custom_command (старый вариант)
+            data_payload = {
+                "payload_data": actions
+            }
+            
+            # 3. Выполняем запрос к серверу
+            res = await self._post("/custom_command", data=data_payload)
+            last_res = res  # Сохраняем последний ответ для финального статуса
+            
+            # Собираем отчеты воедино
+            report = res.get("report")
+            if report:
+                combined_reports.append({
+                    "actioner": actioner_name,
+                    "report": report
+                })
+            
+            print(f"Группа {index} успешно выполнена. Статус: {res.get('status')}")
+
+        print("\n--- Все группы действий конвейера обработаны ---\n")
+
+        # Возвращаем структуру, похожую на старый вариант, но с объединенным отчетом
         return {
-            "status": res.get("status"),
-            "result": res.get("result"),
-            "actioner": res.get("current_actioner"),
-            "actioners": res.get("actioners"),
-            "report": res.get("report")
+            "status": "ok" if all(r.get("status") == "ok" for r in [last_res]) else last_res.get("status"),
+            "result": last_res.get("result"),
+            "actioner": last_res.get("current_actioner"),
+            "actioners": last_res.get("actioners"),
+            "report": combined_reports  # Теперь здесь список отчетов по каждому актионеру
         }
 
 
