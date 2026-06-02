@@ -152,6 +152,8 @@ class AsyncExternalCommanderPipeline:
         sessions = await self.get_sessions()
         if session_name not in sessions:
             raise ValueError(f"Session '{session_name}' not found")
+        else:
+            print(f"Found {session_name}")
 
         ok = await self.load_session(session_name)
         if not ok:
@@ -192,47 +194,86 @@ class AsyncExternalCommanderPipeline:
             "report": res.get("report")
         }
 
-    # ===================== API =====================
+# ===================== API =====================
 
     async def get_sessions(self) -> List[str]:
-        res = await self._get("/sessions")
-        return res or []
+        # Server expects an empty or generic dict wrapper for validation
+        res = await self._post("/sessions", data={})
+        return res.get("sessions", [])
 
     async def load_session(self, session_name: str) -> bool:
-        payload = self._create_payload( "load_session", session_name)
-        res = await self._post("/gs_cmd",payload)
+        data_payload = {
+            "payload_data": {
+                "cmd_type": "load_session",
+                "cmd_value": session_name
+            }
+        }
+        res = await self._post("/gs_cmd", data=data_payload)
         return res.get("status") == "ok"
 
     async def get_actioners(self) -> List[List[str]]:
-        res = await self._post("/gs_cmd", {
-            "cmd_type": "get_actioners",
-            "cmd_value": ""
-        })
+        data_payload = {
+            "payload_data": {
+                "cmd_type": "get_actioners",
+                "cmd_value": ""
+            }
+        }
+        res = await self._post("/gs_cmd", data=data_payload)
         return res.get("data", {}).get("choices", [])
 
     async def set_actioner(self, actioner_path: str) -> bool:
-        res = await self._post("/command", {
-            "cmd_type": "set_actioner",
-            "cmd_value": actioner_path
-        })
+        data_payload = {
+            "payload_data": {
+                "cmd_type": "set_actioner",
+                "cmd_value": actioner_path
+            }
+        }
+        # Fixed incorrect endpoint path from "/command" to "/gs_cmd"
+        res = await self._post("/gs_cmd", data=data_payload)
         return res.get("status") == "ok"
 
     async def load_exttree_actioner(self) -> bool:
-        res = await self._post("/command", {
-            "cmd_type": "load_exttree_actioner",
-            "cmd_value": ""
-        })
+        data_payload = {
+            "payload_data": {
+                "cmd_type": "load_exttree_actioner",
+                "cmd_value": ""
+            }
+        }
+        # Fixed incorrect endpoint path from "/command" to "/gs_cmd"
+        res = await self._post("/gs_cmd", data=data_payload)
         return res.get("status") == "ok"
 
     async def set_task(self, actioner: str, task: str) -> bool:
-        res = await self._post("/command", {
-            "cmd_type": "set_task",
-            "cmd_value": {
-                "actioner": actioner,
-                "task": task
+        data_payload = {
+            "payload_data": {
+                "cmd_type": "set_task",
+                "cmd_value": {
+                    "actioner": actioner,
+                    "task": task
+                }
             }
-        })
+        }
+        # Fixed incorrect endpoint path from "/command" to "/gs_cmd"
+        res = await self._post("/gs_cmd", data=data_payload)
         return res.get("status") == "ok"
+
+    async def run_actions(self, actions: List[Dict[str, Any]]) -> Dict[str, Any]:
+        if not isinstance(actions, list):
+            raise TypeError("actions must be a list")
+
+        data_payload = {
+            "payload_data": actions
+        }
+        res = await self._post("/custom_command", data=data_payload)
+
+        return {
+            "status": res.get("status"),
+            "result": res.get("result"),
+            "actioner": res.get("current_actioner"),
+            "actioners": res.get("actioners"),
+            "report": res.get("report")
+        }
+
 
     # ===================== INTERNAL HTTP =====================
 
@@ -242,11 +283,36 @@ class AsyncExternalCommanderPipeline:
         resp.raise_for_status()
         return resp.json()
 
-    async def _post(self, path: str, payload: Dict[str, Any]) -> Any:
+    async def _post(self, path: str, data: Dict[str, Any]) -> Any:
         await self._ensure_client()
+
+        # 1. Match the working synchronous double-wrap and hash logic
+        payload = {
+            "data": data,
+            "hash": self._compute_hash(data)
+        }
+
         resp = await self._client.post(path, json=payload)
         resp.raise_for_status()
-        return resp.json()
+        resp_json = resp.json()
+
+        # 2. Port the exact server-side verification logic from your working script
+        expected_hash = resp_json.get("hash")
+        if expected_hash:
+            if path == "/sessions":
+                data_to_verify = {"sessions": resp_json.get("sessions")}
+            elif path == "/gs_cmd":
+                data_to_verify = resp_json.get("data", {})
+            elif path == "/custom_command":
+                data_to_verify = {k: v for k, v in resp_json.items() if k != "hash"}
+            else:
+                data_to_verify = {}
+
+            if self._compute_hash(data_to_verify) != expected_hash:
+                raise ValueError("Client-side error: Server response hash mismatch.")
+
+        return resp_json
+
 
     # ===================== HELPERS =====================
 

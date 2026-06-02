@@ -85,6 +85,9 @@ class ExtTreeClientTask(BaseTask.LoadTask):
             if not jres:
                 self.updateUpdationInfo(f"Error on json load {jreport}")
                 return super().updateIternal(input)
+            if isinstance( actions, list):
+                self.updateUpdationInfo(f"Actions item is not list")
+                return super().updateIternal(input)
 
             self.updateUpdationInfo(f"Submitting async pipeline task to background thread (URL: {url}, Session: {session})")
             
