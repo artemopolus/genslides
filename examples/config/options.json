@@ -271,7 +271,8 @@
       "suffix":"",
       "update_frozen":[false, true],
       "clear_nonupdated":[false, true],
-      "trg_multi_tasks_names":["","Example: Request111,Request222"]
+      "trg_multi_tasks_names":["","Example: Request111,Request222"],
+      "current_link_order":""
    },
    {
       "type": "autocommander",

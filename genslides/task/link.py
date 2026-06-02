@@ -287,6 +287,18 @@ class ListenerTask(LinkedTask):
             suffix = lparam.get("suffix","")
             trg_multi_on = lparam.get("trg_multi_on", False)
             gs_task_signes = []
+
+            current_link_order_str = lparam.get("current_link_order","")
+            if current_link_order_str == "":
+                pass
+            else:
+                order_list = [x.strip() for x in current_link_order_str.split(",")]
+                order_index = {name: i for i, name in enumerate(order_list)}
+                self.by_ext_affected_list.sort(
+                        key=lambda tsk_info: order_index.get(tsk_info.parent.getName(), float("inf"))
+                )
+            current_link_order_str = ", ".join([tsk_info.parent.getName() for tsk_info in self.by_ext_affected_list])
+            lparam["current_link_order"] = current_link_order_str
             for tsk_info in self.by_ext_affected_list:
                 self.updateUpdationInfo(f"Upd listener from {tsk_info.parent.getName()}")
                 if 'combine' in lparam:
@@ -368,7 +380,7 @@ class ListenerTask(LinkedTask):
                                                     prompts_data.extend(jobj)
                                                 else:
                                                     prompts_data.append(jobj)
-                                                self.updateUpdationInfo(f"Update json LIST with {keys_info}")
+                                                self.updateUpdationInfo(f"Update json LIST")
                                             elif lparam['combine'] == 'json_dict' and isinstance(jobj, dict):
                                                 ks = [k for k, v in jobj.items()]
                                                 keys_info = ",".join(ks)
