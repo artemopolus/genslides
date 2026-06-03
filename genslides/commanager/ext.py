@@ -4,10 +4,24 @@ import threading
 import json
 import hashlib
 
+import time
+import uuid
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 import genslides.commanager.com as Commander  # ваш базовый класс
+
+class _TaskStatusResp(BaseModel):
+    status: str
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+class _TaskAcceptedResp(BaseModel):
+    status: str
+    task_id: str
 
 class _ReqModel(BaseModel):
     data: Dict[str, Any]
@@ -44,8 +58,33 @@ def _compute_hash(data: Dict[str, Any]) -> str:
 class ExternalCommander(Commander.Commander):
     def __init__(self, path: str = "session"):
         super().__init__(path)
-        # FastAPI app
-        self.app = FastAPI(title="ExternalCommander API")
+         # ---- task system ----
+        self._tasks: Dict[str, Dict[str, Any]] = {}
+        self._tasks_lock = asyncio.Lock()
+        self._semaphore = asyncio.Semaphore(4)
+
+        self.TASK_TTL = 3600          # 1 час после завершения
+        self.CLEANUP_INTERVAL = 300   # каждые 5 минут
+
+        self._cleanup_task = None
+
+        # ---- lifespan ----
+        @asynccontextmanager
+        async def lifespan(app: FastAPI):
+            self._cleanup_task = asyncio.create_task(self._cleanup_loop())
+            yield
+            if self._cleanup_task:
+                self._cleanup_task.cancel()
+                try:
+                    await self._cleanup_task
+                except asyncio.CancelledError:
+                    pass
+
+        self.app = FastAPI(
+            title="ExternalCommander API",
+            lifespan=lifespan
+        )
+
         self._register_routes()
 
     def getSessionNameList(self) -> List[str]:
@@ -54,6 +93,29 @@ class ExternalCommander(Commander.Commander):
         Оставляем метод для удобства и возможной переопределённости.
         """
         return super().getSessionNameList()
+    
+        # ===================== TASK CLEANUP =====================
+
+    async def _cleanup_loop(self):
+        try:
+            while True:
+                await asyncio.sleep(self.CLEANUP_INTERVAL)
+                now = time.time()
+
+                async with self._tasks_lock:
+                    to_delete = []
+                    for task_id, task in self._tasks.items():
+                        ref_time = task.get("finished_at") or task["created_at"]
+                        if now - ref_time > self.TASK_TTL:
+                            to_delete.append(task_id)
+
+                    for task_id in to_delete:
+                        del self._tasks[task_id]
+
+        except asyncio.CancelledError:
+            pass
+
+    # ===================== ROUTES =====================
 
     def _register_routes(self) -> None:
         @self.app.post("/sessions", response_model=_RespModel)
@@ -148,47 +210,100 @@ class ExternalCommander(Commander.Commander):
             return {"status": "ok" if result else "error", "data": data_out, "hash": hash_out}
 
 
-        
-        @self.app.post("/custom_command", response_model=_CustomRespModel)
-        def custom_command_endpoint(req: _ReqModel):
-            print('custom_command')
+        # -------- custom_command (async job) --------
+        @self.app.post("/custom_command", response_model=_TaskAcceptedResp)
+        async def custom_command_endpoint(req: _ReqModel):
             calc = _compute_hash(req.data)
             if calc != req.hash:
                 raise HTTPException(status_code=400, detail="Hash mismatch")
 
             actions = req.data.get("payload_data", [])
-            
             if not isinstance(actions, list):
-                raise HTTPException(status_code=400, detail="payload_data must be a list for custom_command")
+                raise HTTPException(status_code=400, detail="payload_data must be list")
 
-            results = self.actioner.getJsonCustomCmd(actions)
-            
-            value, choices = self.getActionerPathsList()
+            task_id = str(uuid.uuid4())
 
-            response_data = {
-                "status": "ok",
-                "type": "custom_command",
-                "result": results,
-                "actioners": [ch[0] for ch in choices],
-                "current_actioner": value[0],
-                "report" : self.actioner.getTaskReport()
+            async with self._tasks_lock:
+                self._tasks[task_id] = {
+                    "status": "running",
+                    "result": None,
+                    "error": None,
+                    "created_at": time.time(),
+                    "finished_at": None
+                }
+
+            async def run():
+                async with self._semaphore:
+                    try:
+                        result = await asyncio.to_thread(
+                            self.actioner.getJsonCustomCmd,
+                            actions
+                        )
+
+                        value, choices = self.getActionerPathsList()
+
+                        async with self._tasks_lock:
+                            self._tasks[task_id].update({
+                                "status": "done",
+                                "result": {
+                                    "result": result,
+                                    "actioners": [ch[0] for ch in choices],
+                                    "current_actioner": value[0],
+                                    "report": self.actioner.getTaskReport()
+                                },
+                                "finished_at": time.time()
+                            })
+
+                    except Exception as e:
+                        async with self._tasks_lock:
+                            self._tasks[task_id].update({
+                                "status": "error",
+                                "error": str(e),
+                                "finished_at": time.time()
+                            })
+
+            asyncio.create_task(run())
+
+            return {
+                "status": "accepted",
+                "task_id": task_id
             }
-            hash_out = _compute_hash(response_data)
-            response_data["hash"] = hash_out
-            
-            return response_data
 
-    def start_server(self, host: str = "0.0.0.0", port: int = 8000, daemon: bool = True) -> threading.Thread:
-        """
-        Запускает uvicorn в фоновом потоке. Возвращает поток.
-        Для быстрого прототипа — запускаем через uvicorn.run(self.app, ...)
-        """
+        # -------- task status --------
+        @self.app.get("/task/{task_id}", response_model=_TaskStatusResp)
+        async def get_task(task_id: str):
+            async with self._tasks_lock:
+                task = self._tasks.get(task_id)
+
+                if not task:
+                    raise HTTPException(status_code=404, detail="Task not found")
+
+                now = time.time()
+                ref_time = task.get("finished_at") or task["created_at"]
+
+                if now - ref_time > self.TASK_TTL:
+                    del self._tasks[task_id]
+                    raise HTTPException(status_code=404, detail="Task expired")
+
+                return task
+   
+     # ===================== SERVER =====================
+
+    def start_server(
+        self,
+        host: str = "0.0.0.0",
+        port: int = 8000,
+        daemon: bool = True
+    ) -> threading.Thread:
         import uvicorn
 
         def _run():
-            # Прямой запуск данного FastAPI приложения
             uvicorn.run(self.app, host=host, port=port, log_level="info")
 
-        thread = threading.Thread(target=_run, daemon=daemon, name="ExternalCommander-uvicorn")
+        thread = threading.Thread(
+            target=_run,
+            daemon=daemon,
+            name="ExternalCommander-uvicorn"
+        )
         thread.start()
         return thread

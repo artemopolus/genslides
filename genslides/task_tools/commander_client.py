@@ -1,6 +1,8 @@
 import hashlib
 import json
 import httpx
+import time
+import asyncio
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -308,22 +310,13 @@ class AsyncExternalCommanderPipeline:
         self,
         actions_pipeline: List[Dict[str, List[Dict[str, Any]]]]
     ) -> Dict[str, Any]:
-        """
-        Runs a sequential pipeline of actions grouped by actioner.
-        All execution logs are captured inside the returned 'log' field.
-        
-        Input format:
-        [
-            {"actioner_name_1": [action1, action2]},
-            {"actioner_name_2": [action3]}
-        ]
-        """
+
         log = []
         if not isinstance(actions_pipeline, list):
             raise TypeError("actions_pipeline must be a list")
 
         log.append(f"--- Запуск пакетного конвейера действий (Всего групп: {len(actions_pipeline)}) ---")
-        
+
         combined_reports = []
         last_res = {}
 
@@ -332,48 +325,87 @@ class AsyncExternalCommanderPipeline:
                 log.append(f"Предупреждение: Элемент конвейера под индексом {index} имеет неверный формат. Пропуск.")
                 continue
 
-            # Извлекаем имя актионера и его список действий
             actioner_name, actions = next(iter(group.items()))
-            
-            log.append(f"[Группа {index}/{len(actions_pipeline)}] Переключение на актионера: '{actioner_name}'...")
-            
-            # 1. Меняем актионера на сервере
-            if not await self.set_actioner(actioner_name):
-                log.append(f"Ошибка: Не удалось переключить актионер на '{actioner_name}'. Прерывание конвейера.")
-                raise RuntimeError(f"Failed to set actioner to '{actioner_name}' during execution pipeline.")
-            
-            log.append(f"Актионер '{actioner_name}' успешно установлен. Отправка действий (количество: {len(actions)})...")
 
-            # 2. Формируем payload для /custom_command
-            data_payload = {
-                "payload_data": actions
-            }
-            
-            # 3. Выполняем запрос к серверу
-            res = await self._post("/custom_command", data=data_payload)
-            last_res = res  # Сохраняем последний ответ для структуры
-            
-            # Собираем отчеты
-            report = res.get("report")
-            if report:
-                combined_reports.append({
-                    "actioner": actioner_name,
-                    "report": report
-                })
-            
-            log.append(f"Группа {index} успешно выполнена. Статус ответа сервера: {res.get('status')}")
+            log.append(f"[Группа {index}/{len(actions_pipeline)}] Переключение на актионера: '{actioner_name}'...")
+
+            if not await self.set_actioner(actioner_name):
+                log.append(f"Ошибка: Не удалось переключить актионер на '{actioner_name}'.")
+                raise RuntimeError(f"Failed to set actioner to '{actioner_name}'")
+
+            log.append(f"Актионер '{actioner_name}' установлен. Отправка действий ({len(actions)})...")
+
+            # --- 1. отправка задачи ---
+            data_payload = {"payload_data": actions}
+            submit_res = await self._post("/custom_command", data=data_payload)
+
+            if submit_res.get("status") != "accepted":
+                raise RuntimeError("Failed to submit task")
+
+            task_id = submit_res.get("task_id")
+            log.append(f"Задача принята сервером. task_id={task_id}")
+
+            # --- 2. polling ---
+            task_result = await self._wait_for_task(task_id, log)
+
+            last_res = task_result
+
+            if task_result.get("status") == "done":
+                result_data = task_result.get("result", {})
+
+                report = result_data.get("report")
+                if report:
+                    combined_reports.append({
+                        "actioner": actioner_name,
+                        "report": report
+                    })
+
+                log.append(f"Группа {index} успешно выполнена")
+
+            else:
+                log.append(f"Ошибка выполнения группы {index}: {task_result}")
+                raise RuntimeError(f"Task failed: {task_result}")
 
         log.append("--- Все группы действий конвейера обработаны ---")
 
-        # Возвращаем структуру со всеми логами выполнения внутри
         return {
-            "status": "ok" if all(r.get("status") == "ok" for r in [last_res]) else last_res.get("status"),
-            "result": last_res.get("result"),
-            "actioner": last_res.get("current_actioner"),
-            "actioners": last_res.get("actioners"),
+            "status": "ok",
+            "result": last_res.get("result", {}).get("result"),
+            "actioner": last_res.get("result", {}).get("current_actioner"),
+            "actioners": last_res.get("result", {}).get("actioners"),
             "report": combined_reports,
-            "log": log  # Здесь собраны все строки, которые раньше уходили в print
+            "log": log
         }
+    
+    async def _wait_for_task(
+        self,
+        task_id: str,
+        log: List[str],
+        poll_interval: float = 2.0,
+        timeout: float = 7200.0  # 2 часа safety cap
+    ) -> Dict[str, Any]:
+
+        start = time.time()
+
+        while True:
+            if time.time() - start > timeout:
+                raise TimeoutError(f"Task {task_id} timeout")
+
+            task = await self._get(f"/task/{task_id}")
+
+            status = task.get("status")
+
+            if status == "running":
+                await asyncio.sleep(poll_interval)
+                continue
+
+            if status == "done":
+                return task
+
+            if status == "error":
+                raise RuntimeError(task.get("error"))
+
+            raise RuntimeError(f"Unknown task status: {task}")
 
     # ===================== INTERNAL HTTP =====================
 
