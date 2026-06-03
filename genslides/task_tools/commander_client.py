@@ -224,6 +224,14 @@ class AsyncExternalCommanderPipeline:
             raise PipelineInitializationError(f"Error setting active engine actioner to: '{selected}'", log)
         
         log.append(f"Успешно: Актионер '{selected}' установлен как активный.")
+
+        # 5. Загрузка дерева расширений (Новый шаг)
+        log.append("Запрос на загрузку конфигурационного дерева (load_exttree_actioner)...")
+        if not await self.load_exttree_actioner():
+            log.append("Ошибка при загрузке дерева расширений ext_tree. Завершение работы.")
+            raise PipelineInitializationError("Failed to load extension configuration framework tree.", log)
+        
+        log.append("Успешно: Дерево расширений ext_tree успешно загружено.")
         log.append("--- Первичная загрузка и инициализация успешно завершены ---")
 
         return {
@@ -232,24 +240,6 @@ class AsyncExternalCommanderPipeline:
             "log": log
         }
 
-
-    async def run_actions(
-        self,
-        actions: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
-
-        if not isinstance(actions, list):
-            raise TypeError("actions must be a list")
-
-        res = await self._post("/custom_command", {"actions": actions})
-
-        return {
-            "status": res.get("status"),
-            "result": res.get("result"),
-            "actioner": res.get("current_actioner"),
-            "actioners": res.get("actioners"),
-            "report": res.get("report")
-        }
 
 # ===================== API =====================
 
