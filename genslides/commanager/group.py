@@ -26,6 +26,11 @@ import graphviz
 import copy
 import datetime
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def printGreenCmd(text : str):
     print(f"\033[32m{text}\033[0m")
 
@@ -1150,10 +1155,11 @@ class Actioner():
     
 
     def setCurrentTaskAndUpdateAllUntillCurrTask(self, name : str, force_check=False):
+        logger.info("setCurrentTaskAndUpdateAllUntillCurrTask")
         task = self.getCurrentManager().getTaskByName( name )
         if task != None:
             self.getCurrentManager().setCurrentTask( task )
-            print(f"Update to {self.getCurrentManager().getCurrentTask().getName()}")
+            logger.info("Update to %s",self.getCurrentManager().getCurrentTask().getName())
             self.updateAllUntillCurrTask(force_check)
 
     def updateAllUntillCurrTask(self, force_check=False):
@@ -2104,7 +2110,7 @@ class Actioner():
 
             for cmd in cmds:
                 action = cmd.get("action")
-                print(f"Run {action} cmd")
+                printGreenCmd(f"Run {action} cmd")
                 args = cmd.get("args", [])
                 kwargs = cmd.get("kwargs", {})
 

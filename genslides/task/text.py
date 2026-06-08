@@ -1457,29 +1457,34 @@ class TextTask(BaseTask):
 
     def autoExecuteTaskByParam( self ):
         ares, aparam = self.getParamStruct("execute_commands", True)
+        report_exe_cmd = []
         if ares and aparam.get("active",True):
             name = self.findKeyParam( aparam.get("target_task","") )
             cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
             cmds_old_hash = aparam.get("hash","")
             cmds_hash = Txt.compute_sha256_hash( cmds_text)
             if cmds_old_hash != cmds_hash:
-                self.updateUpdationInfo("Execute commands")
+                report_exe_cmd.append("Execute commands")
                 res, cmds = Loader.loadJsonFromText(cmds_text)
                 if res and isinstance(cmds, list) and self.manager != None:
                     task : BaseTask = self.manager.getTaskByAnyName(name)
                     if task != None:
                         result = task.exeExTreeTaskCmds(cmds)
                         aparam["hash"] = cmds_hash
-                        self.setParamStruct(aparam)
-                        self.updateUpdationInfo( f"Run [{name}] cmds:{result}")
+                        report_exe_cmd.append( f"Run [{name}] cmds:{result}")
                     else:
-                        self.updateUpdationInfo(f"No task with [{name}] name")
+                        report_exe_cmd.append(f"No task with [{name}] name")
                 else:
-                    self.updateUpdationInfo(f"Can not understand json:{cmds_text} or invalid manager")
+                    report_exe_cmd.append(f"Can not understand json:{cmds_text} or invalid manager")
+            else:
+                report_exe_cmd.append("Do not exe cz hash")
         elif ares and not aparam.get("active",False):
             name = self.findKeyParam( aparam.get("target_task","") )
             cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
-            self.updateUpdationInfo(f"Available commands for [{name}]:\n{cmds_text}")
+            report_exe_cmd.append(f"Available commands for [{name}]:\n{cmds_text}")
+        if ares:
+            aparam["report"] = "\n".join(report_exe_cmd)
+            self.setParamStruct(aparam)
 
 
     def setRecordsParam(self):
@@ -1514,7 +1519,14 @@ class TextTask(BaseTask):
             self.updateUpdationInfo(f"{self.getName()}: reset hash for emitter" )
             self.updateParamStruct('emitter','hash','')
         return super().forceResetHash()
-
+    
+    def cleanHashParamData ( self, param_name ):
+        res, param = self.getParamStruct(param_name, only_current=True)
+        if res:
+            self.updateUpdationInfo(f"{self.getName()}: reset hash for {param_name}" )
+            self.updateParamStruct(param_name,'hash','')
+        return super().forceResetHash()
+ 
 
     def forceCleanChat(self):
         self.forceResetArray()
@@ -1522,6 +1534,7 @@ class TextTask(BaseTask):
         self.forceResetEmitter()
         self.resetCommandGenerator()
         self.clearAutoCommand2param()
+        self.cleanHashParamData( "execute_commands" )
         self.saveAllParams()
         return super().forceCleanChat()
 

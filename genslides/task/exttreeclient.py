@@ -85,8 +85,9 @@ class ExtTreeClientTask(BaseTask.LoadTask):
             self.updateUpdationInfo("Skipping update: No structure found for 'exttreeclient'")
             return super().updateIternal(input)
             
+        check_msgs = eparam.get("check_msgs", True)
         if self._is_completed:
-            if self.checkParentMsgList(update=True, save_curr=False):
+            if check_msgs and self.checkParentMsgList(update=True, save_curr=False):
                 self.updateUpdationInfo("Skipping update: Task already marked as completed")
                 self.unfreezeTask()
                 return super().updateIternal(input)
@@ -98,12 +99,6 @@ class ExtTreeClientTask(BaseTask.LoadTask):
             self.updateUpdationInfo("Skipping update: 'actions_on' parameter evaluation returned false/empty")
             return super().updateIternal(input)
 
-        check_msgs = self.findKeyParam(eparam.get("check_msgs"))
-
-        if self._future is None and check_msgs and self.checkParentMsgList(update=True, save_curr=False):
-            self.updateUpdationInfo("Hash is same")
-            self.unfreezeTask()
-            return super().updateIternal(input)
 
         # 1. Если задача ещё не запущена → извлекаем параметры и стартуем
         if self._future is None:
