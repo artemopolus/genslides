@@ -11,6 +11,11 @@ from genslides.utils.searcher import GoogleApiSearcher
 import genslides.utils.savedata as SaveData
 import genslides.utils.ids as Ids
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class Commander:
     def __init__(self, path = "session"):
         self.actioner = None
@@ -170,7 +175,7 @@ class Commander:
             manager.enableOutput2()
             act.loadTmpManagers()
         dt2 = datetime.datetime.now()     
-        print('Actioner was created by:\t',(dt2-dt1).seconds,'second(s)')    
+        logger.info("Actioner was created by:\t %s second(s)", (dt2 - dt1).seconds)
         # print(f"Params:\n{eparam}")
         return act
     

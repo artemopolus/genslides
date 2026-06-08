@@ -8,6 +8,10 @@ import os
 import datetime
 import copy
 import genslides.utils.loader as Ld
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 from genslides.utils.myopenai import openaiGetChatCompletion, openaiGetSmplCompletion, openai_num_tokens_from_messages, openai_decode_token, openai_get_tokens_from_message
 from genslides.utils.myollama import ollamaGetChatCompletion
@@ -198,7 +202,7 @@ class LLModel():
                 self.addCounterToPromts(intok, self.params['input'])
                 self.addCounterToPromts(outtok, self.params['output'])
             except Exception as e:
-                print('Error count llm:',e)
+                logger.debug('Error count llm: %s',e)
         out.update(p)
         return res, response, out
 

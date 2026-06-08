@@ -44,6 +44,10 @@ import pathlib
 import genslides.task_tools.actions as Act
 import genslides.commanager.man as Man
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class Manager(Man.Jun):
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher) -> None:
         self.helper = helper
@@ -176,8 +180,8 @@ class Manager(Man.Jun):
             return
         self.save_session_cmds = False
         # print(10*"=======")
-        print('Fast load of tasks' if safe else 'Load task from files')
-        print('Manager path=', self.getPath())
+        logger.debug('Fast load of tasks' if safe else 'Load task from files')
+        logger.info('Manager path= %s', self.getPath())
         task_manager = TaskManager()
         links = task_manager.getLinks(Loader.Loader.getUniPath(self.getPath()), trg_files=trg_files)
         self.createTask(prnt_task=None, safe=safe, trg_tasks=trg_files)
@@ -934,7 +938,7 @@ class Manager(Man.Jun):
         elif creation_type == "New":
             parent = None
             if cr.checkTypeFromName(type, "Response"):
-                print('Can\'t create new Response')
+                logger.debug("Can\'t create new Response")
                 return 
         elif creation_type == "SubTask":
             if cr.checkTypeFromName(type, "ExternalInput"):
@@ -988,7 +992,7 @@ class Manager(Man.Jun):
                 cmd = lnkcmd.LinkCommand(info)
                 self.cmd_list.append(cmd)
         else:
-            print('Can\'t make link')
+            logger.debug('Can\'t make link')
         self.runIteration()
 
 

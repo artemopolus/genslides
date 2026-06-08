@@ -6,6 +6,11 @@ from os.path import isfile, join, isdir
 from tkinter import Tk     # from tkinter import Tk for Python 3.x
 from tkinter.filedialog import asksaveasfilename
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 
 
 class Archivator():
@@ -36,7 +41,7 @@ class Archivator():
             return False
         with py7zr.SevenZipFile( trgfile_path, 'w') as archive:
             archive.writeall(data_path, arcname='')
-        print(f"Save data from {data_path} to {trgfile_path}")
+        logger.debug("Save data from %s to %s", data_path, trgfile_path)
         return True
 
     def saveAllbyName(src_path, trg_path, name):

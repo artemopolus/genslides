@@ -1429,6 +1429,7 @@ class TextTask(BaseTask):
             trg_body = self.findKeyParam(gparam.get("target",""))
             res_opt = self.findKeyParam( gparam.get("res_opt", "first") )
             jres, jobj, jreport = Loader.loadJsonFromTextStr(trg_body)
+            gparam["result"] = ""
             if jres:
                 if isinstance(jobj, list):
                     if res_opt == "first":
@@ -1437,19 +1438,22 @@ class TextTask(BaseTask):
                         for tool in jobj:
                             if "function" in tool and "name" in tool["function"]:
                                 name = tool["function"]["name"]
-                                self.updateUpdationInfo(f"Found {name}")
-                                if tool["function"]["name"] == trg_tool_name and "arguments" in tool["function"]:
-                                    result = tool["function"]["arguments"]
-                                    break
+                                self.updateUpdationInfo(f"Found `{name}`")
+                                if name == trg_tool_name:
+                                    if "arguments" in tool["function"]:
+                                        result = tool["function"]["arguments"]
+                                        break
+                                    elif "arguments" not in tool["function"]:
+                                        self.updateUpdationInfo(f"No args")
                         if result != None:
                             gparam["result"] = Loader.convJsonToText(result)
-                            self.setParamStruct( gparam )
                         else:
-                            self.updateUpdationInfo(f"No {trg_tool_name} in target")
+                            self.updateUpdationInfo(f"No `{trg_tool_name}` in target")
                 else:
                     self.updateUpdationInfo(f"getTargetToolFromOutput error: not list")
             else:
                 self.updateUpdationInfo(f"getTargetToolFromOutput error: {jreport}")
+            self.setParamStruct( gparam )
 
     def autoExecuteTaskByParam( self ):
         ares, aparam = self.getParamStruct("execute_commands", True)

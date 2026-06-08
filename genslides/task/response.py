@@ -4,6 +4,10 @@ import pprint
 import copy
 import datetime
 from genslides.utils.llmodel import LLModel
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 import genslides.utils.loader as Ld
 
@@ -128,7 +132,7 @@ class ResponseTask(TextTask):
             pair["content"] = out
             self.prompt = out
             self.msg_list.append(pair)
-            print('Update response for', self.getName())
+            logger.info('Update response for %s', self.getName())
         else:
             self.freezeTask()
             self.msg_list.append({"role": "assistant", "content": ""})

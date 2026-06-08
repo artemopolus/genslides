@@ -24,6 +24,8 @@ import os
 import genslides.utils.finder as finder
 import argparse
 
+import logging
+
 # [[---]]
 
 class Seafoam(Base):
@@ -1797,6 +1799,11 @@ def main() -> None:
     projecter = Projecter(manager)
 
     mode = manager.getParam("app type")
+
+    logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    )
 
     if args.console:
         StdConsole.startSimpleCommander()

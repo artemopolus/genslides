@@ -6,6 +6,10 @@ from tkinter.filedialog import askopenfilename, askdirectory, askopenfilenames, 
 from sys import platform
 
 from pathlib import PureWindowsPath, Path, PurePosixPath
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 class Loader:
@@ -97,7 +101,7 @@ class Loader:
             return True, val
         except Exception as e:
             if report:
-                print("error:",e)
+                logger.debug("error: %s",e)
 
         try:
             prop = Loader.convertJsonTextPartToMsg(text)
@@ -105,7 +109,7 @@ class Loader:
             return True, val
         except Exception as e:
             if report:
-                print("error:",e)
+                logger.debug("error: %s",e)
 
 
         return False, None
@@ -122,7 +126,7 @@ class Loader:
                 f"At line {e.lineno}, column {e.colno} (char {e.pos})\n"
             )
             # Можно добавить фрагмент текста, где произошла ошибка
-            snippet = text[max(0, e.pos - 20):e.pos + 20].replace('\n', ' ')
+            snippet = text[max(0, e.pos - 100):e.pos + 100].replace('\n', ' ')
             report += f"error: {error_msg} Context: '...{snippet}...'\n"
         
         except TypeError as e:

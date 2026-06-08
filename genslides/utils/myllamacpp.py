@@ -2,6 +2,10 @@ from openai import OpenAI, NotGiven
 import json
 import genslides.utils.loader as Loader
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 def llamacppGetChatCompletion(msgs : list, params : dict):
@@ -286,7 +290,7 @@ def getToolFunctionFormat( name : str, description : str, schema : str):
         }}
         )
     else:
-        print("No good schemas")
+        logger.debug("No good schemas")
     return available_tools
 
 def llamacppRawCall( msgs : list[dict], params : dict, out_param : dict):
