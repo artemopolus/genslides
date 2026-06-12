@@ -25,6 +25,7 @@ import shutil
 import graphviz
 import copy
 import datetime
+import time
 
 import logging
 
@@ -1040,6 +1041,41 @@ class Actioner():
         trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(fld_path, [name + "_" + session_id + ".7z"]))
         self.loadManagerProjectFromFile(trg_path)
   
+    def updateAllUntillTargetTask(self, name: str, force_check=False, count: int = 1, interval: float = 2.0):
+        logger.debug("updateAllUntillTargetTask")
+        task = self.getCurrentManager().getTaskByAnyName(name)
+        
+        if task is not None:  # Using 'is not None' is idiomatic Python
+            self.getCurrentManager().setCurrentTask(task)
+            logger.info("Update to %s", self.getCurrentManager().getCurrentTask().getName())
+            
+            for i in range(count):
+                logger.info("Executing update loop %d of %d", i + 1, count)
+                self.updateAllUntillCurrTask(force_check)
+                
+                # Sleep after each update, except the last one
+                if i < count - 1:
+                    time.sleep(interval)
+
+    def updateAllnTimes2(self, n : int = 1, check_frozen : bool = False, check : bool = False, interval: float = 0.5):
+        if check_frozen and self.getFrozenTasksCount() == 0:
+            return
+        self.getCurrentManager().disableOutput2()
+        self.getCurrentManager().resetTaskReports()
+        for i in range(n):
+            logger.info('UAT: %i', i)
+            self.updateAll(force_check=check)
+            if self.force_update_stop:
+                logger.info("Force stop on %s time", i)
+                break
+            if check_frozen and self.getFrozenTasksCount() == 0:
+                return
+            if i < n - 1:
+                time.sleep(interval)
+
+        self.getCurrentManager().enableOutput2()
+
+
     def updateAllnTimes(self, n : int, check : bool = False):
         self.getCurrentManager().disableOutput2()
         self.getCurrentManager().resetTaskReports()

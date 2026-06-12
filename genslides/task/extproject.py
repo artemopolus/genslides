@@ -1001,8 +1001,9 @@ class JumperTreeTask(InExtTreeTask):
                 and 'updt_actions' in eparam and eparam['updt_actions'] != "":
                     results = self.runJsonCommandByInnerActioner( self.findKeyParam(eparam['updt_actions']) )
                     # self.updateUpdationInfo(f"UPDATE Actions (frozen) with results:{results}")
+            check_frozen_tasks = eparam.get("check_frozen_tasks",True)
 
-            if self.intact.getFrozenTasksCount() > 0:
+            if check_frozen_tasks and self.intact.getFrozenTasksCount() > 0:
                 self.updateUpdationInfo(f"Freeze cz internal tasks")
                 self.freezeTask()
                 cres, cparam = self.getParamStruct('check',True)
@@ -1297,6 +1298,10 @@ class OutExtTreeTask(ExtProjectTask):
 
     def updateIternal(self, input : TaskDescription = None):
         if not self.getParent():
+            return
+        if self.getParent().isFrozen():
+            self.updateUpdationInfo(f"Skipping update: parent is frozen")
+            self.freezeTask()
             return
         if self.intact == None or self.intact != self.getParent().intact:
             self.updateOutExtActMan()

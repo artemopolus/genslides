@@ -246,6 +246,7 @@
       "inexttree": ["None", "fromact"],
       "prompt": "",
       "actions_on": [true, false],
+      "check_frozen_tasks": [true, false],
       "onupdate":["loadact_ignore","loadact_check"],
       "replace_manager_globalvars":[false, true],
       "target_manager_globalvars":["","{\"\"MainModel\":[[manager:global:ThinkModel]]\"}","{\"MainModel\": \"openai/gpt-oss-20b\",\"DocModel\": \"openai/gpt-oss-20b\",\"CheckModel\": \"google/gemma-4-26b-a4b-it\",\"ThinkModel\": \"google/gemma-4-26b-a4b-it\"}"],

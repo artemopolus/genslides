@@ -93,6 +93,10 @@ class ExtTreeClientTask(BaseTask.LoadTask):
                 return super().updateIternal(input)
             else:
                 self._is_completed = False
+        elif self._future is None and check_msgs and self.checkParentMsgList(update=True, save_curr=False):
+            self.updateUpdationInfo("Skipping update: start condition and par msgs are same")
+            self.unfreezeTask()
+            return super().updateIternal(input)
 
         actions_on = self.findKeyParam(eparam.get("actions_on"))
         if not actions_on:
