@@ -404,5 +404,11 @@
       "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]","[ { \"action\": \"updateIFfrozentasks\", \"kwargs\": { \"n\": 1 } } ]"],
       "reset_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]","[ { \"action\": \"updateIFfrozentasks\", \"kwargs\": { \"n\": 1 } } ]"],
       "custom_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
+   },
+   {
+      "type":"json_filter", 
+      "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "expression":["","[[current:msg_content]]","[[parent:msg_content]]","insert_here_valid_jinja2_template"],
+      "result":""
    }
 ]

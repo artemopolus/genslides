@@ -32,6 +32,7 @@ import genslides.task_tools.records as rd
 import genslides.task_tools.actions as Actions
 import genslides.task_tools.text as Txt
 import genslides.task_tools.cmds as CommandTool
+import genslides.task_tools.json as Jtasktool
 import copy
 import tempfile
 from datetime import datetime
@@ -1423,6 +1424,12 @@ class TextTask(BaseTask):
                             fparam["result"] = Loader.convJsonToText(target_json)         
                 else:
                     self.updateUpdationInfo(f"Error on jsondict to text convert ({ fconvert })")
+
+        jres, jparam = self.getParamStructConverted("json_filter", True)
+        if jres:
+            logger.debug("Update json filter with\n%s", jparam)
+            self.updateParamStruct("json_filter", "result", Jtasktool.filterUsingParameters( jparam ))
+
 
         self.getTargetToolFromOutput()
         self.updateGeneratedAction()

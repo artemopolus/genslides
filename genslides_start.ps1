@@ -20,4 +20,4 @@ if (-not $env:VIRTUAL_ENV) {
 
 # 3. Запуск вашей команды
 Write-Host "Запуск genslides..." -ForegroundColor Cyan
-python -m genslides
+python -m genslides --log-level WARNING
