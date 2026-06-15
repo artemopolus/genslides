@@ -35,6 +35,10 @@ import pathlib
 from pathlib import Path
 import matplotlib.pyplot as plt
 import copy
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class Projecter(Commander.Commander):
     def __init__(self, manager : Manager = None, path = 'saved') -> None:
@@ -180,13 +184,13 @@ class Projecter(Commander.Commander):
         return self.updateMainUIelements()
     
     def loadManagerByPath(self, path : str):
-        print('Load manager by path',path)
+        logger.info('Load manager by path %s',path)
         man_path = Loader.Loader.getUniPath(path)
         self.actioner.std_manager.setPath(man_path)
         self.resetManager(manager = self.actioner.std_manager, path = man_path)
         if len(self.actioner.std_manager.task_list) == 0:
             self.createNewTree()
-        print('Load manager from browser is complete')
+        logger.debug('Load manager from browser is complete')
         man = self.actioner.std_manager
         python_path = Finder.findByKey("[[project:RunScript:python]]", man, man.curr_task, man.helper)
         fld = Finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper)
@@ -1547,7 +1551,13 @@ class Projecter(Commander.Commander):
         chain = self.actioner.getProcessedChain()
         dt2 = time.time() 
         delta = dt2 - dt1
-        print(f"Update {chain[0]}->{chain[1]} duration: {delta:.6f} s. Next: {chain[2]}")
+        logger.info(
+            "Update %s->%s duration: %.6f s. Next: %s",
+            chain[0],
+            chain[1],
+            delta,
+            chain[2],
+        )
         return self.updateMainUIelements() + (chain[0], chain[1], chain[2])
     
     def updateActionersIds(self):
@@ -1555,7 +1565,7 @@ class Projecter(Commander.Commander):
         return self.updateMainUIelements()
        
     def updateAll(self, check = False, max_idx = 10000):
-        print('Update All trees stepped')
+        logger.info('Update All trees stepped')
         self.actioner.getCurrentManager().disableOutput2()
         # self.updateActionersIds()
         self.actioner.updateAll(force_check=check, max_update_idx=max_idx)
@@ -1625,7 +1635,7 @@ class Projecter(Commander.Commander):
                 break
             act.update()
             idx += 1
-        print('Frozen tasks cnt:', man.getFrozenTasksCount())
+        logger.info('Frozen tasks cnt: %s', man.getFrozenTasksCount())
         man.curr_task = start_task
         return self.updateMainUIelements()
     

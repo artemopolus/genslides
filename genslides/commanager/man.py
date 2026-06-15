@@ -11,6 +11,10 @@ import copy
 import genslides.utils.loader as Loader
 import genslides.utils.readfileman as Reader
 import genslides.commands.simple as Cmd
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class Jun():
     def __init__(self, helper: RequestHelper, requester: Requester, searcher: WebSearcher):
@@ -530,7 +534,7 @@ class Jun():
         return name 
  
     def setCurrTaskByBranchEndName(self, name : str):
-        print('Set current task by branch end name', name)
+        logger.info('Set current task by branch end name %s', name)
         i_max = len(self.endes)
         i = 0
         while i < i_max:
@@ -586,7 +590,7 @@ class Jun():
     def setCurrentTaskByName(self, name):
         task = self.getTaskByName(name)
         if task:
-            print("Set current task=", task.getName())
+            logger.info("Set current task= %s", task.getName())
             self.curr_task = task
         
         for i in range(0, len(self.task_list)):
@@ -599,7 +603,7 @@ class Jun():
     def setSelectedTaskByName(self, name):
         task = self.getTaskByName(name)
         if task:
-            print("Set current task=", task.getName())
+            logger.info("Set current task= %s", task.getName())
             self.slct_task = task
 
     def getTreeNames( self ) -> list[str]:

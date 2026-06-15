@@ -1,6 +1,10 @@
 import genslides.task_tools.text as TextTool
 import genslides.utils.loader as Ld
 # import genslides.task.text as Txt
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def checkContextWindow( text: str, size : int):
     if len(text) > size:
@@ -8,7 +12,7 @@ def checkContextWindow( text: str, size : int):
     return True
 
 def divideArray(task  , param : dict):
-    # print('Divide array')
+    logger.debug('Divide array')
     parse_type = param['parse']
     if parse_type == 'std':
         data = task.getLastMsgContent2()
@@ -53,22 +57,18 @@ def divideArray(task  , param : dict):
                 msg_names = []
                 for idx, msg in enumerate(targets):
                     if "content" in msg and "name" in msg:
-                        if msg["name"] not in starting_names:
-                            if len("".join(msg_content)) < context_win_size:
-                                message_name = msg["name"]
-                                if use_marker == "taskname":
-                                    msg_content.append( f"[{message_name}] " + msg["content"] )
-                                else:
-                                    msg_content.append( msg["content"] )
-                                msg_names.append(message_name)
+                        message_name = msg["name"]
+                        logger.debug("Current %s", message_name)
+                        if message_name not in starting_names:
+                            if use_marker == "taskname":
+                                msg_content.append( f"[{message_name}] " + msg["content"] )
                             else:
-                                if len(msg_names) == 0:
-                                    message_name = msg["name"]
-                                    if use_marker == "taskname":
-                                        msg_content.append( f"[{message_name}] " + msg["content"] )
-                                    else:
-                                        msg_content.append( msg["content"] )
-                                    msg_names.append(message_name)
+                                msg_content.append( msg["content"] )
+                            msg_names.append(message_name)
+                            if len("".join(msg_content)) < context_win_size:
+                                logger.debug("Append small text %s", message_name)
+                            else:
+                                logger.debug("Append BIG %s", message_name)
                                 
                                 arr_value = {
                                     "content" : "".join( msg_content),
@@ -100,6 +100,8 @@ def divideArray(task  , param : dict):
                             'content': Ld.Loader.convJsonToText(arr_value)
                         }
                     )
+                else:
+                    logger.debug("All  msgs are added")
                    
             else:
                 for idx, content in enumerate( targets ):
@@ -125,7 +127,7 @@ def divideArray(task  , param : dict):
                 
             return True, arr
         else:
-            print('No list in target json key')
+            logger.debug('No list in target json key')
     elif parse_type == 'text_split' and 'parts' in param and 'smbl_before' in param and 'smbl_after' in param:
         data = task.getLastMsgContent2()
         if 'part_smbl_cnt' in param and param['parts'] == 0:
@@ -251,7 +253,7 @@ def getSHAfromTask(task, param):
  
 
 def saveArrayToParams(task  , param : dict):
-    print('Save array for', task.getName())
+    logger.debug('Save array for %s', task.getName())
    
     # print('param',param)
     idx = param ['idx']
@@ -267,7 +269,7 @@ def saveArrayToParams(task  , param : dict):
                     else:
                         param['idx_excl'] = [int(num) for num in exclude.split(",")]
                 except Exception as e:
-                    print("Error for idx excl:", e)
+                    logger.debug("Error for idx excl: %s", e)
                     param['idx_excl'] = []
                 idx = param['start']
                 array_len = 0
@@ -277,15 +279,15 @@ def saveArrayToParams(task  , param : dict):
                     else:
                         array_len = idx + int(task.findKeyParam(param['manual_len']))
                 except Exception as e:
-                    print("Error for len:", e)
+                    logger.debug("Error for len: %s", e)
                 param['len'] = array_len
             else:
                 idx = 0
         else:
-            print('Cant divide into array')
+            logger.debug('Cant divide into array')
             return False, param
     else:
-        print('No parse parameter')
+        logger.debug('No parse parameter')
         return False, param
     # out = {}
     setArrayParamValues(param, arr, curr, idx)
@@ -318,7 +320,7 @@ def updateArrayParam(task  , param :dict):
         else:
             setArrayParamValues(param, [], "", 0)
     except Exception as e:
-        print('Update array param error:', e)
+        logger.debug('Update array param error: %s', e)
     return param
 
 def iterateOverArrayFromParam(task  , param: dict):
@@ -354,7 +356,7 @@ def checkArrayIteration(task  , param : dict):
     return param
 
 def resetArrayParam( task, param : dict):
-    print('Reset array params for', task.getName())
+    logger.debug('Reset array params for %s', task.getName())
     if param['parse'] == 'manual' and 'start' in param:
         idx = param['start']
         idx = getArrayIdx( param, idx)

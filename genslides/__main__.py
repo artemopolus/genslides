@@ -1779,6 +1779,11 @@ def main() -> None:
     parser.add_argument("--console", type=bool, help="Run console", default=False)
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host for the HTTP server")
     parser.add_argument("--port", type=int, default=8000, help="Port for the HTTP server")
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    )
 
 
     # Parse the command line arguments
@@ -1800,9 +1805,10 @@ def main() -> None:
 
     mode = manager.getParam("app type")
 
+
     logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+        level=args.log_level,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
     )
 
     if args.console:

@@ -36,6 +36,10 @@ import copy
 import tempfile
 from datetime import datetime
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class TextTask(BaseTask):
     def __init__(self, task_info: TaskDescription, type='None') -> None:
@@ -960,7 +964,7 @@ class TextTask(BaseTask):
                 except FileExistsError:  # Specific to 'x' mode usage on Python 3.3+
                     if attempt < retries - 1:
                         time.sleep(delay)
-                        print(f"Retry {attempt + 1}/{retries} (file locked)")
+                        logger.warning("Retry %s/%s (file locked)", attempt + 1, retries)  # More informative error message
                     else:
                         raise  # Give up after retries, reraise the last exception
 
@@ -969,12 +973,15 @@ class TextTask(BaseTask):
                 # Clean up the temporary file, even on error. Critical
                 try:
                     os.remove(temp_filename)
-                except (FileNotFoundError, OSError):
-                    pass
+                except FileNotFoundError:
+                    logger.debug("Temp file already removed: %s", temp_filename)
+                except OSError as e:
+                    logger.warning("Failed to remove temp file %s: %s", temp_filename, e)
+
 
                 if attempt < retries - 1:
                     time.sleep(delay)
-                    print(f"Retry {attempt + 1}/{retries} (OSError: {e})")  # More informative error message
+                    logger.warning("Retry %s/%s (OSError: %s)", attempt + 1, retries, e)  # More informative error message
                 else:
                     raise # Reraise the exception after retries
 
@@ -982,9 +989,12 @@ class TextTask(BaseTask):
                 # Clean up the temporary file on general errors as well
                 try:
                     os.remove(temp_filename)
-                except (FileNotFoundError, OSError):
-                    pass
-                print(f"Can't save JSON file: {e}")
+                except FileNotFoundError:
+                    logger.debug("Temp file already removed: %s", temp_filename)
+                except OSError as e:
+                    logger.warning("Failed to remove temp file %s: %s", temp_filename, e)
+
+                logger.warning("Can't save JSON file: %s", e)
                 raise # Reraise exception
 
     def getJsonFilePath(self):
@@ -992,7 +1002,7 @@ class TextTask(BaseTask):
 
     def deleteJsonFile(self):
         path = Loader.getUniPath(self.path)
-        print('Remove file', path)
+        logger.debug('Remove file %s', path)
         if os.path.exists(path):
             os.remove(path)
 
@@ -1674,7 +1684,8 @@ class TextTask(BaseTask):
         trg = None
         for param in self.params:
             if 'type' in param and param['type'] == param_name:
-                print('Remove', param['type'],'from', self.getName())
+                logger.debug('Remove |%s| param from %s ', param['type'], self.getName())
+                # print('Remove', param['type'],'from', self.getName())
                 trg = param
         if trg != None:
             self.params.remove(trg)
@@ -1896,7 +1907,7 @@ class TextTask(BaseTask):
         self.saveJsonToFile(self.msg_list)
 
     def setBranchSummary(self, summary : str):
-        print('Set branch summary:', summary)
+        logger.debug('Set branch summary: %s', summary)
         pars = self.getAllParents()
         param = {'type':'summary','text': summary}
         pars[0].setParamStruct(param)

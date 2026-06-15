@@ -117,12 +117,12 @@ class Manager(Man.Jun):
         return self.createTreeOnSelectedTasks(action_type,"Collect")
 
     def createTreeOnSelectedTasks(self, action_type : str, task_type : str):
-        print(action_type,' on ', task_type, 'cur task', self.curr_task.getName(),'with selected', self.getSelectedTask().getName())
-        first = True
+        logger.debug("%s on %s cur task %s with selected %s",action_type, task_type, self.curr_task.getName(), self.getSelectedTask().getName())
+        # first = True
         trg = self.curr_task
         task_list = self.selected_tasks.copy()
         for task in task_list:
-            print(f"Link to {task.getName()}")
+            logger.debug("Link to %s", task.getName())
             self.curr_task = trg
             role = task.getLastMsgRole()
             self.makeTaskAction("",task_type, action_type, role,[])

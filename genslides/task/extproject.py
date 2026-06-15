@@ -20,6 +20,10 @@ import os
 import shutil
 import pathlib
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class ExtProjectTask(CollectTask):
     def __init__(self, task_info: TaskDescription, type="ExtProject") -> None:
@@ -516,19 +520,19 @@ class InExtTreeTask(ExtProjectTask):
         print(f"Update internal {self.getName()} task with {self.intpar.getName()} task")
         save_queue = self.intpar.getQueue()
         if not self.checkParentMsgList(remove=False, update=True):
-            print("Update: parent msgs is different")
+            logger.debug("Update: parent msgs is different")
             self.intact.loadTmpManagerTasks()
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
         elif self.intact.manager.getFrozenTasksCount():
             self.intact.loadTmpManagerTasks()
-            print(f"Frozen tasks:{self.intact.manager.getFrozenTasksCount()}")
+            logger.info("Frozen tasks:%s",self.intact.manager.getFrozenTasksCount())
             self.intact.manager.disableOutput2()
             self.intact.updateAll(force_check=True)
             self.intact.manager.enableOutput2()
         else:
-            print(f"Do not update {self.getName()}")
+            logger.info("Do not update %s",self.getName())
         # print('Queue status')
         # print(save_queue)
         # print(self.intpar.queue)

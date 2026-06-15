@@ -33,7 +33,8 @@ logger = logging.getLogger(__name__)
 
 
 def printGreenCmd(text : str):
-    print(f"\033[32m{text}\033[0m")
+    # print(f"\033[32m{text}\033[0m")
+    logger.info("\033[32m%s\033[0m", text)
 
 class Actioner():
     def __init__(self, manager : Manager.Manager, parameters = {}) -> None:
@@ -990,7 +991,7 @@ class Actioner():
             man.setUpdateSessionId(Ids.generateKey())
             name = self.getManagerSpaceName( man )
             session_id = man.getUpdateSessionId()
-            print(f"UAT[{i}]: {session_id}")
+            logger.info("UAT[%s]: %s", i, session_id)
             self.saveManToTmp(man = man,
                 suffix = session_id, 
                 temp_folder = ["tt_temp",f"{self.session_prefix}{name}{self.session_suffix}"], 
@@ -998,10 +999,10 @@ class Actioner():
 
             self.updateAll(force_check=check)
             if update_if_only_frozen and self.getFrozenTasksCount() == 0 :
-                print(f"Stop on {i} time cz no frozen")
+                logger.info("Stop on %s time cz no frozen", i)
                 break
             if self.force_update_stop:
-                print(f"Force stop on {i} time")
+                logger.info("Force stop on %s time", i)
                 break
         self.getCurrentManager().enableOutput2()
 
@@ -1063,7 +1064,7 @@ class Actioner():
         self.getCurrentManager().disableOutput2()
         self.getCurrentManager().resetTaskReports()
         for i in range(n):
-            logger.info('UAT: %i', i)
+            logger.info('UAT: %s', i)
             self.updateAll(force_check=check)
             if self.force_update_stop:
                 logger.info("Force stop on %s time", i)
@@ -1080,7 +1081,7 @@ class Actioner():
         self.getCurrentManager().disableOutput2()
         self.getCurrentManager().resetTaskReports()
         for i in range(n):
-            print('UAT:', i)
+            logger.info('UAT: %s', i)
             self.updateAll(force_check=check)
             if self.force_update_stop:
                 print(f"Force stop on {i} time")
@@ -1119,7 +1120,7 @@ class Actioner():
                 break
             act.update()
             idx += 1
-        print('Frozen tasks cnt:', man.getFrozenTasksCount())
+        logger.info('Frozen tasks cnt: %s', man.getFrozenTasksCount())
         man.curr_task = start_task
 
     def updateFromFork(self, force_check = False):
@@ -1155,7 +1156,7 @@ class Actioner():
             self.is_updating = True
         dt1 = datetime.datetime.now()     
         man = self.manager
-        print(f"Update all tasks of {man.getName()}\n{self.getPath()}")
+        logger.info("Update all tasks of %s\n%s",man.getName(),self.getPath())
         start_task = man.getCurrentTask()
         self.resetUpdate(force_check=force_check)
         if len(man.tree_arr) == 0:
@@ -1176,7 +1177,13 @@ class Actioner():
             idx += 1
 
         cnt = man.getFrozenTasksCount()
-        print(f"Act [{man.getName()}] made {idx} step(s)\nFrozen: {cnt} of {len(man.task_list)} task(s)")
+        logger.info(
+            "Act [%s] made %s step(s)\nFrozen: %s of %s task(s)",
+            man.getName(),
+            idx,
+            cnt,
+            len(man.task_list),
+        )
         man.saveInfo()
         man.curr_task = start_task
 
@@ -1210,7 +1217,7 @@ class Actioner():
             if self.update_state == 'done' or man.curr_task == start_task:
                 break
             idx += 1
-        print('Frozen tasks cnt:', man.getFrozenTasksCount())
+        logger.info('Frozen tasks cnt: %s', man.getFrozenTasksCount())
         man.setCurrentTask(start_task)
 
     def getRelatedTasks(self, task :BaseTask, lnk_in = True, lnk_out= True):
@@ -2028,7 +2035,7 @@ class Actioner():
         exe_manager = BaseMan.Jun(None, None, None)
         man.syncManager(exe_manager)
         self.setCurrentManager(exe_manager)
-        print(f"Update all tasks of {man.getName()}")
+        logger.info("Update all tasks of %s\n%s",man.getName(),self.getPath())
         start_task = man.curr_task
         self.resetUpdateManager(man, params)
         if len(man.tree_arr) == 0:
@@ -2044,7 +2051,13 @@ class Actioner():
             idx += 1
 
         cnt = man.getFrozenTasksCount()
-        print(f"Act [{man.getName()}] made {idx} step(s)\nFrozen: {cnt} of {len(man.task_list)} task(s)")
+        logger.info(
+            "Act [%s] made %s step(s)\nFrozen: %s of %s task(s)",
+            man.getName(),
+            idx,
+            cnt,
+            len(man.task_list),
+        )
         man.saveInfo()
         man.curr_task = start_task
 
@@ -2134,14 +2147,14 @@ class Actioner():
 
     def getJsonCustomCmd(self, cmds : list):
 
-        print(f"Get json command for {self.getPath()}")
+        logger.info("Get json command for %s", self.getPath())
         results = [] # list to hold results of each command
         try:
 
             if not isinstance(cmds, list):
                 return "Error: Input must be a JSON array."
             
-            print(f"Cmds count: {len(cmds)}")
+            logger.info("Cmds count: %s",len(cmds))
 
 
             for cmd in cmds:
@@ -2164,7 +2177,7 @@ class Actioner():
 
                 else:
                     results.append("Error: Missing 'action' key in JSON.")
-            print(f"Actioner({self.getPath()}):\n{results}")
+            logger.debug("Actioner(%s):\n%s", self.getPath(), results)
             return results # return a list of results
 
         except json.JSONDecodeError:
@@ -3639,9 +3652,9 @@ class Actioner():
                 if task != None:
                     task.loadActionerTasks(method_to_external_actioners())
                     found = True
-            print(f"Search for {names} , found = {found}")
+            logger.info("Search for %s , found = %s", names, found)
         else:
-            print(f"No method: {method_to_external_actioners}")
+            logger.critical("No method: %s ",method_to_external_actioners)
 
     def setSignToCurrentTask( self, currtaskname, trgtaskname ):
         man = self.getCurrentManager()
