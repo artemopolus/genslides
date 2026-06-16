@@ -16,9 +16,12 @@ def filterUsingExpressions( expression : str, data  ):
 def filterUsingParameters( params : dict ):
     expression = params.get("expression","")
     data_str = params.get("target","")
+    key_str = params.get("key","")
     jres, data, jreport = Loader.loadJsonFromTextStr( data_str )
     if jres:
-        return Loader.convJsonToText(filterUsingExpressions( expression, data))
+        filtered = filterUsingExpressions( expression, data ) 
+        output = filtered if key_str == "" else {key_str:filtered}
+        return Loader.convJsonToText(output)
     else:
         logger.debug("Error json conv: %s \n\n\nsrc:\n\n %s", jreport, data_str)
     return ""

@@ -409,6 +409,7 @@
       "type":"json_filter", 
       "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "expression":["","[[current:msg_content]]","[[parent:msg_content]]","insert_here_valid_jinja2_template"],
+      "key":["","if_empty_then_list_else_dict_with_key"],
       "result":""
    }
 ]

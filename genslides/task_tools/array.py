@@ -158,10 +158,11 @@ def divideArray(task  , param : dict):
     return False, []
 
 def getArrayByIndexPlusPlus( param, task  ):
-    # print('Get array index ++')
+    logger.debug('Get array index ++')
     index = param['idx']
     array = param['array']
     if param['parse'] == 'manual':
+        logger.debug('manual')
         idx_excld = param.get('idx_excl', [])
         while( index < param['len']):
             if 'step' in param and param['step']:
@@ -180,6 +181,7 @@ def getArrayByIndexPlusPlus( param, task  ):
             param['idx'] = index
             return getPartByParam(task,param)
         index += 1
+        logger.debug('Index: %s', index)
         while index < len(array):
             if not array[index]['chck']:
                 param['idx'] = index
@@ -192,6 +194,7 @@ def getArrayByIndexPlusPlus( param, task  ):
 ArrayStdTypesList = ['std','json','msgs','task_names','task_names_inv']
 
 def getPartByParam(task, param):
+    logger.debug('getPartByParam')
     parse_type = param['parse']
     index = param['idx']
     if parse_type == 'manual' and 'manual_format' in param:
@@ -324,6 +327,7 @@ def updateArrayParam(task  , param :dict):
     return param
 
 def iterateOverArrayFromParam(task  , param: dict):
+    logger.debug('iterateOverArrayFromParam')
     # print('Iterate over array from param', param)
     if 'type' in param and param['type'] == 'array':
         if 'array' in param and 'curr' in param and 'idx' in param:
@@ -345,14 +349,22 @@ def needToUpdate( task ,param):
 
 
 def checkArrayIteration(task  , param : dict):
+    logger.debug('checkArrayIteration')
     if 'type' in param and param['type'] == 'array':
         if needToUpdate( task, param):
+            logger.debug('Update array')
             if task.manager.allowUpdateInternalArrayParam(task):
                 return iterateOverArrayFromParam(task, param)
+            else:
+                logger.debug('Manager deny update')
         else:
+            logger.debug('Src data is changed')
             res, out = saveArrayToParams(task, param)
             if res:
+                logger.debug('Success save array')
                 return out
+            else:
+                logger.debug('Error on save array')
     return param
 
 def resetArrayParam( task, param : dict):
