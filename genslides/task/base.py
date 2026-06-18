@@ -1917,4 +1917,7 @@ class BaseTask():
         pass
     def resetSign( self ):
         pass
+
+    def addInfoForGenslidesCommand( self, cmds : list ):
+        return ""
  

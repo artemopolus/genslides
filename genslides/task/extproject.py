@@ -16,6 +16,8 @@ import genslides.utils.finder as Finder
 import genslides.utils.convert2genslidesjson as Converter
 import genslides.utils.archivator as Archive
 
+import genslides.task_tools.cmds as CommandTool
+
 import os
 import shutil
 import pathlib
@@ -1146,6 +1148,17 @@ class JumperTreeTask(InExtTreeTask):
         if act != None:
             act.getCurrentManager().setUpdateSessionId( session_id )
         return super().setExtTreeSessionId(session_id)
+    
+    def addInfoForGenslidesCommand(self, cmds):
+        if self.getActioner() != None:
+            output = []
+            for cmd in cmds:
+                result_cmd, report = CommandTool.addSupportInformation( cmd, self.getActioner().getCurrentManager() )
+                self.updateUpdationInfo(f"addInfoForGenslidesCommand:\n{report}")
+                logger.debug("addInfoForGenslidesCommand: %s",report)
+                output.append( result_cmd )
+            return Loader.Loader.convJsonToText( output )
+        return super().addInfoForGenslidesCommand(cmds)
 
 
 class OutExtTreeTask(ExtProjectTask):

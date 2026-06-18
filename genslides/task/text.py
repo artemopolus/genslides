@@ -1430,7 +1430,7 @@ class TextTask(BaseTask):
             logger.debug("Update json filter with\n%s", jparam)
             self.updateParamStruct("json_filter", "result", Jtasktool.filterUsingParameters( jparam ))
 
-
+        self.addTextWithInfoCommands()
         self.getTargetToolFromOutput()
         self.updateGeneratedAction()
         self.updateAutoCommand()
@@ -2035,6 +2035,16 @@ class TextTask(BaseTask):
         # else:
             # print("Not dict")
 
+    def addTextWithInfoCommands( self ):
+        ares, aparam = self.getParamStruct("addinfo_commands", True)
+        if ares:
+            name = self.findKeyParam( aparam.get("target_task","") )
+            task : BaseTask = self.manager.getTaskByAnyName(name)
+            cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
+            jres, cmds, jreport = Loader.loadJsonFromTextStr(cmds_text)
+            if task != None and jres:
+                aparam["result"] = task.addInfoForGenslidesCommand( cmds )
+                self.setParamStruct( aparam )
 
 
     def updateAutoCommand2param( self, cmd : dict):

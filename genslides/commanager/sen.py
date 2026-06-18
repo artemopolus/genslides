@@ -1249,20 +1249,44 @@ class Projecter(Commander.Commander):
         return out
 
     def onExamplesClick(self, text, prompt):
-        # print('Click', text)
-
+        logger.debug('Click %s', text)
+        trg = self.actioner.getCurrentManager().getCurrentTask()
+        eres, eparam = trg.getParamStruct("choices", only_current=True)
+        if eres and eparam.get("output_type","") == "gs_actions":
+            actions = []
+            for act in text:
+                jres, jacts, jreport = Loader.Loader.loadJsonFromTextStr( act )
+                if jres:
+                    actions.append(jacts)
+            return Loader.Loader.convJsonToText( actions )
         return prompt + "\n\n[[---]]\n\n".join(text)
     
     def getProposalsFromTask(self):
+        logger.debug("getProposalsFromTask")
         examples = []
         trg = self.actioner.getCurrentManager().getCurrentTask()
-        eres, eparam = trg.getParamStruct("choices", only_current=True)
+        eres, eparam = trg.getParamStruct("choices")
         if not eres:
             return examples
         
         split_type = eparam.get("split_type","")
         sort_key = eparam.get("sortby","idx")
-        if split_type == "key_comma":
+        if split_type == "gs_actions":
+            logger.debug("Genslides Actions")
+            actions = trg.findKeyParam( eparam.get("source","[]") )
+            template = trg.findKeyParam( eparam.get("jinja2_template",""))
+            jres, jacts, jreport = Loader.Loader.loadJsonFromTextStr( actions )
+            if jres:
+                for act in jacts:
+                    actjson = Loader.Loader.convJsonToText( act )
+                    if template != "":
+                        acttext = TextTool.jsonToMarkdown( {"data": act}, template )
+                    else:
+                        acttext = actjson
+                    examples.append((acttext, actjson))
+            else:
+                logger.debug("No cmds list")
+        elif split_type == "key_comma":
             tasks = trg.getAllParents()
             pairs = []
             keys = []

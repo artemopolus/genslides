@@ -284,7 +284,11 @@
       "type": "choices",
       "source":"[[current:msg_content]]",
       "allexamples":"[[current:msg_content]]",
-      "keys":["txt","text","idx,text","content"]
+      "keys":["txt","text","idx,text","content"],
+      "split_type":["gs_actions","key_comma","smpl_comma","key_dict_list"],
+      "output_type":["gs_actions","text"],
+      "jinja2_template": ["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "sortby":["none","idx"]
    },
    {
       "type":"attention",
@@ -386,6 +390,11 @@
       "cmds":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "active": [true, false],
       "hash":""
+   },
+   {
+      "type":"addinfo_commands",
+      "target_task": "",
+      "cmds":["","[[current:msg_content]]","[[parent:msg_content]]"]
    },
    {
       "type":"get_tool_output",

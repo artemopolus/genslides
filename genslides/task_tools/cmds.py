@@ -1,5 +1,9 @@
 import genslides.commanager.man as Manager
 import genslides.task_tools.text as TextTool
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def parseEditInsert( targettaskname, man : Manager.Jun, edit_type : str, direct_cmd_update : str, copy_to_dict, reason : str, batch, next_stage_actions):
     print(f"Target task: {targettaskname}")
@@ -49,7 +53,7 @@ def parseEditInsert( targettaskname, man : Manager.Jun, edit_type : str, direct_
         print("Unknown action")
 
 def addSupportInformation( command : dict, manager : Manager.Jun):
-    print("add support information")
+    logger.debug("add support information")
     result = []
     action_type = command.get("action", "")
     kwargs = command.get("kwargs",{})
@@ -145,6 +149,22 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             result.append({"status":"stay","content":uptext,"marker":upmark})
             result.append({"status":"append","content":insert_text,"marker":"NewRequest"})
             result.append({"status":"stay","content":target.getLastMsgContentRaw(),"marker":target_name})
+    elif action_type == "editMarkedText":
+        target_name = kwargs.get("marker","")
+        insert_text = kwargs.get("text_fragment","")
+        target = manager.getTaskByAnyName(target_name)
+        if target != None:
+            command["aa_status"] = True
+            old_text = target.getPromptContentForCopyConverted()
+            uptask : Manager.Task.BaseTask = target.getParent()
+            uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+            dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
+            command["aa_replaced"] = old_text
+            command["aa_text_before"] = uptext
+            command["aa_text_after"] = dwtext
+        else:
+            command["aa_status"] = False 
+
     elif action_type == "editingToTaskAction":
         target_name = kwargs.get("taskname","")
         result.append({"status":"divider","content":f"==={action_type}:{target_name}============>\n\n"})
@@ -163,14 +183,14 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
 
 
     elif action_type == "divideTaskBasedOnPrompt":
-        print("divide task")
+        logger.debug("divide task")
         target_name = kwargs.get("taskname","")
         result.append({"status":"divider","content":f"==={action_type}:{target_name}============>\n\n"})
         text_before = kwargs.get("text_before","")
         text_after = kwargs.get("text_after","")
         target = manager.getTaskByAnyName(target_name)
         if target != None:
-            print("task found")
+            logger.debug("task found")
             found_max_score = 0
             found_task = None
             for task in target.getAllParents():
@@ -182,7 +202,7 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
                     divided_parts = parts
                     found_task = task
             if found_task != None and found_max_score > 0:
-                print("add divided")
+                logger.debug("add divided")
                 uptask : Manager.Task.BaseTask = found_task.getParent()
                 uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
                 upmark = "" if uptask == None else uptask.getName()
@@ -196,7 +216,9 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
                 result.append({"status":"stay","content":target.getLastMsgContentRaw(),"marker":target_name})
 
         else:
-            print(f"No task with marker {target_name}")
+            logger.debug("No task with marker %s", target_name)
+    else:
+        logger.debug("No command with %s name", action_type)
     if len(result):
         result.append({"status":"divider","content":"\n\n********\n\n"})
         command["aa_info"] = result
