@@ -1429,7 +1429,7 @@ class TextTask(BaseTask):
         if jres:
             logger.debug("Update json filter with\n%s", jparam)
             self.updateParamStruct("json_filter", "result", Jtasktool.filterUsingParameters( jparam ))
-
+        self.getProposalsFromTask()
         self.addTextWithInfoCommands()
         self.getTargetToolFromOutput()
         self.updateGeneratedAction()
@@ -2478,3 +2478,38 @@ class TextTask(BaseTask):
             print(error_out)
             self.updateUpdationInfo( error_out )
 
+    def getProposalsFromTask(self):
+        eres, eparam = self.getParamStruct("choices", True)
+        if not eres:
+            return
+        examples = []
+        logger.debug("getProposalsFromTask")
+        self.updateUpdationInfo("getProposalsFromTask")
+        
+        split_type = eparam.get("split_type","")
+        # sort_key = eparam.get("sortby","idx")
+        if split_type == "gs_actions":
+            logger.debug("Genslides Actions")
+            self.updateUpdationInfo("Genslides Actions")
+            actions = self.findKeyParam( eparam.get("source","[]") )
+            template = self.findKeyParam( eparam.get("jinja2_template",""))
+            jres, jacts, jreport = Loader.loadJsonFromTextStr( actions )
+            if jres:
+                for act in jacts:
+                    actjson = Loader.convJsonToText( act )
+                    if template != "":
+                        mres, mreport, mtext = Txt.jsonToMarkdown( {"data": act}, template )
+                        if mres:
+                            acttext = mtext
+                        else:
+                            logger.debug("error %s", mreport)
+                    else:
+                        acttext = actjson
+                    examples.append(acttext)
+            else:
+                logger.debug("No cmds list %s", jreport)
+                return
+        eparam["result"] = "\n".join(examples)
+        self.setParamStruct( eparam )
+            
+ 
