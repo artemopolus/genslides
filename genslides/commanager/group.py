@@ -2267,7 +2267,7 @@ class Actioner():
     def cleanTaskParameters( self, range : str = "Current", target : str = "clean"):
         tasks  = self.getTasksByRange( range )
         for task in tasks:
-            print(f"Apply to {task.getName()} task ")
+            logger.debug("Apply to %s task ",task.getName())
             if target == "hash":
                 task.forceResetHash()
             elif target == "array":

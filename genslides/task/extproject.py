@@ -208,7 +208,7 @@ class ExtProjectTask(CollectTask):
             del self.intman
 
     def beforeRemove(self):
-        print('Delete external proj files')
+        logger.debug('Delete external proj files')
         # res, param = self.getParamStruct('external')
         # if res and 'path' in param:
         #     print('Remove', param['path'])

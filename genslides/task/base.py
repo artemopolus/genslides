@@ -11,6 +11,10 @@ from os.path import isfile, join
 
 import json
 import copy
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 class TaskManager(metaclass=Singleton):
@@ -1435,7 +1439,7 @@ class BaseTask():
         # print('Before remove')
         self.removeLinkToTask()
         if self.isRootParent():
-            print('Task',self.getName(),'is Root')
+            logger.debug('Task %s is Root',self.getName())
             # Последняя задача для дерева
             pass #Только проектер решает об удалении менеджера
         else:
