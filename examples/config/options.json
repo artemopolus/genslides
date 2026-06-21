@@ -288,6 +288,7 @@
       "split_type":["gs_actions","key_comma","smpl_comma","key_dict_list"],
       "output_type":["gs_actions","text"],
       "jinja2_template": ["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "jinja2_template_short": ["","[[current:msg_content]]","[[parent:msg_content]]"],
       "sortby":["none","idx"]
    },
    {

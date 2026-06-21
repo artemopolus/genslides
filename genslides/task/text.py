@@ -127,7 +127,7 @@ class TextTask(BaseTask):
                     self.setParamStruct(param)
 
     def getNameForDrawing(self) -> str:
-        res, param = self.getParamStruct("label")
+        res, param = self.getParamStruct("label", True)
         if res:
             label = self.findKeyParam(param["text"])
             return label

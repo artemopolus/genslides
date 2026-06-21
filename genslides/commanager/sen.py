@@ -1264,7 +1264,10 @@ class Projecter(Commander.Commander):
     def getProposalsFromTask(self):
         logger.debug("getProposalsFromTask")
         examples = []
-        trg = self.actioner.getCurrentManager().getCurrentTask()
+        initial = self.actioner.getCurrentManager().getCurrentTask()
+        if initial == None or initial.getParent() == None:
+            return examples
+        trg = initial.getParent()
         eres, eparam = trg.getParamStruct("choices")
         if not eres:
             return examples
@@ -1274,18 +1277,19 @@ class Projecter(Commander.Commander):
         if split_type == "gs_actions":
             logger.debug("Genslides Actions")
             actions = trg.findKeyParam( eparam.get("source","[]") )
-            template = trg.findKeyParam( eparam.get("jinja2_template",""))
+            template = trg.findKeyParam( eparam.get("jinja2_template_short",""))
             jres, jacts, jreport = Loader.Loader.loadJsonFromTextStr( actions )
             if jres:
                 for act in jacts:
                     actjson = Loader.Loader.convJsonToText( act )
+                    acttext = actjson
                     if template != "":
-                        acttext = TextTool.jsonToMarkdown( {"data": act}, template )
-                    else:
-                        acttext = actjson
+                        mres, mreport, mtext = TextTool.jsonToMarkdown( {"data": act}, template )
+                        if mres:
+                            acttext = mtext 
                     examples.append((acttext, actjson))
             else:
-                logger.debug("No cmds list")
+                logger.debug("No cmds list:\n %s", jreport)
         elif split_type == "key_comma":
             tasks = trg.getAllParents()
             pairs = []
