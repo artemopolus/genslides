@@ -1,8 +1,40 @@
 import genslides.commanager.man as Manager
 import genslides.task_tools.text as TextTool
+import difflib
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def build_diff(old: str, new: str):
+    old_lines = old.splitlines()
+    new_lines = new.splitlines()
+
+    matcher = difflib.SequenceMatcher(None, old_lines, new_lines)
+
+    result = []
+
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag == "equal":
+            for line in old_lines[i1:i2]:
+                result.append({"type": "equal", "text": line})
+
+        elif tag == "insert":
+            for line in new_lines[j1:j2]:
+                result.append({"type": "insert", "text": line})
+
+        elif tag == "delete":
+            for line in old_lines[i1:i2]:
+                result.append({"type": "delete", "text": line})
+
+        elif tag == "replace":
+            result.append({
+                "type": "replace",
+                "old": old_lines[i1:i2],
+                "new": new_lines[j1:j2]
+            })
+
+    return result
 
 
 def parseEditInsert( targettaskname, man : Manager.Jun, edit_type : str, direct_cmd_update : str, copy_to_dict, reason : str, batch, next_stage_actions):
@@ -159,7 +191,10 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             uptask : Manager.Task.BaseTask = target.getParent()
             uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
             dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
-            command["aa_replaced"] = old_text
+            diff = build_diff(old_text, insert_text)
+
+            command["aa_diff"] = diff
+            # command["aa_replaced"] = old_text
             command["aa_text_before"] = uptext
             command["aa_text_after"] = dwtext
         else:
