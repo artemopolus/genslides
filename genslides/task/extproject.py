@@ -1023,9 +1023,12 @@ class JumperTreeTask(InExtTreeTask):
             output_tokens_count = 0
             manager_report = self.getActioner().getCurrentManager().getTaskReports()
             if isinstance(manager_report, list):
-                for report in self.manager.getTaskReports():
-                    input_tokens_count += report.get("intok",0)
-                    output_tokens_count += report.get("outtok", 0)
+                try:
+                    for report in self.manager.getTaskReports():
+                        input_tokens_count += report.get("intok",0)
+                        output_tokens_count += report.get("outtok", 0)
+                except Exception as e:
+                    logger.debug( "Error with report:\n %s")
                     
                 response_report = {
                     "intok":input_tokens_count,
