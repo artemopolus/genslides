@@ -5,11 +5,17 @@ import json
 import shutil
 from pathlib import Path
 from copy import deepcopy
+from datetime import datetime
 
 
 def sync_json(sync_path: Path, local_path: Path):
+
     # Создаем резервную копию локального файла
-    backup_path = local_path.with_suffix(local_path.suffix + ".bak")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = local_path.with_name(
+        f"{local_path.name}.{timestamp}.bak"
+    )
+
     shutil.copy2(local_path, backup_path)
     print(f"Backup created: {backup_path}")
 
