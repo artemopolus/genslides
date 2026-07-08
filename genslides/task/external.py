@@ -1,4 +1,5 @@
 import genslides.task.request as RqTask
+import genslides.utils.loader as Ld
 
 class ExternalInput(RqTask.RequestTask):
     def __init__(self, task_info: RqTask.TaskDescription, type="ExternalInput") -> None:
@@ -12,6 +13,19 @@ class ExternalInput(RqTask.RequestTask):
 
     def isRootParent(self):
         return True
+    
+    def isExternalInput( self ):
+        return True
+    
+    def getJsonCmdGroup(self, group_name):
+        eres, eparam = self.getParamStruct("externalinput")
+        if eres:
+            groups = eparam.get("command_dict","")
+            jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr( groups )
+            if jres and isinstance( jobj, dict ):
+                if group_name in jobj:
+                    return jobj[group_name]
+        return super().getJsonCmdGroup(group_name)
     
     def stdProcessUnFreeze(self, input=None):
         eres, eparam = self.getParamStruct("externalinput")

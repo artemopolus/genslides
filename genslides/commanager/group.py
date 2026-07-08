@@ -3682,4 +3682,28 @@ class Actioner():
             man.setCurrentTask( task )
             self.editingAction( prompt )
             man.setCurrentTask( init )
+
+    def getLabelDescriptions( self ):
+        info = []
+        for task in self.getCurrentManager().getTasks():
+            res, data = task.getLabelDescription()
+            if res:
+                info.append({
+                    "name":task.getName(),
+                    "description": data
+                })
+        return info
+
+    def exeExternalInputCommands( self, target : str = "", group_name : str = "updt"):
+        if target == "":
+            for task in self.getCurrentManager().getTasks():
+                if task.isExternalInput():
+                    self.getJsonCustomCmd( task.getJsonCmdGroup( group_name ) )
+                    return
+        else:
+            task = self.getCurrentManager().getTaskByAnyName( target )
+            if task != None and task.isExternalInput():
+                self.getJsonCustomCmd( task.getJsonCmdGroup( group_name ) )
+
+
  
