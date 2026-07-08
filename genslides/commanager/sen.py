@@ -1252,13 +1252,15 @@ class Projecter(Commander.Commander):
         logger.debug('Click %s', text)
         trg = self.actioner.getCurrentManager().getCurrentTask()
         eres, eparam = trg.getParamStruct("choices", only_current=True)
-        if eres and eparam.get("output_type","") == "gs_actions":
-            actions = []
-            for act in text:
-                jres, jacts, jreport = Loader.Loader.loadJsonFromTextStr( act )
-                if jres:
-                    actions.append(jacts)
-            return Loader.Loader.convJsonToText( actions )
+        if eres:
+            split_type = eparam.get("output_type","")
+            if split_type == "gs_actions" or split_type == "gs_std":
+                actions = []
+                for act in text:
+                    jres, jacts, jreport = Loader.Loader.loadJsonFromTextStr( act )
+                    if jres:
+                        actions.append(jacts)
+                return Loader.Loader.convJsonToText( actions )
         return prompt + "\n\n[[---]]\n\n".join(text)
     
     def getProposalsFromTask(self):
@@ -1290,6 +1292,39 @@ class Projecter(Commander.Commander):
                     examples.append((acttext, actjson))
             else:
                 logger.debug("No cmds list:\n %s", jreport)
+
+
+        elif split_type == "gs_std":
+            logger.debug("Genslides Std")
+            actions = trg.findKeyParam(eparam.get("source", ""))
+            template = trg.findKeyParam(eparam.get("jinja2_template_short", ""))
+
+            jres, jacts, jreport = Loader.Loader.loadJsonFromTextStr(actions)
+            if jres:
+                if isinstance(jacts, dict) and len(jacts) == 1:
+                    items = next(iter(jacts.values()))
+
+                    if isinstance(items, list):
+                        for act in items:
+                            # actjson = Loader.Loader.convJsonToText(act)
+                            act_for_json = {k: act[k] for k in ("action", "kwargs") if k in act}
+                            actjson = Loader.Loader.convJsonToText(act_for_json)
+                            acttext = actjson
+
+                            if template:
+                                mres, mreport, mtext = TextTool.jsonToMarkdown({"data": act}, template)
+                                if mres:
+                                    acttext = mtext
+
+                            examples.append((acttext, actjson))
+                    else:
+                        logger.debug("Expected list in the only dict field")
+                else:
+                    logger.debug("Expected dict with a single key")
+            else:
+                logger.debug("No data:\n%s", jreport)
+
+
         elif split_type == "key_comma":
             tasks = trg.getAllParents()
             pairs = []

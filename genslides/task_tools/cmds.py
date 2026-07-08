@@ -17,7 +17,8 @@ def build_diff(old: str, new: str):
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
         if tag == "equal":
             for line in old_lines[i1:i2]:
-                result.append({"type": "equal", "text": line})
+                if line != "":
+                    result.append({"type": "equal", "text": line})
 
         elif tag == "insert":
             for line in new_lines[j1:j2]:
@@ -25,7 +26,8 @@ def build_diff(old: str, new: str):
 
         elif tag == "delete":
             for line in old_lines[i1:i2]:
-                result.append({"type": "delete", "text": line})
+                if line != "":
+                    result.append({"type": "delete", "text": line})
 
         elif tag == "replace":
             result.append({
