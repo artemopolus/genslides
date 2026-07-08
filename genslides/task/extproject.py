@@ -17,6 +17,7 @@ import genslides.utils.convert2genslidesjson as Converter
 import genslides.utils.archivator as Archive
 
 import genslides.task_tools.cmds as CommandTool
+import genslides.task_tools.text as Txt
 
 import os
 import shutil
@@ -943,6 +944,22 @@ class JumperTreeTask(InExtTreeTask):
                 eparam["exttreetask_autoload_result"] = autoload_result
                 self.setParamStruct(eparam)
         return super().runBeforeUpdateIternal(input)
+    
+    def updateDescription( self ):
+        act = self.getActioner()
+        eres, eparam = self.getParamStruct('external',True)
+        if eres and act != None:
+            tasks_descrp = act.getLabelDescriptions()
+            conv_type = eparam.get("description_conv","std")
+            if conv_type == "jinja2":
+                conv_template = eparam.get("description_jinja2","std")
+                info = Txt.jsonToMarkdown({"data":tasks_descrp}, conv_template)
+            else:
+                info = "\n".join([t["description"] for t in tasks_descrp])
+            eparam["description"] = info
+            self.setParamStruct(eparam)
+
+
 
     def updateIternal(self, input : TaskDescription = None):
         self.updateUpdationInfo("Update internal")
@@ -961,6 +978,7 @@ class JumperTreeTask(InExtTreeTask):
             else:
                 self.freezeTask()
                 self.setChildUpdateState(False)
+            self.updateDescription()
             return
         self.reconnectJumperTreeExtTree()
         self.updateInternalGlobalKeys()
@@ -1039,6 +1057,7 @@ class JumperTreeTask(InExtTreeTask):
                 self.manager.onTaskReport( response_report )
 
             # eparam["task_reports_after_cmd"] = Loader.Loader.convJsonToText(self.manager.getTaskReports())
+        self.updateDescription()
 
         
     def removeProject(self):
@@ -1160,7 +1179,8 @@ class JumperTreeTask(InExtTreeTask):
                 self.updateUpdationInfo(f"addInfoForGenslidesCommand:\n{report}")
                 logger.debug("addInfoForGenslidesCommand: %s",report)
                 output.append( result_cmd )
-            return Loader.Loader.convJsonToText( output )
+            # return Loader.Loader.convJsonToText( output )
+            return  output 
         return super().addInfoForGenslidesCommand(cmds)
 
 

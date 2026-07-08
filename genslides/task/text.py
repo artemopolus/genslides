@@ -2041,9 +2041,15 @@ class TextTask(BaseTask):
             name = self.findKeyParam( aparam.get("target_task","") )
             task : BaseTask = self.manager.getTaskByAnyName(name)
             cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
+            cmds_label = self.findKeyParam(aparam.get("key","cmds"))
             jres, cmds, jreport = Loader.loadJsonFromTextStr(cmds_text)
             if task != None and jres:
-                aparam["result"] = task.addInfoForGenslidesCommand( cmds )
+                out = Loader.convJsonToText(
+                    {
+                        "cmds":task.addInfoForGenslidesCommand( cmds )
+                    }
+                )
+                aparam["result"] = out
                 self.setParamStruct( aparam )
 
 
@@ -2488,13 +2494,26 @@ class TextTask(BaseTask):
         
         split_type = eparam.get("split_type","")
         # sort_key = eparam.get("sortby","idx")
-        if split_type == "gs_actions":
+        if split_type == "gs_std":
+            self.updateUpdationInfo("Genslides Actions")
+            actions = self.findKeyParam( eparam.get("source","[]") )
+            template = self.findKeyParam( eparam.get("jinja2_template",""))
+            jres, jacts, jreport = Loader.loadJsonFromTextStr( actions )
+            if jres and isinstance(jacts, dict):
+                mres, mreport, mtext = Txt.jsonToMarkdown( jacts, template )
+                if not mres:
+                    self.updateUpdationInfo(f"Error template \n {mreport}")
+                examples.append(mtext)
+            else:
+                logger.debug("No cmds dict %s", jreport)
+                return
+        elif split_type == "gs_actions":
             logger.debug("Genslides Actions")
             self.updateUpdationInfo("Genslides Actions")
             actions = self.findKeyParam( eparam.get("source","[]") )
             template = self.findKeyParam( eparam.get("jinja2_template",""))
             jres, jacts, jreport = Loader.loadJsonFromTextStr( actions )
-            if jres:
+            if jres and isinstance(jacts, list):
                 for act in jacts:
                     actjson = Loader.convJsonToText( act )
                     if template != "":
@@ -2503,6 +2522,7 @@ class TextTask(BaseTask):
                             acttext = mtext
                         else:
                             logger.debug("error %s", mreport)
+                            self.updateUpdationInfo(f"Error template \n {mreport}")
                     else:
                         acttext = actjson
                     examples.append(acttext)
@@ -2511,5 +2531,11 @@ class TextTask(BaseTask):
                 return
         eparam["result"] = "\n".join(examples)
         self.setParamStruct( eparam )
+
+    def getLabelDescription(self):
+        res, param = self.getParamStruct( "label", True )
+        if res and "description" in param:
+            return True, param.get("description","")
+        return super().getLabelDescription()
             
  

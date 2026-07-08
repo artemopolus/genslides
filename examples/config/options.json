@@ -228,7 +228,8 @@
    },
    {
       "type": "externalinput",
-      "unfreeze": ["std","non_freezing"]
+      "unfreeze": ["std","non_freezing"],
+      "command_dict":["","{\"cmd group name\":[{cmd1},{cmd2}],\"another cmd group\":[...]}"]
 	},
    {
       "type": "external",
@@ -253,7 +254,10 @@
       "reset_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
       "updt_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
       "idle_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]","[ { \"action\": \"updateIFfrozentasks\", \"kwargs\": { \"n\": 1 } } ]"],
-      "custom_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"]
+      "custom_actions":["[]","[{\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}]","[\n  {\"action\": \"loadTmpManagerTasks\"},\n  {\"action\": \"cleanTasksChat\"},\n  {\"action\": \"updateAllnTimes\", \"kwargs\": {\"n\": 1, \"check\": true}}\n]"],
+      "description" :"",
+      "description_conv":["std","jinja2"],
+      "description_jinja2":""
    },
    {
       "type": "listener",
@@ -285,7 +289,7 @@
       "source":"[[current:msg_content]]",
       "allexamples":"[[current:msg_content]]",
       "keys":["txt","text","idx,text","content"],
-      "split_type":["gs_actions","key_comma","smpl_comma","key_dict_list"],
+      "split_type":["gs_std","gs_actions","key_comma","smpl_comma","key_dict_list"],
       "output_type":["gs_actions","text"],
       "jinja2_template": ["","[[current:msg_content]]","[[parent:msg_content]]"],
       "jinja2_template_short": ["","[[current:msg_content]]","[[parent:msg_content]]"],
@@ -327,7 +331,8 @@
    },
    {
       "type":"label",
-      "text": ""
+      "text": "",
+      "description" :""
    },
    {
       "type": "draw_wrk",
@@ -395,7 +400,8 @@
    {
       "type":"addinfo_commands",
       "target_task": "",
-      "cmds":["","[[current:msg_content]]","[[parent:msg_content]]"]
+      "cmds":["","[[current:msg_content]]","[[parent:msg_content]]"],
+      "key":["cmds","data"]
    },
    {
       "type":"get_tool_output",

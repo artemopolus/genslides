@@ -1919,5 +1919,14 @@ class BaseTask():
         pass
 
     def addInfoForGenslidesCommand( self, cmds : list ):
+        return []
+    
+    def getLabelDescription( self ):
+        return False, ""
+    
+    def isExternalInput( self ):
+        return False
+    
+    def getJsonCmdGroup( self, group_name : str):
         return ""
  
