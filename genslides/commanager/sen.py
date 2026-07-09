@@ -1250,7 +1250,9 @@ class Projecter(Commander.Commander):
 
     def onExamplesClick(self, text, prompt):
         logger.debug('Click %s', text)
-        trg = self.actioner.getCurrentManager().getCurrentTask()
+        trg = self.actioner.getCurrentManager().getCurrentTask().getParent()
+        if trg == None:
+            return ""
         eres, eparam = trg.getParamStruct("choices", only_current=True)
         if eres:
             split_type = eparam.get("output_type","")

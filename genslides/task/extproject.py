@@ -1172,7 +1172,7 @@ class JumperTreeTask(InExtTreeTask):
         return super().setExtTreeSessionId(session_id)
     
     def addInfoForGenslidesCommand(self, cmds):
-        if self.getActioner() != None:
+        if self.getActioner() != None and isinstance(cmds, list):
             output = []
             for cmd in cmds:
                 result_cmd, report = CommandTool.addSupportInformation( cmd, self.getActioner().getCurrentManager() )

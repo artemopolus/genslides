@@ -1498,7 +1498,9 @@ class TextTask(BaseTask):
         elif ares and not aparam.get("active",False):
             name = self.findKeyParam( aparam.get("target_task","") )
             cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
-            report_exe_cmd.append(f"Available commands for [{name}]:\n{cmds_text}")
+            task : BaseTask = self.manager.getTaskByAnyName(name)
+            exist = "not exist" if task == None else "exist"
+            report_exe_cmd.append(f"Available commands for [{name}] ({exist}):\n{cmds_text}")
         if ares:
             aparam["report"] = "\n".join(report_exe_cmd)
             self.setParamStruct(aparam)
@@ -2495,12 +2497,18 @@ class TextTask(BaseTask):
         split_type = eparam.get("split_type","")
         # sort_key = eparam.get("sortby","idx")
         if split_type == "gs_std":
-            self.updateUpdationInfo("Genslides Actions")
+            self.updateUpdationInfo("Genslides Standart")
             actions = self.findKeyParam( eparam.get("source","[]") )
             template = self.findKeyParam( eparam.get("jinja2_template",""))
+            eparam["source_conv"] = actions
+            eparam["jinja2_used"] = template
             jres, jacts, jreport = Loader.loadJsonFromTextStr( actions )
+            eparam["json_report"] = jreport
+            eparam["jinja2_report"] = "" 
+
             if jres and isinstance(jacts, dict):
                 mres, mreport, mtext = Txt.jsonToMarkdown( jacts, template )
+                eparam["jinja2_report"] = mreport
                 if not mres:
                     self.updateUpdationInfo(f"Error template \n {mreport}")
                 examples.append(mtext)
