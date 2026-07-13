@@ -2045,10 +2045,19 @@ class TextTask(BaseTask):
             cmds_text = self.findKeyParam(aparam.get("cmds","[]"))
             cmds_label = self.findKeyParam(aparam.get("key","cmds"))
             jres, cmds, jreport = Loader.loadJsonFromTextStr(cmds_text)
-            if task != None and jres:
+            if task == None:
+                self.updateUpdationInfo(f"No task with {name}")
+            elif not jres:
+                self.updateUpdationInfo(f"Error on json:{jreport}")
+            elif task != None and jres:
+                addres, adddata, addreport = task.addInfoForGenslidesCommand( cmds )
+                if addres:
+                    self.updateUpdationInfo(f"Add info report:{addreport}")
+                else:
+                    self.updateUpdationInfo(f"Error on add info:{addreport}")
                 out = Loader.convJsonToText(
                     {
-                        "cmds":task.addInfoForGenslidesCommand( cmds )
+                        "cmds": adddata
                     }
                 )
                 aparam["result"] = out

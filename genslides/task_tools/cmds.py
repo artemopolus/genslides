@@ -200,6 +200,9 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             command["aa_text_before"] = uptext
             command["aa_text_after"] = dwtext
         else:
+            command["aa_diff"] =[] 
+            command["aa_text_before"] = f"No target with {target_name}"
+            command["aa_text_after"] = f"No target with {target_name}"
             command["aa_status"] = False 
 
     elif action_type == "editingToTaskAction":

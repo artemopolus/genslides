@@ -1919,7 +1919,7 @@ class BaseTask():
         pass
 
     def addInfoForGenslidesCommand( self, cmds : list ):
-        return []
+        return False, [], ""
     
     def getLabelDescription( self ):
         return False, ""
