@@ -6,6 +6,29 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def merge_diff(diff):
+    if not diff:
+        return []
+
+    merged = [diff[0].copy()]
+
+    for item in diff[1:]:
+        last = merged[-1]
+
+        # объединяем только обычные элементы
+        if (
+            item["type"] != "replace"  and
+            item["type"] == last["type"]
+            and "text" in item
+            and "text" in last
+        ):
+            last["text"] += "\n" + item["text"]
+        else:
+            merged.append(item.copy())
+
+    return merged
+
+
 def build_diff(old: str, new: str):
     old_lines = old.splitlines()
     new_lines = new.splitlines()
@@ -36,7 +59,7 @@ def build_diff(old: str, new: str):
                 "new": new_lines[j1:j2]
             })
 
-    return result
+    return merge_diff(result)
 
 
 def parseEditInsert( targettaskname, man : Manager.Jun, edit_type : str, direct_cmd_update : str, copy_to_dict, reason : str, batch, next_stage_actions):
@@ -183,6 +206,26 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             result.append({"status":"stay","content":uptext,"marker":upmark})
             result.append({"status":"append","content":insert_text,"marker":"NewRequest"})
             result.append({"status":"stay","content":target.getLastMsgContentRaw(),"marker":target_name})
+    elif action_type == "insertTextAfterMarker":
+        target_name = kwargs.get("marker","")
+        insert_text = kwargs.get("text_fragment","")
+        target = manager.getTaskByAnyName(target_name)
+        if target != None:
+            command["aa_status"] = True
+            uptext = target.getPromptContentForCopyConverted()
+            dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
+            diff = [{"type":"insert","text":insert_text}]
+
+            command["aa_diff"] = diff
+            # command["aa_replaced"] = old_text
+            command["aa_text_before"] = uptext
+            command["aa_text_after"] = dwtext
+        else:
+            command["aa_diff"] =[] 
+            command["aa_text_before"] = f"No target with {target_name}"
+            command["aa_text_after"] = f"No target with {target_name}"
+            command["aa_status"] = False 
+
     elif action_type == "editMarkedText":
         target_name = kwargs.get("marker","")
         insert_text = kwargs.get("text_fragment","")
