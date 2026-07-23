@@ -1126,6 +1126,16 @@ class JumperTreeTask(InExtTreeTask):
                                     custom_commands.append(Loader.Loader.convJsonToText(cmd))
             lparam["generated_actions"] = custom_commands
             self.setParamStruct(lparam)
+
+    def preExeCmds(self, param):
+        act = self.getActioner()
+        if act != None:
+            if param.get("save_prev", False):
+                path = self.findKeyParam( param.get("folder_path","") )
+                name = self.findKeyParam( param.get("archive_name","default") )
+                max_times = param.get("store_max", 3)
+                act.saveTemporaryArchiveWithCheck( path, name, max_times )
+        return super().preExeCmds(param)
  
     def exeExTreeTaskCmds( self, cmds ):
         act = self.getActioner()

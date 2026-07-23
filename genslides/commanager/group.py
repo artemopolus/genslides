@@ -3568,6 +3568,18 @@ class Actioner():
         # print(SaveData.getTimeForProjectName())
         self.convertJsonFileToTemplateTreeTasks( path_to_template, path_to_file )
 
+    def saveTemporaryArchiveWithCheck( self, path, name, max_files = 10):
+        fld_path = Loader.Loader.getUniPath( path )
+        if not FileManager.checkAndCreateFolder(fld_path):
+            return
+        man = self.getCurrentManager()
+        suffix = SaveData.getTimeForProjectName()
+        path = Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
+        trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(fld_path, [name + "_" + suffix + ".7z"]))
+        FileManager.manageOldestFolderFiles(fld_path, max_files)
+        Archivator.Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
+
+
     def saveManToTmp(self, man : Manager.Manager, suffix = "", temp_folder = ["tt_temp"], check_oldest = False, max_files = 3):
         path = Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
         folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )

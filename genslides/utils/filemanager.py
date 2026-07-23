@@ -8,6 +8,10 @@ from pathlib import Path
 
 import setuptools
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def deleteFolder( mypath ):
     shutil.rmtree( mypath )
@@ -53,6 +57,16 @@ def copyFiles(src_folder, trg_folder, trg_files = [], exld_files = []):
                 idx += 1
                 shutil.copyfile(path, join(trg_folder, file))
     print('Copied files count:', idx)
+
+def checkAndCreateFolder( path ):
+    if os.path.exists( path ):
+        return True
+    try:
+        Path(path).mkdir(parents=True, exist_ok=True)
+        return True
+    except OSError as e:
+        logger.debug("Некорректный путь:",e)
+    return False
 
 def createFolder(path):
     if not os.path.exists( path ):

@@ -1486,6 +1486,7 @@ class TextTask(BaseTask):
                 if res and isinstance(cmds, list) and self.manager != None:
                     task : BaseTask = self.manager.getTaskByAnyName(name)
                     if task != None:
+                        task.preExeCmds( aparam )
                         result = task.exeExTreeTaskCmds(cmds)
                         aparam["hash"] = cmds_hash
                         report_exe_cmd.append( f"Run [{name}] cmds:{result}")

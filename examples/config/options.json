@@ -395,7 +395,11 @@
       "target_task": "",
       "cmds":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "active": [true, false],
-      "hash":""
+      "hash":"",
+      "save_prev":[false, true],
+      "folder_path" : "",
+      "archive_name": ["test",""],
+      "store_max": 3
    },
    {
       "type":"addinfo_commands",

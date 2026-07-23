@@ -1879,6 +1879,9 @@ class BaseTask():
     
     def forceExeExtTreeTaskCmds( self, filter_on = False, min_value = 5 ):
         pass
+
+    def preExeCmds( self , param : dict):
+        pass
     
     def exeExTreeTaskCmds( self, cmds : list[dict] ):
         return "Can not run ext tree task json cmds"
