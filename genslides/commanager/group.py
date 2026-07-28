@@ -3489,6 +3489,16 @@ class Actioner():
     def getManagerFolderPath( self, man : Manager.Manager):
         return Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
 
+    def loadFromArchive( self, path_to_template, sync = True, archive_save_path = ""):
+        path = Loader.Loader.getUniPath( path_to_template )
+        autoload_result = self.loadManagerProjectFromFile( path )
+        if autoload_result:
+            if sync:
+                self.syncRelatedActionersWithFolder()
+            if archive_save_path != "":
+                self.saveGenslidesArchiveByPath( archive_save_path )
+        return autoload_result
+
     def loadManagerProjectFromFile(self, template_path, safe_load_tasks = True, load_managers_tasks = True):
         print("Load manager project from file")
         self.setManager(self.std_manager)
@@ -3717,5 +3727,23 @@ class Actioner():
             if task != None and task.isExternalInput():
                 self.getJsonCustomCmd( task.getJsonCmdGroup( group_name ) )
 
+    def saveProjectByPath(self, path_to_file : str):
+        path = self.getCurrentManager().getPath()
+        path = Loader.Loader.getUniPath(path)
+        trg_path = Loader.Loader.getUniPath( path_to_file )
+        Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
+        return f"Save {path} to {trg_path}"
+
+    def saveTargetExtTreeProjectToArchive( self, marker : str, path_to_file : str):
+        task = self.getCurrentManager().getTaskByAnyName( marker )
+        if task != None:
+            return task.saveProjectByPath( path_to_file )
+        return "Failed"
+
+    def loadExtTreeProjectFromArchive( self, marker: str, path_to_template : str, sync :bool = True, archive_save_path : str = ""):
+        task = self.getCurrentManager().getTaskByAnyName( marker )
+        if task != None:
+            return task.loadFromArchive( path_to_template, sync, archive_save_path)
+        return "Failed"
  

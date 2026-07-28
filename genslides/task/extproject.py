@@ -1195,6 +1195,18 @@ class JumperTreeTask(InExtTreeTask):
             return  True, output, "\n".join(report_data)
         return super().addInfoForGenslidesCommand(cmds)
 
+    def loadFromArchive(self, path_to_template, sync=True, archive_save_path=""):
+        act = self.getActioner()
+        if act != None:
+            return act.loadFromArchive( path_to_template, sync, archive_save_path )
+        return super().loadFromArchive(path_to_template, sync, archive_save_path)
+
+    def saveProjectByPath(self, path_to_file):
+        act = self.getActioner()
+        if act != None:
+            return act.saveProjectByPath( path_to_file )
+        return super().saveProjectByPath(path_to_file)
+
 
 class OutExtTreeTask(ExtProjectTask):
     def __init__(self, task_info: TaskDescription, type="OutExtTree") -> None:

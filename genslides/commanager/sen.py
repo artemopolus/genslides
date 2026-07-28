@@ -385,12 +385,9 @@ class Projecter(Commander.Commander):
         # self.actioner.std_manager.setParam("current_project_name",self.current_project_name)
 
         self.actioner.setManager(self.actioner.std_manager)
-        print('Save man', self.actioner.getCurrentManager().getName(),'(Temp)' if self.actioner.getCurrentManager() != self.actioner.std_manager else '(Main)')
-        path = self.actioner.getCurrentManager().getPath()
-        path = Loader.Loader.getUniPath(path)
-        trg_path = Loader.Loader.getUniPath( Loader.Loader.getFilePathToSave7zArchive() )
-        Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
-        return "Save"
+        logger.debug('Save man', self.actioner.getCurrentManager().getName(),'(Temp)' if self.actioner.getCurrentManager() != self.actioner.std_manager else '(Main)')
+        path_to_save = Loader.Loader.getFilePathToSave7zArchive()
+        return self.actioner.saveProjectByPath( path_to_save )
     
     def saveTmpMan(self):
         if self.actioner.getCurrentManager() == self.actioner.std_manager:

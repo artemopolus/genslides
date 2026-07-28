@@ -1932,4 +1932,10 @@ class BaseTask():
     
     def getJsonCmdGroup( self, group_name : str):
         return ""
+
+    def loadFromArchive( self, path_to_template, sync = True, archive_save_path = ""):
+        return False
+    
+    def saveProjectByPath(self, path_to_file : str):
+        return "Failed"
  
