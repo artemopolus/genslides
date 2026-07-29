@@ -2984,7 +2984,7 @@ class Projecter(Commander.Commander):
         checks = []
         for name in out:
             task = man.getTaskByName(name)
-            if task.getActioner() == None:
+            if task.checkCurrentActionerTaskPath():
                 checks.append( name )
         act_info_text = "Paths to actioners:\n"
         act_info_text += '\n'.join([ "* " + p for p in out_paths])

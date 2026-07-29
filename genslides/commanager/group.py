@@ -3659,6 +3659,9 @@ class Actioner():
         if res and task != None:
             task.exeExTreeTaskCmds(cmd)
 
+    def getExternalActionersList( self ):
+        return self.parameters.get("available_actioners",None)
+
     def loadExtTreeTaskActioners(self):
         method_to_external_actioners = self.parameters.get("available_actioners",None)
         if method_to_external_actioners != None:
@@ -3731,7 +3734,7 @@ class Actioner():
         path = self.getCurrentManager().getPath()
         path = Loader.Loader.getUniPath(path)
         trg_path = Loader.Loader.getUniPath( path_to_file )
-        Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
+        Archivator.Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
         return f"Save {path} to {trg_path}"
 

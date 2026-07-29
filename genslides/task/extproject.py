@@ -749,6 +749,12 @@ class JumperTreeTask(InExtTreeTask):
                         self.updateUpdationInfo(f"No task with name {jumper_name} with path { trg_path}")
             self.updateUpdationInfo(f"No actioners for {trg_path}")
 
+    def checkCurrentActionerTaskPath(self):
+        if self.getActioner() != None:
+            return not self.checkActionerTaskPath( self.getActioner().getPath() )
+        return True
+        return super().checkCurrentActionerTaskPath()
+
     def checkActionerTaskPath(self, path):
         eres, eparam = self.getParamStruct('external')
         if eres and eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
@@ -774,11 +780,22 @@ class JumperTreeTask(InExtTreeTask):
             return None
         if 'inexttree' not in eparam:
             return None
-        if self.intact != None:
-            self.updateUpdationInfo(f"Task {self.getName()} already loaded\n")
-            self.updateInternalGlobalKeys()
-            self.intact.autoUpdateExtTreeTaskActs(actioners)
-            return None
+        if self.getActioner() != None:
+            str_trg_path = self.findKeyParam(eparam.get('exttreetask_path',""))
+            trg_path = Loader.Loader.getUniPath(str_trg_path)
+            self.updateUpdationInfo(f"Try to check {trg_path} for actioner ")
+            if eparam['inexttree'] == 'fromact' and 'exttreetask_path' in eparam:
+                if self.getActioner().getPath() == trg_path:
+                    self.updateUpdationInfo(f"Task {self.getName()} already loaded\n")
+                    self.updateInternalGlobalKeys()
+                    self.getActioner().autoUpdateExtTreeTaskActs(actioners)
+                    return None
+            else:
+                self.updateUpdationInfo(f"Task {self.getName()} already loaded\n")
+                self.updateInternalGlobalKeys()
+                self.getActioner().autoUpdateExtTreeTaskActs(actioners)
+                return None
+            self.updateUpdationInfo(f"Try to load actioner for {trg_path}")
         
         if eparam['inexttree'] == 'None':
            
@@ -802,17 +819,26 @@ class JumperTreeTask(InExtTreeTask):
                 if actioner.getPath() == trg_path:
                     man = actioner.std_manager
                     jumper = man.getTaskByName(eparam['jumper'])
-                    if jumper and jumper.checkType('ExternalInput') and self.getParent() != jumper.getParent():
+                    if jumper == None:
+                        jumper_name = eparam['jumper']
+                        self.updateUpdationInfo(f"No task with name {jumper_name} with path { trg_path}")
+                    elif jumper.checkType('ExternalInput') and self.getParent() == jumper.getParent():
+                        self.updateUpdationInfo("Only update actioners")
+                        self.intact = actioner
+                        self.intman = man
+                        self.updateInternalGlobalKeys()
+                        self.intact.autoUpdateExtTreeTaskActs(actioners)
+                        return None
+                    elif jumper.checkType('ExternalInput') and self.getParent() != jumper.getParent():
+                        self.updateUpdationInfo("Update actioner and jumper")
                         self.intact = actioner
                         self.intman = man
                         jumper.setParent(self.getParent())
                         self.updateInternalGlobalKeys()
                         self.intact.autoUpdateExtTreeTaskActs(actioners)
                         return None
-                    else:
-                        jumper_name = eparam['jumper']
-                        self.updateUpdationInfo(f"No task with name {jumper_name} with path { trg_path}")
-            self.updateUpdationInfo(f"No actioners for {trg_path}")
+            ava_paths = "\n".join( [a.getPath() for a in actioners] )
+            self.updateUpdationInfo(f"No actioners for {trg_path}\n {ava_paths}")
         return None
     
     def reconnectJumperTreeExtTree(self):
@@ -878,7 +904,7 @@ class JumperTreeTask(InExtTreeTask):
                     self.updateUpdationInfo(f"Json data:{path_to_gsjs}")
                     self.updateUpdationInfo(f"Archive:{path_to_current_archive}")
                     if path_to_target_file == path_to_current_file:
-                        self.updateUpdationInfo(f"Target file == valid archive:{path_to_target_file}")
+                        self.updateUpdationInfo(f"Target file is already loaded:{path_to_target_file}")
                         autoload_result = True
                     # if path_to_target_file == path_to_current_file and Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
                     #     self.updateUpdationInfo(f"Target file == valid archive:{path_to_target_file}")
@@ -889,6 +915,7 @@ class JumperTreeTask(InExtTreeTask):
                         act.saveGenslidesArchiveByPath( path_to_current_archive)
                         autoload_result = act.loadManagerProjectFromFile( path_to_target_file )
                         self.updateUpdationInfo(f"Load archive:{path_to_target_file} = {autoload_result}")
+                        eparam["exttreetask_file_current"] = path_to_target_file
                     # elif path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
                     #     self.updateUpdationInfo(f"Target file == current file:{path_to_target_file}: json and archive exist")
                     #     autoload_result = True
@@ -1198,7 +1225,16 @@ class JumperTreeTask(InExtTreeTask):
     def loadFromArchive(self, path_to_template, sync=True, archive_save_path=""):
         act = self.getActioner()
         if act != None:
-            return act.loadFromArchive( path_to_template, sync, archive_save_path )
+            path = Loader.Loader.getUniPath( path_to_template )
+            autoload_result = act.loadManagerProjectFromFile( path )
+            self.reloadTaskActioner( act.getExternalActionersList())
+            if autoload_result:
+                if sync:
+                    act.syncRelatedActionersWithFolder()
+                if archive_save_path != "":
+                    act.saveGenslidesArchiveByPath( archive_save_path )
+ 
+            return autoload_result
         return super().loadFromArchive(path_to_template, sync, archive_save_path)
 
     def saveProjectByPath(self, path_to_file):

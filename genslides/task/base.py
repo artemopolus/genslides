@@ -1657,6 +1657,9 @@ class BaseTask():
     def getActioner(self):
         return None
     
+    def checkCurrentActionerTaskPath( self ):
+        return False
+
     def checkActionerTaskPath( self, path : str):
         return False
     
