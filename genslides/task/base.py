@@ -135,16 +135,19 @@ class TaskManager(metaclass=Singleton):
         return out
     
     def loadTasksCache(self, mypath):
+        logger.debug("loadTasksCache")
         trgfldpath = Loader.Loader.getUniPath(mypath)
         for cache in self.tasks_cache:
-            if cache['path'] == trgfldpath:
+            cache_path = cache['path']
+            if cache_path == trgfldpath:
+                logger.debug("Cache %s == %s return", cache_path, trgfldpath)
                 return
         new_cache = {'path':trgfldpath}
         onlyfiles = Fm.getFilesInFolder(trgfldpath)
         taskspack = []
         for filename in onlyfiles:
             path = join(mypath,filename)
-            # print('Check path=',path)
+            logger.debug('Check path=%s',path)
             try:
                 with open(path, 'r') as f:
                     rq = json.load(f)
@@ -183,6 +186,7 @@ class TaskManager(metaclass=Singleton):
                             with open(task_info['task_path'], 'r') as f:
                                 rq = json.load(f)
                             filename = task_info['filename']
+                            logger.debug("Load %s", filename)
                             if len(rq['chat']) == 0:
                                 elem = {'role': 'user','content': ''}
                             else:

@@ -71,6 +71,8 @@ class Manager(Man.Jun):
 
         self.no_output = False
 
+        self.idx_tasks = 0
+
     def enableOutput2(self):
         self.no_output = False
 
@@ -178,11 +180,14 @@ class Manager(Man.Jun):
     def loadTasksList(self, safe = False, trg_files = []):
         if self.is_loaded:
             return
+        else:
+            self.idx_tasks = 0
         self.save_session_cmds = False
         # print(10*"=======")
         logger.debug('Fast load of tasks' if safe else 'Load task from files')
         logger.info('Manager path= %s', self.getPath())
         task_manager = TaskManager()
+        task_manager.clearTasksCache()
         links = task_manager.getLinks(Loader.Loader.getUniPath(self.getPath()), trg_files=trg_files)
         self.createTask(prnt_task=None, safe=safe, trg_tasks=trg_files)
             
@@ -411,7 +416,8 @@ class Manager(Man.Jun):
 
 
     def createTask(self, prnt_task = None, safe = False, trg_tasks = []):
-        # print(10*"=======")
+        self.idx_tasks += 1
+        logger.debug("Create Task [%d] %s", self.idx_tasks, 10 * "=======")
         # dt1 = datetime.datetime.now()        
         if prnt_task == None:
             parent_path = ""
@@ -430,7 +436,7 @@ class Manager(Man.Jun):
 
         for prompt in parent_prompt_list:
             self.curr_task = prnt_task
-            # print("content=",prompt['content'])
+            logger.debug("Target=%s\npar path:%s",prompt['trgtaskname'], parent_path)
             if parent_path == "":
                 self.makeTaskAction(prompt['content'], prompt['type'], "New", prompt['role'], trgtaskname=prompt['trgtaskname'])
             else:
