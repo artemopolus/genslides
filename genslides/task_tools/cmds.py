@@ -225,7 +225,25 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             command["aa_text_before"] = f"No target with {target_name}"
             command["aa_text_after"] = f"No target with {target_name}"
             command["aa_status"] = False 
+    elif action_type == "deleteMarkedText":
+        target_name = kwargs.get("marker","")
+        target = manager.getTaskByAnyName(target_name)
+        command["aa_status"] = False 
+        if target != None:
+            command["aa_status"] = True
+            deleted_text = target.getPromptContentForCopyConverted()
+            diff = [{"type":"delete","text":deleted_text}]
 
+            uptask : Manager.Task.BaseTask = target.getParent()
+            uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+            dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
+            command["aa_diff"] = diff
+            command["aa_text_before"] = uptext
+            command["aa_text_after"] = dwtext
+        else:
+            command["aa_diff"] =[] 
+            command["aa_text_before"] = f"No target with {target_name}"
+            command["aa_text_after"] = f"No target with {target_name}"
     elif action_type == "editMarkedText":
         target_name = kwargs.get("marker","")
         insert_text = kwargs.get("text_fragment","")
