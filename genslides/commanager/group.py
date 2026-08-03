@@ -3543,11 +3543,12 @@ class Actioner():
             print(f"No methods in {self.parameters}")
 
     def syncExtTreeTaskPath( self, path, init ):
-        # print(f"syncExtTreeTaskPath:{self.getPath()}")
+        report = [f"syncExtTreeTaskPath:{self.getPath()}"]
         for task in self.getCurrentManager().getTasks():
             if task.checkActionerTaskPath( init ):
-                # print(f"Sync task {task.getName()} with {path}")
+                report.append(f"Sync task {task.getName()} with {path}")
                 task.setActionerTaskPath( path )
+        return "\n".join(report)
 
     def moveFromCurrentToAnother( self, trg_path : str, autoload = True):
         self.setCurrentManager(self.std_manager)
@@ -3590,16 +3591,28 @@ class Actioner():
         Archivator.Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
 
 
+    def get_TT_TemporaryArchiveFolder( self ):
+        return self.getTemporaryArchiveFolder( temp_folder = ["tt_temp"] )
+
+    def getTemporaryArchiveFolder( self, temp_folder ):
+        man = self.getCurrentManager()
+        folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
+        fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, temp_folder))
+        return fld_path
+
+
     def saveManToTmp(self, man : Manager.Manager, suffix = "", temp_folder = ["tt_temp"], check_oldest = False, max_files = 3):
         path = Loader.Loader.getUniPath( finder.findByKey("[[manager:path:spc]]", man, man.curr_task, man.helper ) )
-        folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
+        # folder = finder.findByKey("[[manager:path:fld]]", man, man.curr_task, man.helper )
         name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
-        fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, temp_folder))
+        # fld_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(folder, temp_folder))
+        fld_path = self.getTemporaryArchiveFolder(temp_folder)
         FileManager.createFolder(fld_path)
         trg_path = Loader.Loader.getUniPath( FileManager.addFolderToPath(fld_path, [name + "_" + suffix + ".7z"]))
         if check_oldest:
             FileManager.manageOldestFolderFiles(fld_path, max_files)
         Archivator.Archivator.saveAllbyPath(data_path=path, trgfile_path=trg_path)
+        return trg_path
 
     def travelViaTextParts( self ):
         man = self.getCurrentManager()

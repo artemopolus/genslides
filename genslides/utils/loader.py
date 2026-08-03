@@ -175,6 +175,15 @@ class Loader:
         filepath = asksaveasfilename(defaultextension='.json', initialfile=initial_name+'.json', confirmoverwrite=True, filetypes = [('json text files','*.json')]) 
         app.destroy()
         return filepath
+
+    def getFilePathToLoad7zArchive():
+        app = Tk()
+        app.withdraw() 
+        app.attributes('-topmost', True)
+        filepath = askopenfilename(defaultextension='.7z', filetypes = [('Project archive','*.7z')]) 
+        app.destroy()
+        return filepath
+ 
     
     def getFilePathToSave7zArchive():
         app = Tk()

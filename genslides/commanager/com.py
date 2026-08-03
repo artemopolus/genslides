@@ -257,15 +257,17 @@ class Commander:
             actioner.getCurrentManager().setUpdateSessionId(Ids.generateKey())
 
     def moveActionerToAnotherFolder( self, path ):
+        report = [f"moveActionerToAnotherFolder: {path}"]
         act = self.actioner
         starter_path = act.getPath()
         act.moveFromCurrentToAnother( path )
 
         for actioner in self.getActionersList():
             if act != actioner:
-                actioner.syncExtTreeTaskPath( path, starter_path )
+                report.append( actioner.syncExtTreeTaskPath( path, starter_path ) )
 
         self.saveSession()
+        return "\n".join(report)
 
     def syncCurrentActionerWithFolder( self ):
         self.actioner.syncWithCurrentFolder()

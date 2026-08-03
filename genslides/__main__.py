@@ -1245,10 +1245,18 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     # project_reload = gr.Button(value='reload')
                     gr.Button('append').click(fn=project_manipulator.appendProjectTasks)
                 with gr.Row() as r:
-                    saveresresult_txt = gr.Textbox()
-                    gr.Button('Save to reserved').click(fn=projecter.saveToTmp, outputs=saveresresult_txt)
-                    projectrestore_btn = gr.Button('Restore reserved')
+                    savetoreserved_button = gr.Button("Save to reserved")
+                    projectrestore_btn = gr.Button("Restore reserved")
+                with gr.Row() as r:
+                    snapshotname_txt = gr.Textbox(label="Enter name for snapshot")
+                    snapshotsave_btn = gr.Button("Save snapshot")
+                    snapshotload_btn = gr.Button("Load snapshot")
+                with gr.Row() as r:
+                    saveresresult_txt = gr.Textbox(label="Save results report")
                     project_save.click(fn=projecter.save, outputs=saveresresult_txt )
+                    snapshotsave_btn.click(fn=projecter.makeSnapShotWithSuffix, inputs=[snapshotname_txt], outputs=saveresresult_txt)
+                    snapshotload_btn.click(fn=projecter.loadSnapShot, outputs=saveresresult_txt)
+                    savetoreserved_button.click(fn=projecter.saveToTmp, outputs=saveresresult_txt)
 
             # param_updt = gr.Button(value="Edit param")
 

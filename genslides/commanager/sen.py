@@ -1,5 +1,5 @@
 from genslides.task.base import TaskManager, BaseTask, TaskDescription
-from genslides.utils.savedata import SaveData, getTimeForSaving
+from genslides.utils.savedata import SaveData, getTimeForSaving, getTimeForProjectName
 from genslides.utils.archivator import Archivator
 from genslides.commanager.jun import Manager
 from genslides.commanager.group import Actioner
@@ -310,12 +310,51 @@ class Projecter(Commander.Commander):
                     print('Append project',filename,'task to', trg)
                     return True, ext_pr_name
         return False, ''
-    
-    def saveToTmp(self):
+
+    def loadSnapShot( self ):
+        path = Loader.Loader.getFilePathToLoad7zArchive()
+        report = [f"Initial archive with {path}"]
+        snap_name = FileManager.getFileName( path ).split("_")
+        if len(snap_name) > 2 and "tt" in snap_name:
+            mark = []
+            for part in reversed( snap_name ):
+                mark.append(part)
+                if part == "tt":
+                    break
+            snap_mark = "_".join(reversed(mark))
+            report.append(f"Correct snap: {snap_mark}")
+            marked_filepaths = []
+            for act in self.getActionersList():
+                temp_path = act.get_TT_TemporaryArchiveFolder()
+                act_name = FileManager.getFileName( act.getPath())
+                act_mark = "_".join([act_name, snap_mark])
+                for filename in FileManager.getFilesInFolder( temp_path ):
+                    fname = FileManager.getFileName(filename)
+                    if fname.endswith( act_mark ):
+                        filepath = [ act.getPath(), temp_path,  fname]
+                        report.append(f"Found {filepath}")
+                        marked_filepaths.append( filepath )
+            report.append("Loading")
+            for fpaths in marked_filepaths:
+                act_path = fpaths[0]
+                project_path = fpaths[1]
+                project_name = fpaths[2]
+                report.append(f"* Clean {act_path}\n * Load {project_name} from {project_path}")
+                # FileManager.deleteFiles(act_path)
+                # self.loadInternal(project_path, project_name, act_path)
+        else:
+            report.append(f"Error in {snap_name}")
+        return "\n".join(report)
+
+    def makeSnapShotWithSuffix( self, name ):
+        return self.saveWithSuffix ("_".join(["tt",name,getTimeForProjectName()]))
+
+    def saveWithSuffix( self, suffix):
+        report = [f"saveWithSuffix {suffix}"]
         out = []
         self.actioner.setManager(self.actioner.std_manager)
         man = self.actioner.getCurrentManager()
-        self.actioner.saveManToTmp(man, suffix="reserved")
+        self.actioner.saveManToTmp(man, suffix=suffix)
         out.append(self.actioner.getPath())
         act_paths = self.actioner.getRelatedActionersPaths([])
         for path in act_paths:
@@ -323,8 +362,11 @@ class Projecter(Commander.Commander):
             if act != None:
                 out.append(path)
                 act.setManager(act.std_manager)
-                act.saveManToTmp(act.getCurrentManager(), suffix="reserved")
-        return f"Save:\n" + "\n".join(out)
+                report.append(act.saveManToTmp(act.getCurrentManager(), suffix=suffix))
+        return "\n".join(report)
+    
+    def saveToTmp(self):
+        return self.saveWithSuffix( "reserved")
     
     def load(self):
         self.actioner.setManager(self.actioner.std_manager)
@@ -3975,7 +4017,9 @@ class Projecter(Commander.Commander):
         self.actioner.getCurrentManager().getCurrentTask().saveExtTreeProject( trg_path )
 
     def moveActionerToAnotherFolder(self, path):
-        super().moveActionerToAnotherFolder(path)
+        path = Loader.Loader.getUniPath( Loader.Loader.getDirPathByBrowsing() )
+        report = super().moveActionerToAnotherFolder(path)
+        logger.debug ("Move actioner:\n %s", report)
         return self.updateTreeAndAll()
     
     def syncCurrentActionerWithFolder(self):
