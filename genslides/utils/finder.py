@@ -242,7 +242,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 bres, jjson = Loader.Loader.loadJsonFromText(param)
                 try:
                     # print('try find json', j)
-                    jtrg_val = jjson[arr[3]]
+                    arr_replaced = arr[3].replace("__"," ")
+                    jtrg_val = jjson[arr_replaced]
                     if len(arr) > 4 and isinstance(jtrg_val, list) and arr[4].isdigit() and int(arr[4]) < len(jtrg_val):
                         trg_idx = int(arr[4])
                         if len(arr) > 5 and arr[5] in jtrg_val[trg_idx]:
