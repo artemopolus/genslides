@@ -1217,7 +1217,8 @@ class JumperTreeTask(InExtTreeTask):
                 # self.updateUpdationInfo(f"addInfoForGenslidesCommand:\n{report}")
                 report_data.append(report)
                 logger.debug("addInfoForGenslidesCommand: %s",report)
-                output.append( result_cmd )
+                if result_cmd.get("aa_status", False):
+                    output.append( result_cmd )
             # return Loader.Loader.convJsonToText( output )
             return  True, output, "\n".join(report_data)
         return super().addInfoForGenslidesCommand(cmds)
