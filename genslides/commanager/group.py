@@ -1656,14 +1656,14 @@ class Actioner():
         return report
 
     def getCurrTaskPrompts2(self, set_prompt = "", hide_tasks = True):
-        man = self.manager
+        man = self.getCurrentManager()
         if man.no_output:
             return
-        if man.curr_task is None:
+        if man.getCurrentTask() is None:
             if len(man.task_list) > 0:
                 man.curr_task = man.task_list[0]
             else:
-                print('No current task')
+                logger.debug('No current task')
                 return
         msgs = man.curr_task.getMsgs(hide_task=hide_tasks, max_symbols=10000)
         # print('Msgs num:', len(msgs))

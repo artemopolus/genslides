@@ -604,6 +604,17 @@ class TextTask(BaseTask):
                     return False, [], self.getParent()
         # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         content = self.findKeyParam(self.getLastMsgContent())
+        if  param.get("viz_only", False):
+            vres, vparam = self.getParamStruct("json_viz", True)
+            if vres and vparam.get("opt","") == "level_restricted":
+                msg_text = content
+                jres, jobj, jreport = Loader.loadJsonFromTextStr( msg_text )
+                if jres:
+                    self.updateUpdationInfo(f"Try to shorten json")
+                    converted_jobj = Loader.shorten_dict( jobj, vparam.get("max_symbols", 20), vparam.get("max_level",3), vparam.get("max_list_items",-1))
+                    content = Loader.convJsonToText( converted_jobj, indent= 3 )
+                else:
+                    self.updateUpdationInfo(f"Error on json short: {jreport}")
         hres, hparam = self.getParamStruct('attention', only_current=True)
         if hres:
             if hparam['end'] == -1:

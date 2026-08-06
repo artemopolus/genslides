@@ -1,0 +1,1 @@
+python .\scripts\sync_config.py --local .\config\options.json --sync .\examples\config\options.json 

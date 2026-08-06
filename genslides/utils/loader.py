@@ -113,6 +113,57 @@ class Loader:
 
 
         return False, None
+
+    def shorten_dict(data: dict, max_chars: int, level: int, max_list_items : int) -> dict:
+        """
+        Рекурсивно сокращает словарь.
+
+        :param data: исходный словарь
+        :param max_chars: максимальное количество символов в строках
+        :param level: максимальная глубина погружения в словари
+        :return: новый сокращенный словарь
+        """
+
+        def process(value, current_level):
+            # Вложенный словарь
+            if isinstance(value, dict):
+                if current_level >= level:
+                    return "..."  # дальше не погружаемся
+                return {
+                    k: process(v, current_level + 1)
+                    for k, v in value.items()
+                }
+
+            if isinstance(value, list):
+                if current_level >= level:
+                    return "..."  # дальше не погружаемся
+                if max_list_items > 0:
+                    target = value[:max_list_items]
+                else:
+                    target = value
+                return [
+                    process(k, current_level + 1)
+                    for k in target 
+                ]
+
+
+            # Строка
+            if isinstance(value, str):
+                if len(value) > max_chars:
+                    return value[:max_chars] + "..."
+                return value
+
+            # Булевы значения и числа оставляем как есть
+            if isinstance(value, (bool, int, float)):
+                return value
+
+            # Остальные типы без изменений
+            return value
+
+        return {
+            key: process(value, 0)
+            for key, value in data.items()
+        }
     
     def loadJsonFromTextStr(text : str):
         report = "load json try 1\n"

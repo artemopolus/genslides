@@ -3294,7 +3294,7 @@ class Projecter(Commander.Commander):
         task = self.actioner.getCurrentManager().getCurrentTask()
         tres, tparam = task.getParamStruct('draw_wrk')
         task_param = tparam if tres else self.params['workgraph']
-        workspace_msgs = self.convertMsgsToChat(task,{"attach":True,"max_symbols":10000,"max_per_task":task_param})
+        workspace_msgs = self.convertMsgsToChat(task,{"attach":True,"max_symbols":10000,"max_per_task":task_param, "viz_only": True})
         step_params = {"attach":True}
         if self.params['stepgraph']['on']:
             step_params['max_per_task'] = self.params['stepgraph']

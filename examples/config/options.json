@@ -431,5 +431,12 @@
       "expression":["","[[current:msg_content]]","[[parent:msg_content]]","insert_here_valid_jinja2_template"],
       "key":["","if_empty_then_list_else_dict_with_key"],
       "result":""
+   },
+   {
+      "type":"json_viz",
+      "opt":["level_restricted",""],
+      "max_symbols": 10,
+      "max_level": 3,
+      "max_list_items": -1
    }
 ]
