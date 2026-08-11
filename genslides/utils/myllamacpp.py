@@ -144,40 +144,35 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
      }
     out ['report'] += f"llamacppGetToolResponse\n"
     result = None
-    try:
         # print("llamacppGetToolResponse")
-        client = OpenAI(
-                base_url= params.get('url', "http://localhost:5000/v1"), # "http://<Your api-server IP>:port"
-                api_key = params.get('api_key', "sk-no-key-required")
-            )
-        
-        # print(f"Call completion with tools:\n{tools}")
+    client = OpenAI(
+            base_url= params.get('url', "http://localhost:5000/v1"), # "http://<Your api-server IP>:port"
+            api_key = params.get('api_key', "sk-no-key-required")
+        )
+    
+    # print(f"Call completion with tools:\n{tools}")
 
-        kwargs = {
-        "model": model_name,
-        "messages": msgs,
-        "timeout": 7200,
-        "tools": tools,
-        }
+    kwargs = {
+    "model": model_name,
+    "messages": msgs,
+    "timeout": 7200,
+    "tools": tools,
+    }
 
-        if "temperature" in params:
-            print("temp:",params["temperature"])
-            kwargs["temperature"] = params["temperature"]
+    if "temperature" in params:
+        print("temp:",params["temperature"])
+        kwargs["temperature"] = params["temperature"]
 
-        completion = client.chat.completions.create(**kwargs)
-
-        # completion = client.chat.completions.create(
-        #             model = model_name,
-        #             messages=msgs,
-        #             timeout=7200,
-        #             tools=tools,
-        #             temperature= params.get("temperature", NotGiven)
-        #         )
-        # print(f"Completion:\n{completion}")
+    out['report'] += f"Call completion\n"
+    completion = client.chat.completions.create(**kwargs)
+    if completion == None:
+        out['report'] += f"Error completion call with kwargs:\n{kwargs}"
+        return False, "", out
+    try:
+        out['report'] += f"Get choices\n"
         result = completion.choices[0]
         response = ""
-        # print(f"finish reason: {result.finish_reason}")
-        # print(f"Response:\n{completion.choices[0]}")
+        out['report'] += f"Finish reason\n"
         if hasattr(result, 'finish_reason'):
             out ['report'] += f"finish reason: {result.finish_reason}\n"
             out['finish_reason'] = result.finish_reason
@@ -265,6 +260,7 @@ def llamacppGetToolResponse ( msgs : list[str], tools : list, params : dict):
         error_msg = f"Type error: {e}"
         # print(error_msg)
         out['report'] +=  error_msg
+        out['report'] += f"\n\n\nCompletion:\n\n{completion}"
         return False, "", out
     except Exception as e:
         error_msg = f"llamacppGetToolResponse error:\n{e} \n\n\nResult:{result}\n---\n"
