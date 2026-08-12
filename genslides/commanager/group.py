@@ -3736,12 +3736,12 @@ class Actioner():
         if target == "":
             for task in self.getCurrentManager().getTasks():
                 if task.isExternalInput():
-                    self.getJsonCustomCmd( task.getJsonCmdGroup( group_name ) )
-                    return
+                    return self.getJsonCustomCmd( task.getJsonCmdGroup( group_name ) )
         else:
             task = self.getCurrentManager().getTaskByAnyName( target )
             if task != None and task.isExternalInput():
-                self.getJsonCustomCmd( task.getJsonCmdGroup( group_name ) )
+                return self.getJsonCustomCmd( task.getJsonCmdGroup( group_name ) )
+        return f"Error on searching target {target} with {group_name} cmd group"
 
     def saveProjectByPath(self, path_to_file : str):
         path = self.getCurrentManager().getPath()

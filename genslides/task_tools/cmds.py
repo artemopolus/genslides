@@ -208,7 +208,9 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             result.append({"status":"stay","content":target.getLastMsgContentRaw(),"marker":target_name})
     elif action_type == "insertTextAfterMarker":
         target_name = kwargs.get("marker","")
-        insert_text = kwargs.get("text_fragment","")
+        insert_text : str = kwargs.get("text_fragment","")
+        insert_text = insert_text.replace(target_name, "")
+        command["kwargs"]["text_fragment"] = insert_text
         target = manager.getTaskByAnyName(target_name)
         if target != None:
             command["aa_status"] = True
@@ -246,7 +248,9 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             command["aa_text_after"] = f"No target with {target_name}"
     elif action_type == "editMarkedText":
         target_name = kwargs.get("marker","")
-        insert_text = kwargs.get("text_fragment","")
+        insert_text : str = kwargs.get("text_fragment","")
+        insert_text = insert_text.replace(target_name, "")
+        command["kwargs"]["text_fragment"] = insert_text
         target = manager.getTaskByAnyName(target_name)
         if target != None:
             command["aa_status"] = True
