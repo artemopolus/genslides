@@ -237,6 +237,7 @@
       "target": "",
       "name": "",
       "jumper": "",
+      "exttreetask_gsjson_param":["","{\"value\":\"some\"}"],
       "exttreetask_autoload": [false, true],
       "exttreetask_file_target": ["","[[parent:msg_content]]","[[parent:msg_content:json:key]]","[[parent:param:key]]"],
       "exttreetask_file_current": "",

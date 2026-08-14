@@ -925,7 +925,12 @@ class JumperTreeTask(InExtTreeTask):
                         if Converter.checkExtensionOfFile( path_to_target_file ):
                             if not Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
                                 if not Converter.checkExistOfGenslidesJsonFile( path_to_target_file ):
-                                    conv_output = Converter.convertFileToGenslidesJson( path_to_target_file)
+                                    conv_param = eparam.get("exttreetask_gsjson_param","")
+                                    jres, jobj, jreport = Loader.Loader.loadJsonFromTextStr( conv_param )
+                                    if jres:
+                                        conv_output = Converter.convertFileToGenslidesJsonWithParameters(path_to_target_file, jobj)
+                                    else:
+                                        conv_output = Converter.convertFileToGenslidesJson( path_to_target_file)
                                     if isinstance(conv_output, dict):
                                         self.updateUpdationInfo(conv_output.get("report",""))
                                 path_to_template = Loader.Loader.getUniPath( self.findKeyParam( eparam.get("exttreetask_template","") ) )

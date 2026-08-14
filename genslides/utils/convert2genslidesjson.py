@@ -14,6 +14,13 @@ class DefaultConvertor:
         }
         self.reports = []
 
+    def setParameters( self, params : dict):
+        self.reports.append("Set parameters")
+        self.parameters.update( params )
+
+    def getReport( self ):
+        return "\n".join(self.reports)
+
     def getArchiveNameFromJson( self, path : str):
         return loader.Loader.getFileNameFromPath(path)
 
@@ -68,7 +75,7 @@ class DefaultConvertor:
         except IOError as e:
             self.reports.append(f"Error writing to file {output_file_path}: {e}")
             output["result"] = False
-            output["report"] = "\n".join(self.reports)
+            output["report"] = self.getReport()
             return output
         return output 
 
@@ -506,6 +513,12 @@ def get_converter(file_path) -> DefaultConvertor:
         return DefaultConvertor()
 
     return CONVERTERS[ext]()
+
+def convertFileToGenslidesJsonWithParameters( filepath : str, params : dict ):
+    converter = get_converter( filepath )
+    converter.setParameters( params )
+    output_dir = os.path.dirname( filepath )
+    return converter.process_file( filepath, output_dir )
 
 def convertFileToGenslidesJson( filepath ):
     converter = get_converter( filepath )
