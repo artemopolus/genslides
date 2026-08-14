@@ -355,15 +355,20 @@ class TxtConverter(DefaultConvertor):
         self.parameters["suffix"] = "_txt"
 
     def process_file_internal( self, data):
-        parts_count_on = self.parameters.get("parts_count_on", False)
-        smbl_before = self.parameters.get("smbl_before", 100)
-        smbl_after = self.parameters.get("smbl_after",100)
-        if parts_count_on:
-            parts_count = self.parameters.get("parts_target_count", 10)
-            cuts = TextTool.cut_text_into_parts(data, parts_count,smbl_before, smbl_after)
-        else:
-            part_smbl_cnt = self.parameters.get("part_smbl_cnt", 2000)
-            cuts = TextTool.split_text_with_context(data, part_smbl_cnt,smbl_before, smbl_after)
+        split_type = self.parameters.get("split_type","symbols")
+        if split_type == "symbols":
+            parts_count_on = self.parameters.get("parts_count_on", False)
+            smbl_before = self.parameters.get("smbl_before", 100)
+            smbl_after = self.parameters.get("smbl_after",100)
+            if parts_count_on:
+                parts_count = self.parameters.get("parts_target_count", 10)
+                cuts = TextTool.cut_text_into_parts(data, parts_count,smbl_before, smbl_after)
+            else:
+                part_smbl_cnt = self.parameters.get("part_smbl_cnt", 2000)
+                cuts = TextTool.split_text_with_context(data, part_smbl_cnt,smbl_before, smbl_after)
+        elif split_type == "lines":
+            preffered_size = self.parameters.get("size", 500)
+            cuts = TextTool.split_text_by_lines( data, preffered_size )
         return cuts
    
     def check_extension(self, file_path):
