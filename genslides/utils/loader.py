@@ -160,10 +160,18 @@ class Loader:
             # Остальные типы без изменений
             return value
 
-        return {
+        if isinstance( data , dict ):
+            return {
             key: process(value, 0)
             for key, value in data.items()
         }
+        elif isinstance( data , list ):
+            return [
+                    process(k, 0)
+                    for k in data 
+            ]
+        return data
+
     
     def loadJsonFromTextStr(text : str):
         report = "load json try 1\n"
