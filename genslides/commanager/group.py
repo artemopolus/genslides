@@ -3403,14 +3403,14 @@ class Actioner():
             start_task = man.getTaskByTagFromTasks("additional, context", srctree_task.getAllChildChains())
             externalinput_task = man.getTaskByTag("main,external")
             if not externalinput_task:
-                print("No external")
+                logger.warning("No external")
                 return
             else:
                 if not externalinput_task.checkType("ExternalInput"):
-                    print("Diff type")
+                    logger.warning("Diff type")
                     return
             if start_task == None:
-                print("No start task")
+                logger.warning("No start task")
                 return
                 # param_template = {"type":"tag","text":"","key":""}
                 # param_template["text"] = ",".join(["srcdoctree",data.get("filename","")])
@@ -3419,9 +3419,11 @@ class Actioner():
             else:
                 man.setCurrentTask(start_task)
             prev_task_name = start_task.getName()
-            for pack in data["targets"]:
+            for idx, pack in enumerate(reversed(data["targets"])):
                 if body_tag in pack:
                     if len(start_task.getChilds()):
+                        if len(start_task.getChilds()) == 0:
+                            return "Error"
                         child = start_task.getChilds()[0]
                         man.setCurrentTask( child )
                         tags = [start_task.getName(),pack.get("type","")]
@@ -3434,9 +3436,12 @@ class Actioner():
                                           "text":",".join(tags),
                                           "key":""}
 
-                        self.makeTaskAction(pack[body_tag],"Request","Insert","user",{"task_params":[task_tag_param]})
+                        create_type = "Insert"
+                        self.makeTaskAction(pack[body_tag],"Request",create_type,"user",{"task_params":[task_tag_param]})
+                        if man.getCurrentTask().getParent() == None:
+                            return "Error"
+                        prev_task_name = man.getCurrentTask().getParent().getName()
                         pack["parent_task"] = prev_task_name
-                        prev_task_name = man.getCurrentTask().getName()
             folderpath = Loader.Loader.getFileFolder(path_to_project_json)
             name = Converter.getGenslidesArchiveFileNameBasedOnJson( path_to_project_json )
             manager_path = self.getManagerFolderPath( man )

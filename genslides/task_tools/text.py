@@ -65,6 +65,85 @@ def split_text_with_context(input_text, part_symbol_count, text_length_before, t
     
     return result_list
 
+def split_text_by_lines(text: str, preferred_size: int) -> list[dict]:
+    """
+    Делит текст на части по символам переноса строки.
+
+    Правила:
+    - Часть старается быть максимально близкой к preferred_size,
+      но не превышать его.
+    - Перенос строки является границей между строками.
+    - Если отдельная строка сама длиннее preferred_size,
+      она добавляется целиком как исключение.
+    - Индексы соответствуют исходной строке text.
+    - End Index of Text — эксклюзивный индекс, как в text[start:end].
+    """
+
+    if preferred_size <= 0:
+        raise ValueError("preferred_size должен быть больше 0")
+
+    result = []
+
+    # splitlines(keepends=True) сохраняет \n, \r\n и т.д.
+    lines = text.splitlines(keepends=True)
+
+    if not lines:
+        return []
+
+    current_start = 0
+    current_end = 0
+
+    for line in lines:
+        line_start = current_end
+        line_end = line_start + len(line)
+        line_length = len(line)
+
+        # Отдельная строка уже больше предпочитаемого размера.
+        if line_length > preferred_size:
+            # Сначала сохраняем накопленную часть.
+            if current_end > current_start:
+                result.append({
+                    'Result Text': text[current_start:current_end],
+                    'Start Index of Text': current_start,
+                    'End Index of Text': current_end
+                })
+
+            # Длинную строку добавляем целиком.
+            result.append({
+                'Result Text': text[line_start:line_end],
+                'Start Index of Text': line_start,
+                'End Index of Text': line_end
+            })
+
+            current_start = line_end
+            current_end = line_end
+            continue
+
+        # Если добавление строки превысит preferred_size,
+        # начинаем новую часть.
+        if current_end > current_start and \
+                (line_end - current_start) > preferred_size:
+
+            result.append({
+                'Result Text': text[current_start:current_end],
+                'Start Index of Text': current_start,
+                'End Index of Text': current_end
+            })
+
+            current_start = line_start
+
+        current_end = line_end
+
+    # Добавляем остаток.
+    if current_end > current_start:
+        result.append({
+            'Result Text': text[current_start:current_end],
+            'Start Index of Text': current_start,
+            'End Index of Text': current_end
+        })
+
+    return result
+
 
 def cut_text_into_parts(text, parts_count, before_length, after_length):
     if parts_count <= 0:
