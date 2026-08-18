@@ -178,6 +178,13 @@ class Commander:
         logger.info("Actioner was created by:\t %s second(s)", (dt2 - dt1).seconds)
         # print(f"Params:\n{eparam}")
         return act
+
+    def getCurrentActionerIdx( self ):
+        for act in self.actioners_list:
+            if act['act'].getPath() == self.actioner.getPath():
+                idx = act.get('idx',0)
+                return idx
+        return -1
     
     def moveUpActioner( self ):
         for act in self.actioners_list:

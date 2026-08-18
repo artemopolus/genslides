@@ -3340,13 +3340,14 @@ class Projecter(Commander.Commander):
         nearest_exttreetask_list = [] if nearest_exttreetask == None else self.actioner.getExtTreeCmdsListOfTask( nearest_exttreetask )
         nearest_exttreetask_sessions = [] if nearest_exttreetask == None else self.actioner.getExtTreeCmdTrgSessions( nearest_exttreetask )
 
+        actioner_name = f"{self.actioner.getPath()}[{self.getCurrentActionerIdx()}]"
         out += (
             self.actioner.getCurrentManager().getTreesList(True), gr.Image(maingraph, visible=self.show_workgraph), 
                 stepgraph, rawgraph, cmdinfo, 
                 gr.Dropdown(choices=self.getActionersExtTreeTaskNames(), interactive=True),
                 gr.CheckboxGroup(choices=nearest_exttreetask_list,value=[]),
                 gr.Dropdown(choices=nearest_exttreetask_sessions, interactive=True),
-                self.actioner.getPath(),
+                actioner_name,
                 gr.Radio(choices=self.getRelatedActionersToCurrent(), interactive=True,value = None),
                 gr.Radio(choices=self.getControledActionersByCurrent(), interactive=True, value=None),
                 gr.Radio(choices=mangarlandparts, value=None if len(mangarlandparts) == 0 else mangarlandparts[0], interactive=True)
