@@ -66,52 +66,128 @@ def parse_text(code_text, function_name, encoding="utf-8"):
     except (UnicodeDecodeError, Exception) as e:
         return f"Error during parsing: {e}"
 
-
-def get_global_variable_lines(code):
-    """
-    Parses Python code and returns a list of lines containing global variable declarations.
-
-    Args:
-        code: The Python code as a string.
-
-    Returns:
-        A list of tuples, where each tuple contains:
-            - The line number (0-indexed).
-            - The variable name.
-            - The full line of code.
-        Returns an empty list if no global variables are found.
-    """
-    tree = parser.parse(bytes(code, "utf8"))
+def get_docstring_lines(code):
+    tree = parser.parse(code.encode("utf8"))
     root_node = tree.root_node
     code_lines = code.splitlines()
 
-    def _get_global_variables(node, current_scope=None):
-        global_variables = []
+    docstrings = []
 
-        if current_scope is None:
-            current_scope = []
+    def get_first_statement(node):
+        for child in node.children:
+            # Комментарии не считаем statement'ами
+            if child.type == "comment":
+                continue
+
+            return child
+
+        return None
+
+    def walk(node):
+        if node.type in (
+            "module",
+            "function_definition",
+            "class_definition",
+        ):
+            first_statement = get_first_statement(node)
+
+            if first_statement and first_statement.type == "expression_statement":
+                # В твоём AST:
+                #
+                # expression_statement
+                #     string
+                #
+                # Поэтому берём первый child напрямую.
+                for child in first_statement.children:
+                    if child.type == "string":
+                        line_number = child.start_point[0]
+
+                        docstrings.append([
+                            line_number,
+                            child.text.decode("utf8"),
+                            code_lines[line_number],
+                        ])
+
+                        break
+
+        # Продолжаем поиск внутри функций и классов
+        for child in node.children:
+            if child.type in (
+                "function_definition",
+                "class_definition",
+            ):
+                walk(child)
+
+    walk(root_node)
+
+    return docstrings
+
+def get_comment_lines(code):
+    tree = parser.parse(code.encode("utf8"))
+    root_node = tree.root_node
+    code_lines = code.splitlines()
+
+    comments = []
+
+    def walk(node):
+        if node.type == "comment":
+            line_number = node.start_point[0]
+            comment_text = node.text.decode("utf8")
+            full_line = code_lines[line_number]
+
+            comments.append([
+                line_number,
+                comment_text,
+                full_line,
+            ])
+
+            # Внутри comment больше ничего интересующего нас нет.
+            return
 
         for child in node.children:
-            if child.type == 'class_definition':
-                continue  # Skip class nodes
+            walk(child)
 
-            elif child.type == 'function_definition':
-                global_variables.extend(_get_global_variables(child, current_scope + ["function"]))
+    walk(root_node)
 
-            elif child.type == 'assignment':
-                if not current_scope:  # Only in global scope
-                    target = child.child_by_field_name("left")
-                    if target and target.type == 'identifier':
-                        line_number = child.start_point[0]
-                        full_line = code_lines[line_number]
-                        global_variables.append([line_number, target.text.decode(), full_line])
+    return comments
 
-            else:
-                global_variables.extend(_get_global_variables(child, current_scope))
+def get_global_variable_lines(code):
+    tree = parser.parse(code.encode("utf8"))
+    root_node = tree.root_node
+    code_lines = code.splitlines()
 
-        return global_variables
+    global_variables = []
 
-    return _get_global_variables(root_node)
+    def walk(node, in_global_scope=True):
+        # Если вошли в функцию или класс — всё внутри уже
+        # не является глобальной переменной модуля.
+        if node.type in ("function_definition", "class_definition"):
+            return
+
+        if node.type == "assignment" and in_global_scope:
+            target = node.child_by_field_name("left")
+
+            if target and target.type == "identifier":
+                line_number = node.start_point[0]
+
+                global_variables.append([
+                    line_number,
+                    target.text.decode("utf8"),
+                    code_lines[line_number],
+                ])
+
+            # После assignment можно не искать assignment
+            # внутри него повторно.
+            return
+
+        for child in node.children:
+            walk(child, in_global_scope)
+
+    walk(root_node)
+
+
+    return global_variables
+
 
 def get_import_statements(code):
     """
@@ -444,8 +520,8 @@ def convert_genslide_json_file( target_file_path, output_file_path ):
         output_file = output_file / target_file.stem
         output_file = output_file.with_suffix(".json")
     else:
-        output["report"] = "Error: Is not dir"
-        return output
+        output["report"] = f"Use {output_file} for writing"
+        # return output
 
     # Считываем содержимое файла
     with target_file.open("r", encoding="utf-8") as f:
@@ -492,19 +568,45 @@ def convert_text_to_genslides_json_file( code, output_jsonfile, output_file : Pa
         "description": "imports",
         "body": "\n".join(base_imports)
     })
+    docstrings_txt = []
+
+    for doc in get_docstring_lines( code ):
+        if len( doc) == 3:
+            docstrings_txt.append( doc[2])
+
+    if len( docstrings_txt ):
+        output_jsonfile["targets"].append({
+                "type":"variables",
+                "parent_target": "None",
+                "description": "doc_strings",
+                "body": "\n".join( docstrings_txt )
+        })
+
+    global_comments_txt = []
+
+    for global_comments in get_comment_lines( code ):
+        if len( global_comments ) == 3:
+            global_comments_txt.append( global_comments[2] )
+    if len( global_comments_txt):
+        output_jsonfile["targets"].append({
+                "type":"variables",
+                "parent_target": "None",
+                "description": "comments",
+                "body": "\n".join( global_comments_txt )
+        })
 
     base_global_vars = get_global_variable_lines( code )
-    base_global_vars_text = ""
+    base_global_vars_text = []
     for bgvars in base_global_vars:
         if len( bgvars ) == 3:
-            base_global_vars += bgvars[2]
+            base_global_vars_text.append( bgvars[2] )
 
     if len(base_global_vars):
         output_jsonfile["targets"].append({
                 "type":"variables",
                 "parent_target": "None",
                 "description": "global_vars",
-                "body": base_global_vars_text
+                "body": "\n".join( base_global_vars_text )
         })
 
 
