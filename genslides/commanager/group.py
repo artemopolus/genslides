@@ -1826,7 +1826,8 @@ class Actioner():
         elif param_key == 'model':
             res, data = man.curr_task.getParamStruct(param_name)
             if res:
-                manager_keys = [f"[[manager:global:{t}]]" for t in man.getGlobalKeys() if t.endswith('odel')]
+                
+                manager_keys = [f"[[manager:global:{t}]]" for t in man.getGlobalKeys() if isinstance(t, str) and t.endswith('odel')]
                 cur_val = data[param_key]
                 path_to_config = os.path.join('config','models.json')
                 values = []
