@@ -100,12 +100,15 @@ def get_docstring_lines(code):
                 # Поэтому берём первый child напрямую.
                 for child in first_statement.children:
                     if child.type == "string":
-                        line_number = child.start_point[0]
+                        start_line = child.start_point[0]
+                        # end_line = child.end_point[0]
+
+                        full_text = child.text.decode("utf8")
 
                         docstrings.append([
-                            line_number,
-                            child.text.decode("utf8"),
-                            code_lines[line_number],
+                            start_line,
+                            full_text,
+                            full_text
                         ])
 
                         break

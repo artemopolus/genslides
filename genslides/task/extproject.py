@@ -913,8 +913,8 @@ class JumperTreeTask(InExtTreeTask):
                     # Converter.isValidGenslidesArchiveFilePath( path_to_target_file ):
                         self.updateUpdationInfo(f"Save previous file: {path_to_current_file}\nTarget:{path_to_current_archive}")
                         act.saveGenslidesArchiveByPath( path_to_current_archive)
-                        autoload_result = act.loadManagerProjectFromFile( path_to_target_file )
-                        self.updateUpdationInfo(f"Load archive:{path_to_target_file} = {autoload_result}")
+                        autoload_result = act.loadManagerProjectFromFile( path_to_current_archive )
+                        self.updateUpdationInfo(f"Load archive ({path_to_target_file}) result = {autoload_result}")
                         eparam["exttreetask_file_current"] = path_to_target_file
                     # elif path_to_target_file == path_to_current_file and Converter.checkExistOfGenslidesJsonFile( path_to_target_file ) and Converter.checkExistOfGenslidesArchiveFile( path_to_target_file ):
                     #     self.updateUpdationInfo(f"Target file == current file:{path_to_target_file}: json and archive exist")

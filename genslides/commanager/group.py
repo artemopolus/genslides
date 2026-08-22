@@ -3401,7 +3401,8 @@ class Actioner():
             if srctree_task == None:
                 print("No src tree task")
                 return
-            start_task = man.getTaskByTagFromTasks("additional, context", srctree_task.getAllChildChains())
+            start_task_tag = "additional, context"
+            start_task = man.getTaskByTagFromTasks(start_task_tag, srctree_task.getAllChildChains())
             externalinput_task = man.getTaskByTag("main,external")
             if not externalinput_task:
                 logger.warning("No external")
@@ -3411,7 +3412,7 @@ class Actioner():
                     logger.warning("Diff type")
                     return
             if start_task == None:
-                logger.warning("No start task")
+                logger.warning("No start task with \"%s\"", start_task_tag)
                 return
                 # param_template = {"type":"tag","text":"","key":""}
                 # param_template["text"] = ",".join(["srcdoctree",data.get("filename","")])
@@ -3506,7 +3507,7 @@ class Actioner():
         return autoload_result
 
     def loadManagerProjectFromFile(self, template_path, safe_load_tasks = True, load_managers_tasks = True):
-        print("Load manager project from file")
+        logger.debug("Load manager project from file")
         self.setManager(self.std_manager)
         man = self.getCurrentManager()
         target_path = man.getPath()
@@ -3514,11 +3515,11 @@ class Actioner():
         # name = finder.findByKey("[[manager:path:spc:name]]", man, man.curr_task, man.helper )
         self.saveManToTmp(man, "tt_"+ SaveData.getTimeForProjectName(), ["tt_temp",f"{self.rsrvd_tmp_prefix}{name}{self.rsrvd_tmp_suffix}"], check_oldest=True, max_files= 10)
         if not FileManager.checkExistPath(template_path):
-            print(f"Abort: path is not exist ({template_path})")
+            logger.warning("Abort: path is not exist (%s)",template_path)
             return False
         FileManager.deleteFiles(target_path)
         if not Archivator.Archivator.extract7zFileToFolder(template_path, target_path):
-            print("Abort: error on load archive")
+            logger.warning("Abort: error on load archive (%s), path (%s)", template_path, target_path)
             return False
         self.reset()
         self.setCurrentManager( self.std_manager )
