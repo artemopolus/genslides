@@ -40,8 +40,6 @@ class DefaultConvertor:
                     "name": part_name,
                     "body": part_body
                 }
-    def process_file_internal( self, data):
-        return []
 
     def process_file(self, file_path, output_dir):
         output = {}
@@ -105,6 +103,31 @@ class DefaultConvertor:
     
     def get_genslides_archive_path(self, file_path ):
         return self.get_new_genslides_path( file_path, "_gs.7z")
+
+    def split_text_with_symbols( self, data):
+        parts_count_on = self.parameters.get("parts_count_on", False)
+        smbl_before = self.parameters.get("smbl_before", 100)
+        smbl_after = self.parameters.get("smbl_after",100)
+        if parts_count_on:
+            parts_count = self.parameters.get("parts_target_count", 10)
+            cuts = TextTool.cut_text_into_parts(data, parts_count,smbl_before, smbl_after)
+        else:
+            part_smbl_cnt = self.parameters.get("part_smbl_cnt", 2000)
+            cuts = TextTool.split_text_with_context(data, part_smbl_cnt,smbl_before, smbl_after)
+        return cuts
+    def split_text_with_lines( self, data):
+        preffered_size = self.parameters.get("size", 500)
+        cuts = TextTool.split_text_by_lines( data, preffered_size )
+        return cuts
+    
+    def process_file_internal( self, data):
+        split_type = self.parameters.get("split_type","symbols")
+        if split_type == "symbols":
+            cuts = self.split_text_with_symbols( data )
+        elif split_type == "lines":
+            cuts = self.split_text_with_lines( data )
+        return cuts
+ 
 
 
 class CppConvertor(DefaultConvertor):
@@ -340,11 +363,17 @@ class PyConverter(DefaultConvertor):
         super().__init__()
         self.parameters["suffix"] = "_py"
 
-    def process_file(self,file_path, output_dir):
-        base_name, ext = os.path.splitext(os.path.basename(file_path))
-        output_extension = "_py_gs.json"
-        output_file_path = os.path.join(output_dir, f"{base_name}{output_extension}")
-        return pyparser.convert_genslide_json_file( file_path, output_file_path)
+    def process_file(self, file_path, output_dir):
+        split_type = self.parameters.get("split_type","py_parse")
+        if split_type == "lines":
+            return super().process_file(file_path, output_dir)
+
+        # if split_type == "py_parse":
+        else:
+            base_name, ext = os.path.splitext(os.path.basename(file_path))
+            output_extension = "_py_gs.json"
+            output_file_path = os.path.join(output_dir, f"{base_name}{output_extension}")
+            return pyparser.convert_genslide_json_file( file_path, output_file_path)
 
     def check_extension(self,file_path):
         return True
@@ -353,24 +382,7 @@ class TxtConverter(DefaultConvertor):
     def __init__(self):
         super().__init__()
         self.parameters["suffix"] = "_txt"
-
-    def process_file_internal( self, data):
-        split_type = self.parameters.get("split_type","symbols")
-        if split_type == "symbols":
-            parts_count_on = self.parameters.get("parts_count_on", False)
-            smbl_before = self.parameters.get("smbl_before", 100)
-            smbl_after = self.parameters.get("smbl_after",100)
-            if parts_count_on:
-                parts_count = self.parameters.get("parts_target_count", 10)
-                cuts = TextTool.cut_text_into_parts(data, parts_count,smbl_before, smbl_after)
-            else:
-                part_smbl_cnt = self.parameters.get("part_smbl_cnt", 2000)
-                cuts = TextTool.split_text_with_context(data, part_smbl_cnt,smbl_before, smbl_after)
-        elif split_type == "lines":
-            preffered_size = self.parameters.get("size", 500)
-            cuts = TextTool.split_text_by_lines( data, preffered_size )
-        return cuts
-   
+  
     def check_extension(self, file_path):
         return True
     
