@@ -2397,8 +2397,8 @@ class Actioner():
 
         return updated_cmds_list
 
-    def insertTextAfterMarker(self, inserted_text, marker, justification = ""):
-        return self.insertingToTaskAction( prompt=inserted_text, taskname=marker)
+    def insertTextAfterMarker(self, text_fragment, marker, justification = ""):
+        return self.insertingToTaskAction( prompt=text_fragment, taskname=marker)
 
     def editMarkeredText( self, edited_text : str, marker : str ):
         return self.editingToTaskAction( edited_text, marker )
