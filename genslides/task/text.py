@@ -1456,6 +1456,8 @@ class TextTask(BaseTask):
             trg_tool_name = self.findKeyParam( gparam.get("tool_name","") )
             trg_body = self.findKeyParam(gparam.get("target",""))
             res_opt = self.findKeyParam( gparam.get("res_opt", "first") )
+            freeze_on_fail = gparam.get("freeze_on_fail", False)
+            success_fun_search = False
             jres, jobj, jreport = Loader.loadJsonFromTextStr(trg_body)
             gparam["result"] = ""
             if jres:
@@ -1475,6 +1477,7 @@ class TextTask(BaseTask):
                                         self.updateUpdationInfo(f"No args")
                         if result != None:
                             gparam["result"] = Loader.convJsonToText(result)
+                            success_fun_search = True
                         else:
                             self.updateUpdationInfo(f"No `{trg_tool_name}` in target")
                 else:
@@ -1482,6 +1485,9 @@ class TextTask(BaseTask):
             else:
                 self.updateUpdationInfo(f"getTargetToolFromOutput error: {jreport}")
             self.setParamStruct( gparam )
+            if freeze_on_fail and not success_fun_search:
+                self.freezeTask()
+
 
     def autoExecuteTaskByParam( self ):
         ares, aparam = self.getParamStruct("execute_commands", True)

@@ -412,7 +412,8 @@
       "type":"get_tool_output",
       "target":["","[[current:msg_content]]","[[parent:msg_content]]"],
       "tool_name":["","[[current:msg_content]]","[[parent:msg_content]]"],
-      "res_opt":["first","array"]
+      "res_opt":["first","array"],
+      "freeze_on_fail":[false, true]
    },
    {
       "type":"exttreeclient",
