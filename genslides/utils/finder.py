@@ -626,6 +626,9 @@ def findByKey2(text, manager , base):
                     elif arr[1] == 'current':
                         task = manager.getCurrentTask()
                         arr.pop(0)
+                    else:
+                        task = manager.getTaskByAnyName(arr[1])
+                        arr.pop(0)
                 elif arr[0] == 'parent':
                     task = base.getParent()
                     if len(arr) > 2 and arr[1] == 'tag':

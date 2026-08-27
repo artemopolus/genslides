@@ -1461,7 +1461,7 @@ class TextTask(BaseTask):
             jres, jobj, jreport = Loader.loadJsonFromTextStr(trg_body)
             gparam["result"] = ""
             if jres:
-                if isinstance(jobj, list):
+                if isinstance(jobj, list) and len(jobj) > 0:
                     if res_opt == "first":
                         self.updateUpdationInfo("Search first appearence ...")
                         result = None
@@ -1469,7 +1469,10 @@ class TextTask(BaseTask):
                             if "function" in tool and "name" in tool["function"]:
                                 name = tool["function"]["name"]
                                 self.updateUpdationInfo(f"Found `{name}`")
-                                if name == trg_tool_name:
+                                if trg_tool_name == "" and "arguments" in tool["function"]:
+                                    result = tool["function"]["arguments"]
+                                    break
+                                elif name == trg_tool_name:
                                     if "arguments" in tool["function"]:
                                         result = tool["function"]["arguments"]
                                         break
