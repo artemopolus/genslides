@@ -349,22 +349,24 @@ def needToUpdate( task ,param):
 
 
 def checkArrayIteration(task  , param : dict):
-    logger.debug('checkArrayIteration')
+    report = []
+    report.append('checkArrayIteration')
     if 'type' in param and param['type'] == 'array':
         if needToUpdate( task, param):
-            logger.debug('Update array')
+            report.append('Update array')
             if task.manager.allowUpdateInternalArrayParam(task):
                 return iterateOverArrayFromParam(task, param)
             else:
-                logger.debug('Manager deny update')
+                report.append('Manager deny update')
         else:
-            logger.debug('Src data is changed')
+            report.append('Src data is changed')
             res, out = saveArrayToParams(task, param)
             if res:
-                logger.debug('Success save array')
+                report.append('Success save array')
                 return out
             else:
-                logger.debug('Error on save array')
+                report.append('Error on save array')
+    param["report"] = "\n".join(report)
     return param
 
 def resetArrayParam( task, param : dict):
