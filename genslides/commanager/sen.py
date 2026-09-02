@@ -1798,9 +1798,8 @@ class Projecter(Commander.Commander):
     
     def multiselectFrozenTasks(self):
         man = self.actioner.getCurrentManager()
-        for task in man.getTasks():
-            if task.isFrozen() and not task.block_on:
-                man.addTaskToMultiSelected(task)
+        for task in man.getFrozenTasks():
+            man.addTaskToMultiSelected(task)
         return self.updateMainUIelements()
     
     def multiselectMsgDiffTasks( self ):

@@ -2071,6 +2071,14 @@ class Actioner():
         self.setCurrentManager(man)
         return project_chain
 
+    def getFrozenTasks(self):
+        out = self.getCurrentManager().getFrozenTasks()
+        for task in self.getCurrentManager().getTasks():
+            res, param = task.getParamStruct('array', only_current=True)
+            if res and isinstance(param['idx'], int) and param['idx'] < param['len'] - 1:
+                out.append(task)
+        return out
+
     def getFrozenTasksCount(self) -> int:
         frozen_tasks = self.getCurrentManager().getFrozenTasksCount()
         for task in self.getCurrentManager().getTasks():

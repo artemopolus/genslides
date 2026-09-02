@@ -376,6 +376,12 @@ class Jun():
                 out.append( task )
         return out
 
+    def getFrozenTasks(self) -> list[Task.BaseTask]:
+        out = []
+        for t in self.getTasks():
+            if t.checkIsFrozenForManager():
+                out.append(t)
+        return out
 
     def getFrozenTasksCount(self) -> int:
         cnt = 0

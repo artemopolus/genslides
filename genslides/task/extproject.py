@@ -1060,7 +1060,8 @@ class JumperTreeTask(InExtTreeTask):
             check_frozen_tasks = eparam.get("check_frozen_tasks",True)
 
             if check_frozen_tasks and self.intact.getFrozenTasksCount() > 0:
-                self.updateUpdationInfo(f"Freeze cz internal tasks")
+                frozen_names = ", ".join([ t.getName() for t in self.getActioner().getFrozenTasks()])
+                self.updateUpdationInfo(f"Freeze cz internal tasks: {frozen_names}")
                 self.freezeTask()
                 self.forceResetHash()
                 self.setChildUpdateState(False)
