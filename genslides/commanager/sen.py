@@ -3788,9 +3788,16 @@ class Projecter(Commander.Commander):
         else:
             print("No task found for command")
         return self.updateMainUIelements()
+
+    def executeJsonCmdByCurrAct( self, cmds ):
+        logger.debug(f"Exe json cmd")
+        act = self.actioner
+        act.getJsonCmd( cmds )
+        return self.updateMainUIelements()
+
  
     def executeJsonCmd( self, cmds, path ):
-        print(f"Exe json cmd for act ({path})")
+        logger.warning(f"Exe json cmd for act ({path})")
         act = self.getActionerByPath( path )
         if act != None:
             act.getJsonCmd( cmds )

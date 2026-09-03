@@ -735,7 +735,9 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
                     with gr.Row():
                         customjsoncmd_cod = gr.Code(label='Json cmd', language='json', interactive=True)
                     with gr.Row():
-                        customjsoncmd_btn = gr.Button('Exe JSON cmd')
+                        customjsoncmd_btn = gr.Button('Exe JSON cmd by selected actioner')
+                    with gr.Row():
+                        customjsoncmdcurract_btn = gr.Button('Exe JSON cmd by current actioner')
  
                     
                     customjsoncmdadd_btn.click(fn=projecter.appendCmdToJson, inputs=[customjsoncmd_cod, customjsoncmd_drp], outputs=customjsoncmd_cod)
@@ -1335,6 +1337,7 @@ def gr_body(request, manager : Actioner.Manager.Manager, projecter : Projecter, 
 
             cleanallchats_btn.click(fn=projecter.cleanTasksChat, outputs=std_output_list)
             customjsoncmd_btn.click(fn=projecter.executeJsonCmd, inputs=[customjsoncmd_cod,availableactioners_drd], outputs=std_output_list)
+            customjsoncmdcurract_btn.click(fn=projecter.executeJsonCmdByCurrAct, inputs=[customjsoncmd_cod], outputs=std_output_list)
 
             wo_request_sld.release(fn=projecter.setRequestTaskSymVizCount, inputs=[wo_request_sld], outputs=std_output_list)
             wo_response_sld.release(fn=projecter.setResponseTaskSymVizCount, inputs=[wo_response_sld], outputs=std_output_list)

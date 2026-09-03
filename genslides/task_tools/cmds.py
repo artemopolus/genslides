@@ -246,6 +246,28 @@ def addSupportInformation( command : dict, manager : Manager.Jun):
             command["aa_diff"] =[] 
             command["aa_text_before"] = f"No target with {target_name}"
             command["aa_text_after"] = f"No target with {target_name}"
+    elif action_type == "splitMarkedText":
+        target_name = kwargs.get("marker","")
+        text_fragments : str = kwargs.get("fragments",[])
+        insert_text = "".join(text_fragments)
+        target = manager.getTaskByAnyName(target_name)
+        if target != None:
+            command["aa_status"] = True
+            old_text = target.getPromptContentForCopyConverted()
+            uptask : Manager.Task.BaseTask = target.getParent()
+            uptext  = "" if uptask == None else uptask.getLastMsgContentRaw()
+            dwtext  = "" if len(target.getChilds()) == 0 else target.getFirstChild().getLastMsgContentRaw()
+            diff = build_diff(old_text, insert_text)
+            command["aa_diff"] = diff
+            command["aa_text_before"] = uptext
+            command["aa_text_after"] = dwtext
+        else:
+            command["aa_diff"] =[] 
+            command["aa_text_before"] = f"No target with {target_name}"
+            command["aa_text_after"] = f"No target with {target_name}"
+            command["aa_status"] = False 
+
+
     elif action_type == "editMarkedText":
         target_name = kwargs.get("marker","")
         insert_text : str = kwargs.get("text_fragment","")
