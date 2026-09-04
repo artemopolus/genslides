@@ -358,6 +358,7 @@ def checkArrayIteration(task  , param : dict):
                 return iterateOverArrayFromParam(task, param)
             else:
                 report.append('Manager deny update')
+                param = getPartByParam( task, param )
         else:
             report.append('Src data is changed')
             res, out = saveArrayToParams(task, param)

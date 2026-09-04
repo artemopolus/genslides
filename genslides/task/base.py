@@ -1945,4 +1945,5 @@ class BaseTask():
     
     def saveProjectByPath(self, path_to_file : str):
         return "Failed"
- 
+    def updateUpdationInfo( self, info : str ):
+        pass

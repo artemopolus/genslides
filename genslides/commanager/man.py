@@ -376,6 +376,9 @@ class Jun():
                 out.append( task )
         return out
 
+    def getFrozenTaskNames( self ):
+        return ",".join([t.getName() for t in self.getFrozenTasks()])
+
     def getFrozenTasks(self) -> list[Task.BaseTask]:
         out = []
         for t in self.getTasks():

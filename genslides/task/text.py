@@ -1382,6 +1382,7 @@ class TextTask(BaseTask):
             if naparam.get("freeze_if_array_end", False) and "len" in naparam and "idx" in naparam and naparam["idx"] >= naparam["len"] -1 and naparam["idx"] == start_index:
                 self.freezeTask()
             self.updateParam2(naparam)
+            self.updateUpdationInfo(f"Array report: {aparam.get("report","")}")
 
         self.generateCommandFromTask()
 
@@ -2444,7 +2445,7 @@ class TextTask(BaseTask):
                 pass
             else:
                 return param['input'] == 'records'
-        return param['input'] == 'records' and self.manager.allowUpdateInternalArrayParam()
+        return param['input'] == 'records' and self.manager.allowUpdateInternalArrayParam(self)
 
 
     def updateRecordedParam( self ):

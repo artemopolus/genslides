@@ -2226,10 +2226,15 @@ class Manager(Man.Jun):
                 cur_man.rmvTask(task)
 
     def allowUpdateInternalArrayParam(self, task : BaseTask = None, check_paramname = "array"):
+        task.updateUpdationInfo("allowUpdateInternalArrayParam")
         if 'upd_array' in self.info:
             if self.info['upd_array'] == 'check_frozen':
                 if self.getFrozenTasksCount() == 0:
                     return True
+                else:
+                    task.updateUpdationInfo(f"Update array in info and check frozen, frozen tasks:{self.getFrozenTaskNames()}")
+            else:
+                task.updateUpdationInfo("Update array in info and NOT check frozen")
         else:
             # print('Check for updation')
             cnt = self.getFrozenTasksCount()
@@ -2240,8 +2245,12 @@ class Manager(Man.Jun):
                         if child != task:
                             res, param = child.getParamStruct(check_paramname, True)
                             if res and "idx" in param and "len" in param and param['idx'] < param['len']:
+                                task.updateUpdationInfo(f"Block update by {child.getName()}")
                                 return False
                 return True
+            else:
+                task.updateUpdationInfo(f"upd_arry NOT in info, frozen tasks:{self.getFrozenTaskNames()}")
+        task.updateUpdationInfo("Unexpected block update")
         return False
     
    
