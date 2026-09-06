@@ -1947,3 +1947,9 @@ class BaseTask():
         return "Failed"
     def updateUpdationInfo( self, info : str ):
         pass
+    def setAutoExeResult( self ):
+        pass
+    def checkAutoExeResult( self ):
+        return False
+    def resetAutoExeResult( self ):
+        pass

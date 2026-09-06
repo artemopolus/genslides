@@ -602,6 +602,9 @@ class TextTask(BaseTask):
                 if self.checkType(task_type) or \
                     self.getName() == task_type:
                     return False, [], self.getParent()
+        if param.get("check_auto_exe", False):
+            if self.checkAutoExeResult():
+                return False, [], self.getParent()
         # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         content = self.findKeyParam(self.getLastMsgContent())
         if  param.get("viz_only", False):
@@ -2576,5 +2579,27 @@ class TextTask(BaseTask):
         if res and "description" in param:
             return True, param.get("description","")
         return super().getLabelDescription()
+
+    def setAutoExeResult( self ):
+        self.setParamStruct(self.getAutoExeResultParams())
+
+    def getAutoExeResultParams ( self ):
+        return {
+            "type":"auto_exe_result",
+            "autoexe":True
+        }
+
+    def checkAutoExeResult( self ):
+        res, param = self.getParamStruct("auto_exe_result", True)
+        if res:
+            return param.get("autoexe", False)
+        return False
+
+    def resetAutoExeResult( self ):
+        res, param = self.getParamStruct("auto_exe_result", True)
+        if res:
+            param["autoexe"] = False
+            self.setParamStruct( param )
+
             
  

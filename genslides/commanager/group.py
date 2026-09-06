@@ -2405,14 +2405,36 @@ class Actioner():
 
         return updated_cmds_list
 
+    def resetAutoExeCmds( self ):
+        for task in self.getCurrentManager().getTasks():
+            task.resetAutoExeResult()
+
     def insertTextAfterMarker(self, text_fragment, marker, justification = ""):
-        return self.insertingToTaskAction( prompt=text_fragment, taskname=marker)
+        man = self.getCurrentManager()
+        task = man.getTaskByAnyName(marker)
+        task_type = "Request"
+        role = "user"
+        if task:
+            if len(task.getChilds()):
+                task = task.getChilds()[0]
+            man.setCurrentTask( task )
+            task_params = [task.getAutoExeResultParams()]        
+            return self.insertingAction(text_fragment, task_type, role, task_params)
+        return f"No task found with {marker}"
+
 
     def editMarkeredText( self, edited_text : str, marker : str ):
         return self.editingToTaskAction( edited_text, marker )
 
     def editMarkedText( self, text_fragment : str, marker : str, justification = "" ):
-        return self.editMarkeredText( text_fragment, marker )
+        man = self.getCurrentManager()
+        task = man.getTaskByAnyName(marker)
+        if task:
+            man.setCurrentTask( task )
+            task.setAutoExeResult()
+            return self.editingAction(text_fragment)
+        else:
+            return f"No task found with {marker}"
     
     def moveMarkedText (self, moving_direction, marker, justification = ""):
         task = self.getCurrentManager().getTaskByAnyName( marker )

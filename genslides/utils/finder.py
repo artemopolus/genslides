@@ -83,10 +83,12 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 excluded_task_names.append(tmparg[3])
                 tmparg.pop(0)
                 tmparg.pop(0)
-            if len(tmparg) > 3 and 'json_msgs' == tmparg[2]:
+            if len(tmparg) > 3 and tmparg[2] in ['json_msgs','json_msgs_auto_exe']:
                 getmsgsparam = {"add_priority":True,"add_task_name":"short"}
                 if len(tmparg) > 4:
                     getmsgsparam["prefixsuffix"] = tmparg[3]
+                if tmparg[2] == "json_msgs_auto_exe":
+                    getmsgsparam["check_auto_exe"] = True 
                 msgs = task.getMsgs(inparam=getmsgsparam)
             elif ( len(tmparg) > 3 and 'prefix' == tmparg[2] ):
                 msgs = task.getMsgs(inparam={"exclude": excluded_task_names, "prefix":tmparg[3]})
