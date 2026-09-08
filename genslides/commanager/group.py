@@ -3800,3 +3800,20 @@ class Actioner():
             return task.loadFromArchive( path_to_template, sync, archive_save_path)
         return "Failed"
  
+    def setCustomParameterJson( self, marker, param_name, param_body ):
+        man = self.getCurrentManager()
+        task_pts = [name.strip() for name in marker.split(",") if name.strip()]
+        param = {"type":param_name}
+        jres, jobj, jreport = Loader.Loader.loadJsonFromTextStr( param_body )
+        if jres and isinstance( jobj, dict):
+            param.update( jobj )
+        else:
+            param["content"] = param_body
+            task.updateUpdationInfo(jreport)
+        for pt in task_pts:
+            task = man.getTaskByAnyName(pt)
+            if task != None:
+                task.setParamStruct(param)
+
+        return f"Set param: {param_name}\nJson extract:[{jres}]\nFor task markers:{task_pts}"
+ 
