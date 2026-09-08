@@ -3813,7 +3813,21 @@ class Actioner():
         for pt in task_pts:
             task = man.getTaskByAnyName(pt)
             if task != None:
-                task.setParamStruct(param)
+                init_res, init_param = task.getParamStruct(param_name, True)
+                if init_res:
+                    init_param.update(param)
+                else:
+                    init_param = param
+                self.getCurrentManager().addParamStructToTask( task, init_param)
 
         return f"Set param: {param_name}\nJson extract:[{jres}]\nFor task markers:{task_pts}"
+
+    def removeCustomParameterFormTasks( self, param_name : str):
+        man = self.getCurrentManager()
+        report =[]
+        for task in man.getTasks():
+            add = man.removeParamStructFromTargetTask( task, param_name )
+            if add != "":
+                report.append( add )
+        return "\n".join( report ) if len(report) else f"No task to remove {param_name}"
  

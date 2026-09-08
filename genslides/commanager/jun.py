@@ -1494,6 +1494,26 @@ class Manager(Man.Jun):
         task_man = TaskManager()
         return task_man.getParamOptBasedOptionsDict()
 
+    def addParamStructToTask( self, task : BaseTask, param : dict):
+        if task in self.getTasks() and 'type' in param:
+            info = TaskDescription(target=task, params=param)
+            cmd = edit.AppendParamCommand(info)
+            self.cmd_list.append(cmd)
+        return self.runIteration('')
+
+    def removeParamStructFromTargetTask( self, task: BaseTask, param_name : str):
+        out = ""
+        if task in self.getTasks():
+            res, param = task.getParamStruct(param_name, True)
+            if res:
+                out = f"Remove {param_name} from {task.getName()}"
+                info = TaskDescription(target=task, params={'name':param_name})
+                cmd = edit.RemoveParamCommand(info)
+                self.cmd_list.append(cmd)
+        self.runIteration('')
+        return out
+ 
+
     def appendNewParamToTask(self, param_name):
         # print('Append new param',param_name,'to task', self.curr_task.getName())
         task_man = TaskManager()

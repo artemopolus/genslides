@@ -87,8 +87,8 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                 getmsgsparam = {"add_priority":True,"add_task_name":"short"}
                 if len(tmparg) > 4:
                     getmsgsparam["prefixsuffix"] = tmparg[3]
-                if tmparg[2] == "json_msgs_auto_exe":
-                    getmsgsparam["check_auto_exe"] = True 
+                if tmparg[2] == 'json_msgs_auto_exe':
+                    getmsgsparam["add_auto_param"] = True
                 msgs = task.getMsgs(inparam=getmsgsparam)
             elif ( len(tmparg) > 3 and 'prefix' == tmparg[2] ):
                 msgs = task.getMsgs(inparam={"exclude": excluded_task_names, "prefix":tmparg[3]})
@@ -110,7 +110,7 @@ def getFromTask(arr : list, res : str, rep_text, task, manager, index = 0):
                     if jres and isinstance(jobj, dict):
                         json_out.update(jobj)
                 out_text = Loader.Loader.convJsonToText(json_out)
-            elif len(tmparg) > 2 and 'json_msgs' == tmparg[2]:
+            elif len(tmparg) > 2 and tmparg[2] in ['json_msgs','json_msgs_auto_exe']:
                 out_text = Loader.Loader.convJsonToText(msgs)
             elif len(tmparg) > 2 and 'json_list' == tmparg[2]:
                 json_out = []

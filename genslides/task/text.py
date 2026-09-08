@@ -602,9 +602,6 @@ class TextTask(BaseTask):
                 if self.checkType(task_type) or \
                     self.getName() == task_type:
                     return False, [], self.getParent()
-        if param.get("check_auto_exe", False):
-            if self.checkAutoExeResult():
-                return False, [], self.getParent()
         # можно получать не только последнее сообщение, но и группировать несколько сообщений по ролям
         content = self.findKeyParam(self.getLastMsgContent())
         if  param.get("viz_only", False):
@@ -657,6 +654,19 @@ class TextTask(BaseTask):
                 pack["name"] = self.getShortName()
             else:
                 pack["name"] = self.getShortName()
+
+        if param.get("add_auto_param",False):
+            eres, eparam = self.getParamStruct("auto_exe_result", True)
+            additional_parameters = {}
+            if eres:
+                additional_parameters.update(eparam)
+            target_param_names = self.getParamNames( "cs_gs_" )
+            for p_name in target_param_names:
+                res, param = self.getParamStruct(p_name, True)
+                if res:
+                    additional_parameters.update( param)
+            additional_parameters.pop("type")
+            pack.update( additional_parameters )
         if param.get("add_priority", False):
             tres, tparam = self.getParamStruct('tag', only_current=True)
             if tres:
@@ -1783,6 +1793,15 @@ class TextTask(BaseTask):
             if "type" in param and param["type"] == param_name:
                 return True, param
         return False, None
+
+    def getParamNames( self, prefix):
+        out = []
+        for param in self.params:
+            if "type" in param:
+                if param["type"].startswith(prefix):
+                    out.append( param["type"] )
+        return sorted( out )
+
  
     
     def getParamList(self):

@@ -31,6 +31,7 @@ def divideArray(task  , param : dict):
     elif parse_type == 'manual':
         return True, []
     elif parse_type == 'json':
+        task.updateUpdationInfo('json divide')
         if 'manual_target' in param and param['manual_target'] != "":
             msg_content = task.findKeyParam( param['manual_target'] )
         else:
@@ -40,6 +41,7 @@ def divideArray(task  , param : dict):
             arr = []
             check_context_window_on = param.get("context_window_check_on",False)
             if check_context_window_on:
+                task.updateUpdationInfo('check context window')
                 context_win_size = param.get("context_window_size", 100)
                 use_marker = param.get("context_window_addmarker","none")
                 starting_text = ""
@@ -55,6 +57,7 @@ def divideArray(task  , param : dict):
                             starting_names.append(message_name)
                 msg_content = [starting_text]
                 msg_names = []
+                msg_params = []
                 for idx, msg in enumerate(targets):
                     if "content" in msg and "name" in msg:
                         message_name = msg["name"]
@@ -65,6 +68,7 @@ def divideArray(task  , param : dict):
                             else:
                                 msg_content.append( msg["content"] )
                             msg_names.append(message_name)
+                            msg_params.append( {k: v for k, v in msg.items() if k not in ("content","role")} )
                             if len("".join(msg_content)) < context_win_size:
                                 logger.debug("Append small text %s", message_name)
                             else:
@@ -72,7 +76,8 @@ def divideArray(task  , param : dict):
                                 
                                 arr_value = {
                                     "content" : "".join( msg_content),
-                                    "name" : ",".join(msg_names)
+                                    "name" : ",".join(msg_names),
+                                    "params": msg_params
                                 }
                                 arr_idx = len(arr)
                                 arr.append(
@@ -85,11 +90,13 @@ def divideArray(task  , param : dict):
                                 )
                                 msg_content = [starting_text]
                                 msg_names = []
+                                msg_params = []
                 #
                 if len(msg_names):
                     arr_value = {
                         "content" : "".join( msg_content),
-                        "name" : ",".join(msg_names)
+                        "name" : ",".join(msg_names),
+                        "params": msg_params
                     }
                     arr_idx = len(arr)
                     arr.append(
@@ -127,6 +134,7 @@ def divideArray(task  , param : dict):
                 
             return True, arr
         else:
+            task.updateUpdationInfo('Not json or list')
             logger.debug('No list in target json key')
     elif parse_type == 'text_split' and 'parts' in param and 'smbl_before' in param and 'smbl_after' in param:
         data = task.getLastMsgContent2()
@@ -155,6 +163,7 @@ def divideArray(task  , param : dict):
         for idx, name in enumerate(names):
             arr.append({"content": prefix + name + suffix, "idx": idx, "chck": False})
         return True, arr
+    task.updateUpdationInfo('Unexpected error')
     return False, []
 
 def getArrayByIndexPlusPlus( param, task  ):
@@ -257,6 +266,7 @@ def getSHAfromTask(task, param):
 
 def saveArrayToParams(task  , param : dict):
     logger.debug('Save array for %s', task.getName())
+    task.updateUpdationInfo('Save array to params')
    
     # print('param',param)
     idx = param ['idx']
@@ -287,9 +297,11 @@ def saveArrayToParams(task  , param : dict):
             else:
                 idx = 0
         else:
+            task.updateUpdationInfo('Cant divide into array')
             logger.debug('Cant divide into array')
             return False, param
     else:
+        task.updateUpdationInfo('No parse parameter')
         logger.debug('No parse parameter')
         return False, param
     # out = {}
@@ -297,6 +309,7 @@ def saveArrayToParams(task  , param : dict):
     param ['src_data' ]= getSHAfromTask(task, param)
     param = getPartByParam( task, param )
     # param.update(out)
+    task.updateUpdationInfo('Succes')
     return True, param
 
 def getArrayIdx( param, idx):
@@ -315,6 +328,7 @@ def setArrayParamValues(param, array, current, idx):
 
 
 def updateArrayParam(task  , param :dict):
+    task.updateUpdationInfo('Update array param')
     try:
         res, arr = divideArray(task, param)
         if res:
@@ -327,6 +341,7 @@ def updateArrayParam(task  , param :dict):
     return param
 
 def iterateOverArrayFromParam(task  , param: dict):
+    task.updateUpdationInfo('iterateOverArrayFromParam')
     logger.debug('iterateOverArrayFromParam')
     # print('Iterate over array from param', param)
     if 'type' in param and param['type'] == 'array':
@@ -354,12 +369,16 @@ def checkArrayIteration(task  , param : dict):
     if 'type' in param and param['type'] == 'array':
         if needToUpdate( task, param):
             report.append('Update array')
+            task.updateUpdationInfo('Update array')
             if task.manager.allowUpdateInternalArrayParam(task):
+                task.updateUpdationInfo('Iterate')
                 return iterateOverArrayFromParam(task, param)
             else:
                 report.append('Manager deny update')
+                task.updateUpdationInfo('Manager deny update')
                 param = getPartByParam( task, param )
         else:
+            task.updateUpdationInfo('Src data changed')
             report.append('Src data is changed')
             res, out = saveArrayToParams(task, param)
             if res:
