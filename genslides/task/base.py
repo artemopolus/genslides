@@ -1928,6 +1928,9 @@ class BaseTask():
     def resetSign( self ):
         pass
 
+    def addInfoForOneGenslidesCommand( self, cmd : dict ):
+        return False, {}, ""
+    
     def addInfoForGenslidesCommand( self, cmds : list ):
         return False, [], ""
     

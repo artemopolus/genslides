@@ -3830,4 +3830,15 @@ class Actioner():
             if add != "":
                 report.append( add )
         return "\n".join( report ) if len(report) else f"No task to remove {param_name}"
+    
+    def addInfoCommandToTask( self, project_marker : str, target_marker : str, cmd : dict, parameter_name = "cs_gs_command_result" ):
+        man = self.getCurrentManager()
+        project_task = man.getTaskByAnyName( project_marker )
+        target_task = man.getTaskByAnyName( target_marker)
+        if project_task != None and target_task != None:
+            res, data, report = project_task.addInfoForOneGenslidesCommand( cmd )
+            if res:
+                data["type"] = parameter_name
+                man.addParamStructToTask( target_task, data)
+        return report
  

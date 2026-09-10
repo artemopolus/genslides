@@ -1210,6 +1210,18 @@ class JumperTreeTask(InExtTreeTask):
         if act != None:
             act.getCurrentManager().setUpdateSessionId( session_id )
         return super().setExtTreeSessionId(session_id)
+
+    def addInfoForOneGenslidesCommand(self, cmd):
+        if self.getActioner() != None and isinstance(cmd, dict):
+            if 'action' and 'kwargs' in cmd:
+                result_cmd, report = CommandTool.addSupportInformation( cmd, self.getActioner().getCurrentManager() )
+                if result_cmd.get("aa_status", False):
+                    return True, result_cmd, report
+                else:
+                    return False, {}, "Unknown action"
+            else:
+                return False, {}, "No action and kwargs in cmd"
+        return super().addInfoForOneGenslidesCommand(cmd)
     
     def addInfoForGenslidesCommand(self, cmds):
         report_data = []
