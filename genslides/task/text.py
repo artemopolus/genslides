@@ -665,7 +665,8 @@ class TextTask(BaseTask):
                 res, param = self.getParamStruct(p_name, True)
                 if res:
                     additional_parameters.update( param)
-            additional_parameters.pop("type")
+            if "type" in additional_parameters:
+                additional_parameters.pop("type")
             pack.update( additional_parameters )
         if param.get("add_priority", False):
             tres, tparam = self.getParamStruct('tag', only_current=True)

@@ -8,7 +8,11 @@ logger = logging.getLogger(__name__)
 
 def filterUsingExpressions( expression : str, data  ):
     if isinstance( data , dict):
-        return jmespath.search(expression, data)
+        try:
+            res = jmespath.search(expression, data)
+            return res
+        except Exception as e:
+            return f"Error with exp: {e}"
     else:
         logger.debug("Not dict")
     return ""
