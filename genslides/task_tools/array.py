@@ -13,7 +13,7 @@ def checkContextWindow( text: str, size : int):
 
 def divideArray(task  , param : dict):
     logger.debug('Divide array')
-    parse_type = param['parse']
+    parse_type : str = param['parse']
     if parse_type == 'std':
         data = task.getLastMsgContent2()
         arr = data.split(';')
@@ -30,7 +30,7 @@ def divideArray(task  , param : dict):
             return True, out
     elif parse_type == 'manual':
         return True, []
-    elif parse_type == 'json':
+    elif parse_type.startswith('json'):
         task.updateUpdationInfo('json divide')
         if 'manual_target' in param and param['manual_target'] != "":
             msg_content = task.findKeyParam( param['manual_target'] )
@@ -111,6 +111,7 @@ def divideArray(task  , param : dict):
                     logger.debug("All  msgs are added")
                    
             else:
+                task.updateUpdationInfo('standart json parsing')
                 for idx, content in enumerate( targets ):
                     trg_idx  = idx
                     chck = False
@@ -120,7 +121,7 @@ def divideArray(task  , param : dict):
                     if 'chck' in content:
                         chck = content['chck']
                         del content['chck']
-                    if 'content' in content:
+                    if parse_type != "json_raw" and 'content' in content:
                         text = content['content']
                     else:
                         text = Ld.Loader.convJsonToText( content )
@@ -200,7 +201,7 @@ def getArrayByIndexPlusPlus( param, task  ):
         return getPartByParam(task,param)
     return param
 
-ArrayStdTypesList = ['std','json','msgs','task_names','task_names_inv']
+ArrayStdTypesList = ['std','json','json_raw','msgs','task_names','task_names_inv']
 
 def getPartByParam(task, param):
     logger.debug('getPartByParam')
@@ -309,7 +310,7 @@ def saveArrayToParams(task  , param : dict):
     param ['src_data' ]= getSHAfromTask(task, param)
     param = getPartByParam( task, param )
     # param.update(out)
-    task.updateUpdationInfo('Succes')
+    task.updateUpdationInfo('Success array save')
     return True, param
 
 def getArrayIdx( param, idx):

@@ -1956,3 +1956,6 @@ class BaseTask():
         return False
     def resetAutoExeResult( self ):
         pass
+
+    def getManager( self):
+        return self.manager

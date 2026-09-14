@@ -3831,14 +3831,27 @@ class Actioner():
                 report.append( add )
         return "\n".join( report ) if len(report) else f"No task to remove {param_name}"
     
-    def addInfoCommandToTask( self, project_marker : str, target_marker : str, cmd : dict, parameter_name = "cs_gs_command_result" ):
+    def addInfoCommandToTask( self, target_marker : str, cmd : dict, cmd_info_tag = "cs_gs_command_result" ):
+        report = "Error on addInfoCommandToTask"
         man = self.getCurrentManager()
-        project_task = man.getTaskByAnyName( project_marker )
         target_task = man.getTaskByAnyName( target_marker)
-        if project_task != None and target_task != None:
-            res, data, report = project_task.addInfoForOneGenslidesCommand( cmd )
-            if res:
-                data["type"] = parameter_name
-                man.addParamStructToTask( target_task, data)
+        if target_task != None:
+            result_cmd, report = CommandTool.addSupportInformation( cmd, man )
+            if result_cmd.get("aa_status", False):
+                result_cmd["type"] = cmd_info_tag
+                cres, cparam = target_task.getParamStruct( cmd_info_tag, True )
+                pack = {
+                    "command":cmd,
+                    "info": result_cmd
+                }
+                if cres and "command" in cparam and isinstance( cparam["command"], list):
+                    cparam["command"].append(pack)
+                else:
+                    cparam = {
+                    "type":cmd_info_tag,
+                    "command":[pack]
+                }
+
+                man.addParamStructToTask( target_task, cparam)
         return report
  
