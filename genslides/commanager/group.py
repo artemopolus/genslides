@@ -2408,6 +2408,15 @@ class Actioner():
     def resetAutoExeCmds( self ):
         for task in self.getCurrentManager().getTasks():
             task.resetAutoExeResult()
+    
+    def insertTextUsingMarker(self, text_fragment, marker, task_params = []):
+        man = self.getCurrentManager()
+        task = man.getTaskByAnyName(marker)
+        if task:
+            man.setCurrentTask( task )
+            return self.insertingAction(prompt=text_fragment, task_params=task_params)
+        return f"No task found with {marker}"
+
 
     def insertTextAfterMarker(self, text_fragment, marker, justification = ""):
         man = self.getCurrentManager()
