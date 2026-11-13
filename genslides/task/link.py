@@ -350,7 +350,8 @@ class ListenerTask(LinkedTask):
                                 else:
                                     self.updateUpdationInfo("Not valid for json_update")
                             elif lparam['combine'] == 'json_append':
-                                jres, jobj = Ld.Loader.loadJsonFromText(tsk_info.prompt)
+                                text = tsk_info.prompt
+                                jres, jobj = Ld.Loader.loadJsonFromText(text)
                                 if jres:
                                     if isinstance(jobj, list) and isinstance(prompts_data, list):
                                         if tsk_info.parent != None:
@@ -359,7 +360,9 @@ class ListenerTask(LinkedTask):
                                     else:
                                         prompts_data.append( jobj)
                                 else:
-                                    self.updateUpdationInfo("Not valid for json_append")
+                                    self.updateUpdationInfo("Not valid for json_append: add as str")
+                                    # if text not in prompts_data:
+                                    prompts_data.append(text)
                             elif isinstance(tsk_info.params, list):
                                 fres, forced_type = self.getParamValueByKey(tsk_info.params,'tag','forced_content_type')
                                 kres, key = self.getParamValueByKey(tsk_info.params,'tag','key')

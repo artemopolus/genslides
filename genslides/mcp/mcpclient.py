@@ -26,7 +26,7 @@ class MCPClient:
         Args:
             server_script_path: Path to the server script (.py or .js)
         """
-        print(f"Connect to server by path:{server_script_path}")
+        # print(f"Connect to server by path:{server_script_path}")
         is_python = server_script_path.endswith('.py')
         is_js = server_script_path.endswith('.js')
         if not (is_python or is_js):
@@ -48,10 +48,10 @@ class MCPClient:
         # List available tools
         response = await self.session.list_tools()
         tools = response.tools
-        print("\nConnected to server with tools:", [tool.name for tool in tools])
+        # print("\nConnected to server with tools:", [tool.name for tool in tools])
 
     async def process_query_with_so(self, messages : list[dict], model_parameters : dict, mcp_parameters : dict):
-        print("Process query with SO")
+        # print("Process query with SO")
         param = {}
         response = await self.session.list_tools()
 

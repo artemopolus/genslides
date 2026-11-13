@@ -140,13 +140,18 @@ class MCPTask(TextTask):
                         for key, value in iresp[tool_calls_tag].items():
                             tool_output = await client.session.call_tool(key, value)
                             tool_output_txt = tool_output.content[0].text
+                            jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr(tool_output_txt)    
+                            if jres:
+                                tool_exe_one_result = jobj
+                            else:
+                                tool_exe_one_result = tool_output_txt 
                             tools_call_res.append({
                                 "name": key,
                                 "arguments": value,
-                                "output": tool_output_txt
+                                "output": tool_exe_one_result
                             })
                             text += tool_output_txt
-                            iresp[tool_calls_tag][key]["output"] = tool_output_txt
+                            iresp[tool_calls_tag][key]["output"] = tool_exe_one_result
                         outparams["tool_outputs"] = tools_call_res
                         outparams["tool_output_final_text"] = text
                         # iresp["tool_outputs"] = tools_call_res
@@ -162,7 +167,13 @@ class MCPTask(TextTask):
                                     tool_output = await client.session.call_tool(tool["name"], tool["arguments"])
                                 elif tool_input_type == "fun":
                                     tool_output = await client.session.call_tool(tool["function"]["name"], tool["function"]["arguments"])
-                                tool_exe_reluts.append( tool_output.content[0].text )
+                                jres, jobj, jreport = Ld.Loader.loadJsonFromTextStr(tool_output.content[0].text)
+                                
+                                if jres:
+                                    tool_exe_one_result = jobj
+                                else:
+                                    tool_exe_one_result = tool_output.content[0].text 
+                                tool_exe_reluts.append( tool_exe_one_result )
                             except Exception as e:
                                 self.updateUpdationInfo(f"Error tool get: {e}")
                         outparams["tool_output"] = "\n".join(tool_exe_reluts)
