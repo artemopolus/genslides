@@ -1093,6 +1093,42 @@ class Actioner():
         if frozen_tasks_cnt > 0:
             self.updateAllnTimes( n , check)
 
+    def updateToCondition(self, condition : str = "frozen", max_times : int = 10, check : bool = False, markers : str = "" ):
+        targets : list[BaseTask] = []
+        if condition in ["task_blocked","task_frozen"]:
+            task_names = markers.split(",");
+            for task_name in task_names:
+                task = self.getCurrentManager().getTaskByAnyName( task_name )
+                if task != None:
+                    targets.append( task )
+            if len(targets) == 0:
+                return 0
+        for index in range( max_times ):
+            self.updateAll(force_check=check)
+            if self.force_update_stop:
+                break
+            if condition == "frozen":
+                frozen_tasks_cnt = self.getFrozenTasksCount() 
+                if frozen_tasks_cnt == 0:
+                    break
+            elif condition == "task_blocked":
+                ready = True
+                for trg in targets:
+                    if trg.checkBlock():
+                        ready = False
+                        break
+                if ready:
+                    break
+            elif condition == "task_frozen":
+                ready = True
+                for trg in targets:
+                    if trg.isFrozen():
+                        ready = False
+                        break
+                if ready:
+                    break
+        return index
+
     def updateToUnFreeze(self, max_times : int = 10, check : bool = False ):
         for index in range( max_times ):
             self.updateAll(force_check=check)
